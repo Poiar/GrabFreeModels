@@ -1,0 +1,1414 @@
+{
+    "models":  [
+                   {
+                       "id":  "openrouter/poolside/laguna-xs.2:free",
+                       "name":  "Poolside Laguna XS.2 (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Lightweight coding",
+                                        "Fast responses"
+                                    ],
+                       "notes":  "49.6B params. Released Apr 28, 2026.",
+                       "status":  {
+                                      "tested":  "2026-05-26",
+                                      "result":  "working",
+                                      "detail":  "5/6 OK, 1 intermittent 429 under parallel load. Reliable when called sequentially. Call without openrouter/ prefix."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/poolside/laguna-m.1:free",
+                       "name":  "Poolside Laguna M.1 (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Mid-weight coding",
+                                        "Agentic tasks"
+                                    ],
+                       "notes":  "263B params. Released Apr 28, 2026.",
+                       "status":  {
+                                      "tested":  "2026-05-26",
+                                      "result":  "working",
+                                      "detail":  "5/6 OK, 1 intermittent 429 under parallel load. Reliable when called sequentially. Call without openrouter/ prefix."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/arcee-ai/trinity-large-thinking:free",
+                       "name":  "Trinity Large Thinking (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  262144,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Reasoning",
+                                        "Complex problem solving",
+                                        "Thinking tasks"
+                                    ],
+                       "notes":  "60.2B params. Released Apr 1, 2026.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "Reasoning model. Output may be in \u0027reasoning\u0027 field."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/openai/gpt-oss-120b:free",
+                       "name":  "GPT-OSS 120B (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  131000,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Open-weight reasoning",
+                                        "Agentic tasks",
+                                        "Tool use",
+                                        "Function calling"
+                                    ],
+                       "notes":  "OpenAI open-weight MoE. 158B total (5.1B active). Released Aug 5, 2025.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "working",
+                                      "detail":  "Fully functional. WARNING: returns reasoning and reasoning_details fields in assistant messages — causes schema validation errors in strict OpenAI-compatible clients."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/openai/gpt-oss-20b:free",
+                       "name":  "GPT-OSS 20B (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  131000,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Lighter open-weight coding",
+                                        "Tool use",
+                                        "Local deployment"
+                                    ],
+                       "notes":  "Smaller open-weight OpenAI model. More efficient than 120B variant.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "Fully functional."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/z-ai/glm-4.5-air:free",
+                       "name":  "GLM 4.5 Air (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Fast Chinese/English general tasks"
+                                    ],
+                       "notes":  "90.7B params. Released Jul 25, 2025.",
+                       "status":  {
+                                      "tested":  "2026-05-26",
+                                      "result":  "working",
+                                      "detail":  "5/6 OK, 1 intermittent 429 under parallel load. Reliable when called sequentially. Call without openrouter/ prefix."
+                                  }
+                   },
+                   {
+                       "id":  "google/gemma-4-26b-a4b-it:free",
+                       "name":  "Gemma 4 26B A4B IT (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  262144,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "General tasks",
+                                        "Multimodal"
+                                    ],
+                       "notes":  "26B params. Released 2026. Call without openrouter/ prefix.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "working",
+                                      "detail":  "5/6 OK. Intermittent 429s under load, reliable sequentially."
+                                  }
+                   },
+                   {
+                       "id":  "google/gemma-4-31b-it:free",
+                       "name":  "Gemma 4 31B IT (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  262144,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "General tasks",
+                                        "Multimodal"
+                                    ],
+                       "notes":  "31B params. Released 2026. Call without openrouter/ prefix.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "rate_limited",
+                                      "detail":  "1/6 OK - sporadic success, not reliably usable."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
+                       "name":  "LFM 2.5 1.2B Instruct (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  32768,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Ultra-lightweight tasks",
+                                        "Fast classification"
+                                    ],
+                       "notes":  "Released Jan 2025.",
+                       "status":  {
+                                      "tested":  "2026-05-26",
+                                      "result":  "working",
+                                      "detail":  "5/6 OK, 1 intermittent 429 under parallel load. Reliable when called sequentially. Call without openrouter/ prefix."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
+                       "name":  "LFM 2.5 1.2B Thinking (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  32768,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Thinking tasks",
+                                        "Lightweight reasoning"
+                                    ],
+                       "notes":  "Released Jan 2025.",
+                       "status":  {
+                                      "tested":  "2026-05-26",
+                                      "result":  "working",
+                                      "detail":  "5/6 OK, 1 intermittent 429 under parallel load. Reliable when called sequentially. Call without openrouter/ prefix."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
+                       "name":  "Nemotron Nano 12B VL (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  128000,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Vision-language tasks",
+                                        "Image understanding"
+                                    ],
+                       "notes":  "Released Oct 2025. 502 on first retry, succeeded on second.",
+                       "status":  {
+                                      "tested":  "2026-05-26",
+                                      "result":  "working",
+                                      "detail":  "6/6 OK. Call without openrouter/ prefix."
+                                  }
+                   },
+                   {
+                       "id":  "opencode/deepseek-v4-flash-free",
+                       "name":  "DeepSeek V4 Flash Free",
+                       "provider":  "OpenCode Zen",
+                       "context_length":  1048576,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Fast coding",
+                                        "Small tasks",
+                                        "Titling",
+                                        "High throughput"
+                                    ],
+                       "notes":  "Very fast, great for lightweight tasks.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "OpenCode Zen native model — functional through opencode gateway."
+                                  }
+                   },
+                   {
+                       "id":  "opencode/big-pickle",
+                       "name":  "Big Pickle",
+                       "provider":  "OpenCode Zen",
+                       "context_length":  null,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "General purpose coding"
+                                    ],
+                       "notes":  "OpenCode Zen native model.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "OpenCode Zen native model — functional through opencode gateway."
+                                  }
+                   },
+                   {
+                       "id":  "opencode/nemotron-3-super-free",
+                       "name":  "Nemotron 3 Super Free",
+                       "provider":  "OpenCode Zen",
+                       "context_length":  null,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "General purpose",
+                                        "Fast inference"
+                                    ],
+                       "notes":  "OpenCode Zen native model by NVIDIA.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "OpenCode Zen native model — functional through opencode gateway."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+                       "name":  "Nemotron 3 Super 120B (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "General purpose",
+                                        "Fast inference",
+                                        "Large context"
+                                    ],
+                       "notes":  "120B params. OpenRouter equivalent of opencode/nemotron-3-super-free.",
+                       "status":  {
+                                      "tested":  "2026-05-26",
+                                      "result":  "working",
+                                      "detail":  "6/6 OK. Call without openrouter/ prefix."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/anthropic/claude-opus-4.7",
+                       "name":  "Claude Opus 4.7",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  5,
+                       "output_price_per_million":  25,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Complex reasoning",
+                                        "Long-running agents",
+                                        "Multi-step coding",
+                                        "Document analysis",
+                                        "Project orchestration"
+                                    ],
+                       "notes":  "Anthropic\u0027s most capable model.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/anthropic/claude-sonnet-4.6",
+                       "name":  "Claude Sonnet 4.6",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  3,
+                       "output_price_per_million":  15,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Balanced coding",
+                                        "Agentic tasks",
+                                        "Professional work",
+                                        "Computer use"
+                                    ],
+                       "notes":  "Best balance of capability and cost.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/anthropic/claude-haiku-4.5",
+                       "name":  "Claude Haiku 4.5",
+                       "provider":  "OpenRouter",
+                       "context_length":  200000,
+                       "input_price_per_million":  1,
+                       "output_price_per_million":  5,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Fast responses",
+                                        "Sub-agents",
+                                        "Classification",
+                                        "High-volume coding",
+                                        "Real-time tasks"
+                                    ],
+                       "notes":  "Fastest Claude. Near-frontier performance at low cost.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/openai/gpt-5.4",
+                       "name":  "GPT-5.4",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  2.5,
+                       "output_price_per_million":  15,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "General purpose",
+                                        "Coding",
+                                        "Multimodal",
+                                        "Document understanding",
+                                        "Complex workflows"
+                                    ],
+                       "notes":  "OpenAI\u0027s latest frontier model. Unifies Codex and GPT lines.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/openai/gpt-5.2",
+                       "name":  "GPT-5.2",
+                       "provider":  "OpenRouter",
+                       "context_length":  400000,
+                       "input_price_per_million":  1.75,
+                       "output_price_per_million":  14,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Agentic tasks",
+                                        "Coding",
+                                        "Math",
+                                        "Science",
+                                        "Tool calling"
+                                    ],
+                       "notes":  "Strong agentic and long-context performance. Adaptive reasoning.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/openai/gpt-5.1",
+                       "name":  "GPT-5.1",
+                       "provider":  "OpenRouter",
+                       "context_length":  400000,
+                       "input_price_per_million":  1.25,
+                       "output_price_per_million":  10,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "General purpose",
+                                        "Coding",
+                                        "Math",
+                                        "Structured analysis"
+                                    ],
+                       "notes":  "Frontier model with improved instruction adherence.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/openai/o3",
+                       "name":  "o3",
+                       "provider":  "OpenRouter",
+                       "context_length":  200000,
+                       "input_price_per_million":  2,
+                       "output_price_per_million":  8,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Complex reasoning",
+                                        "Math",
+                                        "Science",
+                                        "Coding",
+                                        "Visual reasoning"
+                                    ],
+                       "notes":  "OpenAI\u0027s reasoning model. Best for multi-step problems.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/openai/o4-mini",
+                       "name":  "o4-mini",
+                       "provider":  "OpenRouter",
+                       "context_length":  200000,
+                       "input_price_per_million":  1.1,
+                       "output_price_per_million":  4.4,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Fast reasoning",
+                                        "Coding",
+                                        "Math",
+                                        "STEM",
+                                        "High-throughput agentic tasks"
+                                    ],
+                       "notes":  "Compact reasoning model. 99.5% on AIME with Python.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/deepseek/deepseek-v4-pro",
+                       "name":  "DeepSeek V4 Pro",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  0.44,
+                       "output_price_per_million":  0.87,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Advanced reasoning",
+                                        "Coding",
+                                        "Long-horizon agents",
+                                        "Full-codebase analysis",
+                                        "Large-scale synthesis"
+                                    ],
+                       "notes":  "1.6T total params, 49B active. Excellent price/performance.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/deepseek/deepseek-r1",
+                       "name":  "DeepSeek R1",
+                       "provider":  "OpenRouter",
+                       "context_length":  164000,
+                       "input_price_per_million":  0.7,
+                       "output_price_per_million":  2.5,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Deep reasoning",
+                                        "Math",
+                                        "Chain-of-thought",
+                                        "Coding"
+                                    ],
+                       "notes":  "Open-source reasoning model on par with o1. 671B params, 37B active. MIT licensed.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/deepseek/deepseek-v4-flash",
+                       "name":  "DeepSeek V4 Flash",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  0.1,
+                       "output_price_per_million":  0.2,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Fast coding",
+                                        "Chat",
+                                        "Agent workflows",
+                                        "High-throughput"
+                                    ],
+                       "notes":  "284B total params, 13B active. Extremely cost-efficient.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/qwen/qwen3-coder",
+                       "name":  "Qwen3 Coder 480B",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  0.22,
+                       "output_price_per_million":  1.8,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Agentic coding",
+                                        "Function calling",
+                                        "Tool use",
+                                        "Long-context repo reasoning"
+                                    ],
+                       "notes":  "480B total params, 35B active. Optimized for agentic coding.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/qwen/qwen3-coder-plus",
+                       "name":  "Qwen3 Coder Plus",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  0.65,
+                       "output_price_per_million":  3.25,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Autonomous programming",
+                                        "Tool calling",
+                                        "Environment interaction"
+                                    ],
+                       "notes":  "Proprietary version of Qwen3 Coder. Enhanced coding agent capabilities.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/qwen/qwen3-coder-flash",
+                       "name":  "Qwen3 Coder Flash",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  0.2,
+                       "output_price_per_million":  0.98,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Fast autonomous programming",
+                                        "Tool calling",
+                                        "Cost-efficient coding"
+                                    ],
+                       "notes":  "Fast, cost-efficient version of Qwen3 Coder Plus.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/qwen/qwen3-max",
+                       "name":  "Qwen3 Max",
+                       "provider":  "OpenRouter",
+                       "context_length":  262000,
+                       "input_price_per_million":  0.78,
+                       "output_price_per_million":  3.9,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Complex reasoning",
+                                        "Coding",
+                                        "Multilingual",
+                                        "RAG",
+                                        "Tool calling"
+                                    ],
+                       "notes":  "Top-tier Qwen3 model. Supports 100+ languages.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/google/gemini-2.5-pro",
+                       "name":  "Gemini 2.5 Pro",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  1.25,
+                       "output_price_per_million":  10,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Advanced reasoning",
+                                        "Coding",
+                                        "Math",
+                                        "Science",
+                                        "Multimodal",
+                                        "Long context"
+                                    ],
+                       "notes":  "Google\u0027s state-of-the-art model. #1 on LMArena leaderboard.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/google/gemini-2.5-flash",
+                       "name":  "Gemini 2.5 Flash",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  0.3,
+                       "output_price_per_million":  2.5,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Fast general tasks",
+                                        "Large context",
+                                        "Reasoning",
+                                        "Cost-efficient"
+                                    ],
+                       "notes":  "Google\u0027s workhorse model. Configurable reasoning depth.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/x-ai/grok-4.3",
+                       "name":  "Grok 4.3",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  1.25,
+                       "output_price_per_million":  2.5,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Coding",
+                                        "Real-time knowledge",
+                                        "Agentic workflows",
+                                        "Long-document analysis"
+                                    ],
+                       "notes":  "xAI\u0027s reasoning model. 1M context, no output limit.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/meta-llama/llama-4-maverick",
+                       "name":  "Llama 4 Maverick",
+                       "provider":  "OpenRouter",
+                       "context_length":  1000000,
+                       "input_price_per_million":  0.15,
+                       "output_price_per_million":  0.6,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "General purpose",
+                                        "Multimodal",
+                                        "Vision-language",
+                                        "Coding"
+                                    ],
+                       "notes":  "Meta\u0027s 400B MoE model (17B active). Very affordable.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/meta-llama/llama-4-scout",
+                       "name":  "Llama 4 Scout",
+                       "provider":  "OpenRouter",
+                       "context_length":  10000000,
+                       "input_price_per_million":  0.08,
+                       "output_price_per_million":  0.3,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Extremely long context",
+                                        "Fast tasks",
+                                        "Multilingual chat",
+                                        "Image understanding"
+                                    ],
+                       "notes":  "10M token context window! 109B total params (17B active).",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/moonshotai/kimi-k2.6",
+                       "name":  "Kimi K2.6",
+                       "provider":  "OpenRouter",
+                       "context_length":  262000,
+                       "input_price_per_million":  0.73,
+                       "output_price_per_million":  3.49,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Long-horizon coding",
+                                        "UI/UX generation",
+                                        "Multi-agent orchestration",
+                                        "End-to-end projects"
+                                    ],
+                       "notes":  "Agent swarm architecture. Scales to hundreds of parallel sub-agents.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/mistralai/mistral-large-2512",
+                       "name":  "Mistral Large 3",
+                       "provider":  "OpenRouter",
+                       "context_length":  262000,
+                       "input_price_per_million":  0.5,
+                       "output_price_per_million":  1.5,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Multilingual",
+                                        "Coding",
+                                        "Reasoning"
+                                    ],
+                       "notes":  "Mistral\u0027s most capable model. 675B total params (41B active). Apache 2.0 licensed.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/minimax/minimax-m2.5",
+                       "name":  "MiniMax M2.5",
+                       "provider":  "OpenRouter",
+                       "context_length":  205000,
+                       "input_price_per_million":  0.15,
+                       "output_price_per_million":  1.15,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Productivity",
+                                        "Office work",
+                                        "Coding",
+                                        "Multi-agent teamwork"
+                                    ],
+                       "notes":  "80.2% on SWE-Bench. Good at Word/Excel/PowerPoint generation.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/openrouter/auto",
+                       "name":  "Auto",
+                       "provider":  "OpenRouter",
+                       "context_length":  null,
+                       "input_price_per_million":  null,
+                       "output_price_per_million":  null,
+                       "is_free":  false,
+                       "best_for":  [
+                                        "Automatic model selection",
+                                        "Best available model routing"
+                                    ],
+                       "notes":  "Routes to the best provider/model automatically.",
+                       "status":  {
+                                      "detail":  "Paid model — not tested, assumed working",
+                                      "result":  "paid"
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/openrouter/free",
+                       "name":  "Auto Free",
+                       "provider":  "OpenRouter",
+                       "context_length":  null,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Automatic free model selection",
+                                        "Best free model routing"
+                                    ],
+                       "notes":  "Routes to the best available free model automatically.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "Auto-selects best available free model."
+                                  }
+                   },
+                   {
+                       "id":  "cerebras/llama3.1-8b",
+                       "name":  "Llama 3.1 8B",
+                       "provider":  "Cerebras",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "General purpose",
+                                        "Fast inference",
+                                        "Chat"
+                                    ],
+                       "notes":  "8B params. ~2200 tokens/s. Production model on Cerebras free tier. Deprecated May 27, 2026 but still functional.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "working",
+                                      "detail":  "Responded correctly. ~2200 tokens/s."
+                                  }
+                   },
+                   {
+                       "id":  "cerebras/zai-glm-4.7",
+                       "name":  "GLM 4.7",
+                       "provider":  "Cerebras",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "General purpose",
+                                        "Chinese/English",
+                                        "Reasoning"
+                                    ],
+                       "notes":  "355B params. ~1000 tokens/s. Preview model on Cerebras free tier. Reduced rate limits due to high demand. Deprecated May 27, 2026 but still functional.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "working",
+                                      "detail":  "Reasoning model. Returns \u0027reasoning\u0027 field. ~1000 tokens/s."
+                                  }
+                   },
+                   {
+                       "id":  "cerebras/qwen-3-235b-a22b-instruct-2507",
+                       "name":  "Qwen 3 235B Instruct",
+                       "provider":  "Cerebras",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Large-scale reasoning",
+                                        "Complex tasks",
+                                        "General purpose"
+                                    ],
+                       "notes":  "235B params. ~1400 tokens/s. Preview model on Cerebras free tier. Deprecated May 27, 2026 but still functional.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "working",
+                                      "detail":  "Responded correctly. ~1400 tokens/s."
+                                  }
+                   },
+                   {
+                       "id":  "llmgateway/glm-4.5-flash",
+                       "name":  "GLM 4.5 Flash",
+                       "provider":  "LLM Gateway",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Fast Chinese/English general tasks"
+                                    ],
+                       "notes":  "90.7B params. Released Jul 25, 2025.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "Responded correctly. Reasoning model — returns \u0027reasoning\u0027 field."
+                                  }
+                   },
+                   {
+                       "id":  "llmgateway/glm-4.6v-flash",
+                       "name":  "GLM 4.6 Vision Flash",
+                       "provider":  "LLM Gateway",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Vision-language tasks",
+                                        "Image understanding",
+                                        "Multimodal"
+                                    ],
+                       "notes":  "Vision-capable model.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "Responded correctly. Vision-capable model."
+                                  }
+                   },
+                   {
+                       "id":  "llmgateway/glm-4.7-flash",
+                       "name":  "GLM 4.7 Flash",
+                       "provider":  "LLM Gateway",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Fast general tasks",
+                                        "Chinese/English",
+                                        "Reasoning"
+                                    ],
+                       "notes":  "Latest GLM flash model.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "Responded correctly via LLM Gateway free tier."
+                                  }
+                   },
+                   {
+                       "id":  "nvidia/nemotron-3-super-120b-a12b",
+                       "name":  "Nemotron-3 Super 120B",
+                       "provider":  "NVIDIA",
+                       "context_length":  1000000,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "General purpose",
+                                        "Fast inference",
+                                        "Large context"
+                                    ],
+                       "notes":  "120B params. NVIDIA free tier.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "Responded correctly. Reasoning model — returns \u0027reasoning\u0027 and \u0027reasoning_content\u0027 fields."
+                                  }
+                   },
+                   {
+                       "id":  "huggingface/moonshotai/Kimi-K2-Instruct",
+                       "name":  "Kimi K2 Instruct",
+                       "provider":  "Hugging Face",
+                       "context_length":  262000,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Long-horizon coding",
+                                        "UI/UX generation",
+                                        "Multi-agent orchestration"
+                                    ],
+                       "notes":  "Agent swarm architecture. Scales to hundreds of parallel sub-agents.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "Responded correctly. Requires HF router endpoint (router.huggingface.co)."
+                                  }
+                   },
+                   {
+                       "id":  "huggingface/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+                       "name":  "Qwen3 Coder 30B Instruct",
+                       "provider":  "Hugging Face",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Coding",
+                                        "Code review",
+                                        "Refactoring"
+                                    ],
+                       "notes":  "30B params. Optimized for coding tasks. Correct model ID on HF router.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "Responded correctly via HF router."
+                                  }
+                   },
+                   {
+                       "id":  "huggingface/zai-org/GLM-4.6",
+                       "name":  "GLM 4.6",
+                       "provider":  "Hugging Face",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "General purpose",
+                                        "Chinese/English",
+                                        "Reasoning"
+                                    ],
+                       "notes":  "Z.ai GLM model.",
+                       "status":  {
+                                      "tested":  "2026-05-25",
+                                      "result":  "working",
+                                      "detail":  "Responded correctly. Reasoning model — returns \u0027reasoning_content\u0027 field."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+                       "name":  "Nemotron 3 Nano Omni 30B (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  256000,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Multimodal agent tasks",
+                                        "Perception sub-agent",
+                                        "Enterprise agents"
+                                    ],
+                       "notes":  "30B-A3B multimodal (text/image/video). Released by NVIDIA. Discover count 14.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "working",
+                                      "detail":  "All 6 requests succeeded."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/deepseek/deepseek-v4-flash:free",
+                       "name":  "DeepSeek V4 Flash (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  1048576,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Fast coding",
+                                        "High throughput",
+                                        "Large context"
+                                    ],
+                       "notes":  "284B total, 13B active. 1M context. Same model family as opencode/deepseek-v4-flash-free but via OpenRouter.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "rate_limited",
+                                      "detail":  "429 on all 6 requests - persistently rate limited."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/moonshotai/kimi-k2.6:free",
+                       "name":  "Kimi K2.6 (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  262144,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Long-horizon coding",
+                                        "UI/UX generation",
+                                        "Multi-agent orchestration"
+                                    ],
+                       "notes":  "Agent swarm architecture. Scales to hundreds of parallel sub-agents.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "rate_limited",
+                                      "detail":  "3/6 OK - sporadic success, not reliably usable."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/minimax/minimax-m2.5:free",
+                       "name":  "MiniMax M2.5 (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  204800,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Productivity",
+                                        "Office work",
+                                        "Coding"
+                                    ],
+                       "notes":  "80.2% on SWE-Bench. Good at Word/Excel/PowerPoint generation.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "rate_limited",
+                                      "detail":  "429 on all 6 requests - persistently rate limited."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+                       "name":  "Nemotron 3 Nano 30B (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  256000,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Agentic AI",
+                                        "Specialized agents",
+                                        "Compute-efficient"
+                                    ],
+                       "notes":  "Small MoE model for building specialized agentic AI systems.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "working",
+                                      "detail":  "All 6 requests succeeded."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/qwen/qwen3-next-80b-a3b-instruct:free",
+                       "name":  "Qwen3 Next 80B Instruct (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  262144,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Fast responses",
+                                        "Code generation",
+                                        "Reasoning",
+                                        "Knowledge QA"
+                                    ],
+                       "notes":  "80B-A3B. Optimized for fast, stable responses without thinking traces.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "rate_limited",
+                                      "detail":  "429 on all 6 requests - persistently rate limited."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/nvidia/nemotron-nano-9b-v2:free",
+                       "name":  "Nemotron Nano 9B v2 (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  128000,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Unified reasoning",
+                                        "Non-reasoning tasks",
+                                        "General purpose"
+                                    ],
+                       "notes":  "Trained from scratch by NVIDIA for both reasoning and non-reasoning tasks.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "working",
+                                      "detail":  "All 6 requests succeeded."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/qwen/qwen3-coder:free",
+                       "name":  "Qwen3 Coder 480B (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  1048576,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Agentic coding",
+                                        "Tool use",
+                                        "Long-context repo reasoning"
+                                    ],
+                       "notes":  "480B total, 35B active. The free variant of the proven Qwen3 Coder.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "rate_limited",
+                                      "detail":  "429 on all 6 requests - persistently rate limited."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+                       "name":  "Dolphin Mistral 24B Venice (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  32768,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Uncensored instruct",
+                                        "General chat"
+                                    ],
+                       "notes":  "Fine-tuned Mistral-Small-24B. Uncensored variant. 32K context.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "rate_limited",
+                                      "detail":  "429 on all 6 requests - persistently rate limited."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/meta-llama/llama-3.3-70b-instruct:free",
+                       "name":  "Llama 3.3 70B Instruct (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "General purpose",
+                                        "Multilingual",
+                                        "Coding"
+                                    ],
+                       "notes":  "70B instruction-tuned. Multilingual text in/text out.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "rate_limited",
+                                      "detail":  "429 on all 6 requests - persistently rate limited."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/meta-llama/llama-3.2-3b-instruct:free",
+                       "name":  "Llama 3.2 3B Instruct (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Lightweight tasks",
+                                        "Dialogue",
+                                        "Summarization"
+                                    ],
+                       "notes":  "3B multilingual model for dialogue, reasoning, summarization.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "rate_limited",
+                                      "detail":  "429 on all 6 requests - persistently rate limited."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/nousresearch/hermes-3-llama-3.1-405b:free",
+                       "name":  "Hermes 3 405B (free)",
+                       "provider":  "OpenRouter",
+                       "context_length":  131072,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "Advanced agentic",
+                                        "Roleplaying",
+                                        "Reasoning",
+                                        "Long context"
+                                    ],
+                       "notes":  "405B. Advanced agentic capabilities, multi-turn conversation, long context coherence.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "rate_limited",
+                                      "detail":  "429 on all 6 requests - persistently rate limited."
+                                  }
+                   },
+                   {
+                       "id":  "openrouter/owl-alpha",
+                       "name":  "OWL Alpha",
+                       "provider":  "OpenRouter",
+                       "context_length":  null,
+                       "input_price_per_million":  0,
+                       "output_price_per_million":  0,
+                       "is_free":  true,
+                       "best_for":  [
+                                        "General purpose",
+                                        "Current default"
+                                    ],
+                       "notes":  "Current universal default model.",
+                       "status":  {
+                                      "tested":  "2026-05-27",
+                                      "result":  "working",
+                                      "detail":  "Current default. Functional through OpenRouter."
+                                  }
+                   }
+               ],
+    "_test_summary":  {
+                          "date":  "2026-05-27",
+                          "method":  "Direct API calls via test-model-auth skill",
+                          "results":  {
+                                          "working":  [
+                                                          "openrouter/owl-alpha",
+                                                          "openrouter/poolside/laguna-xs.2:free",
+                                                          "openrouter/poolside/laguna-m.1:free",
+                                                          "openrouter/arcee-ai/trinity-large-thinking:free",
+                                                          "openrouter/openai/gpt-oss-120b:free",
+                                                          "openrouter/openai/gpt-oss-20b:free",
+                                                          "openrouter/z-ai/glm-4.5-air:free",
+                                                          "google/gemma-4-26b-a4b-it:free",
+                                                          "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
+                                                          "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
+                                                          "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
+                                                          "opencode/deepseek-v4-flash-free",
+                                                          "opencode/big-pickle",
+                                                          "opencode/nemotron-3-super-free",
+                                                          "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+                                                          "openrouter/openrouter/free",
+                                                          "cerebras/llama3.1-8b",
+                                                          "cerebras/zai-glm-4.7",
+                                                          "cerebras/qwen-3-235b-a22b-instruct-2507",
+                                                          "llmgateway/glm-4.5-flash",
+                                                          "llmgateway/glm-4.6v-flash",
+                                                          "llmgateway/glm-4.7-flash",
+                                                          "nvidia/nemotron-3-super-120b-a12b",
+                                                          "huggingface/moonshotai/Kimi-K2-Instruct",
+                                                          "huggingface/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+                                                          "huggingface/zai-org/GLM-4.6",
+                                                          "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+                                                          "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+                                                          "openrouter/nvidia/nemotron-nano-9b-v2:free"
+                                                      ],
+                                          "broken":  [
+
+                                                     ],
+                                          "untested":  [
+
+                                                       ],
+                                          "rate_limited":  [
+                                                               "google/gemma-4-31b-it:free (429 on all 6 requests — persistently rate limited.)",
+                                                               "openrouter/deepseek/deepseek-v4-flash:free (429 on all 6 requests — persistently rate limited.)",
+                                                               "openrouter/moonshotai/kimi-k2.6:free (429 on all 6 requests — persistently rate limited.)",
+                                                               "openrouter/minimax/minimax-m2.5:free (1/6 OK — sporadic success, not reliably usable.)",
+                                                               "openrouter/qwen/qwen3-next-80b-a3b-instruct:free (429 on all 6 requests — persistently rate limited.)",
+                                                               "openrouter/qwen/qwen3-coder:free (429 on all 6 requests — persistently rate limited.)",
+                                                               "openrouter/cognitivecomputations/dolphin-mistral-24b-venice-edition:free (429 on all 6 requests — persistently rate limited.)",
+                                                               "openrouter/meta-llama/llama-3.3-70b-instruct:free (429 on all 6 requests — persistently rate limited.)",
+                                                               "openrouter/meta-llama/llama-3.2-3b-instruct:free (429 on all 6 requests — persistently rate limited.)",
+                                                               "openrouter/nousresearch/hermes-3-llama-3.1-405b:free (429 on all 6 requests — persistently rate limited.)"
+                                                           ],
+                                          "schema_issues":  [
+                                                                "openrouter/openai/gpt-oss-120b:free — returns \u0027reasoning_content\u0027 field in assistant messages, causing \u0027property unsupported\u0027 error in strict OpenAI schema clients"
+                                                            ]
+                                      }
+                      },
+    "_role_rankings":  {
+                           "description":  "Ranked lists of working, non-rate-limited free models for each role. Best model first.",
+                           "model":  [
+                                         "openrouter/owl-alpha",
+                                         "openrouter/openai/gpt-oss-120b:free",
+                                         "cerebras/qwen-3-235b-a22b-instruct-2507",
+                                         "nvidia/nemotron-3-super-120b-a12b",
+                                         "huggingface/moonshotai/Kimi-K2-Instruct"
+                                     ],
+                           "build":  [
+                                         "huggingface/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+                                         "openrouter/owl-alpha",
+                                         "openrouter/openai/gpt-oss-120b:free",
+                                         "cerebras/qwen-3-235b-a22b-instruct-2507",
+                                         "openrouter/poolside/laguna-m.1:free",
+                                         "nvidia/nemotron-3-super-120b-a12b",
+                                         "opencode/big-pickle"
+                                     ],
+                           "general":  [
+                                           "openrouter/owl-alpha",
+                                           "cerebras/qwen-3-235b-a22b-instruct-2507",
+                                           "openrouter/openai/gpt-oss-120b:free",
+                                           "nvidia/nemotron-3-super-120b-a12b",
+                                           "cerebras/zai-glm-4.7"
+                                       ],
+                           "small_model":  [
+                                               "opencode/deepseek-v4-flash-free",
+                                               "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
+                                               "openrouter/poolside/laguna-xs.2:free",
+                                               "cerebras/llama3.1-8b",
+                                               "llmgateway/glm-4.5-flash",
+                                               "openrouter/z-ai/glm-4.5-air:free",
+                                               "openrouter/openai/gpt-oss-20b:free",
+                                               "llmgateway/glm-4.7-flash",
+                                               "opencode/big-pickle",
+                                               "opencode/nemotron-3-super-free"
+                                           ],
+                           "explore":  [
+                                           "opencode/deepseek-v4-flash-free",
+                                           "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
+                                           "openrouter/poolside/laguna-xs.2:free",
+                                           "cerebras/llama3.1-8b",
+                                           "llmgateway/glm-4.5-flash",
+                                           "openrouter/z-ai/glm-4.5-air:free",
+                                           "openrouter/openai/gpt-oss-20b:free",
+                                           "llmgateway/glm-4.7-flash",
+                                           "opencode/nemotron-3-super-free"
+                                       ]
+                       },
+    "_known_issues":  {
+                          "description":  "Non-fatal issues that affect usability but don\u0027t prevent the model from working.",
+                          "issues":  [
+                                         {
+                                             "model_id":  "openrouter/openai/gpt-oss-120b:free",
+                                             "issue":  "Returns extra fields in assistant messages: reasoning, reasoning_details",
+                                             "impact":  "Causes schema validation errors in strict OpenAI-compatible clients that reject unknown properties",
+                                             "workaround":  "Use through OpenRouter opencode gateway, or configure client to ignore/strip unknown fields",
+                                             "severity":  "moderate",
+                                             "reported":  "2026-05-25",
+                                             "last_verified":  "2026-05-27"
+                                         },
+                                         {
+                                             "model_id":  "cerebras/llama3.1-8b",
+                                             "issue":  "Deprecated on Cerebras free tier as of 2026-05-27",
+                                             "impact":  "May be removed or have reduced rate limits in the future",
+                                             "workaround":  "Monitor status; migrate to alternative if removed",
+                                             "severity":  "low",
+                                             "reported":  "2026-05-27"
+                                         },
+                                         {
+                                             "model_id":  "cerebras/zai-glm-4.7",
+                                             "issue":  "Deprecated on Cerebras free tier as of 2026-05-27; reduced rate limits due to high demand",
+                                             "impact":  "May be removed or further rate-limited in the future",
+                                             "workaround":  "Monitor status; migrate to alternative if removed",
+                                             "severity":  "low",
+                                             "reported":  "2026-05-27"
+                                         },
+                                         {
+                                             "model_id":  "cerebras/qwen-3-235b-a22b-instruct-2507",
+                                             "issue":  "Deprecated on Cerebras free tier as of 2026-05-27",
+                                             "impact":  "May be removed or have reduced rate limits in the future",
+                                             "workaround":  "Monitor status; migrate to alternative if removed",
+                                             "severity":  "low",
+                                             "reported":  "2026-05-27"
+                                         }
+                                     ]
+                      },
+    "_validation_method":  {
+                               "description":  "How free model statuses were determined.",
+                               "procedure":  "Direct API calls per provider. Cerebras models re-tested 2026-05-27 after deprecation date — all three still functional.",
+                               "date":  "2026-05-27",
+                               "key_findings":  {
+                                                    "burst_vs_persistent":  "Most free models that 429 on first request also 429 on every subsequent request, even with 5s delays. This indicates persistent rate limiting, not just burst protection.",
+                                                    "single_call_insufficient":  "A single successful API call does NOT mean a model is not rate limited. Several models succeed once but fail on every subsequent request.",
+                                                    "model_id_format":  "OpenRouter API calls should NOT use the \u0027openrouter/\u0027 prefix. Use \u0027provider/model:free\u0027 format.",
+                                                    "gemini_4_26b":  "0/6 requests succeeded — persistently rate limited.",
+                                                    "gemini_4_31b":  "1/6 requests succeeded (3rd delayed attempt) — effectively rate limited, not reliably usable.",
+                                                    "parallel_load":  "Running all models in parallel via Start-Job causes intermittent 429s even on reliable models. Sequential testing recommended for final validation."
+                                                }
+                           }
+}
