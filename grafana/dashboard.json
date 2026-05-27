@@ -1,0 +1,31 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "GrabFreeModels Health",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Overall Working Ratio",
+        "targets": [{
+          "expr": "model:overall_working_ratio:rate5m",
+          "legendFormat": "Overall"
+        }],
+        "datasource": "Prometheus",
+        "gridPos": {"x":0,"y":0,"w":12,"h":8}
+      },
+      {
+        "type": "table",
+        "title": "Provider Health",
+        "targets": [{
+          "expr": "model_provider_working",
+          "legendFormat": "{{provider}}"
+        }],
+        "datasource": "Prometheus",
+        "gridPos": {"x":0,"y":8,"w":12,"h":8}
+      }
+    ],
+    "schemaVersion": 30,
+    "version": 1
+  },
+  "overwrite": true
+}
