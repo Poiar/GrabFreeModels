@@ -1,0 +1,11 @@
+groups:
+  - name: grabfreemodels
+    rules:
+      - alert: ProviderWorkingBelowThreshold
+        expr: (model_provider_working / model_provider_total) < 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Provider {{ $labels.provider }} working ratio low"
+          description: "Only {{ $value | printf \"%.2f\" }} of models are working for provider {{ $labels.provider }}."
