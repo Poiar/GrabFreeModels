@@ -1,0 +1,6 @@
+groups:
+  - name: grabfreemodels_recording
+    rules:
+      - record: model:overall_working_ratio:rate5m
+        expr: sum(model_provider_working) / sum(model_provider_total)
+        # 5‑minute rate‑smoothed overall working ratio

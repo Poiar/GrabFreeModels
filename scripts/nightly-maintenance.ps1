@@ -12,6 +12,22 @@ $prevCopy   = Join-Path $repoRoot "available-models.prev.json"
 
 # 1. Run validation (updates statuses)
 Write-Host "Running validation..." -ForegroundColor Cyan
+# Securely obtain webhook URLs if stored as a JSON secret
+$webhookUrl = $null
+$alertEndpoints = @()
+try {
+    $secretJson = Get-Secret -Name "GrabFreeModelsAlerts" -ErrorAction Stop | ConvertFrom-Json
+    if ($secretJson.webhook) { $webhookUrl = $secretJson.webhook }
+    if ($secretJson.slack)   { $alertEndpoints += $secretJson.slack   }
+    if ($secretJson.teams)   { $alertEndpoints += $secretJson.teams   }
+    if ($secretJson.email)   { $alertEndpoints += $secretJson.email   }
+} catch {
+    # Fallback to single webhook env var
+    $webhookUrl = $env:WEBHOOK_URL
+}
+# Ensure we have a list to iterate over for alerts
+if ($webhookUrl) { $alertEndpoints += $webhookUrl }
+
 & "C:\OC\GrabFreeModels\scripts\validate-free-models.ps1" -Apply
 
 # 2. Run sanity check
@@ -28,6 +44,26 @@ git diff --quiet $modelsFile
 $hasChanges = $LASTEXITCODE -ne 0
 
 if ($hasChanges) {
+    # Compute overall health percentage
+    $free = $json.models | Where-Object { $_.is_free }
+    $working = $free | Where-Object { $_.status.result -eq 'working' }
+    $healthPct = [math]::Round(($working.Count / $free.Count) * 100)
+    $rollbackThreshold = 70  # percent
+    if ($healthPct -lt $rollbackThreshold) {
+        Write-Host "Health $healthPct% below threshold $rollbackThreshold% – performing automatic rollback" -ForegroundColor Red
+        if (Test-Path $prevCopy) {
+            Copy-Item -LiteralPath $prevCopy -Destination $modelsFile -Force
+            git add $modelsFile
+            git commit -m "chore(models): automatic rollback to previous stable state (health $healthPct%)"
+            git push origin master
+            Write-Host "Rollback committed and pushed" -ForegroundColor Yellow
+        }
+        # Skip further processing for this run
+        exit 0
+    }
+    # Preserve previous version for comparison
+    if (Test-Path $modelsFile) { Copy-Item -LiteralPath $modelsFile -Destination $prevCopy -Force }
+
     # Preserve previous version for comparison
     if (Test-Path $modelsFile) { Copy-Item -LiteralPath $modelsFile -Destination $prevCopy -Force }
 
@@ -54,7 +90,7 @@ if ($hasChanges) {
     Write-Host "No changes detected; nothing to commit." -ForegroundColor Gray
 }
 
-# 7. Simple alert placeholder – highlight models that recovered to working status
+# 7. Alert via webhook (multi‑channel) – highlight models that recovered to working status (severity: warning)
 if (Test-Path $prevCopy) {
     $prev = Get-Content $prevCopy -Raw | ConvertFrom-Json
     $curr = Get-Content $modelsFile -Raw | ConvertFrom-Json
@@ -64,7 +100,14 @@ if (Test-Path $prevCopy) {
         )
     }
     if ($recovered) {
-        Write-Host "Alert: The following models recovered to working status:" -ForegroundColor Magenta
-        $recovered.id | ForEach-Object { Write-Host "  $_" }
+        $payload = @{ severity='warning'; type='recovery'; models=$recovered.id } | ConvertTo-Json -Compress
+        foreach ($url in $alertEndpoints) {
+            try {
+                Invoke-RestMethod -Uri $url -Method Post -Body $payload -ContentType 'application/json' -ErrorAction Stop
+                Write-Host "Alert sent to $url" -ForegroundColor Green
+            } catch {
+                Write-Host "Failed to send alert to $url: $_" -ForegroundColor Red
+            }
+        }
     }
 }
