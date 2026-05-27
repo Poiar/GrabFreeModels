@@ -170,7 +170,7 @@ if (-not $Apply) {
 
         $model.status.tested = $today
         $model.status.result = $r.status
-        $model.status.detail = $r.detail
+        $model.status.detail = $r.detail; if ($r.status -eq 'working') { $model.last_success = (Get-Date).ToString('o') }
 
         # Update test_summary
         if ($r.status -eq "working") {
