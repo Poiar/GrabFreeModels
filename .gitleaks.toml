@@ -1,0 +1,19 @@
+# Gitleaks configuration for GrabFreeModels
+# https://github.com/gitleaks/gitleaks
+
+title = "GrabFreeModels Gitleaks config"
+
+[allowlist]
+  description = "Allowlisted files and patterns"
+  paths = [
+    # Documentation with placeholder key examples (no real secrets)
+    '''skills/test-model-auth/SKILL.md''',
+  ]
+
+  # Allowlist placeholder patterns that are clearly not real keys
+  regexes = [
+    # <key> angle-bracket placeholders
+    '''<key>''',
+    # "..." ellipsis placeholders
+    '''\.\.\.''',
+  ]

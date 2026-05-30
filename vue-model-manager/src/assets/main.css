@@ -148,7 +148,6 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px 20px;
-  margin-bottom: 16px;
 }
 
 .card-title {
@@ -539,6 +538,13 @@ tr:hover td { background: var(--bg-hover); }
 .font-sm { font-size: 0.8rem; }
 .font-xs { font-size: 0.75rem; }
 
+/* ── Spacing utilities ── */
+.gap-xs { margin-bottom: 8px; }
+.gap-sm { margin-bottom: 12px; }
+.gap-md { margin-bottom: 16px; }
+.gap-lg { margin-bottom: 24px; }
+.gap-xl { margin-bottom: 32px; }
+
 /* ── Section title ── */
 .section-title {
   margin-bottom: 16px;
@@ -589,6 +595,28 @@ tr:hover td { background: var(--bg-hover); }
   margin-top: 6px;
   font-size: 0.75rem;
   color: var(--text-muted);
+}
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px !important;
+}
+
+.empty-state-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.empty-state-icon {
+  font-size: 2rem;
+}
+
+.empty-state-inner p {
+  color: var(--text-dim);
+  font-size: 0.9rem;
 }
 
 /* ── Sort direction button ── */

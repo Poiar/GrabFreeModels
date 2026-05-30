@@ -81,7 +81,7 @@
     </div>
 
     <!-- Provider Usage -->
-    <div v-if="store.usedUpProviders.length > 0" class="card">
+    <div v-if="store.usedUpProviders.length > 0" class="card gap-md">
       <div class="card-title">Used-Up Providers ({{ store.currentMonth }})</div>
       <table>
         <thead>
@@ -97,7 +97,7 @@
     </div>
 
     <!-- Schema Issues -->
-    <div v-if="store.schemaIssueModels.length > 0" class="card">
+    <div v-if="store.schemaIssueModels.length > 0" class="card gap-md">
       <div class="card-title">Schema Issues</div>
       <table>
         <thead>

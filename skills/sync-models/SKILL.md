@@ -41,14 +41,6 @@ Discovers free models from provider APIs and syncs them into `available-models.j
 - No public model listing API — add manually
 - Base URL: `https://api.llmgateway.io/v1`
 
-### OpenCode Zen
-- Built-in models, no API discovery needed
-- Currently: `opencode/deepseek-v4-flash-free`, `opencode/big-pickle`, `opencode/nemotron-3-super-free`
-
-### Groq / Together / Fireworks
-- No API keys currently available
-- Can be added when keys exist
-
 ## Sync Procedure
 
 ### Step 1: Dry Run
@@ -70,13 +62,7 @@ Review the output:
 
 This adds new models with `status: { result: "untested" }` and flags potentially removed models for re-check.
 
-### Step 3: Validate JSON
-
-```powershell
-node -e "JSON.parse(require('fs').readFileSync('C:/OC/GrabFreeModels/available-models.json','utf8')); console.log('Valid JSON')"
-```
-
-### Step 4: Test New Models
+### Step 3: Test New Models
 
 Always test newly-added models before promoting to `working`:
 

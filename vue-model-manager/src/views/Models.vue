@@ -55,42 +55,53 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="model in paginatedModels" :key="model.id">
-            <td>
-              <div class="model-name">{{ model.name }}</div>
-              <div class="model-id">{{ model.id }}</div>
-            </td>
-            <td>{{ model.provider }}</td>
-            <td>
-              <span class="badge" :class="`badge-${model.status.result}`">
-                {{ model.status.result }}
-              </span>
-            </td>
-            <td>
-              <span class="context-len">
-                {{ model.context_length ? formatContext(model.context_length) : '—' }}
-              </span>
-            </td>
-            <td>
-              <div class="best-for-tags">
-                <span v-for="tag in model.best_for.slice(0, 3)" :key="tag" class="tag">
-                  {{ tag }}
+          <template v-if="paginatedModels.length > 0">
+            <tr v-for="model in paginatedModels" :key="model.id">
+              <td>
+                <div class="model-name">{{ model.name }}</div>
+                <div class="model-id">{{ model.id }}</div>
+              </td>
+              <td>{{ model.provider }}</td>
+              <td>
+                <span class="badge" :class="`badge-${model.status.result}`">
+                  {{ model.status.result }}
                 </span>
-                <span v-if="model.best_for.length > 3" class="tag">
-                  +{{ model.best_for.length - 3 }}
+              </td>
+              <td>
+                <span class="context-len">
+                  {{ model.context_length != null ? formatContext(model.context_length) : '—' }}
                 </span>
-              </div>
-            </td>
-            <td>
-              <span class="font-sm text-dim">
-                {{ model.input_price_per_million != null ? '$' + model.input_price_per_million : '—' }}
-                /
-                {{ model.output_price_per_million != null ? '$' + model.output_price_per_million : '—' }}
-              </span>
-            </td>
-            <td>
-              <div class="detail-text" :title="model.status.detail">
-                {{ model.status.detail }}
+              </td>
+              <td>
+                <div class="best-for-tags">
+                  <span v-for="tag in model.best_for.slice(0, 3)" :key="tag" class="tag">
+                    {{ tag }}
+                  </span>
+                  <span v-if="model.best_for.length > 3" class="tag">
+                    +{{ model.best_for.length - 3 }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <span class="font-sm text-dim">
+                  {{ model.input_price_per_million != null ? '$' + model.input_price_per_million : '—' }}
+                  /
+                  {{ model.output_price_per_million != null ? '$' + model.output_price_per_million : '—' }}
+                </span>
+              </td>
+              <td>
+                <div class="detail-text" :title="model.status.detail">
+                  {{ model.status.detail }}
+                </div>
+              </td>
+            </tr>
+          </template>
+          <tr v-else>
+            <td colspan="7" class="empty-state">
+              <div class="empty-state-inner">
+                <span class="empty-state-icon">🔍</span>
+                <p>No models match your filters.</p>
+                <button class="refresh-btn" @click="resetFilters">Clear all filters</button>
               </div>
             </td>
           </tr>
@@ -100,11 +111,11 @@
 
     <!-- Pagination -->
     <div v-if="totalPages > 1" class="pagination">
-      <button :disabled="page === 1" @click="page = 1">«</button>
-      <button :disabled="page === 1" @click="page--">‹</button>
+      <button :disabled="page === 1" @click="page = 1" aria-label="First page">«</button>
+      <button :disabled="page === 1" @click="page--" aria-label="Previous page">‹</button>
       <span class="page-info">Page {{ page }} of {{ totalPages }}</span>
-      <button :disabled="page === totalPages" @click="page++">›</button>
-      <button :disabled="page === totalPages" @click="page = totalPages">»</button>
+      <button :disabled="page === totalPages" @click="page++" aria-label="Next page">›</button>
+      <button :disabled="page === totalPages" @click="page = totalPages" aria-label="Last page">»</button>
       <select v-model.number="perPage" class="per-page-select">
         <option :value="10">10 / page</option>
         <option :value="25">25 / page</option>
@@ -129,30 +140,39 @@ const sortDesc = ref(false)
 const page = ref(1)
 const perPage = ref(25)
 
-// Reset to page 1 when filters change
-watch([search, providerFilter, statusFilter, typeFilter], () => { page.value = 1 })
+// Reset to page 1 when filters or sort change
+watch([search, providerFilter, statusFilter, typeFilter, sortBy, sortDesc], () => {
+  page.value = 1
+})
+
+function resetFilters() {
+  search.value = ''
+  providerFilter.value = ''
+  statusFilter.value = ''
+  typeFilter.value = ''
+}
 
 const filteredModels = computed(() => {
-  let models = store.allModels
+  const q = search.value.toLowerCase().trim()
 
-  if (typeFilter.value === 'free') models = models.filter(m => m.is_free)
-  else if (typeFilter.value === 'paid') models = models.filter(m => !m.is_free)
-
-  if (providerFilter.value) models = models.filter(m => m.provider === providerFilter.value)
-  if (statusFilter.value) models = models.filter(m => m.status.result === statusFilter.value)
-
-  if (search.value.trim()) {
-    const q = search.value.toLowerCase().trim()
-    models = models.filter(m =>
-      m.name.toLowerCase().includes(q) ||
-      m.id.toLowerCase().includes(q) ||
-      m.notes.toLowerCase().includes(q) ||
-      m.provider.toLowerCase().includes(q) ||
-      m.best_for.some(t => t.toLowerCase().includes(q))
-    )
-  }
-
-  return models
+  return store.allModels
+    .filter(m => {
+      if (typeFilter.value === 'free') return m.is_free
+      if (typeFilter.value === 'paid') return !m.is_free
+      return true
+    })
+    .filter(m => !providerFilter.value || m.provider === providerFilter.value)
+    .filter(m => !statusFilter.value || m.status.result === statusFilter.value)
+    .filter(m => {
+      if (!q) return true
+      return (
+        m.name.toLowerCase().includes(q) ||
+        m.id.toLowerCase().includes(q) ||
+        m.notes.toLowerCase().includes(q) ||
+        m.provider.toLowerCase().includes(q) ||
+        m.best_for.some(t => t.toLowerCase().includes(q))
+      )
+    })
 })
 
 const sortedModels = computed(() => {
@@ -165,8 +185,15 @@ const sortedModels = computed(() => {
         return dir * a.provider.localeCompare(b.provider)
       case 'status':
         return dir * a.status.result.localeCompare(b.status.result)
-      case 'context':
-        return dir * ((a.context_length ?? 0) - (b.context_length ?? 0))
+      case 'context': {
+        // Null context_length sorts to the end regardless of direction
+        const aCtx = a.context_length
+        const bCtx = b.context_length
+        if (aCtx == null && bCtx == null) return 0
+        if (aCtx == null) return 1
+        if (bCtx == null) return -1
+        return dir * (aCtx - bCtx)
+      }
       case 'tested':
         return dir * ((a.status.tested ?? '').localeCompare(b.status.tested ?? ''))
       default:

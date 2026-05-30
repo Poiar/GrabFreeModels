@@ -1,15 +1,40 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import type { ModelsData, Model } from '@/types'
 
 const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
-type Role = (typeof ROLE_ORDER)[number]
 
 export const useModelsStore = defineStore('models', () => {
+  type Role = (typeof ROLE_ORDER)[number]
+
   const data = ref<ModelsData | null>(null)
   const loading = ref(true)
   const error = ref<string | null>(null)
   const lastLoaded = ref<Date | null>(null)
+  const isStale = ref(false)
+
+  // ── Stale detection with auto-refresh ──
+  let staleTimer: ReturnType<typeof setInterval> | null = null
+
+  function startStaleTimer() {
+    stopStaleTimer()
+    staleTimer = setInterval(() => {
+      if (!lastLoaded.value) {
+        isStale.value = false
+        return
+      }
+      isStale.value = Date.now() - lastLoaded.value.getTime() > 3_600_000
+    }, 60_000)
+  }
+
+  function stopStaleTimer() {
+    if (staleTimer !== null) {
+      clearInterval(staleTimer)
+      staleTimer = null
+    }
+  }
+
+  onUnmounted(stopStaleTimer)
 
   // ── Computed getters ──
 
@@ -35,23 +60,27 @@ export const useModelsStore = defineStore('models', () => {
     })
   })
 
-  /** Map of provider → models (free only). Renamed from `providers` to avoid collision with view-level provider list. */
-  const freeModelsByProvider = computed(() => {
-    const map = new Map<string, Model[]>()
-    for (const m of freeModels.value) {
-      if (!map.has(m.provider)) map.set(m.provider, [])
-      map.get(m.provider)!.push(m)
-    }
-    return map
-  })
-
   /** Sorted list of all unique provider names across all models. */
   const allProviderNames = computed(() => {
     const set = new Set(allModels.value.map(m => m.provider))
     return Array.from(set).sort()
   })
 
-  const providerHealth = computed(() => data.value?.provider_health ?? {})
+  /** Provider health derived from live model data (always consistent). */
+  const providerHealth = computed(() => {
+    const health: Record<string, { working: number; rate_limited: number; broken: number; total: number }> = {}
+    for (const m of freeModels.value) {
+      if (!health[m.provider]) {
+        health[m.provider] = { working: 0, rate_limited: 0, broken: 0, total: 0 }
+      }
+      const h = health[m.provider]
+      h.total++
+      if (m.status.result === 'working') h.working++
+      else if (m.status.result === 'rate_limited') h.rate_limited++
+      else if (m.status.result === 'broken') h.broken++
+    }
+    return health
+  })
 
   const roleRankings = computed(() => {
     const r = data.value?._role_rankings
@@ -116,12 +145,6 @@ export const useModelsStore = defineStore('models', () => {
       : 0,
   }))
 
-  /** Whether the loaded data is older than 1 hour. */
-  const isStale = computed(() => {
-    if (!lastLoaded.value) return false
-    return Date.now() - lastLoaded.value.getTime() > 3_600_000
-  })
-
   // ── Actions ──
 
   async function loadData() {
@@ -132,6 +155,8 @@ export const useModelsStore = defineStore('models', () => {
       if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`)
       data.value = await resp.json()
       lastLoaded.value = new Date()
+      isStale.value = false
+      startStaleTimer()
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : String(e)
     } finally {
@@ -147,7 +172,7 @@ export const useModelsStore = defineStore('models', () => {
     data, loading, error, lastLoaded, isStale,
     allModels, freeModels, paidModels,
     workingModels, brokenModels, rateLimitedModels, untestedModels,
-    schemaIssueModels, freeModelsByProvider, allProviderNames, providerHealth,
+    schemaIssueModels, allProviderNames, providerHealth,
     roleRankings, knownIssues, providerUsage,
     currentMonth, usedUpProviders, usedUpProviderSet, isProviderUsedUp,
     testSummary, validationMethod, stats,

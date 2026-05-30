@@ -34,11 +34,6 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `opencode/nemotron-3-super-free` — general purpose, fast
 - `openrouter/owl-alpha` — general purpose (current universal default)
 
-### Model Inventory (2026-05-30)
-- **52 free models** tracked: 26 working, 10 rate-limited, 2 broken, 14 untested
-- **24 paid models** tracked for reference
-- **14 untested** remaining — need validation when API keys are available
-
 ## Model Database
 
 `available-models.json` at `C:\OC\GrabFreeModels\available-models.json` is the single source of truth for tracked models.
@@ -77,24 +72,5 @@ All scripts live in `scripts/`:
 | `cleanup-snapshots.ps1` | Rotate old snapshots, keep last 30 days |
 | `install-metrics-service.ps1` | Install metrics exporter as a Windows service |
 
-### Common Patterns
-```powershell
-# Dry-run sync
-.\scripts\sync-models.ps1
 
-# Sync and apply
-.\scripts\sync-models.ps1 -Apply
-
-# Re-test all rate-limited models
-.\scripts\validate-free-models.ps1 -Apply
-
-# Test specific models
-.\scripts\validate-free-models.ps1 -Models "model-id:free" -Apply
-```
-
-### After Editing available-models.json
-Always validate:
-```powershell
-node -e "JSON.parse(require('fs').readFileSync('C:/OC/GrabFreeModels/available-models.json','utf8')); console.log('Valid JSON')"
-```
 

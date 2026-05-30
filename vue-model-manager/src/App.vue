@@ -8,7 +8,7 @@
           <p class="brand-sub">Free LLM Tracker</p>
         </div>
       </div>
-      <nav>
+      <nav aria-label="Main navigation">
         <router-link to="/" active-class="active">
           <span class="nav-icon">📊</span> Dashboard
         </router-link>
