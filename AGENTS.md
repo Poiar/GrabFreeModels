@@ -34,10 +34,10 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `opencode/nemotron-3-super-free` — general purpose, fast
 - `openrouter/owl-alpha` — general purpose (current universal default)
 
-### Model Inventory (2026-05-27)
-- **38 free models** tracked: 28 working, 10 rate-limited
+### Model Inventory (2026-05-30)
+- **52 free models** tracked: 26 working, 10 rate-limited, 2 broken, 14 untested
 - **24 paid models** tracked for reference
-- **0 untested** remaining — all free models have been validated
+- **14 untested** remaining — need validation when API keys are available
 
 ## Model Database
 
@@ -46,7 +46,8 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 ### JSON Structure
 - `models[]` — all tracked models with id, name, provider, pricing, status, best_for
 - `_test_summary` — latest test results with working/broken/rate_limited/schema_issues lists
-- `_role_rankings` — ranked model lists per role (model, build, general, small_model, explore). These lists contain only models that are currently marked as **working**; rate‑limited or broken models are automatically omitted during validation.
+- `_role_rankings` — ranked model lists per role (model, build, general, small_model, explore). Excludes models that are broken, rate-limited, **or** from providers listed in `_provider_usage` for the current month.
+- `_provider_usage` — tracks providers that are fully consumed (rate-limited/out of quota) for a given month. Format: `{ provider_id: { month: "YYYY-MM", reason: string } }`. When a provider is listed here, all its models are excluded from `_role_rankings` regardless of individual status.
 - `_known_issues` — non-fatal issues (schema problems, deprecation warnings) with severity + workaround
 - `_validation_method` — testing methodology notes and key findings
 
@@ -67,6 +68,14 @@ All scripts live in `scripts/`:
 |--------|---------|
 | `sync-models.ps1` | Fetch latest free models from providers, diff against JSON. `-Apply` to write changes |
 | `validate-free-models.ps1` | Re-test rate-limited/untested models (burst + delayed). `-Apply` to write results |
+| `nightly-maintenance.ps1` | Scheduled validation pipeline — validate, check rankings, generate summary, commit, push, alert. Run via Task Scheduler |
+| `check-rankings.ps1` | Sanity-check `_role_rankings` against actual model statuses |
+| `model-summary.ps1` | Generate human-readable summary of all tracked models |
+| `metrics-exporter.ps1` | Prometheus HTTP metrics exporter for provider health. Default port 9180 |
+| `generate-dashboard.ps1` | Generate HTML dashboard showing provider health and rankings |
+| `health-badge.ps1` | Generate SVG health badge for README |
+| `cleanup-snapshots.ps1` | Rotate old snapshots, keep last 30 days |
+| `install-metrics-service.ps1` | Install metrics exporter as a Windows service |
 
 ### Common Patterns
 ```powershell

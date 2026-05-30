@@ -8,10 +8,13 @@ description: Use when suggesting models for the user's opencode setup. ALWAYS ch
 ## Active Configuration
 - **main model**: `openrouter/owl-alpha` (cloud, free, proper tool calling)
 - **small_model**: `opencode/deepseek-v4-flash-free` (cloud, free, fast, designed for small tasks)
-- **build_agent**: `huggingface/Qwen/Qwen3-Coder-30B-A3B-Instruct` (cloud, free, coding-optimized)
-- **plan_agent**: `huggingface/Qwen/Qwen3-Coder-30B-A3B-Instruct` (cloud, free, coding-optimized for planning)
+- **build_agent**: `openrouter/openai/gpt-oss-120b:free` (cloud, free, 120B MoE, agentic tasks, tool use. Note: returns extra `reasoning`/`reasoning_details` fields — may cause schema warnings in strict clients)
+- **plan_agent**: `openrouter/arcee-ai/trinity-large-thinking:free` (cloud, free, reasoning-focused for planning)
+- **general_agent**: `openrouter/nvidia/nemotron-3-super-120b-a12b:free` (cloud, free, 120B params, 1M context, general purpose)
+- **explore_agent**: `opencode/deepseek-v4-flash-free` (cloud, fast, codebase search)
 
-## Rules
+## Provider Notes
+- **HuggingFace router**: All three HF router models are rate-limited as of May 2026. Avoid for agent roles until quota resets.
 
 1. NEVER suggest models that don't natively support OpenAI-style tool calling. This includes:
      - `qwen3:*` **base/chat variants** (echo tool JSON as text — do NOT return proper `tool_calls`). Exception: `Qwen3-Coder` variants DO support tool calling — verified working.

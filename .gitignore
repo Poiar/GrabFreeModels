@@ -1,0 +1,35 @@
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Aider
+.aider.chat.history.md
+.aider.input.history
+with
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Backup files
+*.prev.json
+
+# Badge output
+badge/
+
+# Config backup (nested git repo)
+config-backup/
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.aider*

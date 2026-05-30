@@ -1,0 +1,28 @@
+{
+  "name": "grabfreemodels",
+  "version": "1.0.0",
+  "description": "GrabFreeModels is a **free‑model tracker** that discovers, validates, and ranks free LLM models across multiple providers. It maintains a single source of truth (`available-models.json`) and provides:",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Poiar/GrabFreeModels.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Poiar/GrabFreeModels/issues"
+  },
+  "homepage": "https://github.com/Poiar/GrabFreeModels#readme",
+  "dependencies": {
+    "@playwright/mcp": "^0.0.75",
+    "playwright": "^1.60.0"
+  }
+}

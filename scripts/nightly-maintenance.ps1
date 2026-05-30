@@ -10,8 +10,6 @@ Set-Location $repoRoot
 $modelsFile = Join-Path $repoRoot "available-models.json"
 $prevCopy   = Join-Path $repoRoot "available-models.prev.json"
 
-# 1. Run validation (updates statuses)
-Write-Host "Running validation..." -ForegroundColor Cyan
 # Securely obtain webhook URLs if stored as a JSON secret
 $webhookUrl = $null
 $alertEndpoints = @()
@@ -28,6 +26,11 @@ try {
 # Ensure we have a list to iterate over for alerts
 if ($webhookUrl) { $alertEndpoints += $webhookUrl }
 
+# 0. Save previous state for rollback and recovery detection
+if (Test-Path $modelsFile) { Copy-Item -LiteralPath $modelsFile -Destination $prevCopy -Force }
+
+# 1. Run validation (updates statuses)
+Write-Host "Running validation..." -ForegroundColor Cyan
 & "C:\OC\GrabFreeModels\scripts\validate-free-models.ps1" -Apply
 
 # 2. Run sanity check
@@ -62,8 +65,6 @@ if ($hasChanges) {
         # Skip further processing for this run
         exit 0
     }
-    # Preserve previous version for comparison
-    if (Test-Path $modelsFile) { Copy-Item -LiteralPath $modelsFile -Destination $prevCopy -Force }
 
     git add $modelsFile
     $date = Get-Date -Format "yyyy-MM-dd"

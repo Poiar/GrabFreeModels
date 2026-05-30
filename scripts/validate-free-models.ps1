@@ -164,9 +164,40 @@ if (-not $Apply) {
     Write-Host "Report mode. Use -Apply to update available-models.json" -ForegroundColor Yellow
 } else {
     $today = Get-Date -Format "yyyy-MM-dd"
+    $currentMonth = Get-Date -Format "yyyy-MM"
+
+    # Check if a model's provider is marked as used-up for the current month
+    $usedUpProviders = @()
+    if ($json._provider_usage) {
+        foreach ($p in $json._provider_usage.PSObject.Properties.Name) {
+            if ($p -eq 'description') { continue }
+            $entry = $json._provider_usage.$p
+            if ($entry.month -eq $currentMonth) {
+                $usedUpProviders += $p
+            }
+        }
+    }
+
     foreach ($r in $results) {
         $model = $json.models | Where-Object { $_.id -eq $r.id }
         if (-not $model) { continue }
+
+        # Handle _provider_usage: if model is broken, auto-flag provider as used-up
+        $providerPrefix = ($r.id -split '/')[0]
+        if ($r.status -eq "broken" -and $usedUpProviders -notcontains $providerPrefix) {
+            # Only auto-flag if ALL free models from this provider are broken
+            $providerModels = $json.models | Where-Object { $_.id -like "$providerPrefix/*" -and $_.is_free }
+            $allBroken = ($providerModels | Where-Object { $_.status.result -eq "broken" }).Count -eq $providerModels.Count
+            if ($allBroken -and $providerModels.Count -gt 0) {
+                if (-not $json._provider_usage) { $json._provider_usage = @{} }
+                $json._provider_usage | Add-Member -NotePropertyName $providerPrefix -NotePropertyValue @{
+                    month = $currentMonth
+                    reason = "All $providerPrefix models are broken as of $today"
+                }
+                $usedUpProviders += $providerPrefix
+                Write-Host "  ⚠ Auto-flagged provider '$providerPrefix' as used-up for $currentMonth" -ForegroundColor Yellow
+            }
+        }
 
         $model.status.tested = $today
         $model.status.result = $r.status
@@ -174,7 +205,6 @@ if (-not $Apply) {
 
         # Update test_summary
         if ($r.status -eq "working") {
-            # Move from rate_limited to working if needed
             if ($json._test_summary.results.rate_limited -match [regex]::Escape($r.id)) {
                 $json._test_summary.results.rate_limited = $json._test_summary.results.rate_limited | Where-Object { $_ -notmatch [regex]::Escape($r.id) }
             }
@@ -185,12 +215,26 @@ if (-not $Apply) {
             if ($json._test_summary.results.working -contains $r.id) {
                 $json._test_summary.results.working = $json._test_summary.results.working | Where-Object { $_ -ne $r.id }
             }
+            if ($json._test_summary.results.rate_limited -notcontains $r.id) {
+                $json._test_summary.results.rate_limited += $r.id
+            }
+        } elseif ($r.status -eq "broken") {
+            if ($json._test_summary.results.working -contains $r.id) {
+                $json._test_summary.results.working = $json._test_summary.results.working | Where-Object { $_ -ne $r.id }
+            }
+            if ($json._test_summary.results.broken -notcontains $r.id) {
+                $json._test_summary.results.broken += $r.id
+            }
         }
 
         # Update _role_rankings: add working models, remove non-working
+        # Also exclude models from providers listed in _provider_usage for current month
+        $modelProvider = ($r.id -split '/')[0]
+        $isProviderUsedUp = $usedUpProviders -contains $modelProvider
+
         $roles = @("model","build","general","small_model","explore")
         foreach ($role in $roles) {
-            if ($r.status -eq "working") {
+            if ($r.status -eq "working" -and -not $isProviderUsedUp) {
                 if ($json._role_rankings.$role -notcontains $r.id) {
                     $json._role_rankings.$role += $r.id
                 }
