@@ -45,6 +45,7 @@ $hasChanges = $LASTEXITCODE -ne 0
 
 if ($hasChanges) {
     # Compute overall health percentage
+    $json = Get-Content $modelsFile -Raw | ConvertFrom-Json
     $free = $json.models | Where-Object { $_.is_free }
     $working = $free | Where-Object { $_.status.result -eq 'working' }
     $healthPct = [math]::Round(($working.Count / $free.Count) * 100)
@@ -61,9 +62,6 @@ if ($hasChanges) {
         # Skip further processing for this run
         exit 0
     }
-    # Preserve previous version for comparison
-    if (Test-Path $modelsFile) { Copy-Item -LiteralPath $modelsFile -Destination $prevCopy -Force }
-
     # Preserve previous version for comparison
     if (Test-Path $modelsFile) { Copy-Item -LiteralPath $modelsFile -Destination $prevCopy -Force }
 
@@ -95,9 +93,10 @@ if (Test-Path $prevCopy) {
     $prev = Get-Content $prevCopy -Raw | ConvertFrom-Json
     $curr = Get-Content $modelsFile -Raw | ConvertFrom-Json
     $recovered = $curr.models | Where-Object {
-        $_.status.result -eq 'working' -and (
-            $prev.models | Where-Object { $_.id -eq $curr.id -and $_.status.result -ne 'working' }
-        )
+        if ($_.status.result -ne 'working') { return $false }
+        $currId = $_.id
+        $prevMatch = $prev.models | Where-Object { $_.id -eq $currId }
+        $prevMatch -and $prevMatch.status.result -ne 'working'
     }
     if ($recovered) {
         $payload = @{ severity='warning'; type='recovery'; models=$recovered.id } | ConvertTo-Json -Compress

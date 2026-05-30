@@ -8,8 +8,8 @@ $dashboardPath = Join-Path $repoRoot "dashboard.html"
 $data = Get-Content $jsonPath -Raw | ConvertFrom-Json
 
 # Provider health table
-$provRows = $data.provider_health.GetEnumerator() | ForEach-Object {
-    "<tr><td>$_</td><td>$($_.Value.total)</td><td>$($_.Value.working)</td><td>$($_.Value.rate_limited)</td><td>$($_.Value.broken)</td></tr>"
+$provRows = $data.provider_health.PSObject.Properties | ForEach-Object {
+    "<tr><td>$($_.Name)</td><td>$($_.Value.total)</td><td>$($_.Value.working)</td><td>$($_.Value.rate_limited)</td><td>$($_.Value.broken)</td></tr>"
 }
 $provTable = @(
     "<h2>Provider Health</h2>"

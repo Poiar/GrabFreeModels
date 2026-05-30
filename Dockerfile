@@ -1,7 +1,7 @@
 # Dockerfile for GrabFreeModels metrics exporter and nightly validation
-# Uses a lightweight PowerShell base image (Windows Nano Server) – adjust for your platform if needed.
+# Uses a lightweight PowerShell on Ubuntu LTS base image.
 
-FROM mcr.microsoft.com/powershell:nanoserver-1909
+FROM mcr.microsoft.com/powershell:lts-ubuntu-22.04
 
 # Create work directory
 WORKDIR /app
@@ -17,4 +17,4 @@ COPY available-models.json ./
 EXPOSE 9180
 
 # Default command runs the metrics exporter; you can override to run nightly maintenance via a cron job inside container.
-ENTRYPOINT ["pwsh","-NoProfile","-Command","& ./scripts/metrics-exporter.ps1 -Port 9180"]
+ENTRYPOINT ["pwsh","-NoProfile","-Command","./scripts/metrics-exporter.ps1 -Port 9180"]
