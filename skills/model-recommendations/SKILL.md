@@ -6,12 +6,14 @@ description: Use when suggesting models for the user's opencode setup. ALWAYS ch
 # Model Recommendations
 
 ## Active Configuration
-- **main model**: `openrouter/owl-alpha` (cloud, free, proper tool calling)
-- **small_model**: `opencode/deepseek-v4-flash-free` (cloud, free, fast, designed for small tasks)
-- **build_agent**: `openrouter/openai/gpt-oss-120b:free` (cloud, free, 120B MoE, agentic tasks, tool use. Note: returns extra `reasoning`/`reasoning_details` fields — may cause schema warnings in strict clients)
-- **plan_agent**: `openrouter/arcee-ai/trinity-large-thinking:free` (cloud, free, reasoning-focused for planning)
-- **general_agent**: `openrouter/nvidia/nemotron-3-super-120b-a12b:free` (cloud, free, 120B params, 1M context, general purpose)
-- **explore_agent**: `opencode/deepseek-v4-flash-free` (cloud, fast, codebase search)
+- **main model**: `openrouter/owl-alpha` (cloud, free, agentic, tool use, 1M context. Special auto-routing model — not in standard :free listing but verified working)
+- **small_model**: `openrouter/nvidia/nemotron-nano-9b-v2:free` (cloud, free, 9B, 6/6 tested, fast reasoning + non-reasoning)
+- **build_agent**: `openrouter/poolside/laguna-m.1:free` (cloud, free, 263B, agentic coding. Fallback: `openrouter/openrouter/free`)
+- **plan_agent**: `openrouter/z-ai/glm-5.1` (cloud, free, latest GLM, strong reasoning. Fallback: `openrouter/openrouter/free`)
+- **general_agent**: `opencode/big-pickle` (cloud, free, general purpose. Fallback: `openrouter/openrouter/free`)
+- **explore_agent**: `opencode/deepseek-v4-flash-free` (cloud, fast, codebase search. Fallback: `openrouter/openrouter/free`)
+- **universal fallback**: `openrouter/openrouter/free` — auto-routes to best available free model
+- **vision models**: `openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` (6/6 tested), `openrouter/z-ai/glm-5v-turbo` (vision), `llmgateway/glm-4.6v-flash` (vision)
 
 ## Rules
 

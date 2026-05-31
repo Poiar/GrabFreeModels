@@ -1237,19 +1237,21 @@
       "id": "openrouter/owl-alpha",
       "name": "OWL Alpha",
       "provider": "OpenRouter",
-      "context_length": null,
+      "context_length": 1048756,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
       "is_free": true,
       "best_for": [
         "General purpose",
+        "Agentic tasks",
+        "Tool use",
         "Current default"
       ],
-      "notes": "Current universal default model.",
+      "notes": "Special auto-routing model — not listed in standard :free endpoints but verified operational. Supports tools, structured outputs, 1M context. Sync script skips removal check for this model.",
       "status": {
         "tested": "2026-05-27",
-        "result": "untested",
-        "detail": "Model may no longer be offered as free — re-check needed"
+        "result": "working",
+        "detail": "Special auto-routing model — not in standard :free listing but fully functional. Supports tools natively."
       }
     },
     {
@@ -2950,6 +2952,68 @@
         "tested": null,
         "result": "untested",
         "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "openrouter/z-ai/glm-5.1",
+      "name": "GLM 5.1 (free)",
+      "provider": "OpenRouter",
+      "context_length": 131072,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "Reasoning",
+        "General purpose",
+        "Chinese/English",
+        "Agentic tasks"
+      ],
+      "notes": "Z.ai latest GLM model. Released 2026. Free on OpenRouter and LLM Gateway.",
+      "status": {
+        "tested": "2026-05-31",
+        "result": "working",
+        "detail": "Tested OK via OpenRouter API."
+      }
+    },
+    {
+      "id": "openrouter/z-ai/glm-5-turbo",
+      "name": "GLM 5 Turbo (free)",
+      "provider": "OpenRouter",
+      "context_length": 131072,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "Fast reasoning",
+        "General purpose",
+        "Agentic tasks"
+      ],
+      "notes": "Z.ai GLM 5 Turbo. Fast variant of GLM 5. Free on OpenRouter.",
+      "status": {
+        "tested": "2026-05-31",
+        "result": "working",
+        "detail": "Tested OK via OpenRouter API."
+      }
+    },
+    {
+      "id": "openrouter/z-ai/glm-5v-turbo",
+      "name": "GLM 5V Turbo (free)",
+      "provider": "OpenRouter",
+      "context_length": 131072,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "Vision",
+        "Multimodal",
+        "Image understanding",
+        "Fast reasoning"
+      ],
+      "notes": "Z.ai GLM 5 Vision Turbo. Multimodal (text+image). Free on OpenRouter.",
+      "status": {
+        "tested": "2026-05-31",
+        "result": "working",
+        "detail": "Tested OK via OpenRouter API."
       }
     }
   ],

@@ -46,14 +46,14 @@ All scripts live in `scripts/`:
 
 | Script | Purpose |
 |--------|---------|
-| `sync-models.js` | Fetch latest free models from providers, diff against JSON. `--apply` to write changes |
-| `validate-free-models.js` | Re-test rate-limited/untested models (burst + delayed). `--apply` to write results |
-| `nightly-maintenance.js` | Scheduled validation pipeline — validate, check rankings, generate summary, commit, push, alert. Run via Task Scheduler / cron |
-| `check-rankings.js` | Sanity-check `_role_rankings` against actual model statuses |
-| `model-summary.js` | Generate human-readable summary of all tracked models |
-| `metrics-exporter.js` | Prometheus HTTP metrics exporter for provider health. Default port 9180 |
-| `generate-dashboard.js` | Generate HTML dashboard showing provider health and rankings |
-| `health-badge.js` | Generate Shields.io health badge JSON |
-| `cleanup-snapshots.js` | Rotate old snapshots, keep last 30 days |
-| `install-metrics-service.js` | Install metrics exporter as a Windows service |
-| `kill-port.js` | Kill any process listening on a given port |
+| `sync-models.js` | Fetch latest free models from providers |
+| `validate-free-models.js` | Re-test rate-limited/untested models |
+| `nightly-maintenance.js` | Scheduled validation pipeline |
+| `check-rankings.js` | Sanity-check `_role_rankings` against statuses |
+| `model-summary.js` | Generate human-readable model summary |
+| `metrics-exporter.js` | Prometheus HTTP metrics exporter |
+| `generate-dashboard.js` | Generate HTML dashboard |
+| `health-badge.js` | Generate Shields.io health badge |
+| `cleanup-snapshots.js` | Rotate old snapshots |
+| `install-metrics-service.js` | Install metrics exporter service |
+| `kill-port.js` | Kill process on a given port |

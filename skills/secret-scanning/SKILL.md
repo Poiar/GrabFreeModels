@@ -15,21 +15,11 @@ Gitleaks scans every push and PR via CI (`.github/workflows/ci.yml`). The `test`
 ## Run Locally
 
 ```bash
-# Scan working tree (no git needed)
 gitleaks detect --source . --config .gitleaks.toml --no-git --verbose
-
-# Scan full git history
-gitleaks detect --source . --config .gitleaks.toml --verbose
+# or with git history: --verbose
 ```
 
-If Gitleaks is not installed, grab the latest release:
-
-```bash
-# Visit https://github.com/gitleaks/gitleaks/releases for the latest version
-curl -sSfL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_<VERSION>_linux_x64.tar.gz -o /tmp/gitleaks.tar.gz
-tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
-chmod +x /tmp/gitleaks
-```
+See `docs/gitleaks-setup.md` for installation.
 
 ## Allowlisting False Positives
 

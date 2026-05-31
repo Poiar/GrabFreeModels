@@ -22,21 +22,11 @@ API keys exist in two locations — keep them in sync:
 
 The CLI reads keys from `opencode.jsonc`, not `auth.json`. When the Desktop app updates `auth.json`, you must also update `opencode.jsonc` manually.
 
-## Providers
-
-| Provider | Auth Header | Notes |
-|----------|------------|-------|
-| OpenRouter | `Authorization: Bearer <key>` | Also set `HTTP-Referer` and `X-Title` headers |
-| LLM Gateway | `Authorization: Bearer <key>` | Base URL: `https://api.llmgateway.io/v1` |
-| Cerebras | `Authorization: Bearer <key>` | Uses `@ai-sdk/cerebras` provider |
-| NVIDIA | `Authorization: Bearer <key>` | Base URL: `https://integrate.api.nvidia.com/v1` |
-| HuggingFace | `Authorization: Bearer <key>` | Base URL: `https://router.huggingface.co/v1` |
-
 ## Reading Keys
-
-To read a key for use in API calls:
 
 ```powershell
 $auth = Get-Content 'C:\Users\pc\.local\share\opencode\auth.json' | ConvertFrom-Json
 $key = $auth.openrouter.key
 ```
+
+See `docs/provider-details.md` for endpoints.

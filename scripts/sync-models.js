@@ -30,7 +30,7 @@ function httpsGet(url, headers = {}) {
       headers: { 'Content-Type': 'application/json', ...headers },
     };
     https.get(options, res => {
-      let data = '';
+let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
         try { resolve(JSON.parse(data)); } catch (e) { reject(new Error(`Invalid JSON from ${url}: ${e.message}`)); }
@@ -68,6 +68,7 @@ async function getNvidiaFreeModels() {
   });
 }
 
+(async () => {
 console.log('=== Syncing free models ===\n');
 
 // --- OpenRouter ---
@@ -129,7 +130,13 @@ const potentiallyRemoved = [];
 for (const m of models) {
   if (!m.is_free) continue;
   if (m.provider === 'OpenCode Zen') continue;
-  if (m.id === 'openrouter/openrouter/free') continue;
+  // Skip special auto-routing models that don't appear in standard listings
+  // but are verified to still be operational (e.g. owl-alpha, openrouter/free)
+  const SKIP_REMOVAL_CHECK = new Set([
+    'openrouter/owl-alpha',
+    'openrouter/openrouter/free',
+  ]);
+  if (SKIP_REMOVAL_CHECK.has(m.id)) continue;
   if (orCbProviders.includes(m.provider) && !allCurrentFreeIds.has(m.id)) {
     potentiallyRemoved.push(m.id);
   }
@@ -184,5 +191,6 @@ if (!APPLY) {
     console.log('  JSON validation: OK');
   } catch (e) {
     console.log(`  JSON validation: FAILED - ${e.message}`);
-  }
+    }
 }
+})();

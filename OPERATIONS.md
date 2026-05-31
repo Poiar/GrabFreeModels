@@ -15,10 +15,10 @@ This document explains how to run, monitor, and maintain the GrabFreeModels work
 ## 2. Metrics Exporter Service
 - Install the service (run as Administrator):
   ```powershell
-  pwsh -File scripts\install-metrics-service.ps1 -Port 9180
+  pwsh -File scripts\install-metrics-service.ps1
   ```
 - The service is named `GrabFreeModelsMetrics` and starts automatically.
-- Prometheus should scrape `http://<host>:9180/metrics`.
+- Prometheus should scrape the metrics endpoint.
 - To stop/remove the service:
   ```powershell
   sc.exe stop GrabFreeModelsMetrics
@@ -28,7 +28,7 @@ This document explains how to run, monitor, and maintain the GrabFreeModels work
 
 ---
 ## 3. Snapshot Retention
-- Run the cleanup script (e.g., via a weekly scheduled task) to keep only the most recent 30 snapshots:
+- Run the cleanup script (e.g., via a weekly scheduled task):
   ```powershell
   pwsh -File scripts\cleanup-snapshots.ps1 -Keep 30
   ```
@@ -46,7 +46,7 @@ This document explains how to run, monitor, and maintain the GrabFreeModels work
   ```yaml
   - job_name: 'grabfreemodels'
     static_configs:
-      - targets: ['<host>:9180']
+      - targets: ['<host>']
   ```
 - **Alert rule** (store as `prometheus/alerts.yml`):
   ```yaml
