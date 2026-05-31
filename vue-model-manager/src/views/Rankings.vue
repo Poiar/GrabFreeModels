@@ -1,137 +1,182 @@
 <template>
   <div>
-<div class="page-header">
-    <h2>Rankings</h2>
-    <p>Role-specific ranked lists of working, non-rate-limited free models</p>
-  </div>
+    <div class="page-header">
+      <h2>Rankings</h2>
+      <p>Role-specific ranked lists of working, non-rate-limited free models</p>
+    </div>
 
-  <div class="filters">
-    <input type="text" v-model="searchTerm" placeholder="Search models…" class="search-input" />
-  </div>
+    <div class="filters">
+      <input
+        v-model.trim="searchTerm"
+        type="text"
+        placeholder="Search models…"
+        class="search-input"
+      />
+      <div class="status-filter">
+        <button
+          v-for="opt in statusOptions"
+          :key="opt.value"
+          :class="['status-btn', { active: statusFilter === opt.value }]"
+          @click="statusFilter = opt.value"
+        >
+          {{ opt.label }}
+        </button>
+      </div>
+      <select v-model="sortBy">
+        <option value="rank">Sort: Rank</option>
+        <option value="role">Sort: Role</option>
+        <option value="name">Sort: Name</option>
+        <option value="provider">Sort: Provider</option>
+        <option value="context">Sort: Context</option>
+      </select>
+      <button class="sort-dir-btn" @click="sortDesc = !sortDesc" :title="sortDesc ? 'Descending' : 'Ascending'">
+        {{ sortDesc ? '↓' : '↑' }}
+      </button>
+    </div>
 
-  <div class="filters">
-    <input v-model="searchTerm" type="text" placeholder="Search models…" class="search-input" />
-    <select v-model="sortBy">
-      <option value="rank">Rank</option>
-      <option value="role">Role</option>
-      <option value="name">Name</option>
-      <option value="provider">Provider</option>
-      <option value="status">Status</option>
-      <option value="context">Context</option>
-    </select>
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th class="sortable" :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
-            Rank <span class="sort-indicator">{{ sortIndicator('rank') }}</span>
-          </th>
-          <th class="sortable" :class="{ active: sortBy === 'role' }" @click="setSort('role')">
-            Role <span class="sort-indicator">{{ sortIndicator('role') }}</span>
-          </th>
-          <th class="sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
-            Model <span class="sort-indicator">{{ sortIndicator('name') }}</span>
-          </th>
-          <th>Provider</th>
-          <th class="sortable" :class="{ active: sortBy === 'status' }" @click="setSort('status')">
-            Status <span class="sort-indicator">{{ sortIndicator('status') }}</span>
-          </th>
-          <th class="sortable" :class="{ active: sortBy === 'context' }" @click="setSort('context')">
-            Context <span class="sort-indicator">{{ sortIndicator('context') }}</span>
-          </th>
-          <th>Best For</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in sortedItems" :key="item.modelId">
-          <td>#{{ roleRanks[item.modelId] ?? '?' }}</td>
-          <td>{{ formatRole(item.role) }}</td>
-          <td>
-            <div class="model-name">{{ store.getModelById(item.modelId)?.name ?? item.modelId }}</div>
-            <div class="model-id">{{ item.modelId }}</div>
-          </td>
-          <td>{{ item.model?.provider ?? '' }}</td>
-          <td>
-            <span class="badge" :class="`badge-${item.model?.status?.result ?? ''}`">
-              {{ item.model?.status?.result ?? '' }}
-            </span>
-          </td>
-          <td>
-            <span class="context-len" v-if="item.model?.context_length">
-              {{ Math.round((item.model?.context_length ?? 0)/1000) }}K
-            </span>
-          </td>
-          <td>
-            <div class="best-for-tags">
-              <span class="tag" v-for="tag in item.model?.best_for?.slice(0,3)" :key="tag">{{ tag }}</span>
-              <span class="tag" v-if="(item.model?.best_for?.length ?? 0) > 3">
-                +{{ (item.model?.best_for?.length ?? 0) - 3 }}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
+              Rank
+            </th>
+            <th :class="{ active: sortBy === 'role' }" @click="setSort('role')">
+              Role
+            </th>
+            <th :class="{ active: sortBy === 'name' }" @click="setSort('name')">
+              Model
+            </th>
+            <th :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
+              Provider
+            </th>
+            <th>Status</th>
+            <th :class="{ active: sortBy === 'context' }" @click="setSort('context')">
+              Context
+            </th>
+            <th>Tags</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in pagedItems" :key="item.modelId + '|' + item.role">
+            <td>
+              <span class="rank-num">#{{ item.rank }}</span>
+            </td>
+            <td>
+              <span class="role-badge" :data-role="item.role">{{ formatRole(item.role) }}</span>
+            </td>
+            <td>
+              <div class="model-name">{{ item.model?.name ?? item.modelId }}</div>
+              <div class="model-id">{{ item.modelId }}</div>
+            </td>
+            <td>{{ item.model?.provider ?? '' }}</td>
+            <td>
+              <span class="badge" :class="`badge-${item.model?.status?.result ?? ''}`">
+                {{ formatStatus(item.model?.status?.result) }}
               </span>
-            </div>
-          </td>
-        </tr>
-        <tr v-if="sortedItems.length === 0">
-          <td colspan="7" class="fst-italic text-muted">No models match the filter</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+            </td>
+            <td>
+              <span class="context-len" v-if="item.model?.context_length">
+                {{ fmtContext(item.model.context_length) }}
+              </span>
+            </td>
+            <td>
+              <div class="best-for-tags">
+                <span v-for="tag in (item.model?.best_for ?? []).slice(0, 3)" :key="tag" class="tag">{{ tag }}</span>
+                <span v-if="(item.model?.best_for?.length ?? 0) > 3" class="tag">+{{ item.model.best_for!.length - 3 }}</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    <div v-if="sortedItems.length === 0" class="empty-state">
+      <div class="empty-state-inner">
+        <div class="empty-state-icon">🔍</div>
+        <p>No models match the current filters</p>
+      </div>
+    </div>
+
+    <div class="pagination" v-if="sortedItems.length > 0 && totalPages > 1">
+      <button :disabled="page === 1" @click="page = 1">«</button>
+      <button :disabled="page === 1" @click="page--">‹</button>
+      <span class="page-info">{{ page }} / {{ totalPages }} ({{ sortedItems.length }} rows)</span>
+      <button :disabled="page === totalPages" @click="page++">›</button>
+      <button :disabled="page === totalPages" @click="page = totalPages">»</button>
+      <select v-model.number="perPage" class="per-page-select">
+        <option :value="10">10</option>
+        <option :value="25">25</option>
+        <option :value="50">50</option>
+        <option :value="0">All</option>
+      </select>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useModelsStore } from '@/store/models'
 
 const store = useModelsStore()
 
-const roles = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
-
-const searchTerm = ref('')
+const ROLES = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
 
 function formatRole(role: string): string {
   return role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
-// Flatten all role rankings into a single list while preserving role information
+function formatStatus(s: string | undefined): string {
+  if (!s) return '—'
+  if (s === 'rate_limited') return 'Rate-limited'
+  if (s === 'small_model') return 'Small model'
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+function fmtContext(n: number): string {
+  return n >= 1048576 ? (n / 1048576).toFixed(1) + 'M' : Math.round(n / 1000) + 'K'
+}
+
+// ── Flat list preserving role + per-role rank ──
 const flatRankings = computed(() => {
-  const list: { modelId: string; role: string }[] = []
-  for (const role of roles) {
+  const list: { modelId: string; role: string; rank: number }[] = []
+  for (const role of ROLES) {
     const arr = store.roleRankings[role] ?? []
-    for (const id of arr) {
-      list.push({ modelId: id, role })
+    for (let i = 0; i < arr.length; i++) {
+      list.push({ modelId: arr[i], role, rank: i + 1 })
     }
   }
   return list
 })
 
-// Compute filtered flat list based on search term (matches name or id)
-const filteredFlatRankings = computed(() => {
-  const term = searchTerm.value.trim().toLowerCase()
-  if (!term) return flatRankings.value
+// ── Filters ──
+const searchTerm = ref('')
+const statusFilter = ref<'all' | 'working' | 'untested'>('all')
+
+const statusOptions = [
+  { label: 'All', value: 'all' as const },
+  { label: 'Working', value: 'working' as const },
+  { label: 'Untested', value: 'untested' as const },
+]
+
+const filtered = computed(() => {
+  const term = searchTerm.value.toLowerCase()
   return flatRankings.value.filter(item => {
+    // Status filter
+    const result = item.model?.status?.result
+    if (statusFilter.value === 'working' && result !== 'working') return false
+    if (statusFilter.value === 'untested' && result !== 'untested') return false
+    // Search
+    if (!term) return true
     const model = store.getModelById(item.modelId)
     const name = model?.name?.toLowerCase() ?? ''
-    const lowerId = item.modelId.toLowerCase()
-    return name.includes(term) || lowerId.includes(term)
+    return name.includes(term) || item.modelId.toLowerCase().includes(term)
   })
 })
 
-// Map each modelId to its rank **within its role** (1‑based)
-const roleRanks = computed(() => {
-  const map: Record<string, number> = {}
-  for (const role of roles) {
-    const list = store.roleRankings[role] ?? []
-    list.forEach((id, idx) => {
-      map[id] = idx + 1
-    })
-  }
-  return map
-})
+const STATUS_ORDER: Record<string, number> = { working: 0, untested: 1, rate_limited: 2, broken: 3, paid: 4 }
+const ROLE_ORDER: Record<string, number> = {}
+ROLES.forEach((r, i) => { ROLE_ORDER[r] = i })
 
-// Sorting state
 const sortBy = ref('rank')
 const sortDesc = ref(false)
 
@@ -144,59 +189,139 @@ function setSort(field: string) {
   }
 }
 
-function sortIndicator(field: string): string {
-  if (sortBy.value !== field) return '⇅'
-  return sortDesc.value ? '↓' : '↑'
-}
-
-// Prepare items with model data for table
-const tableItems = computed(() => {
-  return filteredFlatRankings.value.map(item => ({
-    ...item,
-    model: store.getModelById(item.modelId)
-  }))
-})
-
 const sortedItems = computed(() => {
-  const arr = [...tableItems.value]
+  const arr = filtered.value.map(item => ({
+    ...item,
+    model: store.getModelById(item.modelId),
+  }))
   arr.sort((a, b) => {
-    let av: any = a
-    let bv: any = b
+    let cmp = 0
     switch (sortBy.value) {
       case 'rank':
-        av = roleRanks.value[a.modelId] ?? Infinity
-        bv = roleRanks.value[b.modelId] ?? Infinity
+        cmp = (STATUS_ORDER[a.model?.status?.result ?? ''] ?? 5) - (STATUS_ORDER[b.model?.status?.result ?? ''] ?? 5)
+        if (cmp === 0) cmp = RANK_SCORE(a) - RANK_SCORE(b)
         break
       case 'role':
-        av = a.role
-        bv = b.role
+        cmp = (ROLE_ORDER[a.role] ?? 99) - (ROLE_ORDER[b.role] ?? 99)
+        if (cmp === 0) cmp = a.rank - b.rank
         break
       case 'name':
-        av = a.model?.name ?? ''
-        bv = b.model?.name ?? ''
+        cmp = (a.model?.name ?? '').localeCompare(b.model?.name ?? '')
         break
       case 'provider':
-        av = a.model?.provider ?? ''
-        bv = b.model?.provider ?? ''
-        break
-      case 'status':
-        av = a.model?.status?.result ?? ''
-        bv = b.model?.status?.result ?? ''
+        cmp = (a.model?.provider ?? '').localeCompare(b.model?.provider ?? '')
         break
       case 'context':
-        av = a.model?.context_length ?? 0
-        bv = b.model?.context_length ?? 0
+        cmp = (a.model?.context_length ?? 0) - (b.model?.context_length ?? 0)
         break
       default:
-        av = ''
-        bv = ''
+        cmp = 0
     }
-    if (av < bv) return sortDesc.value ? 1 : -1
-    if (av > bv) return sortDesc.value ? -1 : 1
-    return 0
+    return sortDesc.value ? -cmp : cmp
   })
   return arr
 })
 
+function RANK_SCORE(item: { modelId: string; role: string; rank: number }) {
+  return item.rank * 100 + (ROLE_ORDER[item.role] ?? 99)
+}
 
+// ── Pagination ──
+const perPage = ref(25)
+const page = ref(1)
+
+watch([sortedItems, perPage], () => { page.value = 1 })
+
+const totalPages = computed(() => {
+  if (perPage.value <= 0) return 1
+  return Math.max(1, Math.ceil(sortedItems.value.length / perPage.value))
+})
+
+const pagedItems = computed(() => {
+  if (perPage.value <= 0) return sortedItems.value
+  const start = (page.value - 1) * perPage.value
+  return sortedItems.value.slice(start, start + perPage.value)
+})
 </script>
+
+<style scoped>
+.rank-num {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.role-badge[data-role="model"]          { background: rgba(88,166,255,0.15); color: var(--accent); }
+.role-badge[data-role="build"]          { background: rgba(63,185,80,0.15);  color: var(--green); }
+.role-badge[data-role="general"]        { background: rgba(188,140,255,0.15); color: var(--purple); }
+.role-badge[data-role="small_model"]    { background: rgba(210,153,34,0.15); color: var(--orange); }
+.role-badge[data-role="explore"]        { background: rgba(57,210,192,0.15);  color: var(--cyan); }
+.role-badge[data-role="stable"]         { background: rgba(230,237,243,0.1);  color: var(--text-dim); }
+
+.status-filter {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+
+.status-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  padding: 4px 12px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.status-btn:hover {
+  color: var(--text);
+  background: var(--bg-hover);
+}
+
+.status-btn.active {
+  background: var(--bg-card);
+  color: var(--accent);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.sort-dir-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.sort-dir-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.empty-state {
+  border-top: 1px solid var(--border);
+}
+</style>

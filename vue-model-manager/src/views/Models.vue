@@ -7,7 +7,11 @@
 
     <!-- Filters -->
     <div class="filters">
-      <input v-model="search" type="text" placeholder="Search by name, ID, or notes…" />
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input v-model="search" type="text" placeholder="Search name, ID, notes…" />
+        <button v-if="search" class="search-clear" @click="search = ''" title="Clear search">✕</button>
+      </div>
       <select v-model="providerFilter">
         <option value="">All Providers</option>
         <option v-for="p in store.allProviderNames" :key="p" :value="p">{{ p }}</option>
@@ -25,9 +29,12 @@
         <option value="free">Free Only</option>
         <option value="paid">Paid Only</option>
       </select>
-      <span class="text-dim font-sm">
+      <span class="filter-count">
         {{ sortedModels.length }} of {{ store.allModels.length }} models
       </span>
+      <button v-if="hasActiveFilters" class="clear-btn" @click="resetFilters">
+        Clear filters
+      </button>
     </div>
 
     <!-- Table -->
@@ -63,13 +70,13 @@
           <template v-if="paginatedModels.length > 0">
             <tr v-for="model in paginatedModels" :key="model.id">
               <td>
-                <div class="model-name">{{ model.name }}</div>
-                <div class="model-id">{{ model.id }}</div>
+                <div class="model-name" :title="model.name">{{ model.name }}</div>
+               <div class="model-id" :title="model.id">{{ model.id }}</div>
               </td>
               <td>{{ model.provider }}</td>
               <td>
                 <span class="badge" :class="`badge-${model.status.result}`">
-                  {{ model.status.result }}
+                  {{ formatStatus(model.status.result) }}
                 </span>
               </td>
               <td>
@@ -121,7 +128,12 @@
     <div v-if="totalPages > 1" class="pagination">
       <button :disabled="page === 1" @click="page = 1" aria-label="First page">«</button>
       <button :disabled="page === 1" @click="page--" aria-label="Previous page">‹</button>
-      <span class="page-info">Page {{ page }} of {{ totalPages }}</span>
+      <template v-for="p in pageNumbers" :key="p">
+        <button v-if="p !== '…'" :class="{ 'page-btn': true, active: p === page }" @click="page = p as number">
+          {{ p }}
+        </button>
+        <span v-else class="page-ellipsis">…</span>
+      </template>
       <button :disabled="page === totalPages" @click="page++" aria-label="Next page">›</button>
       <button :disabled="page === totalPages" @click="page = totalPages" aria-label="Last page">»</button>
       <select v-model.number="perPage" class="per-page-select">
@@ -153,6 +165,10 @@ watch([search, providerFilter, statusFilter, typeFilter, sortBy, sortDesc], () =
   page.value = 1
 })
 
+const hasActiveFilters = computed(() =>
+  !!search.value || !!providerFilter.value || !!statusFilter.value || !!typeFilter.value
+)
+
 function resetFilters() {
   search.value = ''
   providerFilter.value = ''
@@ -172,6 +188,11 @@ function setSort(field: string) {
 function sortIndicator(field: string): string {
   if (sortBy.value !== field) return '⇅'
   return sortDesc.value ? '↓' : '↑'
+}
+
+function formatStatus(s: string): string {
+  if (s === 'rate_limited') return 'Rate Limited'
+  return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
 const filteredModels = computed(() => {
@@ -208,7 +229,6 @@ const sortedModels = computed(() => {
       case 'status':
         return dir * a.status.result.localeCompare(b.status.result)
       case 'context': {
-        // Normalize context_length: nulls sort to the end regardless of direction
         const aCtx = a.context_length
         const bCtx = b.context_length
         if (aCtx == null && bCtx == null) return 0
@@ -254,4 +274,19 @@ const fmt = new Intl.NumberFormat('en', { notation: 'compact', maximumSignifican
 function formatContext(n: number): string {
   return fmt.format(n)
 }
+
+const pageNumbers = computed((): (number | string)[] => {
+  const total = totalPages.value
+  const current = page.value
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+
+  const pages: (number | string)[] = [1]
+  if (current > 3) pages.push('…')
+  const start = Math.max(2, current - 1)
+  const end = Math.min(total - 1, current + 1)
+  for (let i = start; i <= end; i++) pages.push(i)
+  if (current < total - 2) pages.push('…')
+  pages.push(total)
+  return pages
+})
 </script>

@@ -33,6 +33,22 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - **Code examples must earn their place**: If the pattern is already taught elsewhere or is self-evident from the rules, don't include it.
 - **Frontmatter stays concise**: Skill descriptions mention *what* triggers them, not implementation details.
 
+## Playing with Playwright (headed browser)
+
+When you need to visually inspect the Vue app at `http://localhost:5173`:
+
+```powershell
+cd C:\OC\GrabFreeModels\vue-model-manager
+# Quick: get rendered text
+node -e "const {chromium} = require('playwright'); (async () => { const b = await chromium.launch(); const p = await b.newPage(); await p.goto('http://localhost:5173/#/models', {timeout: 15000}); await p.waitForTimeout(5000); const t = await p.innerText('body'); console.log(t.substring(0, 5000)); await b.close(); })().catch(e => console.error(e.message));"
+# Screenshot: replace the body-getter with p.screenshot({path:'path/to/shot.png', fullPage:false})
+```
+
+- The dev server must be running on port 5173 (`npm run dev`).
+- `waitForTimeout(5000)` gives the SPA time to fetch data and render.
+- Available as a devDependency (`playwright`) in the vue-model-manager project.
+- For a headed (visible browser) view, pass `headless: false` to `chromium.launch()`.
+
 ## Vue Project
 
 - `vue-model-manager/` — Vue 3 + Vite + Pinia SPA that visualizes `available-models.json`
