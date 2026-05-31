@@ -10,13 +10,18 @@
       <ul class="ranking-list">
         <li v-for="(modelId, index) in store.roleRankings[role] ?? []" :key="modelId">
           <span class="rank-num" :class="{ top3: index < 3 }">{{ index + 1 }}</span>
-          <span
-            class="rank-model"
-            :class="{ 'rank-used-up': store.isProviderUsedUp(modelId.split('/')[0]) }"
-          >
-            {{ modelId }}
-          </span>
-          <span v-if="store.isProviderUsedUp(modelId.split('/')[0])" class="badge badge-rate_limited ms-auto">
+          <div class="rank-model-wrap">
+            <span
+              class="rank-model"
+              :class="{ 'rank-used-up': store.isModelProviderUsedUp(modelId) }"
+            >
+              {{ modelId }}
+            </span>
+            <span class="rank-name">
+              {{ store.getModelById(modelId)?.name ?? '' }}
+            </span>
+          </div>
+          <span v-if="store.isModelProviderUsedUp(modelId)" class="badge badge-rate_limited ms-auto">
             used up
           </span>
         </li>

@@ -5,8 +5,6 @@ description: Use when you have a todo list (from todowrite) where items are inde
 
 # Parallel Todo Execution
 
-When you have a todo list with items that don't touch shared state (different files, different models, read-only operations on the same file), **spawn a subagent for each item** instead of executing sequentially.
-
 ## When to Use
 
 - Todo items operate on **different files** (e.g., lint file A, test file B, format file C)
@@ -23,54 +21,10 @@ When you have a todo list with items that don't touch shared state (different fi
 
 ## How to Execute
 
-### 1. Create the todo list first
-
-```
-todowrite: [
-  { content: "Validate model X", status: "pending" },
-  { content: "Validate model Y", status: "pending" },
-  { content: "Validate model Z", status: "pending" }
-]
-```
-
-### 2. Spawn one subagent per item
-
-Use the `task` tool with `subagent_type: "general"` (or `"explore"` for research tasks). Each subagent gets a clear, self-contained description:
-
-```
-task({
-  subagent_type: "general",
-  description: "Validate model X rate limiting",
-  prompt: "Test model X for rate limiting by sending 6 requests (3 burst + 3 delayed). Report: model ID, results per request, verdict (working/rate_limited/broken). Use the API key from C:\Users\pc\.local\share\opencode\auth.json."
-})
-```
-
-### 3. Collect results and update
-
-Once all subagents return, update the todo list to `completed` for each item and aggregate results.
-
-## Example: Validating Multiple Models
-
-**Todo list:**
-```
-todowrite: [
-  { content: "Validate openrouter/owl-alpha", status: "pending" },
-  { content: "Validate openai/gpt-oss-120b:free", status: "pending" },
-  { content: "Validate liquid/lfm-2.5-1.2b-instruct:free", status: "pending" }
-]
-```
-
-**Spawn subagents in a single message:**
-```
-task({ description: "Validate owl-alpha", prompt: "..." })
-task({ description: "Validate gpt-oss-120b:free", prompt: "..." })
-task({ description: "Validate lfm-2.5-1.2b-instruct:free", prompt: "..." })
-```
-
-## Important Rules
-
-- **Mark todos as `in_progress`** before spawning subagents
-- **One subagent per todo item** — don't batch multiple items into one subagent
-- **Each subagent must be self-contained** — include all context/files they need in the prompt
-- **Don't spawn subagents for sequential tasks** that write to the same file
-- **Always update the todo list** when subagents complete (mark `completed` or note blockers)
+1. **Create the todo list** with all items as `pending`
+2. **Pick the right agent per item**:
+   - `agent_id: "muse"` — read-only tasks: research, search, analysis, summarization
+   - `agent_id: "forge"` — write tasks: edit files, implement features, run commands
+   - When in doubt, use `forge`
+3. **Mark all as `in_progress`**, then spawn one subagent per item via the `task` tool — each subagent gets a self-contained prompt with all context it needs
+4. **Collect results** and mark each todo `completed` (or note blockers)

@@ -1,0 +1,100 @@
+#!/usr/bin/env node
+/**
+ * generate-dashboard.js
+ * Creates a simple HTML dashboard showing provider health and current rankings.
+ * Providers listed in _provider_usage for the current month are greyed out.
+ *
+ * Usage: node scripts/generate-dashboard.js [--output dashboard.html]
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const args = process.argv.slice(2);
+let outputPath = path.join(__dirname, '..', 'dashboard.html');
+
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--output' && args[i + 1]) outputPath = args[++i];
+}
+
+const jsonPath = path.join(__dirname, '..', 'available-models.json');
+const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+
+const currentMonth = new Date().toISOString().slice(0, 7);
+const usedUpProviders = [];
+
+if (data._provider_usage) {
+  for (const [key, entry] of Object.entries(data._provider_usage)) {
+    if (key === 'description') continue;
+    if (entry && entry.month === currentMonth) {
+      usedUpProviders.push(key);
+    }
+  }
+}
+
+// Provider health table
+let provRows = '';
+if (data.provider_health) {
+  for (const [name, health] of Object.entries(data.provider_health)) {
+    const isUsedUp = usedUpProviders.includes(name);
+    const style = isUsedUp ? " style='background:#f0f0f0;color:#999;text-decoration:line-through'" : '';
+    const badge = isUsedUp ? " <span title='Used up for " + currentMonth + "'>⚠</span>" : '';
+    provRows += `<tr${style}><td>${name}${badge}</td><td>${health.total}</td><td>${health.working}</td><td>${health.rate_limited}</td><td>${health.broken}</td></tr>\n`;
+  }
+}
+
+const provTable = [
+  '<h2>Provider Health</h2>',
+  `<p style="font-size:0.85em;color:#666">Strikethrough = used up for ${currentMonth} (see _provider_usage)</p>`,
+  "<table border='1' cellpadding='4'><tr><th>Provider</th><th>Total</th><th>Working</th><th>Rate-Limited</th><th>Broken</th></tr>",
+  provRows,
+  '</table>',
+].join('\n');
+
+// Rankings tables
+let roleTables = '';
+const rankings = data._role_rankings || {};
+for (const [role, ids] of Object.entries(rankings)) {
+  if (role === 'description' || !Array.isArray(ids)) continue;
+  let rows = '';
+  for (const id of ids) {
+    const provider = id.split('/')[0];
+    const isUsedUp = usedUpProviders.includes(provider);
+    const style = isUsedUp ? " style='color:#999;text-decoration:line-through'" : '';
+    rows += `<tr${style}><td>${id}</td></tr>\n`;
+  }
+  roleTables += `<h3>${role}</h3><table border='1' cellpadding='4'><tr><th>Model ID</th></tr>${rows}</table>\n`;
+}
+
+// Provider usage section
+let usageSection = '';
+if (usedUpProviders.length > 0) {
+  let usageRows = '';
+  for (const p of usedUpProviders) {
+    const reason = data._provider_usage[p]?.reason || '';
+    usageRows += `<tr><td>${p}</td><td>${reason}</td></tr>\n`;
+  }
+  usageSection = [
+    `<h2>Used-Up Providers (${currentMonth})</h2>`,
+    "<table border='1' cellpadding='4'><tr><th>Provider</th><th>Reason</th></tr>",
+    usageRows,
+    '</table>',
+  ].join('\n');
+}
+
+const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
+const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Free Model Dashboard</title></head>
+<body>
+<h1>Free Model Dashboard</h1>
+<p style="font-size:0.85em;color:#666">Generated ${now}</p>
+${provTable}
+${usageSection}
+<h2>Role Rankings</h2>
+${roleTables}
+</body>
+</html>`;
+
+fs.writeFileSync(outputPath, html, 'utf8');
+console.log(`Dashboard written to ${outputPath}`);

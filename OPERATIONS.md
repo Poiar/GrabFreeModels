@@ -34,24 +34,14 @@ This document explains how to run, monitor, and maintain the GrabFreeModels work
   ```
 
 ---
-## 4. Dashboard & Docs
+## 4. Dashboard
 - Generate an updated dashboard HTML:
   ```powershell
   pwsh -File scripts\generate-dashboard.ps1
   ```
-- The dashboard (`dashboard.html`) is served via GitHub Pages (see **5**).
-- MkDocs site can be built locally:
-  ```bash
-  mkdocs build   # output in site/
-  ```
 
 ---
-## 5. GitHub Pages
-- Enable Pages in the repository settings, selecting the `site/` folder as the source.
-- After a successful build, the dashboard and `RANKINGS.md` will be publicly viewable at `https://<username>.github.io/GrabFreeModels/`.
-
----
-## 6. Alerts & Monitoring
+## 5. Alerts & Monitoring
 - **Prometheus**: add the following job to `prometheus.yml`:
   ```yaml
   - job_name: 'grabfreemodels'
@@ -75,12 +65,7 @@ This document explains how to run, monitor, and maintain the GrabFreeModels work
 - Load the rule into Prometheus and configure Alertmanager (or your existing webhook) to receive notifications.
 
 ---
-## 7. Dependency Management
-- Dependabot automatically opens PRs for updates to `requirements.txt` and the PowerShell module manifest.
-- When a PR is merged, the CI workflow (`.github/workflows/ci.yml`) validates the changes.
-
----
-## 8. Manual Run / Debugging
+## 6. Manual Run / Debugging
 - To run the full pipeline manually:
   ```powershell
   pwsh -File scripts\nightly-maintenance.ps1
@@ -89,7 +74,7 @@ This document explains how to run, monitor, and maintain the GrabFreeModels work
 - Use `git status` to verify that any changes were committed.
 
 ---
-## 9. Security Considerations
+## 7. Security Considerations
 - Keep the webhook URL secret; never commit it to the repo.
 - Restrict the Windows task to the dedicated service account that has write access only to this repository.
 - Regularly rotate the webhook secret if supported by your notification platform.

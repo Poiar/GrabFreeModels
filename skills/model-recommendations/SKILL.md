@@ -13,8 +13,7 @@ description: Use when suggesting models for the user's opencode setup. ALWAYS ch
 - **general_agent**: `openrouter/nvidia/nemotron-3-super-120b-a12b:free` (cloud, free, 120B params, 1M context, general purpose)
 - **explore_agent**: `opencode/deepseek-v4-flash-free` (cloud, fast, codebase search)
 
-## Provider Notes
-- **HuggingFace router**: All three HF router models are rate-limited as of May 2026. Avoid for agent roles until quota resets.
+## Rules
 
 1. NEVER suggest models that don't natively support OpenAI-style tool calling. This includes:
      - `qwen3:*` **base/chat variants** (echo tool JSON as text — do NOT return proper `tool_calls`). Exception: `Qwen3-Coder` variants DO support tool calling — verified working.
@@ -25,20 +24,6 @@ description: Use when suggesting models for the user's opencode setup. ALWAYS ch
      - `phi4` (echoes tool definitions as text)
      - **Always verify** by checking `available-models.json` status and `supports_tools` field from provider API before recommending an unfamiliar model.
 
-2. For CLOUD models (free tier), prefer already-validated options:
-   - `opencode/deepseek-v4-flash-free` — small tasks, titling, high throughput
-   - `opencode/big-pickle` — general purpose coding
-   - `opencode/nemotron-3-super-free` — general purpose, fast
-   - `openrouter/owl-alpha` — general purpose (free)
+2. When the user asks "which model is best for X", refer to the `best_for` field in `available-models.json` rather than guessing.
 
-3. When the user asks "which model is best for X", refer to the `best_for` field in `available-models.json` rather than guessing.
-
-4. If suggesting a new model, ALWAYS verify it supports OpenAI tool calling first by checking the model's documentation or testing with a simple tool-calling request.
-
-## Consistency Check
-Before making any model recommendation, ask yourself:
-- Does this model properly return `tool_calls` in OpenAI format?
-- Is this model already listed in `available-models.json` with a "working" status?
-- Am I contradicting a previous recommendation I made?
-
-If unsure, say "I need to test this model first" rather than guessing.
+3. If suggesting a new model, ALWAYS verify it supports OpenAI tool calling first by checking the model's documentation or testing with a simple tool-calling request. If unsure, say "I need to test this model first" rather than guessing.

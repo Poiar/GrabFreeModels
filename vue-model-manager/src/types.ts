@@ -79,5 +79,4 @@ export interface ModelsData {
     issues: KnownIssue[]
   }
   _validation_method: ValidationMethod
-  provider_health: Record<string, ProviderHealth>
 }

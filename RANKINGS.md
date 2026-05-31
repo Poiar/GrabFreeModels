@@ -18,16 +18,11 @@ The repository maintains several role‑specific ranking lists in **available-mo
 | `stable` | Long‑term reliable models | Subset of free models that have been **working** for at least 30 days (tested date older than 30 days). Used for services requiring guaranteed uptime. |
 
 ## Stability Threshold
-- The `stable` list is generated automatically:
-  ```powershell
-  $stable = $json.models |
-      Where-Object { $_.is_free -and $_.status.result -eq 'working' -and (Get-Date $_.status.tested) -le (Get-Date).AddDays(-30) } |
-      ForEach-Object { $_.id }
-  ```
-- When the stable list changes, the nightly maintenance script creates a Git tag (`stable-YYYYMMDD`).
+
+The `stable` list is a subset of free models that have been **working** for at least 30 days. When it changes, the nightly maintenance script creates a Git tag (`stable-YYYYMMDD`).
 
 ## Updating Rankings
-- Adding a new model: ensure it is marked `is_free: true` and passes validation (`validate‑free‑models.ps1`). If it is `working`, it will be added to the appropriate role lists automatically.
+- Adding a new model: ensure it is marked `is_free: true` and passes validation (`validate‑free-models.ps1`). If it is `working`, it will be added to the appropriate role lists automatically.
 - Removing a model: set `status.result` to `rate_limited` or `broken`; the script will prune it from all rankings.
 - Manual adjustments: edit `_role_rankings` directly, then run `check‑rankings.ps1` to verify integrity.
 

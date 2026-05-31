@@ -1549,7 +1549,22 @@
         "cerebras/llama3.1-8b",
         "cerebras/qwen-3-235b-a22b-instruct-2507"
       ],
-      "untested": [],
+      "untested": [
+        "cerebras/gpt-oss-120b",
+        "nvidia/ai21labs/jamba-1.5-large-instruct",
+        "nvidia/databricks/dbrx-instruct",
+        "nvidia/meta/llama-3.3-70b-instruct",
+        "nvidia/meta/llama-4-maverick-17b-128e-instruct",
+        "nvidia/microsoft/phi-4-mini-instruct",
+        "nvidia/mistralai/mistral-large-3-675b-instruct-2512",
+        "nvidia/mistralai/mixtral-8x7b-instruct-v0.1",
+        "nvidia/nemotron-3-super-120b-a12b",
+        "nvidia/nvidia/llama-3.1-nemotron-ultra-253b-v1",
+        "nvidia/qwen/qwen3-coder-480b-a35b-instruct",
+        "nvidia/qwen/qwen3.5-397b-a17b",
+        "nvidia/stepfun-ai/step-3.7-flash",
+        "nvidia/z-ai/glm-5.1"
+      ],
       "rate_limited": [
         "openrouter/cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
         "openrouter/deepseek/deepseek-v4-flash:free",
@@ -1567,104 +1582,99 @@
       ]
     }
   },
-   "_role_rankings": {
-     "description": "Ranked lists of working, non-rate-limited free models for each role. Best model first. Providers in _provider_usage for the current month are automatically excluded.",
-     "model": [
-       "llmgateway/glm-4.6v-flash",
-       "openrouter/arcee-ai/trinity-large-thinking:free",
-       "openrouter/google/gemma-4-26b-a4b-it:free",
-       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
-       "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
-       "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-       "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
-       "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
-       "openrouter/nvidia/nemotron-nano-9b-v2:free",
-       "openrouter/openai/gpt-oss-120b:free",
-       "openrouter/openrouter/free",
-       "openrouter/owl-alpha"
-     ],
-     "build": [
-       "llmgateway/glm-4.6v-flash",
-       "opencode/big-pickle",
-       "openrouter/arcee-ai/trinity-large-thinking:free",
-       "openrouter/google/gemma-4-26b-a4b-it:free",
-       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
-       "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
-       "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-       "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
-       "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
-       "openrouter/nvidia/nemotron-nano-9b-v2:free",
-       "openrouter/openai/gpt-oss-120b:free",
-       "openrouter/openrouter/free",
-       "openrouter/owl-alpha",
-       "openrouter/poolside/laguna-m.1:free"
-     ],
-     "general": [
-       "cerebras/zai-glm-4.7",
-       "llmgateway/glm-4.6v-flash",
-       "openrouter/arcee-ai/trinity-large-thinking:free",
-       "openrouter/google/gemma-4-26b-a4b-it:free",
-       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
-       "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
-       "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-       "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
-       "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
-       "openrouter/nvidia/nemotron-nano-9b-v2:free",
-       "openrouter/openai/gpt-oss-120b:free",
-       "openrouter/openrouter/free",
-       "openrouter/owl-alpha"
-     ],
-     "small_model": [
-       "llmgateway/glm-4.5-flash",
-       "llmgateway/glm-4.6v-flash",
-       "llmgateway/glm-4.7-flash",
-       "opencode/big-pickle",
-       "opencode/deepseek-v4-flash-free",
-       "opencode/nemotron-3-super-free",
-       "openrouter/arcee-ai/trinity-large-thinking:free",
-       "openrouter/google/gemma-4-26b-a4b-it:free",
-       "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
-       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
-       "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
-       "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-       "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
-       "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
-       "openrouter/nvidia/nemotron-nano-9b-v2:free",
-       "openrouter/openai/gpt-oss-20b:free",
-       "openrouter/openrouter/free",
-       "openrouter/poolside/laguna-xs.2:free",
-       "openrouter/z-ai/glm-4.5-air:free"
-     ],
-     "explore": [
-       "llmgateway/glm-4.5-flash",
-       "llmgateway/glm-4.6v-flash",
-       "llmgateway/glm-4.7-flash",
-       "opencode/deepseek-v4-flash-free",
-       "opencode/nemotron-3-super-free",
-       "openrouter/arcee-ai/trinity-large-thinking:free",
-       "openrouter/google/gemma-4-26b-a4b-it:free",
-       "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
-       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
-       "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
-       "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-       "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
-       "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
-       "openrouter/nvidia/nemotron-nano-9b-v2:free",
-       "openrouter/openai/gpt-oss-20b:free",
-       "openrouter/openrouter/free",
-       "openrouter/poolside/laguna-xs.2:free",
-       "openrouter/z-ai/glm-4.5-air:free"
-     ],
-      "stable": []
-    },
-   "_provider_usage": {
-     "description": "Tracks providers that are fully consumed (rate-limited or out of quota) for a given month. Providers listed here are excluded from _role_rankings for that month. Format: provider_id → { month: 'YYYY-MM', reason: string }.",
-     "huggingface": {
-       "month": "2026-05",
-       "reason": "All three HuggingFace router models rate-limited in May 2026"
-     }
-   },
-   "_known_issues": {
+  "_role_rankings": {
+    "description": "Ranked lists of working, non-rate-limited free models for each role. Best model first. Providers in _provider_usage for the current month are automatically excluded.",
+    "model": [
+      "llmgateway/glm-4.6v-flash",
+      "openrouter/arcee-ai/trinity-large-thinking:free",
+      "openrouter/google/gemma-4-26b-a4b-it:free",
+      "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
+      "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+      "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
+      "openrouter/nvidia/nemotron-nano-9b-v2:free",
+      "openrouter/openai/gpt-oss-120b:free",
+      "openrouter/openrouter/free",
+      "openrouter/owl-alpha"
+    ],
+    "build": [
+      "llmgateway/glm-4.6v-flash",
+      "opencode/big-pickle",
+      "openrouter/arcee-ai/trinity-large-thinking:free",
+      "openrouter/google/gemma-4-26b-a4b-it:free",
+      "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
+      "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+      "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
+      "openrouter/nvidia/nemotron-nano-9b-v2:free",
+      "openrouter/openai/gpt-oss-120b:free",
+      "openrouter/openrouter/free",
+      "openrouter/owl-alpha",
+      "openrouter/poolside/laguna-m.1:free"
+    ],
+    "general": [
+      "cerebras/zai-glm-4.7",
+      "llmgateway/glm-4.6v-flash",
+      "openrouter/arcee-ai/trinity-large-thinking:free",
+      "openrouter/google/gemma-4-26b-a4b-it:free",
+      "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
+      "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+      "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
+      "openrouter/nvidia/nemotron-nano-9b-v2:free",
+      "openrouter/openai/gpt-oss-120b:free",
+      "openrouter/openrouter/free",
+      "openrouter/owl-alpha"
+    ],
+    "small_model": [
+      "llmgateway/glm-4.5-flash",
+      "llmgateway/glm-4.6v-flash",
+      "llmgateway/glm-4.7-flash",
+      "opencode/big-pickle",
+      "opencode/deepseek-v4-flash-free",
+      "opencode/nemotron-3-super-free",
+      "openrouter/arcee-ai/trinity-large-thinking:free",
+      "openrouter/google/gemma-4-26b-a4b-it:free",
+      "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
+      "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
+      "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+      "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
+      "openrouter/nvidia/nemotron-nano-9b-v2:free",
+      "openrouter/openai/gpt-oss-20b:free",
+      "openrouter/openrouter/free",
+      "openrouter/poolside/laguna-xs.2:free",
+      "openrouter/z-ai/glm-4.5-air:free"
+    ],
+    "explore": [
+      "llmgateway/glm-4.5-flash",
+      "llmgateway/glm-4.6v-flash",
+      "llmgateway/glm-4.7-flash",
+      "opencode/deepseek-v4-flash-free",
+      "opencode/nemotron-3-super-free",
+      "openrouter/arcee-ai/trinity-large-thinking:free",
+      "openrouter/google/gemma-4-26b-a4b-it:free",
+      "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
+      "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
+      "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+      "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
+      "openrouter/nvidia/nemotron-nano-9b-v2:free",
+      "openrouter/openai/gpt-oss-20b:free",
+      "openrouter/openrouter/free",
+      "openrouter/poolside/laguna-xs.2:free",
+      "openrouter/z-ai/glm-4.5-air:free"
+    ]
+  },
+  "_provider_usage": {
+    "description": "Tracks providers that are fully consumed (rate-limited or out of quota) for a given month. Providers listed here are excluded from _role_rankings for that month. Format: provider_id → { month: 'YYYY-MM', reason: string }."
+  },
+  "_known_issues": {
     "description": "Non-fatal issues that affect usability but don't prevent the model from working.",
     "issues": [
       {
@@ -1744,7 +1754,8 @@
       "working": 0,
       "rate_limited": 0,
       "broken": 0,
-      "total": 13
+      "total": 13,
+      "untested": 13
     },
     "Hugging Face": {
       "working": 3,

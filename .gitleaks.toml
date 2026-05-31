@@ -4,15 +4,9 @@
 title = "GrabFreeModels Gitleaks config"
 
 [allowlist]
-  description = "Allowlisted files and patterns"
-  paths = [
-    # Documentation with placeholder key examples (no real secrets)
-    '''skills/test-model-auth/SKILL.md''',
-  ]
-
-  # Allowlist placeholder patterns that are clearly not real keys
+  description = "Allowlisted patterns"
   regexes = [
-    # <key> angle-bracket placeholders
+    # <key> angle-bracket placeholders in documentation
     '''<key>''',
     # "..." ellipsis placeholders
     '''\.\.\.''',
