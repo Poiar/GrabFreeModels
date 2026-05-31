@@ -54,8 +54,8 @@
       "notes": "60.2B params. Released Apr 1, 2026.",
       "status": {
         "tested": "2026-05-25",
-        "result": "working",
-        "detail": "Reasoning model. Output may be in 'reasoning' field."
+        "result": "untested",
+        "detail": "Model may no longer be offered as free — re-check needed"
       }
     },
     {
@@ -810,8 +810,8 @@
       "notes": "8B params. ~2200 tokens/s. Production model on Cerebras free tier. Removed from Cerebras API as of 2026-05-30.",
       "status": {
         "tested": "2026-05-30",
-        "result": "broken",
-        "detail": "No longer available in Cerebras API as of 2026-05-30. Was deprecated 2026-05-27."
+        "result": "untested",
+        "detail": "Model may no longer be offered as free — re-check needed"
       }
     },
     {
@@ -830,8 +830,8 @@
       "notes": "355B params. ~1000 tokens/s. Preview model on Cerebras free tier. Reduced rate limits due to high demand. Deprecated May 27, 2026 but still functional.",
       "status": {
         "tested": "2026-05-27",
-        "result": "working",
-        "detail": "Reasoning model. Returns 'reasoning' field. ~1000 tokens/s."
+        "result": "untested",
+        "detail": "Model may no longer be offered as free — re-check needed"
       }
     },
     {
@@ -850,8 +850,8 @@
       "notes": "235B params. ~1400 tokens/s. Preview model on Cerebras free tier. Removed from Cerebras API as of 2026-05-30.",
       "status": {
         "tested": "2026-05-30",
-        "result": "broken",
-        "detail": "No longer available in Cerebras API as of 2026-05-30. Was deprecated 2026-05-27."
+        "result": "untested",
+        "detail": "Model may no longer be offered as free — re-check needed"
       }
     },
     {
@@ -1028,8 +1028,8 @@
       "notes": "284B total, 13B active. 1M context. Same model family as opencode/deepseek-v4-flash-free but via OpenRouter.",
       "status": {
         "tested": "2026-05-27",
-        "result": "rate_limited",
-        "detail": "429 on all 6 requests - persistently rate limited."
+        "result": "untested",
+        "detail": "Model may no longer be offered as free — re-check needed"
       }
     },
     {
@@ -1068,8 +1068,8 @@
       "notes": "80.2% on SWE-Bench. Good at Word/Excel/PowerPoint generation.",
       "status": {
         "tested": "2026-05-27",
-        "result": "rate_limited",
-        "detail": "429 on all 6 requests - persistently rate limited."
+        "result": "untested",
+        "detail": "Model may no longer be offered as free — re-check needed"
       }
     },
     {
@@ -1248,8 +1248,8 @@
       "notes": "Current universal default model.",
       "status": {
         "tested": "2026-05-27",
-        "result": "working",
-        "detail": "Current default. Functional through OpenRouter."
+        "result": "untested",
+        "detail": "Model may no longer be offered as free — re-check needed"
       }
     },
     {
@@ -1269,7 +1269,7 @@
       "status": {
         "tested": null,
         "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "detail": "Model may no longer be offered as free — re-check needed"
       }
     },
     {
@@ -1510,6 +1510,1446 @@
         "tested": null,
         "result": "untested",
         "detail": "Auto-discovered by sync script — not yet tested"
+      }
+    },
+    {
+      "id": "gpt-oss-120b",
+      "name": "gpt-oss-120b",
+      "provider": "Cerebras",
+      "context_length": 131072,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "zai-glm-4.7",
+      "name": "zai-glm-4.7",
+      "provider": "Cerebras",
+      "context_length": 131072,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "01-ai/yi-large",
+      "name": "01-ai/yi-large",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "abacusai/dracarys-llama-3.1-70b-instruct",
+      "name": "abacusai/dracarys-llama-3.1-70b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "adept/fuyu-8b",
+      "name": "adept/fuyu-8b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "baai/bge-m3",
+      "name": "baai/bge-m3",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "bigcode/starcoder2-15b",
+      "name": "bigcode/starcoder2-15b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "bytedance/seed-oss-36b-instruct",
+      "name": "bytedance/seed-oss-36b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "deepseek-ai/deepseek-coder-6.7b-instruct",
+      "name": "deepseek-ai/deepseek-coder-6.7b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "deepseek-ai/deepseek-v4-flash",
+      "name": "deepseek-ai/deepseek-v4-flash",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "deepseek-ai/deepseek-v4-pro",
+      "name": "deepseek-ai/deepseek-v4-pro",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "google/codegemma-1.1-7b",
+      "name": "google/codegemma-1.1-7b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "google/codegemma-7b",
+      "name": "google/codegemma-7b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "google/deplot",
+      "name": "google/deplot",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "google/gemma-2-2b-it",
+      "name": "google/gemma-2-2b-it",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "google/gemma-2b",
+      "name": "google/gemma-2b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "google/gemma-3-12b-it",
+      "name": "google/gemma-3-12b-it",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "google/gemma-3-4b-it",
+      "name": "google/gemma-3-4b-it",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "google/gemma-3n-e2b-it",
+      "name": "google/gemma-3n-e2b-it",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "google/gemma-3n-e4b-it",
+      "name": "google/gemma-3n-e4b-it",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "google/gemma-4-31b-it",
+      "name": "google/gemma-4-31b-it",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "google/recurrentgemma-2b",
+      "name": "google/recurrentgemma-2b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "ibm/granite-3.0-3b-a800m-instruct",
+      "name": "ibm/granite-3.0-3b-a800m-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "ibm/granite-3.0-8b-instruct",
+      "name": "ibm/granite-3.0-8b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "ibm/granite-34b-code-instruct",
+      "name": "ibm/granite-34b-code-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "ibm/granite-8b-code-instruct",
+      "name": "ibm/granite-8b-code-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "meta/codellama-70b",
+      "name": "meta/codellama-70b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "meta/llama-3.1-70b-instruct",
+      "name": "meta/llama-3.1-70b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "meta/llama-3.1-8b-instruct",
+      "name": "meta/llama-3.1-8b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "meta/llama-3.2-11b-vision-instruct",
+      "name": "meta/llama-3.2-11b-vision-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "meta/llama-3.2-1b-instruct",
+      "name": "meta/llama-3.2-1b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "meta/llama-3.2-3b-instruct",
+      "name": "meta/llama-3.2-3b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "meta/llama-3.2-90b-vision-instruct",
+      "name": "meta/llama-3.2-90b-vision-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "meta/llama-guard-4-12b",
+      "name": "meta/llama-guard-4-12b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "meta/llama2-70b",
+      "name": "meta/llama2-70b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "microsoft/phi-3-vision-128k-instruct",
+      "name": "microsoft/phi-3-vision-128k-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "microsoft/phi-3.5-moe-instruct",
+      "name": "microsoft/phi-3.5-moe-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "microsoft/phi-4-multimodal-instruct",
+      "name": "microsoft/phi-4-multimodal-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "minimaxai/minimax-m2.7",
+      "name": "minimaxai/minimax-m2.7",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "mistralai/codestral-22b-instruct-v0.1",
+      "name": "mistralai/codestral-22b-instruct-v0.1",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "mistralai/ministral-14b-instruct-2512",
+      "name": "mistralai/ministral-14b-instruct-2512",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "mistralai/mistral-7b-instruct-v0.3",
+      "name": "mistralai/mistral-7b-instruct-v0.3",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "mistralai/mistral-large",
+      "name": "mistralai/mistral-large",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "mistralai/mistral-large-2-instruct",
+      "name": "mistralai/mistral-large-2-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "mistralai/mistral-medium-3.5-128b",
+      "name": "mistralai/mistral-medium-3.5-128b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "mistralai/mistral-nemotron",
+      "name": "mistralai/mistral-nemotron",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "mistralai/mistral-small-4-119b-2603",
+      "name": "mistralai/mistral-small-4-119b-2603",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "mistralai/mixtral-8x22b-v0.1",
+      "name": "mistralai/mixtral-8x22b-v0.1",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "moonshotai/kimi-k2.6",
+      "name": "moonshotai/kimi-k2.6",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nv-mistralai/mistral-nemo-12b-instruct",
+      "name": "nv-mistralai/mistral-nemo-12b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/cosmos-reason2-8b",
+      "name": "nvidia/cosmos-reason2-8b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/llama-3.1-nemotron-51b-instruct",
+      "name": "nvidia/llama-3.1-nemotron-51b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/llama-3.1-nemotron-70b-instruct",
+      "name": "nvidia/llama-3.1-nemotron-70b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/llama-3.1-nemotron-nano-8b-v1",
+      "name": "nvidia/llama-3.1-nemotron-nano-8b-v1",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+      "name": "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+      "name": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/llama-3.3-nemotron-super-49b-v1",
+      "name": "nvidia/llama-3.3-nemotron-super-49b-v1",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+      "name": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/llama3-chatqa-1.5-70b",
+      "name": "nvidia/llama3-chatqa-1.5-70b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/mistral-nemo-minitron-8b-8k-instruct",
+      "name": "nvidia/mistral-nemo-minitron-8b-8k-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/nemotron-3-nano-30b-a3b",
+      "name": "nvidia/nemotron-3-nano-30b-a3b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "name": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/nemotron-4-340b-instruct",
+      "name": "nvidia/nemotron-4-340b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/nemotron-mini-4b-instruct",
+      "name": "nvidia/nemotron-mini-4b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/nemotron-nano-12b-v2-vl",
+      "name": "nvidia/nemotron-nano-12b-v2-vl",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/nemotron-nano-3-30b-a3b",
+      "name": "nvidia/nemotron-nano-3-30b-a3b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "nvidia/nvidia-nemotron-nano-9b-v2",
+      "name": "nvidia/nvidia-nemotron-nano-9b-v2",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "openai/gpt-oss-120b",
+      "name": "openai/gpt-oss-120b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "openai/gpt-oss-20b",
+      "name": "openai/gpt-oss-20b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "qwen/qwen3-next-80b-a3b-instruct",
+      "name": "qwen/qwen3-next-80b-a3b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "qwen/qwen3.5-122b-a10b",
+      "name": "qwen/qwen3.5-122b-a10b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "sarvamai/sarvam-m",
+      "name": "sarvamai/sarvam-m",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "stepfun-ai/step-3.5-flash",
+      "name": "stepfun-ai/step-3.5-flash",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "stockmark/stockmark-2-100b-instruct",
+      "name": "stockmark/stockmark-2-100b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "upstage/solar-10.7b-instruct",
+      "name": "upstage/solar-10.7b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "writer/palmyra-creative-122b",
+      "name": "writer/palmyra-creative-122b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "writer/palmyra-fin-70b-32k",
+      "name": "writer/palmyra-fin-70b-32k",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "writer/palmyra-med-70b",
+      "name": "writer/palmyra-med-70b",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "writer/palmyra-med-70b-32k",
+      "name": "writer/palmyra-med-70b-32k",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
+      }
+    },
+    {
+      "id": "zyphra/zamba2-7b-instruct",
+      "name": "zyphra/zamba2-7b-instruct",
+      "provider": "NVIDIA",
+      "context_length": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "General tasks"
+      ],
+      "notes": "Auto-discovered by sync script",
+      "status": {
+        "tested": null,
+        "result": "untested",
+        "detail": "Not yet tested"
       }
     }
   ],
