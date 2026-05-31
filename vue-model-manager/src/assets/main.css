@@ -505,60 +505,78 @@ tr:hover td { background: var(--bg-hover); }
   padding: 0;
 }
 
-.ranking-list li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border-light);
+/* New search input */
+.search-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 6px 10px;
+  margin-bottom: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius-sm);
   font-size: 0.85rem;
 }
 
-.ranking-list li:last-child { border-bottom: none; }
+/* Card layout for each model */
+.rank-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-card);
+}
 
-.rank-num {
-  width: 24px;
-  height: 24px;
+.rank-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: var(--bg-elevated);
+  gap: 8px;
+}
+
+.rank-status-dot {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text-dim);
-  flex-shrink: 0;
 }
+.status-working { background: var(--green); }
+.status-rate_limited { background: var(--orange); }
+.status-broken { background: var(--red); }
 
-.rank-num.top3 { background: rgba(88,166,255,0.2); color: var(--accent); }
-
-.rank-model {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 0.8rem;
-  word-break: break-all;
-}
-
-.rank-model-wrap {
+.rank-body {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  min-width: 0;
 }
 
-.rank-name {
-  font-size: 0.7rem;
-  color: var(--text-dim);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.rank-name-primary {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
 }
 
-.rank-used-up {
-  opacity: 0.4;
-  text-decoration: line-through;
+.rank-id {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--accent);
+  word-break: break-all;
 }
 
-/* ── Utility classes ── */
+.rank-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.provider-badge { background: rgba(88,166,255,0.15); color: var(--accent); }
+.context-badge { background: rgba(63,185,80,0.15); color: var(--green); }
+.used-up-badge { background: rgba(210,153,34,0.15); color: var(--orange); }
+.role-badge { background: rgba(166,88,255,0.15); color: var(--purple); }
+.best-for-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.tag { background: var(--bg-elevated); border: 1px solid var(--border); padding: 1px 4px; border-radius: 3px; font-size: 0.65rem; color: var(--text-dim); }
+
+/* Existing utilities */
 .fst-italic { font-style: italic; }
 .ms-auto { margin-left: auto; }
 .font-sm { font-size: 0.8rem; }
@@ -645,21 +663,30 @@ tr:hover td { background: var(--bg-hover); }
   font-size: 0.9rem;
 }
 
-/* ── Sort direction button ── */
-.sort-dir-btn {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  font-size: 0.9rem;
+/* ── Sortable table headers ── */
+th.sortable {
   cursor: pointer;
-  line-height: 1;
-  transition: background 0.15s;
+  user-select: none;
+  transition: color 0.15s;
 }
 
-.sort-dir-btn:hover {
-  background: var(--bg-hover);
+th.sortable:hover {
+  color: var(--text);
+}
+
+th.sortable.active {
+  color: var(--accent);
+}
+
+.sort-indicator {
+  font-size: 0.65rem;
+  margin-left: 4px;
+  opacity: 0.5;
+  vertical-align: middle;
+}
+
+th.sortable.active .sort-indicator {
+  opacity: 1;
 }
 
 /* ── Pagination ── */

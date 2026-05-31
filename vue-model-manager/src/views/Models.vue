@@ -25,16 +25,6 @@
         <option value="free">Free Only</option>
         <option value="paid">Paid Only</option>
       </select>
-      <select v-model="sortBy">
-        <option value="name">Sort: Name</option>
-        <option value="provider">Sort: Provider</option>
-        <option value="status">Sort: Status</option>
-        <option value="context">Sort: Context</option>
-        <option value="tested">Sort: Tested Date</option>
-      </select>
-      <button class="sort-dir-btn" @click="sortDesc = !sortDesc" :title="sortDesc ? 'Descending' : 'Ascending'">
-        {{ sortDesc ? '↓' : '↑' }}
-      </button>
       <span class="text-dim font-sm">
         {{ sortedModels.length }} of {{ store.allModels.length }} models
       </span>
@@ -45,13 +35,28 @@
       <table>
         <thead>
           <tr>
-            <th>Model</th>
-            <th>Provider</th>
-            <th>Status</th>
-            <th>Context</th>
+            <th class="sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
+              Model <span class="sort-indicator">{{ sortIndicator('name') }}</span>
+            </th>
+            <th class="sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
+              Provider <span class="sort-indicator">{{ sortIndicator('provider') }}</span>
+            </th>
+            <th class="sortable" :class="{ active: sortBy === 'status' }" @click="setSort('status')">
+              Status <span class="sort-indicator">{{ sortIndicator('status') }}</span>
+            </th>
+            <th class="sortable" :class="{ active: sortBy === 'context' }" @click="setSort('context')">
+              Context <span class="sort-indicator">{{ sortIndicator('context') }}</span>
+            </th>
             <th>Best For</th>
-            <th>Price (in/out)</th>
-            <th>Detail</th>
+            <th class="sortable" :class="{ active: sortBy === 'price_in' }" @click="setSort('price_in')">
+              Price In <span class="sort-indicator">{{ sortIndicator('price_in') }}</span>
+            </th>
+            <th class="sortable" :class="{ active: sortBy === 'price_out' }" @click="setSort('price_out')">
+              Price Out <span class="sort-indicator">{{ sortIndicator('price_out') }}</span>
+            </th>
+            <th class="sortable" :class="{ active: sortBy === 'detail' }" @click="setSort('detail')">
+              Detail <span class="sort-indicator">{{ sortIndicator('detail') }}</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -85,7 +90,10 @@
               <td>
                 <span class="font-sm text-dim">
                   {{ model.input_price_per_million != null ? '$' + model.input_price_per_million : '—' }}
-                  /
+                </span>
+              </td>
+              <td>
+                <span class="font-sm text-dim">
                   {{ model.output_price_per_million != null ? '$' + model.output_price_per_million : '—' }}
                 </span>
               </td>
@@ -97,7 +105,7 @@
             </tr>
           </template>
           <tr v-else>
-            <td colspan="7" class="empty-state">
+            <td colspan="8" class="empty-state">
               <div class="empty-state-inner">
                 <span class="empty-state-icon">🔍</span>
                 <p>No models match your filters.</p>
@@ -152,6 +160,20 @@ function resetFilters() {
   typeFilter.value = ''
 }
 
+function setSort(field: string) {
+  if (sortBy.value === field) {
+    sortDesc.value = !sortDesc.value
+  } else {
+    sortBy.value = field
+    sortDesc.value = false
+  }
+}
+
+function sortIndicator(field: string): string {
+  if (sortBy.value !== field) return '⇅'
+  return sortDesc.value ? '↓' : '↑'
+}
+
 const filteredModels = computed(() => {
   const q = search.value.toLowerCase().trim()
 
@@ -186,7 +208,7 @@ const sortedModels = computed(() => {
       case 'status':
         return dir * a.status.result.localeCompare(b.status.result)
       case 'context': {
-        // Null context_length sorts to the end regardless of direction
+        // Normalize context_length: nulls sort to the end regardless of direction
         const aCtx = a.context_length
         const bCtx = b.context_length
         if (aCtx == null && bCtx == null) return 0
@@ -194,8 +216,24 @@ const sortedModels = computed(() => {
         if (bCtx == null) return -1
         return dir * (aCtx - bCtx)
       }
-      case 'tested':
-        return dir * ((a.status.tested ?? '').localeCompare(b.status.tested ?? ''))
+      case 'price_in': {
+        const aPrice = a.input_price_per_million
+        const bPrice = b.input_price_per_million
+        if (aPrice == null && bPrice == null) return 0
+        if (aPrice == null) return 1
+        if (bPrice == null) return -1
+        return dir * (aPrice - bPrice)
+      }
+      case 'price_out': {
+        const aPrice = a.output_price_per_million
+        const bPrice = b.output_price_per_million
+        if (aPrice == null && bPrice == null) return 0
+        if (aPrice == null) return 1
+        if (bPrice == null) return -1
+        return dir * (aPrice - bPrice)
+      }
+      case 'detail':
+        return dir * a.status.detail.localeCompare(b.status.detail)
       default:
         return dir * a.name.localeCompare(b.name)
     }

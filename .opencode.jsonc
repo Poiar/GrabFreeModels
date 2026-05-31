@@ -3,7 +3,7 @@
     "playwright": {
       "type": "local",
       "command": ["node", "node_modules/@playwright/mcp/cli.js"],
-      "args": ["--allowed-hosts", "localhost,127.0.0.1"]
+      "args": ["--allowed-hosts", "localhost,127.0.0.1", "--browser", "chromium", "--executable-path", "C:\\Users\\pc\\AppData\\Local\\ms-playwright\\chromium-1223\\chrome-win64\\chrome.exe"]
     }
   }
 }
