@@ -1,14 +1,10 @@
 # IDE files
 .idea/
+!.idea/runConfigurations/
 .vscode/
 *.swp
 *.swo
 *~
-
-# Aider
-.aider.chat.history.md
-.aider.input.history
-with
 
 # OS files
 .DS_Store
@@ -26,10 +22,21 @@ badge/
 # Config backup (nested git repo)
 config-backup/
 
+# Secrets and sensitive files
+.env
+.env.*
+*.pem
+*.key
+
 # Node
 node_modules/
 
 # Python
 __pycache__/
 *.pyc
-.aider*
+
+# Gitleaks
+.gitleaksignore
+
+# Project-level opencode config (local MCP servers)
+.opencode.jsonc

@@ -23,9 +23,8 @@ Discovers free models from provider APIs and syncs them into `available-models.j
 
 ### Cerebras
 - Uses authenticated endpoint: `https://api.cerebras.ai/v1/models`
-- Small free tier (2 models currently)
-- **Deprecated 2026-05-27** — models still functional but may be removed
-- Do not add `cerebras/` prefix to IDs
+- Small free tier
+- **Deprecated** — models still functional but may be removed.
 
 ### NVIDIA
 - Free tier is huge (~117 models) but very noisy — most are embed, safety, reward, or VLMs
@@ -45,8 +44,8 @@ Discovers free models from provider APIs and syncs them into `available-models.j
 
 ### Step 1: Dry Run
 
-```powershell
-.\scripts\sync-models.ps1
+```bash
+node scripts/sync-models.js
 ```
 
 Review the output:
@@ -56,8 +55,8 @@ Review the output:
 
 ### Step 2: Apply
 
-```powershell
-.\scripts\sync-models.ps1 -Apply
+```bash
+node scripts/sync-models.js --apply
 ```
 
 This adds new models with `status: { result: "untested" }` and flags potentially removed models for re-check.
@@ -66,21 +65,12 @@ This adds new models with `status: { result: "untested" }` and flags potentially
 
 Always test newly-added models before promoting to `working`:
 
-```powershell
+```bash
 # Test specific new models
-.\scripts\validate-free-models.ps1 -Models "openrouter/provider/model:free" -Apply
+node scripts/validate-free-models.js --models "openrouter/provider/model:free" --apply
 ```
 
 Or use the `validate-free-models` skill for the full burst+delayed procedure.
-
-## Interpreting Results
-
-| Scenario | Action |
-|----------|--------|
-| New models found | Add with `untested` status, then validate |
-| Models no longer in provider API | Flag as `untested` for re-check; don't delete immediately |
-| Provider API error | Skip that provider; don't let one failure block others |
-| NVIDIA returns 100+ models | Verify filter is excluding non-LLM models; adjust regex if needed |
 
 ## Edge Cases
 

@@ -29,7 +29,7 @@
 html { font-size: 14px; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.5;
@@ -318,6 +318,7 @@ tr:hover td { background: var(--bg-hover); }
   height: 100%;
   border-radius: 4px;
   transition: width 0.3s ease;
+  will-change: width;
 }
 
 .bar-fill.working { background: var(--green); }
@@ -381,6 +382,16 @@ tr:hover td { background: var(--bg-hover); }
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Respect reduced motion preference ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .spinner { animation: none; border-top-color: var(--border); }
+}
 
 /* ── Error box ── */
 .error-box {
@@ -525,6 +536,21 @@ tr:hover td { background: var(--bg-hover); }
   font-family: 'SF Mono', 'Fira Code', monospace;
   font-size: 0.8rem;
   word-break: break-all;
+}
+
+.rank-model-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rank-name {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rank-used-up {

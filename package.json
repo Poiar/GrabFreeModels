@@ -1,26 +1,19 @@
 {
   "name": "grabfreemodels",
   "version": "1.0.0",
-  "description": "GrabFreeModels is a **free‑model tracker** that discovers, validates, and ranks free LLM models across multiple providers. It maintains a single source of truth (`available-models.json`) and provides:",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "description": "GrabFreeModels — discovers, validates, and ranks free LLM models across providers.",
+  "type": "commonjs",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Poiar/GrabFreeModels.git"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Poiar/GrabFreeModels/issues"
+  "scripts": {
+    "dev": "cd vue-model-manager && npm run dev",
+    "build": "cd vue-model-manager && npm run build",
+    "preview": "cd vue-model-manager && npm run preview",
+    "mcp:playwright": "node node_modules/@playwright/mcp/cli.js --allowed-hosts localhost,127.0.0.1"
   },
-  "homepage": "https://github.com/Poiar/GrabFreeModels#readme",
   "dependencies": {
     "@playwright/mcp": "^0.0.75",
     "playwright": "^1.60.0"

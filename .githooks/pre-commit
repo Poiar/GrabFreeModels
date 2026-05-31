@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Pre-commit hook: scan staged files for secrets via Gitleaks
+# Skips silently if Gitleaks is not installed.
+
+GITLEAKS_BIN=""
+
+# Check common locations
+for candidate in gitleaks /tmp/gitleaks "$HOME/bin/gitleaks"; do
+  if command -v "$candidate" &>/dev/null; then
+    GITLEAKS_BIN="$(command -v "$candidate")"
+    break
+  fi
+done
+
+if [ -z "$GITLEAKS_BIN" ]; then
+  echo "⚠ gitleaks not found — skipping secret scan (install from https://github.com/gitleaks/gitleaks)"
+  exit 0
+fi
+
+echo "🔍 Running Gitleaks on staged files..."
+
+# Get list of staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -z "$STAGED_FILES" ]; then
+  exit 0
+fi
+
+# Create a temp directory with only staged content
+TMPDIR=$(mktemp -d)
+trap 'rm -rf "$TMPDIR"' EXIT
+
+for file in $STAGED_FILES; do
+  if [ -f "$file" ]; then
+    mkdir -p "$TMPDIR/$(dirname "$file")"
+    git show ":$file" > "$TMPDIR/$file" 2>/dev/null
+  fi
+done
+
+# Run Gitleaks on the staged content
+if [ -f ".gitleaks.toml" ]; then
+  CONFIG="$(pwd)/.gitleaks.toml"
+  cd "$TMPDIR" && "$GITLEAKS_BIN" detect --source . --config "$CONFIG" --no-git --exit-code 1 --verbose
+else
+  cd "$TMPDIR" && "$GITLEAKS_BIN" detect --source . --no-git --exit-code 1 --verbose
+fi
+
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+  echo ""
+  echo "❌ Commit blocked: potential secrets detected."
+  echo "   If this is a false positive, add an allowlist entry to .gitleaks.toml"
+  echo "   To bypass (not recommended): git commit --no-verify"
+fi
+
+exit $EXIT_CODE

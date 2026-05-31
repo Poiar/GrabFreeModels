@@ -24,7 +24,7 @@
       </nav>
       <div class="sidebar-footer">
         <p v-if="store.lastLoaded">
-          Last updated: {{ store.lastLoaded.toLocaleString() }}
+          Last updated: {{ timeAgo(store.lastLoaded) }}
         </p>
         <button @click="store.loadData()" class="refresh-btn" :disabled="store.loading">
           {{ store.loading ? 'Loading…' : '↻ Refresh' }}
@@ -56,4 +56,15 @@ import { useModelsStore } from '@/store/models'
 
 const store = useModelsStore()
 onMounted(() => store.loadData())
+
+function timeAgo(date: Date): string {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+  if (seconds < 60) return 'just now'
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
+}
 </script>

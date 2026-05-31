@@ -1,0 +1,9 @@
+{
+  "mcp": {
+    "playwright": {
+      "type": "local",
+      "command": ["node", "node_modules/@playwright/mcp/cli.js"],
+      "args": ["--allowed-hosts", "localhost,127.0.0.1"]
+    }
+  }
+}

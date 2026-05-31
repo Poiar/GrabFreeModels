@@ -42,40 +42,40 @@
     <h3 class="section-title">Provider Health</h3>
     <div class="provider-grid">
       <div
-        v-for="(health, provider) in store.providerHealth"
-        :key="provider"
+        v-for="entry in providerEntries"
+        :key="entry.provider"
         class="provider-card"
-        :class="{ 'used-up': store.isProviderUsedUp(provider) }"
+        :class="{ 'used-up': store.isProviderUsedUp(entry.provider) }"
       >
         <div class="provider-name">
-          {{ provider }}
-          <span v-if="store.isProviderUsedUp(provider)" class="warn-icon" title="Used up for current month">⚠</span>
+          {{ entry.provider }}
+          <span v-if="store.isProviderUsedUp(entry.provider)" class="warn-icon" title="Used up for current month">⚠</span>
         </div>
         <div class="provider-bars">
           <div class="bar-row">
             <span class="bar-label">Working</span>
             <div class="bar-track">
-              <div class="bar-fill working" :style="{ width: pct(health.working, health.total) }"></div>
+              <div class="bar-fill working" :style="{ width: entry.pctWorking }"></div>
             </div>
-            <span class="bar-count">{{ health.working }}</span>
+            <span class="bar-count">{{ entry.health.working }}</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">Rate Limited</span>
             <div class="bar-track">
-              <div class="bar-fill rate_limited" :style="{ width: pct(health.rate_limited, health.total) }"></div>
+              <div class="bar-fill rate_limited" :style="{ width: entry.pctRateLimited }"></div>
             </div>
-            <span class="bar-count">{{ health.rate_limited }}</span>
+            <span class="bar-count">{{ entry.health.rate_limited }}</span>
           </div>
           <div class="bar-row">
             <span class="bar-label">Broken</span>
             <div class="bar-track">
-              <div class="bar-fill broken" :style="{ width: pct(health.broken, health.total) }"></div>
+              <div class="bar-fill broken" :style="{ width: entry.pctBroken }"></div>
             </div>
-            <span class="bar-count">{{ health.broken }}</span>
+            <span class="bar-count">{{ entry.health.broken }}</span>
           </div>
         </div>
         <div class="provider-total">
-          {{ health.total }} models total
+          {{ entry.health.total }} models total
         </div>
       </div>
     </div>
@@ -113,7 +113,7 @@
     </div>
 
     <!-- Validation Info -->
-    <div class="card">
+    <div class="card gap-md">
       <div class="card-title">Validation Method</div>
       <p v-if="store.validationMethod" class="validation-procedure">
         {{ store.validationMethod.procedure }}
@@ -126,6 +126,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useModelsStore } from '@/store/models'
 
 const store = useModelsStore()
@@ -134,4 +135,16 @@ function pct(value: number, total: number): string {
   if (total === 0) return '0%'
   return `${Math.round((value / total) * 100)}%`
 }
+
+const providerEntries = computed(() => {
+  return Object.entries(store.providerHealth)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([provider, health]) => ({
+      provider,
+      health,
+      pctWorking: pct(health.working, health.total),
+      pctRateLimited: pct(health.rate_limited, health.total),
+      pctBroken: pct(health.broken, health.total),
+    }))
+})
 </script>

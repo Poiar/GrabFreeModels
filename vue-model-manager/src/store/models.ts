@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
 import type { ModelsData, Model } from '@/types'
 
 const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
@@ -13,29 +13,22 @@ export const useModelsStore = defineStore('models', () => {
   const lastLoaded = ref<Date | null>(null)
   const isStale = ref(false)
 
-  // ── Stale detection with auto-refresh ──
-  let staleTimer: ReturnType<typeof setInterval> | null = null
+  // ── Stale detection ──
+  let staleTimer: ReturnType<typeof setTimeout> | null = null;
 
   function startStaleTimer() {
-    stopStaleTimer()
-    staleTimer = setInterval(() => {
-      if (!lastLoaded.value) {
-        isStale.value = false
-        return
-      }
-      isStale.value = Date.now() - lastLoaded.value.getTime() > 3_600_000
-    }, 60_000)
+    stopStaleTimer();
+    staleTimer = setTimeout(() => {
+      isStale.value = true;
+    }, 3_600_000);
   }
 
   function stopStaleTimer() {
     if (staleTimer !== null) {
-      clearInterval(staleTimer)
-      staleTimer = null
+      clearTimeout(staleTimer);
+      staleTimer = null;
     }
   }
-
-  onUnmounted(stopStaleTimer)
-
   // ── Computed getters ──
 
   const allModels = computed(() => data.value?.models ?? [])
@@ -55,8 +48,9 @@ export const useModelsStore = defineStore('models', () => {
   const schemaIssueModels = computed(() => {
     const ids = data.value?._test_summary.results.schema_issues ?? []
     return ids.map(entry => {
-      const [modelId, ...rest] = entry.split(' — ')
-      return { modelId: modelId.trim(), detail: rest.join(' — ').trim() }
+      const sep = entry.indexOf(' — ')
+      if (sep === -1) return { modelId: entry.trim(), detail: '' }
+      return { modelId: entry.substring(0, sep).trim(), detail: entry.substring(sep + 3).trim() }
     })
   })
 
@@ -128,6 +122,16 @@ export const useModelsStore = defineStore('models', () => {
     return usedUpProviderSet.value.has(provider)
   }
 
+  /** Extract provider prefix from a model ID (e.g. "openrouter/owl-alpha" → "openrouter"). */
+  function extractProvider(modelId: string): string {
+    const slash = modelId.indexOf('/')
+    return slash === -1 ? modelId : modelId.substring(0, slash)
+  }
+
+  function isModelProviderUsedUp(modelId: string): boolean {
+    return isProviderUsedUp(extractProvider(modelId))
+  }
+
   const testSummary = computed(() => data.value?._test_summary ?? null)
 
   const validationMethod = computed(() => data.value?._validation_method ?? null)
@@ -145,37 +149,52 @@ export const useModelsStore = defineStore('models', () => {
       : 0,
   }))
 
+  /** O(1) model lookup by ID. */
+  const modelById = computed(() => {
+    const map = new Map<string, Model>()
+    for (const m of allModels.value) map.set(m.id, m)
+    return map
+  })
+
+  function getModelById(id: string): Model | undefined {
+    return modelById.value.get(id)
+  }
+
   // ── Actions ──
 
+  let abortController: AbortController | null = null
+
   async function loadData() {
+    abortController?.abort()
+    abortController = new AbortController()
     loading.value = true
     error.value = null
     try {
-      const resp = await fetch(`/available-models.json?t=${Date.now()}`)
+      const resp = await fetch('/available-models.json', {
+        signal: abortController.signal,
+      })
       if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`)
       data.value = await resp.json()
       lastLoaded.value = new Date()
       isStale.value = false
       startStaleTimer()
     } catch (e: unknown) {
+      if (e instanceof DOMException && e.name === 'AbortError') return
       error.value = e instanceof Error ? e.message : String(e)
     } finally {
       loading.value = false
     }
   }
 
-  function getModelById(id: string): Model | undefined {
-    return allModels.value.find(m => m.id === id)
-  }
-
   return {
-    data, loading, error, lastLoaded, isStale,
+    loading, error, lastLoaded, isStale,
     allModels, freeModels, paidModels,
     workingModels, brokenModels, rateLimitedModels, untestedModels,
     schemaIssueModels, allProviderNames, providerHealth,
     roleRankings, knownIssues, providerUsage,
     currentMonth, usedUpProviders, usedUpProviderSet, isProviderUsedUp,
+    extractProvider, isModelProviderUsedUp,
     testSummary, validationMethod, stats,
-    loadData, getModelById,
+    modelById, loadData, getModelById,
   }
 })

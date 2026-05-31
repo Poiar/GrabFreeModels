@@ -31,7 +31,6 @@ The CLI reads keys from `opencode.jsonc`, not `auth.json`. When the Desktop app 
 | Cerebras | `Authorization: Bearer <key>` | Uses `@ai-sdk/cerebras` provider |
 | NVIDIA | `Authorization: Bearer <key>` | Base URL: `https://integrate.api.nvidia.com/v1` |
 | HuggingFace | `Authorization: Bearer <key>` | Base URL: `https://router.huggingface.co/v1` |
-| DeepSeek | `Authorization: Bearer <key>` | Direct DeepSeek API. No DeepSeek models currently tracked or keys verified. |
 
 ## Reading Keys
 

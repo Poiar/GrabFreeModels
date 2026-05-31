@@ -1,20 +1,42 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Dashboard from '@/views/Dashboard.vue'
-import Models from '@/views/Models.vue'
-import Rankings from '@/views/Rankings.vue'
-import Issues from '@/views/Issues.vue'
 
 const routes = [
-  { path: '/', name: 'Dashboard', component: Dashboard },
-  { path: '/models', name: 'Models', component: Models },
-  { path: '/rankings', name: 'Rankings', component: Rankings },
-  { path: '/issues', name: 'Issues', component: Issues },
+  {
+    path: '/',
+    name: 'Dashboard',
+    component: () => import('@/views/Dashboard.vue'),
+    meta: { title: 'Dashboard' },
+  },
+  {
+    path: '/models',
+    name: 'Models',
+    component: () => import('@/views/Models.vue'),
+    meta: { title: 'Models' },
+  },
+  {
+    path: '/rankings',
+    name: 'Rankings',
+    component: () => import('@/views/Rankings.vue'),
+    meta: { title: 'Rankings' },
+  },
+  {
+    path: '/issues',
+    name: 'Issues',
+    component: () => import('@/views/Issues.vue'),
+    meta: { title: 'Issues' },
+  },
 ]
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior: () => ({ top: 0, left: 0 }),
+})
+
+const BASE_TITLE = 'GrabFreeModels'
+router.afterEach((to) => {
+  const page = to.meta?.title as string | undefined
+  document.title = page ? `${page} — ${BASE_TITLE}` : BASE_TITLE
 })
 
 export default router

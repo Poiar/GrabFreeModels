@@ -120,7 +120,7 @@
         <option :value="10">10 / page</option>
         <option :value="25">25 / page</option>
         <option :value="50">50 / page</option>
-        <option :value="999">All</option>
+        <option :value="sortedModels.length">All</option>
       </select>
     </div>
   </div>
@@ -211,9 +211,9 @@ const paginatedModels = computed(() => {
   return sortedModels.value.slice(start, start + perPage.value)
 })
 
+const fmt = new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 })
+
 function formatContext(n: number): string {
-  if (n >= 1048576) return `${(n / 1048576).toFixed(1)}M`
-  if (n >= 1024) return `${(n / 1024).toFixed(0)}K`
-  return String(n)
+  return fmt.format(n)
 }
 </script>
