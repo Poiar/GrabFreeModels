@@ -10,6 +10,9 @@
 .DS_Store
 Thumbs.db
 
+# Screenshots
+check-*.png
+
 # Logs
 *.log
 
@@ -24,7 +27,8 @@ config-backup/
 
 # Secrets and sensitive files
 .env
-.env.*
+.env.local
+!.env.example
 *.pem
 *.key
 

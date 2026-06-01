@@ -4,9 +4,10 @@
  * Re-tests rate-limited and untested free models to check if their status has changed.
  * Runs both burst (rapid) and delayed test phases for each model.
  *
- * Usage: node scripts/validate-free-models.js [--models id1,id2] [--apply]
+ * Usage: node scripts/validate-free-models.js [--models id1,id2] [--apply] [--force]
  *   --models : Specific model IDs to test (comma-separated; default: all rate-limited and untested)
  *   --apply  : Write results to available-models.json (default: report only)
+ *   --force  : Re-test all models, skipping the 7-day working model cache
  */
 
 const https = require('https');
@@ -15,6 +16,7 @@ const path = require('path');
 
 const args = process.argv.slice(2);
 const APPLY = args.includes('--apply');
+const FORCE = args.includes('--force');
 let specificModels = null;
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--models' && args[i + 1]) {
@@ -31,11 +33,44 @@ const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
 let json = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
 
 // --- Determine which models to test ---
+const TEST_AGAIN_AFTER_DAYS = 7;
+const cutoff = new Date();
+cutoff.setDate(cutoff.getDate() - TEST_AGAIN_AFTER_DAYS);
+const cutoffStr = cutoff.toISOString().slice(0, 10);
+
 let toTest;
 if (specificModels && specificModels.length > 0) {
   toTest = json.models.filter(m => specificModels.includes(m.id));
 } else {
-  toTest = json.models.filter(m => m.is_free && ['rate_limited', 'untested', 'broken'].includes(m.status.result));
+  toTest = json.models.filter(m => {
+    if (!m.is_free) return false;
+    const result = m.status.result;
+    // Always re-test broken and untested
+    if (result === 'broken' || result === 'untested') return true;
+    // Re-test rate-limited (they might recover)
+    if (result === 'rate_limited') return true;
+    // Re-test working only if not tested recently
+    if (result === 'working') {
+      if (!FORCE) {
+        const tested = m.status.tested || '';
+        const lastSuccess = m.last_success || '';
+        // Skip if tested within the last N days AND had a recent success
+        if (tested >= cutoffStr && lastSuccess >= cutoffStr) return false;
+      }
+      return true;
+    }
+    return false;
+  });
+}
+
+if (toTest.length === 0) {
+  console.log('No models to test.');
+  process.exit(0);
+}
+
+const skipped = json.models.filter(m => m.is_free && !toTest.includes(m));
+if (skipped.length > 0) {
+  console.log(`Skipping ${skipped.length} recently-tested working models (tested within ${TEST_AGAIN_AFTER_DAYS} days)`);
 }
 
 if (toTest.length === 0) {

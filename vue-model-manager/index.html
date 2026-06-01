@@ -12,6 +12,9 @@
     <title>GrabFreeModels</title>
   </head>
   <body>
+    <script>
+      try { var t = localStorage.getItem('gfm-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch(e) {}
+    </script>
     <noscript>
       <div style="padding:24px;font-family:system-ui,sans-serif;text-align:center;">
         <h1>GrabFreeModels</h1>

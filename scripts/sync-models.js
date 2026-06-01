@@ -187,9 +187,25 @@ if (!APPLY) {
   // Flag potentially removed models
   for (const m of json.models) {
     if (potentiallyRemoved.includes(m.id) && m.is_free) {
+      m._removed = true;
+      m._removedDate = new Date().toISOString().slice(0, 10);
       m.status.result = 'untested';
-      m.status.detail = 'Model may no longer be offered as free — re-check needed';
+      m.status.detail = `Provider no longer lists this model as free (detected ${m._removedDate})`;
     }
+  }
+
+  // Move removed models to end of array after 30 days
+  const REMOVE_ARCHIVE_DAYS = 30;
+  const archiveCutoff = new Date();
+  archiveCutoff.setDate(archiveCutoff.getDate() - REMOVE_ARCHIVE_DAYS);
+  const archiveCutoffStr = archiveCutoff.toISOString().slice(0, 10);
+  const toArchive = json.models.filter(m => m._removed && m._removedDate <= archiveCutoffStr && m.is_free);
+  if (toArchive.length > 0) {
+    for (const m of toArchive) {
+      m.is_free = false;
+      m.status.detail = `Archived: provider stopped offering free tier on ${m._removedDate}`;
+    }
+    console.log(`  Archived ${toArchive.length} models (removed >${REMOVE_ARCHIVE_DAYS} days ago)`);
   }
 
   fs.writeFileSync(MODELS_FILE, JSON.stringify(json, null, 2), 'utf8');
