@@ -1,4 +1,4 @@
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 
 const THEME_KEY = 'gfm-theme'
 type Theme = 'dark' | 'light'
@@ -30,12 +30,18 @@ export function useTheme() {
   onMounted(() => {
     applyTheme(current.value)
     mql = window.matchMedia('(prefers-color-scheme: light)')
-    mql.addEventListener('change', () => {
-      if (!getStoredTheme()) {
-        current.value = getSystemTheme()
-      }
-    })
+    mql.addEventListener('change', onSystemThemeChange)
   })
+
+  onUnmounted(() => {
+    mql?.removeEventListener('change', onSystemThemeChange)
+  })
+
+  function onSystemThemeChange() {
+    if (!getStoredTheme()) {
+      current.value = getSystemTheme()
+    }
+  }
 
   watch(current, (theme) => {
     applyTheme(theme)

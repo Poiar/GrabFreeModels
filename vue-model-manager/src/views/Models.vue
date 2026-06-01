@@ -52,6 +52,15 @@
           @click="jql.onInput($event)"
         />
         <button v-if="jql.rawQuery.value || allTokens.length" class="jql-clear" @click="clearAll" title="Clear all">✕</button>
+        <!-- Error underlines -->
+        <div class="jql-underline" v-if="jql.validationErrors.value.length">
+          <div
+            v-for="(err, i) in jql.validationErrors.value"
+            :key="i"
+            class="jql-underline-mark"
+            :style="underlineStyle(err)"
+          />
+        </div>
       </div>
 
       <div v-if="jql.showSuggestions.value && jql.suggestions.value" class="jql-suggestions">
@@ -88,8 +97,7 @@
     <!-- Visual Query Builder -->
     <QueryBuilder
       :conditions="builderConditions"
-      :or-mode="builderOrMode"
-      :jql-query="jql.rawQuery.value"
+      :jql-query="jql.rawQuery.value ?? ''"
       @change="onBuilderChange"
       @clear="onBuilderClear"
     />
@@ -124,7 +132,7 @@
         :emit-update="false"
       >
         <template #default="{ item: model }">
-          <div class="vscroll-row" @click="selectedModel = model" role="button" :title="'View details for ' + model.name">
+          <div class="vscroll-row" :class="{ 'row-removed': model._removed }" @click="selectedModel = model" role="button" :title="'View details for ' + model.name">
             <div class="vscroll-cell col-name">
               <div class="model-name" :title="model.name">{{ model.name }}</div>
               <div class="model-id-wrap">
@@ -144,7 +152,10 @@
               </span>
             </div>
             <div class="vscroll-cell col-status">
-              <span class="badge" :class="`badge-${model.status.result}`">
+              <span v-if="model._removed" class="badge badge-removed" title="No longer offered as free by provider">
+                Removed
+              </span>
+              <span v-else class="badge" :class="`badge-${model.status.result}`">
                 {{ formatStatus(model.status.result) }}
               </span>
             </div>
@@ -236,7 +247,6 @@ async function handleCopy(id: string) {
 const sortBy = ref('name')
 const sortDesc = ref(false)
 const builderConditions = ref<BuilderCondition[]>([])
-const builderOrMode = ref(false)
 
 const jql = useJqlFilter(
   computed(() => store.allModels),
@@ -274,8 +284,17 @@ function onBuilderClear() {
 }
 function clearAll() {
   jql.rawQuery.value = ''
+  builderConditions.value = []
   sortBy.value = 'name'
   sortDesc.value = false
+}
+
+function underlineStyle(err: { start: number; end: number }) {
+  // Approximate character position to pixel offset (monospace ~7.8px/char at 14px font)
+  const charWidth = 7.8
+  const left = 32 + err.start * charWidth  // 32px for search icon padding
+  const width = Math.max(8, (err.end - err.start) * charWidth)
+  return { left: `${left}px`, width: `${width}px` }
 }
 
 function closeDetail() {
@@ -283,7 +302,12 @@ function closeDetail() {
 }
 function syncBuilderToQuery(conditions: BuilderCondition[]) {
   if (conditions.length === 0) { jql.rawQuery.value = ''; return }
-  jql.rawQuery.value = conditions.map(c => c.jql).join(builderOrMode.value ? ' OR ' : ' AND ')
+  let q = conditions[0].jql
+  for (let i = 1; i < conditions.length; i++) {
+    q += conditions[i].joinOr ? ' OR ' : ' AND '
+    q += conditions[i].jql
+  }
+  jql.rawQuery.value = q
 }
 watch(() => jql.rawQuery.value, () => {
   const tt = jql.parsed.value.expression.flat().filter(t => t.field !== '_text')
@@ -309,16 +333,16 @@ function setSort(field: string) {
 }
 
 function exportCsv() {
-  const header = ['id', 'name', 'provider', 'status', 'context_length', 'input_price_per_million', 'output_price_per_million', 'is_free', 'best_for', 'notes', 'status_detail', 'status_tested']
+  const header = ['id', 'name', 'provider', 'status', 'context_length', 'input_price_per_million', 'output_price_per_million', 'is_free', 'best_for', 'notes', 'status_detail', 'status_tested', 'last_success', 'removed', 'removed_date']
   const escape = (v: unknown) => {
     const s = String(v ?? '')
     return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s
   }
   const rows = sortedModels.value.map(m => [
-    m.id, m.name, m.provider, m.status.result, m.context_length ?? '',
+    m.id, m.name, m.provider, m._removed ? 'removed' : m.status.result, m.context_length ?? '',
     m.input_price_per_million ?? '', m.output_price_per_million ?? '',
     m.is_free ? 'yes' : 'no', m.best_for.join('; '), m.notes,
-    m.status.detail, m.status.tested || '',
+    m.status.detail, m.status.tested || '', m.last_success || '', m._removed ? 'yes' : 'no', m._removedDate || '',
   ].map(escape).join(','))
   const csv = [header.join(','), ...rows].join('\n')
   download(csv, 'models.csv', 'text/csv')
@@ -326,11 +350,12 @@ function exportCsv() {
 
 function exportJson() {
   const data = sortedModels.value.map(m => ({
-    id: m.id, name: m.name, provider: m.provider, status: m.status.result,
+    id: m.id, name: m.name, provider: m.provider, status: m._removed ? 'removed' : m.status.result,
     context_length: m.context_length, input_price_per_million: m.input_price_per_million,
     output_price_per_million: m.output_price_per_million, is_free: m.is_free,
     best_for: m.best_for, notes: m.notes, status_detail: m.status.detail,
-    status_tested: m.status.tested,
+    status_tested: m.status.tested, last_success: m.last_success || null,
+    _removed: m._removed || false, _removedDate: m._removedDate || null,
   }))
   const json = JSON.stringify({ exported_at: new Date().toISOString(), count: data.length, models: data }, null, 2)
   download(json, 'models.json', 'application/json')

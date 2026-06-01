@@ -15,6 +15,9 @@ export interface Model {
   best_for: string[]
   notes: string
   status: ModelStatus
+  last_success?: string
+  _removed?: boolean
+  _removedDate?: string
 }
 
 export interface TestSummary {

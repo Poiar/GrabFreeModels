@@ -1,7 +1,7 @@
 import { ref, computed, type Ref, type ComputedRef } from 'vue'
 import type { Model } from '@/types'
 
-export type Op = ':' | '=' | '!=' | ':>' | ':<' | 'NOT IN' | 'IN' | 'IS EMPTY' | 'IS NOT EMPTY'
+export type Op = ':' | '=' | '!=' | ':>' | ':<' | 'NOT IN' | 'IN' | 'IS EMPTY' | 'IS NOT EMPTY' | '~' | '!~'
 
 export interface FilterToken {
   field: string
@@ -20,11 +20,12 @@ export interface FieldDef {
   label: string
   type: 'select' | 'text' | 'number'
   nullable?: boolean
+  searchable?: boolean
   options?: { value: string; label: string }[]
 }
 
 export const FILTERABLE_FIELDS: FieldDef[] = [
-  { key: 'provider',  label: 'Provider',  type: 'select' },
+  { key: 'provider',  label: 'Provider',  type: 'select', searchable: true },
   { key: 'status',    label: 'Status',    type: 'select' },
   { key: 'type',      label: 'Type',      type: 'select', options: [
     { value: 'free', label: 'Free' },
@@ -37,9 +38,18 @@ export const FILTERABLE_FIELDS: FieldDef[] = [
   { key: 'best_for',  label: 'Best For',  type: 'text' },
 ]
 
-const FIELD_MAP: Record<string, FieldDef> = Object.fromEntries(
+export const FIELD_MAP: Record<string, FieldDef> = Object.fromEntries(
   FILTERABLE_FIELDS.map(f => [f.key, f]),
 )
+
+export const FIELD_ALIASES: Record<string, string> = {
+  ...Object.fromEntries(FILTERABLE_FIELDS.map(f => [f.label.toLowerCase(), f.key])),
+  p: 'provider', prov: 'provider',
+  s: 'status', stat: 'status',
+  t: 'type', typ: 'type',
+  c: 'context', ctx: 'context',
+  n: 'name',
+}
 
 export interface ParseError {
   message: string
@@ -50,6 +60,19 @@ export interface ParseError {
 export interface SortSpec {
   field: string
   desc: boolean
+}
+
+/* ─── JQL Functions (value-level, evaluated at query time) ─── */
+// For now, we support a minimal set. Dates don't apply to this dataset,
+// but these are parsed so they don't cause errors.
+const JQL_FUNCTIONS = new Set([
+  'currentuser', 'now', 'startofday', 'endofday',
+  'startofweek', 'endofweek', 'startofmonth', 'endofmonth',
+])
+
+function isJqlFunction(val: string): boolean {
+  const name = val.replace(/[()]/g, '').trim().toLowerCase()
+  return JQL_FUNCTIONS.has(name)
 }
 
 /* ─── Parser ─── */
@@ -78,39 +101,41 @@ export function parseQuery(raw: string): {
     body = body.slice(0, body.length - orderMatch[0].length).trim()
   }
 
-  // Validate parentheses balance
-  let depth = 0
-  let firstErr = -1
+  // Validate parentheses
+  let depth = 0, firstErr = -1
   for (let i = 0; i < body.length; i++) {
-    if (body[i] === '(') { depth++; if (firstErr < 0) firstErr = i }
-    if (body[i] === ')') { depth--; if (depth < 0) { errors.push({ message: 'Unexpected )', start: i, end: i + 1 }); depth = 0 } }
+    if (body[i] === '(') { depth++; if (firstErr < 0 && body[i] === '(' && i === 0) firstErr = i }
+    if (body[i] === ')') {
+      depth--
+      if (depth < 0) { errors.push({ message: 'Unexpected )', start: i, end: i + 1 }); depth = 0 }
+    }
   }
-  if (depth > 0) errors.push({ message: 'Missing )', start: firstErr, end: body.length })
+  if (depth > 0) {
+    const lastOpen = body.lastIndexOf('(')
+    errors.push({ message: 'Missing )', start: firstErr >= 0 ? firstErr : lastOpen >= 0 ? lastOpen : 0, end: body.length })
+  }
 
-  // Strip outer grouping parentheses for parsing
+  // Split on OR
   const orGroups = body.split(/\bOR\b/i).map(s => s.trim())
-
   const expression: JqlExpression = []
 
   for (const group of orGroups) {
+    if (!group) continue
+
+    // Handle parenthesized groups: (a:b AND c:d)
+    const groupClean = group.replace(/^\(/, '').replace(/\)$/, '').trim()
+    const isGrouped = group.startsWith('(')
+
     const clause: JqlClause = []
-
-    // Outer group parens: (a:b AND c:d) OR (e:f)
-    const groupBody = group.replace(/^\(/, '').replace(/\)$/, '').trim()
-
-    // Match tokens. Order matters — longer/more specific first.
     const tokenRegex =
-      /(\w+)\s+NOT\s+IN\s*\(\s*((?:"[^"]*"|[^)])+)\)|(\w+)\s+IS\s+NOT\s+EMPTY|(\w+)\s+IS\s+EMPTY|(?:NOT\s+)?(\w+)\s*(?::>|:<|:=|:!=|!=|:|=)\s*(?:"([^"]*?)"|(\S+))/gi
+      /(\w+)\s+NOT\s+IN\s*\(\s*((?:"[^"]*"|[^)])+)\)|(\w+)\s+IS\s+NOT\s+EMPTY|(\w+)\s+IS\s+EMPTY|(?:NOT\s+)?(\w+)\s*(?:(\s*~|>|<|>=|<=|!=|:|=)\s*|(\s*~|>|<|>=|<=|!=))\s*(?:"([^"]*?)"|(\S+))/gi
 
     let match: RegExpExecArray | null
     const consumed: Array<[number, number]> = []
 
-    while ((match = tokenRegex.exec(groupBody)) !== null) {
+    while ((match = tokenRegex.exec(groupClean)) !== null) {
       consumed.push([match.index, match.index + match[0].length])
-
-      let field: string
-      let op: Op
-      let rawValue: string
+      let field: string, op: Op, rawValue: string
 
       if (match[1] != null) {
         field = match[1].toLowerCase()
@@ -120,65 +145,77 @@ export function parseQuery(raw: string): {
       }
       if (match[3] != null) {
         field = match[3].toLowerCase()
-        validateField(field, match.index, consumed[consumed.length - 1][1], errors)
+        if (!validateNullable(field, match.index, consumed[consumed.length - 1][1], errors)) continue
         pushEmptyToken(clause, field, false)
         continue
       }
       if (match[5] != null) {
         field = match[5].toLowerCase()
-        validateField(field, match.index, consumed[consumed.length - 1][1], errors)
+        if (!validateNullable(field, match.index, consumed[consumed.length - 1][1], errors)) continue
         pushEmptyToken(clause, field, true)
         continue
       }
 
       if (match[7] != null) {
-        const isNegated = match[0].trimStart().toUpperCase().startsWith('NOT')
-        field = isNegated ? match[7].toLowerCase() : match[7].toLowerCase()
-        const opRaw = match[8] as string
-        const quotedVal = match[9]
-        const unquotedVal = match[10]
-        rawValue = quotedVal ?? unquotedVal ?? ''
+        const negated = match[0].trimStart().toUpperCase().startsWith('NOT')
+        field = match[7].toLowerCase()
+        const opRaw = (match[8] ?? match[9] ?? ':').trim()
+        const quoted = match[10]
+        const unquoted = match[11]
+        rawValue = quoted ?? unquoted ?? ''
         op = normalizeOp(opRaw)
-        if (isNegated) {
-          if (op === ':') op = '!='
-          else if (op === '!=') op = ':'
-        }
-        validateField(field, match.index, consumed[consumed.length - 1][1], errors)
-      } else if (match[11] != null) {
-        const isNegated = match[0].trimStart().toUpperCase().startsWith('NOT')
-        field = match[11].toLowerCase()
-        const opRaw = match[12] as string
-        const quotedVal = match[13]
-        const unquotedVal = match[14]
-        rawValue = quotedVal ?? unquotedVal ?? ''
+        if (negated) op = op === ':' ? '!=' : op === '!=' ? ':' : op
+        validateField(field, match.index, match.index + match[0].length, errors)
+      } else if (match[12] != null) {
+        const negated = match[0].trimStart().toUpperCase().startsWith('NOT')
+        field = match[12].toLowerCase()
+        const opRaw = (match[13] ?? match[14] ?? ':').trim()
+        const quoted = match[15]
+        const unquoted = match[16]
+        rawValue = quoted ?? unquoted ?? ''
         op = normalizeOp(opRaw)
-        if (isNegated) {
-          if (op === ':') op = '!='
-          else if (op === '!=') op = ':'
-        }
-        validateField(field, match.index, consumed[consumed.length - 1][1], errors)
+        if (negated) op = op === ':' ? '!=' : op === '!=' ? ':' : op
+        validateField(field, match.index, match.index + match[0].length, errors)
       } else {
         continue
+      }
+
+      // Validate value
+      if (!isJqlFunction(rawValue) && rawValue.startsWith('"') && !rawValue.endsWith('"')) {
+        errors.push({ message: 'Unterminated quoted string', start: consumed[consumed.length - 1]?.[0] ?? 0, end: consumed[consumed.length - 1]?.[1] ?? 0 })
+      }
+
+      // Validate number ops have numeric values
+      if ((op === ':>' || op === ':<') && isNaN(Number(rawValue)) && !isJqlFunction(rawValue)) {
+        errors.push({ message: `Expected a number for ${op}`, start: consumed[consumed.length - 1]?.[0] ?? 0, end: consumed[consumed.length - 1]?.[1] ?? 0 })
       }
 
       clause.push({ field, op, rawValue, values: [rawValue], label: buildTokenLabel(FIELD_MAP[field]!, op, rawValue), modelField: field })
     }
 
-    // Check for orphaned words that aren't valid tokens (possible typos)
-    let ft = ''
-    let pp = 0
-    for (const [s, e] of consumed) {
-      if (pp < s) ft += groupBody.slice(pp, s)
-      pp = e
-    }
-    if (pp < groupBody.length) ft += groupBody.slice(pp)
+    // Free text from non-consumed spans
+    let ft = '', p = 0
+    for (const [s, e] of consumed) { if (p < s) ft += groupClean.slice(p, s); p = e }
+    if (p < groupClean.length) ft += groupClean.slice(p)
     ft = ft.trim().replace(/\s{2,}/g, ' ')
 
-    if (ft) {
+    // Check for orphaned single-char tokens (possible typos like lone operators)
+    const orphaned = ft.match(/(^|\s)([><=~!])(\s|$)/g)
+    if (orphaned) {
+      for (const o of orphaned) {
+        const idx = ft.indexOf(o.trim())
+        if (idx >= 0) errors.push({ message: `Unexpected operator: ${o.trim()}`, start: idx, end: idx + o.trim().length })
+      }
+    }
+
+    if (ft && !orphaned?.some(o => ft.trim() === o.trim())) {
       clause.push({ field: '_text', op: ':', rawValue: ft, values: [], label: `"${ft}"`, modelField: '_text' })
     }
 
-    if (clause.length > 0) expression.push(clause)
+    if (clause.length > 0) {
+      if (isGrouped) (clause as unknown as FilterToken & { grouped?: boolean }).grouped = true
+      expression.push(clause)
+    }
   }
 
   const allFreeText = expression.flat().filter(t => t.field === '_text').map(t => t.rawValue).join(' ')
@@ -186,21 +223,38 @@ export function parseQuery(raw: string): {
 }
 
 function validateField(field: string, start: number, end: number, errors: ParseError[]) {
-  if (!FIELD_MAP[field]) {
-    errors.push({ message: `Unknown field: ${field}`, start, end })
+  const resolved = FIELD_ALIASES[field] ?? field
+  if (!FIELD_MAP[resolved]) {
+    // Suggest closest match
+    const close = FILTERABLE_FIELDS.map(f => f.key).filter(k => k.startsWith(field.charAt(0))).join(', ')
+    errors.push({ message: close ? `Unknown field: "${field}". Did you mean: ${close}?` : `Unknown field: "${field}"`, start, end })
+    return false
   }
+  return true
+}
+
+function validateNullable(field: string, start: number, end: number, errors: ParseError[]) {
+  if (!FIELD_MAP[field]) { validateField(field, start, end, errors); return false }
+  if (!FIELD_MAP[field].nullable) {
+    errors.push({ message: `"${field}" does not support IS EMPTY / IS NOT EMPTY`, start, end })
+    return false
+  }
+  return true
 }
 
 function normalizeOp(raw: string): Op {
-  if (raw === ':>' || raw === '>') return ':>'
-  if (raw === ':<' || raw === '<') return ':<'
-  if (raw === ':=' || raw === '=' || raw === ':') return ':'
-  if (raw === ':!=' || raw === '!=') return '!='
+  const t = raw.trim()
+  if (t === ':>' || t === '>' || t === '>=') return ':>'
+  if (t === ':<' || t === '<' || t === '<=') return ':<'
+  if (t === '~') return ':'
+  if (t === '!~') return '!='
+  if (t === ':=' || t === '=' || t === ':') return ':'
+  if (t === '!=' || t === '<>') return '!='
   return ':'
 }
 
 function pushInToken(c: JqlClause, field: string, listStr: string, negated: boolean) {
-  const fd = FIELD_MAP[field]; if (!fd) return
+  const fd = FIELD_MAP[field] ?? FIELD_MAP[FIELD_ALIASES[field]]; if (!fd) return
   const vals = listStr.split(',').map((v: string) => v.trim().replace(/^"|"$/g, ''))
   c.push({ field, op: negated ? 'NOT IN' : 'IN', rawValue: listStr, values: vals, label: buildTokenLabel(fd, negated ? 'NOT IN' : 'IN', listStr), modelField: field })
 }
@@ -212,16 +266,15 @@ function pushEmptyToken(c: JqlClause, field: string, isEmpty: boolean) {
 }
 
 function buildTokenLabel(fd: FieldDef, op: Op, raw: string): string {
+  const opDisplay = op === ':' ? ':' : op === '!=' ? '≠' : op === ':>' ? '>' : op === ':<' ? '<' : op
   if (op === 'IS EMPTY' || op === 'IS NOT EMPTY') return `${fd.label} ${op}`
   if (fd.type === 'select' && fd.options && (op === ':' || op === '=' || op === '!=')) {
     const opt = fd.options.find(o => o.value.toLowerCase() === raw.toLowerCase())
-    const v = opt?.label ?? raw
-    return op === '!=' ? `${fd.label}!=${v}` : `${fd.label}:${v}`
+    return op === '!=' ? `${fd.label}≠${opt?.label ?? raw}` : `${fd.label}:${opt?.label ?? raw}`
   }
-  if (op === '!=') return `${fd.label}!=${raw}`
   if (op === 'IN' || op === 'NOT IN') return `${fd.label} ${op} (${raw})`
-  if (op === ':>' || op === ':<') return `${fd.label}${op}${raw}`
-  return `${fd.label}:${raw}`
+  if (op === '!=') return `${fd.label}≠${raw}`
+  return `${fd.label}${opDisplay}${raw}`
 }
 
 /* ─── Matching ─── */
@@ -241,22 +294,22 @@ function matchToken(m: Model, t: FilterToken): boolean {
   if (t.field === '_text') return true
   const neg = t.op === '!=' || t.op === 'NOT IN'
   let r: boolean
+  const rv = t.rawValue.toLowerCase()
   switch (t.field) {
-    case 'provider': r = m.provider.toLowerCase() === t.rawValue.toLowerCase(); break
-    case 'status': r = m.status.result.toLowerCase() === t.rawValue.toLowerCase(); break
-    case 'type': r = t.rawValue.toLowerCase() === 'free' ? m.is_free : t.rawValue.toLowerCase() === 'paid' ? !m.is_free : false; break
+    case 'provider': r = m.provider.toLowerCase() === rv; break
+    case 'status': r = m.status.result.toLowerCase() === rv; break
+    case 'type': r = rv === 'free' ? m.is_free : rv === 'paid' ? !m.is_free : false; break
     case 'context':
       if (t.op === 'IS EMPTY') { r = m.context_length == null; break }
       if (t.op === 'IS NOT EMPTY') { r = m.context_length != null; break }
       if (m.context_length == null) { r = false; break }
-      const n = Number(t.rawValue)
-      if (isNaN(n)) { r = false; break }
+      const n = Number(rv); if (isNaN(n)) { r = false; break }
       r = t.op === ':>' ? m.context_length > n : t.op === ':<' ? m.context_length < n : m.context_length === n
       break
     case 'notes':
       if (t.op === 'IS EMPTY') { r = !m.notes || !m.notes.trim(); break }
       if (t.op === 'IS NOT EMPTY') { r = !!m.notes && !!m.notes.trim(); break }
-      r = m.notes.toLowerCase().includes(t.rawValue.toLowerCase()); break
+      r = m.notes.toLowerCase().includes(rv); break
     default: { const h = getTextField(m, t.field)?.toLowerCase() ?? ''; r = t.values.some(v => h.includes(v.toLowerCase())) }
   }
   return neg ? !r : r
@@ -280,51 +333,82 @@ export interface SuggestionOption { value: string; label: string; insert: string
 
 export function getSuggestions(raw: string, cursorPos: number, providerNames: string[]): { field: string; options: SuggestionOption[] } | null {
   const before = raw.slice(0, cursorPos)
+  const after = raw.slice(cursorPos)
   const spaceIdx = before.lastIndexOf(' ')
   const tokenStart = spaceIdx + 1
   const cur = before.slice(tokenStart).trimStart()
-  const isAfterOR = /\bOR\s*$/i.test(before.trimEnd())
+
   const isNot = cur.toUpperCase().startsWith('NOT ')
   const body = isNot ? cur.slice(4) : cur
 
-  if (!body.includes(':') && !body.includes('!=') && !/\bIS\b/i.test(body)) {
+  // No colon / no operator yet — suggest fields
+  if (!body.includes(':') && !body.includes('!=') && !body.includes('~') && !/\bIS\b/i.test(body) && !/\bIN\b/i.test(body)) {
     const partial = cur.toLowerCase()
-    if (isAfterOR || partial.length > 0) {
-      const m = FILTERABLE_FIELDS.filter(f => f.key.startsWith(partial) || f.label.toLowerCase().startsWith(partial))
-      if (m.length > 0) return { field: 'field', options: m.map(f => ({ value: f.key, label: f.label, insert: f.key + ':' })) }
+    const matching = FILTERABLE_FIELDS.filter(f =>
+      f.key.startsWith(partial) ||
+      f.label.toLowerCase().startsWith(partial) ||
+      FIELD_ALIASES[partial] === f.key
+    )
+    // Also show functions if they start typing a function-like word
+    const fns: SuggestionOption[] = []
+    if ('startof'.startsWith(partial) || 'endof'.startsWith(partial) || 'now'.startsWith(partial)) {
+      fns.push({ value: 'startofday()', label: 'Start of day', insert: 'startofday()' })
+      fns.push({ value: 'endofday()', label: 'End of day', insert: 'endofday()' })
+      fns.push({ value: 'now()', label: 'Now', insert: 'now()' })
+    }
+    if (matching.length > 0 || fns.length > 0) {
+      const fieldOpts = matching.map(f => {
+        const insert = f.key + ':'
+        // If inside parens or after OR, prepend NOT if isNot
+        const prefix = isNot ? `NOT ${f.key}:` : insert
+        return { value: f.key, label: f.label, insert: prefix }
+      })
+      return { field: 'field', options: [...fieldOpts, ...fns] }
     }
     return null
   }
 
-  const fm = body.match(/^(\w+)\s*(?::(=?>|=|<|!=)?|!=|\s+(NOT\s+)?(?:IN\s*\(|IS\s+(NOT\s+)?EMPTY))?/i)
+  // Parse field name from token
+  const fm = body.match(/^(\w+)\s*(?:(\s*[~<>!]=?|\s*~|:|=|\s+!=)|(\s+IS\s+(?:NOT\s+)?EMPTY)|(?:\s+(NOT\s+)?IN\s*\())?/i)
   if (!fm) return null
-  const fn = fm[1].toLowerCase()
-  const opP = fm[2] ?? ''
-  const rest = body.slice(fm[0].length).trimStart()
+  const fnRaw = (fm[1] || '').toLowerCase()
+  const fn = FIELD_ALIASES[fnRaw] ?? fnRaw
+  const opP = (fm[2] ?? '').trim()
+  const isEmptyOp = fm[3] != null
+  const rest = body.slice(fm[0]?.length ?? 0).trimStart()
   const fd = FIELD_MAP[fn]
-  if (!fd) return null
+  if (!fd && !['startofday','endofday','now','currentuser'].includes(fn)) return null
 
   const bi = isNot ? `NOT ${fn}` : fn
 
   // IS EMPTY suggestions
-  if (fd.nullable && !opP && !rest) {
+  if (fd?.nullable && !opP && !rest) {
     return { field: fn, options: [
       { value: 'is-empty', label: 'Is empty', insert: `${bi} IS EMPTY` },
       { value: 'is-not-empty', label: 'Is not empty', insert: `${bi} IS NOT EMPTY` },
     ]}
   }
 
-  // Number field operators
-  if (fd.type === 'number' && !opP) {
-    const ops = [{ op: ':', label: 'Equals' }, { op: ':>', label: 'Greater than' }, { op: ':<', label: 'Less than' }, { op: '!=', label: 'Not equals' } as const]
-    if (fd.nullable) {
-      (ops as Array<{op:string;label:string}>).push({ op: 'IS EMPTY', label: 'Is empty' }, { op: 'IS NOT EMPTY', label: 'Is not empty' })
+  // Operator suggestions for fields without op yet
+  if (fd && !opP && !rest && !isEmptyOp) {
+    if (fd.type === 'number') {
+      const ops = [{ op: ':', label: '=' }, { op: ':>', label: '>' }, { op: ':<', label: '<' }, { op: '!=', label: '≠' }] as Array<{op:string;label:string}>
+      if (fd.nullable) ops.push({ op: 'IS EMPTY', label: 'is empty' }, { op: 'IS NOT EMPTY', label: 'is not empty' })
+      return { field: fn, options: ops.map(o => ({ value: o.op, label: o.label, insert: o.op.startsWith('IS') ? `${bi} ${o.op}` : `${bi}${o.op}` })) }
     }
-    return { field: fn, options: ops.map(o => ({ value: o.op, label: o.label, insert: o.op.startsWith('IS') ? `${bi} ${o.op}` : `${bi}${o.op}` })) }
+    if (fd.type === 'select') {
+      const ops = [{ op: ':', label: '=' }, { op: '!=', label: '≠' }, { op: 'IN', label: 'in' }, { op: 'NOT IN', label: 'not in' }] as Array<{op:string;label:string}>
+      if (fd.nullable) ops.push({ op: 'IS EMPTY', label: 'is empty' }, { op: 'IS NOT EMPTY', label: 'is not empty' })
+      return { field: fn, options: ops.map(o => ({ value: o.op, label: o.label, insert: o.op.startsWith('IS') || o.op.endsWith('IN') ? `${bi} ${o.op}` + (o.op.endsWith('IN') ? ' (' : '') : `${bi}${o.op}` })) }
+    }
+    // text
+    const ops = [{ op: ':', label: 'contains' }, { op: '!=', label: 'does not contain' }] as Array<{op:string;label:string}>
+    if (fd.nullable) ops.push({ op: 'IS EMPTY', label: 'is empty' }, { op: 'IS NOT EMPTY', label: 'is not empty' })
+    return { field: fn, options: ops.map(o => ({ value: o.op, label: o.label, insert: `${bi}${o.op}` })) }
   }
 
-  // Select field values
-  if (fd.type === 'select') {
+  // Value suggestions for select fields
+  if (fd?.type === 'select' && (opP === ':' || opP === '=' || opP === '!=')) {
     let opts: { value: string; label: string }[]
     if (fn === 'provider') opts = providerNames.map(p => ({ value: p, label: p }))
     else if (fd.options) opts = fd.options
@@ -337,6 +421,19 @@ export function getSuggestions(raw: string, cursorPos: number, providerNames: st
     })
     if (!isNot && fil.length >= 2) out.push({ value: 'in', label: 'In list …', insert: `${bi} IN (` })
     return { field: fn, options: out }
+  }
+
+  // Suggest IN/NOT IN for select after value typed
+  if (fd?.type === 'select' && rest && (opP === ':' || opP === '=')) {
+    return { field: fn, options: [
+      { value: 'in', label: 'In list …', insert: `${bi} IN (` },
+      { value: 'not-in', label: 'Not in list …', insert: `${bi} NOT IN (` },
+    ]}
+  }
+
+  // Text field value suggestions (just show the typed value)
+  if (fd?.type === 'text' && rest && !after.startsWith(' ')) {
+    return null // let user type freely
   }
 
   return null
@@ -377,7 +474,7 @@ export function useJqlFilter(
     const spaceIdx = before.lastIndexOf(' ')
     const tokenStart = spaceIdx + 1
     const bt = before.slice(0, tokenStart).trimEnd()
-    const needsOR = bt.length > 0 && !bt.endsWith('OR') && !bt.endsWith('or')
+    const needsOR = bt.length > 0 && !bt.endsWith('OR') && !bt.endsWith('or') && !bt.endsWith('AND') && !bt.endsWith('and')
     const prefix = needsOR ? 'OR ' : bt.length > 0 ? ' ' : ''
     const trailing = insert.endsWith('(') ? '' : ' '
     rawQuery.value = before.slice(0, tokenStart) + prefix + insert + trailing + after.trimStart()

@@ -45,6 +45,8 @@ export const useModelsStore = defineStore('models', () => {
 
   const untestedModels = computed(() => freeModels.value.filter(m => m.status.result === 'untested'))
 
+  const removedModels = computed(() => allModels.value.filter(m => m._removed === true))
+
   const schemaIssueModels = computed(() => {
     const ids = data.value?._test_summary.results.schema_issues ?? []
     return ids.map(entry => {
@@ -209,7 +211,7 @@ export const useModelsStore = defineStore('models', () => {
   return {
     loading, error, lastLoaded, isStale,
     allModels, freeModels, paidModels,
-    workingModels, brokenModels, rateLimitedModels, untestedModels,
+    workingModels, brokenModels, rateLimitedModels, untestedModels, removedModels,
     schemaIssueModels, allProviderNames, providerHealth,
     roleRankings, knownIssues, providerUsage,
     currentMonth, usedUpProviders, usedUpProviderSet, isProviderUsedUp,

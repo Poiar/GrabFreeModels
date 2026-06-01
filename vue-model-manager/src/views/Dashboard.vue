@@ -36,6 +36,10 @@
         <div class="stat-value purple">{{ Math.round(store.stats.workingRatio * 100) }}%</div>
         <div class="stat-label">Working Ratio</div>
       </div>
+      <div class="stat-card" v-if="store.removedModels.length > 0">
+        <div class="stat-value orange">{{ store.removedModels.length }}</div>
+        <div class="stat-label">Removed</div>
+      </div>
     </div>
 
     <!-- Provider Health -->

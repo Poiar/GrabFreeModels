@@ -84,6 +84,15 @@
             <p class="detail-text">{{ model.notes }}</p>
           </div>
 
+          <!-- Removal notice -->
+          <div class="detail-section removal-notice" v-if="model._removed">
+            <span class="detail-label">Removal Status</span>
+            <p class="detail-text">
+              ⚠ This model is no longer offered as free by its provider.
+              <span v-if="model._removedDate"> Detected on {{ model._removedDate }}.</span>
+            </p>
+          </div>
+
           <!-- Known Issues for this model -->
           <div class="detail-section" v-if="modelIssues.length > 0">
             <span class="detail-label">Known Issues</span>
@@ -337,6 +346,13 @@ function onKey(e: KeyboardEvent) {
 .issue-mini p {
   font-size: 0.8rem;
   color: var(--text-dim);
+}
+
+.removal-notice {
+  background: rgba(210,153,34,0.08);
+  border: 1px solid rgba(210,153,34,0.3);
+  border-radius: var(--radius-sm);
+  padding: 12px;
 }
 
 .badge-provider {
