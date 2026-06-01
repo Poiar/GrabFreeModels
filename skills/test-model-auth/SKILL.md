@@ -24,9 +24,8 @@ The CLI reads keys from `opencode.jsonc`, not `auth.json`. When the Desktop app 
 
 ## Reading Keys
 
-```powershell
-$auth = Get-Content 'C:\Users\pc\.local\share\opencode\auth.json' | ConvertFrom-Json
-$key = $auth.openrouter.key
+```bash
+node -e "const fs=require('fs');const auth=JSON.parse(fs.readFileSync('C:\\Users\\pc\\.local\\share\\opencode\\auth.json','utf8'));console.log(auth.openrouter.key)"
 ```
 
 See `docs/provider-details.md` for endpoints.

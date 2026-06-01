@@ -35,7 +35,7 @@
     </div>
 
     <div class="table-wrap">
-      <table>
+      <table v-if="sortedItems.length > 0">
         <thead>
           <tr>
             <th :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
@@ -65,10 +65,15 @@
             <td>
               <span class="role-badge" :data-role="item.role">{{ formatRole(item.role) }}</span>
             </td>
-            <td>
-              <div class="model-name">{{ item.model?.name ?? item.modelId }}</div>
-              <div class="model-id">{{ item.modelId }}</div>
-            </td>
+             <td>
+               <div class="model-name" :title="item.model?.name ?? item.modelId">{{ item.model?.name ?? item.modelId }}</div>
+               <div class="model-id-wrap">
+                 <span class="model-id" :title="item.modelId">{{ item.modelId }}</span>
+                 <button class="copy-btn" :class="{ copied: copiedIds.has(item.modelId) }" :title="copiedIds.has(item.modelId) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(item.modelId)">
+                   {{ copiedIds.has(item.modelId) ? '✓' : '📋' }}
+                 </button>
+               </div>
+              </td>
             <td>{{ item.model?.provider ?? '' }}</td>
             <td>
               <span class="badge" :class="`badge-${item.model?.status?.result ?? ''}`">
@@ -83,17 +88,18 @@
             <td>
               <div class="best-for-tags">
                 <span v-for="tag in (item.model?.best_for ?? []).slice(0, 3)" :key="tag" class="tag">{{ tag }}</span>
-                <span v-if="(item.model?.best_for?.length ?? 0) > 3" class="tag">+{{ item.model.best_for!.length - 3 }}</span>
+                <span v-if="(item.model?.best_for?.length ?? 0) > 3" class="tag">+{{ (item.model?.best_for?.length ?? 0) - 3 }}</span>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
 
-    <div v-if="sortedItems.length === 0" class="empty-state">
-      <div class="empty-state-inner">
-        <div class="empty-state-icon">🔍</div>
-        <p>No models match the current filters</p>
+      <div v-else class="empty-state">
+        <div class="empty-state-inner">
+          <div class="empty-state-icon">🔍</div>
+          <p>No models match the current filters</p>
+        </div>
       </div>
     </div>
 
@@ -114,10 +120,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, reactive } from 'vue'
 import { useModelsStore } from '@/store/models'
 
 const store = useModelsStore()
+const copiedIds = reactive(new Set<string>())
+let copyTimer: ReturnType<typeof setTimeout> | null = null
+
+async function handleCopy(id: string) {
+  try {
+    await navigator.clipboard.writeText(id)
+  } catch {
+    const ta = document.createElement('textarea')
+    ta.value = id
+    ta.style.position = 'fixed'
+    ta.style.left = '-9999px'
+    document.body.appendChild(ta)
+    ta.select()
+    document.execCommand('copy')
+    document.body.removeChild(ta)
+  }
+  copiedIds.add(id)
+  if (copyTimer) clearTimeout(copyTimer)
+  copyTimer = setTimeout(() => {
+    copiedIds.delete(id)
+  }, 1500)
+}
 
 const ROLES = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
 
@@ -161,13 +189,13 @@ const statusOptions = [
 const filtered = computed(() => {
   const term = searchTerm.value.toLowerCase()
   return flatRankings.value.filter(item => {
+    const model = store.getModelById(item.modelId)
     // Status filter
-    const result = item.model?.status?.result
+    const result = model?.status?.result
     if (statusFilter.value === 'working' && result !== 'working') return false
     if (statusFilter.value === 'untested' && result !== 'untested') return false
     // Search
     if (!term) return true
-    const model = store.getModelById(item.modelId)
     const name = model?.name?.toLowerCase() ?? ''
     return name.includes(term) || item.modelId.toLowerCase().includes(term)
   })
@@ -245,6 +273,25 @@ const pagedItems = computed(() => {
 </script>
 
 <style scoped>
+:deep(.model-name) {
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:deep(.model-id) {
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:deep(.model-id:hover) {
+  word-break: break-all;
+  white-space: normal;
+}
+
 .rank-num {
   font-weight: 700;
   color: var(--text);

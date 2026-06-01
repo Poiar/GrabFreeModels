@@ -4,8 +4,8 @@ This document explains how to run, monitor, and maintain the GrabFreeModels work
 
 ---
 ## 1. Nightly Maintenance
-- **Task Scheduler**: Import `scripts/nightly-task.xml` and enable it. It runs `nightly-maintenance.ps1` daily at 02:00 AM.
-- **Webhook secret**: Store the webhook URL as a Windows secret named `GrabFreeModelsWebHook` (or set the environment variable `WEBHOOK_URL`). The nightly script reads the secret via `Get-Secret`.
+- **Task Scheduler**: Import `scripts/nightly-task.xml` and enable it. It runs `nightly-maintenance.js` daily at 02:00 AM.
+- **Webhook secret**: Store the webhook URL as an environment variable `WEBHOOK_URL`. The nightly script reads it from the environment.
 - **Log files**:
   - `nightly-summary.log` – human‑readable run summary.
   - `nightly-errors.log` – any Git or webhook errors.
@@ -14,31 +14,31 @@ This document explains how to run, monitor, and maintain the GrabFreeModels work
 ---
 ## 2. Metrics Exporter Service
 - Install the service (run as Administrator):
-  ```powershell
-  pwsh -File scripts\install-metrics-service.ps1
-  ```
+```bash
+node scripts/install-metrics-service.js
+```
 - The service is named `GrabFreeModelsMetrics` and starts automatically.
 - Prometheus should scrape the metrics endpoint.
 - To stop/remove the service:
-  ```powershell
-  sc.exe stop GrabFreeModelsMetrics
-  sc.exe delete GrabFreeModelsMetrics
-  ```
+```bash
+sc.exe stop GrabFreeModelsMetrics
+sc.exe delete GrabFreeModelsMetrics
+```
   (If installed with nssm, use `nssm remove GrabFreeModelsMetrics confirm`.)
 
 ---
 ## 3. Snapshot Retention
 - Run the cleanup script (e.g., via a weekly scheduled task):
-  ```powershell
-  pwsh -File scripts\cleanup-snapshots.ps1 -Keep 30
-  ```
+```bash
+node scripts/cleanup-snapshots.js --keep 30
+```
 
 ---
 ## 4. Dashboard
 - Generate an updated dashboard HTML:
-  ```powershell
-  pwsh -File scripts\generate-dashboard.ps1
-  ```
+```bash
+node scripts/generate-dashboard.js
+```
 
 ---
 ## 5. Alerts & Monitoring
@@ -67,9 +67,9 @@ This document explains how to run, monitor, and maintain the GrabFreeModels work
 ---
 ## 6. Manual Run / Debugging
 - To run the full pipeline manually:
-  ```powershell
-  pwsh -File scripts\nightly-maintenance.ps1
-  ```
+```bash
+node scripts/nightly-maintenance.js
+```
 - Check logs (`nightly-summary.log`, `nightly-errors.log`) for details.
 - Use `git status` to verify that any changes were committed.
 

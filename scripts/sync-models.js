@@ -13,8 +13,8 @@ const path = require('path');
 
 const APPLY = process.argv.includes('--apply');
 
-const MODELS_FILE = 'C:\\OC\\GrabFreeModels\\available-models.json';
-const AUTH_FILE = 'C:\\Users\\pc\\.local\\share\\opencode\\auth.json';
+const MODELS_FILE = path.join(__dirname, '..', 'available-models.json');
+const AUTH_FILE = path.join(process.env.HOME || process.env.USERPROFILE, '.local', 'share', 'opencode', 'auth.json');
 
 const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
 const json = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
@@ -118,6 +118,12 @@ try {
   console.log(`  ERROR: ${e.message}`);
 }
 
+// --- HuggingFace Router & LLM Gateway ---
+// These providers have no public free-model listing API.
+// HuggingFace: free models must be tested manually.
+// LLM Gateway: models must be added manually.
+// See docs/provider-details.md for details.
+
 // --- Detect removed models ---
 console.log('\n[Status Check] Models in JSON but no longer in OpenRouter/Cerebras...');
 const allCurrentFreeIds = new Set([
@@ -193,4 +199,4 @@ if (!APPLY) {
     console.log(`  JSON validation: FAILED - ${e.message}`);
     }
 }
-})();
+})().catch(e => { console.error(e.message); process.exit(1); });

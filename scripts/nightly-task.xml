@@ -36,8 +36,8 @@
   </Settings>
   <Actions Context="Author">
     <Exec>
-      <Command>pwsh.exe</Command>
-      <Arguments>-NoProfile -ExecutionPolicy Bypass -File "C:\OC\GrabFreeModels\scripts\nightly-maintenance.ps1"</Arguments>
+      <Command>node.exe</Command>
+      <Arguments>"C:\OC\GrabFreeModels\scripts\nightly-maintenance.js"</Arguments>
       <WorkingDirectory>C:\OC\GrabFreeModels</WorkingDirectory>
     </Exec>
   </Actions>

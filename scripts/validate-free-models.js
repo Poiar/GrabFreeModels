@@ -22,8 +22,8 @@ for (let i = 0; i < args.length; i++) {
   }
 }
 
-const MODELS_FILE = 'C:\\OC\\GrabFreeModels\\available-models.json';
-const AUTH_FILE = 'C:\\Users\\pc\\.local\\share\\opencode\\auth.json';
+const MODELS_FILE = path.join(__dirname, '..', 'available-models.json');
+const AUTH_FILE = path.join(process.env.HOME || process.env.USERPROFILE, '.local', 'share', 'opencode', 'auth.json');
 
 const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
 let json = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
@@ -123,148 +123,150 @@ function getApiKey(modelId) {
 }
 
 // --- Run tests ---
-const results = [];
+(async () => {
+  const results = [];
 
-for (const m of toTest) {
-  const id = m.id;
-  const url = getApiUrl(id);
-  const key = getApiKey(id);
+  for (const m of toTest) {
+    const id = m.id;
+    const url = getApiUrl(id);
+    const key = getApiKey(id);
 
-  console.log(`[${id}]`);
+    console.log(`[${id}]`);
 
-  // Phase 1: Burst (rapid sequential)
-  process.stdout.write('  Burst phase...');
-  const burstResults = await testModel(id, 'burst', key, url);
-  console.log(` ${burstResults.join(', ')}`);
+    // Phase 1: Burst (rapid sequential)
+    process.stdout.write('  Burst phase...');
+    const burstResults = await testModel(id, 'burst', key, url);
+    console.log(` ${burstResults.join(', ')}`);
 
-  // Phase 2: Delayed
-  process.stdout.write('  Delayed phase...');
-  const delayedResults = await testModel(id, 'delayed', key, url);
-  console.log(` ${delayedResults.join(', ')}`);
+    // Phase 2: Delayed
+    process.stdout.write('  Delayed phase...');
+    const delayedResults = await testModel(id, 'delayed', key, url);
+    console.log(` ${delayedResults.join(', ')}`);
 
-  // Interpret
-  const allResults = [...burstResults, ...delayedResults];
-  const okCount = allResults.filter(r => r === 'OK').length;
-  const totalCount = allResults.length;
-  const allFailed = allResults.filter(r => r !== 'OK').length === totalCount;
-  const anyOk = okCount > 0;
+    // Interpret
+    const allResults = [...burstResults, ...delayedResults];
+    const okCount = allResults.filter(r => r === 'OK').length;
+    const totalCount = allResults.length;
+    const allFailed = allResults.filter(r => r !== 'OK').length === totalCount;
+    const anyOk = okCount > 0;
 
-  let status, detail;
-  if (okCount === totalCount) {
-    status = 'working';
-    detail = `All ${totalCount} requests succeeded.`;
-  } else if (allFailed) {
-    status = 'rate_limited';
-    detail = `429 on all ${totalCount} requests - persistently rate limited.`;
-  } else if (okCount >= 4) {
-    status = 'working';
-    detail = `${okCount}/${totalCount} OK. Intermittent 429s under load, reliable sequentially.`;
-  } else if (anyOk) {
-    status = 'rate_limited';
-    detail = `${okCount}/${totalCount} OK - sporadic success, not reliably usable.`;
-  } else {
-    status = 'broken';
-    detail = `0/${totalCount} OK - all requests failed.`;
-  }
-
-  const color = status === 'working' ? '\x1b[32m' : status === 'rate_limited' ? '\x1b[33m' : '\x1b[31m';
-  console.log(`  => ${color}${status}\x1b[0m`);
-
-  results.push({ id, status, detail, burst: burstResults, delayed: delayedResults });
-}
-
-// --- Summary ---
-console.log('\n=== Results ===');
-for (const r of results) {
-  console.log(`  ${r.id}: ${r.status} - ${r.detail}`);
-}
-
-if (!APPLY) {
-  console.log('\nReport mode. Use --apply to update available-models.json');
-} else {
-  const today = new Date().toISOString().slice(0, 10);
-  const currentMonth = new Date().toISOString().slice(0, 7);
-
-  // Check if a model's provider is marked as used-up for the current month
-  const usedUpProviders = [];
-  if (json._provider_usage) {
-    for (const [p, entry] of Object.entries(json._provider_usage)) {
-      if (p === 'description') continue;
-      if (entry && entry.month === currentMonth) usedUpProviders.push(p);
+    let status, detail;
+    if (okCount === totalCount) {
+      status = 'working';
+      detail = `All ${totalCount} requests succeeded.`;
+    } else if (allFailed) {
+      status = 'rate_limited';
+      detail = `429 on all ${totalCount} requests - persistently rate limited.`;
+    } else if (okCount >= 4) {
+      status = 'working';
+      detail = `${okCount}/${totalCount} OK. Intermittent 429s under load, reliable sequentially.`;
+    } else if (anyOk) {
+      status = 'rate_limited';
+      detail = `${okCount}/${totalCount} OK - sporadic success, not reliably usable.`;
+    } else {
+      status = 'broken';
+      detail = `0/${totalCount} OK - all requests failed.`;
     }
+
+    const color = status === 'working' ? '\x1b[32m' : status === 'rate_limited' ? '\x1b[33m' : '\x1b[31m';
+    console.log(`  => ${color}${status}\x1b[0m`);
+
+    results.push({ id, status, detail, burst: burstResults, delayed: delayedResults });
   }
 
+  // --- Summary ---
+  console.log('\n=== Results ===');
   for (const r of results) {
-    const model = json.models.find(m => m.id === r.id);
-    if (!model) continue;
+    console.log(`  ${r.id}: ${r.status} - ${r.detail}`);
+  }
 
-    // Auto-flag provider as used-up if all its free models are broken
-    const providerPrefix = r.id.split('/')[0];
-    if (r.status === 'broken' && !usedUpProviders.includes(providerPrefix)) {
-      const providerModels = json.models.filter(m => m.id.startsWith(`${providerPrefix}/`) && m.is_free);
-      const allBroken = providerModels.filter(m => m.status.result === 'broken').length === providerModels.length;
-      if (allBroken && providerModels.length > 0) {
-        if (!json._provider_usage) json._provider_usage = {};
-        json._provider_usage[providerPrefix] = {
-          month: currentMonth,
-          reason: `All ${providerPrefix} models are broken as of ${today}`,
-        };
-        usedUpProviders.push(providerPrefix);
-        console.log(`  ⚠ Auto-flagged provider '${providerPrefix}' as used-up for ${currentMonth}`);
+  if (!APPLY) {
+    console.log('\nReport mode. Use --apply to update available-models.json');
+  } else {
+    const today = new Date().toISOString().slice(0, 10);
+    const currentMonth = new Date().toISOString().slice(0, 7);
+
+    // Check if a model's provider is marked as used-up for the current month
+    const usedUpProviders = [];
+    if (json._provider_usage) {
+      for (const [p, entry] of Object.entries(json._provider_usage)) {
+        if (p === 'description') continue;
+        if (entry && entry.month === currentMonth) usedUpProviders.push(p);
       }
     }
 
-    model.status.tested = today;
-    model.status.result = r.status;
-    model.status.detail = r.detail;
-    if (r.status === 'working') model.last_success = new Date().toISOString();
+    for (const r of results) {
+      const model = json.models.find(m => m.id === r.id);
+      if (!model) continue;
 
-    // Update test_summary
-    const ts = json._test_summary.results;
-    const removeFrom = arr => { const idx = arr.indexOf(r.id); if (idx !== -1) arr.splice(idx, 1); };
+      // Auto-flag provider as used-up if all its free models are broken
+      const providerPrefix = r.id.split('/')[0];
+      if (r.status === 'broken' && !usedUpProviders.includes(providerPrefix)) {
+        const providerModels = json.models.filter(m => m.id.startsWith(`${providerPrefix}/`) && m.is_free);
+        const allBroken = providerModels.filter(m => m.status.result === 'broken').length === providerModels.length;
+        if (allBroken && providerModels.length > 0) {
+          if (!json._provider_usage) json._provider_usage = {};
+          json._provider_usage[providerPrefix] = {
+            month: currentMonth,
+            reason: `All ${providerPrefix} models are broken as of ${today}`,
+          };
+          usedUpProviders.push(providerPrefix);
+          console.log(`  ⚠ Auto-flagged provider '${providerPrefix}' as used-up for ${currentMonth}`);
+        }
+      }
 
-    if (r.status === 'working') {
-      removeFrom(ts.rate_limited);
-      removeFrom(ts.broken);
-      removeFrom(ts.untested);
-      if (!ts.working.includes(r.id)) ts.working.push(r.id);
-    } else if (r.status === 'rate_limited') {
-      removeFrom(ts.working);
-      removeFrom(ts.broken);
-      removeFrom(ts.untested);
-      if (!ts.rate_limited.includes(r.id)) ts.rate_limited.push(r.id);
-    } else if (r.status === 'broken') {
-      removeFrom(ts.working);
-      removeFrom(ts.rate_limited);
-      removeFrom(ts.untested);
-      if (!ts.broken.includes(r.id)) ts.broken.push(r.id);
-    }
+      model.status.tested = today;
+      model.status.result = r.status;
+      model.status.detail = r.detail;
+      if (r.status === 'working') model.last_success = new Date().toISOString();
 
-    // Update _role_rankings
-    const modelProvider = r.id.split('/')[0];
-    const isProviderUsedUp = usedUpProviders.includes(modelProvider);
-    const roles = ['model', 'build', 'general', 'small_model', 'explore'];
+      // Update test_summary
+      const ts = json._test_summary.results;
+      const removeFrom = arr => { const idx = arr.indexOf(r.id); if (idx !== -1) arr.splice(idx, 1); };
 
-    for (const role of roles) {
-      const list = json._role_rankings[role] || [];
-      const idx = list.indexOf(r.id);
-      if (r.status === 'working' && !isProviderUsedUp && idx === -1) {
-        list.push(r.id);
-      } else if ((r.status !== 'working' || isProviderUsedUp) && idx !== -1) {
-        list.splice(idx, 1);
+      if (r.status === 'working') {
+        removeFrom(ts.rate_limited);
+        removeFrom(ts.broken);
+        removeFrom(ts.untested);
+        if (!ts.working.includes(r.id)) ts.working.push(r.id);
+      } else if (r.status === 'rate_limited') {
+        removeFrom(ts.working);
+        removeFrom(ts.broken);
+        removeFrom(ts.untested);
+        if (!ts.rate_limited.includes(r.id)) ts.rate_limited.push(r.id);
+      } else if (r.status === 'broken') {
+        removeFrom(ts.working);
+        removeFrom(ts.rate_limited);
+        removeFrom(ts.untested);
+        if (!ts.broken.includes(r.id)) ts.broken.push(r.id);
+      }
+
+      // Update _role_rankings
+      const modelProvider = r.id.split('/')[0];
+      const isProviderUsedUp = usedUpProviders.includes(modelProvider);
+      const roles = ['model', 'build', 'general', 'small_model', 'explore'];
+
+      for (const role of roles) {
+        const list = json._role_rankings[role] || [];
+        const idx = list.indexOf(r.id);
+        if (r.status === 'working' && !isProviderUsedUp && idx === -1) {
+          list.push(r.id);
+        } else if ((r.status !== 'working' || isProviderUsedUp) && idx !== -1) {
+          list.splice(idx, 1);
+        }
       }
     }
+
+    json._test_summary.date = today;
+
+    fs.writeFileSync(MODELS_FILE, JSON.stringify(json, null, 2), 'utf8');
+    console.log(`Updated ${MODELS_FILE}`);
+
+    try {
+      JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
+      console.log('JSON validation: OK');
+    } catch (e) {
+      console.log(`JSON validation: FAILED - ${e.message}`);
+    }
   }
-
-  json._test_summary.date = today;
-
-  fs.writeFileSync(MODELS_FILE, JSON.stringify(json, null, 2), 'utf8');
-  console.log(`Updated ${MODELS_FILE}`);
-
-  try {
-    JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
-    console.log('JSON validation: OK');
-  } catch (e) {
-    console.log(`JSON validation: FAILED - ${e.message}`);
-  }
-}
+})().catch(e => { console.error(e.message); process.exit(1); });

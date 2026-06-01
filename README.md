@@ -1,10 +1,54 @@
 # GrabFreeModels
 
-GrabFreeModels is a **free‑model tracker** that discovers, validates, and ranks free LLM models across multiple providers. It maintains a single source of truth (`available-models.json`) and provides:
+Discovers, tests, ranks, and syncs free LLM models across providers.
 
-- Automated daily validation of rate‑limited or untested free models.
-- Role‑specific rankings (`model`, `build`, `general`, `small_model`, `explore`, `stable`).
-- Provider health aggregation and Prometheus metrics.
-- A public HTML dashboard and a Shields.io health badge.
-- CI pipeline with Pester tests and Dependabot updates.
-- Operational scripts for snapshot management, service installation, and automated rollbacks.
+## Quick Start
+
+```bash
+node scripts/sync-models.js          # dry-run: see new/removed models
+node scripts/sync-models.js --apply  # write changes to available-models.json
+node scripts/validate-free-models.js --apply
+node scripts/nightly-maintenance.js  # full pipeline
+```
+
+## Project Structure
+
+```
+available-models.json       # source of truth for all tracked models
+scripts/                    # Node.js scripts (one per operation)
+skills/                     # opencode skill definitions
+docs/                       # reference documentation
+vue-model-manager/           # Vue 3 + Pinia frontend
+snapshots/                  # timestamped model snapshots
+```
+
+## Environment Variables
+
+| Variable | Purpose |
+|----------|---------|
+| `WEBHOOK_URL` | Alert webhook for nightly pipeline |
+| `GRAB_FREE_MODELS_ALERTS` | JSON blob with `webhook`, `slack`, `teams`, `email` keys |
+| `MODELS_FILE_PATH` | Override path to `available-models.json` (metrics exporter) |
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `sync-models.js` | Fetch free models from providers, diff against JSON |
+| `validate-free-models.js` | Re-test rate-limited/untested models |
+| `check-rankings.js` | Sanity-check `_role_rankings` against model IDs |
+| `nightly-maintenance.js` | Full pipeline: validate → rank → summarize → commit → push |
+| `model-summary.js` | Quick status overview |
+| `generate-dashboard.js` | HTML dashboard of provider health |
+| `health-badge.js` | Shields.io health badge JSON |
+| `metrics-exporter.js` | Prometheus metrics endpoint |
+| `install-metrics-service.js` | Install metrics exporter as Windows service |
+| `cleanup-snapshots.js` | Rotate old snapshots |
+| `kill-port.js` | Kill process on a given port |
+
+## Docs
+
+- `docs/provider-details.md` — Provider API endpoints and filtering rules
+- `docs/test-interpretation-reference.md` — Test result patterns and status mapping
+- `docs/vue-examples.md` — Vue 3 + Pinia code examples
+- `docs/gitleaks-setup.md` — Gitleaks installation instructions

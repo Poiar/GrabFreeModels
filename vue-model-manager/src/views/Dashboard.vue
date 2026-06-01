@@ -13,7 +13,11 @@
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-value">{{ store.stats.free }}</div>
+        <div class="stat-value">{{ store.stats.total }}</div>
+        <div class="stat-label">Total Models</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value accent">{{ store.stats.free }}</div>
         <div class="stat-label">Free Models</div>
       </div>
       <div class="stat-card">
@@ -27,10 +31,6 @@
       <div class="stat-card">
         <div class="stat-value red">{{ store.stats.broken }}</div>
         <div class="stat-label">Broken</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value accent">{{ store.stats.untested }}</div>
-        <div class="stat-label">Untested</div>
       </div>
       <div class="stat-card">
         <div class="stat-value purple">{{ Math.round(store.stats.workingRatio * 100) }}%</div>

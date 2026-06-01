@@ -26,9 +26,14 @@
         <p v-if="store.lastLoaded">
           Last updated: {{ timeAgo(store.lastLoaded) }}
         </p>
-        <button @click="store.loadData()" class="refresh-btn" :disabled="store.loading">
-          {{ store.loading ? 'Loading…' : '↻ Refresh' }}
-        </button>
+        <div class="footer-actions">
+          <button class="theme-toggle" @click="toggleTheme" :title="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+            {{ theme === 'dark' ? '☀️' : '🌙' }}
+          </button>
+          <button @click="store.loadData()" class="refresh-btn" :disabled="store.loading">
+            {{ store.loading ? 'Loading…' : '↻ Refresh' }}
+          </button>
+        </div>
       </div>
     </aside>
     <main class="content">
@@ -53,8 +58,10 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useModelsStore } from '@/store/models'
+import { useTheme } from '@/composables/useTheme'
 
 const store = useModelsStore()
+const { theme, toggle: toggleTheme } = useTheme()
 onMounted(() => store.loadData())
 
 function timeAgo(date: Date): string {

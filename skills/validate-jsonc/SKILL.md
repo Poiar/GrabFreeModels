@@ -8,11 +8,7 @@ description: Use at the end of an editing session to validate opencode.jsonc JSO
 ## Quick Validation
 
 ```bash
-# Windows
 node -e "const fs=require('fs');const t=fs.readFileSync('C:\\Users\\pc\\.config\\opencode\\opencode.jsonc','utf8');const s=t.replace(/^\s*\/\/.*$/gm,'').replace(/\/\*[\s\S]*?\*\//g,'').replace(/,\s*([}\]])/g,'\$1');JSON.parse(s);console.log('✅ Valid JSONC')" || echo "❌ Invalid JSONC"
-
-# macOS / Linux
-node -e "const fs=require('fs');const t=fs.readFileSync(process.env.HOME+'/.config/opencode/opencode.jsonc','utf8');const s=t.replace(/^\s*\/\/.*$/gm,'').replace(/\/\*[\s\S]*?\*\//g,'').replace(/,\s*([}\]])/g,'\$1');JSON.parse(s);console.log('✅ Valid JSONC')" || echo "❌ Invalid JSONC"
 ```
 
 ## On Failure

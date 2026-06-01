@@ -10,6 +10,7 @@ description: Use when testing or updating free model statuses. Trigger when addi
 - Single call is insufficient: models may succeed first then 429 on subsequent requests
 - Parallel load causes false 429s: run burst and delayed phases concurrently, NOT all at once
 - Model ID format matters: OpenRouter API calls should NOT use the `openrouter/` prefix
+- Top-level async IIFE must have `.catch()`: `(async () => { ... })().catch(e => { console.error(e.message); process.exit(1); })` — otherwise unhandled rejections fail silently
 
 ## Procedure
 

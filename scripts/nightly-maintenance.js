@@ -12,7 +12,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const REPO_ROOT = 'C:\\OC\\GrabFreeModels';
+const REPO_ROOT = path.join(__dirname, '..');
 const MODELS_FILE = path.join(REPO_ROOT, 'available-models.json');
 const PREV_COPY = path.join(REPO_ROOT, 'available-models.prev.json');
 const SUMMARY_LOG = path.join(REPO_ROOT, 'nightly-summary.log');
@@ -20,19 +20,22 @@ const SUMMARY_LOG = path.join(REPO_ROOT, 'nightly-summary.log');
 // Change to repo directory
 process.chdir(REPO_ROOT);
 
-// Securely obtain webhook URLs if stored as a JSON secret
+// Obtain webhook URLs from environment
 let webhookUrl = null;
 const alertEndpoints = [];
 try {
-  const secretJson = JSON.parse(execSync('powershell -Command "Get-Secret -Name GrabFreeModelsAlerts -ErrorAction Stop | ConvertFrom-Json | ConvertTo-Json"', { encoding: 'utf8' }));
-  if (secretJson.webhook) webhookUrl = secretJson.webhook;
-  if (secretJson.slack) alertEndpoints.push(secretJson.slack);
-  if (secretJson.teams) alertEndpoints.push(secretJson.teams);
-  if (secretJson.email) alertEndpoints.push(secretJson.email);
+  const envRaw = process.env.GRAB_FREE_MODELS_ALERTS;
+  if (envRaw) {
+    const secretJson = JSON.parse(envRaw);
+    if (secretJson.webhook) webhookUrl = secretJson.webhook;
+    if (secretJson.slack) alertEndpoints.push(secretJson.slack);
+    if (secretJson.teams) alertEndpoints.push(secretJson.teams);
+    if (secretJson.email) alertEndpoints.push(secretJson.email);
+  }
 } catch {
-  // Fallback to env var
-  webhookUrl = process.env.WEBHOOK_URL;
+  // ignore parse errors
 }
+if (!webhookUrl) webhookUrl = process.env.WEBHOOK_URL;
 if (webhookUrl) alertEndpoints.push(webhookUrl);
 
 // 0. Save previous state for rollback and recovery detection
@@ -105,16 +108,16 @@ if (fs.existsSync(PREV_COPY)) {
 
   if (recovered.length > 0 && alertEndpoints.length > 0) {
     const payload = JSON.stringify({ severity: 'warning', type: 'recovery', models: recovered.map(m => m.id) });
+    const tmpFile = path.join(require('os').tmpdir(), `gfm-alert-${Date.now()}.json`);
+    fs.writeFileSync(tmpFile, payload, 'utf8');
     for (const url of alertEndpoints) {
       try {
-        const curlCmd = process.platform === 'win32'
-          ? `powershell -Command "Invoke-RestMethod -Uri '${url}' -Method Post -Body '${payload}' -ContentType 'application/json'"`
-          : `curl -s -X POST -H 'Content-Type: application/json' -d '${payload}' '${url}'`;
-        execSync(curlCmd, { stdio: 'pipe' });
+        execSync(`curl -s -X POST -H 'Content-Type: application/json' -d @'${tmpFile}' '${url}'`, { stdio: 'pipe' });
         console.log(`Alert sent to ${url}`);
       } catch {
         console.log(`Failed to send alert to ${url}`);
       }
     }
+    fs.unlinkSync(tmpFile);
   }
 }

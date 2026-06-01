@@ -6,14 +6,8 @@ description: Use when suggesting models for the user's opencode setup. ALWAYS ch
 # Model Recommendations
 
 ## Active Configuration
-- **main model**: `openrouter/owl-alpha` (cloud, free, agentic, tool use, 1M context. Special auto-routing model — not in standard :free listing but verified working)
-- **small_model**: `openrouter/nvidia/nemotron-nano-9b-v2:free` (cloud, free, 9B, 6/6 tested, fast reasoning + non-reasoning)
-- **build_agent**: `openrouter/poolside/laguna-m.1:free` (cloud, free, 263B, agentic coding. Fallback: `openrouter/openrouter/free`)
-- **plan_agent**: `openrouter/z-ai/glm-5.1` (cloud, free, latest GLM, strong reasoning. Fallback: `openrouter/openrouter/free`)
-- **general_agent**: `opencode/big-pickle` (cloud, free, general purpose. Fallback: `openrouter/openrouter/free`)
-- **explore_agent**: `opencode/deepseek-v4-flash-free` (cloud, fast, codebase search. Fallback: `openrouter/openrouter/free`)
-- **universal fallback**: `openrouter/openrouter/free` — auto-routes to best available free model
-- **vision models**: `openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` (6/6 tested), `openrouter/z-ai/glm-5v-turbo` (vision), `llmgateway/glm-4.6v-flash` (vision)
+
+See `C:\Users\pc\.config\opencode\opencode.jsonc` for the current live configuration (main model, small_model, agents, fallbacks). That file is the source of truth — never hardcode model names here.
 
 ## Rules
 

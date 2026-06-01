@@ -53,9 +53,9 @@
       ],
       "notes": "60.2B params. Released Apr 1, 2026.",
       "status": {
-        "tested": "2026-05-25",
-        "result": "untested",
-        "detail": "Model may no longer be offered as free — re-check needed"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -150,10 +150,11 @@
       ],
       "notes": "31B params. Released 2026. Call without openrouter/ prefix.",
       "status": {
-        "tested": "2026-05-27",
-        "result": "rate_limited",
-        "detail": "1/6 OK - sporadic success, not reliably usable."
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "5/6 OK. Intermittent 429s under load, reliable sequentially."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
@@ -809,9 +810,9 @@
       ],
       "notes": "8B params. ~2200 tokens/s. Production model on Cerebras free tier. Removed from Cerebras API as of 2026-05-30.",
       "status": {
-        "tested": "2026-05-30",
-        "result": "untested",
-        "detail": "Model may no longer be offered as free — re-check needed"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -829,9 +830,9 @@
       ],
       "notes": "355B params. ~1000 tokens/s. Preview model on Cerebras free tier. Reduced rate limits due to high demand. Deprecated May 27, 2026 but still functional.",
       "status": {
-        "tested": "2026-05-27",
-        "result": "untested",
-        "detail": "Model may no longer be offered as free — re-check needed"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -849,9 +850,9 @@
       ],
       "notes": "235B params. ~1400 tokens/s. Preview model on Cerebras free tier. Removed from Cerebras API as of 2026-05-30.",
       "status": {
-        "tested": "2026-05-30",
-        "result": "untested",
-        "detail": "Model may no longer be offered as free — re-check needed"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -927,10 +928,11 @@
       ],
       "notes": "120B params. NVIDIA free tier.",
       "status": {
-        "tested": "2026-05-30",
-        "result": "untested",
-        "detail": "Disappeared from NVIDIA free tier API as of 2026-05-30. Previously working."
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "huggingface/moonshotai/Kimi-K2-Instruct",
@@ -1027,9 +1029,9 @@
       ],
       "notes": "284B total, 13B active. 1M context. Same model family as opencode/deepseek-v4-flash-free but via OpenRouter.",
       "status": {
-        "tested": "2026-05-27",
-        "result": "untested",
-        "detail": "Model may no longer be offered as free — re-check needed"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1047,9 +1049,9 @@
       ],
       "notes": "Agent swarm architecture. Scales to hundreds of parallel sub-agents.",
       "status": {
-        "tested": "2026-05-27",
+        "tested": "2026-06-01",
         "result": "rate_limited",
-        "detail": "3/6 OK - sporadic success, not reliably usable."
+        "detail": "1/6 OK - sporadic success, not reliably usable."
       }
     },
     {
@@ -1067,9 +1069,9 @@
       ],
       "notes": "80.2% on SWE-Bench. Good at Word/Excel/PowerPoint generation.",
       "status": {
-        "tested": "2026-05-27",
-        "result": "untested",
-        "detail": "Model may no longer be offered as free — re-check needed"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1108,7 +1110,7 @@
       ],
       "notes": "80B-A3B. Optimized for fast, stable responses without thinking traces.",
       "status": {
-        "tested": "2026-05-27",
+        "tested": "2026-06-01",
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       }
@@ -1148,7 +1150,7 @@
       ],
       "notes": "480B total, 35B active. The free variant of the proven Qwen3 Coder.",
       "status": {
-        "tested": "2026-05-27",
+        "tested": "2026-06-01",
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       }
@@ -1167,7 +1169,7 @@
       ],
       "notes": "Fine-tuned Mistral-Small-24B. Uncensored variant. 32K context.",
       "status": {
-        "tested": "2026-05-27",
+        "tested": "2026-06-01",
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       }
@@ -1187,7 +1189,7 @@
       ],
       "notes": "70B instruction-tuned. Multilingual text in/text out.",
       "status": {
-        "tested": "2026-05-27",
+        "tested": "2026-06-01",
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       }
@@ -1207,7 +1209,7 @@
       ],
       "notes": "3B multilingual model for dialogue, reasoning, summarization.",
       "status": {
-        "tested": "2026-05-27",
+        "tested": "2026-06-01",
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       }
@@ -1228,7 +1230,7 @@
       ],
       "notes": "405B. Advanced agentic capabilities, multi-turn conversation, long context coherence.",
       "status": {
-        "tested": "2026-05-27",
+        "tested": "2026-06-01",
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       }
@@ -1269,9 +1271,9 @@
       ],
       "notes": "OpenAI open-weight MoE on Cerebras. 158B total (5.1B active). New Cerebras free tier model as of 2026-05-30.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Model may no longer be offered as free — re-check needed"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1290,9 +1292,9 @@
       ],
       "notes": "Meta's 400B MoE model (17B active). NVIDIA free tier.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1310,9 +1312,9 @@
       ],
       "notes": "70B instruction-tuned. Multilingual text in/text out. NVIDIA free tier.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1330,9 +1332,9 @@
       ],
       "notes": "Mistral's most capable model. 675B total params (41B active). NVIDIA free tier.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1350,9 +1352,9 @@
       ],
       "notes": "Proven MoE model. 46.7B total (12.9B active). NVIDIA free tier.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1370,9 +1372,9 @@
       ],
       "notes": "397B total params, 17B active. Qwen's latest large model. NVIDIA free tier.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1390,9 +1392,9 @@
       ],
       "notes": "480B total, 35B active. Optimized for agentic coding. NVIDIA free tier.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1410,9 +1412,9 @@
       ],
       "notes": "Z.ai's latest GLM model. NVIDIA free tier.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1429,9 +1431,9 @@
       ],
       "notes": "StepFun's latest flash model. NVIDIA free tier.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1449,9 +1451,9 @@
       ],
       "notes": "NVIDIA's largest free tier model. 253B params. NVIDIA free tier.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1469,9 +1471,9 @@
       ],
       "notes": "Microsoft's efficient small model. NVIDIA free tier.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1489,9 +1491,9 @@
       ],
       "notes": "Databricks' MoE model. 132B total (36B active). NVIDIA free tier.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1509,9 +1511,9 @@
       ],
       "notes": "AI21's hybrid Mamba-Transformer architecture. NVIDIA free tier.",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Auto-discovered by sync script — not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1527,10 +1529,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "zai-glm-4.7",
@@ -1545,9 +1548,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1563,9 +1566,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1581,9 +1584,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1599,9 +1602,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1617,9 +1620,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1635,9 +1638,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1653,9 +1656,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1671,9 +1674,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1689,9 +1692,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1707,9 +1710,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1725,9 +1728,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1743,9 +1746,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1761,9 +1764,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1779,9 +1782,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1797,9 +1800,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1815,10 +1818,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "google/gemma-3-4b-it",
@@ -1833,10 +1837,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "google/gemma-3n-e2b-it",
@@ -1851,9 +1856,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1869,10 +1874,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "google/gemma-4-31b-it",
@@ -1887,10 +1893,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "google/recurrentgemma-2b",
@@ -1905,9 +1912,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1923,9 +1930,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1941,9 +1948,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1959,9 +1966,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1977,9 +1984,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -1995,9 +2002,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2013,9 +2020,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2031,9 +2038,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2049,9 +2056,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2067,9 +2074,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2085,9 +2092,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2103,9 +2110,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2121,9 +2128,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2139,9 +2146,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2157,9 +2164,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2175,9 +2182,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2193,9 +2200,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2211,9 +2218,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2229,9 +2236,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2247,9 +2254,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2265,9 +2272,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2283,10 +2290,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "mistralai/mistral-large-2-instruct",
@@ -2301,9 +2309,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2319,9 +2327,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2337,9 +2345,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2355,9 +2363,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2373,9 +2381,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2391,10 +2399,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "nv-mistralai/mistral-nemo-12b-instruct",
@@ -2409,9 +2418,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2427,9 +2436,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2445,9 +2454,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2463,9 +2472,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2481,10 +2490,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
@@ -2499,10 +2509,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
@@ -2517,10 +2528,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "nvidia/llama-3.3-nemotron-super-49b-v1",
@@ -2535,10 +2547,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
@@ -2553,10 +2566,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "nvidia/llama3-chatqa-1.5-70b",
@@ -2571,9 +2585,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2589,9 +2603,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2607,10 +2621,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
@@ -2625,10 +2640,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "nvidia/nemotron-4-340b-instruct",
@@ -2643,9 +2659,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2661,10 +2677,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "nvidia/nemotron-nano-12b-v2-vl",
@@ -2679,10 +2696,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "nvidia/nemotron-nano-3-30b-a3b",
@@ -2697,9 +2715,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2715,10 +2733,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "openai/gpt-oss-120b",
@@ -2733,10 +2752,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "openai/gpt-oss-20b",
@@ -2751,10 +2771,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "qwen/qwen3-next-80b-a3b-instruct",
@@ -2769,10 +2790,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "qwen/qwen3.5-122b-a10b",
@@ -2787,10 +2809,11 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
-      }
+        "tested": "2026-06-01",
+        "result": "working",
+        "detail": "All 6 requests succeeded."
+      },
+      "last_success": "2026-06-01T12:11:49.393Z"
     },
     {
       "id": "sarvamai/sarvam-m",
@@ -2805,9 +2828,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2823,9 +2846,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2841,9 +2864,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2859,9 +2882,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2877,9 +2900,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2895,9 +2918,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2913,9 +2936,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2931,9 +2954,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -2949,9 +2972,9 @@
       ],
       "notes": "Auto-discovered by sync script",
       "status": {
-        "tested": null,
-        "result": "untested",
-        "detail": "Not yet tested"
+        "tested": "2026-06-01",
+        "result": "rate_limited",
+        "detail": "429 on all 6 requests - persistently rate limited."
       }
     },
     {
@@ -3018,11 +3041,10 @@
     }
   ],
   "_test_summary": {
-    "date": "2026-05-30",
+    "date": "2026-06-01",
     "method": "Direct API calls via test-model-auth skill",
     "results": {
       "working": [
-        "cerebras/zai-glm-4.7",
         "huggingface/Qwen/Qwen3-Coder-30B-A3B-Instruct",
         "huggingface/moonshotai/Kimi-K2-Instruct",
         "huggingface/zai-org/GLM-4.6",
@@ -3032,7 +3054,6 @@
         "opencode/big-pickle",
         "opencode/deepseek-v4-flash-free",
         "opencode/nemotron-3-super-free",
-        "openrouter/arcee-ai/trinity-large-thinking:free",
         "openrouter/google/gemma-4-26b-a4b-it:free",
         "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
         "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
@@ -3047,39 +3068,119 @@
         "openrouter/owl-alpha",
         "openrouter/poolside/laguna-m.1:free",
         "openrouter/poolside/laguna-xs.2:free",
-        "openrouter/z-ai/glm-4.5-air:free"
-      ],
-      "broken": [
-        "cerebras/llama3.1-8b",
-        "cerebras/qwen-3-235b-a22b-instruct-2507"
-      ],
-      "untested": [
-        "cerebras/gpt-oss-120b",
-        "nvidia/ai21labs/jamba-1.5-large-instruct",
-        "nvidia/databricks/dbrx-instruct",
-        "nvidia/meta/llama-3.3-70b-instruct",
-        "nvidia/meta/llama-4-maverick-17b-128e-instruct",
-        "nvidia/microsoft/phi-4-mini-instruct",
-        "nvidia/mistralai/mistral-large-3-675b-instruct-2512",
-        "nvidia/mistralai/mixtral-8x7b-instruct-v0.1",
+        "openrouter/z-ai/glm-4.5-air:free",
+        "openrouter/google/gemma-4-31b-it:free",
         "nvidia/nemotron-3-super-120b-a12b",
-        "nvidia/nvidia/llama-3.1-nemotron-ultra-253b-v1",
-        "nvidia/qwen/qwen3-coder-480b-a35b-instruct",
-        "nvidia/qwen/qwen3.5-397b-a17b",
-        "nvidia/stepfun-ai/step-3.7-flash",
-        "nvidia/z-ai/glm-5.1"
+        "gpt-oss-120b",
+        "google/gemma-3-12b-it",
+        "google/gemma-3-4b-it",
+        "google/gemma-3n-e4b-it",
+        "google/gemma-4-31b-it",
+        "mistralai/mistral-large",
+        "moonshotai/kimi-k2.6",
+        "nvidia/llama-3.1-nemotron-nano-8b-v1",
+        "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+        "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+        "nvidia/llama-3.3-nemotron-super-49b-v1",
+        "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+        "nvidia/nemotron-3-nano-30b-a3b",
+        "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+        "nvidia/nemotron-mini-4b-instruct",
+        "nvidia/nemotron-nano-12b-v2-vl",
+        "nvidia/nvidia-nemotron-nano-9b-v2",
+        "openai/gpt-oss-120b",
+        "openai/gpt-oss-20b",
+        "qwen/qwen3-next-80b-a3b-instruct",
+        "qwen/qwen3.5-122b-a10b"
       ],
+      "broken": [],
+      "untested": [],
       "rate_limited": [
         "openrouter/cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
         "openrouter/deepseek/deepseek-v4-flash:free",
-        "openrouter/google/gemma-4-31b-it:free",
         "openrouter/meta-llama/llama-3.2-3b-instruct:free",
         "openrouter/meta-llama/llama-3.3-70b-instruct:free",
         "openrouter/minimax/minimax-m2.5:free",
         "openrouter/moonshotai/kimi-k2.6:free",
         "openrouter/nousresearch/hermes-3-llama-3.1-405b:free",
         "openrouter/qwen/qwen3-coder:free",
-        "openrouter/qwen/qwen3-next-80b-a3b-instruct:free"
+        "openrouter/qwen/qwen3-next-80b-a3b-instruct:free",
+        "openrouter/arcee-ai/trinity-large-thinking:free",
+        "cerebras/llama3.1-8b",
+        "cerebras/zai-glm-4.7",
+        "cerebras/qwen-3-235b-a22b-instruct-2507",
+        "cerebras/gpt-oss-120b",
+        "nvidia/meta/llama-4-maverick-17b-128e-instruct",
+        "nvidia/meta/llama-3.3-70b-instruct",
+        "nvidia/mistralai/mistral-large-3-675b-instruct-2512",
+        "nvidia/mistralai/mixtral-8x7b-instruct-v0.1",
+        "nvidia/qwen/qwen3.5-397b-a17b",
+        "nvidia/qwen/qwen3-coder-480b-a35b-instruct",
+        "nvidia/z-ai/glm-5.1",
+        "nvidia/stepfun-ai/step-3.7-flash",
+        "nvidia/nvidia/llama-3.1-nemotron-ultra-253b-v1",
+        "nvidia/microsoft/phi-4-mini-instruct",
+        "nvidia/databricks/dbrx-instruct",
+        "nvidia/ai21labs/jamba-1.5-large-instruct",
+        "zai-glm-4.7",
+        "01-ai/yi-large",
+        "abacusai/dracarys-llama-3.1-70b-instruct",
+        "adept/fuyu-8b",
+        "baai/bge-m3",
+        "bigcode/starcoder2-15b",
+        "bytedance/seed-oss-36b-instruct",
+        "deepseek-ai/deepseek-coder-6.7b-instruct",
+        "deepseek-ai/deepseek-v4-flash",
+        "deepseek-ai/deepseek-v4-pro",
+        "google/codegemma-1.1-7b",
+        "google/codegemma-7b",
+        "google/deplot",
+        "google/gemma-2-2b-it",
+        "google/gemma-2b",
+        "google/gemma-3n-e2b-it",
+        "google/recurrentgemma-2b",
+        "ibm/granite-3.0-3b-a800m-instruct",
+        "ibm/granite-3.0-8b-instruct",
+        "ibm/granite-34b-code-instruct",
+        "ibm/granite-8b-code-instruct",
+        "meta/codellama-70b",
+        "meta/llama-3.1-70b-instruct",
+        "meta/llama-3.1-8b-instruct",
+        "meta/llama-3.2-11b-vision-instruct",
+        "meta/llama-3.2-1b-instruct",
+        "meta/llama-3.2-3b-instruct",
+        "meta/llama-3.2-90b-vision-instruct",
+        "meta/llama-guard-4-12b",
+        "meta/llama2-70b",
+        "microsoft/phi-3-vision-128k-instruct",
+        "microsoft/phi-3.5-moe-instruct",
+        "microsoft/phi-4-multimodal-instruct",
+        "minimaxai/minimax-m2.7",
+        "mistralai/codestral-22b-instruct-v0.1",
+        "mistralai/ministral-14b-instruct-2512",
+        "mistralai/mistral-7b-instruct-v0.3",
+        "mistralai/mistral-large-2-instruct",
+        "mistralai/mistral-medium-3.5-128b",
+        "mistralai/mistral-nemotron",
+        "mistralai/mistral-small-4-119b-2603",
+        "mistralai/mixtral-8x22b-v0.1",
+        "nv-mistralai/mistral-nemo-12b-instruct",
+        "nvidia/cosmos-reason2-8b",
+        "nvidia/llama-3.1-nemotron-51b-instruct",
+        "nvidia/llama-3.1-nemotron-70b-instruct",
+        "nvidia/llama3-chatqa-1.5-70b",
+        "nvidia/mistral-nemo-minitron-8b-8k-instruct",
+        "nvidia/nemotron-4-340b-instruct",
+        "nvidia/nemotron-nano-3-30b-a3b",
+        "sarvamai/sarvam-m",
+        "stepfun-ai/step-3.5-flash",
+        "stockmark/stockmark-2-100b-instruct",
+        "upstage/solar-10.7b-instruct",
+        "writer/palmyra-creative-122b",
+        "writer/palmyra-fin-70b-32k",
+        "writer/palmyra-med-70b",
+        "writer/palmyra-med-70b-32k",
+        "zyphra/zamba2-7b-instruct"
       ],
       "schema_issues": [
         "openrouter/openai/gpt-oss-120b:free — returns 'reasoning_content' field in assistant messages, causing 'property unsupported' error in strict OpenAI schema clients"
@@ -3090,22 +3191,6 @@
     "description": "Ranked lists of working, non-rate-limited free models for each role. Best model first. Providers in _provider_usage for the current month are automatically excluded.",
     "model": [
       "llmgateway/glm-4.6v-flash",
-      "openrouter/arcee-ai/trinity-large-thinking:free",
-      "openrouter/google/gemma-4-26b-a4b-it:free",
-      "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
-      "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
-      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
-      "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
-      "openrouter/nvidia/nemotron-nano-9b-v2:free",
-      "openrouter/openai/gpt-oss-120b:free",
-      "openrouter/openrouter/free",
-      "openrouter/owl-alpha"
-    ],
-    "build": [
-      "llmgateway/glm-4.6v-flash",
-      "opencode/big-pickle",
-      "openrouter/arcee-ai/trinity-large-thinking:free",
       "openrouter/google/gemma-4-26b-a4b-it:free",
       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
       "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
@@ -3116,12 +3201,33 @@
       "openrouter/openai/gpt-oss-120b:free",
       "openrouter/openrouter/free",
       "openrouter/owl-alpha",
-      "openrouter/poolside/laguna-m.1:free"
+      "openrouter/google/gemma-4-31b-it:free",
+      "nvidia/nemotron-3-super-120b-a12b",
+      "gpt-oss-120b",
+      "google/gemma-3-12b-it",
+      "google/gemma-3-4b-it",
+      "google/gemma-3n-e4b-it",
+      "google/gemma-4-31b-it",
+      "mistralai/mistral-large",
+      "moonshotai/kimi-k2.6",
+      "nvidia/llama-3.1-nemotron-nano-8b-v1",
+      "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+      "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+      "nvidia/llama-3.3-nemotron-super-49b-v1",
+      "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+      "nvidia/nemotron-3-nano-30b-a3b",
+      "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "nvidia/nemotron-mini-4b-instruct",
+      "nvidia/nemotron-nano-12b-v2-vl",
+      "nvidia/nvidia-nemotron-nano-9b-v2",
+      "openai/gpt-oss-120b",
+      "openai/gpt-oss-20b",
+      "qwen/qwen3-next-80b-a3b-instruct",
+      "qwen/qwen3.5-122b-a10b"
     ],
-    "general": [
-      "cerebras/zai-glm-4.7",
+    "build": [
       "llmgateway/glm-4.6v-flash",
-      "openrouter/arcee-ai/trinity-large-thinking:free",
+      "opencode/big-pickle",
       "openrouter/google/gemma-4-26b-a4b-it:free",
       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
       "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
@@ -3131,7 +3237,67 @@
       "openrouter/nvidia/nemotron-nano-9b-v2:free",
       "openrouter/openai/gpt-oss-120b:free",
       "openrouter/openrouter/free",
-      "openrouter/owl-alpha"
+      "openrouter/owl-alpha",
+      "openrouter/poolside/laguna-m.1:free",
+      "openrouter/google/gemma-4-31b-it:free",
+      "nvidia/nemotron-3-super-120b-a12b",
+      "gpt-oss-120b",
+      "google/gemma-3-12b-it",
+      "google/gemma-3-4b-it",
+      "google/gemma-3n-e4b-it",
+      "google/gemma-4-31b-it",
+      "mistralai/mistral-large",
+      "moonshotai/kimi-k2.6",
+      "nvidia/llama-3.1-nemotron-nano-8b-v1",
+      "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+      "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+      "nvidia/llama-3.3-nemotron-super-49b-v1",
+      "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+      "nvidia/nemotron-3-nano-30b-a3b",
+      "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "nvidia/nemotron-mini-4b-instruct",
+      "nvidia/nemotron-nano-12b-v2-vl",
+      "nvidia/nvidia-nemotron-nano-9b-v2",
+      "openai/gpt-oss-120b",
+      "openai/gpt-oss-20b",
+      "qwen/qwen3-next-80b-a3b-instruct",
+      "qwen/qwen3.5-122b-a10b"
+    ],
+    "general": [
+      "llmgateway/glm-4.6v-flash",
+      "openrouter/google/gemma-4-26b-a4b-it:free",
+      "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
+      "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+      "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
+      "openrouter/nvidia/nemotron-nano-9b-v2:free",
+      "openrouter/openai/gpt-oss-120b:free",
+      "openrouter/openrouter/free",
+      "openrouter/owl-alpha",
+      "openrouter/google/gemma-4-31b-it:free",
+      "nvidia/nemotron-3-super-120b-a12b",
+      "gpt-oss-120b",
+      "google/gemma-3-12b-it",
+      "google/gemma-3-4b-it",
+      "google/gemma-3n-e4b-it",
+      "google/gemma-4-31b-it",
+      "mistralai/mistral-large",
+      "moonshotai/kimi-k2.6",
+      "nvidia/llama-3.1-nemotron-nano-8b-v1",
+      "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+      "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+      "nvidia/llama-3.3-nemotron-super-49b-v1",
+      "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+      "nvidia/nemotron-3-nano-30b-a3b",
+      "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "nvidia/nemotron-mini-4b-instruct",
+      "nvidia/nemotron-nano-12b-v2-vl",
+      "nvidia/nvidia-nemotron-nano-9b-v2",
+      "openai/gpt-oss-120b",
+      "openai/gpt-oss-20b",
+      "qwen/qwen3-next-80b-a3b-instruct",
+      "qwen/qwen3.5-122b-a10b"
     ],
     "small_model": [
       "llmgateway/glm-4.5-flash",
@@ -3140,7 +3306,6 @@
       "opencode/big-pickle",
       "opencode/deepseek-v4-flash-free",
       "opencode/nemotron-3-super-free",
-      "openrouter/arcee-ai/trinity-large-thinking:free",
       "openrouter/google/gemma-4-26b-a4b-it:free",
       "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
@@ -3152,7 +3317,30 @@
       "openrouter/openai/gpt-oss-20b:free",
       "openrouter/openrouter/free",
       "openrouter/poolside/laguna-xs.2:free",
-      "openrouter/z-ai/glm-4.5-air:free"
+      "openrouter/z-ai/glm-4.5-air:free",
+      "openrouter/google/gemma-4-31b-it:free",
+      "nvidia/nemotron-3-super-120b-a12b",
+      "gpt-oss-120b",
+      "google/gemma-3-12b-it",
+      "google/gemma-3-4b-it",
+      "google/gemma-3n-e4b-it",
+      "google/gemma-4-31b-it",
+      "mistralai/mistral-large",
+      "moonshotai/kimi-k2.6",
+      "nvidia/llama-3.1-nemotron-nano-8b-v1",
+      "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+      "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+      "nvidia/llama-3.3-nemotron-super-49b-v1",
+      "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+      "nvidia/nemotron-3-nano-30b-a3b",
+      "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "nvidia/nemotron-mini-4b-instruct",
+      "nvidia/nemotron-nano-12b-v2-vl",
+      "nvidia/nvidia-nemotron-nano-9b-v2",
+      "openai/gpt-oss-120b",
+      "openai/gpt-oss-20b",
+      "qwen/qwen3-next-80b-a3b-instruct",
+      "qwen/qwen3.5-122b-a10b"
     ],
     "explore": [
       "llmgateway/glm-4.5-flash",
@@ -3160,7 +3348,6 @@
       "llmgateway/glm-4.7-flash",
       "opencode/deepseek-v4-flash-free",
       "opencode/nemotron-3-super-free",
-      "openrouter/arcee-ai/trinity-large-thinking:free",
       "openrouter/google/gemma-4-26b-a4b-it:free",
       "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
@@ -3172,7 +3359,30 @@
       "openrouter/openai/gpt-oss-20b:free",
       "openrouter/openrouter/free",
       "openrouter/poolside/laguna-xs.2:free",
-      "openrouter/z-ai/glm-4.5-air:free"
+      "openrouter/z-ai/glm-4.5-air:free",
+      "openrouter/google/gemma-4-31b-it:free",
+      "nvidia/nemotron-3-super-120b-a12b",
+      "gpt-oss-120b",
+      "google/gemma-3-12b-it",
+      "google/gemma-3-4b-it",
+      "google/gemma-3n-e4b-it",
+      "google/gemma-4-31b-it",
+      "mistralai/mistral-large",
+      "moonshotai/kimi-k2.6",
+      "nvidia/llama-3.1-nemotron-nano-8b-v1",
+      "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+      "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+      "nvidia/llama-3.3-nemotron-super-49b-v1",
+      "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+      "nvidia/nemotron-3-nano-30b-a3b",
+      "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "nvidia/nemotron-mini-4b-instruct",
+      "nvidia/nemotron-nano-12b-v2-vl",
+      "nvidia/nvidia-nemotron-nano-9b-v2",
+      "openai/gpt-oss-120b",
+      "openai/gpt-oss-20b",
+      "qwen/qwen3-next-80b-a3b-instruct",
+      "qwen/qwen3.5-122b-a10b"
     ]
   },
   "_provider_usage": {

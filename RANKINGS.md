@@ -22,8 +22,8 @@ The repository maintains several role‑specific ranking lists in **available-mo
 The `stable` list is a subset of free models that have been **working** for at least 30 days. When it changes, the nightly maintenance script creates a Git tag (`stable-YYYYMMDD`).
 
 ## Updating Rankings
-- Adding a new model: ensure it is marked `is_free: true` and passes validation (`validate‑free-models.ps1`). If it is `working`, it will be added to the appropriate role lists automatically.
+- Adding a new model: ensure it is marked `is_free: true` and passes validation (`validate‑free-models.js`). If it is `working`, it will be added to the appropriate role lists automatically.
 - Removing a model: set `status.result` to `rate_limited` or `broken`; the script will prune it from all rankings.
-- Manual adjustments: edit `_role_rankings` directly, then run `check‑rankings.ps1` to verify integrity.
+- Manual adjustments: edit `_role_rankings` directly, then run `node scripts/check-rankings.js` to verify integrity.
 
 These guidelines keep the ranking lists focused, reliable, and easy to understand for downstream consumers.

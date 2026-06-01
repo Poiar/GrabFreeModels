@@ -21,10 +21,7 @@ for (let i = 0; i < args.length; i++) {
 }
 
 if (!modelsFile) {
-  const isWindows = process.platform === 'win32';
-  modelsFile = isWindows
-    ? 'C:\\OC\\GrabFreeModels\\available-models.json'
-    : '/app/available-models.json';
+  modelsFile = path.join(__dirname, '..', 'available-models.json');
 }
 
 function getMetrics() {

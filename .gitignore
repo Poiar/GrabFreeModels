@@ -31,6 +31,10 @@ config-backup/
 # Node
 node_modules/
 
+# Build artifacts
+vue-model-manager/dist/
+tmp/
+
 # Python
 __pycache__/
 *.pyc

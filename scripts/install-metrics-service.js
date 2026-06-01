@@ -33,7 +33,7 @@ const command = `node "${scriptPath}" --port ${port}`;
 const nssmPath = 'C:\\Program Files\\nssm\\win64\\nssm.exe';
 if (require('fs').existsSync(nssmPath)) {
   execSync(`"${nssmPath}" install ${serviceName} ${command}`);
-  execSync(`"${nssmPath}" set ${ServiceName} Start SERVICE_AUTO_START`);
+  execSync(`"${nssmPath}" set ${serviceName} Start SERVICE_AUTO_START`);
   execSync(`"${nssmPath}" start ${serviceName}`);
   console.log(`Service ${serviceName} installed and started via nssm.`);
 } else {

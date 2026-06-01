@@ -23,8 +23,8 @@ description: Use when you have a todo list (from todowrite) where items are inde
 
 1. **Create the todo list** with all items as `pending`
 2. **Pick the right agent per item**:
-   - `agent_id: "muse"` — read-only tasks: research, search, analysis, summarization
-   - `agent_id: "forge"` — write tasks: edit files, implement features, run commands
-   - When in doubt, use `forge`
+   - `subagent_type: "explore"` — read-only tasks: research, search, analysis, summarization
+   - `subagent_type: "general"` — write tasks: edit files, implement features, run commands
+   - When in doubt, use `general`
 3. **Mark all as `in_progress`**, then spawn one subagent per item via the `task` tool — each subagent gets a self-contained prompt with all context it needs
 4. **Collect results** and mark each todo `completed` (or note blockers)
