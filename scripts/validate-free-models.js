@@ -140,7 +140,10 @@ if (specificModels && specificModels.length > 0) {
 }
 
 if (CODING_ONLY) {
-  toTest = toTest.filter(m => m.best_for && m.best_for.some(f => /cod|programm|reason|agent|thinking/i.test(f)));
+  // Only test models that are explicitly for coding/programming.
+  // Must have "cod" or "programm" in best_for — NOT just "reasoning" or "agentic".
+  const CODING_KEYWORDS = /\b(cod|programm)\b/i;
+  toTest = toTest.filter(m => m.best_for && m.best_for.some(f => CODING_KEYWORDS.test(f)));
 }
 
 if (toTest.length === 0) {
