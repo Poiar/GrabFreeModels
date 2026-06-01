@@ -26,7 +26,13 @@ export interface FieldDef {
 
 export const FILTERABLE_FIELDS: FieldDef[] = [
   { key: 'provider',  label: 'Provider',  type: 'select', searchable: true },
-  { key: 'status',    label: 'Status',    type: 'select' },
+  { key: 'status',    label: 'Status',    type: 'select', options: [
+    { value: 'working', label: 'Working' },
+    { value: 'broken', label: 'Broken' },
+    { value: 'rate_limited', label: 'Rate Limited' },
+    { value: 'untested', label: 'Untested' },
+    { value: 'paid', label: 'Paid' },
+  ]},
   { key: 'type',      label: 'Type',      type: 'select', options: [
     { value: 'free', label: 'Free' },
     { value: 'paid', label: 'Paid' },
@@ -149,29 +155,19 @@ export function parseQuery(raw: string): {
         pushEmptyToken(clause, field, false)
         continue
       }
-      if (match[5] != null) {
-        field = match[5].toLowerCase()
+      if (match[4] != null) {
+        field = match[4].toLowerCase()
         if (!validateNullable(field, match.index, consumed[consumed.length - 1][1], errors)) continue
         pushEmptyToken(clause, field, true)
         continue
       }
 
-      if (match[7] != null) {
+      if (match[5] != null) {
         const negated = match[0].trimStart().toUpperCase().startsWith('NOT')
-        field = match[7].toLowerCase()
-        const opRaw = (match[8] ?? match[9] ?? ':').trim()
-        const quoted = match[10]
-        const unquoted = match[11]
-        rawValue = quoted ?? unquoted ?? ''
-        op = normalizeOp(opRaw)
-        if (negated) op = op === ':' ? '!=' : op === '!=' ? ':' : op
-        validateField(field, match.index, match.index + match[0].length, errors)
-      } else if (match[12] != null) {
-        const negated = match[0].trimStart().toUpperCase().startsWith('NOT')
-        field = match[12].toLowerCase()
-        const opRaw = (match[13] ?? match[14] ?? ':').trim()
-        const quoted = match[15]
-        const unquoted = match[16]
+        field = match[5].toLowerCase()
+        const opRaw = (match[6] ?? match[7] ?? ':').trim()
+        const quoted = match[8]
+        const unquoted = match[9]
         rawValue = quoted ?? unquoted ?? ''
         op = normalizeOp(opRaw)
         if (negated) op = op === ':' ? '!=' : op === '!=' ? ':' : op

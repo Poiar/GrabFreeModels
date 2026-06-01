@@ -32,15 +32,28 @@ if (data._provider_usage) {
   }
 }
 
+// Compute provider health from models array
+const providerHealth = {};
+for (const m of data.models) {
+  if (!m.is_free) continue;
+  if (!providerHealth[m.provider]) {
+    providerHealth[m.provider] = { working: 0, rate_limited: 0, broken: 0, total: 0 };
+  }
+  const h = providerHealth[m.provider];
+  h.total++;
+  if (m.status.result === 'working') h.working++;
+  else if (m.status.result === 'rate_limited') h.rate_limited++;
+  else if (m.status.result === 'broken') h.broken++;
+}
+
 // Provider health table
 let provRows = '';
-if (data.provider_health) {
-  for (const [name, health] of Object.entries(data.provider_health)) {
-    const isUsedUp = usedUpProviders.includes(name);
-    const style = isUsedUp ? " style='background:#f0f0f0;color:#999;text-decoration:line-through'" : '';
-    const badge = isUsedUp ? " <span title='Used up for " + currentMonth + "'>⚠</span>" : '';
-    provRows += `<tr${style}><td>${name}${badge}</td><td>${health.total}</td><td>${health.working}</td><td>${health.rate_limited}</td><td>${health.broken}</td></tr>\n`;
-  }
+for (const name of Object.keys(providerHealth).sort()) {
+  const health = providerHealth[name];
+  const isUsedUp = usedUpProviders.includes(name);
+  const style = isUsedUp ? " style='background:#f0f0f0;color:#999;text-decoration:line-through'" : '';
+  const badge = isUsedUp ? " <span title='Used up for " + currentMonth + "'>⚠</span>" : '';
+  provRows += `<tr${style}><td>${name}${badge}</td><td>${health.total}</td><td>${health.working}</td><td>${health.rate_limited}</td><td>${health.broken}</td></tr>\n`;
 }
 
 const provTable = [

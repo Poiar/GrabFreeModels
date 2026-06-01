@@ -38,7 +38,7 @@ try {
 }
 
 // 2. Required top-level keys
-const requiredKeys = ['models', '_test_summary', '_role_rankings', '_known_issues'];
+const requiredKeys = ['models', '_test_summary', '_role_rankings', '_known_issues', '_validation_method'];
 for (const key of requiredKeys) {
   if (!data[key]) {
     fail(`Missing top-level key: "${key}"`);
@@ -120,6 +120,14 @@ for (const key of summaryResultKeys) {
   }
 }
 if (summaryErrors === 0) pass('All _test_summary result IDs reference valid models');
+
+// 7. Warn about free models missing supports_tools
+const missingTools = models.filter(m => m.is_free && m.status.result === 'working' && !('supports_tools' in m));
+if (missingTools.length > 0) {
+  console.log(`\n  ⚠️  ${missingTools.length} working free model(s) missing supports_tools field:`);
+  for (const m of missingTools) console.log(`     ${m.id}`);
+  console.log(`     Run: node scripts/backfill-metadata.js --apply`);
+}
 
 // Summary
 if (errors.length > 0) {

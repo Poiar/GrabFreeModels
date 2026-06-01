@@ -58,10 +58,12 @@ for (const role of Object.keys(rankings)) {
     if (!modelIdSet.has(id)) {
       fail(`Missing model ID: ${id}`);
     }
-    const provider = id.split('/')[0];
+    if (id.startsWith('opencode/')) {
+      fail(`opencode/ model in ${role} ranking: ${id} — cannot be validated, should be excluded`);
+    }
+    const provider = extractProvider(id);
     if (usedUpProviders.includes(provider)) {
-      console.log(`  ⚠ Model '${id}' is from used-up provider '${provider}' (excluded from rankings)`);
-      allGood = false;
+      fail(`Model '${id}' is from used-up provider '${provider}' in ${role}`);
     }
   }
 

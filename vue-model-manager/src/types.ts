@@ -18,6 +18,7 @@ export interface Model {
   last_success?: string
   _removed?: boolean
   _removedDate?: string
+  supports_tools?: boolean
 }
 
 export interface TestSummary {

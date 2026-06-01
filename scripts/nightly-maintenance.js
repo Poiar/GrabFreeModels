@@ -53,6 +53,25 @@ if (fs.existsSync(MODELS_FILE)) {
   fs.copyFileSync(MODELS_FILE, PREV_COPY);
 }
 
+// 0.5. Prune opencode/ models from role rankings (can't be validated via HTTPS)
+console.log('Pruning opencode/ models from role rankings...');
+const pruneJson = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
+let pruned = 0;
+for (const role of Object.keys(pruneJson._role_rankings)) {
+  if (role === 'description') continue;
+  const arr = pruneJson._role_rankings[role];
+  if (!Array.isArray(arr)) continue;
+  const filtered = arr.filter(id => !id.startsWith('opencode/'));
+  if (filtered.length !== arr.length) {
+    pruneJson._role_rankings[role] = filtered;
+    pruned += arr.length - filtered.length;
+  }
+}
+if (pruned > 0) {
+  fs.writeFileSync(MODELS_FILE, JSON.stringify(pruneJson, null, 2), 'utf8');
+  console.log(`  Removed ${pruned} opencode/ entries from rankings`);
+}
+
 // 1. Run validation (updates statuses)
 console.log('Running validation...');
 execSync('node scripts/validate-free-models.js --apply', { stdio: 'inherit' });

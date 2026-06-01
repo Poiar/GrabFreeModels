@@ -11,7 +11,7 @@
 - Uses authenticated endpoint: `https://api.cerebras.ai/v1/models`
 - Auth: `Authorization: Bearer <key>` (uses `@ai-sdk/cerebras` provider)
 - Small free tier
-- **Deprecated** — models still functional but may be removed. Not in opencode.jsonc (no active provider config).
+- Synced automatically via `sync-models.js` (authenticated `/v1/models` endpoint)
 
 ## NVIDIA
 - Free tier is huge (~117 models) but very noisy — most are embed, safety, reward, or VLMs
@@ -20,10 +20,12 @@
 - Use `https://integrate.api.nvidia.com/v1/models`
 
 ## HuggingFace Router
-- No zero-cost pricing flag in API — free models must be tested manually
 - Auth: `Authorization: Bearer <key>`
-- Base URL: `https://router.huggingface.co/v1/models`
-- Manual testing required
+- Free model listing API: `https://huggingface.co/api/models?inference_provider=huggingface&tags=text-generation&limit=200`
+  - Filter by `inference === 'free'` or `inference === 'feather'` or `tags.includes('free')`
+- Chat completions: `https://router.huggingface.co/v1/chat/completions`
+- Stored in JSON as `huggingface/<modelId>`
+- Auto-discovered by `sync-models.js`
 
 ## LLM Gateway
 - No public model listing API — add manually

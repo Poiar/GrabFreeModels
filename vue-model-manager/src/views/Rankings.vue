@@ -57,6 +57,7 @@
             <th class="sortable" :class="{ active: sortBy === 'context' }" @click="setSort('context')">
               Context <SortArrow :active="sortBy === 'context'" :desc="sortDesc" />
             </th>
+            <th>Tools</th>
             <th>Tags</th>
           </tr>
         </thead>
@@ -96,6 +97,11 @@
               <span class="context-badge" v-if="item.model?.context_length">
                 {{ fmtContext(item.model.context_length) }}
               </span>
+            </td>
+            <td>
+              <span v-if="item.model?.supports_tools === true" class="tool-badge tool-yes" title="Supports tool calling">✓</span>
+              <span v-else-if="item.model?.supports_tools === false" class="tool-badge tool-no" title="No tool calling">✗</span>
+              <span v-else class="tool-badge tool-unknown">—</span>
             </td>
             <td>
               <div class="best-for-tags">
