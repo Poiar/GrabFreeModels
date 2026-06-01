@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 /**
  * check-rankings.js
- * Verifies that every model ID referenced in _role_rankings exists in the models array,
- * that there are no duplicate entries, and that no model belongs to a provider
- * listed in _provider_usage for the current month.
+ * Verifies _role_rankings integrity:
+ *   - All IDs exist in models array
+ *   - No duplicates
+ *   - No opencode/ models
+ *   - No used-up providers (current month)
+ *   - All models are free, working, not removed, and support tools
  *
  * Usage: node scripts/check-rankings.js
  */
@@ -78,6 +81,9 @@ for (const role of Object.keys(rankings)) {
       }
       if (model.status.result === 'rate_limited') {
         fail(`Model '${id}' has status 'rate_limited' in ${role}`);
+      }
+      if (model.supports_tools !== true) {
+        fail(`Model '${id}' lacks supports_tools=true in ${role}`);
       }
     }
   }

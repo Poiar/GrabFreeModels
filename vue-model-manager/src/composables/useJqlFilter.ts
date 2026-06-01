@@ -128,9 +128,18 @@ export function parseQuery(raw: string): {
   for (const group of orGroups) {
     if (!group) continue
 
-    // Handle parenthesized groups: (a:b AND c:d)
-    const groupClean = group.replace(/^\(/, '').replace(/\)$/, '').trim()
-    const isGrouped = group.startsWith('(')
+    // Handle parenthesized groups: (a:b AND c:d) — only strip if outer parens are balanced
+    let groupClean = group.trim()
+    const isGrouped = group.startsWith('(') && group.endsWith(')') && (() => {
+      let d = 0
+      for (let i = 0; i < group.length; i++) {
+        if (group[i] === '(') d++
+        if (group[i] === ')') d--
+        if (d === 0 && i < group.length - 1) return false
+      }
+      return d === 0
+    })()
+    if (isGrouped) groupClean = group.slice(1, -1).trim()
 
     const clause: JqlClause = []
     const tokenRegex = new RegExp([
@@ -139,14 +148,12 @@ export function parseQuery(raw: string): {
       '(\\w+)\\s+IS\\s+EMPTY',
       '(?:NOT\\s+)?(\\w+)\\s*(?:(\\s*:>|\\s*:<|\\s*~|>|<|>=|<=|!=|:|=)\\s*|(\\s*~|>|<|>=|<=|!=))\\s*(?:"([^"]*?)"|(\\S+))',
     ].join('|'), 'gi')
-    void 0
 
     let match: RegExpExecArray | null
     const consumed: Array<[number, number]> = []
 
     while ((match = tokenRegex.exec(groupClean)) !== null) {
       consumed.push([match.index, match.index + match[0].length])
-      process.stderr.write('PARSE match=[' + match[0] + '] g1=' + match[1] + ' g5=' + match[5] + '\n')
 
       let field: string, op: Op, rawValue: string
 
@@ -301,7 +308,10 @@ function matchToken(m: Model, t: FilterToken): boolean {
   const rv = t.rawValue.toLowerCase()
   switch (t.field) {
     case 'provider': r = m.provider.toLowerCase() === rv; break
-    case 'status': r = m.status.result.toLowerCase() === rv; break
+    case 'status':
+      if (t.op === 'IN') { r = t.values.some(v => m.status.result.toLowerCase() === v.toLowerCase()); break }
+      if (t.op === 'NOT IN') { r = !t.values.some(v => m.status.result.toLowerCase() === v.toLowerCase()); break }
+      r = m.status.result.toLowerCase() === rv; break
     case 'type': r = rv === 'free' ? m.is_free : rv === 'paid' ? !m.is_free : false; break
     case 'context':
       if (t.op === 'IS EMPTY') { r = m.context_length == null; break }

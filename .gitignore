@@ -52,6 +52,9 @@ tmp/
 # Trace/debug scripts
 vue-model-manager/trace-*.mjs
 
+# Test scratch files
+vue-model-manager/test-*.mjs
+
 # Python
 __pycache__/
 *.pyc
