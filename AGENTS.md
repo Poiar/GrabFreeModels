@@ -16,7 +16,7 @@ GrabFreeModels is for discovering, testing, ranking, and syncing free LLM models
 All skills live in `C:\OC\GrabFreeModels\skills\`.
 
 ### Available Skills
-- `test-model-auth` — test models via direct API calls with auth keys
+- `test-model-auth` — manage provider API keys, read from auth.json
 - `model-recommendations` — ALWAYS consult before suggesting any model
 - `parallel-todos` — use for independent parallel subagent tasks
 - `validate-free-models` — test and validate free model statuses
@@ -55,3 +55,5 @@ All scripts live in `scripts/`. Each script has a corresponding skill — see th
 | Script | Purpose |
 |--------|---------|
 | `kill-port.js` | Kill process on a given port: `node scripts/kill-port.js --port 5173` |
+| `validate-jsonc.js` | Validate opencode.jsonc JSONC syntax: `node scripts/validate-jsonc.js [--short]` |
+| `get-auth-key.js` | Read a provider API key from auth.json: `node scripts/get-auth-key.js --provider <name> [--list]` |

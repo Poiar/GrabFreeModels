@@ -9,7 +9,7 @@ API keys for all model providers are stored in a single auth file.
 
 ## Auth File Location
 
-`C:\Users\pc\.local\share\opencode\auth.json`
+`C:\\Users\\pc\\.local\\share\\opencode\\auth.json`
 
 ## Auth Storage
 
@@ -17,15 +17,21 @@ API keys exist in two locations — keep them in sync:
 
 | File | Role |
 |------|------|
-| `C:\Users\pc\.local\share\opencode\auth.json` | Managed by Desktop app (source of truth) |
-| `C:\Users\pc\.config\opencode\opencode.jsonc` | Inline `apiKey` under each provider (required by CLI) |
+| `C:\\Users\\pc\\.local\\share\\opencode\\auth.json` | Managed by Desktop app (source of truth) |
+| `C:\\Users\\pc\\.config\\opencode\\opencode.jsonc` | Inline `apiKey` under each provider (required by CLI) |
 
 The CLI reads keys from `opencode.jsonc`, not `auth.json`. When the Desktop app updates `auth.json`, you must also update `opencode.jsonc` manually.
 
 ## Reading Keys
 
 ```bash
-node -e "const fs=require('fs');const auth=JSON.parse(fs.readFileSync('C:\\Users\\pc\\.local\\share\\opencode\\auth.json','utf8'));console.log(auth.openrouter.key)"
+node scripts/get-auth-key.js --provider openrouter
+```
+
+List all available providers:
+
+```bash
+node scripts/get-auth-key.js --list
 ```
 
 See `docs/provider-details.md` for endpoints.
