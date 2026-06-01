@@ -45,14 +45,20 @@ let data = '';
 
 async function getOpenRouterFreeModels() {
   const data = await httpsGet('https://openrouter.ai/api/v1/models');
-  return data.data.filter(m => m.pricing === '0' || m.id.endsWith(':free'));
+  return data.data.filter(m => {
+    if (m.id.endsWith(':free')) return true;
+    // Also include zero-priced models (like openrouter/owl-alpha)
+    const p = m.pricing || {};
+    if (typeof p === 'string') return p === '0';
+    return parseFloat(p.prompt || p.input) === 0 && parseFloat(p.completion || p.output) === 0;
+  });
 }
 
 async function getCerebrasModels() {
   const headers = { Authorization: `Bearer ${auth.cerebras.key}` };
   const data = await httpsGet('https://api.cerebras.ai/v1/models', headers);
   return data.data.map(m => ({
-    id: m.id,
+    id: `cerebras/${m.id}`,
     name: m.id,
     context_length: 131072,
   }));
@@ -69,7 +75,7 @@ async function getNvidiaFreeModels() {
     if (!isFree) return false;
     if (excludePattern.test(m.id)) return false;
     return true;
-  });
+  }).map(m => ({ id: m.id, name: m.id, context_length: m.context_length ?? null }));
 }
 
 (async () => {
@@ -113,8 +119,9 @@ try {
   const nvModels = await getNvidiaFreeModels();
   console.log(`  Found ${nvModels.length} free models`);
   for (const m of nvModels) {
-    if (!existingIds.has(m.id) && !existingIds.has(`nvidia/${m.id}`)) {
-      newNv.push({ id: m.id, name: m.id, provider: 'NVIDIA', context_length: m.context_length });
+    const storedId = `nvidia/${m.id}`;
+    if (!existingIds.has(storedId) && !existingIds.has(m.id)) {
+      newNv.push({ id: storedId, name: m.id, provider: 'NVIDIA', context_length: m.context_length });
     }
   }
   console.log(`  New: ${newNv.length}`);
@@ -131,27 +138,29 @@ try {
 
 // --- Detect removed models ---
 console.log('\n[Status Check] Models in JSON but no longer in OpenRouter/Cerebras...');
-const allCurrentFreeIds = new Set([
-  ...orModels.map(m => `openrouter/${m.id}`),
-  ...(cbModels || []).map(m => m.id),
-]);
-
-const orCbProviders = ['OpenRouter', 'Cerebras'];
-const potentiallyRemoved = [];
-for (const m of models) {
-  if (!m.is_free) continue;
-  if (m.provider === 'OpenCode Zen') continue;
-  // Skip special auto-routing models that don't appear in standard listings
-  // but are verified to still be operational (e.g. owl-alpha, openrouter/free)
-  const SKIP_REMOVAL_CHECK = new Set([
-    'openrouter/owl-alpha',
-    'openrouter/openrouter/free',
+  const allCurrentFreeIds = new Set([
+    ...orModels.map(m => `openrouter/${m.id}`),
+    ...(cbModels || []).map(m => m.id),
+    // Also add bare OpenRouter IDs (without openrouter/) for backward compat
+    ...orModels.map(m => m.id),
   ]);
-  if (SKIP_REMOVAL_CHECK.has(m.id)) continue;
-  if (orCbProviders.includes(m.provider) && !allCurrentFreeIds.has(m.id)) {
-    potentiallyRemoved.push(m.id);
+
+  const orCbProviders = ['OpenRouter', 'Cerebras'];
+  const potentiallyRemoved = [];
+  for (const m of models) {
+    if (!m.is_free) continue;
+    if (m.provider === 'OpenCode Zen') continue;
+    // Skip special auto-routing models that don't appear in standard listings
+    // but are verified to still be operational (e.g. owl-alpha, openrouter/free)
+    const SKIP_REMOVAL_CHECK = new Set([
+      'openrouter/owl-alpha',
+      'openrouter/openrouter/free',
+    ]);
+    if (SKIP_REMOVAL_CHECK.has(m.id)) continue;
+    if (orCbProviders.includes(m.provider) && !allCurrentFreeIds.has(m.id)) {
+      potentiallyRemoved.push(m.id);
+    }
   }
-}
 console.log(`  Potentially removed: ${potentiallyRemoved.length}`);
 for (const r of potentiallyRemoved) console.log(`    ? ${r}`);
 
@@ -171,7 +180,7 @@ if (!APPLY) {
       id: m.id,
       name: m.name,
       provider,
-      context_length: contextLength || null,
+      context_length: contextLength ?? null,
       input_price_per_million: 0,
       output_price_per_million: 0,
       is_free: true,

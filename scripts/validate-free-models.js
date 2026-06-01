@@ -2,7 +2,8 @@
 /**
  * validate-free-models.js
  * Re-tests free models (rate-limited and untested) via burst + delayed request phases.
- * By default skips models marked as working (7-day cache). Use --force to re-test all.
+ * By default skips models marked as working (7-day cache). Rate-limited models are re-tested
+ * unless tested within the last 24 hours. Use --force to re-test all.
  *
  * Usage: node scripts/validate-free-models.js [--models id1,id2] [--apply] [--force] [--coding-only]
  *   --models       : Specific model IDs to test (comma-separated)
@@ -92,10 +93,11 @@ async function parseOpenRouterModels(key) {
   const parsed = JSON.parse(data);
   return new Set(parsed.data.filter(m => {
     if (m.id.endsWith(':free')) return true;
-    // Also include models with zero pricing (like openrouter/owl-alpha)
+    // Also include zero-priced models (like openrouter/owl-alpha)
     const p = m.pricing || {};
-    return parseFloat(p.prompt) === 0 && parseFloat(p.completion) === 0;
-  }).map(m => m.id));
+    if (typeof p === 'string') return p === '0';
+    return parseFloat(p.prompt || p.input) === 0 && parseFloat(p.completion || p.output) === 0;
+  }).map(m => m.id.replace(/^openrouter\//, ''))); // strip prefix for comparison
 }
 
 async function parseSimpleModels(key, url) {
@@ -152,7 +154,16 @@ if (specificModels && specificModels.length > 0) {
     if (!m.is_free || m.id.startsWith('opencode/')) return false;
     const result = m.status.result;
     if (result === 'broken' || result === 'untested') return true;
-    if (result === 'rate_limited') return true;
+    if (result === 'rate_limited') {
+      // Re-test rate-limited models, but skip if tested very recently (< 1 day) to avoid API waste
+      if (!FORCE) {
+        const tested = m.status.tested || '';
+        const oneDayAgo = new Date();
+        oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+        if (tested >= oneDayAgo.toISOString().slice(0, 10)) return false;
+      }
+      return true;
+    }
     if (result === 'working' && FORCE) return true;
     if (result === 'working') {
       const tested = m.status.tested || '';
@@ -168,6 +179,14 @@ if (CODING_ONLY) {
   toTest = toTest.filter(m => m.best_for && m.best_for.some(f =>
     /\b(cod|programm|agentic|reasoning|tool use|fast coding|fast responses?|lightweight|small tasks|function calling|code generation|code review|refactoring|thinking)\b/i.test(f)
   ));
+}
+
+// Track opencode/ models separately (can't test via HTTPS)
+const opencodeModels = json.models.filter(m => m.id.startsWith('opencode/') && m.is_free);
+if (!specificModels && opencodeModels.length > 0) {
+  console.log(`Note: ${opencodeModels.length} opencode/ model(s) skipped (require Zen SDK, not testable via HTTPS):`);
+  for (const m of opencodeModels) console.log(`  ${m.id} [${m.status.result}]`);
+  console.log();
 }
 
 if (toTest.length === 0) { console.log('No models to test.'); process.exit(0); }
