@@ -74,5 +74,9 @@ export default defineConfig({
     port: PORT,
     strictPort: true,
     open: true,
+    host: true,
+  },
+  build: {
+    sourcemap: 'hidden',
   },
 })

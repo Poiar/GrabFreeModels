@@ -67,13 +67,31 @@ try {
 if (hasChanges) {
   // Compute overall health percentage
   const json = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
+  const prev = fs.existsSync(PREV_COPY) ? JSON.parse(fs.readFileSync(PREV_COPY, 'utf8')) : null;
   const free = json.models.filter(m => m.is_free);
   const working = free.filter(m => m.status.result === 'working');
   const healthPct = Math.round((working.length / free.length) * 100);
-  const rollbackThreshold = 70;
 
-  if (healthPct < rollbackThreshold) {
-    console.log(`Health ${healthPct}% below threshold ${rollbackThreshold}% – performing automatic rollback`);
+  // Only rollback if working count actually decreased (real breakage),
+  // not just because untested models got classified as rate_limited.
+  let shouldRollback = false;
+  if (prev) {
+    const prevFree = prev.models.filter(m => m.is_free);
+    const prevWorking = prevFree.filter(m => m.status.result === 'working');
+    if (working.length < prevWorking.length) {
+      shouldRollback = true;
+      console.log(`Working models decreased from ${prevWorking.length} to ${working.length} – performing rollback`);
+    }
+  } else {
+    // No previous copy – use threshold as fallback
+    const rollbackThreshold = 70;
+    if (healthPct < rollbackThreshold) {
+      shouldRollback = true;
+      console.log(`Health ${healthPct}% below threshold ${rollbackThreshold}% – performing rollback`);
+    }
+  }
+
+  if (shouldRollback) {
     if (fs.existsSync(PREV_COPY)) {
       fs.copyFileSync(PREV_COPY, MODELS_FILE);
       execSync(`git add ${MODELS_FILE}`);
