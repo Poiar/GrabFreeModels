@@ -308,6 +308,18 @@ if (toTest.length === 0) { console.log('No models to test.'); process.exit(0); }
     }
   }
 
+  // Also handle opencode/ models marked as untestable — remove from role_rankings
+  for (const m of json.models) {
+    if (m.id.startsWith('opencode/') && m.status.result === 'untestable') {
+      const roles = ['model', 'build', 'general', 'small_model', 'explore'];
+      for (const role of roles) {
+        const list = json._role_rankings[role] || [];
+        const idx = list.indexOf(m.id);
+        if (idx !== -1) list.splice(idx, 1);
+      }
+    }
+  }
+
   for (const r of allResults) {
     const model = json.models.find(m => m.id === r.id);
     if (!model) continue;
@@ -321,12 +333,12 @@ if (toTest.length === 0) { console.log('No models to test.'); process.exit(0); }
     const ts = json._test_summary.results;
     if (!ts.not_found) ts.not_found = [];
     const rm = arr => { const i = arr.indexOf(r.id); if (i !== -1) arr.splice(i, 1); };
-    if (r.status === 'working') { rm(ts.rate_limited); rm(ts.broken); rm(ts.untested); rm(ts.not_found); if (!ts.working.includes(r.id)) ts.working.push(r.id); }
-    else if (r.status === 'rate_limited') { rm(ts.working); rm(ts.broken); rm(ts.untested); rm(ts.not_found); if (!ts.rate_limited.includes(r.id)) ts.rate_limited.push(r.id); }
-    else if (r.status === 'broken') { rm(ts.working); rm(ts.rate_limited); rm(ts.untested); rm(ts.not_found); if (!ts.broken.includes(r.id)) ts.broken.push(r.id); }
-    else if (r.status === 'not_found') { rm(ts.working); rm(ts.rate_limited); rm(ts.broken); rm(ts.untested); if (!ts.not_found.includes(r.id)) ts.not_found.push(r.id); }
+    if (r.status === 'working') { rm(ts.rate_limited); rm(ts.broken); rm(ts.untested); rm(ts.not_found); rm(ts.untestable); if (!ts.working.includes(r.id)) ts.working.push(r.id); }
+    else if (r.status === 'rate_limited') { rm(ts.working); rm(ts.broken); rm(ts.untested); rm(ts.not_found); rm(ts.untestable); if (!ts.rate_limited.includes(r.id)) ts.rate_limited.push(r.id); }
+    else if (r.status === 'broken') { rm(ts.working); rm(ts.rate_limited); rm(ts.untested); rm(ts.not_found); rm(ts.untestable); if (!ts.broken.includes(r.id)) ts.broken.push(r.id); }
+    else if (r.status === 'not_found') { rm(ts.working); rm(ts.rate_limited); rm(ts.broken); rm(ts.untested); rm(ts.untestable); if (!ts.not_found.includes(r.id)) ts.not_found.push(r.id); }
 
-    // Update _role_rankings — remove non-working, rate_limited, broken, not_found
+    // Update _role_rankings — keep only working models
     const roles = ['model', 'build', 'general', 'small_model', 'explore'];
     for (const role of roles) {
       const list = json._role_rankings[role] || [];

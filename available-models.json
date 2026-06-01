@@ -47,7 +47,7 @@
       "context_length": 262144,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
-      "is_free": true,
+      "is_free": false,
       "best_for": [
         "Reasoning",
         "Complex problem solving",
@@ -56,8 +56,8 @@
       "notes": "60.2B params. Released Apr 1, 2026.",
       "status": {
         "tested": "2026-06-01",
-        "result": "untested",
-        "detail": "Provider no longer lists this model as free (detected 2026-06-01)"
+        "result": "broken",
+        "detail": "Model is no longer offered as free on OpenRouter (detected 2026-06-02)."
       },
       "_removed": true,
       "_removedDate": "2026-06-01",
@@ -238,8 +238,8 @@
       "notes": "Very fast, great for lightweight tasks.",
       "status": {
         "tested": "2026-05-25",
-        "result": "working",
-        "detail": "OpenCode Zen native model â€” functional through opencode gateway."
+        "result": "untestable",
+        "detail": "Requires @opencode-ai/zen SDK — cannot be tested via raw HTTPS. Status may be stale."
       },
       "supports_tools": true
     },
@@ -257,8 +257,8 @@
       "notes": "OpenCode Zen native model.",
       "status": {
         "tested": "2026-05-25",
-        "result": "working",
-        "detail": "OpenCode Zen native model â€” functional through opencode gateway."
+        "result": "untestable",
+        "detail": "Requires @opencode-ai/zen SDK — cannot be tested via raw HTTPS. Status may be stale."
       },
       "supports_tools": true
     },
@@ -277,8 +277,8 @@
       "notes": "OpenCode Zen native model by NVIDIA.",
       "status": {
         "tested": "2026-05-25",
-        "result": "working",
-        "detail": "OpenCode Zen native model â€” functional through opencode gateway."
+        "result": "untestable",
+        "detail": "Requires @opencode-ai/zen SDK — cannot be tested via raw HTTPS. Status may be stale."
       }
     },
     {
@@ -3068,7 +3068,7 @@
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
-      "is_free": true,
+      "is_free": false,
       "best_for": [
         "Reasoning",
         "General purpose",
@@ -3078,8 +3078,8 @@
       "notes": "Z.ai latest GLM model. Released 2026. Free on OpenRouter and LLM Gateway.",
       "status": {
         "tested": "2026-05-31",
-        "result": "untested",
-        "detail": "Provider no longer lists this model as free (detected 2026-06-01)"
+        "result": "broken",
+        "detail": "Model is no longer offered as free on OpenRouter (detected 2026-06-02)."
       },
       "_removed": true,
       "_removedDate": "2026-06-01",
@@ -3092,7 +3092,7 @@
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
-      "is_free": true,
+      "is_free": false,
       "best_for": [
         "Fast reasoning",
         "General purpose",
@@ -3101,8 +3101,8 @@
       "notes": "Z.ai GLM 5 Turbo. Fast variant of GLM 5. Free on OpenRouter.",
       "status": {
         "tested": "2026-05-31",
-        "result": "untested",
-        "detail": "Provider no longer lists this model as free (detected 2026-06-01)"
+        "result": "broken",
+        "detail": "Model is no longer offered as free on OpenRouter (detected 2026-06-02)."
       },
       "_removed": true,
       "_removedDate": "2026-06-01",
@@ -3115,7 +3115,7 @@
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
-      "is_free": true,
+      "is_free": false,
       "best_for": [
         "Vision",
         "Multimodal",
@@ -3125,8 +3125,8 @@
       "notes": "Z.ai GLM 5 Vision Turbo. Multimodal (text+image). Free on OpenRouter.",
       "status": {
         "tested": "2026-05-31",
-        "result": "untested",
-        "detail": "Provider no longer lists this model as free (detected 2026-06-01)"
+        "result": "broken",
+        "detail": "Model is no longer offered as free on OpenRouter (detected 2026-06-02)."
       },
       "_removed": true,
       "_removedDate": "2026-06-01",
@@ -3144,9 +3144,6 @@
         "llmgateway/glm-4.5-flash",
         "llmgateway/glm-4.6v-flash",
         "llmgateway/glm-4.7-flash",
-        "opencode/big-pickle",
-        "opencode/deepseek-v4-flash-free",
-        "opencode/nemotron-3-super-free",
         "openrouter/google/gemma-4-26b-a4b-it:free",
         "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
         "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
@@ -3187,7 +3184,11 @@
         "openrouter/qwen/qwen3.5-122b-a10b"
       ],
       "broken": [
-        "cerebras/qwen-3-235b-a22b-instruct-2507"
+        "cerebras/qwen-3-235b-a22b-instruct-2507",
+        "openrouter/arcee-ai/trinity-large-thinking",
+        "openrouter/z-ai/glm-5.1",
+        "openrouter/z-ai/glm-5-turbo",
+        "openrouter/z-ai/glm-5v-turbo"
       ],
       "untested": [],
       "rate_limited": [
@@ -3279,7 +3280,12 @@
       "schema_issues": [
         "openrouter/openai/gpt-oss-120b:free â€” returns 'reasoning_content' field in assistant messages, causing 'property unsupported' error in strict OpenAI schema clients"
       ],
-      "not_found": []
+      "not_found": [],
+      "untestable": [
+        "opencode/deepseek-v4-flash-free",
+        "opencode/big-pickle",
+        "opencode/nemotron-3-super-free"
+      ]
     }
   },
   "_role_rankings": {

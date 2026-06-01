@@ -130,10 +130,45 @@ try {
   console.log(`  ERROR: ${e.message}`);
 }
 
-// --- HuggingFace Router & LLM Gateway ---
-// These providers have no public free-model listing API.
-// HuggingFace: free models must be tested manually.
-// LLM Gateway: models must be added manually.
+// --- HuggingFace ---
+// HuggingFace Inference Router: https://huggingface.co/api/inference-providers
+// Free models are those with pricing.input === "0" AND pricing.output === "0".
+console.log('\n[HuggingFace] Fetching...');
+let newHf = [];
+try {
+  const hfData = await httpsGet('https://huggingface.co/api/inference-providers', { Authorization: `Bearer ${auth.huggingface.key}` });
+  const hfFree = [];
+  // The /api/inference-providers endpoint returns providers with their models.
+  // Structure: { providers: [{ provider, models: [{ id, pricing: { input, output } }] }] }
+  // Fallback: use /api/models endpoint filtered for HF inference.
+  const hfModelsData = await httpsGet(
+    'https://huggingface.co/api/models?inference_provider=huggingface&tags=text-generation&limit=200'
+  );
+  const hfModelList = Array.isArray(hfModelsData) ? hfModelsData :
+    (hfModelsData.models || hfModelsData.data || []);
+  for (const m of hfModelList) {
+    const id = m.id || m.modelId;
+    if (!id) continue;
+    const isInferenceFree = m.inference === 'free' || m.inference === 'feather';
+    const config = m.config || {};
+    const cfgSamplers = config.samplers || {};
+    const isFreeByConfig = m.tags && m.tags.includes('free');
+    if (isInferenceFree || isFreeByConfig) {
+      hfFree.push({ id: `huggingface/${id}`, name: id, context_length: m.generation_parameters?.max_new_tokens || null, huggingfaceId: id });
+    }
+  }
+  console.log(`  Found ${hfFree.length} free models`);
+  for (const m of hfFree) {
+    if (!existingIds.has(m.id)) newHf.push(m);
+  }
+  console.log(`  New: ${newHf.length}`);
+  for (const n of newHf) console.log(`    + ${n.id}`);
+} catch (e) {
+  console.log(`  ERROR: ${e.message}`);
+}
+
+// --- LLM Gateway ---
+// LLM Gateway has no public free-model listing API. Models must be added manually.
 // See docs/provider-details.md for details.
 
 // --- Detect removed models ---
@@ -141,11 +176,12 @@ console.log('\n[Status Check] Models in JSON but no longer in OpenRouter/Cerebra
   const allCurrentFreeIds = new Set([
     ...orModels.map(m => `openrouter/${m.id}`),
     ...(cbModels || []).map(m => m.id),
+    ...(hfFree || []).map(m => m.id),
     // Also add bare OpenRouter IDs (without openrouter/) for backward compat
     ...orModels.map(m => m.id),
   ]);
 
-  const orCbProviders = ['OpenRouter', 'Cerebras'];
+  const orCbProviders = ['OpenRouter', 'Cerebras', 'Hugging Face'];
   const potentiallyRemoved = [];
   for (const m of models) {
     if (!m.is_free) continue;
@@ -165,7 +201,7 @@ console.log(`  Potentially removed: ${potentiallyRemoved.length}`);
 for (const r of potentiallyRemoved) console.log(`    ? ${r}`);
 
 // --- Summary ---
-const totalNew = newOr.length + newCb.length + newNv.length;
+const totalNew = newOr.length + newCb.length + newNv.length + newHf.length;
 console.log('\n=== Summary ===');
 console.log(`  New models found:    ${totalNew}`);
 console.log(`  Potentially removed: ${potentiallyRemoved.length}`);
@@ -193,6 +229,7 @@ if (!APPLY) {
   for (const m of newOr) json.models.push(makeEntry(m, 'OpenRouter', m.context_length));
   for (const m of newCb) json.models.push(makeEntry(m, 'Cerebras', m.context_length));
   for (const m of newNv) json.models.push(makeEntry(m, 'NVIDIA', m.context_length));
+  for (const m of newHf) json.models.push(makeEntry(m, 'Hugging Face', m.context_length));
 
   // Flag potentially removed models
   for (const m of json.models) {
