@@ -5,7 +5,9 @@ description: Use when asked to test, screenshot, or verify a page in the Vue fro
 
 # Playwright Frontend Testing
 
-The Vue SPA at `http://localhost:5173` requires JS — `webfetch` only gets the static shell. Use Playwright headless instead.
+The Vue SPA at `http://localhost:5173` requires JS — `webfetch` only gets the static shell. Use Playwright instead.
+
+**Default: headed mode** (`headless: false`). The browser opens visibly so the user interacts with the app directly. Only use `headless: true` when explicitly asked for a headless/automated run.
 
 `playwright` resolves from workspace root. **Always `cd` to workspace root first** — the `bash` tool does this by default.
 
@@ -15,10 +17,18 @@ $env:PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1; npm install
 ```
 Then install Chromium on demand: `npx playwright install chromium`
 
-## Simple check (inline, works from workspace root)
+## Open the app (headed, default)
 
 ```bash
-node -e "const {chromium}=require('playwright');(async()=>{const p=await (await chromium.launch({headless:true})).newPage();await p.goto('http://localhost:5173/#/route',{waitUntil:'networkidle'});await p.waitForTimeout(2000);console.log((await p.textContent('body')).substring(0,500));await p.context().browser().close();})();"
+node -e "const {chromium}=require('playwright');(async()=>{const b=await chromium.launch({headless:false});const p=await b.newPage();await p.goto('http://localhost:5173',{waitUntil:'networkidle'});await p.waitForTimeout(99999);await b.close();})();"
+```
+
+The browser stays open until the user closes it (or the script is killed).
+
+## Screenshot a specific route
+
+```bash
+node -e "const {chromium}=require('playwright');(async()=>{const b=await chromium.launch({headless:false});const p=await b.newPage();await p.goto('http://localhost:5173/#/route',{waitUntil:'networkidle'});await p.waitForTimeout(2000);await p.screenshot({path:'C:\\Users\\pc\\AppData\\Local\\Temp\\opencode\\screenshot.png'});console.log('Screenshot saved');await b.close();})();"
 ```
 
 ## Complex checks (write temp script)
@@ -29,7 +39,7 @@ For anything the shell would mangle (double-quotes, `$$`, `>>`), write to a temp
 ```js
 const { chromium } = require('playwright');
 (async () => {
-  const b = await chromium.launch({ headless: true });
+  const b = await chromium.launch({ headless: false });
   const p = await b.newPage();
   p.on('console', msg => { if (msg.type() === 'error') console.log('ERR:', msg.text()); });
 
@@ -48,6 +58,14 @@ const { chromium } = require('playwright');
 
 ```bash
 node "C:\Users\pc\AppData\Local\Temp\opencode\_check.js"
+```
+
+## Headless mode (automated runs only)
+
+Only when explicitly asked:
+
+```bash
+node -e "const {chromium}=require('playwright');(async()=>{const p=await (await chromium.launch({headless:true})).newPage();await p.goto('http://localhost:5173/#/route',{waitUntil:'networkidle'});await p.waitForTimeout(2000);console.log((await p.textContent('body')).substring(0,500));await p.context().browser().close();})();"
 ```
 
 ## Vite stale cache (500 on a Vue module after editing)

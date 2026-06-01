@@ -16,7 +16,7 @@ node scripts/generate-dashboard.js --output path/to/dashboard.html
 
 ## Output
 
-- `dashboard.html` — provider health table + role ranking tables
+- `dashboard.html` — provider health table + role ranking tables (gitignored generated file)
 - Providers listed in `_provider_usage` for the current month are greyed out
 
 Open the generated file in any browser.

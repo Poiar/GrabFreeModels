@@ -14,9 +14,20 @@ description: Use when testing or updating free model statuses. Trigger when addi
 
 ## Procedure
 
+Default: tests only `rate_limited` and `untested` models (not `working` — avoids unnecessary API calls).
+
 ```bash
 node scripts/validate-free-models.js --apply
 ```
+
+### Flags
+
+| Flag | Purpose |
+|------|---------|
+| `--apply` | Write results to `available-models.json` (default: report only) |
+| `--force` | Re-test all models, skipping the 7-day working model cache |
+| `--models id1,id2` | Test specific model IDs only |
+| `--coding-only` | Only test models tagged with coding/programming/reasoning/agent keywords |
 
 Test interpretation patterns in `docs/test-interpretation-reference.md`.
 

@@ -36,4 +36,4 @@ node scripts/get-auth-key.js --list
 
 See `docs/provider-details.md` for endpoints.
 
-> After `--apply`, `sync-auth-keys.js` validates opencode.jsonc automatically. No manual validation step needed.
+> Use `node scripts/sync-auth-keys.js` to sync keys from `auth.json` into `opencode.jsonc`. Run with `--apply` to write; it validates JSONC after writing. Use `--check` to verify keys match without writing.

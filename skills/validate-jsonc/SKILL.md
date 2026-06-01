@@ -27,4 +27,4 @@ If validation fails, immediately inspect `opencode.jsonc` and fix the syntax err
 - Malformed escape sequences
 - Unclosed brackets or braces
 
-> See `test-model-auth` skill for auth sync details.
+> See `test-model-auth` skill for auth sync details. Use `sync-auth-keys.js` to sync API keys; use this script (`validate-jsonc.js`) to validate syntax after any edit to `opencode.jsonc`.

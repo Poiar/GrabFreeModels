@@ -26,6 +26,12 @@ snapshots/*
 # Badge output
 badge/
 
+# Generated dashboard
+dashboard.html
+
+# Nightly summary log
+nightly-summary.log
+
 # Config backup (nested git repo)
 config-backup/
 
