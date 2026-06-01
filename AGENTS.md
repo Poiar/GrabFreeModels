@@ -57,3 +57,4 @@ All scripts live in `scripts/`. Each script has a corresponding skill — see th
 | `kill-port.js` | Kill process on a given port: `node scripts/kill-port.js --port 5173` |
 | `validate-jsonc.js` | Validate opencode.jsonc JSONC syntax: `node scripts/validate-jsonc.js [--short]` |
 | `get-auth-key.js` | Read a provider API key from auth.json: `node scripts/get-auth-key.js --provider <name> [--list]` |
+| `sync-auth-keys.js` | Sync API keys from auth.json into opencode.jsonc: `node scripts/sync-auth-keys.js [--apply] [--check]` |
