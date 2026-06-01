@@ -19,7 +19,14 @@ gitleaks detect --source . --config .gitleaks.toml --no-git --verbose
 # or with git history: --verbose
 ```
 
-See `docs/gitleaks-setup.md` for installation.
+## Install Gitleaks
+
+Windows (winget):
+```bash
+winget install gitleaks.gitleaks
+```
+
+Or grab the latest binary from https://github.com/gitleaks/gitleaks/releases and add to PATH.
 
 ## Allowlisting False Positives
 

@@ -159,28 +159,34 @@ function getApiKey(modelId) {
   return auth.openrouter.key;
 }
 
+function getEndpointKey(modelId) {
+  if (modelId.startsWith('cerebras/')) return 'cerebras';
+  if (modelId.startsWith('nvidia/')) return 'nvidia';
+  if (modelId.startsWith('huggingface/')) return 'huggingface';
+  if (modelId.startsWith('llmgateway/')) return 'llmgateway';
+  if (modelId.startsWith('deepseek/')) return 'deepseek';
+  return 'openrouter';
+}
+
 // --- Run tests ---
 (async () => {
-  const results = [];
 
-  for (const m of toTest) {
+  async function testOne(m) {
     const id = m.id;
     const url = getApiUrl(id);
     const key = getApiKey(id);
+    const endpoint = getEndpointKey(id);
 
-    console.log(`[${id}]`);
+    console.log(`[${endpoint}] ${id}`);
 
-    // Phase 1: Burst (rapid sequential)
-    process.stdout.write('  Burst phase...');
-    const burstResults = await testModel(id, 'burst', key, url);
-    console.log(` ${burstResults.join(', ')}`);
+    const [burstResults, delayedResults] = await Promise.all([
+      testModel(id, 'burst', key, url),
+      testModel(id, 'delayed', key, url),
+    ]);
 
-    // Phase 2: Delayed
-    process.stdout.write('  Delayed phase...');
-    const delayedResults = await testModel(id, 'delayed', key, url);
-    console.log(` ${delayedResults.join(', ')}`);
+    console.log(`  Burst:   ${burstResults.join(', ')}`);
+    console.log(`  Delayed: ${delayedResults.join(', ')}`);
 
-    // Interpret
     const allResults = [...burstResults, ...delayedResults];
     const okCount = allResults.filter(r => r === 'OK').length;
     const totalCount = allResults.length;
@@ -208,7 +214,30 @@ function getApiKey(modelId) {
     const color = status === 'working' ? '\x1b[32m' : status === 'rate_limited' ? '\x1b[33m' : '\x1b[31m';
     console.log(`  => ${color}${status}\x1b[0m`);
 
-    results.push({ id, status, detail, burst: burstResults, delayed: delayedResults });
+    return { id, status, detail, burst: burstResults, delayed: delayedResults };
+  }
+
+  // Group models by API endpoint; test one model per endpoint at a time
+  const byEndpoint = {};
+  for (const m of toTest) {
+    const ep = getEndpointKey(m.id);
+    (byEndpoint[ep] = byEndpoint[ep] || []).push(m);
+  }
+  const endpoints = Object.keys(byEndpoint);
+  const iterators = endpoints.map(ep => byEndpoint[ep][Symbol.iterator]());
+  const results = [];
+  let remaining = toTest.length;
+
+  while (remaining > 0) {
+    const batch = [];
+    for (let i = 0; i < endpoints.length; i++) {
+      const next = iterators[i].next();
+      if (!next.done) batch.push(next.value);
+    }
+    if (batch.length === 0) break;
+    const batchResults = await Promise.all(batch.map(m => testOne(m)));
+    results.push(...batchResults);
+    remaining -= batch.length;
   }
 
   // --- Summary ---

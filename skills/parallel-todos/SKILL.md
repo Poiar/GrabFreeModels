@@ -28,3 +28,9 @@ description: Use when you have a todo list (from todowrite) where items are inde
    - When in doubt, use `general`
 3. **Mark all as `in_progress`**, then spawn one subagent per item via the `task` tool — each subagent gets a self-contained prompt with all context it needs
 4. **Collect results** and mark each todo `completed` (or note blockers)
+
+## On Failure
+
+- If a subagent fails once, retry it again with the same prompt (transient errors are common).
+- If it fails a second time, mark the todo as blocked and move on. Report the blocker to the user after collecting all other results.
+- Never let one failed subagent silently cancel the rest — always collect all results before surfacing errors.
