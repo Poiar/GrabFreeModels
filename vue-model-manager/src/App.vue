@@ -43,7 +43,10 @@
       </div>
       <div v-else-if="store.error" class="center-message error-box">
         <h2>Failed to load data</h2>
-        <p>{{ store.error }}</p>
+        <p class="error-message">{{ store.error }}</p>
+        <p v-if="store.lastLoaded" class="error-last-loaded">
+          Last successful load: {{ timeAgo(store.lastLoaded) }}
+        </p>
         <button @click="store.loadData()" class="refresh-btn">Retry</button>
       </div>
       <router-view v-else v-slot="{ Component }">

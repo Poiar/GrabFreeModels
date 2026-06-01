@@ -13,8 +13,12 @@ const path = require('path');
 
 const APPLY = process.argv.includes('--apply');
 
-const MODELS_FILE = path.join(__dirname, '..', 'available-models.json');
-const AUTH_FILE = path.join(process.env.HOME || process.env.USERPROFILE, '.local', 'share', 'opencode', 'auth.json');
+const REPO_ROOT = path.join(__dirname, '..');
+const MODELS_FILE = path.join(REPO_ROOT, 'available-models.json');
+
+// Auth file: check env var first, then platform default locations
+const AUTH_FILE = process.env.GFM_AUTH_FILE
+  || path.join(process.env.XDG_DATA_HOME || path.join(process.env.HOME || process.env.USERPROFILE, '.local', 'share'), 'opencode', 'auth.json');
 
 const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
 const json = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));

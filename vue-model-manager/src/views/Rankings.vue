@@ -103,6 +103,31 @@
       </div>
     </div>
 
+    <!-- Working but unranked -->
+    <div v-if="unrankedWorking.length > 0" class="unranked-section">
+      <h3 class="section-title">
+        Working but Unranked
+        <span class="unranked-count">{{ unrankedWorking.length }} model{{ unrankedWorking.length !== 1 ? 's' : '' }}</span>
+      </h3>
+      <p class="unranked-hint">These models are working and free but not yet assigned to a role ranking.</p>
+      <div class="unranked-grid">
+        <div v-for="model in unrankedWorking" :key="model.id" class="unranked-card">
+          <div class="unranked-name" :title="model.name">{{ model.name }}</div>
+          <div class="unranked-id-wrap">
+            <span class="model-id" :title="model.id">{{ model.id }}</span>
+            <button class="copy-btn" :class="{ copied: copiedIds.has(model.id) }" :title="copiedIds.has(model.id) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(model.id)">
+              {{ copiedIds.has(model.id) ? '✓' : '📋' }}
+            </button>
+          </div>
+          <div class="unranked-meta">
+            <span class="badge badge-provider">{{ model.provider }}</span>
+            <span v-if="model.context_length" class="badge badge-context">{{ fmtContext(model.context_length) }}</span>
+            <span v-for="tag in model.best_for.slice(0, 2)" :key="tag" class="tag">{{ tag }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="pagination" v-if="sortedItems.length > 0 && totalPages > 1">
       <button :disabled="page === 1" @click="page = 1">«</button>
       <button :disabled="page === 1" @click="page--">‹</button>
@@ -254,6 +279,19 @@ function RANK_SCORE(item: { modelId: string; role: string; rank: number }) {
   return item.rank * 100 + (ROLE_ORDER[item.role] ?? 99)
 }
 
+// ── Working but unranked ──
+const rankedIds = computed(() => {
+  const set = new Set<string>()
+  for (const role of ROLES) {
+    for (const id of (store.roleRankings[role] ?? [])) set.add(id)
+  }
+  return set
+})
+
+const unrankedWorking = computed(() =>
+  store.workingModels.filter(m => !rankedIds.value.has(m.id) && !store.isModelProviderUsedUp(m.id))
+)
+
 // ── Pagination ──
 const perPage = ref(25)
 const page = ref(1)
@@ -370,5 +408,80 @@ const pagedItems = computed(() => {
 
 .empty-state {
   border-top: 1px solid var(--border);
+}
+
+.unranked-section {
+  margin-top: 32px;
+  margin-bottom: 24px;
+}
+
+.unranked-count {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-dim);
+  margin-left: 8px;
+}
+
+.unranked-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  margin-top: -4px;
+}
+
+.unranked-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.unranked-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.unranked-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unranked-id-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.unranked-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.badge-provider {
+  background: rgba(88,166,255,0.15);
+  color: var(--accent);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.badge-context {
+  background: rgba(63,185,80,0.15);
+  color: var(--green);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 600;
 }
 </style>

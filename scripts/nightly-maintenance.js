@@ -20,6 +20,14 @@ const SUMMARY_LOG = path.join(REPO_ROOT, 'nightly-summary.log');
 // Change to repo directory
 process.chdir(REPO_ROOT);
 
+// Ensure git identity is set (needed for CI/scheduled tasks)
+try {
+  execSync('git config user.email', { stdio: 'pipe' });
+} catch {
+  execSync('git config user.email "nightly@grabfreemodels"');
+  execSync('git config user.name "Nightly Maintenance"');
+}
+
 // Obtain webhook URLs from environment
 let webhookUrl = null;
 const alertEndpoints = [];

@@ -9,35 +9,50 @@
     <div class="jql-bar">
       <div class="jql-chips">
         <button
-          v-for="(token, i) in jql.parsed.value.tokens"
+          v-for="(token, i) in allTokens"
           :key="`${token.field}-${token.rawValue}-${i}`"
           class="jql-chip"
+          :class="{ 'jql-chip-negated': token.op === '!=' || token.op === 'NOT IN' }"
           @click="jql.removeToken(i)"
           :title="`Remove ${token.label}`"
         >
           <span class="jql-chip-label">{{ token.label }}</span>
           <span class="jql-chip-remove">✕</span>
         </button>
+        <button v-if="hasOrderBy" class="jql-chip jql-chip-sort" @click="clearOrderBy" title="Remove sort">
+          <span class="jql-chip-label">ORDER BY {{ jql.parsed.value.orderBy }} {{ jql.parsed.value.orderDir }}</span>
+          <span class="jql-chip-remove">✕</span>
+        </button>
       </div>
       <div class="jql-input-wrap">
         <span class="jql-icon">🔍</span>
+        <!-- Syntax highlight overlay -->
+        <div class="jql-highlight" aria-hidden="true" v-html="highlightedQuery"></div>
         <input
           ref="jql.inputRef"
           v-model="jql.rawQuery.value"
           type="text"
           class="jql-input"
-          placeholder='e.g. provider:openrouter status:working context:>100000 free LLM'
+          placeholder='e.g. provider:openrouter status:working context:>100000 free LLM ORDER BY context DESC'
           spellcheck="false"
+          autocomplete="off"
           @input="jql.onInput"
           @keydown="jql.onKeydown"
           @focus="jql.onFocus"
           @blur="jql.onBlur"
           @click="jql.onInput($event)"
         />
-        <button v-if="jql.rawQuery.value || jql.parsed.value.tokens.length" class="jql-clear" @click="clearAll" title="Clear all">✕</button>
+        <button v-if="jql.rawQuery.value || allTokens.length" class="jql-clear" @click="clearAll" title="Clear all">✕</button>
       </div>
-      <div v-if="jql.suggestions.value" class="jql-suggestions">
-        <div v-for="opt in jql.suggestions.value.options" :key="opt.insert" class="jql-suggestion" @mousedown.prevent="jql.applySuggestion(opt.insert)">
+      <div v-if="jql.showSuggestions.value && jql.suggestions.value" class="jql-suggestions">
+        <div
+          v-for="(opt, si) in jql.suggestions.value.options"
+          :key="opt.insert"
+          class="jql-suggestion"
+          :class="{ 'jql-suggestion-active': si === jql.activeSuggestion.value }"
+          @mousedown.prevent="jql.applySuggestion(opt.insert)"
+          @mouseenter="jql.activeSuggestion.value = si"
+        >
           <span class="jql-suggestion-label">{{ opt.label }}</span>
           <span class="jql-suggestion-field">{{ opt.insert }}</span>
         </div>
@@ -45,9 +60,14 @@
           No matching {{ jql.suggestions.value.field }}s
         </div>
       </div>
-      <span class="filter-count">
-        {{ sortedModels.length }} of {{ store.allModels.length }} models
-      </span>
+      <div class="jql-bar-footer">
+        <span class="filter-count">
+          {{ sortedModels.length }} of {{ store.allModels.length }} models
+        </span>
+          <span class="jql-hint">
+            <kbd>field:value</kbd> · <kbd>!=</kbd> · <kbd>&gt;</kbd> · <kbd>&lt;</kbd> · <kbd>IS EMPTY</kbd> · <kbd>IN (a,b)</kbd> · <kbd>NOT</kbd> · <kbd>OR</kbd> · <kbd>ORDER BY</kbd>
+          </span>
+      </div>
     </div>
 
     <!-- Virtual Scroll Table -->
@@ -82,7 +102,7 @@
         :emit-update="false"
       >
         <template #default="{ item: model }">
-          <div class="vscroll-row">
+          <div class="vscroll-row" @click="selectedModel = model" role="button" :title="'View details for ' + model.name">
             <div class="vscroll-cell col-name">
               <div class="model-name" :title="model.name">{{ model.name }}</div>
               <div class="model-id-wrap">
@@ -94,6 +114,7 @@
             </div>
             <div class="vscroll-cell col-provider">
               <span>{{ model.provider }}</span>
+              <span v-if="store.isModelProviderUsedUp(model.id)" class="used-up-icon" title="Provider used up for this month">⚠</span>
             </div>
             <div class="vscroll-cell col-type">
               <span class="badge" :class="model.is_free ? 'badge-free-type' : 'badge-paid-type'">
@@ -130,10 +151,13 @@
         <div class="empty-state-inner">
           <span class="empty-state-icon">🔍</span>
           <p>No models match your filters.</p>
-          <button class="refresh-btn" @click="resetFilters">Clear all filters</button>
+          <button class="refresh-btn" @click="clearAll">Clear all filters</button>
         </div>
       </div>
     </div>
+
+    <!-- Detail Panel -->
+    <ModelDetail :model="selectedModel" @close="selectedModel = null" />
   </div>
 </template>
 
@@ -142,12 +166,16 @@ import { ref, computed, watch, reactive } from 'vue'
 import { useModelsStore } from '@/store/models'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import { useJqlFilter } from '@/composables/useJqlFilter'
+import type { FilterToken, SortSpec } from '@/composables/useJqlFilter'
+import type { Model } from '@/types'
+import ModelDetail from '@/components/ModelDetail.vue'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 type ScrollerExposed = { scrollToPosition: (pos: number) => void }
 const scrollerRef = ref<ScrollerExposed | null>(null)
 
 const store = useModelsStore()
+const selectedModel = ref<Model | null>(null)
 const copiedIds = reactive(new Set<string>())
 let copyTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -174,14 +202,41 @@ async function handleCopy(id: string) {
 const sortBy = ref('name')
 const sortDesc = ref(false)
 
-const jql = useJqlFilter(store.allModels, store.allProviderNames)
+const jql = useJqlFilter(
+  computed(() => store.allModels),
+  computed(() => store.allProviderNames),
+)
+
+// Apply ORDER BY from query to the table sort
+watch(jql.sortSpec, (spec: SortSpec | null) => {
+  if (spec) {
+    sortBy.value = spec.field
+    sortDesc.value = spec.desc
+  }
+})
 
 watch([() => jql.rawQuery.value, sortBy, sortDesc], () => {
   scrollerRef.value?.scrollToPosition(0)
 })
 
+const allTokens = computed<FilterToken[]>(() =>
+  jql.parsed.value.expression.flat().filter(t => t.field !== '_text'),
+)
+
+const hasOrderBy = computed(() => !!jql.parsed.value.orderBy)
+
 function clearAll() {
   jql.rawQuery.value = ''
+  sortBy.value = 'name'
+  sortDesc.value = false
+}
+
+function clearOrderBy() {
+  // Remove ORDER BY clause from raw query
+  const raw = jql.rawQuery.value
+  jql.rawQuery.value = raw.replace(/\s+ORDER\s+BY\s+\w+\s*(ASC|DESC)?\s*$/i, '').trim()
+  sortBy.value = 'name'
+  sortDesc.value = false
 }
 
 function setSort(field: string) {
@@ -238,4 +293,59 @@ const fmt = new Intl.NumberFormat('en', { notation: 'compact', maximumSignifican
 function formatContext(n: number): string {
   return fmt.format(n)
 }
+
+  // Syntax highlighting for the overlay div
+  const highlightedQuery = computed(() => {
+    const raw = jql.rawQuery.value
+    if (!raw) return ''
+
+    const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+    // Order matters: match longer/more-specific patterns first
+    const regex =
+      /(\w+)\s+(NOT\s+IN)\s*\(\s*((?:"[^"]*"|[^)])+)\)|(\w+)\s+(IS\s+NOT\s+EMPTY|IS\s+EMPTY)|(?:NOT\s+)?(\w+)\s*(?::((?::?>|:<!|=))|(:!=|!=)|:=|=)\s*(?:"([^"]*?)"|(\S+))|(\w+)\s+(IN)\s*\(\s*((?:"[^"]*"|[^)])+)\)|\b(OR)\b|\b(ORDER\s+BY\s+\w+\s*(?:ASC|DESC)?)\b/gi
+
+    let result = ''
+    let lastIdx = 0
+    let m: RegExpExecArray | null
+
+    while ((m = regex.exec(raw)) !== null) {
+      const chunk = raw.slice(lastIdx, m.index)
+      result += escape(chunk)
+
+      if (m[1] != null && m[2] != null) {
+        // field NOT IN (...)
+        result += `<span class="jql-hl-field">${escape(m[1])}</span> <span class="jql-hl-op jql-hl-neg">${escape(m[2])}</span>(<span class="jql-hl-val jql-hl-neg">${escape(m[3])})</span>`
+      } else if (m[4] != null) {
+        // field IS [NOT] EMPTY
+        const isNeg = m[5] === 'IS NOT EMPTY'
+        result += `<span class="jql-hl-field">${escape(m[4])}</span> <span class="jql-hl-kw ${isNeg ? 'jql-hl-neg' : ''}">${escape(m[5])}</span>`
+      } else if (m[6] != null) {
+        // [NOT] field:op value
+        const notPrefix = m[0].trimStart().toUpperCase().startsWith('NOT')
+        const op = m[7] ?? m[8] ?? ':'
+        const val = m[9] ?? m[10] ?? ''
+        if (notPrefix) {
+          result += `<span class="jql-hl-kw jql-hl-neg">NOT </span>`
+        }
+        const isNeg = op === '!=' || notPrefix
+        result += `<span class="jql-hl-field">${escape(m[6])}</span>`
+        result += `<span class="jql-hl-op${isNeg ? ' jql-hl-neg' : ''}">${escape(op)}</span>`
+        result += `<span class="jql-hl-val${isNeg ? ' jql-hl-neg' : ''}">${escape(val)}</span>`
+      } else if (m[11] != null) {
+        // field IN (...)
+        result += `<span class="jql-hl-field">${escape(m[11])}</span> <span class="jql-hl-kw">${escape(m[12])}</span>(<span class="jql-hl-val">${escape(m[13])})</span>`
+      } else if (m[14] != null) {
+        // OR
+        result += `<span class="jql-hl-kw">${escape(m[14])}</span>`
+      } else if (m[15] != null) {
+        // ORDER BY
+        result += `<span class="jql-hl-kw">${escape(m[15])}</span>`
+      }
+
+      lastIdx = m.index + m[0].length
+    }
+    result += escape(raw.slice(lastIdx))
+    return result
+  })
 </script>

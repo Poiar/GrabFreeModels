@@ -164,16 +164,36 @@ export const useModelsStore = defineStore('models', () => {
 
   let abortController: AbortController | null = null
 
+  const LOAD_RETRIES = 3
+  const LOAD_RETRY_MS = 1500
+
+  async function fetchWithRetry(url: string, signal: AbortSignal): Promise<Response> {
+    let lastErr: Error | null = null
+    for (let attempt = 1; attempt <= LOAD_RETRIES; attempt++) {
+      try {
+        const resp = await fetch(url, { signal })
+        if (resp.ok) return resp
+        // 5xx errors are retryable; 4xx are not
+        if (resp.status < 500) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`)
+        lastErr = new Error(`HTTP ${resp.status}: ${resp.statusText}`)
+      } catch (e: unknown) {
+        if (e instanceof DOMException && e.name === 'AbortError') throw e
+        lastErr = e instanceof Error ? e : new Error(String(e))
+      }
+      if (attempt < LOAD_RETRIES) {
+        await new Promise(r => setTimeout(r, LOAD_RETRY_MS * attempt))
+      }
+    }
+    throw lastErr ?? new Error('Unknown error')
+  }
+
   async function loadData() {
     abortController?.abort()
     abortController = new AbortController()
     loading.value = true
     error.value = null
     try {
-      const resp = await fetch('/available-models.json', {
-        signal: abortController.signal,
-      })
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`)
+      const resp = await fetchWithRetry('/available-models.json', abortController.signal)
       data.value = await resp.json()
       lastLoaded.value = new Date()
       isStale.value = false

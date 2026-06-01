@@ -263,6 +263,8 @@ body {
 .badge-rate_limited { background: rgba(210,153,34,0.15); color: var(--orange); }
 .badge-untested { background: rgba(88,166,255,0.15); color: var(--accent); }
 .badge-paid { background: rgba(188,140,255,0.15); color: var(--purple); }
+.badge-free-type { background: rgba(63,185,80,0.15); color: var(--green); }
+.badge-paid-type { background: rgba(188,140,255,0.15); color: var(--purple); }
 
 .badge-severity-low { background: rgba(88,166,255,0.15); color: var(--accent); }
 .badge-severity-moderate { background: rgba(210,153,34,0.15); color: var(--orange); }
@@ -400,22 +402,48 @@ tr:hover td { background: var(--bg-hover); }
 
 .jql-input-wrap {
   position: relative;
-  display: flex;
-  align-items: center;
 }
 
 .jql-icon {
   position: absolute;
   left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 0.8rem;
   color: var(--text-muted);
   pointer-events: none;
-  z-index: 1;
+  z-index: 3;
 }
 
-.jql-input {
-  width: 100%;
+/* Syntax highlight overlay */
+.jql-highlight {
+  position: absolute;
+  inset: 0;
+  padding: 8px 28px 8px 32px;
+  font-size: 0.85rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  line-height: 1.5;
+  white-space: pre;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  color: transparent;
   background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-sizing: border-box;
+}
+
+.jql-hl-field  { color: var(--accent); font-weight: 600; }
+.jql-hl-op     { color: var(--text-dim); }
+.jql-hl-val    { color: var(--green); }
+.jql-hl-neg    { color: var(--red); }
+.jql-hl-kw     { color: var(--purple); font-weight: 600; }
+
+.jql-input {
+  position: relative;
+  width: 100%;
+  background: transparent;
   border: 1px solid var(--border);
   color: var(--text);
   padding: 8px 28px 8px 32px;
@@ -424,6 +452,9 @@ tr:hover td { background: var(--bg-hover); }
   outline: none;
   font-family: 'SF Mono', 'Fira Code', monospace;
   line-height: 1.5;
+  caret-color: var(--text);
+  z-index: 2;
+  box-sizing: border-box;
 }
 
 .jql-input:focus {
@@ -438,6 +469,8 @@ tr:hover td { background: var(--bg-hover); }
 .jql-clear {
   position: absolute;
   right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   color: var(--text-muted);
@@ -446,11 +479,36 @@ tr:hover td { background: var(--bg-hover); }
   padding: 4px 6px;
   border-radius: var(--radius-sm);
   line-height: 1;
+  z-index: 3;
 }
 
 .jql-clear:hover {
   color: var(--text);
   background: var(--bg-hover);
+}
+
+/* Bar footer */
+.jql-bar-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.jql-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.jql-hint kbd {
+  display: inline-block;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 4px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.65rem;
+  color: var(--text-dim);
 }
 
 /* Chips row */
@@ -486,6 +544,26 @@ tr:hover td { background: var(--bg-hover); }
 .jql-chip:hover {
   border-color: var(--red-dim);
   background: rgba(248,81,73,0.08);
+}
+
+.jql-chip-negated {
+  border-color: rgba(248,81,73,0.3);
+  background: rgba(248,81,73,0.06);
+}
+
+.jql-chip-negated:hover {
+  border-color: var(--red);
+  background: rgba(248,81,73,0.12);
+}
+
+.jql-chip-sort {
+  border-color: rgba(188,140,255,0.3);
+  background: rgba(188,140,255,0.06);
+}
+
+.jql-chip-sort:hover {
+  border-color: var(--purple);
+  background: rgba(188,140,255,0.12);
 }
 
 .jql-chip-label {
@@ -532,7 +610,8 @@ tr:hover td { background: var(--bg-hover); }
   transition: background 0.1s;
 }
 
-.jql-suggestion:hover {
+.jql-suggestion:hover,
+.jql-suggestion-active {
   background: var(--bg-hover);
 }
 
@@ -597,6 +676,19 @@ tr:hover td { background: var(--bg-hover); }
 }
 
 .error-box h2 { color: var(--red); margin-bottom: 8px; }
+
+.error-message {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  word-break: break-all;
+}
+
+.error-last-loaded {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
 
 /* ── Refresh button ── */
 .refresh-btn {
@@ -672,6 +764,13 @@ tr:hover .copy-btn {
   border-color: var(--border);
   color: var(--text);
   background: var(--bg-hover);
+}
+
+.used-up-icon {
+  color: var(--orange);
+  font-size: 0.7rem;
+  margin-left: 4px;
+  vertical-align: middle;
 }
 
 .copy-btn.copied {
@@ -901,6 +1000,7 @@ th.sortable.active .sort-indicator {
   border-bottom: 1px solid var(--border-light);
   height: 52px;
   box-sizing: border-box;
+  cursor: pointer;
 }
 
 .vscroll-row:hover {
