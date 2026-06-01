@@ -47,10 +47,12 @@
       <div class="issue-severity-bar" :class="`issue-severity-bar-${issue.severity}`"></div>
       <div class="issue-content">
         <div class="issue-header">
-          <span class="model-id">{{ issue.model_id }}</span>
-          <span class="badge" :class="`badge-severity-${issue.severity}`">
-            {{ issue.severity }}
-          </span>
+           <span class="model-id">{{ issue.model_id }}</span>
+           <span v-if="store.getModelById(issue.model_id)?.supports_tools === true" class="badge badge-tools-yes" title="Supports tool calling">tools</span>
+           <span v-else-if="store.getModelById(issue.model_id)?.supports_tools === false" class="badge badge-tools-no" title="No tool calling">no tools</span>
+           <span class="badge" :class="`badge-severity-${issue.severity}`">
+             {{ issue.severity }}
+           </span>
         </div>
         <div class="issue-body">
           <p class="issue-title">{{ issue.issue }}</p>
@@ -280,6 +282,9 @@ function toggleSeverityFilter(severity: string) {
 .issue-detail-row .value {
   color: var(--text);
 }
+
+.badge-tools-yes { border-color: var(--green); background: var(--green-subtle); color: var(--green); font-size: 0.6rem; padding: 2px 8px; }
+.badge-tools-no { border-color: var(--red); background: rgba(239,68,68,0.1); color: var(--red); font-size: 0.6rem; padding: 2px 8px; }
 
 .issue-dates {
   font-size: 0.7rem;

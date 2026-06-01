@@ -118,7 +118,9 @@
         <div class="vscroll-header-cell sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
           Provider <span class="sort-indicator">{{ sortIndicator('provider') }}</span>
         </div>
-        <div class="vscroll-header-cell">Type</div>
+        <div class="vscroll-header-cell sortable" :class="{ active: sortBy === 'type' }" @click="setSort('type')">
+          Type <span class="sort-indicator">{{ sortIndicator('type') }}</span>
+        </div>
         <div class="vscroll-header-cell sortable" :class="{ active: sortBy === 'status' }" @click="setSort('status')">
           Status <span class="sort-indicator">{{ sortIndicator('status') }}</span>
         </div>
@@ -440,6 +442,7 @@ const sortedModels = computed(() => {
       case 'provider': return dir * a.provider.localeCompare(b.provider)
       case 'status': return dir * a.status.result.localeCompare(b.status.result)
       case 'context': { const ac = a.context_length, bc = b.context_length; if (ac == null && bc == null) return 0; if (ac == null) return 1; if (bc == null) return -1; return dir * (ac - bc) }
+      case 'type': return dir * (a.is_free === b.is_free ? 0 : a.is_free ? -1 : 1)
       case 'detail': return dir * a.status.detail.localeCompare(b.status.detail)
       default: return dir * a.name.localeCompare(b.name)
     }

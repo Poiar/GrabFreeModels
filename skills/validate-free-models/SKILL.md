@@ -53,7 +53,11 @@ node scripts/validate-free-models.js --force --apply
 | `--force` | Re-test all models, skipping the 7-day working model cache |
 | `--models id1,id2` | Test specific model IDs only |
 | `--coding-only` | Only test models with cod/programm/agentic/reasoning/tool use/fast/lightweight keywords |
-| `--coding-only` excludes models whose `best_for` only has general tags like "Reasoning" or "Thinking" without explicit coding/programm keywords |
+| `--coding-only` | Only test models with cod/programm/agentic/reasoning/tool use/fast/lightweight keywords. Excludes models whose `best_for` only has general tags like "Reasoning" or "Thinking" |
+
+### Rate-Limited Retest Throttling
+
+Rate-limited models are always candidates for re-test, but models tested within the last 24 hours are skipped to avoid wasting API calls on freshly rate-limited endpoints. Use `--force` to override.
 
 ## Test Interpretation
 

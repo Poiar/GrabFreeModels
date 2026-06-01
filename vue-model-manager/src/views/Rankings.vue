@@ -2,7 +2,7 @@
   <div>
     <div class="page-header">
       <h2>Rankings</h2>
-      <p>Role-specific ranked lists of working, non-rate-limited free models. Each model appears once with all its role rankings shown as pills.</p>
+      <p>Role-specific ranked lists of verified free models only — paid, removed, broken, and rate-limited models are excluded. Each model appears once with all its role rankings shown as pills.</p>
     </div>
 
     <div class="filters">
@@ -242,6 +242,8 @@ const flatRankings = computed<ModelRanking[]>(() => {
   }
   const list: ModelRanking[] = []
   for (const [modelId, rankings] of map) {
+    const model = store.allModels.find(m => m.id === modelId)
+    if (!model || !model.is_free || model._removed || model.status.result === 'broken' || model.status.result === 'rate_limited') continue
     rankings.sort((a, b) => a.rank - b.rank)
     list.push({ modelId, rankings, bestRank: rankings[0].rank })
   }

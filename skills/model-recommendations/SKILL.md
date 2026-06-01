@@ -11,7 +11,7 @@ See `C:\Users\pc\.config\opencode\opencode.jsonc` for the current live configura
 
 ## Rules
 
-1. **Check `supports_tools` first.** Before recommending any model, check its `supports_tools` field in `available-models.json`. If missing or `false`, do NOT recommend.
+1. **Check `supports_tools` first.** Before recommending any model, check its `supports_tools` field in `available-models.json`. If `false`, do NOT recommend. Unknown models default to `true` — if you're unsure, say "I need to verify tool calling support first".
 
 2. **Known models without OpenAI-style tool calling** (historically verified — always re-check `supports_tools` before trusting this list):
    - `qwen3:*` base/chat variants — echo tool JSON as text. Exception: `Qwen3-Coder` variants DO support tool calling.

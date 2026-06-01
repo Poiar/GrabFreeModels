@@ -76,9 +76,52 @@ if (pruned > 0) {
 console.log('Running validation...');
 execSync('node scripts/validate-free-models.js --apply', { stdio: 'inherit' });
 
-// 2. Run sanity check
+// 2.5. Prune stale non-working models from rankings (with 7-day burn-in)
+console.log('Pruning stale non-working models from rankings (7-day burn-in)...');
+const rankJson = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
+const now = Date.now();
+const BURN_IN_MS = 7 * 24 * 60 * 60 * 1000;
+const staleNonWorking = new Set(rankJson.models.filter(m => {
+  if (m.status.result === 'working') return false;
+  const tested = m.status.tested ? new Date(m.status.tested).getTime() : NaN;
+  if (isNaN(tested)) return false; // never tested — don't prune
+  return (now - tested) > BURN_IN_MS;
+}).map(m => m.id));
+let rankPruned = 0;
+for (const role of Object.keys(rankJson._role_rankings)) {
+  if (role === 'description') continue;
+  const arr = rankJson._role_rankings[role];
+  if (!Array.isArray(arr)) continue;
+  const before = arr.length;
+  rankJson._role_rankings[role] = arr.filter(id => !staleNonWorking.has(id));
+  rankPruned += before - rankJson._role_rankings[role].length;
+}
+if (rankPruned > 0) {
+  fs.writeFileSync(MODELS_FILE, JSON.stringify(rankJson, null, 2), 'utf8');
+  console.log(`  Removed ${rankPruned} stale non-working entries from rankings`);
+}
+
+// 2. Run sanity check (after pruning, so rankings are clean)
 console.log('Running ranking sanity check...');
 execSync('node scripts/check-rankings.js', { stdio: 'inherit' });
+
+// 2.8. Regenerate _test_summary from current data
+console.log('Regenerating _test_summary...');
+const summaryJson = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
+const freeModels = summaryJson.models.filter(m => m.is_free);
+const byResult = (r) => freeModels.filter(m => m.status.result === r).map(m => m.id).sort();
+summaryJson._test_summary = {
+  date: new Date().toISOString().slice(0, 10),
+  results: {
+    working: byResult('working'),
+    rate_limited: byResult('rate_limited'),
+    broken: byResult('broken'),
+    untested: byResult('untested'),
+    not_found: byResult('not_found'),
+  },
+};
+fs.writeFileSync(MODELS_FILE, JSON.stringify(summaryJson, null, 2), 'utf8');
+console.log(`  _test_summary updated: ${byResult('working').length} working, ${byResult('rate_limited').length} rate_limited, ${byResult('broken').length} broken`);
 
 // 3. Generate summary (log to file)
 const summaryOutput = execSync('node scripts/model-summary.js', { encoding: 'utf8' });

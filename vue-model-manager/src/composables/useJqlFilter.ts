@@ -133,20 +133,28 @@ export function parseQuery(raw: string): {
     const isGrouped = group.startsWith('(')
 
     const clause: JqlClause = []
-    const tokenRegex =
-      /(\w+)\s+(?:NOT\s+)?IN\s*\(\s*((?:"[^"]*"|[^)])+)\)|(\w+)\s+IS\s+NOT\s+EMPTY|(\w+)\s+IS\s+EMPTY|(?:NOT\s+)?(\w+)\s*(?:(\s*:>|\s*:<|\s*~|>|<|>=|<=|!=|:|=)\s*|(\s*~|>|<|>=|<=|!=))\s*(?:"([^"]*?)"|(\S+))/gi
+    const tokenRegex = new RegExp([
+      '(\\w+)\\s+(?:NOT\\s+)?IN\\s*\\(\\s*((?:"[^"]*"|[^)])+)\\)',
+      '(\\w+)\\s+IS\\s+NOT\\s+EMPTY',
+      '(\\w+)\\s+IS\\s+EMPTY',
+      '(?:NOT\\s+)?(\\w+)\\s*(?:(\\s*:>|\\s*:<|\\s*~|>|<|>=|<=|!=|:|=)\\s*|(\\s*~|>|<|>=|<=|!=))\\s*(?:"([^"]*?)"|(\\S+))',
+    ].join('|'), 'gi')
+    void 0
 
     let match: RegExpExecArray | null
     const consumed: Array<[number, number]> = []
 
     while ((match = tokenRegex.exec(groupClean)) !== null) {
       consumed.push([match.index, match.index + match[0].length])
+      process.stderr.write('PARSE match=[' + match[0] + '] g1=' + match[1] + ' g5=' + match[5] + '\n')
+
       let field: string, op: Op, rawValue: string
 
       if (match[1] != null) {
         field = match[1].toLowerCase()
+        const isNegated = /\bNOT\s+IN\b/i.test(match[0])
         validateField(field, match.index, consumed[consumed.length - 1][1], errors)
-        pushInToken(clause, field, match[2], true)
+        pushInToken(clause, field, match[2], isNegated)
         continue
       }
       if (match[3] != null) {

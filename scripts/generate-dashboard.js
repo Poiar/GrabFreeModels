@@ -74,9 +74,9 @@ for (const [role, ids] of Object.entries(rankings)) {
     const provider = id.split('/')[0];
     const isUsedUp = usedUpProviders.includes(provider);
     const style = isUsedUp ? " style='color:#999;text-decoration:line-through'" : '';
-    rows += `<tr${style}><td>${id}</td></tr>\n`;
+    rows += `<tr${style}><td>${i + 1}</td><td>${id}</td></tr>\n`;
   }
-  roleTables += `<h3>${role}</h3><table border='1' cellpadding='4'><tr><th>Model ID</th></tr>${rows}</table>\n`;
+  roleTables += `<h3>${role} (${ids.length})</h3><table border='1' cellpadding='4'><tr><th>#</th><th>Model ID</th></tr>${rows}</table>\n`;
 }
 
 // Provider usage section

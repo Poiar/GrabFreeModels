@@ -49,6 +49,9 @@ node_modules/
 vue-model-manager/dist/
 tmp/
 
+# Trace/debug scripts
+vue-model-manager/trace-*.mjs
+
 # Python
 __pycache__/
 *.pyc

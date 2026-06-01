@@ -32,3 +32,18 @@ jobs:
 
       - name: Validate available-models.json schema
         run: node tests/validate-models.js
+
+      - name: Check supports_tools coverage
+        run: |
+          MISSING=$(node -e "
+            const json = JSON.parse(require('fs').readFileSync('available-models.json','utf8'));
+            const missing = json.models.filter(m => m.is_free && m.status.result === 'working' && !('supports_tools' in m));
+            if (missing.length > 0) {
+              console.error('Missing supports_tools on ' + missing.length + ' working free models:');
+              missing.forEach(m => console.error('  ' + m.id));
+              process.exit(1);
+            } else {
+              console.log('All working free models have supports_tools ✓');
+            }
+          ")
+        continue-on-error: true

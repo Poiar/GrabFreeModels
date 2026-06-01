@@ -61,9 +61,24 @@ for (const role of Object.keys(rankings)) {
     if (id.startsWith('opencode/')) {
       fail(`opencode/ model in ${role} ranking: ${id} — cannot be validated, should be excluded`);
     }
-    const provider = extractProvider(id);
+    const provider = id.indexOf('/') === -1 ? id : id.substring(0, id.indexOf('/'));
     if (usedUpProviders.includes(provider)) {
       fail(`Model '${id}' is from used-up provider '${provider}' in ${role}`);
+    }
+    const model = json.models.find(m => m.id === id);
+    if (model) {
+      if (model._removed) {
+        fail(`Model '${id}' is removed in ${role}`);
+      }
+      if (!model.is_free) {
+        fail(`Model '${id}' is not free (is_free=false) in ${role}`);
+      }
+      if (model.status.result === 'broken') {
+        fail(`Model '${id}' has status 'broken' in ${role}`);
+      }
+      if (model.status.result === 'rate_limited') {
+        fail(`Model '${id}' has status 'rate_limited' in ${role}`);
+      }
     }
   }
 
