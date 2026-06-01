@@ -254,6 +254,25 @@ const jql = useJqlFilter(
 )
 const { pushHistory } = useSavedSearches()
 
+// URL sync for shareable searches
+function readQueryFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search)
+    const q = params.get('q')
+    if (q) jql.rawQuery.value = decodeURIComponent(q)
+  } catch { /* */ }
+}
+function writeQueryToUrl(q: string) {
+  try {
+    const url = new URL(window.location.href)
+    if (q.trim()) url.searchParams.set('q', encodeURIComponent(q.trim()))
+    else url.searchParams.delete('q')
+    window.history.replaceState(null, '', url.toString())
+  } catch { /* */ }
+}
+onMounted(() => readQueryFromUrl())
+watch(() => jql.rawQuery.value, (q) => writeQueryToUrl(q))
+
 // Push to history when user pauses typing or presses Enter
 let historyTimer: ReturnType<typeof setTimeout> | null = null
 watch(() => jql.rawQuery.value, (q) => {
@@ -344,7 +363,13 @@ function exportCsv() {
     m.is_free ? 'yes' : 'no', m.best_for.join('; '), m.notes,
     m.status.detail, m.status.tested || '', m.last_success || '', m._removed ? 'yes' : 'no', m._removedDate || '',
   ].map(escape).join(','))
-  const csv = [header.join(','), ...rows].join('\n')
+  const meta = [
+    `# exported_at: ${new Date().toISOString()}`,
+    `# count: ${sortedModels.value.length}/${store.allModels.length}`,
+    `# query: ${jql.rawQuery.value || '(none)'}`,
+    `# sort: ${sortBy.value} ${sortDesc.value ? 'DESC' : 'ASC'}`,
+  ]
+  const csv = [...meta, header.join(','), ...rows].join('\n')
   download(csv, 'models.csv', 'text/csv')
 }
 
@@ -357,7 +382,17 @@ function exportJson() {
     status_tested: m.status.tested, last_success: m.last_success || null,
     _removed: m._removed || false, _removedDate: m._removedDate || null,
   }))
-  const json = JSON.stringify({ exported_at: new Date().toISOString(), count: data.length, models: data }, null, 2)
+  const json = JSON.stringify({
+    _meta: {
+      exported_at: new Date().toISOString(),
+      count: data.length,
+      total_models: store.allModels.length,
+      jql_query: jql.rawQuery.value || null,
+      sort_by: sortBy.value,
+      sort_desc: sortDesc.value,
+    },
+    models: data,
+  }, null, 2)
   download(json, 'models.json', 'application/json')
 }
 

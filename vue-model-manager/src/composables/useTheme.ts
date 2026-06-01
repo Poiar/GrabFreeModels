@@ -33,8 +33,17 @@ export function useTheme() {
     mql.addEventListener('change', onSystemThemeChange)
   })
 
+  // Sync theme changes across tabs
+  function onStorage(e: StorageEvent) {
+    if (e.key === THEME_KEY && (e.newValue === 'dark' || e.newValue === 'light')) {
+      current.value = e.newValue
+    }
+  }
+  window.addEventListener('storage', onStorage)
+
   onUnmounted(() => {
     mql?.removeEventListener('change', onSystemThemeChange)
+    window.removeEventListener('storage', onStorage)
   })
 
   function onSystemThemeChange() {

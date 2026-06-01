@@ -62,3 +62,53 @@ function onOutside(e: MouseEvent) { if (rootRef.value && !rootRef.value.contains
 onMounted(() => document.addEventListener('mousedown', onOutside))
 onUnmounted(() => document.removeEventListener('mousedown', onOutside))
 </script>
+
+<style scoped>
+.ms { position: relative; min-width: 120px; }
+.ms-trigger {
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 4px 8px; cursor: pointer; min-height: 32px;
+}
+.ms-trigger:hover { border-color: var(--accent); }
+.ms-has-val { padding-bottom: 2px; }
+.ms-pill {
+  background: rgba(88,166,255,0.15); color: var(--accent);
+  padding: 1px 6px; border-radius: 3px; font-size: 0.7rem;
+}
+.ms-count { font-size: 0.7rem; color: var(--text-muted); }
+.ms-ph { font-size: 0.8rem; color: var(--text-muted); }
+.ms-arrow { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); transition: transform 0.15s; flex-shrink: 0; }
+.ms-arrow-up { transform: rotate(180deg); }
+.ms-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; min-width: 180px;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow); z-index: 50;
+}
+.ms-search-wrap { padding: 6px; border-bottom: 1px solid var(--border); }
+.ms-search {
+  width: 100%; background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text); padding: 4px 8px; border-radius: 3px; font-size: 0.8rem; outline: none;
+}
+.ms-search:focus { border-color: var(--accent); }
+.ms-list { max-height: 200px; overflow-y: auto; padding: 4px; }
+.ms-opt {
+  display: flex; align-items: center; gap: 6px; padding: 4px 8px;
+  border-radius: 3px; cursor: pointer; font-size: 0.8rem;
+}
+.ms-opt:hover { background: var(--bg-hover); }
+.ms-opt.selected { background: rgba(88,166,255,0.1); }
+.ms-cb { accent-color: var(--accent); flex-shrink: 0; }
+.ms-opt-label { color: var(--text); }
+.ms-empty { padding: 8px; text-align: center; font-size: 0.75rem; color: var(--text-muted); }
+.ms-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 8px; border-top: 1px solid var(--border);
+}
+.ms-sel-count { font-size: 0.7rem; color: var(--text-dim); }
+.ms-clear {
+  background: none; border: 1px solid var(--border); color: var(--text-dim);
+  padding: 1px 6px; border-radius: 3px; font-size: 0.7rem; cursor: pointer;
+}
+.ms-clear:hover { color: var(--text); border-color: var(--text-dim); }
+</style>

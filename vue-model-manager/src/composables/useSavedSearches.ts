@@ -9,7 +9,6 @@ export interface SavedSearch {
 
 const STORAGE_KEY = 'gfm-saved-searches'
 const HISTORY_KEY = 'gfm-search-history'
-const MAX_HISTORY = 20
 
 function loadJson<T>(key: string, fallback: T): T {
   try {
@@ -42,17 +41,11 @@ export function useSavedSearches() {
     saved.value = saved.value.filter(s => s.id !== id)
   }
 
-  function rename(id: string, name: string) {
-    const s = saved.value.find(s => s.id === id)
-    if (s) s.name = name
-  }
-
   function pushHistory(query: string) {
     if (!query.trim()) return
-    // Deduplicate: remove existing same query
     history.value = history.value.filter(h => h.query !== query)
     history.value.unshift({ id: crypto.randomUUID(), name: '', query, ts: Date.now() })
-    if (history.value.length > MAX_HISTORY) history.value.length = MAX_HISTORY
+    if (history.value.length > 20) history.value.length = 20
   }
 
   function clearHistory() {
@@ -62,5 +55,5 @@ export function useSavedSearches() {
   const hasSaved = computed(() => saved.value.length > 0)
   const hasHistory = computed(() => history.value.length > 0)
 
-  return { saved, history, hasSaved, hasHistory, save, remove, rename, pushHistory, clearHistory }
+  return { saved, history, hasSaved, hasHistory, save, remove, pushHistory, clearHistory }
 }
