@@ -45,7 +45,7 @@
         <thead>
           <tr>
             <th class="sortable" :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
-              Rank <span class="sort-indicator">{{ sortBy === 'rank' ? (sortDesc ? '↓' : '↑') : '⇅' }}</span>
+              Rankings <span class="sort-indicator">{{ sortBy === 'rank' ? (sortDesc ? '↓' : '↑') : '⇅' }}</span>
             </th>
             <th class="sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
               Model <span class="sort-indicator">{{ sortBy === 'name' ? (sortDesc ? '↓' : '↑') : '⇅' }}</span>
@@ -61,13 +61,21 @@
           </tr>
         </thead>
         <tbody>
-           <tr v-for="item in pagedItems" :key="item.modelId + '|' + item.role">
+            <tr v-for="item in pagedItems" :key="item.modelId">
              <td>
-                <span class="rank-pill" :class="{ 'rank-top': item.rank <= 3 }" :data-role="item.role">
-                  <span class="rank-num">#{{ item.rank }}</span>
-                  <span class="rank-role">{{ formatRole(item.role) }}</span>
-                </span>
-             </td>
+                <div class="rank-pills">
+                  <span
+                    v-for="r in item.rankings"
+                    :key="r.role"
+                    class="rank-pill"
+                    :class="{ 'rank-top': r.rank <= 3 }"
+                    :data-role="r.role"
+                  >
+                    <span class="rank-num">#{{ r.rank }}</span>
+                    <span class="rank-role">{{ formatRole(r.role) }}</span>
+                  </span>
+                </div>
+              </td>
             <td>
               <div class="model-name" :title="item.model?.name ?? item.modelId">{{ item.model?.name ?? item.modelId }}</div>
               <div class="model-id-wrap">
@@ -200,13 +208,26 @@ function fmtContext(n: number): string {
   return n >= 1048576 ? (n / 1048576).toFixed(1) + 'M' : Math.round(n / 1000) + 'K'
 }
 
-const flatRankings = computed(() => {
-  const list: { modelId: string; role: string; rank: number }[] = []
+interface ModelRanking {
+  modelId: string
+  rankings: { role: string; rank: number }[]
+  bestRank: number
+}
+
+const flatRankings = computed<ModelRanking[]>(() => {
+  const map = new Map<string, { role: string; rank: number }[]>()
   for (const role of ROLES) {
     const arr = store.roleRankings[role] ?? []
     for (let i = 0; i < arr.length; i++) {
-      list.push({ modelId: arr[i], role, rank: i + 1 })
+      const modelId = arr[i]
+      if (!map.has(modelId)) map.set(modelId, [])
+      map.get(modelId)!.push({ role, rank: i + 1 })
     }
+  }
+  const list: ModelRanking[] = []
+  for (const [modelId, rankings] of map) {
+    rankings.sort((a, b) => a.rank - b.rank)
+    list.push({ modelId, rankings, bestRank: rankings[0].rank })
   }
   return list
 })
@@ -222,14 +243,14 @@ const statusOptions = [
 
 const filtered = computed(() => {
   const term = searchTerm.value.toLowerCase()
-  return flatRankings.value.filter(item => {
-    const model = store.getModelById(item.modelId)
+  return flatRankings.value.filter(mr => {
+    const model = store.getModelById(mr.modelId)
     const result = model?.status?.result
     if (statusFilter.value === 'working' && result !== 'working') return false
     if (statusFilter.value === 'untested' && result !== 'untested') return false
     if (!term) return true
     const name = model?.name?.toLowerCase() ?? ''
-    return name.includes(term) || item.modelId.toLowerCase().includes(term)
+    return name.includes(term) || mr.modelId.toLowerCase().includes(term)
   })
 })
 
@@ -250,16 +271,17 @@ function setSort(field: string) {
 }
 
 const sortedItems = computed(() => {
-  const arr = filtered.value.map(item => ({
-    ...item,
-    model: store.getModelById(item.modelId),
+  const arr = filtered.value.map(mr => ({
+    ...mr,
+    model: store.getModelById(mr.modelId),
   }))
   arr.sort((a, b) => {
     let cmp = 0
     switch (sortBy.value) {
       case 'rank':
         cmp = (STATUS_ORDER[a.model?.status?.result ?? ''] ?? 5) - (STATUS_ORDER[b.model?.status?.result ?? ''] ?? 5)
-        if (cmp === 0) cmp = RANK_SCORE(a) - RANK_SCORE(b)
+        if (cmp === 0) cmp = a.bestRank - b.bestRank
+        if (cmp === 0) cmp = BEST_ROLE_ORDER(a) - BEST_ROLE_ORDER(b)
         break
       case 'name':
         cmp = (a.model?.name ?? '').localeCompare(b.model?.name ?? '')
@@ -278,8 +300,13 @@ const sortedItems = computed(() => {
   return arr
 })
 
-function RANK_SCORE(item: { modelId: string; role: string; rank: number }) {
-  return item.rank * 100 + (ROLE_ORDER[item.role] ?? 99)
+function BEST_ROLE_ORDER(item: ModelRanking): number {
+  let best = 99
+  for (const r of item.rankings) {
+    const o = ROLE_ORDER[r.role] ?? 99
+    if (o < best) best = o
+  }
+  return best
 }
 
 const rankedIds = computed(() => {
@@ -405,6 +432,12 @@ const pagedItems = computed(() => {
   white-space: nowrap;
   margin-left: auto;
   font-weight: 500;
+}
+
+.rank-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .rank-pill {

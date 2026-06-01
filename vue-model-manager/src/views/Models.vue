@@ -44,7 +44,7 @@
           type="text"
           class="jql-input"
           :class="{ 'jql-input-invalid': jql.validationErrors.value.length > 0 }"
-          placeholder='e.g. provider:openrouter status:working context:>100000 free LLM ORDER BY context DESC'
+          placeholder='Try: provider:openrouter status:working context:>100000 ORDER BY context DESC'
           spellcheck="false"
           autocomplete="off"
           @input="jql.onInput"
