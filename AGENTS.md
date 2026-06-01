@@ -32,6 +32,7 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `cleanup-snapshots` — rotate old model snapshots
 - `metrics-exporter` — Prometheus metrics endpoint / service installer
 - `check-rankings` — sanity-check `_role_rankings` against model IDs
+- `backfill-metadata` — backfill `supports_tools` and populate `stable` ranking
 
 ## Lean Files Policy
 

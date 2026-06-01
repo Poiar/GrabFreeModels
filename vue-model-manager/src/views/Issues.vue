@@ -34,7 +34,7 @@
     <div v-else-if="filteredIssues.length === 0" class="card">
       <div class="empty-state-inner" style="padding: 24px;">
         <div class="empty-state-icon" style="font-size: 2rem;">🔍</div>
-        <p>No issues match the selected severity filter.</p>
+        <p>No issues match the selected severity filters.</p>
       </div>
     </div>
 
