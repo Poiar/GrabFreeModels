@@ -303,14 +303,14 @@ export function modelMatches(m: Model, expr: JqlExpression, free: string): boole
 
 function matchToken(m: Model, t: FilterToken): boolean {
   if (t.field === '_text') return true
-  const neg = t.op === '!=' || t.op === 'NOT IN'
+  const neg = t.op === '!='
   let r: boolean
   const rv = t.rawValue.toLowerCase()
   switch (t.field) {
     case 'provider': r = m.provider.toLowerCase() === rv; break
     case 'status':
-      if (t.op === 'IN') { r = t.values.some(v => m.status.result.toLowerCase() === v.toLowerCase()); break }
-      if (t.op === 'NOT IN') { r = !t.values.some(v => m.status.result.toLowerCase() === v.toLowerCase()); break }
+      if (t.op === 'IN') { if (t.values.length > 0) { const v = m.status.result.toLowerCase(); r = t.values.some(x => x.toLowerCase() === v) } break }
+      if (t.op === 'NOT IN') { if (t.values.length > 0) { const v = m.status.result.toLowerCase(); r = !t.values.some(x => x.toLowerCase() === v) } break }
       r = m.status.result.toLowerCase() === rv; break
     case 'type': r = rv === 'free' ? m.is_free : rv === 'paid' ? !m.is_free : false; break
     case 'context':

@@ -31,7 +31,8 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `health-badge` — generate Shields.io health badge JSON
 - `cleanup-snapshots` — rotate old model snapshots
 - `metrics-exporter` — Prometheus metrics endpoint / service installer
-- `check-rankings` — sanity-check `_role_rankings` against model IDs
+- `rank-models` — rebuild `_role-rankings` using deterministic scoring algorithm
+- `check-rankings` — sanity-check `_role_rankings` (existence, eligibility, no duplicates)
 - `backfill-metadata` — backfill `supports_tools` and populate `stable` ranking
 
 ## Lean Files Policy

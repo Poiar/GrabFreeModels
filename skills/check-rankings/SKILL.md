@@ -5,7 +5,14 @@ description: Use for sanity-checking _role_rankings against the models array. Tr
 
 # Check Rankings
 
-Verifies that every model ID in `_role_rankings` exists in the models array, checks for duplicates, and flags models from providers listed in `_provider_usage` as used-up.
+Validates `_role_rankings` integrity:
+- All IDs exist in the models array
+- No duplicate entries per role
+- No `opencode/` models (can't be validated)
+- No models from used-up providers (current month)
+- All models are free (`is_free=true`), not removed, status=`working`, and `supports_tools=true`
+
+See `rank-models` skill for the ranking algorithm and eligibility criteria.
 
 ## Run
 
