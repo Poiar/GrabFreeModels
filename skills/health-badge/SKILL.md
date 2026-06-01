@@ -15,4 +15,8 @@ node scripts/health-badge.js
 
 ## Output
 
-- `badge/health.json` — schemaVersion 1 badge with `label: "free models"`, message like `"85% working"`, color based on percentage (green ≥80%, yellow ≥50%, red <50%)
+- `badge/health.json` — schemaVersion 1 badge with `label: "free models"`, message like `"85% working"`. Color thresholds are defined in `scripts/health-badge.js` (source of truth).
+
+## See Also
+
+- `generate-dashboard` — HTML dashboard of the same provider health data

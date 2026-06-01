@@ -19,11 +19,12 @@ None — the script reads webhook URLs from the `WEBHOOK_URL` env var, or a JSON
 
 ## Pipeline Steps
 
+0. Saves `available-models.json` to `snapshots/available-models-YYYY-MM-DD.json` (gitignored)
 1. `validate-free-models.js --apply` — re-tests all models, updates statuses
 2. `check-rankings.js` — sanity-checks `_role_rankings` against model IDs
 3. `model-summary.js` — writes `nightly-summary.log`
 4. `git add available-models.json` → commit → push (only if changes detected)
-5. If health drops below 70%, auto-rolls back to previous state
+5. Auto-rollback: if the working model count decreased vs the snapshot, or (with no snapshot) health is below 70%, restores `available-models.json` from the snapshot and commits the rollback
 6. Sends webhook alerts for recovered models
 
 ## Scheduled Task

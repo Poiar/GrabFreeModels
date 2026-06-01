@@ -33,7 +33,19 @@ Adds new models with `status: { result: "untested" }`.
 ### Step 3: Test
 
 ```bash
-node scripts/validate-free-models.js --models "openrouter/provider/model:free" --apply
+node scripts/validate-free-models.js --apply
 ```
+
+This re-tests all models with `status.result === "untested"` (i.e. newly added models from Step 2).
+
+### Step 4: Snapshot (recommended)
+
+Save a pre-validation copy so you can roll back if validation goes wrong:
+
+```bash
+Copy-Item available-models.json available-models.snapshot.json
+```
+
+If needed, restore with `Copy-Item available-models.snapshot.json available-models.json`.
 
 Provider details in `docs/provider-details.md`. Edge cases: Gemma models returned as free but always 429 (track as `rate_limited`).

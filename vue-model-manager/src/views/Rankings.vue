@@ -2,16 +2,19 @@
   <div>
     <div class="page-header">
       <h2>Rankings</h2>
-      <p>Role-specific ranked lists of working, non-rate-limited free models</p>
+      <p>Role-specific ranked lists of working, non-rate-limited free models. Each model appears once with all its role rankings shown as pills.</p>
     </div>
 
     <div class="filters">
-      <input
-        v-model.trim="searchTerm"
-        type="text"
-        placeholder="Search models…"
-        class="search-input"
-      />
+      <div class="search-wrap">
+        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input
+          v-model.trim="searchTerm"
+          type="text"
+          placeholder="Search models…"
+          class="search-input"
+        />
+      </div>
       <div class="status-filter">
         <button
           v-for="opt in statusOptions"
@@ -22,58 +25,67 @@
           {{ opt.label }}
         </button>
       </div>
-      <select v-model="sortBy">
-        <option value="rank">Sort: Rank</option>
-        <option value="role">Sort: Role</option>
-        <option value="name">Sort: Name</option>
-        <option value="provider">Sort: Provider</option>
-        <option value="context">Sort: Context</option>
-      </select>
-      <button class="sort-dir-btn" @click="sortDesc = !sortDesc" :title="sortDesc ? 'Descending' : 'Ascending'">
-        {{ sortDesc ? '↓' : '↑' }}
-      </button>
+      <div class="sort-controls">
+        <select v-model="sortBy" class="sort-select">
+          <option value="rank">Sort: Rank</option>
+          <option value="name">Sort: Name</option>
+          <option value="provider">Sort: Provider</option>
+          <option value="context">Sort: Context</option>
+        </select>
+        <button class="sort-dir-btn" @click="sortDesc = !sortDesc" :title="sortDesc ? 'Descending' : 'Ascending'">
+          <svg v-if="sortDesc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+          <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </button>
+      </div>
+      <span class="result-count">{{ sortedItems.length }} result{{ sortedItems.length !== 1 ? 's' : '' }}</span>
     </div>
 
     <div class="table-wrap">
       <table v-if="sortedItems.length > 0">
         <thead>
           <tr>
-            <th :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
-              Rank
+            <th class="sortable" :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
+              Rankings <SortArrow :active="sortBy === 'rank'" :desc="sortDesc" />
             </th>
-            <th :class="{ active: sortBy === 'role' }" @click="setSort('role')">
-              Role
+            <th class="sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
+              Model <SortArrow :active="sortBy === 'name'" :desc="sortDesc" />
             </th>
-            <th :class="{ active: sortBy === 'name' }" @click="setSort('name')">
-              Model
-            </th>
-            <th :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
-              Provider
+            <th class="sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
+              Provider <SortArrow :active="sortBy === 'provider'" :desc="sortDesc" />
             </th>
             <th>Status</th>
-            <th :class="{ active: sortBy === 'context' }" @click="setSort('context')">
-              Context
+            <th class="sortable" :class="{ active: sortBy === 'context' }" @click="setSort('context')">
+              Context <SortArrow :active="sortBy === 'context'" :desc="sortDesc" />
             </th>
             <th>Tags</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in pagedItems" :key="item.modelId + '|' + item.role">
+          <tr v-for="item in pagedItems" :key="item.modelId">
             <td>
-              <span class="rank-num">#{{ item.rank }}</span>
+              <div class="rank-pills">
+                <span
+                  v-for="r in item.rankings"
+                  :key="r.role"
+                  class="rank-pill"
+                  :class="{ 'rank-top': r.rank <= 3 }"
+                  :data-role="r.role"
+                  :title="formatRole(r.role) + ' rank #' + r.rank"
+                >
+                  <span class="rp-num">#{{ r.rank }}</span>
+                  <span class="rp-role">{{ formatRole(r.role) }}</span>
+                </span>
+              </div>
             </td>
             <td>
-              <span class="role-badge" :data-role="item.role">{{ formatRole(item.role) }}</span>
+              <div class="model-name" :title="item.model?.name ?? item.modelId">{{ item.model?.name ?? item.modelId }}</div>
+              <div class="model-id-wrap">
+                <span class="model-id" :title="item.modelId">{{ item.modelId }}</span>
+                <button class="copy-btn" :class="{ copied: copiedIds.has(item.modelId) }" :title="copiedIds.has(item.modelId) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(item.modelId)">
+                  {{ copiedIds.has(item.modelId) ? '✓' : '📋' }}
+                </button>
+              </div>
             </td>
-             <td>
-               <div class="model-name" :title="item.model?.name ?? item.modelId">{{ item.model?.name ?? item.modelId }}</div>
-               <div class="model-id-wrap">
-                 <span class="model-id" :title="item.modelId">{{ item.modelId }}</span>
-                 <button class="copy-btn" :class="{ copied: copiedIds.has(item.modelId) }" :title="copiedIds.has(item.modelId) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(item.modelId)">
-                   {{ copiedIds.has(item.modelId) ? '✓' : '📋' }}
-                 </button>
-               </div>
-              </td>
             <td>{{ item.model?.provider ?? '' }}</td>
             <td>
               <span class="badge" :class="`badge-${item.model?.status?.result ?? ''}`">
@@ -81,7 +93,7 @@
               </span>
             </td>
             <td>
-              <span class="context-len" v-if="item.model?.context_length">
+              <span class="context-badge" v-if="item.model?.context_length">
                 {{ fmtContext(item.model.context_length) }}
               </span>
             </td>
@@ -99,6 +111,7 @@
         <div class="empty-state-inner">
           <div class="empty-state-icon">🔍</div>
           <p>No models match the current filters</p>
+          <button class="clear-btn" @click="searchTerm = ''; statusFilter = 'all'">Clear filters</button>
         </div>
       </div>
     </div>
@@ -106,6 +119,7 @@
     <!-- Working but unranked -->
     <div v-if="unrankedWorking.length > 0" class="unranked-section">
       <h3 class="section-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>
         Working but Unranked
         <span class="unranked-count">{{ unrankedWorking.length }} model{{ unrankedWorking.length !== 1 ? 's' : '' }}</span>
       </h3>
@@ -129,15 +143,23 @@
     </div>
 
     <div class="pagination" v-if="sortedItems.length > 0 && totalPages > 1">
-      <button :disabled="page === 1" @click="page = 1">«</button>
-      <button :disabled="page === 1" @click="page--">‹</button>
-      <span class="page-info">{{ page }} / {{ totalPages }} ({{ sortedItems.length }} rows)</span>
-      <button :disabled="page === totalPages" @click="page++">›</button>
-      <button :disabled="page === totalPages" @click="page = totalPages">»</button>
-      <select v-model.number="perPage" class="per-page-select">
-        <option :value="10">10</option>
-        <option :value="25">25</option>
-        <option :value="50">50</option>
+      <button class="pg-btn" :disabled="page === 1" @click="page = 1" title="First">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+      </button>
+      <button class="pg-btn" :disabled="page === 1" @click="page--" title="Previous">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="pg-info">{{ page }} / {{ totalPages }} <span class="pg-total">({{ sortedItems.length }} rows)</span></span>
+      <button class="pg-btn" :disabled="page === totalPages" @click="page++" title="Next">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="pg-btn" :disabled="page === totalPages" @click="page = totalPages" title="Last">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+      </button>
+      <select v-model.number="perPage" class="pg-per-page">
+        <option :value="10">10 / page</option>
+        <option :value="25">25 / page</option>
+        <option :value="50">50 / page</option>
         <option :value="0">All</option>
       </select>
     </div>
@@ -145,8 +167,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, reactive } from 'vue'
+import { ref, computed, watch, reactive, h, defineComponent } from 'vue'
 import { useModelsStore } from '@/store/models'
+
+const SortArrow = defineComponent({
+  props: { active: Boolean, desc: Boolean },
+  setup(props) {
+    return () => h('span', { class: ['sort-arrow', { active: props.active }] },
+      props.active ? (props.desc ? ' ↓' : ' ↑') : ' ⇅'
+    )
+  }
+})
 
 const store = useModelsStore()
 const copiedIds = reactive(new Set<string>())
@@ -167,9 +198,7 @@ async function handleCopy(id: string) {
   }
   copiedIds.add(id)
   if (copyTimer) clearTimeout(copyTimer)
-  copyTimer = setTimeout(() => {
-    copiedIds.delete(id)
-  }, 1500)
+  copyTimer = setTimeout(() => { copiedIds.delete(id) }, 1500)
 }
 
 const ROLES = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
@@ -189,19 +218,30 @@ function fmtContext(n: number): string {
   return n >= 1048576 ? (n / 1048576).toFixed(1) + 'M' : Math.round(n / 1000) + 'K'
 }
 
-// ── Flat list preserving role + per-role rank ──
-const flatRankings = computed(() => {
-  const list: { modelId: string; role: string; rank: number }[] = []
+interface ModelRanking {
+  modelId: string
+  rankings: { role: string; rank: number }[]
+  bestRank: number
+}
+
+const flatRankings = computed<ModelRanking[]>(() => {
+  const map = new Map<string, { role: string; rank: number }[]>()
   for (const role of ROLES) {
     const arr = store.roleRankings[role] ?? []
     for (let i = 0; i < arr.length; i++) {
-      list.push({ modelId: arr[i], role, rank: i + 1 })
+      const modelId = arr[i]
+      if (!map.has(modelId)) map.set(modelId, [])
+      map.get(modelId)!.push({ role, rank: i + 1 })
     }
+  }
+  const list: ModelRanking[] = []
+  for (const [modelId, rankings] of map) {
+    rankings.sort((a, b) => a.rank - b.rank)
+    list.push({ modelId, rankings, bestRank: rankings[0].rank })
   }
   return list
 })
 
-// ── Filters ──
 const searchTerm = ref('')
 const statusFilter = ref<'all' | 'working' | 'untested'>('all')
 
@@ -213,16 +253,14 @@ const statusOptions = [
 
 const filtered = computed(() => {
   const term = searchTerm.value.toLowerCase()
-  return flatRankings.value.filter(item => {
-    const model = store.getModelById(item.modelId)
-    // Status filter
+  return flatRankings.value.filter(mr => {
+    const model = store.getModelById(mr.modelId)
     const result = model?.status?.result
     if (statusFilter.value === 'working' && result !== 'working') return false
     if (statusFilter.value === 'untested' && result !== 'untested') return false
-    // Search
     if (!term) return true
     const name = model?.name?.toLowerCase() ?? ''
-    return name.includes(term) || item.modelId.toLowerCase().includes(term)
+    return name.includes(term) || mr.modelId.toLowerCase().includes(term)
   })
 })
 
@@ -242,21 +280,27 @@ function setSort(field: string) {
   }
 }
 
+function bestRoleOrder(item: ModelRanking): number {
+  let best = 99
+  for (const r of item.rankings) {
+    const o = ROLE_ORDER[r.role] ?? 99
+    if (o < best) best = o
+  }
+  return best
+}
+
 const sortedItems = computed(() => {
-  const arr = filtered.value.map(item => ({
-    ...item,
-    model: store.getModelById(item.modelId),
+  const arr = filtered.value.map(mr => ({
+    ...mr,
+    model: store.getModelById(mr.modelId),
   }))
   arr.sort((a, b) => {
     let cmp = 0
     switch (sortBy.value) {
       case 'rank':
         cmp = (STATUS_ORDER[a.model?.status?.result ?? ''] ?? 5) - (STATUS_ORDER[b.model?.status?.result ?? ''] ?? 5)
-        if (cmp === 0) cmp = RANK_SCORE(a) - RANK_SCORE(b)
-        break
-      case 'role':
-        cmp = (ROLE_ORDER[a.role] ?? 99) - (ROLE_ORDER[b.role] ?? 99)
-        if (cmp === 0) cmp = a.rank - b.rank
+        if (cmp === 0) cmp = a.bestRank - b.bestRank
+        if (cmp === 0) cmp = bestRoleOrder(a) - bestRoleOrder(b)
         break
       case 'name':
         cmp = (a.model?.name ?? '').localeCompare(b.model?.name ?? '')
@@ -275,11 +319,6 @@ const sortedItems = computed(() => {
   return arr
 })
 
-function RANK_SCORE(item: { modelId: string; role: string; rank: number }) {
-  return item.rank * 100 + (ROLE_ORDER[item.role] ?? 99)
-}
-
-// ── Working but unranked ──
 const rankedIds = computed(() => {
   const set = new Set<string>()
   for (const role of ROLES) {
@@ -292,7 +331,6 @@ const unrankedWorking = computed(() =>
   store.workingModels.filter(m => !rankedIds.value.has(m.id) && !store.isModelProviderUsedUp(m.id))
 )
 
-// ── Pagination ──
 const perPage = ref(25)
 const page = ref(1)
 
@@ -311,53 +349,56 @@ const pagedItems = computed(() => {
 </script>
 
 <style scoped>
-:deep(.model-name) {
-  max-width: 260px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* ── Filters bar ── */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-:deep(.model-id) {
-  max-width: 260px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 300px;
 }
 
-:deep(.model-id:hover) {
-  word-break: break-all;
-  white-space: normal;
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
 }
 
-.rank-num {
-  font-weight: 700;
+.search-input {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   color: var(--text);
-  font-size: 0.9rem;
+  padding: 7px 10px 7px 32px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.role-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(88,166,255,0.12);
 }
 
-.role-badge[data-role="model"]          { background: rgba(88,166,255,0.15); color: var(--accent); }
-.role-badge[data-role="build"]          { background: rgba(63,185,80,0.15);  color: var(--green); }
-.role-badge[data-role="general"]        { background: rgba(188,140,255,0.15); color: var(--purple); }
-.role-badge[data-role="small_model"]    { background: rgba(210,153,34,0.15); color: var(--orange); }
-.role-badge[data-role="explore"]        { background: rgba(57,210,192,0.15);  color: var(--cyan); }
-.role-badge[data-role="stable"]         { background: rgba(230,237,243,0.1);  color: var(--text-dim); }
+.search-input::placeholder {
+  color: var(--text-muted);
+}
 
 .status-filter {
   display: flex;
-  gap: 4px;
-  background: var(--bg-elevated);
+  gap: 0;
+  background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 3px;
@@ -367,10 +408,10 @@ const pagedItems = computed(() => {
   background: transparent;
   border: none;
   color: var(--text-dim);
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 3px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -381,9 +422,30 @@ const pagedItems = computed(() => {
 }
 
 .status-btn.active {
-  background: var(--bg-card);
+  background: var(--accent-subtle, rgba(88,166,255,0.12));
   color: var(--accent);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sort-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.sort-select:focus {
+  border-color: var(--accent);
 }
 
 .sort-dir-btn {
@@ -394,7 +456,6 @@ const pagedItems = computed(() => {
   height: 32px;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 0.9rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -406,32 +467,283 @@ const pagedItems = computed(() => {
   border-color: var(--accent);
 }
 
-.empty-state {
-  border-top: 1px solid var(--border);
+.result-count {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  margin-left: auto;
+  font-weight: 500;
 }
 
+/* ── Table ── */
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+thead th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  user-select: none;
+}
+
+thead th.sortable {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+thead th.sortable:hover {
+  color: var(--text);
+}
+
+thead th.active {
+  color: var(--accent);
+}
+
+.sort-arrow {
+  font-size: 0.65rem;
+  opacity: 0.3;
+  font-weight: 400;
+}
+
+.sort-arrow.active {
+  opacity: 1;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border-subtle, rgba(255,255,255,0.04));
+  transition: background 0.1s;
+}
+
+tbody tr:hover {
+  background: var(--bg-hover, rgba(255,255,255,0.02));
+}
+
+tbody td {
+  padding: 8px 12px;
+  vertical-align: top;
+}
+
+/* ── Rank pills ── */
+.rank-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 120px;
+}
+
+.rank-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--radius-full, 999px);
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.rank-pill .rp-num {
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-pill .rp-role {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.6rem;
+  opacity: 0.85;
+}
+
+/* Role colors */
+.rank-pill[data-role="model"]       { background: rgba(88,166,255,0.12); color: var(--accent); }
+.rank-pill[data-role="build"]       { background: rgba(63,185,80,0.12);  color: var(--green); }
+.rank-pill[data-role="general"]     { background: rgba(188,140,255,0.12); color: var(--purple); }
+.rank-pill[data-role="small_model"] { background: rgba(210,153,34,0.12); color: var(--orange); }
+.rank-pill[data-role="explore"]     { background: rgba(57,210,192,0.12);  color: var(--cyan); }
+.rank-pill[data-role="stable"]      { background: rgba(230,237,243,0.06); color: var(--text-dim); }
+
+/* Top 3 highlight */
+.rank-pill.rank-top[data-role="model"]       { background: rgba(88,166,255,0.22); box-shadow: 0 0 0 1px rgba(88,166,255,0.2); }
+.rank-pill.rank-top[data-role="build"]       { background: rgba(63,185,80,0.22);  box-shadow: 0 0 0 1px rgba(63,185,80,0.2); }
+.rank-pill.rank-top[data-role="general"]     { background: rgba(188,140,255,0.22); box-shadow: 0 0 0 1px rgba(188,140,255,0.2); }
+.rank-pill.rank-top[data-role="small_model"] { background: rgba(210,153,34,0.22); box-shadow: 0 0 0 1px rgba(210,153,34,0.2); }
+.rank-pill.rank-top[data-role="explore"]     { background: rgba(57,210,192,0.22);  box-shadow: 0 0 0 1px rgba(57,210,192,0.2); }
+
+/* ── Model cell ── */
+.model-name {
+  font-weight: 600;
+  color: var(--text);
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.model-id-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.model-id {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-mono, monospace);
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 1px 3px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover {
+  color: var(--text);
+  background: var(--bg-hover, rgba(255,255,255,0.06));
+}
+
+.copy-btn.copied {
+  color: var(--green);
+}
+
+/* ── Badges ── */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-full, 999px);
+  font-size: 0.65rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-working      { background: rgba(63,185,80,0.12);  color: var(--green); }
+.badge-untested     { background: rgba(210,153,34,0.12); color: var(--orange); }
+.badge-rate_limited { background: rgba(248,81,73,0.12);  color: var(--red, #f85149); }
+.badge-broken       { background: rgba(248,81,73,0.12);  color: var(--red, #f85149); }
+.badge-paid         { background: rgba(230,237,243,0.06); color: var(--text-dim); }
+
+.context-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: var(--radius-full, 999px);
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: rgba(63,185,80,0.10);
+  color: var(--green);
+  white-space: nowrap;
+}
+
+.best-for-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  font-weight: 500;
+  background: rgba(230,237,243,0.06);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* ── Empty state ── */
+.empty-state {
+  padding: 48px 0;
+  text-align: center;
+}
+
+.empty-state-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.clear-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.clear-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Unranked section ── */
 .unranked-section {
-  margin-top: 32px;
+  margin-top: 36px;
   margin-bottom: 24px;
 }
 
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.section-title svg {
+  color: var(--orange);
+}
+
 .unranked-count {
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 400;
-  color: var(--text-dim);
-  margin-left: 8px;
+  color: var(--text-muted);
+  margin-left: 4px;
 }
 
 .unranked-hint {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  margin-bottom: 12px;
-  margin-top: -4px;
+  margin-bottom: 14px;
 }
 
 .unranked-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 10px;
 }
 
@@ -442,12 +754,17 @@ const pagedItems = computed(() => {
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
+  transition: border-color 0.15s;
+}
+
+.unranked-card:hover {
+  border-color: var(--border-focus, var(--accent));
 }
 
 .unranked-name {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;
@@ -468,20 +785,78 @@ const pagedItems = computed(() => {
 }
 
 .badge-provider {
-  background: rgba(88,166,255,0.15);
+  background: rgba(88,166,255,0.12);
   color: var(--accent);
   padding: 1px 6px;
   border-radius: 3px;
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 600;
 }
 
 .badge-context {
-  background: rgba(63,185,80,0.15);
+  background: rgba(63,185,80,0.12);
   color: var(--green);
   padding: 1px 6px;
   border-radius: 3px;
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 600;
+}
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.pg-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.pg-btn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--bg-hover, rgba(255,255,255,0.04));
+}
+
+.pg-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pg-info {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  padding: 0 8px;
+  font-weight: 500;
+}
+
+.pg-total {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.pg-per-page {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  outline: none;
+  cursor: pointer;
+  margin-left: 6px;
 }
 </style>

@@ -14,7 +14,9 @@ const path = require('path');
 
 const REPO_ROOT = path.join(__dirname, '..');
 const MODELS_FILE = path.join(REPO_ROOT, 'available-models.json');
-const PREV_COPY = path.join(REPO_ROOT, 'available-models.prev.json');
+const SNAPSHOT_DIR = path.join(REPO_ROOT, 'snapshots');
+if (!fs.existsSync(SNAPSHOT_DIR)) fs.mkdirSync(SNAPSHOT_DIR, { recursive: true });
+const PREV_COPY = path.join(SNAPSHOT_DIR, `available-models-${new Date().toISOString().slice(0, 10)}.json`);
 const SUMMARY_LOG = path.join(REPO_ROOT, 'nightly-summary.log');
 
 // Change to repo directory

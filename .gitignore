@@ -19,6 +19,10 @@ check-*.png
 # Backup files
 *.prev.json
 
+# Snapshots (keep directory via .gitkeep, ignore contents)
+snapshots/*
+!snapshots/.gitkeep
+
 # Badge output
 badge/
 

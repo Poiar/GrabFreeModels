@@ -19,4 +19,4 @@ Never read pre-computed snapshot fields from JSON. Compute from source arrays vi
 
 ## Notes
 
-Code examples in `docs/vue-examples.md`. CSS imports handled in this project via `src/vite-env.d.ts`.
+Code examples in `docs/vue-examples.md`.

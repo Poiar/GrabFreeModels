@@ -20,3 +20,8 @@ node scripts/generate-dashboard.js --output path/to/dashboard.html
 - Providers listed in `_provider_usage` for the current month are greyed out
 
 Open the generated file in any browser.
+
+## See Also
+
+- `health-badge` — generates a Shields.io badge from the same `available-models.json` data
+- `model-summary` — text-based overview of the same stats

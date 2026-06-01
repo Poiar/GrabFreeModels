@@ -27,4 +27,4 @@ If validation fails, immediately inspect `opencode.jsonc` and fix the syntax err
 - Malformed escape sequences
 - Unclosed brackets or braces
 
-> **Key sync**: `auth.json` is the source of truth (managed by Desktop app). When it changes, also update `opencode.jsonc`. See `test-model-auth` skill for details.
+> See `test-model-auth` skill for auth sync details.

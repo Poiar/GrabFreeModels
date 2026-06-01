@@ -78,7 +78,7 @@
       "status": {
         "tested": "2026-05-27",
         "result": "working",
-        "detail": "Fully functional. WARNING: returns reasoning and reasoning_details fields in assistant messages — causes schema validation errors in strict OpenAI-compatible clients."
+        "detail": "Fully functional. WARNING: returns reasoning and reasoning_details fields in assistant messages \u00e2\u20ac\u201d causes schema validation errors in strict OpenAI-compatible clients."
       }
     },
     {
@@ -233,7 +233,7 @@
       "status": {
         "tested": "2026-05-25",
         "result": "working",
-        "detail": "OpenCode Zen native model — functional through opencode gateway."
+        "detail": "OpenCode Zen native model \u00e2\u20ac\u201d functional through opencode gateway."
       }
     },
     {
@@ -251,7 +251,7 @@
       "status": {
         "tested": "2026-05-25",
         "result": "working",
-        "detail": "OpenCode Zen native model — functional through opencode gateway."
+        "detail": "OpenCode Zen native model \u00e2\u20ac\u201d functional through opencode gateway."
       }
     },
     {
@@ -270,7 +270,7 @@
       "status": {
         "tested": "2026-05-25",
         "result": "working",
-        "detail": "OpenCode Zen native model — functional through opencode gateway."
+        "detail": "OpenCode Zen native model \u00e2\u20ac\u201d functional through opencode gateway."
       }
     },
     {
@@ -310,7 +310,7 @@
       ],
       "notes": "Anthropic's most capable model.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -330,7 +330,7 @@
       ],
       "notes": "Best balance of capability and cost.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -351,7 +351,7 @@
       ],
       "notes": "Fastest Claude. Near-frontier performance at low cost.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -372,7 +372,7 @@
       ],
       "notes": "OpenAI's latest frontier model. Unifies Codex and GPT lines.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -393,7 +393,7 @@
       ],
       "notes": "Strong agentic and long-context performance. Adaptive reasoning.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -413,7 +413,7 @@
       ],
       "notes": "Frontier model with improved instruction adherence.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -434,7 +434,7 @@
       ],
       "notes": "OpenAI's reasoning model. Best for multi-step problems.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -455,7 +455,7 @@
       ],
       "notes": "Compact reasoning model. 99.5% on AIME with Python.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -476,7 +476,7 @@
       ],
       "notes": "1.6T total params, 49B active. Excellent price/performance.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -496,7 +496,7 @@
       ],
       "notes": "Open-source reasoning model on par with o1. 671B params, 37B active. MIT licensed.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -516,7 +516,7 @@
       ],
       "notes": "284B total params, 13B active. Extremely cost-efficient.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -536,7 +536,7 @@
       ],
       "notes": "480B total params, 35B active. Optimized for agentic coding.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -555,7 +555,7 @@
       ],
       "notes": "Proprietary version of Qwen3 Coder. Enhanced coding agent capabilities.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -574,7 +574,7 @@
       ],
       "notes": "Fast, cost-efficient version of Qwen3 Coder Plus.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -595,7 +595,7 @@
       ],
       "notes": "Top-tier Qwen3 model. Supports 100+ languages.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -617,7 +617,7 @@
       ],
       "notes": "Google's state-of-the-art model. #1 on LMArena leaderboard.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -637,7 +637,7 @@
       ],
       "notes": "Google's workhorse model. Configurable reasoning depth.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -657,7 +657,7 @@
       ],
       "notes": "xAI's reasoning model. 1M context, no output limit.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -677,7 +677,7 @@
       ],
       "notes": "Meta's 400B MoE model (17B active). Very affordable.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -697,7 +697,7 @@
       ],
       "notes": "10M token context window! 109B total params (17B active).",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -717,7 +717,7 @@
       ],
       "notes": "Agent swarm architecture. Scales to hundreds of parallel sub-agents.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -736,7 +736,7 @@
       ],
       "notes": "Mistral's most capable model. 675B total params (41B active). Apache 2.0 licensed.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -756,7 +756,7 @@
       ],
       "notes": "80.2% on SWE-Bench. Good at Word/Excel/PowerPoint generation.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -774,7 +774,7 @@
       ],
       "notes": "Routes to the best provider/model automatically.",
       "status": {
-        "detail": "Paid model — not tested, assumed working",
+        "detail": "Paid model \u00e2\u20ac\u201d not tested, assumed working",
         "result": "paid"
       }
     },
@@ -878,7 +878,7 @@
       "status": {
         "tested": "2026-05-25",
         "result": "working",
-        "detail": "Responded correctly. Reasoning model — returns 'reasoning' field."
+        "detail": "Responded correctly. Reasoning model \u00e2\u20ac\u201d returns 'reasoning' field."
       }
     },
     {
@@ -999,7 +999,7 @@
       "status": {
         "tested": "2026-05-25",
         "result": "working",
-        "detail": "Responded correctly. Reasoning model — returns 'reasoning_content' field."
+        "detail": "Responded correctly. Reasoning model \u00e2\u20ac\u201d returns 'reasoning_content' field."
       }
     },
     {
@@ -1261,11 +1261,11 @@
         "Tool use",
         "Current default"
       ],
-      "notes": "Special auto-routing model — not listed in standard :free endpoints but verified operational. Supports tools, structured outputs, 1M context. Sync script skips removal check for this model.",
+      "notes": "Special auto-routing model \u00e2\u20ac\u201d not listed in standard :free endpoints but verified operational. Supports tools, structured outputs, 1M context. Sync script skips removal check for this model.",
       "status": {
         "tested": "2026-05-27",
         "result": "working",
-        "detail": "Special auto-routing model — not in standard :free listing but fully functional. Supports tools natively."
+        "detail": "Special auto-routing model \u00e2\u20ac\u201d not in standard :free listing but fully functional. Supports tools natively."
       }
     },
     {
@@ -3203,7 +3203,7 @@
         "zyphra/zamba2-7b-instruct"
       ],
       "schema_issues": [
-        "openrouter/openai/gpt-oss-120b:free — returns 'reasoning_content' field in assistant messages, causing 'property unsupported' error in strict OpenAI schema clients"
+        "openrouter/openai/gpt-oss-120b:free \u00e2\u20ac\u201d returns 'reasoning_content' field in assistant messages, causing 'property unsupported' error in strict OpenAI schema clients"
       ]
     }
   },
@@ -3406,7 +3406,7 @@
     ]
   },
   "_provider_usage": {
-    "description": "Tracks providers that are fully consumed (rate-limited or out of quota) for a given month. Providers listed here are excluded from _role_rankings for that month. Format: provider_id → { month: 'YYYY-MM', reason: string }."
+    "description": "Tracks providers that are fully consumed (rate-limited or out of quota) for a given month. Providers listed here are excluded from _role_rankings for that month. Format: provider_id \u00e2\u2020\u2019 { month: 'YYYY-MM', reason: string }."
   },
   "_known_issues": {
     "description": "Non-fatal issues that affect usability but don't prevent the model from working.",
@@ -3448,14 +3448,14 @@
   },
   "_validation_method": {
     "description": "How free model statuses were determined.",
-    "procedure": "Direct API calls per provider. Cerebras models re-tested 2026-05-27 after deprecation date — all three still functional.",
+    "procedure": "Direct API calls per provider. Cerebras models re-tested 2026-05-27 after deprecation date \u00e2\u20ac\u201d all three still functional.",
     "date": "2026-05-27",
     "key_findings": {
       "burst_vs_persistent": "Most free models that 429 on first request also 429 on every subsequent request, even with 5s delays. This indicates persistent rate limiting, not just burst protection.",
       "single_call_insufficient": "A single successful API call does NOT mean a model is not rate limited. Several models succeed once but fail on every subsequent request.",
       "model_id_format": "OpenRouter API calls should NOT use the 'openrouter/' prefix. Use 'provider/model:free' format.",
-      "gemini_4_26b": "0/6 requests succeeded — persistently rate limited.",
-      "gemini_4_31b": "1/6 requests succeeded (3rd delayed attempt) — effectively rate limited, not reliably usable.",
+      "gemini_4_26b": "0/6 requests succeeded \u00e2\u20ac\u201d persistently rate limited.",
+      "gemini_4_31b": "1/6 requests succeeded (3rd delayed attempt) \u00e2\u20ac\u201d effectively rate limited, not reliably usable.",
       "parallel_load": "Running all models in parallel via Start-Job causes intermittent 429s even on reliable models. Sequential testing recommended for final validation."
     }
   },

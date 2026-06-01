@@ -19,3 +19,8 @@ node scripts/model-summary.js
 - Entry counts per role ranking
 
 See `nightly-maintenance` skill for the full scheduled pipeline that also generates and logs this summary.
+
+## See Also
+
+- `generate-dashboard` — visual HTML dashboard of the same stats
+- `health-badge` — badge.json for the same health data

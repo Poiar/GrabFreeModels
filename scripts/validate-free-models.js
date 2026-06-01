@@ -4,10 +4,11 @@
  * Re-tests rate-limited and untested free models to check if their status has changed.
  * Runs both burst (rapid) and delayed test phases for each model.
  *
- * Usage: node scripts/validate-free-models.js [--models id1,id2] [--apply] [--force]
- *   --models : Specific model IDs to test (comma-separated; default: all rate-limited and untested)
- *   --apply  : Write results to available-models.json (default: report only)
- *   --force  : Re-test all models, skipping the 7-day working model cache
+ * Usage: node scripts/validate-free-models.js [--models id1,id2] [--apply] [--force] [--coding-only]
+ *   --models     : Specific model IDs to test (comma-separated; default: all rate-limited and untested)
+ *   --apply      : Write results to available-models.json (default: report only)
+ *   --force      : Re-test all models, skipping the 7-day working model cache
+ *   --coding-only: Only test models tagged with coding/programming/reasoning/agent keywords
  */
 
 const https = require('https');
@@ -17,6 +18,7 @@ const path = require('path');
 const args = process.argv.slice(2);
 const APPLY = args.includes('--apply');
 const FORCE = args.includes('--force');
+const CODING_ONLY = args.includes('--coding-only');
 let specificModels = null;
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--models' && args[i + 1]) {
@@ -32,6 +34,83 @@ const AUTH_FILE = process.env.GFM_AUTH_FILE
 const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
 let json = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
 
+// --- Provider endpoint configuration ---
+// Each endpoint has: url, apiKey getter, and a function to fetch valid model IDs
+const ENDPOINTS = {
+  openrouter: {
+    url: 'https://openrouter.ai/api/v1/chat/completions',
+    key: () => auth.openrouter.key,
+    modelsUrl: 'https://openrouter.ai/api/v1/models',
+    // OpenRouter free models have :free suffix
+    fetchIds: async (key) => {
+      const data = await httpsGet('https://openrouter.ai/api/v1/models', { Authorization: `Bearer ${key}` });
+      const parsed = JSON.parse(data);
+      return new Set(parsed.data.filter(m => m.id.endsWith(':free')).map(m => m.id));
+    },
+  },
+  cerebras: {
+    url: 'https://api.cerebras.ai/v1/chat/completions',
+    key: () => auth.cerebras.key,
+    modelsUrl: 'https://api.cerebras.ai/v1/models',
+    fetchIds: async (key) => {
+      const data = await httpsGet('https://api.cerebras.ai/v1/models', { Authorization: `Bearer ${key}` });
+      const parsed = JSON.parse(data);
+      return new Set(parsed.data.map(m => m.id));
+    },
+  },
+  nvidia: {
+    url: 'https://integrate.api.nvidia.com/v1/chat/completions',
+    key: () => auth.nvidia.key,
+    modelsUrl: 'https://integrate.api.nvidia.com/v1/models',
+    fetchIds: async (key) => {
+      const data = await httpsGet('https://integrate.api.nvidia.com/v1/models', { Authorization: `Bearer ${key}` });
+      const parsed = JSON.parse(data);
+      return new Set(parsed.data.map(m => m.id));
+    },
+  },
+  huggingface: {
+    url: 'https://router.huggingface.co/v1/chat/completions',
+    key: () => auth.huggingface.key,
+    // HuggingFace doesn't have a simple models list API we can use for validation
+    // Skip model ID pre-validation for this endpoint
+    fetchIds: async () => null, // null = can't validate IDs upfront
+  },
+  llmgateway: {
+    url: 'https://api.llmgateway.io/v1/chat/completions',
+    key: () => auth.llmgateway.key,
+    fetchIds: async () => null, // unknown API
+  },
+  deepseek: {
+    url: 'https://api.deepseek.com/v1/chat/completions',
+    key: () => auth.deepseek.key,
+    fetchIds: async () => null, // unknown API
+  },
+};
+
+function getEndpoint(modelId) {
+  if (modelId.startsWith('cerebras/')) return 'cerebras';
+  if (modelId.startsWith('nvidia/')) return 'nvidia';
+  if (modelId.startsWith('huggingface/')) return 'huggingface';
+  if (modelId.startsWith('llmgateway/')) return 'llmgateway';
+  if (modelId.startsWith('deepseek/')) return 'deepseek';
+  return 'openrouter';
+}
+
+// Convert stored model ID to the API-expected format
+function toApiModelId(modelId, endpoint) {
+  const ep = ENDPOINTS[endpoint];
+  // Strip provider prefix for non-OpenRouter endpoints
+  if (endpoint !== 'openrouter') {
+    const slash = modelId.indexOf('/');
+    return slash !== -1 ? modelId.slice(slash + 1) : modelId;
+  }
+  // OpenRouter: strip openrouter/ prefix if present
+  if (modelId.startsWith('openrouter/')) return modelId.replace(/^openrouter\//, '');
+  // Bare names without / are OpenRouter models
+  if (!modelId.includes('/')) return modelId;
+  return modelId;
+}
+
 // --- Determine which models to test ---
 const TEST_AGAIN_AFTER_DAYS = 7;
 const cutoff = new Date();
@@ -44,17 +123,14 @@ if (specificModels && specificModels.length > 0) {
 } else {
   toTest = json.models.filter(m => {
     if (!m.is_free) return false;
+    if (m.id.startsWith('opencode/')) return false; // can't test via HTTPS
     const result = m.status.result;
-    // Always re-test broken and untested
     if (result === 'broken' || result === 'untested') return true;
-    // Re-test rate-limited (they might recover)
     if (result === 'rate_limited') return true;
-    // Re-test working only if not tested recently
     if (result === 'working') {
       if (!FORCE) {
         const tested = m.status.tested || '';
         const lastSuccess = m.last_success || '';
-        // Skip if tested within the last N days AND had a recent success
         if (tested >= cutoffStr && lastSuccess >= cutoffStr) return false;
       }
       return true;
@@ -63,23 +139,41 @@ if (specificModels && specificModels.length > 0) {
   });
 }
 
+if (CODING_ONLY) {
+  toTest = toTest.filter(m => m.best_for && m.best_for.some(f => /cod|programm|reason|agent|thinking/i.test(f)));
+}
+
 if (toTest.length === 0) {
   console.log('No models to test.');
   process.exit(0);
 }
 
-const skipped = json.models.filter(m => m.is_free && !toTest.includes(m));
+const skipped = json.models.filter(m => m.is_free && !toTest.includes(m) && !m.id.startsWith('opencode/'));
 if (skipped.length > 0) {
   console.log(`Skipping ${skipped.length} recently-tested working models (tested within ${TEST_AGAIN_AFTER_DAYS} days)`);
 }
 
-if (toTest.length === 0) {
-  console.log('No models to test.');
-  process.exit(0);
-}
-
 console.log(`=== Validate Free Models ===`);
 console.log(`Testing ${toTest.length} models\n`);
+
+function httpsGet(url, headers) {
+  return new Promise((resolve, reject) => {
+    const u = new URL(url);
+    const options = {
+      hostname: u.hostname,
+      path: u.pathname + u.search,
+      method: 'GET',
+      headers: { ...headers },
+    };
+    const req = https.request(options, res => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve(data));
+    });
+    req.on('error', reject);
+    req.end();
+  });
+}
 
 function httpsPost(url, body, headers) {
   return new Promise((resolve, reject) => {
@@ -110,18 +204,15 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function testModel(modelId, phase, apiKey, apiUrl) {
+async function testModel(apiModelId, phase, apiKey, apiUrl) {
   const headers = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${apiKey}`,
     'HTTP-Referer': 'https://opencode.ai',
     'X-Title': 'opencode',
   };
-
-  const cleanId = modelId.replace(/^openrouter\//, '');
-  const body = { model: cleanId, messages: [{ role: 'user', content: 'Reply with OK' }], max_tokens: 10 };
+  const body = { model: apiModelId, messages: [{ role: 'user', content: 'Reply with OK' }], max_tokens: 10 };
   const results = [];
-
   for (let i = 0; i < 3; i++) {
     try {
       const res = await httpsPost(apiUrl, body, headers);
@@ -133,54 +224,96 @@ async function testModel(modelId, phase, apiKey, apiUrl) {
     } catch {
       results.push('ERR');
     }
-
     if (phase === 'burst') await sleep(300);
     else await sleep(5000);
   }
-
   return results;
-}
-
-function getApiUrl(modelId) {
-  if (modelId.startsWith('cerebras/')) return 'https://api.cerebras.ai/v1/chat/completions';
-  if (modelId.startsWith('nvidia/')) return 'https://integrate.api.nvidia.com/v1/chat/completions';
-  if (modelId.startsWith('huggingface/')) return 'https://router.huggingface.co/v1/chat/completions';
-  if (modelId.startsWith('llmgateway/')) return 'https://api.llmgateway.io/v1/chat/completions';
-  if (modelId.startsWith('deepseek/')) return 'https://api.deepseek.com/v1/chat/completions';
-  return 'https://openrouter.ai/api/v1/chat/completions';
-}
-
-function getApiKey(modelId) {
-  if (modelId.startsWith('cerebras/')) return auth.cerebras.key;
-  if (modelId.startsWith('nvidia/')) return auth.nvidia.key;
-  if (modelId.startsWith('huggingface/')) return auth.huggingface.key;
-  if (modelId.startsWith('llmgateway/')) return auth.llmgateway.key;
-  if (modelId.startsWith('deepseek/')) return auth.deepseek.key;
-  return auth.openrouter.key;
 }
 
 // --- Run tests ---
 (async () => {
-  const results = [];
 
+  // Step 1: Fetch valid model IDs from each provider
+  console.log('Fetching valid model IDs from providers...');
+  const validIds = {};
+  for (const [name, ep] of Object.entries(ENDPOINTS)) {
+    try {
+      const ids = await ep.fetchIds(ep.key());
+      validIds[name] = ids;
+      if (ids) {
+        console.log(`  ${name}: ${ids.size} valid models`);
+      } else {
+        console.log(`  ${name}: can't pre-validate (will test anyway)`);
+      }
+    } catch (e) {
+      console.log(`  ${name}: fetch failed (${e.message}) — will test anyway`);
+      validIds[name] = null;
+    }
+  }
+  console.log();
+
+  // Step 2: Filter toTest — skip models whose names don't match any valid ID
+  const notFound = [];
+  const confirmed = [];
   for (const m of toTest) {
-    const id = m.id;
-    const url = getApiUrl(id);
-    const key = getApiKey(id);
+    const ep = getEndpoint(m.id);
+    const apiId = toApiModelId(m.id, ep);
+    const valid = validIds[ep];
 
-    console.log(`[${id}]`);
+    if (valid === null) {
+      // Can't pre-validate this endpoint — test it anyway
+      confirmed.push(m);
+    } else if (valid.has(apiId)) {
+      confirmed.push(m);
+    } else {
+      // Also try with :free suffix for OpenRouter
+      if (ep === 'openrouter' && !apiId.endsWith(':free') && valid.has(apiId + ':free')) {
+        confirmed.push(m);
+      } else {
+        notFound.push({ model: m, apiId, endpoint: ep });
+      }
+    }
+  }
 
-    // Phase 1: Burst (rapid sequential)
-    process.stdout.write('  Burst phase...');
-    const burstResults = await testModel(id, 'burst', key, url);
-    console.log(` ${burstResults.join(', ')}`);
+  if (notFound.length > 0) {
+    console.log(`Skipping ${notFound.length} models with invalid names (not found in provider API):`);
+    for (const nf of notFound) {
+      console.log(`  ${nf.model.id} → sent as "${nf.apiId}" to ${nf.endpoint} — NOT FOUND`);
+    }
+    console.log();
+  }
 
-    // Phase 2: Delayed
-    process.stdout.write('  Delayed phase...');
-    const delayedResults = await testModel(id, 'delayed', key, url);
-    console.log(` ${delayedResults.join(', ')}`);
+  if (confirmed.length === 0) {
+    console.log('No valid models to test.');
+    process.exit(0);
+  }
 
-    // Interpret
+  console.log(`Testing ${confirmed.length} validated models...\n`);
+
+  // Step 3: Test confirmed models — one per endpoint at a time, endpoints in parallel
+  const results = {};
+
+  async function testOne(m) {
+    const ep = getEndpoint(m.id);
+    const epConfig = ENDPOINTS[ep];
+    const apiId = toApiModelId(m.id, ep);
+    // Try with :free suffix if the base ID wasn't in the valid set
+    const valid = validIds[ep];
+    let finalApiId = apiId;
+    if (valid && ep === 'openrouter' && !valid.has(apiId) && valid.has(apiId + ':free')) {
+      finalApiId = apiId + ':free';
+    }
+
+    console.log(`[${ep}] ${m.id} → ${finalApiId}`);
+
+    const [burstResults, delayedResults] = await Promise.all([
+      testModel(finalApiId, 'burst', epConfig.key(), epConfig.url),
+      testModel(finalApiId, 'delayed', epConfig.key(), epConfig.url),
+    ]);
+
+    console.log(`  Burst:   ${burstResults.join(', ')}`);
+    console.log(`  Delayed: ${delayedResults.join(', ')}`);
+
     const allResults = [...burstResults, ...delayedResults];
     const okCount = allResults.filter(r => r === 'OK').length;
     const totalCount = allResults.length;
@@ -208,12 +341,46 @@ function getApiKey(modelId) {
     const color = status === 'working' ? '\x1b[32m' : status === 'rate_limited' ? '\x1b[33m' : '\x1b[31m';
     console.log(`  => ${color}${status}\x1b[0m`);
 
-    results.push({ id, status, detail, burst: burstResults, delayed: delayedResults });
+    return { id: m.id, status, detail, burst: burstResults, delayed: delayedResults };
+  }
+
+  // Group by endpoint, run endpoints in parallel, sequential within each
+  const byEndpoint = {};
+  for (const m of confirmed) {
+    const ep = getEndpoint(m.id);
+    (byEndpoint[ep] = byEndpoint[ep] || []).push(m);
+  }
+
+  async function runEndpoint(ep) {
+    for (const m of byEndpoint[ep]) {
+      const r = await testOne(m);
+      results[ep] = results[ep] || [];
+      results[ep].push(r);
+    }
+  }
+
+  await Promise.all(Object.keys(byEndpoint).map(ep => runEndpoint(ep)));
+
+  // Collect all results
+  const allResults = [];
+  for (const ep of Object.keys(results)) {
+    for (const r of results[ep]) allResults.push(r);
+  }
+
+  // Add not_found entries
+  for (const nf of notFound) {
+    allResults.push({
+      id: nf.model.id,
+      status: 'not_found',
+      detail: `Model ID "${nf.apiId}" not found in ${nf.endpoint} provider API — model name may be wrong or model removed.`,
+      burst: [],
+      delayed: [],
+    });
   }
 
   // --- Summary ---
   console.log('\n=== Results ===');
-  for (const r of results) {
+  for (const r of allResults) {
     console.log(`  ${r.id}: ${r.status} - ${r.detail}`);
   }
 
@@ -223,7 +390,6 @@ function getApiKey(modelId) {
     const today = new Date().toISOString().slice(0, 10);
     const currentMonth = new Date().toISOString().slice(0, 7);
 
-    // Check if a model's provider is marked as used-up for the current month
     const usedUpProviders = [];
     if (json._provider_usage) {
       for (const [p, entry] of Object.entries(json._provider_usage)) {
@@ -232,15 +398,14 @@ function getApiKey(modelId) {
       }
     }
 
-    for (const r of results) {
+    for (const r of allResults) {
       const model = json.models.find(m => m.id === r.id);
       if (!model) continue;
 
-      // Auto-flag provider as used-up if all its free models are broken
       const providerPrefix = r.id.split('/')[0];
-      if (r.status === 'broken' && !usedUpProviders.includes(providerPrefix)) {
+      if ((r.status === 'broken' || r.status === 'not_found') && !usedUpProviders.includes(providerPrefix)) {
         const providerModels = json.models.filter(m => m.id.startsWith(`${providerPrefix}/`) && m.is_free);
-        const allBroken = providerModels.filter(m => m.status.result === 'broken').length === providerModels.length;
+        const allBroken = providerModels.filter(m => m.status.result === 'broken' || m.status.result === 'not_found').length === providerModels.length;
         if (allBroken && providerModels.length > 0) {
           if (!json._provider_usage) json._provider_usage = {};
           json._provider_usage[providerPrefix] = {
@@ -265,17 +430,27 @@ function getApiKey(modelId) {
         removeFrom(ts.rate_limited);
         removeFrom(ts.broken);
         removeFrom(ts.untested);
+        removeFrom(ts.not_found);
         if (!ts.working.includes(r.id)) ts.working.push(r.id);
       } else if (r.status === 'rate_limited') {
         removeFrom(ts.working);
         removeFrom(ts.broken);
         removeFrom(ts.untested);
+        removeFrom(ts.not_found);
         if (!ts.rate_limited.includes(r.id)) ts.rate_limited.push(r.id);
       } else if (r.status === 'broken') {
         removeFrom(ts.working);
         removeFrom(ts.rate_limited);
         removeFrom(ts.untested);
+        removeFrom(ts.not_found);
         if (!ts.broken.includes(r.id)) ts.broken.push(r.id);
+      } else if (r.status === 'not_found') {
+        if (!ts.not_found) ts.not_found = [];
+        removeFrom(ts.working);
+        removeFrom(ts.rate_limited);
+        removeFrom(ts.broken);
+        removeFrom(ts.untested);
+        if (!ts.not_found.includes(r.id)) ts.not_found.push(r.id);
       }
 
       // Update _role_rankings

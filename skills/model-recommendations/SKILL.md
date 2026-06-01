@@ -11,8 +11,8 @@ See `C:\Users\pc\.config\opencode\opencode.jsonc` for the current live configura
 
 ## Rules
 
-1. NEVER suggest models that don't natively support OpenAI-style tool calling. This includes:
-     - `qwen3:*` **base/chat variants** (echo tool JSON as text — do NOT return proper `tool_calls`). Exception: `Qwen3-Coder` variants DO support tool calling — verified working.
+1. NEVER suggest models that don't natively support OpenAI-style tool calling. Known-bad patterns (last batch-verified — re-verify before trusting blindly):
+     - `qwen3:*` **base/chat variants** (echo tool JSON as text — do NOT return proper `tool_calls`). Exception: `Qwen3-Coder` variants DO support tool calling.
      - `llama3.*` (echoes tool calls as text)
      - `codellama:*` (no native tool calling)
      - `deepseek-coder:*` (echoes tools as text)
