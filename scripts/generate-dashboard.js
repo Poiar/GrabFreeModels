@@ -4,7 +4,7 @@
  * Creates a simple HTML dashboard showing provider health and current rankings.
  * Providers listed in _provider_usage for the current month are greyed out.
  *
- * Usage: node scripts/generate-dashboard.js [--output dashboard.html]
+ * Usage: node scripts/generate-dashboard.js [--output path/to/dashboard.html]
  */
 
 const fs = require('fs');

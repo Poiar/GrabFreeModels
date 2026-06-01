@@ -93,8 +93,9 @@ for (const n of newOr) console.log(`    + ${n.id}`);
 // --- Cerebras ---
 console.log('\n[Cerebras] Fetching...');
 let newCb = [];
+let cbModels = [];
 try {
-  const cbModels = await getCerebrasModels();
+  cbModels = await getCerebrasModels();
   console.log(`  Found ${cbModels.length} models`);
   for (const m of cbModels) {
     if (!existingIds.has(m.id)) newCb.push(m);
@@ -132,7 +133,7 @@ try {
 console.log('\n[Status Check] Models in JSON but no longer in OpenRouter/Cerebras...');
 const allCurrentFreeIds = new Set([
   ...orModels.map(m => `openrouter/${m.id}`),
-  ...(await getCerebrasModels().catch(() => [])).map(m => m.id),
+  ...(cbModels || []).map(m => m.id),
 ]);
 
 const orCbProviders = ['OpenRouter', 'Cerebras'];

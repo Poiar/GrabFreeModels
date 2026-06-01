@@ -2,8 +2,8 @@
 /**
  * nightly-maintenance.js
  * Intended for scheduled execution (e.g., Windows Task Scheduler / cron).
- * Validates free models, runs ranking sanity check, generates a summary, commits changes,
- * and pushes to the remote.
+ * Snapshots current state, validates free models, runs ranking sanity check, generates a summary,
+ * commits and pushes changes. Auto-rolls back if working count drops or health falls below 70%.
  *
  * Usage: node scripts/nightly-maintenance.js
  */

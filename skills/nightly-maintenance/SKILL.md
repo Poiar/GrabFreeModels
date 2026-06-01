@@ -29,7 +29,7 @@ None — the script reads webhook URLs from the `WEBHOOK_URL` env var, or a JSON
 
 ## Scheduled Task
 
-Set up a Windows Scheduled Task to run `node scripts/nightly-maintenance.js` daily (e.g., 02:00 AM). Use `schtasks` or Task Scheduler — no XML template provided.
+Set up a Windows Scheduled Task to run `node scripts/nightly-maintenance.js` daily (e.g., 02:00 AM). An XML template is provided at `scripts/nightly-task.xml` — import it via Task Scheduler or `schtasks`. See `OPERATIONS.md` §1 for webhook and log configuration.
 
 ## Related Skills
 

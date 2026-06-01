@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
  * validate-free-models.js
- * Re-tests free models by first validating model IDs against provider APIs,
- * then running burst + delayed test phases only on confirmed-valid models.
+ * Re-tests free models (rate-limited and untested) via burst + delayed request phases.
+ * By default skips models marked as working (7-day cache). Use --force to re-test all.
  *
  * Usage: node scripts/validate-free-models.js [--models id1,id2] [--apply] [--force] [--coding-only]
  *   --models       : Specific model IDs to test (comma-separated)
  *   --apply        : Write results to available-models.json (default: report only)
  *   --force        : Re-test all models, skipping the 7-day working model cache
- *   --coding-only  : Only test models with 'cod' or 'programm' in their best_for tags
+ *   --coding-only  : Only test models whose best_for tags match coding/agentic/reasoning patterns
  */
 
 const https = require('https');
