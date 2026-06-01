@@ -90,7 +90,12 @@ const ENDPOINT_CONFIG = {
 async function parseOpenRouterModels(key) {
   const data = await httpsGet('https://openrouter.ai/api/v1/models', { Authorization: `Bearer ${key}` });
   const parsed = JSON.parse(data);
-  return new Set(parsed.data.filter(m => m.id.endsWith(':free')).map(m => m.id));
+  return new Set(parsed.data.filter(m => {
+    if (m.id.endsWith(':free')) return true;
+    // Also include models with zero pricing (like openrouter/owl-alpha)
+    const p = m.pricing || {};
+    return parseFloat(p.prompt) === 0 && parseFloat(p.completion) === 0;
+  }).map(m => m.id));
 }
 
 async function parseSimpleModels(key, url) {
