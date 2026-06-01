@@ -230,85 +230,47 @@ async function testModel(apiModelId, phase, apiKey, apiUrl) {
   return results;
 }
 
+function getApiUrl(modelId) {
+  if (modelId.startsWith('cerebras/')) return 'https://api.cerebras.ai/v1/chat/completions';
+  if (modelId.startsWith('nvidia/')) return 'https://integrate.api.nvidia.com/v1/chat/completions';
+  if (modelId.startsWith('huggingface/')) return 'https://router.huggingface.co/v1/chat/completions';
+  if (modelId.startsWith('llmgateway/')) return 'https://api.llmgateway.io/v1/chat/completions';
+  if (modelId.startsWith('deepseek/')) return 'https://api.deepseek.com/v1/chat/completions';
+  return 'https://openrouter.ai/api/v1/chat/completions';
+}
+
+function getApiKey(modelId) {
+  if (modelId.startsWith('cerebras/')) return auth.cerebras.key;
+  if (modelId.startsWith('nvidia/')) return auth.nvidia.key;
+  if (modelId.startsWith('huggingface/')) return auth.huggingface.key;
+  if (modelId.startsWith('llmgateway/')) return auth.llmgateway.key;
+  if (modelId.startsWith('deepseek/')) return auth.deepseek.key;
+  return auth.openrouter.key;
+}
+
+function getEndpointKey(modelId) {
+  if (modelId.startsWith('cerebras/')) return 'cerebras';
+  if (modelId.startsWith('nvidia/')) return 'nvidia';
+  if (modelId.startsWith('huggingface/')) return 'huggingface';
+  if (modelId.startsWith('llmgateway/')) return 'llmgateway';
+  if (modelId.startsWith('deepseek/')) return 'deepseek';
+  return 'openrouter';
+}
+
 // --- Run tests ---
 (async () => {
 
-  // Step 1: Fetch valid model IDs from each provider
-  console.log('Fetching valid model IDs from providers...');
-  const validIds = {};
-  for (const [name, ep] of Object.entries(ENDPOINTS)) {
-    try {
-      const ids = await ep.fetchIds(ep.key());
-      validIds[name] = ids;
-      if (ids) {
-        console.log(`  ${name}: ${ids.size} valid models`);
-      } else {
-        console.log(`  ${name}: can't pre-validate (will test anyway)`);
-      }
-    } catch (e) {
-      console.log(`  ${name}: fetch failed (${e.message}) — will test anyway`);
-      validIds[name] = null;
-    }
-  }
-  console.log();
-
-  // Step 2: Filter toTest — skip models whose names don't match any valid ID
-  const notFound = [];
-  const confirmed = [];
-  for (const m of toTest) {
-    const ep = getEndpoint(m.id);
-    const apiId = toApiModelId(m.id, ep);
-    const valid = validIds[ep];
-
-    if (valid === null) {
-      // Can't pre-validate this endpoint — test it anyway
-      confirmed.push(m);
-    } else if (valid.has(apiId)) {
-      confirmed.push(m);
-    } else {
-      // Also try with :free suffix for OpenRouter
-      if (ep === 'openrouter' && !apiId.endsWith(':free') && valid.has(apiId + ':free')) {
-        confirmed.push(m);
-      } else {
-        notFound.push({ model: m, apiId, endpoint: ep });
-      }
-    }
-  }
-
-  if (notFound.length > 0) {
-    console.log(`Skipping ${notFound.length} models with invalid names (not found in provider API):`);
-    for (const nf of notFound) {
-      console.log(`  ${nf.model.id} → sent as "${nf.apiId}" to ${nf.endpoint} — NOT FOUND`);
-    }
-    console.log();
-  }
-
-  if (confirmed.length === 0) {
-    console.log('No valid models to test.');
-    process.exit(0);
-  }
-
-  console.log(`Testing ${confirmed.length} validated models...\n`);
-
-  // Step 3: Test confirmed models — one per endpoint at a time, endpoints in parallel
-  const results = {};
-
   async function testOne(m) {
-    const ep = getEndpoint(m.id);
-    const epConfig = ENDPOINTS[ep];
-    const apiId = toApiModelId(m.id, ep);
-    // Try with :free suffix if the base ID wasn't in the valid set
-    const valid = validIds[ep];
-    let finalApiId = apiId;
-    if (valid && ep === 'openrouter' && !valid.has(apiId) && valid.has(apiId + ':free')) {
-      finalApiId = apiId + ':free';
-    }
+    const id = m.id;
+    const url = getApiUrl(id);
+    const key = getApiKey(id);
+    const endpoint = getEndpointKey(id);
 
-    console.log(`[${ep}] ${m.id} → ${finalApiId}`);
+    console.log(`[${endpoint}] ${id}`);
 
     const [burstResults, delayedResults] = await Promise.all([
-      testModel(finalApiId, 'burst', epConfig.key(), epConfig.url),
-      testModel(finalApiId, 'delayed', epConfig.key(), epConfig.url),
+      testModel(id, 'burst', key, url),
+      testModel(id, 'delayed', key, url),
     ]);
 
     console.log(`  Burst:   ${burstResults.join(', ')}`);
@@ -341,41 +303,30 @@ async function testModel(apiModelId, phase, apiKey, apiUrl) {
     const color = status === 'working' ? '\x1b[32m' : status === 'rate_limited' ? '\x1b[33m' : '\x1b[31m';
     console.log(`  => ${color}${status}\x1b[0m`);
 
-    return { id: m.id, status, detail, burst: burstResults, delayed: delayedResults };
+    return { id, status, detail, burst: burstResults, delayed: delayedResults };
   }
 
-  // Group by endpoint, run endpoints in parallel, sequential within each
+  // Group models by API endpoint; test one model per endpoint at a time
   const byEndpoint = {};
-  for (const m of confirmed) {
-    const ep = getEndpoint(m.id);
+  for (const m of toTest) {
+    const ep = getEndpointKey(m.id);
     (byEndpoint[ep] = byEndpoint[ep] || []).push(m);
   }
+  const endpoints = Object.keys(byEndpoint);
+  const iterators = endpoints.map(ep => byEndpoint[ep][Symbol.iterator]());
+  const results = [];
+  let remaining = toTest.length;
 
-  async function runEndpoint(ep) {
-    for (const m of byEndpoint[ep]) {
-      const r = await testOne(m);
-      results[ep] = results[ep] || [];
-      results[ep].push(r);
+  while (remaining > 0) {
+    const batch = [];
+    for (let i = 0; i < endpoints.length; i++) {
+      const next = iterators[i].next();
+      if (!next.done) batch.push(next.value);
     }
-  }
-
-  await Promise.all(Object.keys(byEndpoint).map(ep => runEndpoint(ep)));
-
-  // Collect all results
-  const allResults = [];
-  for (const ep of Object.keys(results)) {
-    for (const r of results[ep]) allResults.push(r);
-  }
-
-  // Add not_found entries
-  for (const nf of notFound) {
-    allResults.push({
-      id: nf.model.id,
-      status: 'not_found',
-      detail: `Model ID "${nf.apiId}" not found in ${nf.endpoint} provider API — model name may be wrong or model removed.`,
-      burst: [],
-      delayed: [],
-    });
+    if (batch.length === 0) break;
+    const batchResults = await Promise.all(batch.map(m => testOne(m)));
+    results.push(...batchResults);
+    remaining -= batch.length;
   }
 
   // --- Summary ---

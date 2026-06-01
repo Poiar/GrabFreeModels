@@ -595,8 +595,8 @@ tbody td {
 .model-id-wrap {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 2px;
+  gap: 5px;
+  margin-top: 3px;
 }
 
 .model-id {
@@ -607,18 +607,23 @@ tbody td {
   overflow: hidden;
   text-overflow: ellipsis;
   font-family: var(--font-mono, monospace);
+  line-height: 1;
 }
 
 .copy-btn {
   background: none;
-  border: none;
+  border: 1px solid transparent;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 1px 3px;
-  border-radius: 3px;
-  font-size: 0.7rem;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  line-height: 1;
   transition: all 0.15s;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .copy-btn:hover {

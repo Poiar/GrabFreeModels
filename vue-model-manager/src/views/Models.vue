@@ -28,13 +28,15 @@
       <!-- Validation errors -->
       <div v-if="jql.validationErrors.value.length" class="jql-errors">
         <div v-for="(err, i) in jql.validationErrors.value" :key="i" class="jql-error">
-          <span class="jql-error-icon">⚠</span>
+          <svg class="jql-error-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           <span class="jql-error-msg">{{ err.message }}</span>
         </div>
       </div>
 
       <div class="jql-input-wrap">
-        <span class="jql-icon">🔍</span>
+        <span class="jql-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
         <div class="jql-highlight" aria-hidden="true" v-html="highlightedQuery"></div>
         <input
           ref="jql.inputRef"
@@ -42,7 +44,7 @@
           type="text"
           class="jql-input"
           :class="{ 'jql-input-invalid': jql.validationErrors.value.length > 0 }"
-          placeholder='e.g. provider:openrouter status:working context:>100000 free LLM ORDER BY context DESC'
+          placeholder='Try: provider:openrouter status:working context:>100000 ORDER BY context DESC'
           spellcheck="false"
           autocomplete="off"
           @input="jql.onInput"
@@ -52,7 +54,6 @@
           @click="jql.onInput($event)"
         />
         <button v-if="jql.rawQuery.value || allTokens.length" class="jql-clear" @click="clearAll" title="Clear all">✕</button>
-        <!-- Error underlines -->
         <div class="jql-underline" v-if="jql.validationErrors.value.length">
           <div
             v-for="(err, i) in jql.validationErrors.value"
@@ -85,8 +86,14 @@
           {{ sortedModels.length }} of {{ store.allModels.length }} models
         </span>
         <div class="export-btns">
-          <button class="export-btn" title="Export as CSV" @click="exportCsv">CSV</button>
-          <button class="export-btn" title="Export as JSON" @click="exportJson">JSON</button>
+          <button class="export-btn" title="Export as CSV" @click="exportCsv">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            CSV
+          </button>
+          <button class="export-btn" title="Export as JSON" @click="exportJson">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            JSON
+          </button>
         </div>
         <span class="jql-hint">
           <kbd>field:value</kbd> · <kbd>!=</kbd> · <kbd>&gt;</kbd> · <kbd>&lt;</kbd> · <kbd>IS EMPTY</kbd> · <kbd>IN (a,b)</kbd> · <kbd>NOT</kbd> · <kbd>OR</kbd> · <kbd>ORDER BY</kbd>
@@ -126,7 +133,7 @@
         v-if="sortedModels.length > 0"
         ref="scrollerRef"
         :items="sortedModels"
-        :item-size="52"
+        :item-size="56"
         key-field="id"
         class="vscroll-body"
         :emit-update="false"
@@ -144,7 +151,9 @@
             </div>
             <div class="vscroll-cell col-provider">
               <span>{{ model.provider }}</span>
-              <span v-if="store.isModelProviderUsedUp(model.id)" class="used-up-icon" title="Provider used up for this month">⚠</span>
+              <span v-if="store.isModelProviderUsedUp(model.id)" class="used-up-icon" title="Provider used up for this month">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </span>
             </div>
             <div class="vscroll-cell col-type">
               <span class="badge" :class="model.is_free ? 'badge-free-type' : 'badge-paid-type'">
@@ -211,7 +220,6 @@ const router = useRouter()
 const selectedModel = ref<Model | null>(null)
 const copiedIds = reactive(new Set<string>())
 
-// Sync selected model with URL query param
 watch(() => route.query.model, (id) => {
   if (id && typeof id === 'string') {
     selectedModel.value = store.getModelById(id) ?? null
@@ -254,7 +262,6 @@ const jql = useJqlFilter(
 )
 const { pushHistory } = useSavedSearches()
 
-// URL sync for shareable searches
 function readQueryFromUrl() {
   try {
     const params = new URLSearchParams(window.location.search)
@@ -273,7 +280,6 @@ function writeQueryToUrl(q: string) {
 onMounted(() => readQueryFromUrl())
 watch(() => jql.rawQuery.value, (q) => writeQueryToUrl(q))
 
-// Push to history when user pauses typing or presses Enter
 let historyTimer: ReturnType<typeof setTimeout> | null = null
 watch(() => jql.rawQuery.value, (q) => {
   if (historyTimer) clearTimeout(historyTimer)
@@ -309,9 +315,8 @@ function clearAll() {
 }
 
 function underlineStyle(err: { start: number; end: number }) {
-  // Approximate character position to pixel offset (monospace ~7.8px/char at 14px font)
   const charWidth = 7.8
-  const left = 32 + err.start * charWidth  // 32px for search icon padding
+  const left = 36 + err.start * charWidth
   const width = Math.max(8, (err.end - err.start) * charWidth)
   return { left: `${left}px`, width: `${width}px` }
 }
@@ -337,7 +342,6 @@ function clearOrderBy() {
   sortBy.value = 'name'; sortDesc.value = false
 }
 
-// Listen for saved/history search load events from QueryBuilder
 function onLoadSavedQuery(e: Event) {
   const q = (e as CustomEvent).detail as string
   jql.rawQuery.value = q
@@ -397,7 +401,6 @@ function exportJson() {
 }
 
 function handleKeydown(e: KeyboardEvent) {
-  // Don't capture when typing in an input
   const tag = (e.target as HTMLElement)?.tagName
   if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return
 
@@ -451,7 +454,7 @@ const highlightedQuery = computed(() => {
   const raw = jql.rawQuery.value
   if (!raw) return ''
   const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-  const regex = /(\w+)\s+(NOT\s+IN)\s*\(\s*((?:"[^"]*"|[^)])+)\)|(\w+)\s+(IS\s+NOT\s+EMPTY|IS\s+EMPTY)|(?:NOT\s+)?(\w+)\s*(?::((?::?>|:<!|=))|(:!=|!=)|:=|=)\s*(?:"([^"]*?)"|(\S+))|(\w+)\s+(IN)\s*\(\s*((?:"[^"]*"|[^)])+)\)|\b(OR)\b|\b(ORDER\s+BY\s+\w+\s*(?:ASC|DESC)?)\b/gi
+  const regex = /(\w+)\s+(NOT\s+IN)\s*\(\s*((?:"[^"]*"|[^)])+)\)|(\w+)\s+(IS\s+NOT\s+EMPTY|IS\s+EMPTY)|(?:NOT\s+)?(\w+)\s*(?:(:?>|:<!|=)|(:!=|!=)|:=|=)\s*(?:"([^"]*?)"|(\S+))|(\w+)\s+(IN)\s*\(\s*((?:"[^"]*"|[^)])+)\)|\b(OR)\b|\b(ORDER\s+BY\s+\w+\s*(?:ASC|DESC)?)\b/gi
   let result = '', last = 0, m: RegExpExecArray | null
   while ((m = regex.exec(raw)) !== null) {
     result += esc(raw.slice(last, m.index))

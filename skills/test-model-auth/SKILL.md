@@ -35,3 +35,5 @@ node scripts/get-auth-key.js --list
 ```
 
 See `docs/provider-details.md` for endpoints.
+
+> After `--apply`, `sync-auth-keys.js` validates opencode.jsonc automatically. No manual validation step needed.

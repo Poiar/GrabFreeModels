@@ -2,46 +2,67 @@
   <div class="layout">
     <aside class="sidebar">
       <div class="brand">
-        <span class="brand-icon">🧠</span>
+        <div class="brand-icon-wrap">
+          <span class="brand-icon">⚡</span>
+        </div>
         <div>
           <h1>GrabFreeModels</h1>
-          <p class="brand-sub">Free LLM Tracker</p>
+          <p class="brand-sub">Free LLM Intelligence</p>
         </div>
       </div>
       <nav aria-label="Main navigation">
         <router-link to="/" active-class="active">
-          <span class="nav-icon">📊</span> Dashboard
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </span>
+          <span>Dashboard</span>
         </router-link>
         <router-link to="/models" active-class="active">
-          <span class="nav-icon">🤖</span> Models
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M12 22a2 2 0 0 1 2-2v-2a2 2 0 0 1-2-2 2 2 0 0 1-2 2v2a2 2 0 0 1 2 2z"/><path d="M22 12a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2 2 2 0 0 1 2-2h2a2 2 0 0 1 2 2z"/><path d="M2 12a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z"/></svg>
+          </span>
+          <span>Models</span>
         </router-link>
         <router-link to="/rankings" active-class="active">
-          <span class="nav-icon">🏆</span> Rankings
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          </span>
+          <span>Rankings</span>
         </router-link>
         <router-link to="/issues" active-class="active">
-          <span class="nav-icon">⚠️</span> Issues
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+          <span>Issues</span>
         </router-link>
       </nav>
       <div class="sidebar-footer">
-        <p v-if="store.lastLoaded">
-          Last updated: {{ timeAgo(store.lastLoaded) }}
-        </p>
+        <div class="footer-status" v-if="store.lastLoaded">
+          <span class="status-dot" :class="{ 'is-stale': store.isStale }"></span>
+          <span>Updated {{ timeAgo(store.lastLoaded) }}</span>
+        </div>
         <div class="footer-actions">
           <button class="theme-toggle" @click="toggleTheme" :title="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
-            {{ theme === 'dark' ? '☀️' : '🌙' }}
+            <svg v-if="theme === 'dark'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           </button>
           <button @click="store.loadData()" class="refresh-btn" :disabled="store.loading">
-            {{ store.loading ? 'Loading…' : '↻ Refresh' }}
+            <svg v-if="!store.loading" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+            <span v-else class="btn-spinner"></span>
+            {{ store.loading ? 'Loading…' : 'Refresh' }}
           </button>
         </div>
       </div>
     </aside>
     <main class="content">
       <div v-if="store.loading" class="center-message">
-        <div class="spinner"></div>
-        <p>Loading model data…</p>
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>Loading model intelligence…</p>
+        </div>
       </div>
       <div v-else-if="store.error" class="center-message error-box">
+        <div class="error-icon">⚠</div>
         <h2>Failed to load data</h2>
         <p class="error-message">{{ store.error }}</p>
         <p v-if="store.lastLoaded" class="error-last-loaded">
@@ -78,3 +99,90 @@ function timeAgo(date: Date): string {
   return `${days}d ago`
 }
 </script>
+
+<style scoped>
+.brand-icon-wrap {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-subtle);
+  border-radius: var(--radius);
+  flex-shrink: 0;
+}
+
+.brand-icon {
+  font-size: 22px;
+  filter: none;
+}
+
+.footer-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  box-shadow: 0 0 6px var(--green-glow);
+  transition: all 0.3s;
+}
+
+.status-dot.is-stale {
+  background: var(--orange);
+  box-shadow: 0 0 6px var(--orange-glow);
+}
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  padding: 6px 12px;
+}
+
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.loading-state p {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.error-icon {
+  font-size: 2.5rem;
+  margin-bottom: 4px;
+}
+</style>

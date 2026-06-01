@@ -11,7 +11,7 @@
 - Uses authenticated endpoint: `https://api.cerebras.ai/v1/models`
 - Auth: `Authorization: Bearer <key>` (uses `@ai-sdk/cerebras` provider)
 - Small free tier
-- Deprecated — models still functional but may be removed
+- **Deprecated** — models still functional but may be removed. Not in opencode.jsonc (no active provider config).
 
 ## NVIDIA
 - Free tier is huge (~117 models) but very noisy — most are embed, safety, reward, or VLMs
