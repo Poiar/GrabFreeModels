@@ -67,3 +67,7 @@ __pycache__/
 
 # Project-level opencode config (local MCP servers)
 .opencode.jsonc
+update_*.py
+update_scraper*.py
+write_*.py
+write_free*.py

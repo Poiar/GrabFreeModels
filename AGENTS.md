@@ -29,7 +29,7 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `metrics-exporter` — Prometheus metrics endpoint / service installer
 - `rank-models` — rebuild `_role-rankings` using deterministic scoring algorithm
 - `extract-modelsdev` — scrape models.dev for free model data
-- `schema-v2` — DB schema documentation (master_models + datapoint_providers + datapoint_models)
+- `schema-v2` — DB schema documentation (super_models + datapoint_providers + datapoint_models)
 
 ## Lean Files Policy
 
@@ -43,7 +43,7 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 
 - The primary data store is Neon Serverless Postgres, accessed via an Express API on port 3001.
 - Connection via `DATABASE_URL` (pooler endpoint) loaded from `.env` — see `.env.example` for template.
-- Schema: `db/schema.sql` — v2 (master_models + datapoint_providers + datapoint_models). See `schema-v2` skill.
+- Schema: `db/schema.sql` — v2 (super_models + datapoint_providers + datapoint_models). See `schema-v2` skill.
 - Run `npm run db:ping` to verify Neon connectivity.
 - Run `npm run db:export` to export Neon → `available-models.json` (git history snapshot).
 
@@ -85,6 +85,6 @@ All scripts live in `scripts/`. Some have corresponding skills with additional w
 | `health-badge.js` | Generate Shields.io health badge JSON (reads from DB) |
 | `model-summary.js` | Text overview of model statuses and ranking sizes (reads from DB) |
 | `nightly-maintenance.js` | Full nightly pipeline (validate → rank → commit) |
-| `migrate-v1-to-v2.js` | Migrate v1 schema → v2 (master_models + datapoint_providers + datapoint_models) |
+| `migrate-v1-to-v2.js` | Migrate v1 schema → v2 (super_models + datapoint_providers + datapoint_models) |
 | `metrics-exporter.js` | Serve Prometheus metrics (reads from DB) |
 | `install-metrics-service.js` | Install metrics exporter as a Windows service |

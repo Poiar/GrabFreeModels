@@ -265,7 +265,7 @@ function normalizeModelSlug(name) {
 
           // Upsert master model
           const { rows: mmRows } = await client.query(
-            `INSERT INTO master_models (name, slug) VALUES ($1, $2)
+            `INSERT INTO super_models (name, slug) VALUES ($1, $2)
              ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
              RETURNING id`,
             [m.name, masterSlug]
@@ -274,7 +274,7 @@ function normalizeModelSlug(name) {
 
           // Upsert datapoint model
           await client.query(
-            `INSERT INTO datapoint_models (master_model_id, datapoint_provider_id, remote_id, full_id, context_length, is_free, status_result, status_detail)
+            `INSERT INTO datapoint_models (super_model_id, datapoint_provider_id, remote_id, full_id, context_length, is_free, status_result, status_detail)
              VALUES ($1, $2, $3, $4, $5, true, 'untested', 'Auto-discovered by sync script')
              ON CONFLICT (datapoint_provider_id, remote_id) DO UPDATE SET
                context_length = EXCLUDED.context_length,

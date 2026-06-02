@@ -13,9 +13,9 @@ Every model has a **master** (abstract identity) and one or more **datapoints** 
 
 | Table | Purpose | Key Fields |
 |---|---|---|
-| `master_models` | Abstract model identity | `id`, `name`, `slug` (normalized) |
+| `super_models` | Abstract model identity | `id`, `name`, `slug` (normalized) |
 | `datapoint_providers` | Data source providers | `id`, `slug`, `name`, `base_url` |
-| `datapoint_models` | One row per provider instance | `master_model_id`, `datapoint_provider_id`, `remote_id`, `full_id`, all model fields, status_*, `is_removed` |
+| `datapoint_models` | One row per provider instance | `super_model_id`, `datapoint_provider_id`, `remote_id`, `full_id`, all model fields, status_*, `is_removed` |
 | `datapoint_model_input_types` | Input types per instance | `datapoint_model_id`, `input_type` |
 | `datapoint_model_output_types` | Output types per instance | `datapoint_model_id`, `output_type` |
 | `datapoint_model_features` | Tags/best_for per instance | `datapoint_model_id`, `feature_type`, `value` |
@@ -50,8 +50,8 @@ Each model entry in `/api/data`:
 ```json
 {
   "id": "openrouter/owl-alpha",
-  "master_id": 42,
-  "master_name": "OWL Alpha",
+  "super_id": 42,
+  "super_name": "OWL Alpha",
   "name": "OWL Alpha",
   "provider": "OpenRouter",
   "source": "openrouter",

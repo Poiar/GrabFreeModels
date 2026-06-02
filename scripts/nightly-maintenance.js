@@ -259,7 +259,7 @@ const nowMs = Date.now();
         fs.copyFileSync(PREV_COPY, 'available-models.json');
         execSync('git add available-models.json');
         execSync(`git commit -m "chore(models): automatic rollback to previous stable state (health ${healthPct}%)"`);
-        execSync('git push origin master');
+        execSync('git push origin super');
         console.log('Rollback committed and pushed');
       }
       process.exit(0);
@@ -269,7 +269,7 @@ const nowMs = Date.now();
     execSync(`git commit -m "chore(models): nightly validation ${today}"`);
 
     // Push
-    execSync('git push origin master');
+    execSync('git push origin super');
     console.log('Pushed commits');
   } else {
     console.log('No changes detected; nothing to commit.');
