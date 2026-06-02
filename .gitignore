@@ -31,6 +31,7 @@ dashboard.html
 
 # Generated model data (source of truth is PostgreSQL)
 available-models.json
+modelsdev-free-models.json
 
 # Nightly summary log
 nightly-summary.log
