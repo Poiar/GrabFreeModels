@@ -79,7 +79,7 @@ const ROLES = {
   },
   small_model: {
     description: 'Lightweight, fast responses — prefer smaller context',
-    ctxWeight: -0.5,
+    ctxWeight: 0.0,
     tagKeywords: ['lightweight', 'ultra-lightweight', 'fast', 'quick', 'small'],
   },
   explore: {

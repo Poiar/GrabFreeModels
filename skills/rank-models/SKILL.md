@@ -5,7 +5,7 @@ description: Use when ranking, re-ranking, or validating role-based model rankin
 
 # Rank Models
 
-Rebuilds `_role_rankings` in `available-models.json` using benchmark-based skill scores with a tag+context heuristic fallback.
+Rebuilds `_role_rankings` in `available-models.json` using a deterministic tag+context scoring algorithm.
 
 ## Prerequisites
 
@@ -52,15 +52,11 @@ The tag+context heuristic is kept as the primary algorithm. If benchmark scores 
 | **model** | 1.2 | agentic, tool, reasoning, current default, general purpose | Best overall — agentic + large context |
 | **build** | 0.6 | coding, code, refactor, agentic, tool | Coding-focused, moderate context |
 | **general** | 0.5 | general, multimodal, fast, lightweight, chinese | Balanced everyday use — prefer speed over size |
-| **small_model** | -0.5 | lightweight, ultra-lightweight, fast, quick, small | **Negative** context weight — prefer small |
+| **small_model** | 0.0 | lightweight, ultra-lightweight, fast, quick, small | Tag-only scoring; context as tiebreaker — prefer small+fast |
 | **explore** | 0.3 | thinking, reasoning, multimodal, new | Experimental, diversity |
 | **stable** | 0.5 | — | Auto-populated by `backfill-metadata.js`: free + working + tools + tested ≥30 days ago. Sorted by context desc. |
 
 Tiebreaker: higher `context_length` wins.
-
-### Benchmark Score Refresh
-
-AAII scores are stored in `_benchmark_scores.aaii` with a `scraped_date`. To refresh, re-scrape from artificialanalysis.ai and update the scores object.
 
 ## Run
 
