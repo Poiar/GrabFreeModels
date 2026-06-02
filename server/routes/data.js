@@ -106,6 +106,7 @@ async function buildModelsData() {
         detail: pm.status_detail || null,
       },
       last_success: pm.last_success || null,
+      source: pm.source || 'curated',
     };
 
     outputModels.push(entry);

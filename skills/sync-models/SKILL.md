@@ -48,4 +48,4 @@ Copy-Item available-models.json available-models.snapshot.json
 
 If needed, restore with `Copy-Item available-models.snapshot.json available-models.json`.
 
-Provider details in `docs/provider-details.md`. Edge cases: Gemma models returned as free but always 429 (track as `rate_limited`).
+Provider details in `docs/provider-details.md`. Note: some models may be listed as free by providers but always return rate-limited — track these as `rate_limited`.

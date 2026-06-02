@@ -35,6 +35,3 @@ Rerun after `sync-models.js --apply` and after adding new providers.
 | Script | Purpose |
 |--------|---------|
 | `backfill-metadata.js` | Backfill `supports_tools` + `stable` ranking |
-| `get-auth-key.js` | Read a provider API key from auth.json |
-| `sync-auth-keys.js` | Sync API keys from auth.json into opencode.jsonc |
-| `kill-port.js` | Kill process on a given port |

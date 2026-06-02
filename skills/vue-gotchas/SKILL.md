@@ -19,4 +19,4 @@ Never read pre-computed snapshot fields from JSON. Compute from source arrays vi
 
 ## Notes
 
-Code examples in `docs/vue-examples.md`.
+Relevant gotchas are documented inline in the Vue project components (see `vue-model-manager/src/`).

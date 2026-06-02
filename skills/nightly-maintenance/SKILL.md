@@ -40,12 +40,4 @@ The script reads webhook URLs from the `WEBHOOK_URL` env var, or a JSON blob in 
 
 ## Scheduled Task
 
-Set up a Windows Scheduled Task to run `node scripts/nightly-maintenance.js` daily (e.g., 02:00 AM). An XML template is provided at `scripts/nightly-task.xml` — import it via Task Scheduler or `schtasks`. See `OPERATIONS.md` §1 for webhook and log configuration.
-
-## Related Skills
-
-- `sync-models` — fetch new free models from providers (run before nightly)
-- `validate-free-models` — individual model validation
-- `rank-models` — ranking algorithm and eligibility criteria
-- `backfill-context` — context_length backfill details
-- `backfill-metadata` — stable ranking and supports_tools backfill
+See `OPERATIONS.md` §1 for setup, webhook, and log configuration.

@@ -10,7 +10,7 @@ Gitleaks scans every push and PR via CI (`.github/workflows/ci.yml`). The `test`
 ## Config
 
 - `.gitleaks.toml` — repo-level Gitleaks config (allowlists, rules)
-- CI uses `gitleaks/gitleaks-action@v2` with `fetch-depth:0` (full history scan)
+- CI uses `gitleaks/gitleaks-action` with `fetch-depth:0` (full history scan)
 
 ## Run Locally
 

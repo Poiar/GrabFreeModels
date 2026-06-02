@@ -43,6 +43,10 @@ export const FILTERABLE_FIELDS: FieldDef[] = [
   { key: 'id',        label: 'ID',        type: 'text' },
   { key: 'notes',     label: 'Notes',     type: 'text', nullable: true },
   { key: 'best_for',  label: 'Best For',  type: 'text' },
+  { key: 'source',    label: 'Source',    type: 'select', searchable: true, options: [
+    { value: 'curated', label: 'Curated' },
+    { value: 'models.dev', label: 'Models.dev' },
+  ]},
 ]
 
 export const FIELD_MAP: Record<string, FieldDef> = Object.fromEntries(
@@ -52,7 +56,7 @@ export const FIELD_MAP: Record<string, FieldDef> = Object.fromEntries(
 export const FIELD_ALIASES: Record<string, string> = {
   ...Object.fromEntries(FILTERABLE_FIELDS.map(f => [f.label.toLowerCase(), f.key])),
   p: 'provider', prov: 'provider',
-  s: 'status', stat: 'status',
+  s: 'status', stat: 'status', src: 'source',
   t: 'type', typ: 'type',
   c: 'context', ctx: 'context',
   n: 'name',
@@ -312,6 +316,7 @@ function matchToken(m: Model, t: FilterToken): boolean {
       if (t.op === 'NOT IN') { if (t.values.length > 0) { const v = m.status.result.toLowerCase(); r = !t.values.some(x => x.toLowerCase() === v) } break }
       r = m.status.result.toLowerCase() === rv; break
     case 'type': r = rv === 'free' ? m.is_free : rv === 'paid' ? !m.is_free : false; break
+    case 'source': r = (m.source || 'curated').toLowerCase() === rv; break
     case 'context':
       if (t.op === 'IS EMPTY') { r = m.context_length == null; break }
       if (t.op === 'IS NOT EMPTY') { r = m.context_length != null; break }
@@ -337,6 +342,7 @@ function getTextField(m: Model, f: string): string | null {
     case 'provider': return m.provider
     case 'status': return m.status.result
     case 'best_for': return m.best_for.join(', ')
+    case 'source': return m.source || 'curated'
     default: return null
   }
 }

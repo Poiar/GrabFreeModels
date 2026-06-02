@@ -17,61 +17,16 @@ $env:PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1; npm install
 ```
 Then install Chromium on demand: `npx playwright install chromium`
 
-## Open the app (headed, default)
+## Patterns
 
-```bash
-node -e "const {chromium}=require('playwright');(async()=>{const b=await chromium.launch({headless:false});const p=await b.newPage();await p.goto('http://localhost:5173',{waitUntil:'networkidle'});await p.waitForTimeout(99999);await b.close();})();"
-```
+**Open headed:** `chromium.launch({headless:false})` → `goto('http://localhost:5173',{waitUntil:'networkidle'})` → `waitForTimeout(99999)` (keeps browser open).
 
-The browser stays open until the user closes it (or the script is killed).
+**Screenshot:** Same pattern, add `.screenshot({path:'C:\Users\pc\AppData\Local\Temp\opencode\\screenshot.png'})` before `b.close()`.
 
-## Screenshot a specific route
+**Complex checks:** For anything the shell would mangle, write a temp `.js` file and run it with `node`. Use `p.evaluate()` to query DOM, `p.on('console', ...)` to capture errors.
 
-```bash
-node -e "const {chromium}=require('playwright');(async()=>{const b=await chromium.launch({headless:false});const p=await b.newPage();await p.goto('http://localhost:5173/#/route',{waitUntil:'networkidle'});await p.waitForTimeout(2000);await p.screenshot({path:'C:\\Users\\pc\\AppData\\Local\\Temp\\opencode\\screenshot.png'});console.log('Screenshot saved');await b.close();})();"
-```
+**Headless:** Only when explicitly asked — add `headless:true` and use `p.textContent('body')` for quick checks.
 
-## Complex checks (write temp script)
+## Vite stale cache
 
-For anything the shell would mangle (double-quotes, `$$`, `>>`), write to a temp file:
-
-`write` → `C:\Users\pc\AppData\Local\Temp\opencode\_check.js` :
-```js
-const { chromium } = require('playwright');
-(async () => {
-  const b = await chromium.launch({ headless: false });
-  const p = await b.newPage();
-  p.on('console', msg => { if (msg.type() === 'error') console.log('ERR:', msg.text()); });
-
-  await p.goto('http://localhost:5173/#/route', { waitUntil: 'networkidle', timeout: 15000 });
-  await p.waitForTimeout(3000);
-
-  const rows = await p.evaluate(() =>
-    Array.from(document.querySelectorAll('tbody tr')).slice(0, 5).map(tr =>
-      Array.from(tr.querySelectorAll('td')).map(td => td.textContent.trim())
-    )
-  );
-  console.table(rows);
-  await b.close();
-})();
-```
-
-```bash
-node "C:\Users\pc\AppData\Local\Temp\opencode\_check.js"
-```
-
-## Headless mode (automated runs only)
-
-Only when explicitly asked:
-
-```bash
-node -e "const {chromium}=require('playwright');(async()=>{const p=await (await chromium.launch({headless:true})).newPage();await p.goto('http://localhost:5173/#/route',{waitUntil:'networkidle'});await p.waitForTimeout(2000);console.log((await p.textContent('body')).substring(0,500));await p.context().browser().close();})();"
-```
-
-## Vite stale cache (500 on a Vue module after editing)
-
-Kill the port and restart:
-```bash
-node scripts/kill-port.js --port 5173
-```
-Then restart from a separate terminal or Start-Process — the `bash` tool can't block on a long-running dev server.
+If you get 500 on a Vue module after editing: `node scripts/kill-port.js --port 5173`, then restart the dev server.

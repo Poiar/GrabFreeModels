@@ -9,9 +9,9 @@ const routes = [
   },
   {
     path: '/models',
-    name: 'All',
+    name: 'Models',
     component: () => import('@/views/Models.vue'),
-    meta: { title: 'All' },
+    meta: { title: 'Models' },
   },
   {
     path: '/rankings',

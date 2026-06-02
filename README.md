@@ -50,5 +50,3 @@ snapshots/                  # timestamped model snapshots
 
 - `docs/provider-details.md` — Provider API endpoints and filtering rules
 - `docs/test-interpretation-reference.md` — Test result patterns and status mapping
-- `docs/vue-examples.md` — Vue 3 + Pinia code examples
-- `docs/gitleaks-setup.md` — Gitleaks installation instructions

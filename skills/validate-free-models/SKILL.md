@@ -83,4 +83,4 @@ See `docs/test-interpretation-reference.md` for the full pattern→status mappin
 - **Sequential within endpoint, parallel across endpoints** — avoids provider-wide 429s.
 - **`opencode/` models** use `https://opencode.ai/zen/v1` with `@ai-sdk/openai-compatible`. Testable via raw HTTPS.
 - **Burst + delayed phases** run in parallel per model (`Promise.all`), 3 sequential requests within each phase.
-- 404 during test = model genuinely gone. Mark `don't keep re-testing.
+- 404 during test = model genuinely gone. Mark `not_found`, don't keep re-testing.

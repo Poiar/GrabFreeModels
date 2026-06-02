@@ -9,6 +9,7 @@ export interface Model {
   name: string
   author?: string
   provider: string
+  source?: string
   context_length: number | null
   input_price_per_million: number | null
   output_price_per_million: number | null
