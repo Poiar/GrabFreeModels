@@ -5,7 +5,7 @@ description: Use when ranking, re-ranking, or validating role-based model rankin
 
 # Rank Models
 
-Rebuilds `_role_rankings` in `available-models.json` using a deterministic tag+context scoring algorithm.
+Rebuilds `_role_rankings` in PostgreSQL metadata using a deterministic tag+context scoring algorithm. Also exports to JSON for git history.
 
 ## Prerequisites
 

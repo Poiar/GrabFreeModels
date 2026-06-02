@@ -15,12 +15,16 @@
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
+        <div class="stat-value">{{ store.stats.masters }}</div>
+        <div class="stat-label">Master Models</div>
+      </div>
+      <div class="stat-card">
         <div class="stat-value">{{ store.stats.total }}</div>
-        <div class="stat-label">Total Models</div>
+        <div class="stat-label">Total Instances</div>
       </div>
       <div class="stat-card">
         <div class="stat-value accent">{{ store.stats.free }}</div>
-        <div class="stat-label">Free Models</div>
+        <div class="stat-label">Free Instances</div>
       </div>
       <div class="stat-card stat-card-highlight">
         <div class="stat-value green">{{ store.stats.working }}</div>

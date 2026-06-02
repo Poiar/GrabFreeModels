@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { ModelsData, DatapointModel, MasterModel, RoleScore, RoleMeta } from '@/types'
+import type { ModelsData, DatapointModel, MasterModel, RoleScore, RoleMeta, ModelScoresData } from '@/types'
 
 const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
 type Role = (typeof ROLE_ORDER)[number]
@@ -99,6 +99,12 @@ export const useModelsStore = defineStore('models', () => {
   const roleScores = computed(() => data.value?._role_rankings?._scores ?? {} as Record<string, RoleScore[]>)
 
   const roleMeta = computed(() => data.value?._role_rankings?._meta ?? {} as Record<string, RoleMeta>)
+
+  const modelScores = computed((): ModelScoresData | null => {
+    const raw = data.value?._model_scores;
+    if (!raw) return null;
+    return raw as ModelScoresData;
+  });
 
   function getRoleScore(role: string, modelId: string): RoleScore | undefined {
     return roleScores.value[role]?.find(s => s.id === modelId)
@@ -228,6 +234,6 @@ export const useModelsStore = defineStore('models', () => {
     currentMonth, usedUpProviders, usedUpProviderSet, isProviderUsedUp,
     extractProvider, isModelProviderUsedUp,
     testSummary, validationMethod, stats,
-    modelById, getModelById, loadData,
+    modelById, getModelById, loadData, modelScores,
   }
 })

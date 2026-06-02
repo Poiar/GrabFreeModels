@@ -25,7 +25,6 @@
         </button>
       </div>
 
-      <!-- Validation errors -->
       <div v-if="jql.validationErrors.value.length" class="jql-errors">
         <div v-for="(err, i) in jql.validationErrors.value" :key="i" class="jql-error">
           <svg class="jql-error-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -33,57 +32,9 @@
         </div>
       </div>
 
-      <div class="jql-input-wrap">
-        <span class="jql-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </span>
-        <div class="jql-highlight" aria-hidden="true" v-html="highlightedQuery"></div>
-        <input
-          ref="jql.inputRef"
-          v-model="jql.rawQuery.value"
-          type="text"
-          class="jql-input"
-          :class="{ 'jql-input-invalid': jql.validationErrors.value.length > 0 }"
-          placeholder='Try: provider:openrouter status:working context:>100000 ORDER BY context DESC'
-          spellcheck="false"
-          autocomplete="off"
-          @input="jql.onInput"
-          @keydown="jql.onKeydown"
-          @focus="jql.onFocus"
-          @blur="jql.onBlur"
-          @click="jql.onInput($event)"
-        />
-        <button v-if="jql.rawQuery.value || allTokens.length" class="jql-clear" @click="clearAll" title="Clear all">✕</button>
-        <div class="jql-underline" v-if="jql.validationErrors.value.length">
-          <div
-            v-for="(err, i) in jql.validationErrors.value"
-            :key="i"
-            class="jql-underline-mark"
-            :style="underlineStyle(err)"
-          />
-        </div>
-      </div>
-
-      <div v-if="jql.showSuggestions.value && jql.suggestions.value" class="jql-suggestions">
-        <div
-          v-for="(opt, si) in jql.suggestions.value.options"
-          :key="opt.insert"
-          class="jql-suggestion"
-          :class="{ 'jql-suggestion-active': si === jql.activeSuggestion.value }"
-          @mousedown.prevent="jql.applySuggestion(opt.insert)"
-          @mouseenter="jql.activeSuggestion.value = si"
-        >
-          <span class="jql-suggestion-label">{{ opt.label }}</span>
-          <span class="jql-suggestion-field">{{ opt.insert }}</span>
-        </div>
-        <div v-if="!jql.suggestions.value.options.length" class="jql-suggestion-empty">
-          No matching {{ jql.suggestions.value.field }}s
-        </div>
-      </div>
-
       <div class="jql-bar-footer">
         <span class="filter-count">
-          {{ sortedModels.length }} of {{ store.allModels.length }} models
+          {{ sortedItems.length }} of {{ store.allModels.length }} models
         </span>
         <div class="export-btns">
           <button class="export-btn" title="Export as CSV" @click="exportCsv">
@@ -95,9 +46,6 @@
             JSON
           </button>
         </div>
-        <span class="jql-hint">
-          <kbd>field:value</kbd> · <kbd>!=</kbd> · <kbd>&gt;</kbd> · <kbd>&lt;</kbd> · <kbd>IS EMPTY</kbd> · <kbd>IN (a,b)</kbd> · <kbd>NOT</kbd> · <kbd>OR</kbd> · <kbd>ORDER BY</kbd>
-        </span>
       </div>
     </div>
 
@@ -111,101 +59,125 @@
       @clear="onBuilderClear"
     />
 
-    <!-- Virtual Scroll Table -->
+    <div class="filters">
+      <div class="sort-controls">
+        <select v-model="sortBy" class="sort-select">
+          <option value="name">Sort: Name</option>
+          <option value="author">Sort: Author</option>
+          <option value="provider">Sort: Provider</option>
+          <option value="type">Sort: Type</option>
+          <option value="status">Sort: Status</option>
+          <option value="context">Sort: Context</option>
+          <option value="detail">Sort: Detail</option>
+        </select>
+        <button class="sort-dir-btn" @click="sortDesc = !sortDesc" :title="sortDesc ? 'Descending' : 'Ascending'">
+          <svg v-if="sortDesc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+          <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </button>
+      </div>
+      <span class="result-count">{{ sortedItems.length }} result{{ sortedItems.length !== 1 ? 's' : '' }}</span>
+    </div>
+
     <div class="table-wrap vscroll-table">
       <div class="vscroll-header-row">
         <div class="vscroll-header-cell col-name sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
-          Model <span class="sort-indicator">{{ sortIndicator('name') }}</span>
+          Model <SortArrow :active="sortBy === 'name'" :desc="sortDesc" />
+        </div>
+        <div class="vscroll-header-cell col-author sortable" :class="{ active: sortBy === 'author' }" @click="setSort('author')">
+          Author <SortArrow :active="sortBy === 'author'" :desc="sortDesc" />
         </div>
         <div class="vscroll-header-cell col-provider sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
-          Provider <span class="sort-indicator">{{ sortIndicator('provider') }}</span>
+          Provider <SortArrow :active="sortBy === 'provider'" :desc="sortDesc" />
         </div>
         <div class="vscroll-header-cell col-type sortable" :class="{ active: sortBy === 'type' }" @click="setSort('type')">
-          Type <span class="sort-indicator">{{ sortIndicator('type') }}</span>
+          Type <SortArrow :active="sortBy === 'type'" :desc="sortDesc" />
         </div>
         <div class="vscroll-header-cell col-status sortable" :class="{ active: sortBy === 'status' }" @click="setSort('status')">
-          Status <span class="sort-indicator">{{ sortIndicator('status') }}</span>
+          Status <SortArrow :active="sortBy === 'status'" :desc="sortDesc" />
         </div>
         <div class="vscroll-header-cell col-context sortable" :class="{ active: sortBy === 'context' }" @click="setSort('context')">
-          Context <span class="sort-indicator">{{ sortIndicator('context') }}</span>
+          Context <SortArrow :active="sortBy === 'context'" :desc="sortDesc" />
         </div>
         <div class="vscroll-header-cell col-detail sortable" :class="{ active: sortBy === 'detail' }" @click="setSort('detail')">
-          Latest Test Result <span class="sort-indicator">{{ sortIndicator('detail') }}</span>
+          Details <SortArrow :active="sortBy === 'detail'" :desc="sortDesc" />
         </div>
       </div>
-      <RecycleScroller
-        v-if="sortedModels.length > 0"
+
+      <DynamicScroller
+        v-if="sortedItems.length > 0"
         ref="scrollerRef"
-        :items="sortedModels"
-        :item-size="56"
+        :items="sortedItems"
+        :min-item-size="56"
         key-field="id"
         class="vscroll-body"
-        :emit-update="false"
       >
-        <template #default="{ item: model }">
-          <div class="vscroll-row row-clickable" :class="{ 'row-removed': model._removed }" @click="selectedModel = model" role="button" :title="'View details for ' + model.name">
+        <template #default="{ item, active }">
+          <DynamicScrollerItem :item="item" :active="active">
+          <div class="vscroll-row row-clickable" :class="{ 'row-removed': item._removed }" @click="selectedModel = item" role="button" :title="'View details for ' + item.name">
             <div class="vscroll-cell col-name">
-              <router-link :to="`/master/${model.master_id}`" class="model-name-link" :title="model.name" @click.stop>{{ model.name }}</router-link>
+              <router-link :to="`/master/${item.master_id}`" class="model-name-link" :title="item.name" @click.stop>{{ item.name }}</router-link>
               <div class="model-id-wrap">
-                <span class="model-id" :title="model.id">{{ model.id }}</span>
-                <button class="copy-btn" :class="{ copied: copiedIds.has(model.id) }" :title="copiedIds.has(model.id) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(model.id)">
-                  {{ copiedIds.has(model.id) ? '✓' : '📋' }}
+                <span class="model-id" :title="item.id">{{ item.id }}</span>
+                <button class="copy-btn" :class="{ copied: copiedIds.has(item.id) }" :title="copiedIds.has(item.id) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(item.id)">
+                  {{ copiedIds.has(item.id) ? '✓' : '📋' }}
                 </button>
               </div>
             </div>
+            <div class="vscroll-cell col-author">{{ item.author }}</div>
             <div class="vscroll-cell col-provider">
-              <span>{{ model.provider }}</span>
-              <span v-if="store.isModelProviderUsedUp(model.id)" class="used-up-icon" title="Provider used up for this month">
+              <span>{{ item.provider }}</span>
+              <span v-if="store.isModelProviderUsedUp(item.id)" class="used-up-icon" title="Provider used up for this month">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               </span>
             </div>
             <div class="vscroll-cell col-type">
-              <span class="badge" :class="model.is_free ? 'badge-free-type' : 'badge-paid-type'">
-                {{ model.is_free ? 'Free' : 'Paid' }}
+              <span class="badge" :class="item.is_free ? 'badge-free-type' : 'badge-paid-type'">
+                {{ item.is_free ? 'Free' : 'Paid' }}
               </span>
             </div>
             <div class="vscroll-cell col-status">
-              <span v-if="model._removed" class="badge badge-removed" title="No longer offered as free by provider">
+              <span v-if="item._removed" class="badge badge-removed" title="No longer offered as free by provider">
                 Removed
               </span>
-              <span v-else class="badge" :class="`badge-${model.status.result}`">
-                {{ formatStatus(model.status.result) }}
+              <span v-else class="badge" :class="`badge-${item.status.result}`">
+                {{ formatStatus(item.status.result) }}
               </span>
             </div>
             <div class="vscroll-cell col-context">
-              <span class="context-len">
-                {{ model.context_length != null ? formatContext(model.context_length) : '—' }}
-              </span>
+              <span class="context-len">{{ item.context_length != null ? formatContext(item.context_length) : '—' }}</span>
             </div>
             <div class="vscroll-cell col-detail">
               <div class="best-for-tags">
-                <span v-for="tag in model.best_for.slice(0, 3)" :key="tag" class="tag">{{ tag }}</span>
-                <span v-if="model.best_for.length > 3" class="tag">+{{ model.best_for.length - 3 }}</span>
+                <span v-for="tag in item.best_for.slice(0, 3)" :key="tag" class="tag">{{ tag }}</span>
+                <span v-if="item.best_for.length > 3" class="tag">+{{ item.best_for.length - 3 }}</span>
+                <span v-if="item.supports_tools === true" class="tag tool-tag">Tools ✓</span>
               </div>
-              <div class="detail-text" :title="model.status.detail">{{ model.status.detail }}</div>
+              <div class="detail-text" :title="item.status.detail">{{ item.status.detail }}</div>
             </div>
           </div>
+          </DynamicScrollerItem>
         </template>
-      </RecycleScroller>
+      </DynamicScroller>
+
       <div v-else class="empty-state">
         <div class="empty-state-inner">
-          <span class="empty-state-icon">🔍</span>
-          <p>No models match your filters.</p>
-          <button class="refresh-btn" @click="clearAll">Clear all filters</button>
+          <div class="empty-state-icon">🔍</div>
+          <p>No models match the current filters</p>
+          <button class="clear-btn" @click="clearAll">Clear filters</button>
         </div>
       </div>
     </div>
 
     <!-- Detail Panel -->
-    <ModelDetail :model="selectedModel" @close="closeDetail" />
+    <ModelDetail :model="selectedModel" @close="selectedModel = null" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, computed, reactive, watch, onMounted, onUnmounted, h, defineComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useModelsStore } from '@/store/models'
-import { RecycleScroller } from 'vue-virtual-scroller'
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import { useJqlFilter } from '@/composables/useJqlFilter'
 import type { FilterToken, SortSpec } from '@/composables/useJqlFilter'
 import type { Model } from '@/types'
@@ -216,6 +188,15 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 type ScrollerExposed = { scrollToPosition: (pos: number) => void }
 const scrollerRef = ref<ScrollerExposed | null>(null)
+
+const SortArrow = defineComponent({
+  props: { active: Boolean, desc: Boolean },
+  setup(props) {
+    return () => h('span', { class: ['sort-arrow', { active: props.active }] },
+      props.active ? (props.desc ? ' ↓' : ' ↑') : ' ⇅'
+    )
+  }
+})
 
 const store = useModelsStore()
 const route = useRoute()
@@ -277,6 +258,7 @@ watch(() => jql.rawQuery.value, (q) => writeQueryToUrl(q))
 
 watch(jql.sortSpec, (spec: SortSpec | null) => {
   if (spec) { sortBy.value = spec.field; sortDesc.value = spec.desc }
+  else { sortBy.value = 'name'; sortDesc.value = false }
 })
 
 watch([() => jql.rawQuery.value, sortBy, sortDesc], () => {
@@ -303,9 +285,6 @@ function clearAll() {
   sortDesc.value = false
 }
 
-function closeDetail() {
-  selectedModel.value = null
-}
 function syncBuilderToQuery(conditions: BuilderCondition[]) {
   if (conditions.length === 0) { jql.rawQuery.value = ''; return }
   let q = conditions[0].jql
@@ -333,58 +312,55 @@ onMounted(() => window.addEventListener('load-saved-query', onLoadSavedQuery))
 onUnmounted(() => window.removeEventListener('load-saved-query', onLoadSavedQuery))
 
 function setSort(field: string) {
-  if (sortBy.value === field) sortDesc.value = !sortDesc.value
-  else { sortBy.value = field; sortDesc.value = false }
-}
-
-function exportCsv() {
-  const header = ['id', 'name', 'provider', 'status', 'context_length', 'input_price_per_million', 'output_price_per_million', 'is_free', 'best_for', 'notes', 'status_detail', 'status_tested', 'last_success', 'removed', 'removed_date']
-  const escape = (v: unknown) => {
-    const s = String(v ?? '')
-    return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s
+  if (sortBy.value === field) {
+    sortDesc.value = !sortDesc.value
+  } else {
+    sortBy.value = field
+    sortDesc.value = false
   }
-  const rows = sortedModels.value.map(m => [
-    m.id, m.name, m.provider, m._removed ? 'removed' : m.status.result, m.context_length ?? '',
-    m.input_price_per_million ?? '', m.output_price_per_million ?? '',
-    m.is_free ? 'yes' : 'no', m.best_for.join('; '), m.notes,
-    m.status.detail, m.status.tested || '', m.last_success || '', m._removed ? 'yes' : 'no', m._removedDate || '',
-  ].map(escape).join(','))
-  const meta = [
-    `# exported_at: ${new Date().toISOString()}`,
-    `# count: ${sortedModels.value.length}/${store.allModels.length}`,
-    `# query: ${jql.rawQuery.value || '(none)'}`,
-    `# sort: ${sortBy.value} ${sortDesc.value ? 'DESC' : 'ASC'}`,
-  ]
-  const csv = [...meta, header.join(','), ...rows].join('\n')
-  download(csv, 'models.csv', 'text/csv')
 }
 
-function exportJson() {
-  const data = sortedModels.value.map(m => ({
-    id: m.id, name: m.name, provider: m.provider, status: m._removed ? 'removed' : m.status.result,
-    context_length: m.context_length, input_price_per_million: m.input_price_per_million,
-    output_price_per_million: m.output_price_per_million, is_free: m.is_free,
-    best_for: m.best_for, notes: m.notes, status_detail: m.status.detail,
-    status_tested: m.status.tested, last_success: m.last_success || null,
-    _removed: m._removed || false, _removedDate: m._removedDate || null,
-  }))
-  const json = JSON.stringify({
-    _meta: {
-      exported_at: new Date().toISOString(),
-      count: data.length,
-      total_models: store.allModels.length,
-      jql_query: jql.rawQuery.value || null,
-      sort_by: sortBy.value,
-      sort_desc: sortDesc.value,
-    },
-    models: data,
-  }, null, 2)
-  download(json, 'models.json', 'application/json')
-}
+const filteredModels = computed(() => jql.filteredModels.value)
+
+const sortedItems = computed(() => {
+  const arr = [...filteredModels.value]
+  arr.sort((a, b) => {
+    let cmp = 0
+    switch (sortBy.value) {
+      case 'author':
+        cmp = (a.author ?? '').localeCompare(b.author ?? '')
+        if (cmp === 0) cmp = (a.provider ?? '').localeCompare(b.provider ?? '')
+        break
+      case 'provider':
+        cmp = (a.provider ?? '').localeCompare(b.provider ?? '')
+        break
+      case 'type':
+        cmp = (a.is_free === b.is_free) ? 0 : a.is_free ? -1 : 1
+        break
+      case 'status':
+        cmp = (a.status?.result ?? '').localeCompare(b.status?.result ?? '')
+        break
+      case 'context':
+        cmp = (a.context_length ?? 0) - (b.context_length ?? 0)
+        break
+      case 'detail':
+        cmp = (a.status?.detail ?? '').localeCompare(b.status?.detail ?? '')
+        break
+      case 'name':
+      default:
+        cmp = (a.name ?? '').localeCompare(b.name ?? '')
+        break
+    }
+    return sortDesc.value ? -cmp : cmp
+  })
+  return arr
+})
 
 function handleKeydown(e: KeyboardEvent) {
+  const tag = (e.target as HTMLElement)?.tagName
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return
   if (e.key === 'Escape') {
-    closeDetail()
+    if (selectedModel.value) selectedModel.value = null
   }
 }
 
@@ -402,43 +378,181 @@ function download(content: string, filename: string, mime: string) {
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
 }
-function sortIndicator(field: string): string { return sortBy.value !== field ? '⇅' : sortDesc.value ? '↓' : '↑' }
-function formatStatus(s: string): string { return s === 'rate_limited' ? 'Rate Limited' : s.charAt(0).toUpperCase() + s.slice(1) }
 
-const filteredModels = computed(() => jql.filteredModels.value)
-const sortedModels = computed(() => {
-  const sorted = [...filteredModels.value]
-  const dir = sortDesc.value ? -1 : 1
-  sorted.sort((a, b) => {
-    switch (sortBy.value) {
-      case 'provider': return dir * a.provider.localeCompare(b.provider)
-      case 'status': return dir * a.status.result.localeCompare(b.status.result)
-      case 'context': { const ac = a.context_length, bc = b.context_length; if (ac == null && bc == null) return 0; if (ac == null) return 1; if (bc == null) return -1; return dir * (ac - bc) }
-      case 'type': return dir * (a.is_free === b.is_free ? 0 : a.is_free ? -1 : 1)
-      case 'detail': return dir * a.status.detail.localeCompare(b.status.detail)
-      default: return dir * a.name.localeCompare(b.name)
-    }
-  })
-  return sorted
-})
-
-const fmt = new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 })
-function formatContext(n: number): string { return fmt.format(n) }
-
-const highlightedQuery = computed(() => {
-  const q = jql.rawQuery.value
-  if (!q) return ''
-  return q.replace(
-    /(\w+)([:=!<>]+|!=)([^\s]+)/g,
-    (_, field, op, val) =>
-      `<span class="jql-hl-field">${field}</span><span class="jql-hl-op">${op}</span><span class="jql-hl-val">${val}</span>`,
-  )
-})
-
-function underlineStyle(err: { start: number; end: number }) {
-  const charWidth = 7.8
-  const left = 36 + err.start * charWidth
-  const width = Math.max(8, (err.end - err.start) * charWidth)
-  return { left: `${left}px`, width: `${width}px` }
+function exportCsv() {
+  const header = ['id', 'name', 'author', 'provider', 'status', 'context_length', 'type', 'input_price_per_million', 'output_price_per_million', 'best_for', 'tools', 'notes', 'status_detail', 'status_tested', 'last_success', 'removed', 'removed_date']
+  const esc = (v: unknown) => {
+    const s = String(v ?? '')
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s
+  }
+  const rows = sortedItems.value.map(m => [
+    m.id, m.name, m.author ?? '', m.provider, m._removed ? 'removed' : m.status.result,
+    m.context_length ?? '', m.is_free ? 'free' : 'paid',
+    m.input_price_per_million ?? '', m.output_price_per_million ?? '',
+    m.best_for.join('; '), m.supports_tools ? 'yes' : 'no', m.notes,
+    m.status.detail, m.status.tested || '', m.last_success || '',
+    m._removed ? 'yes' : 'no', m._removedDate || '',
+  ].map(esc).join(','))
+  const meta = [
+    `# exported_at: ${new Date().toISOString()}`,
+    `# count: ${sortedItems.value.length}/${store.allModels.length}`,
+    `# query: ${jql.rawQuery.value || '(none)'}`,
+    `# sort: ${sortBy.value} ${sortDesc.value ? 'DESC' : 'ASC'}`,
+  ]
+  const csv = [...meta, header.join(','), ...rows].join('\n')
+  download(csv, 'models.csv', 'text/csv')
 }
+
+function exportJson() {
+  const data = sortedItems.value.map(m => ({
+    id: m.id, name: m.name, author: m.author ?? null, provider: m.provider,
+    status: m._removed ? 'removed' : m.status.result,
+    context_length: m.context_length, type: m.is_free ? 'free' : 'paid',
+    input_price_per_million: m.input_price_per_million ?? null,
+    output_price_per_million: m.output_price_per_million ?? null,
+    best_for: m.best_for, supports_tools: m.supports_tools ?? false,
+    notes: m.notes, status_detail: m.status.detail,
+    status_tested: m.status.tested || null, last_success: m.last_success || null,
+    _removed: m._removed || false, _removedDate: m._removedDate || null,
+  }))
+  const json = JSON.stringify({
+    _meta: {
+      exported_at: new Date().toISOString(),
+      count: data.length,
+      total_models: store.allModels.length,
+      jql_query: jql.rawQuery.value || null,
+      sort_by: sortBy.value,
+      sort_desc: sortDesc.value,
+    },
+    models: data,
+  }, null, 2)
+  download(json, 'models.json', 'application/json')
+}
+
+function formatStatus(s: string | undefined): string {
+  if (!s) return '—'
+  if (s === 'rate_limited') return 'Rate-limited'
+  if (s === 'small_model') return 'Small model'
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+const fmtCompact = new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 })
+function formatContext(n: number): string { return fmtCompact.format(n) }
 </script>
+
+<style scoped>
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sort-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.sort-select:focus {
+  border-color: var(--accent);
+}
+
+.sort-dir-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.sort-dir-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.result-count {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  margin-left: auto;
+  font-weight: 500;
+}
+
+.vscroll-table {
+  height: calc(100vh - 260px);
+  min-height: 300px;
+}
+
+.vscroll-row {
+  min-height: 56px;
+  height: auto;
+  align-items: flex-start;
+  padding: 4px 0;
+}
+
+.vscroll-cell {
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  min-height: 48px;
+}
+
+.col-status,
+.col-context,
+.col-type {
+  align-items: center;
+}
+
+:deep(.vscroll-row) {
+  cursor: pointer;
+}
+
+.col-name     { width: 20%; min-width: 150px; }
+.col-author   { width: 9%;  min-width: 75px; }
+.col-provider { width: 11%; min-width: 95px; }
+.col-type     { width: 7%;  min-width: 65px; }
+.col-status   { width: 8%;  min-width: 75px; }
+.col-context  { width: 7%;  min-width: 60px; }
+.col-detail   { width: 15%; min-width: 150px; }
+
+.sort-arrow {
+  font-size: 0.65rem;
+  opacity: 0.3;
+  font-weight: 400;
+}
+
+.sort-arrow.active {
+  opacity: 1;
+}
+
+.jql-bar {
+  margin-bottom: 4px;
+}
+
+.tool-tag {
+  background: rgba(88,166,255,0.10);
+  color: var(--accent);
+  border-color: rgba(88,166,255,0.2);
+}
+</style>

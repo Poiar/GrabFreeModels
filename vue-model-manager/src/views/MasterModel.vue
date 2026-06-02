@@ -2,7 +2,7 @@
   <div>
     <div class="page-header">
       <div class="breadcrumb">
-        <router-link to="/all">All Models</router-link>
+        <router-link to="/models">Models</router-link>
         <span class="sep">›</span>
         <span>{{ master?.name ?? '…' }}</span>
       </div>
@@ -10,7 +10,7 @@
         {{ master?.name ?? 'Loading…' }}
         <span v-if="masterFamily" class="header-family">{{ masterFamily }}</span>
       </h2>
-      <p>{{ master?.datapoints.length ?? 0 }} provider offering{{ master?.datapoints.length !== 1 ? 's' : '' }} for this model</p>
+      <p>{{ master?.datapoints.length ?? 0 }} instance{{ master?.datapoints.length !== 1 ? 's' : '' }} across {{ master?.providers?.length ?? 0 }} provider{{ master?.providers?.length !== 1 ? 's' : '' }}</p>
     </div>
 
     <div v-if="!master && !notFound" class="center-message">
@@ -458,6 +458,58 @@ tbody tr:hover {
 }
 tbody tr.row-removed {
   opacity: 0.5;
+}
+.row-expanded {
+  background: var(--accent-subtle);
+}
+
+.detail-row td {
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+}
+.detail-inline {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 16px;
+  padding: 12px 16px;
+  position: relative;
+}
+.detail-inline-col {
+  min-width: 0;
+}
+.detail-inline-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 4px;
+}
+.detail-inline-text {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+.detail-inline-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  align-self: start;
+  transition: all 0.12s;
+}
+.detail-inline-close:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
 }
 
 .col-provider {

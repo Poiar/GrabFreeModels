@@ -9,7 +9,7 @@ This document explains how to run, monitor, and maintain the GrabFreeModels work
 - **Log files**:
   - `nightly-summary.log` – human‑readable run summary.
   - `nightly-errors.log` – any Git or webhook errors.
-- **Snapshots**: After each run a copy of `available-models.json` is placed in `snapshots/`.
+- **Snapshots**: After each run the DB is exported to `available-models.json` and copied to `snapshots/`.
 
 ---
 ## 2. Metrics Exporter Service

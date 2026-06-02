@@ -57,7 +57,7 @@ Syncs new models into the DB from all providers (including models.dev data). Ski
 node scripts/export-from-pg.js
 ```
 
-Rebuilds `available-models.json` from DB (all sources).
+Exports DB → `available-models.json` for git history. Source of truth is PostgreSQL.
 
 ### Step 4: Validate (optional)
 
@@ -82,7 +82,7 @@ models.dev ──(Playwright)──▶ modelsdev-free-models.json
                              export-from-pg.js
                                     │
                                     ▼
-                      available-models.json (for git/compat)
+                      available-models.json (git history)
 ```
 
 ## Gotchas

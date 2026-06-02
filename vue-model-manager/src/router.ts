@@ -32,6 +32,12 @@ const routes = [
     meta: { title: 'Issues' },
   },
   {
+    path: '/models',
+    name: 'MasterList',
+    component: () => import('@/views/MasterList.vue'),
+    meta: { title: 'Models' },
+  },
+  {
     path: '/master/:id',
     name: 'MasterModel',
     component: () => import('@/views/MasterModel.vue'),

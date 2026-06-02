@@ -71,11 +71,11 @@
           <span class="formula-part ctx-part" :title="'Context length / 1,048,756 × ' + currentRoleMeta.ctxWeight">(ctx / 1M) × {{ currentRoleMeta.ctxWeight }}</span>
           <template v-if="currentRoleMeta.tagKeywords.length">
             <span class="formula-op">+</span>
-            <span class="formula-part tag-part" :title="'Matched tags: +1 each — ' + currentRoleMeta.tagKeywords.join(', ')">tags({{ currentRoleMeta.tagKeywords.join(', ') }})</span>
+            <span class="formula-part tag-part" :title="currentRoleMeta.tagKeywords.length + ' tags: ' + currentRoleMeta.tagKeywords.join(', ')">tags({{ currentRoleMeta.tagKeywords.length }})</span>
           </template>
           <template v-if="currentRoleMeta.tagPenaltyKeywords.length">
             <span class="formula-op">−</span>
-            <span class="formula-part penalty-part" :title="'Penalty tags: −0.5 each — ' + currentRoleMeta.tagPenaltyKeywords.join(', ')">penalty({{ currentRoleMeta.tagPenaltyKeywords.join(', ') }}) × 0.5</span>
+            <span class="formula-part penalty-part" :title="currentRoleMeta.tagPenaltyKeywords.length + ' penalties: ' + currentRoleMeta.tagPenaltyKeywords.join(', ')">penalty({{ currentRoleMeta.tagPenaltyKeywords.length }}) × 0.5</span>
           </template>
           <template v-if="currentRoleMeta.nameSizePenalty">
             <span class="formula-op">−</span>
@@ -103,8 +103,15 @@
           </button>
         </div>
       </div>
+      <div class="scoring-source">
+        <select v-model="scoringSource" class="sort-select scoring-select">
+          <option value="internal">Scoring: Internal</option>
+          <option v-for="src in availableSources" :key="src.id" :value="src.id">Scoring: {{ src.label }}</option>
+        </select>
+      </div>
       <div class="sort-controls">
         <select v-model="sortBy" class="sort-select">
+          <option value="rank">Sort: Rank</option>
           <option value="score">Sort: Score</option>
           <option value="name">Sort: Name</option>
           <option value="author">Sort: Author</option>
@@ -170,15 +177,7 @@
               </div>
             </div>
             <div class="vscroll-cell col-score">
-              <div class="score-wrap">
-                <span class="score-val">{{ formatScore(itemScore(item.modelId)) }}</span>
-                <span class="score-breakdown" v-if="itemScore(item.modelId)">
-                  <span class="score-part ctx-contrib" :title="'ctx: +' + (itemScore(item.modelId)?.ctxContrib ?? 0)">+{{ itemScore(item.modelId)?.ctxContrib ?? 0 }}</span>
-                  <span class="score-part tag-contrib" v-if="(itemScore(item.modelId)?.tagBonus ?? 0) > 0" :title="'tags: +' + (itemScore(item.modelId)?.tagBonus ?? 0)">+{{ itemScore(item.modelId)?.tagBonus ?? 0 }}</span>
-                  <span class="score-part pen-contrib" v-if="(itemScore(item.modelId)?.penaltyContrib ?? 0) > 0" :title="'penalty: −' + (itemScore(item.modelId)?.penaltyContrib ?? 0)">−{{ itemScore(item.modelId)?.penaltyContrib ?? 0 }}</span>
-                  <span class="score-part nsp-contrib" v-if="(itemScore(item.modelId)?.nameSizePenalty ?? 0) > 0" :title="'name penalty: −' + (itemScore(item.modelId)?.nameSizePenalty ?? 0)">−{{ itemScore(item.modelId)?.nameSizePenalty ?? 0 }}</span>
-                </span>
-              </div>
+              <span class="score-val" :title="scoreTooltip(itemScore(item.modelId))">{{ formatScore(itemScore(item.modelId)) }}</span>
             </div>
             <div class="vscroll-cell col-name">
               <router-link :to="item.model ? `/master/${item.model.master_id}` : ''" class="model-name-link" :title="item.model?.name ?? item.modelId" @click.stop>{{ item.model?.name ?? item.modelId }}</router-link>
@@ -248,7 +247,7 @@
           </div>
           <div class="unranked-meta">
             <span class="badge badge-provider">{{ model.provider }}</span>
-            <span v-if="model.context_length" class="badge badge-context">{{ fmtContext(model.context_length) }}</span>
+            <span v-if="model.context_length" class="badge badge-context">{{ formatContext(model.context_length) }}</span>
             <span v-for="tag in model.best_for.slice(0, 2)" :key="tag" class="tag">{{ tag }}</span>
           </div>
         </div>
@@ -309,6 +308,35 @@ async function handleCopy(id: string) {
 const ROLES = ['model', 'build', 'general', 'small_model', 'explore'] as const
 type Role = (typeof ROLES)[number]
 
+const SCORING_SOURCES = [
+  { id: 'internal', label: 'Internal' },
+  { id: 'artificial_analysis', label: 'Artificial Analysis' },
+] as const
+
+const scoringSource = ref('internal')
+
+const availableSources = computed(() => {
+  return SCORING_SOURCES.filter(s => s.id !== 'internal').filter(s => {
+    const scores = store.modelScores
+    if (!scores || !scores.scores) return false
+    const m = scores.scores instanceof Map ? scores.scores : new Map(Object.entries(scores.scores).map(([k, v]) => [Number(k), v]))
+    for (const arr of m.values()) {
+      if (arr && arr.some(sc => sc.source === s.id)) return true
+    }
+    return false
+  })
+})
+
+function getExternalScore(modelId, source) {
+  const scores = store.modelScores
+  if (!scores || !scores.scores) return null
+  const m = scores.scores instanceof Map ? scores.scores : new Map(Object.entries(scores.scores).map(([k, v]) => [Number(k), v]))
+  const arr = m.get(Number(modelId))
+  if (!arr) return null
+  const s = arr.find(sc => sc.source === source && sc.score_type === 'intelligence') || arr.find(sc => sc.source === source)
+  return s ? s.score_value : null
+}
+
 function formatRole(role: string): string {
   return role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
@@ -323,9 +351,7 @@ function formatStatus(s: string | undefined): string {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
-function fmtContext(n: number): string {
-  return n >= 1048576 ? (n / 1048576).toFixed(1) + 'M' : Math.round(n / 1000) + 'K'
-}
+
 
 const currentRoleMeta = computed(() => store.roleMeta[roleFilter.value] ?? null)
 
@@ -336,6 +362,16 @@ function itemScore(modelId: string): RoleScore | undefined {
 function formatScore(s: RoleScore | undefined): string {
   if (!s) return '—'
   return s.score.toFixed(2)
+}
+
+function scoreTooltip(s: RoleScore | undefined): string {
+  if (!s) return 'No score data'
+  const parts: string[] = [`total: ${s.score.toFixed(2)}`]
+  parts.push(`ctx: +${s.ctxContrib.toFixed(2)} (${s.ctx} tok × ${s.ctxWeight})`)
+  if (s.tagBonus > 0) parts.push(`tags: +${s.tagBonus} [${s.matchedTags.join(', ')}]`)
+  if (s.penaltyContrib > 0) parts.push(`penalty: −${s.penaltyContrib.toFixed(1)} [${s.matchedPenaltyTags.join(', ')}]`)
+  if (s.nameSizePenalty > 0) parts.push(`name penalty: −${s.nameSizePenalty}`)
+  return parts.join('\n')
 }
 
 interface ModelRanking {
@@ -410,6 +446,8 @@ function writeQueryToUrl(q: string) {
 onMounted(() => readQueryFromUrl())
 watch(() => jql.rawQuery.value, (q) => writeQueryToUrl(q))
 watch(() => roleFilter.value, () => writeQueryToUrl(jql.rawQuery.value ?? ''))
+watch(() => scoringSource.value, () => { sortBy.value = 'rank'; sortDesc.value = false })
+watch(() => scoringSource.value, () => { sortBy.value = 'rank'; sortDesc.value = false })
 
 watch(jql.sortSpec, (spec: SortSpec | null) => {
   if (spec) { sortBy.value = spec.field; sortDesc.value = spec.desc }
@@ -503,9 +541,16 @@ const sortedItems = computed(() => {
   const arr = filtered.value.map(mr => ({
     ...mr,
     model: store.getModelById(mr.modelId),
+    externalScore: scoringSource.value !== 'internal' ? getExternalScore(mr.modelId, scoringSource.value) : null,
   }))
   arr.sort((a, b) => {
     let cmp = 0
+    if (scoringSource.value !== 'internal') {
+      const sa = a.externalScore ?? -Infinity
+      const sb = b.externalScore ?? -Infinity
+      cmp = sb - sa
+      if (cmp !== 0) return cmp
+    }
     switch (sortBy.value) {
       case 'rank':
         cmp = a.roleRank - b.roleRank
@@ -766,7 +811,7 @@ function exportJson() {
   cursor: pointer;
 }
 
-.col-rank    { width: 13%; min-width: 110px; }
+.col-rank    { width: 13%; min-width: 110px; padding-right: 8px; }
 .col-score   { width: 12%; min-width: 110px; }
 .col-name    { width: 20%; min-width: 150px; }
 .col-author  { width: 9%;  min-width: 75px; }
@@ -1101,7 +1146,7 @@ function exportJson() {
 }
 .role-info-formula {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -1111,6 +1156,8 @@ function exportJson() {
   text-transform: uppercase;
   color: var(--text-dim);
   letter-spacing: 0.06em;
+  padding-top: 3px;
+  flex-shrink: 0;
 }
 .formula-expr {
   font-size: 0.75rem;
@@ -1119,11 +1166,13 @@ function exportJson() {
   align-items: center;
   gap: 5px;
   flex-wrap: wrap;
+  line-height: 1.6;
 }
 .formula-part {
   padding: 2px 7px;
   border-radius: 3px;
   font-weight: 600;
+  white-space: nowrap;
 }
 .ctx-part    { background: rgba(88,166,255,0.12); color: var(--accent); }
 .tag-part    { background: rgba(63,185,80,0.12);  color: var(--green); }
@@ -1149,31 +1198,12 @@ function exportJson() {
 .col-score {
   align-items: center;
 }
-.score-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
 .score-val {
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--text);
   font-variant-numeric: tabular-nums;
+  cursor: help;
+  border-bottom: 1px dotted var(--text-dim);
 }
-.score-breakdown {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-.score-part {
-  font-size: 0.6rem;
-  font-weight: 600;
-  padding: 1px 4px;
-  border-radius: 2px;
-  font-variant-numeric: tabular-nums;
-}
-.ctx-contrib  { background: rgba(88,166,255,0.10); color: var(--accent); }
-.tag-contrib  { background: rgba(63,185,80,0.10);  color: var(--green); }
-.pen-contrib  { background: rgba(210,153,34,0.10); color: var(--orange); }
-.nsp-contrib  { background: rgba(188,140,255,0.10); color: var(--purple); }
 </style>

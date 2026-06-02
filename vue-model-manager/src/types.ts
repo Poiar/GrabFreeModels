@@ -1,6 +1,6 @@
 export interface ModelStatus {
   tested: string | null
-  result: 'working' | 'broken' | 'rate_limited' | 'untested' | 'not_found' | 'untestable' | 'paid'
+  result: 'working' | 'broken' | 'rate_limited' | 'untested' | 'not_found' | 'paid'
   detail: string
 }
 
@@ -120,6 +120,18 @@ export interface RoleMeta {
   needsTools: boolean
 }
 
+export interface ModelScore {
+  source: string
+  score_type: string
+  score_value: number | null
+}
+
+export interface ModelScoresData {
+  description: string
+  sources: string[]
+  scores: Map<number, ModelScore[]> | Record<number, ModelScore[]>
+}
+
 export interface ModelsData {
   models: DatapointModel[]
   _test_summary: TestSummary
@@ -134,6 +146,7 @@ export interface ModelsData {
     _scores?: Record<string, RoleScore[]>
     _meta?: Record<string, RoleMeta>
   }
+  _model_scores: ModelScoresData
   _provider_usage: {
     description: string
     [provider: string]: ProviderUsage | string

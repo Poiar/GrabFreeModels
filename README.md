@@ -6,7 +6,7 @@ Discovers, tests, ranks, and syncs free LLM models across providers.
 
 ```bash
 node scripts/sync-models.js          # dry-run: see new/removed models
-node scripts/sync-models.js --apply  # write changes to available-models.json
+node scripts/sync-models.js --apply  # write changes to DB
 node scripts/validate-free-models.js --apply
 node scripts/nightly-maintenance.js  # full pipeline
 ```
@@ -14,12 +14,11 @@ node scripts/nightly-maintenance.js  # full pipeline
 ## Project Structure
 
 ```
-available-models.json       # built from PostgreSQL via export-from-pg.js
 scripts/                    # Node.js scripts (one per operation)
 skills/                     # opencode skill definitions
 docs/                       # reference documentation
 vue-model-manager/           # Vue 3 + Pinia frontend
-snapshots/                  # timestamped model snapshots
+snapshots/                  # timestamped model snapshots (from export-from-pg.js)
 ```
 
 ## Environment Variables
@@ -28,7 +27,7 @@ snapshots/                  # timestamped model snapshots
 |----------|---------|
 | `WEBHOOK_URL` | Alert webhook for nightly pipeline |
 | `GRAB_FREE_MODELS_ALERTS` | JSON blob with `webhook`, `slack`, `teams`, `email` keys |
-| `MODELS_FILE_PATH` | Override path to `available-models.json` (metrics exporter) |
+| `MODELS_FILE_PATH` | Deprecated. Metrics exporter now reads from DB directly. |
 
 ## Scripts
 

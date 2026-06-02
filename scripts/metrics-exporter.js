@@ -4,32 +4,25 @@
  * Serves Prometheus-compatible metrics for GrabFreeModels provider health.
  * Runs a lightweight HTTP listener on the specified port.
  *
- * Usage: node scripts/metrics-exporter.js [--port 9180] [--models path]
+ * Usage: node scripts/metrics-exporter.js [--port 9180]
  */
 
 const http = require('http');
-const fs = require('fs');
-const path = require('path');
+const loadModels = require('./load-models');
 
 const args = process.argv.slice(2);
 let port = 9180;
-let modelsFile = process.env.MODELS_FILE_PATH || null;
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--port' && args[i + 1]) port = parseInt(args[++i], 10);
-  if (args[i] === '--models' && args[i + 1]) modelsFile = args[++i];
 }
 
-if (!modelsFile) {
-  modelsFile = path.join(__dirname, '..', 'available-models.json');
-}
-
-function getMetrics() {
+async function getMetrics() {
   let json;
   try {
-    json = JSON.parse(fs.readFileSync(modelsFile, 'utf8'));
-  } catch {
-    return '# Error reading models file\n';
+    json = await loadModels();
+  } catch (err) {
+    return `# Error loading models: ${err.message}\n`;
   }
 
   const lines = [];
@@ -83,8 +76,8 @@ function getMetrics() {
   return lines.join('\n') + '\n';
 }
 
-const server = http.createServer((req, res) => {
-  const metrics = getMetrics();
+const server = http.createServer(async (req, res) => {
+  const metrics = await getMetrics();
   res.writeHead(200, {
     'Content-Type': 'text/plain; version=0.0.4',
     'Content-Length': Buffer.byteLength(metrics),

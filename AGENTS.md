@@ -45,7 +45,7 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - Connection via `DATABASE_URL` (pooler endpoint) loaded from `.env` — see `.env.example` for template.
 - Schema: `db/schema.sql` — v2 (master_models + datapoint_providers + datapoint_models). See `schema-v2` skill.
 - Run `npm run db:ping` to verify Neon connectivity.
-- Run `npm run db:export` to backup Neon → `available-models.json`.
+- Run `npm run db:export` to export Neon → `available-models.json` (git history snapshot).
 
 ## API Server
 
@@ -71,19 +71,20 @@ All scripts live in `scripts/`. Some have corresponding skills with additional w
 | `validate-jsonc.js` | Validate opencode.jsonc JSONC syntax: `node scripts/validate-jsonc.js [--short]` |
 | `get-auth-key.js` | Read a provider API key from auth.json: `node scripts/get-auth-key.js --provider <name> [--list]` |
 | `sync-auth-keys.js` | Sync API keys from auth.json into opencode.jsonc: `node scripts/sync-auth-keys.js [--apply] [--check]` |
-| `export-from-pg.js` | Dump PostgreSQL → `available-models.json` (module + CLI) |
+| `load-models.js` | Shared module: builds full models data from PG (same shape as `/api/data`) |
+| `export-from-pg.js` | Export PostgreSQL → `available-models.json` (for git history snapshots) |
 | `sync-models.js` | Fetch latest free models from providers, diff against DB. `--apply` inserts new + flags removed |
 | `validate-free-models.js` | Read/write DB. Tests models against APIs, auto re-ranks on `--apply` |
 | `rank-models.js` | Read/write DB metadata. Rebuilds `_role_rankings` via tag+ctx scoring |
 | `backfill-context.js` | Read/write DB. Fetches `context_length` for null entries from OpenRouter catalog |
 | `backfill-metadata.js` | Read/write DB. Backfills `supports_tools` + populates `stable` ranking |
 | `extract-modelsdev.js` | Scrape models.dev via Playwright → `modelsdev-free-models.json` |
-| `check-rankings.js` | Sanity-check `_role_rankings` integrity |
+| `check-rankings.js` | Sanity-check `_role_rankings` integrity (reads from DB) |
 | `cleanup-snapshots.js` | Rotate old model snapshots: `node scripts/cleanup-snapshots.js --keep 30` |
-| `generate-dashboard.js` | Generate HTML dashboard of provider health and rankings |
-| `health-badge.js` | Generate Shields.io health badge JSON |
-| `model-summary.js` | Text overview of model statuses and ranking sizes |
+| `generate-dashboard.js` | Generate HTML dashboard of provider health and rankings (reads from DB) |
+| `health-badge.js` | Generate Shields.io health badge JSON (reads from DB) |
+| `model-summary.js` | Text overview of model statuses and ranking sizes (reads from DB) |
 | `nightly-maintenance.js` | Full nightly pipeline (validate → rank → commit) |
 | `migrate-v1-to-v2.js` | Migrate v1 schema → v2 (master_models + datapoint_providers + datapoint_models) |
-| `metrics-exporter.js` | Serve Prometheus metrics on a local port |
+| `metrics-exporter.js` | Serve Prometheus metrics (reads from DB) |
 | `install-metrics-service.js` | Install metrics exporter as a Windows service |

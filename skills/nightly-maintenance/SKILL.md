@@ -9,7 +9,7 @@ Runs the full validation pipeline. See `scripts/nightly-maintenance.js` for flag
 
 ## Pipeline Steps
 
-1. **Snapshot** — saves `available-models.json` to `snapshots/`
+1. **Snapshot** — exports DB → `available-models.json`, saves copy to `snapshots/`
 2. **Validate** — re-tests rate-limited and untested models
 3. **Prune stale** — removes models non-working for >7 days
 4. **Backfill context** — fetches `context_length` for null entries

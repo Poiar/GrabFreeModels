@@ -29,6 +29,9 @@ badge/
 # Generated dashboard
 dashboard.html
 
+# Generated model data (source of truth is PostgreSQL)
+available-models.json
+
 # Nightly summary log
 nightly-summary.log
 

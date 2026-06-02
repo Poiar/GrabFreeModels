@@ -96,8 +96,18 @@ async function getSkipRemovalCheck(client) {
   return new Set(['openrouter/owl-alpha', 'openrouter/openrouter/free']);
 }
 
-function slugify(name) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').replace(/-{2,}/g, '-');
+function normalizeModelSlug(name) {
+  let slug = name.toLowerCase()
+    .replace(/\(free\)/g, '')
+    .replace(/\(free tier\)/g, '')
+    .replace(/^coding-/, '')
+    .replace(/^xiaomi-/, '')
+    .replace(/-free$/, '')
+    .replace(/-free-/, '-')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .replace(/-{2,}/g, '-');
+  return slug;
 }
 
 (async () => {
@@ -251,7 +261,7 @@ function slugify(name) {
           if (!providerId) { console.log(`  SKIP ${m.id}: unknown provider "${providerSlug}"`); continue; }
 
           const remoteId = m.id.includes('/') ? m.id.slice(m.id.indexOf('/') + 1) : m.id;
-          const masterSlug = slugify(m.name);
+          const masterSlug = normalizeModelSlug(m.name);
 
           // Upsert master model
           const { rows: mmRows } = await client.query(

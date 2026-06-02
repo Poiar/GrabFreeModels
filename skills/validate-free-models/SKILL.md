@@ -7,7 +7,7 @@ description: Use when testing or updating free model statuses. Trigger when addi
 
 ## Model Naming Conventions (CRITICAL)
 
-Model IDs in `available-models.json` use a provider prefix, but **APIs expect different formats**. Always resolve via `getApiModelId()` and pre-validate against provider APIs.
+Model IDs in the database use a `provider/model` prefix (the `full_id` field), but **APIs expect different formats**. Always resolve via `getApiModelId()` and pre-validate against provider APIs.
 
 | Stored ID format | API | API model ID |
 |---|---|---|

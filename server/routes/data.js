@@ -142,6 +142,20 @@ async function buildModelsData() {
     else untestedIds.push(dm.full_id);
   }
 
+  // Load model_scores
+  const { rows: scoreRows } = await pool.query(
+    'SELECT datapoint_model_id, source, score_type, score_value FROM model_scores'
+  );
+  const scoreMap = new Map();
+  for (const r of scoreRows) {
+    if (!scoreMap.has(r.datapoint_model_id)) scoreMap.set(r.datapoint_model_id, []);
+    scoreMap.get(r.datapoint_model_id).push({
+      source: r.source,
+      score_type: r.score_type,
+      score_value: r.score_value !== null ? Number(r.score_value) : null,
+    });
+  }
+
   const health = {};
   for (const m of outputModels) {
     if (!m.is_free) continue;
@@ -159,6 +173,11 @@ async function buildModelsData() {
       results: { working: workingIds, rate_limited: rateLimitedIds, broken: brokenIds, untested: untestedIds },
     },
     _role_rankings: meta._role_rankings || { description: '', model: [], build: [], general: [], small_model: [], explore: [], stable: [] },
+    _model_scores: {
+      description: 'External benchmark scores by source',
+      sources: ['artificial_analysis'],
+      scores: Object.fromEntries(scoreMap),
+    },
     _provider_usage: meta._provider_usage || { description: '' },
     _known_issues: meta._known_issues || { description: '', issues: [] },
     _validation_method: meta._validation_method || { description: '' },
