@@ -39,12 +39,12 @@ Where `tagBonus` = +1 for each `best_for` tag matching the role's keywords.
 
 | Role | ctxWeight | Tag Keywords | Sort Logic |
 |------|-----------|--------------|------------|
-| **model** | 1.0 | agentic, tool, reasoning, general, current default | High context + agentic capability |
+| **model** | 1.2 | agentic, tool, reasoning, current default, general purpose | Best overall — agentic + large context |
 | **build** | 0.6 | coding, code, refactor, agentic, tool | Coding-focused, moderate context |
-| **general** | 0.8 | general, multimodal, agentic, reasoning | Balanced, good context |
+| **general** | 0.5 | general, multimodal, fast, lightweight, chinese | Balanced everyday use — prefer speed over size |
 | **small_model** | -0.5 | lightweight, ultra-lightweight, fast, quick, small | **Negative** context weight — prefer small |
 | **explore** | 0.3 | thinking, reasoning, multimodal, new | Experimental, diversity |
-| **stable** | — | — | **Manually curated** — not auto-generated |
+| **stable** | 0.5 | — | Auto-populated by `backfill-metadata.js`: free + working + tools + tested ≥30 days ago. Sorted by context desc. |
 
 Tiebreaker: higher `context_length` wins.
 

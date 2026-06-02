@@ -26,14 +26,14 @@ export interface FieldDef {
 
 export const FILTERABLE_FIELDS: FieldDef[] = [
   { key: 'provider',  label: 'Provider',  type: 'select', searchable: true },
-  { key: 'status',    label: 'Status',    type: 'select', options: [
+  { key: 'status',    label: 'Status',    type: 'select', searchable: true, options: [
     { value: 'working', label: 'Working' },
     { value: 'broken', label: 'Broken' },
     { value: 'rate_limited', label: 'Rate Limited' },
     { value: 'untested', label: 'Untested' },
     { value: 'paid', label: 'Paid' },
   ]},
-  { key: 'type',      label: 'Type',      type: 'select', options: [
+  { key: 'type',      label: 'Type',      type: 'select', searchable: true, options: [
     { value: 'free', label: 'Free' },
     { value: 'paid', label: 'Paid' },
   ]},
@@ -142,12 +142,8 @@ export function parseQuery(raw: string): {
     if (isGrouped) groupClean = group.slice(1, -1).trim()
 
     const clause: JqlClause = []
-    const tokenRegex = new RegExp([
-      '(\\w+)\\s+(?:NOT\\s+)?IN\\s*\\(\\s*((?:"[^"]*"|[^)])+)\\)',
-      '(\\w+)\\s+IS\\s+NOT\\s+EMPTY',
-      '(\\w+)\\s+IS\\s+EMPTY',
-      '(?:NOT\\s+)?(\\w+)\\s*(?:(\\s*:>|\\s*:<|\\s*~|>|<|>=|<=|!=|:|=)\\s*|(\\s*~|>|<|>=|<=|!=))\\s*(?:"([^"]*?)"|(\\S+))',
-    ].join('|'), 'gi')
+    const tokenRegex =
+      /(\w+)\s+(?:NOT\s+)?IN\s*\(\s*((?:"[^"]*"|[^)])+)\)|(\w+)\s+IS\s+NOT\s+EMPTY|(\w+)\s+IS\s+EMPTY|(?:NOT\s+)?(\w+)\s*(?:(\s*:>|\s*:<|\s*~|>|<|>=|<=|!=|:|=)\s*|(\s*~|>|<|>=|<=|!=))\s*(?:"([^"]*?)"|(\S+))/gi
 
     let match: RegExpExecArray | null
     const consumed: Array<[number, number]> = []
@@ -201,7 +197,8 @@ export function parseQuery(raw: string): {
         errors.push({ message: `Expected a number for ${op}`, start: consumed[consumed.length - 1]?.[0] ?? 0, end: consumed[consumed.length - 1]?.[1] ?? 0 })
       }
 
-      clause.push({ field, op, rawValue, values: [rawValue], label: buildTokenLabel(FIELD_MAP[field]!, op, rawValue), modelField: field })
+      const fd = FIELD_MAP[field]
+      if (fd) clause.push({ field, op, rawValue, values: [rawValue], label: buildTokenLabel(fd, op, rawValue), modelField: field })
     }
 
     // Free text from non-consumed spans
@@ -304,7 +301,7 @@ export function modelMatches(m: Model, expr: JqlExpression, free: string): boole
 function matchToken(m: Model, t: FilterToken): boolean {
   if (t.field === '_text') return true
   const neg = t.op === '!='
-  let r: boolean
+  let r = false
   const rv = t.rawValue.toLowerCase()
   switch (t.field) {
     case 'provider': r = m.provider.toLowerCase() === rv; break

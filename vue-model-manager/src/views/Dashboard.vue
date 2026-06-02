@@ -35,6 +35,10 @@
         <div class="stat-label">Broken</div>
       </div>
       <div class="stat-card">
+        <div class="stat-value accent">{{ store.stats.untested }}</div>
+        <div class="stat-label">Untested</div>
+      </div>
+      <div class="stat-card">
         <div class="stat-value purple">{{ Math.round(store.stats.workingRatio * 100) }}%</div>
         <div class="stat-label">Success Rate</div>
       </div>
@@ -173,10 +177,6 @@ const providerEntries = computed(() => {
 .stat-card-highlight {
   border-color: var(--green-dim);
   background: linear-gradient(135deg, var(--bg-card) 0%, rgba(52,211,153,0.06) 100%);
-}
-
-.stat-card-highlight::before {
-  background: var(--green);
 }
 
 .section-title {

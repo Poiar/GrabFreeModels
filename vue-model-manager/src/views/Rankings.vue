@@ -336,7 +336,7 @@ const rankedIds = computed(() => {
 })
 
 const unrankedWorking = computed(() =>
-  store.workingModels.filter(m => !rankedIds.value.has(m.id) && !store.isModelProviderUsedUp(m.id))
+  store.workingModels.filter(m => !m._removed && !rankedIds.value.has(m.id) && !store.isModelProviderUsedUp(m.id))
 )
 
 const perPage = ref(25)

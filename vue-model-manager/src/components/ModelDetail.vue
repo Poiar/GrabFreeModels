@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onUnmounted } from 'vue'
 import type { Model } from '@/types'
 import { useModelsStore } from '@/store/models'
 
@@ -170,6 +170,11 @@ watch(() => props.model, (m) => {
   } else {
     document.removeEventListener('keydown', onKey)
   }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', onKey)
+  if (copyTimer) clearTimeout(copyTimer)
 })
 
 function onKey(e: KeyboardEvent) {

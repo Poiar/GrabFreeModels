@@ -37,7 +37,7 @@ export const useModelsStore = defineStore('models', () => {
 
   const paidModels = computed(() => allModels.value.filter(m => !m.is_free))
 
-  const workingModels = computed(() => freeModels.value.filter(m => m.status.result === 'working'))
+  const workingModels = computed(() => freeModels.value.filter(m => !m._removed && m.status.result === 'working'))
 
   const brokenModels = computed(() => freeModels.value.filter(m => m.status.result === 'broken'))
 

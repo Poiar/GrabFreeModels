@@ -12,7 +12,22 @@
     "dev": "cd vue-model-manager && npm run dev",
     "build": "cd vue-model-manager && npm run build",
     "preview": "cd vue-model-manager && npm run preview",
-    "mcp:playwright": "node node_modules/@playwright/mcp/cli.js --allowed-hosts localhost,127.0.0.1"
+    "mcp:playwright": "node node_modules/@playwright/mcp/cli.js --allowed-hosts localhost,127.0.0.1",
+    "validate": "node scripts/validate-free-models.js",
+    "validate:apply": "node scripts/validate-free-models.js --apply",
+    "sync": "node scripts/sync-models.js",
+    "sync:apply": "node scripts/sync-models.js --apply",
+    "backfill:context": "node scripts/backfill-context.js",
+    "backfill:context:apply": "node scripts/backfill-context.js --apply",
+    "backfill:metadata": "node scripts/backfill-metadata.js",
+    "backfill:metadata:apply": "node scripts/backfill-metadata.js --apply",
+    "rank": "node scripts/rank-models.js",
+    "rank:apply": "node scripts/rank-models.js --apply",
+    "re-rank": "npm run backfill:context:apply && npm run rank:apply && npm run backfill:metadata:apply && node scripts/check-rankings.js",
+    "check:rankings": "node scripts/check-rankings.js",
+    "nightly": "node scripts/nightly-maintenance.js",
+    "nightly:dry": "node scripts/nightly-maintenance.js --dry-run",
+    "summary": "node scripts/model-summary.js"
   },
   "dependencies": {
     "@playwright/mcp": "^0.0.75",

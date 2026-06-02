@@ -4,7 +4,7 @@
  * Verifies _role_rankings integrity:
  *   - All IDs exist in models array
  *   - No duplicates
- *   - No opencode/ models
+
  *   - No used-up providers (current month)
  *   - All models are free, working, not removed, and support tools
  *
@@ -61,14 +61,12 @@ for (const role of Object.keys(rankings)) {
     if (!modelIdSet.has(id)) {
       fail(`Missing model ID: ${id}`);
     }
-    if (id.startsWith('opencode/')) {
-      fail(`opencode/ model in ${role} ranking: ${id} — cannot be validated, should be excluded`);
-    }
-    const provider = id.indexOf('/') === -1 ? id : id.substring(0, id.indexOf('/'));
-    if (usedUpProviders.includes(provider)) {
-      fail(`Model '${id}' is from used-up provider '${provider}' in ${role}`);
-    }
+
     const model = json.models.find(m => m.id === id);
+    const providerName = model ? model.provider : (id.indexOf('/') === -1 ? id : id.substring(0, id.indexOf('/')));
+    if (usedUpProviders.includes(providerName)) {
+      fail(`Model '${id}' is from used-up provider '${providerName}' in ${role}`);
+    }
     if (model) {
       if (model._removed) {
         fail(`Model '${id}' is removed in ${role}`);

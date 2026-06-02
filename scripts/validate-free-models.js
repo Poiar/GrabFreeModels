@@ -76,6 +76,7 @@ function getEndpoint(modelId) {
   if (modelId.startsWith('huggingface/')) return 'huggingface';
   if (modelId.startsWith('llmgateway/')) return 'llmgateway';
   if (modelId.startsWith('deepseek/')) return 'deepseek';
+  if (modelId.startsWith('opencode/')) return 'opencode';
   return 'openrouter';
 }
 
@@ -86,6 +87,7 @@ const ENDPOINT_CONFIG = {
   huggingface: { url: 'https://router.huggingface.co/v1/chat/completions',   key: () => auth.huggingface.key, fetchIds: async () => null },
   llmgateway:  { url: 'https://api.llmgateway.io/v1/chat/completions',       key: () => auth.llmgateway.key,  fetchIds: async () => null },
   deepseek:    { url: 'https://api.deepseek.com/v1/chat/completions',         key: () => auth.deepseek.key,    fetchIds: async () => null },
+  opencode:    { url: 'https://opencode.ai/zen/v1/chat/completions',            key: () => auth.opencode.key,   fetchIds: async () => null },
 };
 
 async function parseOpenRouterModels(key) {
@@ -151,10 +153,11 @@ if (specificModels && specificModels.length > 0) {
   toTest = json.models.filter(m => specificModels.includes(m.id));
 } else {
   toTest = json.models.filter(m => {
-    if (!m.is_free || m.id.startsWith('opencode/')) return false;
+    if (!m.is_free) return false;
     const result = m.status.result;
     if (result === 'broken' || result === 'untested') return true;
     if (result === 'rate_limited') {
+      if (m.status.skip_retest === true && !FORCE) return false;
       // Re-test rate-limited models, but skip if tested very recently (< 1 day) to avoid API waste
       if (!FORCE) {
         const tested = m.status.tested || '';
@@ -179,14 +182,6 @@ if (CODING_ONLY) {
   toTest = toTest.filter(m => m.best_for && m.best_for.some(f =>
     /\b(cod|programm|agentic|reasoning|tool use|fast coding|fast responses?|lightweight|small tasks|function calling|code generation|code review|refactoring|thinking)\b/i.test(f)
   ));
-}
-
-// Track opencode/ models separately (can't test via HTTPS)
-const opencodeModels = json.models.filter(m => m.id.startsWith('opencode/') && m.is_free);
-if (!specificModels && opencodeModels.length > 0) {
-  console.log(`Note: ${opencodeModels.length} opencode/ model(s) skipped (require Zen SDK, not testable via HTTPS):`);
-  for (const m of opencodeModels) console.log(`  ${m.id} [${m.status.result}]`);
-  console.log();
 }
 
 if (toTest.length === 0) { console.log('No models to test.'); process.exit(0); }
@@ -300,26 +295,9 @@ if (toTest.length === 0) { console.log('No models to test.'); process.exit(0); }
 
   // --- Apply results ---
   const today = new Date().toISOString().slice(0, 10);
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  const usedUpProviders = [];
-  if (json._provider_usage) {
-    for (const [p, entry] of Object.entries(json._provider_usage)) {
-      if (p !== 'description' && entry?.month === currentMonth) usedUpProviders.push(p);
-    }
-  }
 
-  // Also handle opencode/ models marked as untestable — remove from role_rankings
-  for (const m of json.models) {
-    if (m.id.startsWith('opencode/') && m.status.result === 'untestable') {
-      const roles = ['model', 'build', 'general', 'small_model', 'explore'];
-      for (const role of roles) {
-        const list = json._role_rankings[role] || [];
-        const idx = list.indexOf(m.id);
-        if (idx !== -1) list.splice(idx, 1);
-      }
-    }
-  }
-
+  // NOTE: opencode/ models are skipped (require Zen SDK). They keep their existing status.
+  // NOTE: _role_rankings are NOT updated here — that's rank-models.js's job.
   for (const r of allResults) {
     const model = json.models.find(m => m.id === r.id);
     if (!model) continue;
@@ -338,14 +316,6 @@ if (toTest.length === 0) { console.log('No models to test.'); process.exit(0); }
     else if (r.status === 'broken') { rm(ts.working); rm(ts.rate_limited); rm(ts.untested); rm(ts.not_found); rm(ts.untestable); if (!ts.broken.includes(r.id)) ts.broken.push(r.id); }
     else if (r.status === 'not_found') { rm(ts.working); rm(ts.rate_limited); rm(ts.broken); rm(ts.untested); rm(ts.untestable); if (!ts.not_found.includes(r.id)) ts.not_found.push(r.id); }
 
-    // Update _role_rankings — keep only working models
-    const roles = ['model', 'build', 'general', 'small_model', 'explore'];
-    for (const role of roles) {
-      const list = json._role_rankings[role] || [];
-      const idx = list.indexOf(r.id);
-      if (r.status === 'working' && idx === -1) list.push(r.id);
-      else if (r.status !== 'working' && idx !== -1) list.splice(idx, 1);
-    }
   }
 
   json._test_summary.date = today;

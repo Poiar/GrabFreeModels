@@ -33,7 +33,8 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `metrics-exporter` — Prometheus metrics endpoint / service installer
 - `rank-models` — rebuild `_role-rankings` using deterministic scoring algorithm
 - `check-rankings` — sanity-check `_role_rankings` (existence, eligibility, no duplicates)
-- `backfill-metadata` — backfill `supports_tools` and populate `stable` ranking
+- `backfill-metadata` — populate `stable` ranking (free + working + tools + tested ≥30 days)
+- `backfill-context` — fetch `context_length` for null entries (OpenRouter catalog + known values)
 
 ## Lean Files Policy
 

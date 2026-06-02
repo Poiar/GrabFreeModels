@@ -20,7 +20,9 @@ Model IDs in `available-models.json` use a provider prefix, but **APIs expect di
 | `huggingface/moonshotai/Kimi-K2` | `router.huggingface.co` | `moonshotai/Kimi-K2` (strip `huggingface/`) |
 | `llmgateway/glm-4.7-flash` | `llmgateway.io` | `glm-4.7-flash` (strip `llmgateway/`) |
 | `deepseek/deepseek-v4-flash` | `deepseek.com` | `deepseek-v4-flash` (strip `deepseek/`) |
-| `opencode/deepseek-v4-flash-free` | **Zen SDK only** | **Can't test via raw HTTPS** — skip in validation |
+| `opencode/deepseek-v4-flash-free` | `opencode.ai/zen/v1` | `deepseek-v4-flash-free` (strip `opencode/`) |
+| `opencode/big-pickle` | `opencode.ai/zen/v1` | `big-pickle` (strip `opencode/`) |
+| `opencode/nemotron-3-super-free` | `opencode.ai/zen/v1` | `nemotron-3-super-free` (strip `opencode/`) |
 
 ### OpenRouter Free Model Detection
 Free models either have `:free` suffix OR zero pricing (`prompt=0, completion=0`). Filter must check both. `openrouter/owl-alpha` is the key example — free but no `:free` suffix.
@@ -59,6 +61,19 @@ node scripts/validate-free-models.js --force --apply
 
 Rate-limited models are always candidates for re-test, but models tested within the last 24 hours are skipped to avoid wasting API calls on freshly rate-limited endpoints. Use `--force` to override.
 
+### Permanently Rate-Limited Models (`skip_retest`)
+
+If a model is rate-limited due to a provider-wide restriction (e.g. HuggingFace Router's very low free-tier limits), add `"skip_retest": true` to its `status` object. This prevents the validation script from wasting API calls on models that won't recover between retests. Still overridable with `--force`.
+
+Pattern:
+```json
+"status": {
+  "result": "rate_limited",
+  "detail": "...",
+  "skip_retest": true
+}
+```
+
 ## Test Interpretation
 
 - **6/6 OK** → `working`
@@ -72,6 +87,6 @@ Rate-limited models are always candidates for re-test, but models tested within 
 
 - **Pre-validation is essential** — never test a model whose name doesn't exist in the provider API. Wrong names cause false 404s that look like model failures.
 - **Sequential within endpoint, parallel across endpoints** — avoids provider-wide 429s while still being fast (7 endpoints in parallel).
-- **`opencode/` models** require the `@opencode-ai/zen` npm SDK. Can't be tested via raw HTTPS. Always skip them.
+- **`opencode/` models** use `https://opencode.ai/zen/v1` with `@ai-sdk/openai-compatible`. Testable via raw HTTPS — no longer need to skip.
 - **Burst + delayed phases run in parallel per model** (`Promise.all`) — each phase's 3 requests are sequential within the phase.
 - 404 during test = model genuinely gone from provider. Mark `not_found`, don't keep re-testing.

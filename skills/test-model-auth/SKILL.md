@@ -1,6 +1,6 @@
 ---
 name: test-model-auth
-description: Use for testing model providers via direct API calls (OpenRouter, Cerebras, NVIDIA, HuggingFace, LLM Gateway). Reads auth keys from auth.json. Also use when adding, rotating, or managing provider API keys.
+description: Use for testing model providers via direct API calls (OpenRouter, Cerebras, NVIDIA, HuggingFace, LLM Gateway, OpenCode Zen). Reads auth keys from auth.json. Also use when adding, rotating, or managing provider API keys.
 ---
 
 # Model Provider Keys

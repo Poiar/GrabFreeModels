@@ -1,6 +1,6 @@
 ---
 name: backfill-metadata
-description: Use for backfilling supports_tools field and stabilizing role rankings. Triggers: "backfill metadata", "populate supports_tools", "fill missing fields", "tag models with tool support".
+description: Use for populating the stable role ranking and backfilling supports_tools. Triggers: "backfill metadata", "populate stable", "fill missing fields", "tag models with tool support".
 ---
 
 # Backfill Metadata

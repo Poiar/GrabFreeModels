@@ -1,6 +1,6 @@
 export interface ModelStatus {
   tested: string | null
-  result: 'working' | 'broken' | 'rate_limited' | 'untested' | 'paid'
+  result: 'working' | 'broken' | 'rate_limited' | 'untested' | 'not_found' | 'untestable' | 'paid'
   detail: string
 }
 
@@ -29,6 +29,8 @@ export interface TestSummary {
     broken: string[]
     untested: string[]
     rate_limited: string[]
+    not_found: string[]
+    untestable: string[]
     schema_issues: string[]
   }
 }

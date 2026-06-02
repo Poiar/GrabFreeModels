@@ -2,8 +2,9 @@
 /**
  * nightly-maintenance.js
  * Intended for scheduled execution (e.g., Windows Task Scheduler / cron).
- * Snapshots current state, validates free models, runs ranking sanity check, generates a summary,
- * commits and pushes changes. Auto-rolls back if working count drops or health falls below 70%.
+ * Snapshots current state, validates free models, backfills context, re-ranks, populates stable,
+ * runs ranking sanity check, regenerates test summary, commits and pushes changes.
+ * Auto-rolls back if working count drops or health falls below 70%.
  *
  * Usage: node scripts/nightly-maintenance.js
  */
@@ -53,24 +54,8 @@ if (fs.existsSync(MODELS_FILE)) {
   fs.copyFileSync(MODELS_FILE, PREV_COPY);
 }
 
-// 0.5. Prune opencode/ models from role rankings (can't be validated via HTTPS)
-console.log('Pruning opencode/ models from role rankings...');
-const pruneJson = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
-let pruned = 0;
-for (const role of Object.keys(pruneJson._role_rankings)) {
-  if (role === 'description') continue;
-  const arr = pruneJson._role_rankings[role];
-  if (!Array.isArray(arr)) continue;
-  const filtered = arr.filter(id => !id.startsWith('opencode/'));
-  if (filtered.length !== arr.length) {
-    pruneJson._role_rankings[role] = filtered;
-    pruned += arr.length - filtered.length;
-  }
-}
-if (pruned > 0) {
-  fs.writeFileSync(MODELS_FILE, JSON.stringify(pruneJson, null, 2), 'utf8');
-  console.log(`  Removed ${pruned} opencode/ entries from rankings`);
-}
+// 0.5. opencode/ models are now included in rankings (verified working + supports_tools).
+//     No pruning needed — they are treated like any other free working model.
 
 // 1. Run validation (updates statuses)
 console.log('Running validation...');
@@ -101,11 +86,44 @@ if (rankPruned > 0) {
   console.log(`  Removed ${rankPruned} stale non-working entries from rankings`);
 }
 
-// 2. Run sanity check (after pruning, so rankings are clean)
+// 2.5. Backfill context_length for models with null values
+console.log('Backfilling context_length...');
+execSync('node scripts/backfill-context.js --apply', { stdio: 'inherit' });
+
+// 2.6. Snapshot pre-ranking state for drift detection
+const preRankJson = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
+const preRankTop3 = {};
+for (const role of Object.keys(preRankJson._role_rankings)) {
+  if (role === 'description') continue;
+  const arr = preRankJson._role_rankings[role];
+  preRankTop3[role] = Array.isArray(arr) ? arr.slice(0, 3) : [];
+}
+
+// 2.7. Re-rank models with updated data
+console.log('Re-ranking models...');
+execSync('node scripts/rank-models.js --apply', { stdio: 'inherit' });
+
+// 2.7.5. Detect ranking drift — warn if top-3 changed drastically
+const postRankJson = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
+for (const role of Object.keys(preRankTop3)) {
+  const postTop3 = (postRankJson._role_rankings[role] || []).slice(0, 3);
+  const preIds = new Set(preRankTop3[role]);
+  const postIds = new Set(postTop3);
+  const changed = ![...preIds].every(id => postIds.has(id));
+  if (changed) {
+    console.log(`  ⚠ ${role} top-3 changed: [${preRankTop3[role].join(', ')}] → [${postTop3.join(', ')}]`);
+  }
+}
+
+// 2.8. Populate stable ranking
+console.log('Populating stable ranking...');
+execSync('node scripts/backfill-metadata.js --apply', { stdio: 'inherit' });
+
+// 2.9. Run sanity check (after re-ranking, so rankings are clean)
 console.log('Running ranking sanity check...');
 execSync('node scripts/check-rankings.js', { stdio: 'inherit' });
 
-// 2.8. Regenerate _test_summary from current data
+// 3. Regenerate _test_summary from current data
 console.log('Regenerating _test_summary...');
 const summaryJson = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
 const freeModels = summaryJson.models.filter(m => m.is_free);
@@ -123,12 +141,12 @@ summaryJson._test_summary = {
 fs.writeFileSync(MODELS_FILE, JSON.stringify(summaryJson, null, 2), 'utf8');
 console.log(`  _test_summary updated: ${byResult('working').length} working, ${byResult('rate_limited').length} rate_limited, ${byResult('broken').length} broken`);
 
-// 3. Generate summary (log to file)
+// 4. Generate summary (log to file)
 const summaryOutput = execSync('node scripts/model-summary.js', { encoding: 'utf8' });
 fs.writeFileSync(SUMMARY_LOG, summaryOutput, 'utf8');
 console.log(`Summary written to ${SUMMARY_LOG}`);
 
-// 4. Detect changes
+// 5. Detect changes
 let hasChanges = false;
 try {
   execSync(`git diff --quiet ${MODELS_FILE}`, { stdio: 'pipe' });
@@ -178,7 +196,7 @@ if (hasChanges) {
   const date = new Date().toISOString().slice(0, 10);
   execSync(`git commit -m "chore(models): nightly validation ${date}"`);
 
-  // 5. Push changes
+  // 6. Push changes
   execSync('git push origin master');
   console.log('Pushed commits');
 } else {

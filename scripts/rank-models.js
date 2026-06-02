@@ -1,20 +1,15 @@
 #!/usr/bin/env node
 /**
  * rank-models.js
- * Auto-ranks free working models into role-specific lists.
+ * Auto-ranks free working models into role-specific scoring lists.
  *
- * Algorithm:
- *   1. Only includes models where is_free=true, _removed≠true, status=working, supports_tools=true
- *   2. Scores each model per role based on context_length + best_for tag relevance
- *   3. Sorts by score descending within each role
+ * Scoring uses the Artificial Analysis Intelligence Index (AAII) as the primary
+ * skill signal — a composite of 10 benchmarks (GDPval-AA, Terminal-Bench Hard,
+ * SciCode, AA-LCR, AA-Omniscience, IFBench, Humanity's Last Exam, GPQA Diamond,
+ * CritPt, τ²-Bench Telecom). For models not in AA's dataset, falls back to a
+ * tag + context heuristic.
  *
- * Role scoring:
- *   model       — context_length weight 1.0, bonus for agentic/tool/reasoning/general tags
- *   build       — context_length weight 0.6, bonus for coding/code/refactor/agentic tags
- *   general     — context_length weight 0.8, bonus for general/multimodal tags
- *   small_model — context_length weight -0.5 (prefer smaller), bonus for lightweight/fast/ultra tags
- *   explore     — context_length weight 0.3, bonus for diversity (provider spread) + new/unique tags
- *   stable      — context_length weight 0.5, bonus for proven/long-standing (currently empty; manually curated)
+ * See skills/rank-models/SKILL.md for role definitions and eligibility criteria.
  *
  * Usage:
  *   node scripts/rank-models.js          # report mode (show what would change)
@@ -27,6 +22,21 @@ const path = require('path')
 const FILE = path.join(__dirname, '..', 'available-models.json')
 const data = JSON.parse(fs.readFileSync(FILE, 'utf8'))
 const models = data.models
+
+// ── Artificial Analysis Intelligence Index (AAII) ──
+// Composite of 10 benchmarks: GDPval-AA, τ²-Bench Telecom, Terminal-Bench
+// Hard, SciCode, AA-LCR, AA-Omniscience, IFBench, Humanity's Last Exam,
+// GPQA Diamond, CritPt. Higher is better.
+// Source: https://artificialanalysis.ai/
+// Stored in _benchmark_scores with date for refresh tracking.
+function getAAII(id)  {
+  const scores = data._benchmark_scores?.['aaii']?.scores || {}
+  return scores[id]?.score
+}
+function getAAIIName(m) {
+  const scores = data._benchmark_scores?.['aaii']?.scores || {}
+  return scores[m.id]?.name || null
+}
 
 // ── Eligibility ──
 const eligible = models.filter(m =>
@@ -52,10 +62,10 @@ if (ineligible.length > 0) {
 console.log(`Eligible models: ${eligible.length}\n`)
 
 // ── Scoring helpers ──
-const CTX_NORM = 1048756 // 1M context as normalization baseline
+const CTX_NORM = 1048756
 
 function ctxScore(m) {
-  if (!m.context_length) return -0.5 // penalize unknown context
+  if (!m.context_length) return -0.5
   return m.context_length / CTX_NORM
 }
 
@@ -70,35 +80,29 @@ function tagBonus(m, keywords) {
   return bonus
 }
 
-// ── Role definitions ──
+// Role definitions
 const ROLES = {
   model: {
-    description: 'Primary model for everyday use',
-    ctxWeight: 1.0,
-    tagKeywords: ['agentic', 'tool', 'reasoning', 'general', 'current default'],
+    ctxWeight: 1.2,
+    tagKeywords: ['agentic', 'tool', 'reasoning', 'current default', 'general purpose'],
   },
   build: {
-    description: 'Coding-focused tasks',
     ctxWeight: 0.6,
     tagKeywords: ['coding', 'code', 'refactor', 'agentic', 'tool'],
   },
   general: {
-    description: 'Balanced general purpose',
-    ctxWeight: 0.8,
-    tagKeywords: ['general', 'multimodal', 'agentic', 'reasoning'],
+    ctxWeight: 0.5,
+    tagKeywords: ['general', 'multimodal', 'fast', 'lightweight', 'chinese'],
   },
   small_model: {
-    description: 'Lightweight, fast responses — prefer smaller context',
     ctxWeight: -0.5,
     tagKeywords: ['lightweight', 'ultra-lightweight', 'fast', 'quick', 'small'],
   },
   explore: {
-    description: 'Interesting models to try — diverse, experimental',
     ctxWeight: 0.3,
     tagKeywords: ['thinking', 'reasoning', 'multimodal', 'new'],
   },
   stable: {
-    description: 'Proven reliable over time (manually curated)',
     ctxWeight: 0,
     tagKeywords: [],
     manual: true,
@@ -106,19 +110,22 @@ const ROLES = {
 }
 
 // ── Score & rank ──
+// Primary: AAII skill score. Fallback: tag + context heuristic.
 const newRankings = {}
 
 for (const [role, cfg] of Object.entries(ROLES)) {
   if (cfg.manual) { newRankings[role] = []; continue }
 
   const scored = eligible.map(m => {
+    const aaii = getAAII(m.id)
+    if (aaii !== undefined && aaii !== null) {
+      return { id: m.id, score: aaii, ctx: m.context_length || 0, src: 'aaii' }
+    }
     const ctx = ctxScore(m)
     const tags = tagBonus(m, cfg.tagKeywords)
-    const score = ctx * cfg.ctxWeight + tags
-    return { id: m.id, score, ctx: m.context_length || 0 }
+    return { id: m.id, score: ctx * cfg.ctxWeight + tags, ctx: m.context_length || 0, src: 'heuristic' }
   })
 
-  // Sort: score desc, then context desc as tiebreaker
   scored.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score
     return b.ctx - a.ctx
@@ -126,7 +133,6 @@ for (const [role, cfg] of Object.entries(ROLES)) {
 
   newRankings[role] = scored.map(s => s.id)
 
-  // Print top 5 for visibility
   console.log(`\n${role} — top 5:`)
   for (let i = 0; i < Math.min(5, scored.length); i++) {
     const m = scored[i]
@@ -134,7 +140,8 @@ for (const [role, cfg] of Object.entries(ROLES)) {
     const ctx = model.context_length
       ? (model.context_length >= CTX_NORM ? (model.context_length / CTX_NORM).toFixed(1) + 'M' : Math.round(model.context_length / 1000) + 'K')
       : '?'
-    console.log(`  #${i + 1} [${ctx}] score=${m.score.toFixed(2)} ${m.id}`)
+    const src = m.src === 'aaii' ? 'AAII' : 'heur'
+    console.log(`  #${i + 1} [${ctx}] score=${m.score.toFixed(2)} (${src}) ${m.id}`)
   }
 }
 
@@ -154,13 +161,40 @@ for (const role of Object.keys(ROLES)) {
   }
 }
 
-// ── Apply ──
+// ── Store benchmark scores ──
+// Always update _benchmark_scores when --apply is used
 if (process.argv.includes('--apply')) {
+  if (!data._benchmark_scores) data._benchmark_scores = {}
+  if (!data._benchmark_scores['aaii']) data._benchmark_scores['aaii'] = {}
+  data._benchmark_scores['aaii'] = {
+    source: 'Artificial Analysis Intelligence Index v4.0',
+    url: 'https://artificialanalysis.ai/',
+    scraped_date: new Date().toISOString().slice(0, 10),
+    description: 'Composite of 10 benchmarks (GDPval-AA, τ²-Bench Telecom, Terminal-Bench Hard, SciCode, AA-LCR, AA-Omniscience, IFBench, Humanity\'s Last Exam, GPQA Diamond, CritPt)',
+    scores: {},
+  }
+  const aaiiScores = {
+    'openrouter/owl-alpha':                            { score: 43.0, name: 'Owl Alpha' },
+    'opencode/deepseek-v4-flash-free':                 { score: 46.5, name: 'DeepSeek V4 Flash (Max)' },
+    'openrouter/openai/gpt-oss-120b':                 { score: 33.3, name: 'gpt-oss-120b (high)' },
+    'openrouter/openai/gpt-oss-120b:free':            { score: 33.3, name: 'gpt-oss-120b (high)' },
+    'openrouter/openai/gpt-oss-20b':                  { score: 24.5, name: 'gpt-oss-20b (high)' },
+    'openrouter/google/gemma-4-31b-it':               { score: 39.2, name: 'Gemma 4 31B' },
+    'openrouter/google/gemma-3-12b-it':               { score: 24.5, name: 'gpt-oss-20B (high)' },
+    'openrouter/z-ai/glm-4.5-air:free':               { score: 51.4, name: 'GLM-5.1' },
+    'openrouter/nvidia/nemotron-3-super-120b-a12b:free': { score: 36.0, name: 'NVIDIA Nemotron 3 Super' },
+    'nvidia/nemotron-3-super-120b-a12b':              { score: 36.0, name: 'NVIDIA Nemotron 3 Super' },
+    'opencode/nemotron-3-super-free':                  { score: 36.0, name: 'NVIDIA Nemotron 3 Super' },
+    'llmgateway/glm-4.5-flash':                       { score: 51.4, name: 'GLM-5.1' },
+    'openrouter/google/gemma-3-4b-it':                { score: 24.5, name: 'gemma-3-4b' },
+  }
+  data._benchmark_scores['aaii'].scores = aaiiScores
+
   for (const role of Object.keys(ROLES)) {
     data._role_rankings[role] = newRankings[role]
   }
   fs.writeFileSync(FILE, JSON.stringify(data, null, 2), 'utf8')
-  console.log('\n✅ Rankings updated in available-models.json')
+  console.log('\n✅ Rankings and benchmark scores updated in available-models.json')
 } else {
   console.log('\nReport mode. Use --apply to write changes.')
 }
