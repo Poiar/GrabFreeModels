@@ -59,6 +59,36 @@
       @clear="onBuilderClear"
     />
 
+    <!-- Role Info Panel -->
+    <div class="role-info-panel" v-if="currentRoleMeta">
+      <div class="role-info-header">
+        <span class="role-info-name" :data-role="roleFilter">{{ formatRole(roleFilter) }}</span>
+        <span class="role-info-desc">{{ currentRoleMeta.description }}</span>
+      </div>
+      <div class="role-info-formula">
+        <span class="formula-label">Score</span>
+        <span class="formula-expr">
+          <span class="formula-part ctx-part" :title="'Context length / 1,048,756 × ' + currentRoleMeta.ctxWeight">(ctx / 1M) × {{ currentRoleMeta.ctxWeight }}</span>
+          <template v-if="currentRoleMeta.tagKeywords.length">
+            <span class="formula-op">+</span>
+            <span class="formula-part tag-part" :title="'Matched tags: +1 each — ' + currentRoleMeta.tagKeywords.join(', ')">tags({{ currentRoleMeta.tagKeywords.join(', ') }})</span>
+          </template>
+          <template v-if="currentRoleMeta.tagPenaltyKeywords.length">
+            <span class="formula-op">−</span>
+            <span class="formula-part penalty-part" :title="'Penalty tags: −0.5 each — ' + currentRoleMeta.tagPenaltyKeywords.join(', ')">penalty({{ currentRoleMeta.tagPenaltyKeywords.join(', ') }}) × 0.5</span>
+          </template>
+          <template v-if="currentRoleMeta.nameSizePenalty">
+            <span class="formula-op">−</span>
+            <span class="formula-part nsp-part" title="Large model name penalty (1.5)">nameSize</span>
+          </template>
+        </span>
+      </div>
+      <div class="role-info-constraints" v-if="currentRoleMeta.maxCtx || currentRoleMeta.needsTools">
+        <span v-if="currentRoleMeta.needsTools" class="constraint-badge">Requires Tools</span>
+        <span v-if="currentRoleMeta.maxCtx" class="constraint-badge">Max {{ formatContext(currentRoleMeta.maxCtx) }} ctx</span>
+      </div>
+    </div>
+
     <div class="filters">
       <div class="role-filter">
         <div class="type-pills">
@@ -66,14 +96,16 @@
             v-for="role in ROLES"
             :key="role"
             :class="['status-btn', { active: roleFilter === role }]"
+            :data-role="role"
             @click="onRoleClick(role)"
           >
             {{ formatRole(role) }}
           </button>
         </div>
       </div>
-      <div class="sort-controls" v-if="sortBy !== 'rank'">
+      <div class="sort-controls">
         <select v-model="sortBy" class="sort-select">
+          <option value="score">Sort: Score</option>
           <option value="name">Sort: Name</option>
           <option value="author">Sort: Author</option>
           <option value="provider">Sort: Provider</option>
@@ -91,6 +123,9 @@
       <div class="vscroll-header-row">
         <div class="vscroll-header-cell col-rank sortable" :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
           Rank <SortArrow :active="sortBy === 'rank'" :desc="sortDesc" />
+        </div>
+        <div class="vscroll-header-cell col-score sortable" :class="{ active: sortBy === 'score' }" @click="setSort('score')">
+          Score <SortArrow :active="sortBy === 'score'" :desc="sortDesc" />
         </div>
         <div class="vscroll-header-cell col-name sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
           Model <SortArrow :active="sortBy === 'name'" :desc="sortDesc" />
@@ -134,8 +169,19 @@
                 </span>
               </div>
             </div>
+            <div class="vscroll-cell col-score">
+              <div class="score-wrap">
+                <span class="score-val">{{ formatScore(itemScore(item.modelId)) }}</span>
+                <span class="score-breakdown" v-if="itemScore(item.modelId)">
+                  <span class="score-part ctx-contrib" :title="'ctx: +' + (itemScore(item.modelId)?.ctxContrib ?? 0)">+{{ itemScore(item.modelId)?.ctxContrib ?? 0 }}</span>
+                  <span class="score-part tag-contrib" v-if="(itemScore(item.modelId)?.tagBonus ?? 0) > 0" :title="'tags: +' + (itemScore(item.modelId)?.tagBonus ?? 0)">+{{ itemScore(item.modelId)?.tagBonus ?? 0 }}</span>
+                  <span class="score-part pen-contrib" v-if="(itemScore(item.modelId)?.penaltyContrib ?? 0) > 0" :title="'penalty: −' + (itemScore(item.modelId)?.penaltyContrib ?? 0)">−{{ itemScore(item.modelId)?.penaltyContrib ?? 0 }}</span>
+                  <span class="score-part nsp-contrib" v-if="(itemScore(item.modelId)?.nameSizePenalty ?? 0) > 0" :title="'name penalty: −' + (itemScore(item.modelId)?.nameSizePenalty ?? 0)">−{{ itemScore(item.modelId)?.nameSizePenalty ?? 0 }}</span>
+                </span>
+              </div>
+            </div>
             <div class="vscroll-cell col-name">
-              <div class="model-name" :title="item.model?.name ?? item.modelId">{{ item.model?.name ?? item.modelId }}</div>
+              <router-link :to="item.model ? `/master/${item.model.master_id}` : ''" class="model-name-link" :title="item.model?.name ?? item.modelId" @click.stop>{{ item.model?.name ?? item.modelId }}</router-link>
               <div class="model-id-wrap">
                 <span class="model-id" :title="item.modelId">{{ item.modelId }}</span>
                 <button class="copy-btn" :class="{ copied: copiedIds.has(item.modelId) }" :title="copiedIds.has(item.modelId) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(item.modelId)">
@@ -218,7 +264,7 @@ import { useModelsStore } from '@/store/models'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import { useJqlFilter } from '@/composables/useJqlFilter'
 import type { FilterToken, SortSpec } from '@/composables/useJqlFilter'
-import type { Model } from '@/types'
+import type { Model, RoleScore } from '@/types'
 import type { BuilderCondition } from '@/components/QueryBuilder.vue'
 import QueryBuilder from '@/components/QueryBuilder.vue'
 import ModelDetail from '@/components/ModelDetail.vue'
@@ -279,6 +325,17 @@ function formatStatus(s: string | undefined): string {
 
 function fmtContext(n: number): string {
   return n >= 1048576 ? (n / 1048576).toFixed(1) + 'M' : Math.round(n / 1000) + 'K'
+}
+
+const currentRoleMeta = computed(() => store.roleMeta[roleFilter.value] ?? null)
+
+function itemScore(modelId: string): RoleScore | undefined {
+  return store.getRoleScore(roleFilter.value, modelId)
+}
+
+function formatScore(s: RoleScore | undefined): string {
+  if (!s) return '—'
+  return s.score.toFixed(2)
 }
 
 interface ModelRanking {
@@ -468,6 +525,9 @@ const sortedItems = computed(() => {
       case 'context':
         cmp = (a.model?.context_length ?? 0) - (b.model?.context_length ?? 0)
         break
+      case 'score':
+        cmp = (itemScore(a.modelId)?.score ?? 0) - (itemScore(b.modelId)?.score ?? 0)
+        break
       default:
         cmp = 0
     }
@@ -515,7 +575,7 @@ function download(content: string, filename: string, mime: string) {
 }
 
 function exportCsv() {
-  const header = ['model_id', 'model_name', 'provider', 'status', 'context_length', 'best_for', 'role_rankings']
+  const header = ['model_id', 'model_name', 'provider', 'status', 'context_length', 'score', 'best_for', 'role_rankings']
   const esc = (v: unknown) => {
     const s = String(v ?? '')
     return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s
@@ -523,6 +583,7 @@ function exportCsv() {
   const rows = sortedItems.value.map(mr => [
     mr.modelId, mr.model?.name ?? '', mr.model?.provider ?? '',
     mr.model?.status?.result ?? '', mr.model?.context_length ?? '',
+    itemScore(mr.modelId)?.score ?? '',
     (mr.model?.best_for ?? []).join('; '),
     mr.rankings.map(r => `${r.role}:${r.rank}`).join('; '),
   ].map(esc).join(','))
@@ -537,16 +598,28 @@ function exportCsv() {
 }
 
 function exportJson() {
-  const data = sortedItems.value.map(mr => ({
-    model_id: mr.modelId,
-    model_name: mr.model?.name ?? null,
-    provider: mr.model?.provider ?? null,
-    status: mr.model?.status?.result ?? null,
-    context_length: mr.model?.context_length ?? null,
-    best_for: mr.model?.best_for ?? [],
-    tools: mr.model?.supports_tools ?? null,
-    role_rankings: mr.rankings.map(r => ({ role: r.role, rank: r.rank })),
-  }))
+  const data = sortedItems.value.map(mr => {
+    const sc = itemScore(mr.modelId)
+    return {
+      model_id: mr.modelId,
+      model_name: mr.model?.name ?? null,
+      provider: mr.model?.provider ?? null,
+      status: mr.model?.status?.result ?? null,
+      context_length: mr.model?.context_length ?? null,
+      score: sc?.score ?? null,
+      score_breakdown: sc ? {
+        ctx_contrib: sc.ctxContrib,
+        tag_bonus: sc.tagBonus,
+        tag_penalty: sc.penaltyContrib,
+        name_size_penalty: sc.nameSizePenalty,
+        matched_tags: sc.matchedTags,
+        matched_penalty_tags: sc.matchedPenaltyTags,
+      } : null,
+      best_for: mr.model?.best_for ?? [],
+      tools: mr.model?.supports_tools ?? null,
+      role_rankings: mr.rankings.map(r => ({ role: r.role, rank: r.rank })),
+    }
+  })
   const json = JSON.stringify({
     _meta: {
       exported_at: new Date().toISOString(),
@@ -607,6 +680,11 @@ function exportJson() {
   background: var(--accent-subtle, rgba(88,166,255,0.12));
   color: var(--accent);
 }
+.status-btn.active[data-role="model"]       { background: rgba(88,166,255,0.12); color: var(--accent);  box-shadow: 0 0 0 2px var(--accent),  0 0 8px rgba(255,255,255,0.08); }
+.status-btn.active[data-role="build"]       { background: rgba(63,185,80,0.12);  color: var(--green);   box-shadow: 0 0 0 2px var(--green),   0 0 8px rgba(255,255,255,0.08); }
+.status-btn.active[data-role="general"]     { background: rgba(188,140,255,0.12); color: var(--purple);  box-shadow: 0 0 0 2px var(--purple),  0 0 8px rgba(255,255,255,0.08); }
+.status-btn.active[data-role="small_model"] { background: rgba(210,153,34,0.12); color: var(--orange);  box-shadow: 0 0 0 2px var(--orange),  0 0 8px rgba(255,255,255,0.08); }
+.status-btn.active[data-role="explore"]     { background: rgba(57,210,192,0.12);  color: var(--cyan);    box-shadow: 0 0 0 2px var(--cyan),    0 0 8px rgba(255,255,255,0.08); }
 
 .sort-controls {
   display: flex;
@@ -688,14 +766,14 @@ function exportJson() {
   cursor: pointer;
 }
 
-.col-rank    { width: 16%; min-width: 140px; }
-.col-name    { width: 24%; min-width: 180px; }
-.col-author  { width: 10%; min-width: 80px; }
-.col-provider { width: 12%; min-width: 100px; }
-.col-status  { width: 9%;  min-width: 80px; }
+.col-rank    { width: 13%; min-width: 110px; }
+.col-score   { width: 12%; min-width: 110px; }
+.col-name    { width: 20%; min-width: 150px; }
+.col-author  { width: 9%;  min-width: 75px; }
+.col-provider { width: 11%; min-width: 95px; }
+.col-status  { width: 8%;  min-width: 75px; }
 .col-context { width: 7%;  min-width: 60px; }
-.col-tools   { width: 5%;  min-width: 50px; }
-.col-detail  { width: 17%; min-width: 160px; }
+.col-detail  { width: 15%; min-width: 150px; }
 
 .sort-arrow {
   font-size: 0.65rem;
@@ -744,8 +822,6 @@ function exportJson() {
 .rank-pill[data-role="general"]     { background: rgba(188,140,255,0.12); color: var(--purple); }
 .rank-pill[data-role="small_model"] { background: rgba(210,153,34,0.12); color: var(--orange); }
 .rank-pill[data-role="explore"]     { background: rgba(57,210,192,0.12);  color: var(--cyan); }
-/* Active role filter highlight */
-.rank-pill.rank-active                        { box-shadow: 0 0 0 2px currentColor, 0 0 8px rgba(255,255,255,0.08); font-size: 0.72rem; padding: 4px 11px; }
 
 /* Top 3 highlight */
 .rank-pill.rank-top[data-role="model"]       { background: rgba(88,166,255,0.22); box-shadow: 0 0 0 1px rgba(88,166,255,0.2); }
@@ -753,6 +829,13 @@ function exportJson() {
 .rank-pill.rank-top[data-role="general"]     { background: rgba(188,140,255,0.22); box-shadow: 0 0 0 1px rgba(188,140,255,0.2); }
 .rank-pill.rank-top[data-role="small_model"] { background: rgba(210,153,34,0.22); box-shadow: 0 0 0 1px rgba(210,153,34,0.2); }
 .rank-pill.rank-top[data-role="explore"]     { background: rgba(57,210,192,0.22);  box-shadow: 0 0 0 1px rgba(57,210,192,0.2); }
+
+/* Active role filter highlight (after rank-top so it wins) */
+.rank-pill.rank-active[data-role="model"]       { background: rgba(88,166,255,0.28); box-shadow: 0 0 0 2px currentColor, 0 0 8px rgba(255,255,255,0.08); font-size: 0.72rem; padding: 4px 11px; }
+.rank-pill.rank-active[data-role="build"]       { background: rgba(63,185,80,0.28);  box-shadow: 0 0 0 2px currentColor, 0 0 8px rgba(255,255,255,0.08); font-size: 0.72rem; padding: 4px 11px; }
+.rank-pill.rank-active[data-role="general"]     { background: rgba(188,140,255,0.28); box-shadow: 0 0 0 2px currentColor, 0 0 8px rgba(255,255,255,0.08); font-size: 0.72rem; padding: 4px 11px; }
+.rank-pill.rank-active[data-role="small_model"] { background: rgba(210,153,34,0.28); box-shadow: 0 0 0 2px currentColor, 0 0 8px rgba(255,255,255,0.08); font-size: 0.72rem; padding: 4px 11px; }
+.rank-pill.rank-active[data-role="explore"]     { background: rgba(57,210,192,0.28);  box-shadow: 0 0 0 2px currentColor, 0 0 8px rgba(255,255,255,0.08); font-size: 0.72rem; padding: 4px 11px; }
 
 /* ── Model cell ── */
 .model-name {
@@ -983,4 +1066,114 @@ function exportJson() {
 .jql-bar {
   margin-bottom: 4px;
 }
+
+/* ── Role info panel ── */
+.role-info-panel {
+  background: var(--bg-card, rgba(255,255,255,0.03));
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: var(--radius, 8px);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.role-info-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.role-info-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.role-info-name[data-role="model"]       { color: var(--accent); }
+.role-info-name[data-role="build"]       { color: var(--green); }
+.role-info-name[data-role="general"]     { color: var(--purple); }
+.role-info-name[data-role="small_model"] { color: var(--orange); }
+.role-info-name[data-role="explore"]     { color: var(--cyan); }
+.role-info-desc {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+.role-info-formula {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.formula-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+.formula-expr {
+  font-size: 0.75rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.formula-part {
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.ctx-part    { background: rgba(88,166,255,0.12); color: var(--accent); }
+.tag-part    { background: rgba(63,185,80,0.12);  color: var(--green); }
+.penalty-part { background: rgba(210,153,34,0.12); color: var(--orange); }
+.nsp-part    { background: rgba(188,140,255,0.12); color: var(--purple); }
+.formula-op  { color: var(--text-dim); font-weight: 700; }
+.role-info-constraints {
+  display: flex;
+  gap: 6px;
+}
+.constraint-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--radius-full, 999px);
+  background: rgba(255,255,255,0.06);
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Score cell ── */
+.col-score {
+  align-items: center;
+}
+.score-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.score-val {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.score-breakdown {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.score-part {
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.ctx-contrib  { background: rgba(88,166,255,0.10); color: var(--accent); }
+.tag-contrib  { background: rgba(63,185,80,0.10);  color: var(--green); }
+.pen-contrib  { background: rgba(210,153,34,0.10); color: var(--orange); }
+.nsp-contrib  { background: rgba(188,140,255,0.10); color: var(--purple); }
 </style>

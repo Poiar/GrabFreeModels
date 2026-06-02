@@ -14,7 +14,7 @@ node scripts/nightly-maintenance.js  # full pipeline
 ## Project Structure
 
 ```
-available-models.json       # source of truth for all tracked models
+available-models.json       # built from PostgreSQL via export-from-pg.js
 scripts/                    # Node.js scripts (one per operation)
 skills/                     # opencode skill definitions
 docs/                       # reference documentation
@@ -37,7 +37,7 @@ snapshots/                  # timestamped model snapshots
 | `sync-models.js` | Fetch free models from providers, diff against JSON |
 | `validate-free-models.js` | Re-test rate-limited/untested models |
 | `check-rankings.js` | Sanity-check `_role_rankings` against model IDs |
-| `nightly-maintenance.js` | Full pipeline: validate → rank → summarize → commit → push |
+| `nightly-maintenance.js` | Full pipeline: snapshot → validate → backfill → re-rank → check → commit → alert |
 | `model-summary.js` | Quick status overview |
 | `generate-dashboard.js` | HTML dashboard of provider health |
 | `health-badge.js` | Shields.io health badge JSON |

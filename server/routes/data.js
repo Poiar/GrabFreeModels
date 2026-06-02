@@ -70,9 +70,15 @@ async function buildModelsData() {
       'SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)',
       [dmIds]
     );
+    const knownFeatures = ['best_for', 'tag', 'supports_reasoning', 'output_limit', 'temperature', 'open_weights', 'family', 'knowledge_cutoff', 'release_date', 'last_updated'];
     for (const r of featRows) {
-      if (!featMap.has(r.datapoint_model_id)) featMap.set(r.datapoint_model_id, { tag: [], best_for: [] });
-      featMap.get(r.datapoint_model_id)[r.feature_type === 'best_for' ? 'best_for' : 'tag'].push(r.value);
+      if (!featMap.has(r.datapoint_model_id)) {
+        const obj = { tag: [], best_for: [] };
+        for (const f of knownFeatures) obj[f] = [];
+        featMap.set(r.datapoint_model_id, obj);
+      }
+      const bucket = knownFeatures.includes(r.feature_type) ? r.feature_type : 'tag';
+      featMap.get(r.datapoint_model_id)[bucket].push(r.value);
     }
   }
 
@@ -96,14 +102,14 @@ async function buildModelsData() {
       output_price_per_million: Number(dm.output_price_per_million) || 0,
       is_free: dm.is_free,
       supports_tools: dm.supports_tools,
-      supports_reasoning: dm.supports_reasoning,
-      output_limit: dm.output_limit || null,
-      temperature: dm.temperature,
-      open_weights: dm.open_weights,
-      family: dm.family || null,
-      knowledge_cutoff: dm.knowledge_cutoff || null,
-      releaseDate: formatDate(dm.release_date),
-      lastUpdated: formatDate(dm.last_updated),
+      supports_reasoning: featMap.get(dm.id)?.supports_reasoning?.[0] === 'true' || null,
+      output_limit: featMap.get(dm.id)?.output_limit?.[0] ? parseInt(featMap.get(dm.id).output_limit[0], 10) : null,
+      temperature: featMap.get(dm.id)?.temperature?.[0] === 'true' || null,
+      open_weights: featMap.get(dm.id)?.open_weights?.[0] === 'true' || null,
+      family: featMap.get(dm.id)?.family?.[0] || null,
+      knowledge_cutoff: featMap.get(dm.id)?.knowledge_cutoff?.[0] || null,
+      releaseDate: featMap.get(dm.id)?.release_date?.[0] || null,
+      lastUpdated: featMap.get(dm.id)?.last_updated?.[0] || null,
       tags: featMap.get(dm.id)?.tag || [],
       best_for: featMap.get(dm.id)?.best_for || [],
       input_types: inputMap.get(dm.id) || [],

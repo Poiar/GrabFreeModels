@@ -7,13 +7,16 @@ const DATA_FILE = path.join(__dirname, '..', 'available-models.json');
 async function exportData(pool) {
   let ownPool = false;
   if (!pool) {
-    pool = new Pool({
-      host: process.env.PGHOST || 'localhost',
-      port: parseInt(process.env.PGPORT || '5432'),
-      user: process.env.PGUSER || 'gfm',
-      password: process.env.PGPASSWORD || 'gfm',
-      database: process.env.PGDATABASE || 'grabfreemodels',
-    });
+    const connectionString = process.env.DATABASE_URL;
+    pool = connectionString
+      ? new Pool({ connectionString, ssl: { rejectUnauthorized: false } })
+      : new Pool({
+          host: process.env.PGHOST || 'localhost',
+          port: parseInt(process.env.PGPORT || '5432'),
+          user: process.env.PGUSER,
+          password: process.env.PGPASSWORD,
+          database: process.env.PGDATABASE,
+        });
     ownPool = true;
   }
 
@@ -61,9 +64,15 @@ async function exportData(pool) {
         'SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)',
         [dmIds]
       );
+      const knownFeatures = ['best_for', 'tag', 'supports_reasoning', 'output_limit', 'temperature', 'open_weights', 'family', 'knowledge_cutoff', 'release_date', 'last_updated'];
       for (const r of featRows) {
-        if (!featMap.has(r.datapoint_model_id)) featMap.set(r.datapoint_model_id, { tag: [], best_for: [] });
-        featMap.get(r.datapoint_model_id)[r.feature_type === 'best_for' ? 'best_for' : 'tag'].push(r.value);
+        if (!featMap.has(r.datapoint_model_id)) {
+          const obj = { tag: [], best_for: [] };
+          for (const f of knownFeatures) obj[f] = [];
+          featMap.set(r.datapoint_model_id, obj);
+        }
+        const bucket = knownFeatures.includes(r.feature_type) ? r.feature_type : 'tag';
+        featMap.get(r.datapoint_model_id)[bucket].push(r.value);
       }
     }
 
@@ -87,14 +96,14 @@ async function exportData(pool) {
         output_price_per_million: Number(dm.output_price_per_million) || 0,
         is_free: dm.is_free,
         supports_tools: dm.supports_tools,
-        supports_reasoning: dm.supports_reasoning,
-        output_limit: dm.output_limit || null,
-        temperature: dm.temperature,
-        open_weights: dm.open_weights,
-        family: dm.family || null,
-        knowledge_cutoff: dm.knowledge_cutoff || null,
-        releaseDate: dm.release_date ? (typeof dm.release_date === 'string' ? dm.release_date.slice(0, 10) : dm.release_date.toISOString().slice(0, 10)) : null,
-        lastUpdated: dm.last_updated ? (typeof dm.last_updated === 'string' ? dm.last_updated.slice(0, 10) : dm.last_updated.toISOString().slice(0, 10)) : null,
+        supports_reasoning: featMap.get(dm.id)?.supports_reasoning?.[0] === 'true' || null,
+        output_limit: featMap.get(dm.id)?.output_limit?.[0] ? parseInt(featMap.get(dm.id).output_limit[0], 10) : null,
+        temperature: featMap.get(dm.id)?.temperature?.[0] === 'true' ? true : null,
+        open_weights: featMap.get(dm.id)?.open_weights?.[0] === 'true' ? true : null,
+        family: featMap.get(dm.id)?.family?.[0] || null,
+        knowledge_cutoff: featMap.get(dm.id)?.knowledge_cutoff?.[0] || null,
+        releaseDate: featMap.get(dm.id)?.release_date?.[0] || null,
+        lastUpdated: featMap.get(dm.id)?.last_updated?.[0] || null,
         tags: featMap.get(dm.id)?.tag || [],
         best_for: featMap.get(dm.id)?.best_for || [],
         input_types: inputMap.get(dm.id) || [],

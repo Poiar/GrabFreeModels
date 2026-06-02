@@ -145,7 +145,7 @@
         <template #default="{ item: model }">
           <div class="vscroll-row row-clickable" :class="{ 'row-removed': model._removed }" @click="selectedModel = model" role="button" :title="'View details for ' + model.name">
             <div class="vscroll-cell col-name">
-              <div class="model-name" :title="model.name">{{ model.name }}</div>
+              <router-link :to="`/master/${model.master_id}`" class="model-name-link" :title="model.name" @click.stop>{{ model.name }}</router-link>
               <div class="model-id-wrap">
                 <span class="model-id" :title="model.id">{{ model.id }}</span>
                 <button class="copy-btn" :class="{ copied: copiedIds.has(model.id) }" :title="copiedIds.has(model.id) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(model.id)">

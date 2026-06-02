@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { ModelsData, DatapointModel, MasterModel } from '@/types'
+import type { ModelsData, DatapointModel, MasterModel, RoleScore, RoleMeta } from '@/types'
 
 const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
 type Role = (typeof ROLE_ORDER)[number]
@@ -71,7 +71,10 @@ export const useModelsStore = defineStore('models', () => {
     return Array.from(set).sort()
   })
 
-  const allAuthorNames = computed(() => [] as string[])
+  const allAuthorNames = computed(() => {
+    const set = new Set(allDatapoints.value.map(d => d.author).filter((a): a is string => !!a))
+    return Array.from(set).sort()
+  })
 
   const providerHealth = computed(() => {
     const health: Record<string, { working: number; rate_limited: number; broken: number; total: number }> = {}
@@ -92,6 +95,14 @@ export const useModelsStore = defineStore('models', () => {
     for (const role of ROLE_ORDER) result[role] = r[role] ?? []
     return result
   })
+
+  const roleScores = computed(() => data.value?._role_rankings?._scores ?? {} as Record<string, RoleScore[]>)
+
+  const roleMeta = computed(() => data.value?._role_rankings?._meta ?? {} as Record<string, RoleMeta>)
+
+  function getRoleScore(role: string, modelId: string): RoleScore | undefined {
+    return roleScores.value[role]?.find(s => s.id === modelId)
+  }
 
   const knownIssues = computed(() => data.value?._known_issues.issues ?? [])
 
@@ -213,7 +224,7 @@ export const useModelsStore = defineStore('models', () => {
     allModels, allDatapoints, freeModels, paidModels,
     workingModels, brokenModels, rateLimitedModels, untestedModels, removedModels,
     schemaIssueModels, allProviderNames, allAuthorNames, providerHealth,
-    roleRankings, knownIssues, providerUsage,
+    roleRankings, roleScores, roleMeta, getRoleScore, knownIssues, providerUsage,
     currentMonth, usedUpProviders, usedUpProviderSet, isProviderUsedUp,
     extractProvider, isModelProviderUsedUp,
     testSummary, validationMethod, stats,

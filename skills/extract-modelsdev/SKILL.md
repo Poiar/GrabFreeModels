@@ -38,18 +38,18 @@ description: Fetch and import free model data from https://models.dev/. Triggers
 ### Step 1: Scrape
 
 ```bash
-node skills/extract-modelsdev/scripts/extract-modelsdev.js
+node scripts/extract-modelsdev.js
 ```
 
 Writes `modelsdev-free-models.json` (free models only). Use `--all` to include paid models.
 
-### Step 2: Migrate into PostgreSQL
+### Step 2: Sync into PostgreSQL
 
 ```bash
-node scripts/migrate-modelsdev.js
+node scripts/sync-models.js --apply
 ```
 
-Loads new models into the DB. Skips duplicates (matches on `full_id = providerId/modelId`). Sets `provider_models.source = 'models.dev'` and `status_result = 'untested'`.
+Syncs new models into the DB from all providers (including models.dev data). Skips duplicates (matches on `full_id`). New models get `status_result = 'untested'`.
 
 ### Step 3: Export to JSON
 
@@ -74,16 +74,14 @@ Models from providers without API keys stay `untested` until credentials are add
 ```
 models.dev ──(Playwright)──▶ modelsdev-free-models.json
                                     │
-                          ┌─────────┴─────────┐
-                     migrate-to-pg.js    migrate-modelsdev.js
-                          │                    │
-                          └──────┬─────────────┘
-                                 ▼
-                           PostgreSQL (source='curated'|'models.dev')
-                                 │
-                          export-from-pg.js
-                                 │
-                                 ▼
+                             sync-models.js (--apply)
+                                    │
+                                    ▼
+                              PostgreSQL (source='curated'|'models.dev')
+                                    │
+                             export-from-pg.js
+                                    │
+                                    ▼
                       available-models.json (for git/compat)
 ```
 

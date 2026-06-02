@@ -20,21 +20,16 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `model-recommendations` — ALWAYS consult before suggesting any model
 - `parallel-todos` — use for independent parallel subagent tasks
 - `validate-free-models` — test and validate free model statuses
-- `sync-models` — fetch latest free models from providers, diff against JSON
+- `sync-models` — fetch latest free models from providers, sync to DB + JSON
 - `validate-jsonc` — validate opencode.jsonc syntax before session end
 - `secret-scanning` — run Gitleaks locally, update allowlist, validate config, handle CI failures
 - `vue-gotchas` — Vue 3 + Pinia framework gotchas
 - `playwright-test` — test/screenshot the Vue frontend at localhost:5173
-- `nightly-maintenance` — full validation pipeline (validate → rank → summarize → commit)
-- `model-summary` — quick overview of model statuses and ranking sizes
-- `generate-dashboard` — generate HTML dashboard of provider health
-- `health-badge` — generate Shields.io health badge JSON
-- `cleanup-snapshots` — rotate old model snapshots
+- `nightly-maintenance` — full nightly validation pipeline
 - `metrics-exporter` — Prometheus metrics endpoint / service installer
 - `rank-models` — rebuild `_role-rankings` using deterministic scoring algorithm
-- `check-rankings` — sanity-check `_role_rankings` (existence, eligibility, no duplicates)
-- `backfill-metadata` — populate `stable` ranking (free + working + tools + tested ≥30 days)
-- `backfill-context` — fetch `context_length` for null entries (OpenRouter catalog + known values)
+- `extract-modelsdev` — scrape models.dev for free model data
+- `schema-v2` — DB schema documentation (master_models + datapoint_providers + datapoint_models)
 
 ## Lean Files Policy
 
@@ -68,7 +63,7 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 
 ## Scripts
 
-All scripts live in `scripts/`. Each script has a corresponding skill — see the skill for usage details.
+All scripts live in `scripts/`. Some have corresponding skills with additional workflow guidance — see the skill for details.
 
 | Script | Purpose |
 |--------|---------|
@@ -83,3 +78,12 @@ All scripts live in `scripts/`. Each script has a corresponding skill — see th
 | `backfill-context.js` | Read/write DB. Fetches `context_length` for null entries from OpenRouter catalog |
 | `backfill-metadata.js` | Read/write DB. Backfills `supports_tools` + populates `stable` ranking |
 | `extract-modelsdev.js` | Scrape models.dev via Playwright → `modelsdev-free-models.json` |
+| `check-rankings.js` | Sanity-check `_role_rankings` integrity |
+| `cleanup-snapshots.js` | Rotate old model snapshots: `node scripts/cleanup-snapshots.js --keep 30` |
+| `generate-dashboard.js` | Generate HTML dashboard of provider health and rankings |
+| `health-badge.js` | Generate Shields.io health badge JSON |
+| `model-summary.js` | Text overview of model statuses and ranking sizes |
+| `nightly-maintenance.js` | Full nightly pipeline (validate → rank → commit) |
+| `migrate-v1-to-v2.js` | Migrate v1 schema → v2 (master_models + datapoint_providers + datapoint_models) |
+| `metrics-exporter.js` | Serve Prometheus metrics on a local port |
+| `install-metrics-service.js` | Install metrics exporter as a Windows service |

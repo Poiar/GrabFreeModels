@@ -1,12 +1,15 @@
 const { Pool } = require('pg');
 
-const pool = new Pool({
-  host: process.env.PGHOST || 'localhost',
-  port: parseInt(process.env.PGPORT || '5432'),
-  user: process.env.PGUSER || 'gfm',
-  password: process.env.PGPASSWORD || 'gfm',
-  database: process.env.PGDATABASE || 'grabfreemodels',
-});
+const connectionString = process.env.DATABASE_URL;
+const pool = connectionString
+  ? new Pool({ connectionString, ssl: { rejectUnauthorized: false } })
+  : new Pool({
+      host: process.env.PGHOST || 'localhost',
+      port: parseInt(process.env.PGPORT || '5432'),
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+    });
 
 async function tableExists(client, name) {
   const r = await client.query(

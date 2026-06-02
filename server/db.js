@@ -1,11 +1,7 @@
 require('dotenv').config();
 const { Pool } = require('pg');
 
-let connectionString = process.env.DATABASE_URL;
-if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
-}
-
+const connectionString = process.env.DATABASE_URL;
 const isNeon = connectionString?.includes('neon.tech');
 
 const pool = connectionString
@@ -15,13 +11,13 @@ const pool = connectionString
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
     })
-  : new Pool({
-      host: process.env.PGHOST || 'postgres',
-      port: parseInt(process.env.PGPORT || '5432'),
-      user: process.env.PGUSER || 'gfm',
-      password: process.env.PGPASSWORD || 'gfm',
-      database: process.env.PGDATABASE || 'grabfreemodels',
-    });
+   : new Pool({
+       host: process.env.PGHOST || 'postgres',
+       port: parseInt(process.env.PGPORT || '5432'),
+       user: process.env.PGUSER,
+       password: process.env.PGPASSWORD,
+       database: process.env.PGDATABASE,
+     });
 
 if (isNeon) {
   const ping = () => pool.query('SELECT 1').catch(() => {});

@@ -55,7 +55,6 @@ export interface MasterModel {
 
 export interface TestSummary {
   date: string
-  method: string
   results: {
     working: string[]
     broken: string[]
@@ -96,6 +95,31 @@ export interface ValidationMethod {
   key_findings: Record<string, string>
 }
 
+export interface RoleScore {
+  id: string
+  score: number
+  ctx: number
+  ctxScore: number
+  ctxWeight: number
+  ctxContrib: number
+  tagBonus: number
+  tagPenalty: number
+  penaltyContrib: number
+  nameSizePenalty: number
+  matchedTags: string[]
+  matchedPenaltyTags: string[]
+}
+
+export interface RoleMeta {
+  description: string
+  ctxWeight: number
+  tagKeywords: string[]
+  tagPenaltyKeywords: string[]
+  nameSizePenalty: boolean
+  maxCtx: number | null
+  needsTools: boolean
+}
+
 export interface ModelsData {
   models: DatapointModel[]
   _test_summary: TestSummary
@@ -107,6 +131,8 @@ export interface ModelsData {
     small_model: string[]
     explore: string[]
     stable: string[]
+    _scores?: Record<string, RoleScore[]>
+    _meta?: Record<string, RoleMeta>
   }
   _provider_usage: {
     description: string

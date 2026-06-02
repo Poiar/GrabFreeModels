@@ -433,6 +433,7 @@ body {
 .badge-free-type { background: var(--green-subtle); color: var(--green); }
 .badge-paid-type { background: var(--purple-subtle); color: var(--purple); }
 .badge-removed { background: var(--orange-subtle); color: var(--orange); }
+.badge-not_found { background: var(--border); color: var(--text-dim); }
 
 .badge-severity-low { background: var(--accent-subtle); color: var(--accent); }
 .badge-severity-moderate { background: var(--orange-subtle); color: var(--orange); }
@@ -1578,6 +1579,7 @@ th.sortable.active .sort-indicator { opacity: 1; }
 .badge-broken       { background: rgba(248,81,73,0.12);  color: var(--red, #f85149); }
 .badge-paid         { background: var(--orange-subtle); color: var(--orange); }
 .badge-removed      { background: rgba(248,81,73,0.12);  color: var(--red, #f85149); }
+.badge-not_found    { background: rgba(150,150,160,0.10); color: var(--text-muted); }
 
 .used-up-icon { display: inline-flex; align-items: center; color: var(--red, #f85149); margin-left: 4px; }
 
@@ -1589,6 +1591,8 @@ th.sortable.active .sort-indicator { opacity: 1; }
 .detail-text { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
 
 .model-name { font-weight: 600; color: var(--text); max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.model-name-link { font-weight: 600; color: var(--accent); max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; display: block; }
+.model-name-link:hover { text-decoration: underline; }
 .model-id-wrap { display: flex; align-items: center; gap: 5px; margin-top: 3px; }
 .model-id { font-size: 0.68rem; color: var(--text-muted); max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-mono, monospace); line-height: 1; }
 .copy-btn { background: none; border: 1px solid transparent; color: var(--text-muted); cursor: pointer; padding: 3px 6px; border-radius: 4px; font-size: 0.85rem; line-height: 1; transition: all 0.15s; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }

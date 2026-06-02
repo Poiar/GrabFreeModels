@@ -5,8 +5,23 @@
       <p>Non-fatal issues affecting model usability</p>
     </div>
 
+    <div v-if="store.loading" class="card">
+      <div class="empty-state-inner" style="padding: 24px;">
+        <div class="empty-state-icon" style="font-size: 2rem;">⏳</div>
+        <p>Loading issues…</p>
+      </div>
+    </div>
+
+    <div v-else-if="store.error" class="card">
+      <div class="empty-state-inner" style="padding: 24px;">
+        <div class="empty-state-icon" style="font-size: 2rem;">⚠️</div>
+        <p>Failed to load issues: {{ store.error }}</p>
+        <button class="refresh-btn" @click="store.loadData()">Retry</button>
+      </div>
+    </div>
+
     <!-- Severity summary bar -->
-    <div v-if="store.knownIssues.length > 0" class="severity-bar">
+    <div v-if="!store.loading && !store.error && store.knownIssues.length > 0" class="severity-bar">
       <div
         v-for="sev in severityCounts"
         :key="sev.severity"
@@ -23,22 +38,35 @@
       </button>
     </div>
 
-    <div v-if="filteredIssues.length === 0 && store.knownIssues.length === 0" class="card">
+    <div v-if="!store.loading && !store.error && filteredIssues.length === 0 && store.knownIssues.length === 0" class="card">
       <div class="empty-state-inner" style="padding: 24px;">
         <div class="empty-state-icon" style="font-size: 2rem;">✅</div>
         <p>No known issues — all clear!</p>
       </div>
     </div>
 
-    <div v-else-if="filteredIssues.length === 0" class="card">
+    <div v-else-if="!store.loading && !store.error && filteredIssues.length === 0" class="card">
       <div class="empty-state-inner" style="padding: 24px;">
         <div class="empty-state-icon" style="font-size: 2rem;">🔍</div>
         <p>No issues match the selected severity filters.</p>
       </div>
     </div>
 
+    <div class="issues-sort-bar">
+      <label>Sort by:</label>
+      <select v-model="issuesSortBy">
+        <option value="reported">Reported date</option>
+        <option value="last_verified">Last verified</option>
+        <option value="severity">Severity</option>
+        <option value="model_id">Model ID</option>
+      </select>
+      <button class="sort-dir-btn" @click="issuesSortDesc = !issuesSortDesc" :title="issuesSortDesc ? 'Descending' : 'Ascending'">
+        {{ issuesSortDesc ? '↓' : '↑' }}
+      </button>
+    </div>
+
     <div
-      v-for="issue in filteredIssues"
+      v-for="issue in sortedIssues"
       :key="issue.model_id + issue.issue"
       class="issue-card"
       :class="`issue-card-${issue.severity}`"
@@ -85,11 +113,16 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useModelsStore } from '@/store/models'
+import type { KnownIssue } from '@/types'
 
 const store = useModelsStore()
 const activeSeverityFilter = ref<string | null>(null)
+const issuesSortBy = ref('reported')
+const issuesSortDesc = ref(true)
 
 const severityOrder = ['critical', 'high', 'moderate', 'low'] as const
+
+const severityRank: Record<string, number> = { critical: 0, high: 1, moderate: 2, low: 3 }
 
 const severityCounts = computed(() => {
   const counts: Record<string, number> = {}
@@ -107,6 +140,24 @@ const filteredIssues = computed(() => {
   return issues.filter(i => i.severity === activeSeverityFilter.value)
 })
 
+const sortedIssues = computed((): KnownIssue[] => {
+  const sorted = [...filteredIssues.value]
+  const dir = issuesSortDesc.value ? -1 : 1
+  sorted.sort((a, b) => {
+    switch (issuesSortBy.value) {
+      case 'severity':
+        return dir * ((severityRank[a.severity] ?? 9) - (severityRank[b.severity] ?? 9))
+      case 'model_id':
+        return dir * a.model_id.localeCompare(b.model_id)
+      case 'last_verified':
+        return dir * ((a.last_verified ?? '').localeCompare(b.last_verified ?? ''))
+      default:
+        return dir * (a.reported ?? '').localeCompare(b.reported ?? '')
+    }
+  })
+  return sorted
+})
+
 function toggleSeverityFilter(severity: string) {
   if (activeSeverityFilter.value === severity) {
     activeSeverityFilter.value = null
@@ -117,6 +168,44 @@ function toggleSeverityFilter(severity: string) {
 </script>
 
 <style scoped>
+.issues-sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.issues-sort-bar label {
+  font-weight: 600;
+}
+
+.issues-sort-bar select {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: 0.74rem;
+  cursor: pointer;
+}
+
+.sort-dir-btn {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.sort-dir-btn:hover {
+  border-color: var(--border-focus);
+}
+
 .severity-bar {
   display: flex;
   align-items: center;

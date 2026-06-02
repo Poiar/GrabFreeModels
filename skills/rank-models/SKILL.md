@@ -9,7 +9,7 @@ Rebuilds `_role_rankings` in `available-models.json` using a deterministic tag+c
 
 ## Prerequisites
 
-- `check-rankings` skill — run after ranking to validate correctness
+- `node scripts/check-rankings.js` — run after ranking to validate correctness
 - `validate-free-models` skill — run first if model statuses may have changed
 
 ## Ranking Eligibility

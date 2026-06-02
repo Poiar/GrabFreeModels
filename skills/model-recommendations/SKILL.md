@@ -1,6 +1,6 @@
 ---
 name: model-recommendations
-description: Use when suggesting models for the user's opencode setup. ALWAYS check this skill before recommending any model. Prevents suggesting models that don't properly support opencode's tool calling.
+description: ALWAYS consult before suggesting any model. Prevents recommending models that don't properly support opencode's tool calling.
 ---
 
 # Model Recommendations

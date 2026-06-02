@@ -143,7 +143,7 @@
         {{ store.validationMethod.procedure }}
       </p>
       <p v-if="store.testSummary" class="validation-meta">
-        Last tested: {{ store.testSummary.date }} · Method: {{ store.testSummary.method }}
+        Last tested: {{ store.testSummary.date }}
       </p>
     </div>
   </div>

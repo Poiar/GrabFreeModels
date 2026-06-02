@@ -31,6 +31,12 @@ const routes = [
     component: () => import('@/views/Issues.vue'),
     meta: { title: 'Issues' },
   },
+  {
+    path: '/master/:id',
+    name: 'MasterModel',
+    component: () => import('@/views/MasterModel.vue'),
+    meta: { title: 'Model' },
+  },
 ]
 
 const router = createRouter({

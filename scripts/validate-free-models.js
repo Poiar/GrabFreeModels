@@ -17,13 +17,16 @@ const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
 
-const DB_POOL = new Pool({
-  host: process.env.PGHOST || 'localhost',
-  port: parseInt(process.env.PGPORT || '5432'),
-  user: process.env.PGUSER || 'gfm',
-  password: process.env.PGPASSWORD || 'gfm',
-  database: process.env.PGDATABASE || 'grabfreemodels',
-});
+const connectionString = process.env.DATABASE_URL;
+const DB_POOL = connectionString
+  ? new Pool({ connectionString, ssl: { rejectUnauthorized: false } })
+  : new Pool({
+      host: process.env.PGHOST || 'localhost',
+      port: parseInt(process.env.PGPORT || '5432'),
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+    });
 
 const args = process.argv.slice(2);
 const APPLY = args.includes('--apply');
@@ -59,7 +62,8 @@ async function loadFromDb() {
 
   const imap = new Map(); for (const r of irows) { if (!imap.has(r.datapoint_model_id)) imap.set(r.datapoint_model_id, []); imap.get(r.datapoint_model_id).push(r.input_type); }
   const omap = new Map(); for (const r of orows) { if (!omap.has(r.datapoint_model_id)) omap.set(r.datapoint_model_id, []); omap.get(r.datapoint_model_id).push(r.output_type); }
-  const fmap = new Map(); for (const r of frows) { if (!fmap.has(r.datapoint_model_id)) fmap.set(r.datapoint_model_id, { tag: [], best_for: [] }); fmap.get(r.datapoint_model_id)[r.feature_type].push(r.value); }
+  const knownFeatures = ['best_for', 'tag', 'supports_reasoning', 'output_limit', 'temperature', 'open_weights', 'family', 'knowledge_cutoff', 'release_date', 'last_updated'];
+  const fmap = new Map(); for (const r of frows) { if (!fmap.has(r.datapoint_model_id)) { const o = { tag: [], best_for: [] }; for (const f of knownFeatures) o[f] = []; fmap.set(r.datapoint_model_id, o); } const b = knownFeatures.includes(r.feature_type) ? r.feature_type : 'tag'; fmap.get(r.datapoint_model_id)[b].push(r.value); }
   const meta = {}; for (const r of mrows) { try { meta[r.key] = JSON.parse(r.value); } catch { meta[r.key] = r.value; } }
 
   const ts = { working: [], rate_limited: [], broken: [], untested: [], not_found: [] };
@@ -73,12 +77,14 @@ async function loadFromDb() {
       input_price_per_million: Number(dm.input_price_per_million) || 0,
       output_price_per_million: Number(dm.output_price_per_million) || 0,
       is_free: dm.is_free, supports_tools: dm.supports_tools,
-      supports_reasoning: dm.supports_reasoning,
-      output_limit: dm.output_limit || null, temperature: dm.temperature,
-      open_weights: dm.open_weights, family: dm.family || null,
-      knowledge_cutoff: dm.knowledge_cutoff || null,
-      releaseDate: dm.release_date ? (''+dm.release_date).slice(0,10) : null,
-      lastUpdated: dm.last_updated ? (''+dm.last_updated).slice(0,10) : null,
+      supports_reasoning: fmap.get(dm.id)?.supports_reasoning?.[0] === 'true' || null,
+      output_limit: fmap.get(dm.id)?.output_limit?.[0] ? parseInt(fmap.get(dm.id).output_limit[0], 10) : null,
+      temperature: fmap.get(dm.id)?.temperature?.[0] === 'true' || null,
+      open_weights: fmap.get(dm.id)?.open_weights?.[0] === 'true' || null,
+      family: fmap.get(dm.id)?.family?.[0] || null,
+      knowledge_cutoff: fmap.get(dm.id)?.knowledge_cutoff?.[0] || null,
+      releaseDate: fmap.get(dm.id)?.release_date?.[0] || null,
+      lastUpdated: fmap.get(dm.id)?.last_updated?.[0] || null,
       tags: fmap.get(dm.id)?.tag || [],
       best_for: fmap.get(dm.id)?.best_for || [],
       input_types: imap.get(dm.id) || [],

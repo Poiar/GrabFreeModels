@@ -89,7 +89,7 @@
         <template #default="{ item: model }">
           <div class="vscroll-row row-clickable" :class="{ 'row-removed': model._removed }" @click="selectedModel = model" role="button" :title="'View details for ' + model.name">
             <div class="vscroll-cell col-name">
-              <div class="model-name" :title="model.name">{{ model.name }}</div>
+              <router-link :to="`/master/${model.master_id}`" class="model-name-link" :title="model.name" @click.stop>{{ model.name }}</router-link>
               <div class="model-id-wrap">
                 <span class="model-id" :title="model.id">{{ model.id }}</span>
                 <button class="copy-btn" :class="{ copied: copiedIds.has(model.id) }" :title="copiedIds.has(model.id) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(model.id)">{{ copiedIds.has(model.id) ? '✓' : '📋' }}</button>
@@ -100,7 +100,8 @@
               <span v-if="store.isModelProviderUsedUp(model.id)" class="used-up-icon" title="Provider used up for this month"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
             </div>
             <div class="vscroll-cell col-status">
-              <span class="badge badge-paid">Paid</span>
+              <span v-if="model._removed" class="badge badge-removed">Removed</span>
+              <span v-else class="badge" :class="`badge-${model.status.result}`">{{ formatStatus(model.status.result) }}</span>
             </div>
             <div class="vscroll-cell col-context"><span class="context-len">{{ model.context_length != null ? formatContext(model.context_length) : '—' }}</span></div>
             <div class="vscroll-cell col-detail">
@@ -138,7 +139,7 @@ const router = useRouter()
 const selectedModel = ref<Model | null>(null)
 const copiedIds = reactive(new Set<string>())
 
-const paidModels = computed(() => store.allModels.filter(m => !m.is_free && !m.id.endsWith(':free') && !m.id.endsWith('/free')))
+const paidModels = computed(() => store.paidModels)
 const paidProviderNames = computed(() => Array.from(new Set(paidModels.value.map(m => m.provider))).sort())
 const paidAuthorNames = computed(() => Array.from(new Set(paidModels.value.map(m => m.author).filter((a): a is string => !!a))).sort())
 
@@ -186,6 +187,7 @@ onMounted(() => window.addEventListener('keydown', handleKeydown))
 onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 function download(content: string, filename: string, mime: string) { const blob = new Blob([content], { type: mime }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url) }
 function sortIndicator(f: string): string { return sortBy.value !== f ? '⇅' : sortDesc.value ? '↓' : '↑' }
+function formatStatus(s: string): string { return s === 'rate_limited' ? 'Rate Limited' : s.charAt(0).toUpperCase() + s.slice(1) }
 
 
 const filteredModels = computed(() => jql.filteredModels.value)

@@ -1,13 +1,13 @@
 -- v2 schema: Master-model + datapoint-provider pattern
 -- Key changes: Unified master_models + datapoint_models table structure
 -- Replaces old schema's models + provider_models + modelsdev + modelsdev_provider_models
+-- Migration 001: status_result → ENUM, passive columns → datapoint_model_features, test_results dropped
 
 -- Master model: the abstract identity
 CREATE TABLE master_models (
     id              SERIAL PRIMARY KEY,
     name            VARCHAR(256) NOT NULL UNIQUE,
     slug            VARCHAR(256) NOT NULL UNIQUE,  -- normalized lowercase, no spaces
-    author          VARCHAR(256),
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -18,6 +18,11 @@ CREATE TABLE datapoint_providers (
     name            VARCHAR(128) NOT NULL,
     base_url        VARCHAR(512),
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Status enum for datapoint_models
+CREATE TYPE model_status AS ENUM (
+    'working', 'broken', 'rate_limited', 'untested', 'not_found'
 );
 
 -- One row per provider's version of a model
@@ -33,17 +38,9 @@ CREATE TABLE datapoint_models (
     output_price_per_million NUMERIC(12,4) NOT NULL DEFAULT 0,
     is_free                 BOOLEAN NOT NULL DEFAULT true,
     supports_tools          BOOLEAN,
-    supports_reasoning      BOOLEAN,
-    output_limit            INTEGER,
-    temperature             BOOLEAN,
-    open_weights            BOOLEAN,
-    family                  VARCHAR(64),
-    knowledge_cutoff        VARCHAR(32),
-    release_date            DATE,
-    last_updated            DATE,
     -- tracking
     is_removed              BOOLEAN NOT NULL DEFAULT false,
-    status_result           VARCHAR(32),  -- working|broken|rate_limited|untested|not_found
+    status_result           model_status,
     status_tested           DATE,
     status_detail           TEXT,
     last_success            TIMESTAMPTZ,
@@ -74,15 +71,6 @@ CREATE TABLE datapoint_model_features (
     UNIQUE (datapoint_model_id, feature_type, value)
 );
 
--- Test results (moved from provider_models context to datapoint_models context)
-CREATE TABLE test_results (
-    id                SERIAL PRIMARY KEY,
-    datapoint_model_id INTEGER NOT NULL REFERENCES datapoint_models(id) ON DELETE CASCADE,
-    tested_at         TIMESTAMPTZ NOT NULL,
-    result            VARCHAR(32) NOT NULL,
-    detail            TEXT
-);
-
 -- Metadata key-value store (rankings, summary, etc.)
 CREATE TABLE metadata (
     key         VARCHAR(128) PRIMARY KEY,
@@ -97,7 +85,6 @@ CREATE INDEX idx_dp_models_full_id ON datapoint_models(full_id);
 CREATE INDEX idx_dp_models_status ON datapoint_models(status_result);
 CREATE INDEX idx_dp_models_free ON datapoint_models(is_free);
 CREATE INDEX idx_dp_models_removed ON datapoint_models(is_removed);
-CREATE INDEX idx_test_results_dm ON test_results(datapoint_model_id);
 CREATE INDEX idx_master_slug ON master_models(slug);
 
 -- Helper function: normalize model name to slug
