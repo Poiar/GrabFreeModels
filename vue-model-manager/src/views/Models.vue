@@ -112,22 +112,22 @@
     <!-- Virtual Scroll Table -->
     <div class="table-wrap vscroll-table">
       <div class="vscroll-header-row">
-        <div class="vscroll-header-cell sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
+        <div class="vscroll-header-cell col-name sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
           Model <span class="sort-indicator">{{ sortIndicator('name') }}</span>
         </div>
-        <div class="vscroll-header-cell sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
+        <div class="vscroll-header-cell col-provider sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
           Provider <span class="sort-indicator">{{ sortIndicator('provider') }}</span>
         </div>
-        <div class="vscroll-header-cell sortable" :class="{ active: sortBy === 'type' }" @click="setSort('type')">
+        <div class="vscroll-header-cell col-type sortable" :class="{ active: sortBy === 'type' }" @click="setSort('type')">
           Type <span class="sort-indicator">{{ sortIndicator('type') }}</span>
         </div>
-        <div class="vscroll-header-cell sortable" :class="{ active: sortBy === 'status' }" @click="setSort('status')">
+        <div class="vscroll-header-cell col-status sortable" :class="{ active: sortBy === 'status' }" @click="setSort('status')">
           Status <span class="sort-indicator">{{ sortIndicator('status') }}</span>
         </div>
-        <div class="vscroll-header-cell sortable" :class="{ active: sortBy === 'context' }" @click="setSort('context')">
+        <div class="vscroll-header-cell col-context sortable" :class="{ active: sortBy === 'context' }" @click="setSort('context')">
           Context <span class="sort-indicator">{{ sortIndicator('context') }}</span>
         </div>
-        <div class="vscroll-header-cell sortable" :class="{ active: sortBy === 'detail' }" @click="setSort('detail')">
+        <div class="vscroll-header-cell col-detail sortable" :class="{ active: sortBy === 'detail' }" @click="setSort('detail')">
           Latest Test Result <span class="sort-indicator">{{ sortIndicator('detail') }}</span>
         </div>
       </div>

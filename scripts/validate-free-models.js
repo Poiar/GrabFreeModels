@@ -77,6 +77,7 @@ function getEndpoint(modelId) {
   if (modelId.startsWith('llmgateway/')) return 'llmgateway';
   if (modelId.startsWith('deepseek/')) return 'deepseek';
   if (modelId.startsWith('opencode/')) return 'opencode';
+  if (modelId.startsWith('google/')) return 'google';
   return 'openrouter';
 }
 
@@ -88,6 +89,7 @@ const ENDPOINT_CONFIG = {
   llmgateway:  { url: 'https://api.llmgateway.io/v1/chat/completions',       key: () => auth.llmgateway.key,  fetchIds: async () => null },
   deepseek:    { url: 'https://api.deepseek.com/v1/chat/completions',         key: () => auth.deepseek.key,    fetchIds: async () => null },
   opencode:    { url: 'https://opencode.ai/zen/v1/chat/completions',            key: () => auth.opencode.key,   fetchIds: async () => null },
+  google:      { url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: () => auth.google.key, fetchIds: async () => parseGoogleModels(auth.google.key) },
 };
 
 async function parseOpenRouterModels(key) {
@@ -108,6 +110,12 @@ async function parseSimpleModels(key, url) {
   return new Set(parsed.data.map(m => m.id));
 }
 
+async function parseGoogleModels(key) {
+  const data = await httpsGet(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+  const parsed = JSON.parse(data);
+  return new Set(parsed.models.filter(m => m.name.startsWith('models/gemini-')).map(m => m.name.replace('models/', '')));
+}
+
 // Convert stored model ID → API-expected model ID, using the known-valid set
 function resolveApiModelId(modelId, endpoint, validIds) {
   if (endpoint === 'openrouter') {
@@ -117,6 +125,12 @@ function resolveApiModelId(modelId, endpoint, validIds) {
     if (validIds.has(stripped)) return stripped;
     if (!stripped.endsWith(':free') && validIds.has(stripped + ':free')) return stripped + ':free';
     return stripped; // return it anyway, will fail validation
+  }
+  // Google AI: strip google/ prefix
+  if (endpoint === 'google') {
+    const bare = modelId.replace(/^google\//, '');
+    if (validIds.has(bare)) return bare;
+    return bare;
   }
   // Non-OpenRouter: strip the provider prefix
   const slash = modelId.indexOf('/');
@@ -311,10 +325,11 @@ if (toTest.length === 0) { console.log('No models to test.'); process.exit(0); }
     const ts = json._test_summary.results;
     if (!ts.not_found) ts.not_found = [];
     const rm = arr => { const i = arr.indexOf(r.id); if (i !== -1) arr.splice(i, 1); };
-    if (r.status === 'working') { rm(ts.rate_limited); rm(ts.broken); rm(ts.untested); rm(ts.not_found); rm(ts.untestable); if (!ts.working.includes(r.id)) ts.working.push(r.id); }
-    else if (r.status === 'rate_limited') { rm(ts.working); rm(ts.broken); rm(ts.untested); rm(ts.not_found); rm(ts.untestable); if (!ts.rate_limited.includes(r.id)) ts.rate_limited.push(r.id); }
-    else if (r.status === 'broken') { rm(ts.working); rm(ts.rate_limited); rm(ts.untested); rm(ts.not_found); rm(ts.untestable); if (!ts.broken.includes(r.id)) ts.broken.push(r.id); }
-    else if (r.status === 'not_found') { rm(ts.working); rm(ts.rate_limited); rm(ts.broken); rm(ts.untested); rm(ts.untestable); if (!ts.not_found.includes(r.id)) ts.not_found.push(r.id); }
+    const rmSafe = (arr, id) => { if (arr) { const i = arr.indexOf(id); if (i !== -1) arr.splice(i, 1); } };
+    if (r.status === 'working') { rmSafe(ts.rate_limited, r.id); rmSafe(ts.broken, r.id); rmSafe(ts.untested, r.id); rmSafe(ts.not_found, r.id); if (!ts.working.includes(r.id)) ts.working.push(r.id); }
+    else if (r.status === 'rate_limited') { rmSafe(ts.working, r.id); rmSafe(ts.broken, r.id); rmSafe(ts.untested, r.id); rmSafe(ts.not_found, r.id); if (!ts.rate_limited.includes(r.id)) ts.rate_limited.push(r.id); }
+    else if (r.status === 'broken') { rmSafe(ts.working, r.id); rmSafe(ts.rate_limited, r.id); rmSafe(ts.untested, r.id); rmSafe(ts.not_found, r.id); if (!ts.broken.includes(r.id)) ts.broken.push(r.id); }
+    else if (r.status === 'not_found') { rmSafe(ts.working, r.id); rmSafe(ts.rate_limited, r.id); rmSafe(ts.broken, r.id); rmSafe(ts.untested, r.id); if (!ts.not_found.includes(r.id)) ts.not_found.push(r.id); }
 
   }
 

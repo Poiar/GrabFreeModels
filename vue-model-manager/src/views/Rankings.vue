@@ -53,27 +53,27 @@
 
     <div class="vscroll-table">
       <div class="vscroll-header-row">
-        <div class="vscroll-cell col-rank sortable" :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
+        <div class="vscroll-header-cell col-rank sortable" :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
           {{ formatRole(roleFilter) }} Rank <SortArrow :active="sortBy === 'rank'" :desc="sortDesc" />
         </div>
-        <div class="vscroll-cell col-model sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
+        <div class="vscroll-header-cell col-model sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
           Model <SortArrow :active="sortBy === 'name'" :desc="sortDesc" />
         </div>
-        <div class="vscroll-cell col-provider sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
+        <div class="vscroll-header-cell col-provider sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
           Provider <SortArrow :active="sortBy === 'provider'" :desc="sortDesc" />
         </div>
-        <div class="vscroll-cell col-status">Status</div>
-        <div class="vscroll-cell col-context sortable" :class="{ active: sortBy === 'context' }" @click="setSort('context')">
+        <div class="vscroll-header-cell col-status">Status</div>
+        <div class="vscroll-header-cell col-context sortable" :class="{ active: sortBy === 'context' }" @click="setSort('context')">
           Context <SortArrow :active="sortBy === 'context'" :desc="sortDesc" />
         </div>
-        <div class="vscroll-cell col-tools">Tools</div>
-        <div class="vscroll-cell col-tags">Tags</div>
+        <div class="vscroll-header-cell col-tools">Tools</div>
+        <div class="vscroll-header-cell col-tags">Tags</div>
       </div>
 
       <RecycleScroller
         v-if="sortedItems.length > 0"
         :items="sortedItems"
-        :item-size="52"
+        :item-size="56"
         key-field="modelId"
         class="vscroll-body"
       >
@@ -482,76 +482,20 @@ const unrankedWorking = computed(() =>
   font-weight: 500;
 }
 
-/* ── Virtual scroll table ── */
-.vscroll-table {
-  display: flex;
-  flex-direction: column;
+/* ── Rankings vscroll overrides ── */
+:deep(.vscroll-table) {
   height: calc(100vh - 260px);
   min-height: 300px;
 }
 
-.vscroll-header-row {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  user-select: none;
+:deep(.vscroll-row) {
+  cursor: default;
 }
 
-.vscroll-header-row .sortable {
-  cursor: pointer;
-  transition: color 0.15s;
-}
-
-.vscroll-header-row .sortable:hover {
-  color: var(--text);
-}
-
-.vscroll-header-row .active {
-  color: var(--accent);
-}
-
-.vscroll-body {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.vscroll-row {
-  display: flex;
-  align-items: center;
-  height: 52px;
-  border-bottom: 1px solid var(--border-subtle, rgba(255,255,255,0.04));
-  transition: background 0.1s;
-  font-size: 0.82rem;
-}
-
-.vscroll-row:hover {
-  background: var(--bg-hover, rgba(255,255,255,0.02));
-}
-
-.vscroll-cell {
-  padding: 0 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.vscroll-header-row .vscroll-cell {
-  padding: 8px 12px;
-}
-
-.col-rank    { flex: 0 0 200px; min-width: 160px; }
-.col-model   { flex: 1 1 260px; min-width: 180px; }
-.col-provider { flex: 0 0 120px; min-width: 90px; }
-.col-status  { flex: 0 0 110px; min-width: 90px; }
-.col-context { flex: 0 0 80px;  min-width: 70px; }
-.col-tools   { flex: 0 0 60px;  min-width: 50px; }
-.col-tags    { flex: 1 1 160px; min-width: 120px; overflow: visible; }
+.col-rank    { width: 18%; min-width: 180px; }
+.col-model   { width: 24%; min-width: 200px; }
+.col-tools   { width: 6%;  min-width: 60px; }
+.col-tags    { width: 14%; min-width: 140px; }
 
 .sort-arrow {
   font-size: 0.65rem;

@@ -1030,7 +1030,7 @@
     {
       "id": "deepseek/deepseek-v4-flash",
       "name": "DeepSeek V4 Flash (free)",
-      "provider": "OpenRouter",
+      "provider": "DeepSeek",
       "context_length": 1048576,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1569,7 +1569,7 @@
     {
       "id": "openrouter/gpt-oss-120b",
       "name": "gpt-oss-120b",
-      "provider": "Cerebras",
+      "provider": "OpenRouter",
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1589,7 +1589,7 @@
     {
       "id": "openrouter/zai-glm-4.7",
       "name": "zai-glm-4.7",
-      "provider": "Cerebras",
+      "provider": "OpenRouter",
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1608,7 +1608,7 @@
     {
       "id": "openrouter/01-ai/yi-large",
       "name": "01-ai/yi-large",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1627,7 +1627,7 @@
     {
       "id": "openrouter/abacusai/dracarys-llama-3.1-70b-instruct",
       "name": "abacusai/dracarys-llama-3.1-70b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1646,7 +1646,7 @@
     {
       "id": "openrouter/adept/fuyu-8b",
       "name": "adept/fuyu-8b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1665,7 +1665,7 @@
     {
       "id": "openrouter/baai/bge-m3",
       "name": "baai/bge-m3",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1684,7 +1684,7 @@
     {
       "id": "openrouter/bigcode/starcoder2-15b",
       "name": "bigcode/starcoder2-15b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1703,7 +1703,7 @@
     {
       "id": "openrouter/bytedance/seed-oss-36b-instruct",
       "name": "bytedance/seed-oss-36b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1722,7 +1722,7 @@
     {
       "id": "openrouter/deepseek-ai/deepseek-coder-6.7b-instruct",
       "name": "deepseek-ai/deepseek-coder-6.7b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1741,7 +1741,7 @@
     {
       "id": "openrouter/deepseek-ai/deepseek-v4-flash",
       "name": "deepseek-ai/deepseek-v4-flash",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1760,7 +1760,7 @@
     {
       "id": "openrouter/deepseek-ai/deepseek-v4-pro",
       "name": "deepseek-ai/deepseek-v4-pro",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1779,7 +1779,7 @@
     {
       "id": "openrouter/google/codegemma-1.1-7b",
       "name": "google/codegemma-1.1-7b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1798,7 +1798,7 @@
     {
       "id": "openrouter/google/codegemma-7b",
       "name": "google/codegemma-7b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1817,7 +1817,7 @@
     {
       "id": "openrouter/google/deplot",
       "name": "google/deplot",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1836,7 +1836,7 @@
     {
       "id": "openrouter/google/gemma-2-2b-it",
       "name": "google/gemma-2-2b-it",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1855,7 +1855,7 @@
     {
       "id": "openrouter/google/gemma-2b",
       "name": "google/gemma-2b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1874,7 +1874,7 @@
     {
       "id": "openrouter/google/gemma-3-12b-it",
       "name": "google/gemma-3-12b-it",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1894,7 +1894,7 @@
     {
       "id": "openrouter/google/gemma-3-4b-it",
       "name": "google/gemma-3-4b-it",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1914,7 +1914,7 @@
     {
       "id": "openrouter/google/gemma-3n-e2b-it",
       "name": "google/gemma-3n-e2b-it",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1933,7 +1933,7 @@
     {
       "id": "openrouter/google/gemma-3n-e4b-it",
       "name": "google/gemma-3n-e4b-it",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1953,7 +1953,7 @@
     {
       "id": "openrouter/google/gemma-4-31b-it",
       "name": "google/gemma-4-31b-it",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": 262144,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1973,7 +1973,7 @@
     {
       "id": "openrouter/google/recurrentgemma-2b",
       "name": "google/recurrentgemma-2b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -1992,7 +1992,7 @@
     {
       "id": "openrouter/ibm/granite-3.0-3b-a800m-instruct",
       "name": "ibm/granite-3.0-3b-a800m-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2011,7 +2011,7 @@
     {
       "id": "openrouter/ibm/granite-3.0-8b-instruct",
       "name": "ibm/granite-3.0-8b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2030,7 +2030,7 @@
     {
       "id": "openrouter/ibm/granite-34b-code-instruct",
       "name": "ibm/granite-34b-code-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2049,7 +2049,7 @@
     {
       "id": "openrouter/ibm/granite-8b-code-instruct",
       "name": "ibm/granite-8b-code-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2068,7 +2068,7 @@
     {
       "id": "openrouter/meta/codellama-70b",
       "name": "meta/codellama-70b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2087,7 +2087,7 @@
     {
       "id": "openrouter/meta/llama-3.1-70b-instruct",
       "name": "meta/llama-3.1-70b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2106,7 +2106,7 @@
     {
       "id": "openrouter/meta/llama-3.1-8b-instruct",
       "name": "meta/llama-3.1-8b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2125,7 +2125,7 @@
     {
       "id": "openrouter/meta/llama-3.2-11b-vision-instruct",
       "name": "meta/llama-3.2-11b-vision-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2144,7 +2144,7 @@
     {
       "id": "openrouter/meta/llama-3.2-1b-instruct",
       "name": "meta/llama-3.2-1b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2163,7 +2163,7 @@
     {
       "id": "openrouter/meta/llama-3.2-3b-instruct",
       "name": "meta/llama-3.2-3b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2182,7 +2182,7 @@
     {
       "id": "openrouter/meta/llama-3.2-90b-vision-instruct",
       "name": "meta/llama-3.2-90b-vision-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2201,7 +2201,7 @@
     {
       "id": "openrouter/meta/llama-guard-4-12b",
       "name": "meta/llama-guard-4-12b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2220,7 +2220,7 @@
     {
       "id": "openrouter/meta/llama2-70b",
       "name": "meta/llama2-70b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2239,7 +2239,7 @@
     {
       "id": "openrouter/microsoft/phi-3-vision-128k-instruct",
       "name": "microsoft/phi-3-vision-128k-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2258,7 +2258,7 @@
     {
       "id": "openrouter/microsoft/phi-3.5-moe-instruct",
       "name": "microsoft/phi-3.5-moe-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2277,7 +2277,7 @@
     {
       "id": "openrouter/microsoft/phi-4-multimodal-instruct",
       "name": "microsoft/phi-4-multimodal-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2296,7 +2296,7 @@
     {
       "id": "openrouter/minimaxai/minimax-m2.7",
       "name": "minimaxai/minimax-m2.7",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2315,7 +2315,7 @@
     {
       "id": "openrouter/mistralai/codestral-22b-instruct-v0.1",
       "name": "mistralai/codestral-22b-instruct-v0.1",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2334,7 +2334,7 @@
     {
       "id": "openrouter/mistralai/ministral-14b-instruct-2512",
       "name": "mistralai/ministral-14b-instruct-2512",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2353,7 +2353,7 @@
     {
       "id": "openrouter/mistralai/mistral-7b-instruct-v0.3",
       "name": "mistralai/mistral-7b-instruct-v0.3",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2372,7 +2372,7 @@
     {
       "id": "openrouter/mistralai/mistral-large",
       "name": "mistralai/mistral-large",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2392,7 +2392,7 @@
     {
       "id": "openrouter/mistralai/mistral-large-2-instruct",
       "name": "mistralai/mistral-large-2-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2411,7 +2411,7 @@
     {
       "id": "openrouter/mistralai/mistral-medium-3.5-128b",
       "name": "mistralai/mistral-medium-3.5-128b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2430,7 +2430,7 @@
     {
       "id": "openrouter/mistralai/mistral-nemotron",
       "name": "mistralai/mistral-nemotron",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2449,7 +2449,7 @@
     {
       "id": "openrouter/mistralai/mistral-small-4-119b-2603",
       "name": "mistralai/mistral-small-4-119b-2603",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2468,7 +2468,7 @@
     {
       "id": "openrouter/mistralai/mixtral-8x22b-v0.1",
       "name": "mistralai/mixtral-8x22b-v0.1",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2507,7 +2507,7 @@
     {
       "id": "openrouter/nv-mistralai/mistral-nemo-12b-instruct",
       "name": "nv-mistralai/mistral-nemo-12b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2859,7 +2859,7 @@
     {
       "id": "openrouter/openai/gpt-oss-120b",
       "name": "openai/gpt-oss-120b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2879,7 +2879,7 @@
     {
       "id": "openrouter/openai/gpt-oss-20b",
       "name": "openai/gpt-oss-20b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2899,7 +2899,7 @@
     {
       "id": "openrouter/qwen/qwen3-next-80b-a3b-instruct",
       "name": "qwen/qwen3-next-80b-a3b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2919,7 +2919,7 @@
     {
       "id": "openrouter/qwen/qwen3.5-122b-a10b",
       "name": "qwen/qwen3.5-122b-a10b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": 131072,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2939,7 +2939,7 @@
     {
       "id": "openrouter/sarvamai/sarvam-m",
       "name": "sarvamai/sarvam-m",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2958,7 +2958,7 @@
     {
       "id": "openrouter/stepfun-ai/step-3.5-flash",
       "name": "stepfun-ai/step-3.5-flash",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2977,7 +2977,7 @@
     {
       "id": "openrouter/stockmark/stockmark-2-100b-instruct",
       "name": "stockmark/stockmark-2-100b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -2996,7 +2996,7 @@
     {
       "id": "openrouter/upstage/solar-10.7b-instruct",
       "name": "upstage/solar-10.7b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -3015,7 +3015,7 @@
     {
       "id": "openrouter/writer/palmyra-creative-122b",
       "name": "writer/palmyra-creative-122b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -3034,7 +3034,7 @@
     {
       "id": "openrouter/writer/palmyra-fin-70b-32k",
       "name": "writer/palmyra-fin-70b-32k",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -3053,7 +3053,7 @@
     {
       "id": "openrouter/writer/palmyra-med-70b",
       "name": "writer/palmyra-med-70b",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -3072,7 +3072,7 @@
     {
       "id": "openrouter/writer/palmyra-med-70b-32k",
       "name": "writer/palmyra-med-70b-32k",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -3091,7 +3091,7 @@
     {
       "id": "openrouter/zyphra/zamba2-7b-instruct",
       "name": "zyphra/zamba2-7b-instruct",
-      "provider": "NVIDIA",
+      "provider": "OpenRouter",
       "context_length": null,
       "input_price_per_million": 0,
       "output_price_per_million": 0,
@@ -3242,6 +3242,140 @@
       },
       "supports_tools": true,
       "last_success": "2026-06-01T23:39:16.860Z"
+    },
+    {
+      "id": "google/gemini-2.0-flash",
+      "name": "Gemini 2.0 Flash",
+      "provider": "Google AI",
+      "context_length": 1048576,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "Fast general tasks",
+        "Large context",
+        "Multimodal"
+      ],
+      "notes": "Free tier via Google AI API. 1M context. Input/output free of charge.",
+      "status": {
+        "detail": "All 6 requests failed (non-OK).",
+        "result": "rate_limited",
+        "tested": "2026-06-02"
+      },
+      "supports_tools": true
+    },
+    {
+      "id": "google/gemini-2.0-flash-lite",
+      "name": "Gemini 2.0 Flash-Lite",
+      "provider": "Google AI",
+      "context_length": 1048576,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "Lightweight tasks",
+        "Fast responses",
+        "Cost-efficient"
+      ],
+      "notes": "Free tier via Google AI API. 1M context. Input/output free of charge.",
+      "status": {
+        "detail": "All 6 requests failed (non-OK).",
+        "result": "rate_limited",
+        "tested": "2026-06-02"
+      },
+      "supports_tools": true
+    },
+    {
+      "id": "google/gemini-2.5-flash",
+      "name": "Gemini 2.5 Flash",
+      "provider": "Google AI",
+      "context_length": 1048576,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "Fast general tasks",
+        "Large context",
+        "Reasoning",
+        "Cost-efficient"
+      ],
+      "notes": "Free tier via Google AI API. 1M context. Configurable reasoning depth. Input/output free of charge.",
+      "status": {
+        "detail": "All 6 requests succeeded.",
+        "result": "working",
+        "tested": "2026-06-02"
+      },
+      "supports_tools": true,
+      "last_success": "2026-06-02T08:07:29.672Z"
+    },
+    {
+      "id": "google/gemini-2.5-flash-lite",
+      "name": "Gemini 2.5 Flash-Lite",
+      "provider": "Google AI",
+      "context_length": 1048576,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "Lightweight tasks",
+        "Fast responses",
+        "High volume"
+      ],
+      "notes": "Free tier via Google AI API. 1M context. Input/output free of charge.",
+      "status": {
+        "detail": "All 6 requests succeeded.",
+        "result": "working",
+        "tested": "2026-06-02"
+      },
+      "supports_tools": true,
+      "last_success": "2026-06-02T08:07:29.672Z"
+    },
+    {
+      "id": "google/gemini-2.5-pro",
+      "name": "Gemini 2.5 Pro",
+      "provider": "Google AI",
+      "context_length": 1048576,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "Advanced reasoning",
+        "Coding",
+        "Math",
+        "Science",
+        "Multimodal",
+        "Long context"
+      ],
+      "notes": "Free tier via Google AI API. 1M context. Google's state-of-the-art model. Input/output free of charge.",
+      "status": {
+        "detail": "All 6 requests failed (non-OK).",
+        "result": "rate_limited",
+        "tested": "2026-06-02"
+      },
+      "supports_tools": true
+    },
+    {
+      "id": "google/gemini-3.5-flash",
+      "name": "Gemini 3.5 Flash",
+      "provider": "Google AI",
+      "context_length": 1048576,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "is_free": true,
+      "best_for": [
+        "Fast general tasks",
+        "Large context",
+        "Multimodal",
+        "Latest generation"
+      ],
+      "notes": "Free tier via Google AI API. 1M context. Input/output free of charge.",
+      "status": {
+        "detail": "All 6 requests succeeded.",
+        "result": "working",
+        "tested": "2026-06-02"
+      },
+      "supports_tools": true,
+      "last_success": "2026-06-02T08:07:29.672Z"
     }
   ],
   "_test_summary": {
@@ -3286,7 +3420,10 @@
         "openrouter/poolside/laguna-xs.2:free",
         "openrouter/qwen/qwen3-next-80b-a3b-instruct",
         "openrouter/qwen/qwen3.5-122b-a10b",
-        "openrouter/z-ai/glm-4.5-air:free"
+        "openrouter/z-ai/glm-4.5-air:free",
+        "google/gemini-2.5-flash",
+        "google/gemini-2.5-flash-lite",
+        "google/gemini-3.5-flash"
       ],
       "rate_limited": [
         "huggingface/Qwen/Qwen3-Coder-30B-A3B-Instruct",
@@ -3373,7 +3510,10 @@
         "openrouter/writer/palmyra-med-70b",
         "openrouter/writer/palmyra-med-70b-32k",
         "openrouter/zai-glm-4.7",
-        "openrouter/zyphra/zamba2-7b-instruct"
+        "openrouter/zyphra/zamba2-7b-instruct",
+        "google/gemini-2.0-flash",
+        "google/gemini-2.0-flash-lite",
+        "google/gemini-2.5-pro"
       ],
       "broken": [],
       "untested": [],
@@ -3387,10 +3527,13 @@
       "opencode/deepseek-v4-flash-free",
       "opencode/big-pickle",
       "openrouter/openai/gpt-oss-120b:free",
+      "google/gemini-2.5-flash",
       "openrouter/nvidia/nemotron-nano-9b-v2:free",
       "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "nvidia/nemotron-3-super-120b-a12b",
       "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+      "google/gemini-2.5-flash-lite",
+      "google/gemini-3.5-flash",
       "openrouter/poolside/laguna-m.1:free",
       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
       "openrouter/google/gemma-4-26b-a4b-it:free",
@@ -3429,6 +3572,9 @@
       "opencode/big-pickle",
       "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
       "openrouter/poolside/laguna-xs.2:free",
+      "google/gemini-2.5-flash",
+      "google/gemini-2.5-flash-lite",
+      "google/gemini-3.5-flash",
       "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "nvidia/nemotron-3-super-120b-a12b",
       "openrouter/google/gemma-4-26b-a4b-it:free",
@@ -3461,8 +3607,11 @@
       "openrouter/liquid/lfm-2.5-1.2b-thinking:free"
     ],
     "general": [
+      "google/gemini-3.5-flash",
       "openrouter/z-ai/glm-4.5-air:free",
       "llmgateway/glm-4.5-flash",
+      "google/gemini-2.5-flash",
+      "google/gemini-2.5-flash-lite",
       "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "nvidia/nemotron-3-super-120b-a12b",
       "openrouter/google/gemma-4-26b-a4b-it:free",
@@ -3501,7 +3650,10 @@
     ],
     "small_model": [
       "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
+      "google/gemini-2.5-flash-lite",
       "openrouter/poolside/laguna-xs.2:free",
+      "google/gemini-2.5-flash",
+      "google/gemini-3.5-flash",
       "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "nvidia/nemotron-3-super-120b-a12b",
       "openrouter/z-ai/glm-4.5-air:free",
@@ -3543,11 +3695,14 @@
       "openrouter/owl-alpha",
       "opencode/deepseek-v4-flash-free",
       "opencode/big-pickle",
+      "google/gemini-2.5-flash",
+      "google/gemini-3.5-flash",
       "openrouter/google/gemma-4-26b-a4b-it:free",
       "openrouter/google/gemma-4-31b-it:free",
       "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
       "openrouter/openai/gpt-oss-120b:free",
       "openrouter/nvidia/nemotron-nano-9b-v2:free",
+      "google/gemini-2.5-flash-lite",
       "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "nvidia/nemotron-3-super-120b-a12b",
       "openrouter/google/gemma-4-31b-it",
@@ -3631,7 +3786,7 @@
   "_validation_method": {
     "description": "How free model statuses were determined.",
     "procedure": "Direct API calls per provider. Cerebras models re-tested 2026-05-27 after deprecation date â€” all three still functional.",
-    "date": "2026-05-27",
+    "date": "2026-06-02",
     "key_findings": {
       "burst_vs_persistent": "Most free models that 429 on first request also 429 on every subsequent request, even with 5s delays. This indicates persistent rate limiting, not just burst protection.",
       "single_call_insufficient": "A single successful API call does NOT mean a model is not rate limited. Several models succeed once but fail on every subsequent request.",
@@ -3677,6 +3832,12 @@
       "rate_limited": 0,
       "broken": 0,
       "total": 3
+    },
+    "Google AI": {
+      "working": 0,
+      "rate_limited": 0,
+      "broken": 0,
+      "total": 6
     }
   }
 }
