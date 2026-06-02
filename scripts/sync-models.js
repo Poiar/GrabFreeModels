@@ -174,9 +174,10 @@ async function getSkipRemovalCheck(client) {
     // --- HuggingFace ---
     console.log('\n[HuggingFace] Fetching...');
     let newHf = [];
+    let hfFree = [];
     try {
       const hfData = await httpsGet('https://huggingface.co/api/inference-providers', { Authorization: `Bearer ${auth.huggingface.key}` });
-      const hfFree = [];
+      hfFree = [];
       const hfModelsData = await httpsGet(
         'https://huggingface.co/api/models?inference_provider=huggingface&tags=text-generation&limit=200'
       );

@@ -47,7 +47,7 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 ## PostgreSQL Database
 
 - The primary data store is PostgreSQL (Docker), accessed via an Express API on port 3001.
-- Schema: `db/schema.sql` (8 tables + metadata).
+- Schema: `db/schema.sql` (10 tables + metadata). Columns `source` and `removed` on `provider_models`.
 - Run `npm run db:start` to start PostgreSQL + API, `npm run db:migrate` to load data.
 
 ## API Server
@@ -75,4 +75,11 @@ All scripts live in `scripts/`. Each script has a corresponding skill — see th
 | `get-auth-key.js` | Read a provider API key from auth.json: `node scripts/get-auth-key.js --provider <name> [--list]` |
 | `sync-auth-keys.js` | Sync API keys from auth.json into opencode.jsonc: `node scripts/sync-auth-keys.js [--apply] [--check]` |
 | `migrate-to-pg.js` | Load `available-models.json` into PostgreSQL (normalized tables) |
-| `export-from-pg.js` | Dump PostgreSQL → `available-models.json` (for git/backward compat) |
+| `migrate-modelsdev.js` | Load `modelsdev-free-models.json` into PostgreSQL (346 new models) |
+| `export-from-pg.js` | Dump PostgreSQL → `available-models.json` (module + CLI) |
+| `sync-models.js` | Fetch latest free models from providers, diff against DB. `--apply` inserts new + flags removed |
+| `validate-free-models.js` | Read/write DB. Tests models against APIs, auto re-ranks on `--apply` |
+| `rank-models.js` | Read/write DB metadata. Rebuilds `_role_rankings` via tag+ctx scoring |
+| `backfill-context.js` | Read/write DB. Fetches `context_length` for null entries from OpenRouter catalog |
+| `backfill-metadata.js` | Read/write DB. Backfills `supports_tools` + populates `stable` ranking |
+| `extract-modelsdev.js` | Scrape models.dev via Playwright → `modelsdev-free-models.json` |

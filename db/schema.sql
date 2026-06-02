@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS provider_models (
     remote_id       VARCHAR(256) NOT NULL,
     full_id         VARCHAR(512) NOT NULL UNIQUE,
     source          VARCHAR(32) NOT NULL DEFAULT 'curated',
+    removed         BOOLEAN NOT NULL DEFAULT false,
     status_result   VARCHAR(32),
     status_tested   DATE,
     status_detail   TEXT,

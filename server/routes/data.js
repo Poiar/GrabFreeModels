@@ -121,6 +121,7 @@ async function buildModelsData() {
       },
       last_success: pm.last_success || null,
       source: pm.source || 'curated',
+      _removed: pm.removed || false,
     };
 
     outputModels.push(entry);
