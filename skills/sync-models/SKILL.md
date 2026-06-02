@@ -5,13 +5,6 @@ description: Use for fetching latest free models from providers and syncing to a
 
 # Sync Models
 
-## When to Use
-
-- Periodic check for newly-added free models
-- After a provider announces new free tier models
-- When the user asks about new free models
-- When onboarding a new provider
-
 ## Procedure
 
 ### Step 1: Dry Run

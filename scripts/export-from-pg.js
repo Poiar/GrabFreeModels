@@ -21,6 +21,15 @@ async function exportData(pool) {
   try {
     const { rows: providers } = await client.query('SELECT * FROM providers ORDER BY name');
     const { rows: authors } = await client.query('SELECT * FROM authors ORDER BY name');
+    const { rows: metadataRows } = await client.query('SELECT key, value::text FROM metadata ORDER BY key');
+
+    const meta = {};
+    for (const r of metadataRows) {
+      try { meta[r.key] = JSON.parse(r.value); }
+      catch { meta[r.key] = r.value; }
+    }
+
+    // ── Curated models ──
     const { rows: models } = await client.query(`
       SELECT m.*, a.name AS author_name
       FROM models m LEFT JOIN authors a ON a.id = m.author_id ORDER BY m.name
@@ -38,11 +47,26 @@ async function exportData(pool) {
     const { rows: featuresRows } = await client.query(
       'SELECT model_id, feature_type, value FROM model_features ORDER BY model_id'
     );
-    const { rows: metadataRows } = await client.query('SELECT key, value::text FROM metadata ORDER BY key');
 
+    // ── models.dev models ──
+    const { rows: modelsdev } = await client.query('SELECT * FROM modelsdev ORDER BY name');
+    const { rows: mdProviderModels } = await client.query(`
+      SELECT mpm.*, p.name AS provider_name, p.slug AS provider_slug
+      FROM modelsdev_provider_models mpm JOIN providers p ON p.id = mpm.provider_id ORDER BY mpm.full_id
+    `);
+    const { rows: mdInputTypesRows } = await client.query(
+      'SELECT modelsdev_id, input_type FROM modelsdev_input_types ORDER BY modelsdev_id, input_type'
+    );
+    const { rows: mdOutputTypesRows } = await client.query(
+      'SELECT modelsdev_id, output_type FROM modelsdev_output_types ORDER BY modelsdev_id, output_type'
+    );
+    const { rows: mdFeaturesRows } = await client.query(
+      'SELECT modelsdev_id, feature_type, value FROM modelsdev_features ORDER BY modelsdev_id'
+    );
+
+    // Build lookup maps for curated
     const modelMap = new Map();
     for (const m of models) modelMap.set(m.id, m);
-
     const inputMap = new Map();
     for (const r of inputTypesRows) {
       if (!inputMap.has(r.model_id)) inputMap.set(r.model_id, []);
@@ -59,10 +83,23 @@ async function exportData(pool) {
       featMap.get(r.model_id)[r.feature_type].push(r.value);
     }
 
-    const meta = {};
-    for (const r of metadataRows) {
-      try { meta[r.key] = JSON.parse(r.value); }
-      catch { meta[r.key] = r.value; }
+    // Build lookup maps for models.dev
+    const mdModelMap = new Map();
+    for (const m of modelsdev) mdModelMap.set(m.id, m);
+    const mdInputMap = new Map();
+    for (const r of mdInputTypesRows) {
+      if (!mdInputMap.has(r.modelsdev_id)) mdInputMap.set(r.modelsdev_id, []);
+      mdInputMap.get(r.modelsdev_id).push(r.input_type);
+    }
+    const mdOutputMap = new Map();
+    for (const r of mdOutputTypesRows) {
+      if (!mdOutputMap.has(r.modelsdev_id)) mdOutputMap.set(r.modelsdev_id, []);
+      mdOutputMap.get(r.modelsdev_id).push(r.output_type);
+    }
+    const mdFeatMap = new Map();
+    for (const r of mdFeaturesRows) {
+      if (!mdFeatMap.has(r.modelsdev_id)) mdFeatMap.set(r.modelsdev_id, { tag: [], best_for: [] });
+      mdFeatMap.get(r.modelsdev_id)[r.feature_type].push(r.value);
     }
 
     const outputModels = [];
@@ -71,11 +108,13 @@ async function exportData(pool) {
     const brokenIds = [];
     const untestedIds = [];
 
+    // ── Emit curated models ──
     for (const pm of providerModels) {
       const m = modelMap.get(pm.model_id);
       if (!m) continue;
       const modelId = pm.full_id;
       const mid = m.id;
+
       const entry = {
         id: modelId,
         name: m.name,
@@ -106,6 +145,7 @@ async function exportData(pool) {
         last_success: pm.last_success || null,
         source: pm.source || 'curated',
       };
+
       outputModels.push(entry);
       const result = pm.status_result || 'untested';
       if (result === 'working') workingIds.push(modelId);
@@ -114,6 +154,59 @@ async function exportData(pool) {
       else untestedIds.push(modelId);
     }
 
+    // ── Emit models.dev models ──
+    for (const mpm of mdProviderModels) {
+      const m = mdModelMap.get(mpm.modelsdev_id);
+      if (!m) continue;
+      const modelId = mpm.full_id;
+      const mid = m.id;
+
+      const entry = {
+        id: modelId,
+        name: m.name,
+        provider: mpm.provider_name,
+        author: null,
+        context_length: m.context_length || null,
+        input_price_per_million: Number(m.input_price_per_million) || 0,
+        output_price_per_million: Number(m.output_price_per_million) || 0,
+        is_free: m.is_free,
+        supports_tools: m.supports_tools,
+        supports_reasoning: m.supports_reasoning,
+        output_limit: m.output_limit || null,
+        temperature: m.temperature,
+        open_weights: m.open_weights,
+        family: m.family || null,
+        knowledge_cutoff: m.knowledge_cutoff || null,
+        releaseDate: m.release_date ? (typeof m.release_date === 'string' ? m.release_date.slice(0, 10) : m.release_date.toISOString().slice(0, 10)) : null,
+        lastUpdated: m.last_updated ? (typeof m.last_updated === 'string' ? m.last_updated.slice(0, 10) : m.last_updated.toISOString().slice(0, 10)) : null,
+        tags: mdFeatMap.get(mid)?.tag || [],
+        best_for: mdFeatMap.get(mid)?.best_for || [],
+        input_types: mdInputMap.get(mid) || [],
+        output_types: mdOutputMap.get(mid) || [],
+        status: {
+          tested: mpm.status_tested || null,
+          result: mpm.status_result || 'untested',
+          detail: mpm.status_detail || null,
+        },
+        last_success: mpm.last_success || null,
+        source: 'models.dev',
+      };
+
+      outputModels.push(entry);
+      const result = mpm.status_result || 'untested';
+      if (result === 'working') workingIds.push(modelId);
+      else if (result === 'rate_limited') rateLimitedIds.push(modelId);
+      else if (result === 'broken') brokenIds.push(modelId);
+      else untestedIds.push(modelId);
+    }
+
+    // Build _test_summary
+    const testSummary = {
+      date: new Date().toISOString().slice(0, 10),
+      results: { working: workingIds, rate_limited: rateLimitedIds, broken: brokenIds, untested: untestedIds },
+    };
+
+    // Build provider_health (free models only)
     const health = {};
     for (const m of outputModels) {
       if (!m.is_free) continue;
@@ -126,10 +219,7 @@ async function exportData(pool) {
 
     const result = {
       models: outputModels,
-      _test_summary: {
-        date: new Date().toISOString().slice(0, 10),
-        results: { working: workingIds, rate_limited: rateLimitedIds, broken: brokenIds, untested: untestedIds },
-      },
+      _test_summary: testSummary,
       _role_rankings: meta._role_rankings || { description: '', model: [], build: [], general: [], small_model: [], explore: [], stable: [] },
       _provider_usage: meta._provider_usage || { description: '' },
       _known_issues: meta._known_issues || { description: '', issues: [] },
@@ -139,6 +229,7 @@ async function exportData(pool) {
 
     fs.writeFileSync(DATA_FILE, JSON.stringify(result, null, 2) + '\n');
     console.log(`Exported ${outputModels.length} models to ${DATA_FILE}`);
+
   } catch (err) {
     console.error('Export failed:', err.message);
     process.exitCode = 1;

@@ -32,7 +32,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "aihubmix/coding-minimax-m2.7-free",
@@ -66,7 +67,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "aihubmix/xiaomi-mimo-v2.5-free",
@@ -103,7 +105,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "aihubmix/xiaomi-mimo-v2.5-pro-free",
@@ -137,7 +140,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "alibaba-cn/deepseek-r1-distill-llama-8b",
@@ -171,7 +175,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.03
     },
     {
       "id": "alibaba-cn/deepseek-r1-distill-qwen-1-5b",
@@ -205,7 +210,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.03
     },
     {
       "id": "alibaba-coding-plan-cn/MiniMax-M2.5",
@@ -239,7 +245,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "alibaba-coding-plan-cn/glm-4.7",
@@ -273,7 +280,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "alibaba-coding-plan-cn/glm-5",
@@ -307,7 +315,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "alibaba-coding-plan-cn/kimi-k2.5",
@@ -343,7 +352,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "alibaba-coding-plan-cn/qwen3-coder-next",
@@ -377,7 +387,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "alibaba-coding-plan-cn/qwen3-coder-plus",
@@ -415,7 +426,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.95
     },
     {
       "id": "alibaba-coding-plan-cn/qwen3-max-2026-01-23",
@@ -455,7 +467,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 1.75
     },
     {
       "id": "alibaba-coding-plan-cn/qwen3.5-plus",
@@ -491,7 +504,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.95
     },
     {
       "id": "alibaba-coding-plan-cn/qwen3.6-plus",
@@ -527,7 +541,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.95
     },
     {
       "id": "alibaba-coding-plan/MiniMax-M2.5",
@@ -561,7 +576,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "alibaba-coding-plan/glm-4.7",
@@ -595,7 +611,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "alibaba-coding-plan/glm-5",
@@ -629,7 +646,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "alibaba-coding-plan/kimi-k2.5",
@@ -665,7 +683,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "alibaba-coding-plan/qwen3-coder-next",
@@ -699,7 +718,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "alibaba-coding-plan/qwen3-coder-plus",
@@ -737,7 +757,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.95
     },
     {
       "id": "alibaba-coding-plan/qwen3-max-2026-01-23",
@@ -777,7 +798,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 1.75
     },
     {
       "id": "alibaba-coding-plan/qwen3.5-plus",
@@ -813,7 +835,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.95
     },
     {
       "id": "alibaba-coding-plan/qwen3.6-plus",
@@ -849,7 +872,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.95
     },
     {
       "id": "atomic-chat/Meta-Llama-3_1-8B-Instruct-GGUF",
@@ -883,7 +907,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "atomic-chat/Qwen3_5-9B-MLX-4bit",
@@ -918,7 +943,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.03
     },
     {
       "id": "atomic-chat/Qwen3_5-9B-Q4_K_M",
@@ -953,7 +979,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.03
     },
     {
       "id": "atomic-chat/gemma-4-E4B-it-IQ4_XS",
@@ -987,7 +1014,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.03
     },
     {
       "id": "atomic-chat/gemma-4-E4B-it-MLX-4bit",
@@ -1021,7 +1049,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.03
     },
     {
       "id": "cerebras/gpt-oss-120b",
@@ -1060,7 +1089,8 @@
         "detail": "5/6 OK. Intermittent failures under load."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "cerebras/llama3.1-8b",
@@ -1098,7 +1128,8 @@
         "detail": "Model no longer exists in provider API — confirmed not_found (detected 2026-06-02)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "cerebras/qwen-3-235b-a22b-instruct-2507",
@@ -1132,7 +1163,8 @@
         "detail": "Model removed from Cerebras API — no longer offered as free (detected 2026-06-02)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "cerebras/zai-glm-4.7",
@@ -1171,7 +1203,8 @@
         "detail": "5/6 OK. Intermittent failures under load."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "cloudflare-ai-gateway/workers-ai/@cf/deepgram/aura-2-en",
@@ -1205,7 +1238,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "cloudflare-ai-gateway/workers-ai/@cf/deepgram/aura-2-es",
@@ -1239,7 +1273,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "cloudflare-ai-gateway/workers-ai/@cf/deepgram/nova-3",
@@ -1273,7 +1308,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "cloudflare-ai-gateway/workers-ai/@cf/facebook/bart-large-cnn",
@@ -1307,7 +1343,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "cloudflare-ai-gateway/workers-ai/@cf/myshell-ai/melotts",
@@ -1341,7 +1378,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "cloudflare-ai-gateway/workers-ai/@cf/pipecat-ai/smart-turn-v2",
@@ -1375,7 +1413,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "cortecs/devstral-2512",
@@ -1409,7 +1448,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "cortecs/devstral-small-2512",
@@ -1444,7 +1484,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "cortecs/gpt-oss-120b",
@@ -1483,7 +1524,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3.62
     },
     {
       "id": "cortecs/llama-3.1-405b-instruct",
@@ -1517,7 +1559,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "deepseek/deepseek-v4-flash",
@@ -1559,7 +1602,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.95
     },
     {
       "id": "firepass/accounts/fireworks/routers/kimi-k2p6-turbo",
@@ -1594,7 +1638,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "github-models/ai21-labs/ai21-jamba-1.5-large",
@@ -1628,7 +1673,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "github-models/ai21-labs/ai21-jamba-1.5-mini",
@@ -1662,7 +1708,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "github-models/cohere/cohere-command-a",
@@ -1696,7 +1743,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/cohere/cohere-command-r",
@@ -1730,7 +1778,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/cohere/cohere-command-r-08-2024",
@@ -1764,7 +1813,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/cohere/cohere-command-r-plus",
@@ -1798,7 +1848,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/cohere/cohere-command-r-plus-08-2024",
@@ -1832,7 +1883,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/core42/jais-30b-chat",
@@ -1866,7 +1918,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.01
     },
     {
       "id": "github-models/deepseek/deepseek-r1",
@@ -1900,7 +1953,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.06
     },
     {
       "id": "github-models/deepseek/deepseek-r1-0528",
@@ -1934,7 +1988,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.06
     },
     {
       "id": "github-models/deepseek/deepseek-v3-0324",
@@ -1968,7 +2023,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/meta/llama-3.2-11b-vision-instruct",
@@ -2006,7 +2062,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "github-models/meta/llama-3.2-90b-vision-instruct",
@@ -2044,7 +2101,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "github-models/meta/llama-3.3-70b-instruct",
@@ -2078,7 +2136,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/meta/llama-4-maverick-17b-128e-instruct-fp8",
@@ -2113,7 +2172,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/meta/llama-4-scout-17b-16e-instruct",
@@ -2148,7 +2208,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/meta/meta-llama-3-70b-instruct",
@@ -2182,7 +2243,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.01
     },
     {
       "id": "github-models/meta/meta-llama-3-8b-instruct",
@@ -2216,7 +2278,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.01
     },
     {
       "id": "github-models/meta/meta-llama-3.1-405b-instruct",
@@ -2250,7 +2313,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/meta/meta-llama-3.1-70b-instruct",
@@ -2284,7 +2348,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/meta/meta-llama-3.1-8b-instruct",
@@ -2318,7 +2383,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/microsoft/mai-ds-r1",
@@ -2352,7 +2418,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.06
     },
     {
       "id": "github-models/microsoft/phi-3-medium-128k-instruct",
@@ -2386,7 +2453,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/microsoft/phi-3-medium-4k-instruct",
@@ -2420,7 +2488,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2
     },
     {
       "id": "github-models/microsoft/phi-3-mini-128k-instruct",
@@ -2454,7 +2523,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/microsoft/phi-3-mini-4k-instruct",
@@ -2488,7 +2558,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2
     },
     {
       "id": "github-models/microsoft/phi-3-small-128k-instruct",
@@ -2522,7 +2593,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/microsoft/phi-3-small-8k-instruct",
@@ -2556,7 +2628,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.01
     },
     {
       "id": "github-models/microsoft/phi-3.5-mini-instruct",
@@ -2590,7 +2663,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/microsoft/phi-3.5-moe-instruct",
@@ -2626,7 +2700,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/microsoft/phi-3.5-vision-instruct",
@@ -2661,7 +2736,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/microsoft/phi-4",
@@ -2695,7 +2771,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.02
     },
     {
       "id": "github-models/microsoft/phi-4-mini-instruct",
@@ -2729,7 +2806,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/microsoft/phi-4-mini-reasoning",
@@ -2763,7 +2841,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/microsoft/phi-4-multimodal-instruct",
@@ -2799,7 +2878,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/microsoft/phi-4-reasoning",
@@ -2833,7 +2913,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/mistral-ai/codestral-2501",
@@ -2867,7 +2948,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.03
     },
     {
       "id": "github-models/mistral-ai/ministral-3b",
@@ -2901,7 +2983,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/mistral-ai/mistral-large-2411",
@@ -2935,7 +3018,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/mistral-ai/mistral-medium-2505",
@@ -2970,7 +3054,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/mistral-ai/mistral-nemo",
@@ -3004,7 +3089,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/mistral-ai/mistral-small-2503",
@@ -3039,7 +3125,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/openai/gpt-4.1",
@@ -3074,7 +3161,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/openai/gpt-4.1-mini",
@@ -3109,7 +3197,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/openai/gpt-4.1-nano",
@@ -3144,7 +3233,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/openai/gpt-4o",
@@ -3180,7 +3270,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/openai/gpt-4o-mini",
@@ -3216,7 +3307,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/openai/o1",
@@ -3251,7 +3343,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.19
     },
     {
       "id": "github-models/openai/o1-mini",
@@ -3285,7 +3378,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "github-models/openai/o1-preview",
@@ -3319,7 +3413,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "github-models/openai/o3",
@@ -3354,7 +3449,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.19
     },
     {
       "id": "github-models/openai/o3-mini",
@@ -3388,7 +3484,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.19
     },
     {
       "id": "github-models/openai/o4-mini",
@@ -3423,7 +3520,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.19
     },
     {
       "id": "github-models/xai/grok-3",
@@ -3457,7 +3555,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "github-models/xai/grok-3-mini",
@@ -3491,7 +3590,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "gitlab/duo-chat-gpt-5-1",
@@ -3526,7 +3626,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.38
     },
     {
       "id": "gitlab/duo-chat-gpt-5-2",
@@ -3561,7 +3662,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.38
     },
     {
       "id": "gitlab/duo-chat-gpt-5-2-codex",
@@ -3597,7 +3699,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.38
     },
     {
       "id": "gitlab/duo-chat-gpt-5-3-codex",
@@ -3633,7 +3736,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.38
     },
     {
       "id": "gitlab/duo-chat-gpt-5-4",
@@ -3669,7 +3773,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "gitlab/duo-chat-gpt-5-4-mini",
@@ -3704,7 +3809,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.38
     },
     {
       "id": "gitlab/duo-chat-gpt-5-4-nano",
@@ -3739,7 +3845,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.38
     },
     {
       "id": "gitlab/duo-chat-gpt-5-5",
@@ -3775,7 +3882,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "gitlab/duo-chat-gpt-5-codex",
@@ -3810,7 +3918,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.38
     },
     {
       "id": "gitlab/duo-chat-gpt-5-mini",
@@ -3845,7 +3954,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.38
     },
     {
       "id": "gitlab/duo-chat-haiku-4-5",
@@ -3881,7 +3991,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "gitlab/duo-chat-opus-4-5",
@@ -3917,7 +4028,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "gitlab/duo-chat-opus-4-6",
@@ -3953,7 +4065,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.95
     },
     {
       "id": "gitlab/duo-chat-opus-4-7",
@@ -3989,7 +4102,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.95
     },
     {
       "id": "gitlab/duo-chat-opus-4-8",
@@ -4025,7 +4139,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.95
     },
     {
       "id": "gitlab/duo-chat-sonnet-4-5",
@@ -4061,7 +4176,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "gitlab/duo-chat-sonnet-4-6",
@@ -4097,7 +4213,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.95
     },
     {
       "id": "google/gemini-2.0-flash",
@@ -4139,7 +4256,8 @@
         "detail": "All 6 requests failed (non-OK)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3
     },
     {
       "id": "google/gemini-2.0-flash-lite",
@@ -4181,7 +4299,8 @@
         "detail": "All 6 requests failed (non-OK)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3
     },
     {
       "id": "google/gemini-2.5-flash",
@@ -4224,7 +4343,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-02T08:07:29.672Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.45
     },
     {
       "id": "google/gemini-2.5-flash-lite",
@@ -4266,7 +4386,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-02T08:07:29.672Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3
     },
     {
       "id": "google/gemini-2.5-pro",
@@ -4311,7 +4432,8 @@
         "detail": "All 6 requests failed (non-OK)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.45
     },
     {
       "id": "google/gemini-3.5-flash",
@@ -4354,7 +4476,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-02T08:07:29.672Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3
     },
     {
       "id": "groq/allam-2-7b",
@@ -4388,7 +4511,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0
     },
     {
       "id": "groq/canopylabs/orpheus-v1-english",
@@ -4422,7 +4546,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0
     },
     {
       "id": "groq/groq/compound",
@@ -4456,7 +4581,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "groq/groq/compound-mini",
@@ -4490,7 +4616,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "groq/whisper-large-v3",
@@ -4524,7 +4651,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0
     },
     {
       "id": "groq/whisper-large-v3-turbo",
@@ -4558,7 +4686,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0
     },
     {
       "id": "huggingface/Qwen/Qwen3-Coder-30B-A3B-Instruct",
@@ -4596,7 +4725,8 @@
         "detail": "Initially working but HuggingFace free tier has very low rate limits; impractical for regular use."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "huggingface/moonshotai/Kimi-K2-Instruct",
@@ -4634,7 +4764,8 @@
         "detail": "Initially working but HuggingFace free tier has very low rate limits; impractical for regular use."
       },
       "last_success": "2026-06-01T22:36:57.337Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "huggingface/zai-org/GLM-4.6",
@@ -4672,7 +4803,8 @@
         "detail": "Initially working but HuggingFace free tier has very low rate limits; impractical for regular use."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "huggingface/zai-org/GLM-4.7-Flash",
@@ -4706,7 +4838,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.19
     },
     {
       "id": "iflowcn/deepseek-r1",
@@ -4740,7 +4873,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.06
     },
     {
       "id": "iflowcn/deepseek-v3",
@@ -4774,7 +4908,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "iflowcn/deepseek-v3.2",
@@ -4808,7 +4943,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "iflowcn/glm-4.6",
@@ -4846,7 +4982,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3.62
     },
     {
       "id": "iflowcn/kimi-k2",
@@ -4880,7 +5017,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "iflowcn/kimi-k2-0905",
@@ -4914,7 +5052,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "iflowcn/qwen3-235b",
@@ -4948,7 +5087,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "iflowcn/qwen3-235b-a22b-instruct",
@@ -4982,7 +5122,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "iflowcn/qwen3-235b-a22b-thinking-2507",
@@ -5016,7 +5157,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "iflowcn/qwen3-32b",
@@ -5050,7 +5192,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "iflowcn/qwen3-coder-plus",
@@ -5084,7 +5227,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "iflowcn/qwen3-max",
@@ -5118,7 +5262,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "iflowcn/qwen3-max-preview",
@@ -5152,7 +5297,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "iflowcn/qwen3-vl-plus",
@@ -5187,7 +5333,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "jiekou/xiaomimimo/mimo-v2-flash",
@@ -5221,7 +5368,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "kilo/baidu/cobuddy:free",
@@ -5255,7 +5403,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "kilo/google/lyria-3-clip-preview",
@@ -5291,7 +5440,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 1
     },
     {
       "id": "kilo/google/lyria-3-pro-preview",
@@ -5327,7 +5477,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 1
     },
     {
       "id": "kilo/kilo-auto/free",
@@ -5361,7 +5512,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "kilo/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
@@ -5398,7 +5550,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "kilo/nvidia/nemotron-3-super-120b-a12b:free",
@@ -5432,7 +5585,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "kilo/openrouter/auto",
@@ -5474,7 +5628,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3.91
     },
     {
       "id": "kilo/openrouter/bodybuilder",
@@ -5508,7 +5663,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "kilo/openrouter/free",
@@ -5546,7 +5702,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "kilo/openrouter/pareto-code",
@@ -5580,7 +5737,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.19
     },
     {
       "id": "kilo/poolside/laguna-m.1:free",
@@ -5614,7 +5772,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "kilo/poolside/laguna-xs.2:free",
@@ -5648,7 +5807,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "kimi-for-coding/k2p5",
@@ -5684,7 +5844,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "kimi-for-coding/k2p6",
@@ -5726,7 +5887,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "kimi-for-coding/kimi-k2-thinking",
@@ -5760,7 +5922,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "kuae-cloud-coding-plan/GLM-4.7",
@@ -5794,7 +5957,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "llama/cerebras-llama-4-maverick-17b-128e-instruct",
@@ -5828,7 +5992,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "llama/cerebras-llama-4-scout-17b-16e-instruct",
@@ -5862,7 +6027,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "llama/groq-llama-4-maverick-17b-128e-instruct",
@@ -5896,7 +6062,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "llama/llama-3.3-70b-instruct",
@@ -5930,7 +6097,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "llama/llama-3.3-8b-instruct",
@@ -5964,7 +6132,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "llama/llama-4-maverick-17b-128e-instruct-fp8",
@@ -5999,7 +6168,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "llama/llama-4-scout-17b-16e-instruct-fp8",
@@ -6034,7 +6204,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "llmgateway/auto",
@@ -6069,7 +6240,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "llmgateway/custom",
@@ -6104,7 +6276,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "llmgateway/glm-4.5-flash",
@@ -6140,7 +6313,8 @@
         "detail": "5/6 OK. Intermittent failures under load."
       },
       "last_success": "2026-06-01T22:36:57.337Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "llmgateway/glm-4.6v-flash",
@@ -6179,7 +6353,8 @@
         "detail": "1/6 OK - sporadic, not reliably usable."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "llmgateway/glm-4.7-flash",
@@ -6217,7 +6392,8 @@
         "detail": "All 6 requests failed (non-OK)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "llmgateway/llama-3.3-70b-instruct",
@@ -6251,7 +6427,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "lmstudio/openai/gpt-oss-20b",
@@ -6290,7 +6467,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3.62
     },
     {
       "id": "lmstudio/qwen/qwen3-30b-a3b-2507",
@@ -6324,7 +6502,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "lmstudio/qwen/qwen3-coder-30b",
@@ -6358,7 +6537,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "meganova/mistralai/Mistral-Small-3.2-24B-Instruct-2506",
@@ -6393,7 +6573,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.03
     },
     {
       "id": "minimax-cn-coding-plan/MiniMax-M2",
@@ -6427,7 +6608,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "minimax-cn-coding-plan/MiniMax-M2.1",
@@ -6461,7 +6643,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "minimax-cn-coding-plan/MiniMax-M2.5",
@@ -6495,7 +6678,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "minimax-cn-coding-plan/MiniMax-M2.5-highspeed",
@@ -6529,7 +6713,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "minimax-cn-coding-plan/MiniMax-M2.7",
@@ -6565,7 +6750,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "minimax-cn-coding-plan/MiniMax-M2.7-highspeed",
@@ -6599,7 +6785,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "minimax-cn-coding-plan/MiniMax-M3",
@@ -6635,7 +6822,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.49
     },
     {
       "id": "minimax-coding-plan/MiniMax-M2",
@@ -6669,7 +6857,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "minimax-coding-plan/MiniMax-M2.1",
@@ -6703,7 +6892,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "minimax-coding-plan/MiniMax-M2.5",
@@ -6737,7 +6927,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "minimax-coding-plan/MiniMax-M2.5-highspeed",
@@ -6771,7 +6962,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "minimax-coding-plan/MiniMax-M2.7",
@@ -6807,7 +6999,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "minimax-coding-plan/MiniMax-M2.7-highspeed",
@@ -6841,7 +7034,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "minimax-coding-plan/MiniMax-M3",
@@ -6877,7 +7071,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.49
     },
     {
       "id": "mistral/labs-devstral-small-2512",
@@ -6912,7 +7107,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "modelscope/Qwen/Qwen3-235B-A22B-Instruct-2507",
@@ -6946,7 +7142,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "modelscope/Qwen/Qwen3-235B-A22B-Thinking-2507",
@@ -6980,7 +7177,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "modelscope/Qwen/Qwen3-30B-A3B-Instruct-2507",
@@ -7014,7 +7212,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "modelscope/Qwen/Qwen3-30B-A3B-Thinking-2507",
@@ -7048,7 +7247,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "modelscope/Qwen/Qwen3-Coder-30B-A3B-Instruct",
@@ -7086,7 +7286,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "modelscope/ZhipuAI/GLM-4.5",
@@ -7120,7 +7321,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "modelscope/ZhipuAI/GLM-4.6",
@@ -7158,7 +7360,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3.62
     },
     {
       "id": "nano-gpt/auto-model",
@@ -7192,7 +7395,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.95
     },
     {
       "id": "nova/nova-2-lite-v1",
@@ -7229,7 +7433,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.95
     },
     {
       "id": "nova/nova-2-pro-v1",
@@ -7266,7 +7471,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.95
     },
     {
       "id": "novita-ai/inclusionai/ling-2.6-1t",
@@ -7300,7 +7506,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "nvidia/abacusai/dracarys-llama-3_1-70b-instruct",
@@ -7334,7 +7541,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/ai21labs/jamba-1.5-large-instruct",
@@ -7368,7 +7576,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "nvidia/baai/bge-m3",
@@ -7404,7 +7613,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.01
     },
     {
       "id": "nvidia/black-forest-labs/flux.1-dev",
@@ -7438,7 +7648,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0
     },
     {
       "id": "nvidia/black-forest-labs/flux_1-kontext-dev",
@@ -7473,7 +7684,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.04
     },
     {
       "id": "nvidia/black-forest-labs/flux_1-schnell",
@@ -7507,7 +7719,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0
     },
     {
       "id": "nvidia/black-forest-labs/flux_2-klein-4b",
@@ -7542,7 +7755,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.04
     },
     {
       "id": "nvidia/bytedance/seed-oss-36b-instruct",
@@ -7576,7 +7790,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "nvidia/cosmos-reason2-8b",
@@ -7608,7 +7823,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "nvidia/databricks/dbrx-instruct",
@@ -7642,7 +7858,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "nvidia/deepseek-ai/deepseek-v3.1-terminus",
@@ -7676,7 +7893,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/deepseek-ai/deepseek-v3.2",
@@ -7710,7 +7928,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.16
     },
     {
       "id": "nvidia/google/gemma-2-2b-it",
@@ -7744,7 +7963,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/google/gemma-3-27b-it",
@@ -7779,7 +7999,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/google/gemma-3n-e2b-it",
@@ -7816,7 +8037,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/google/gemma-3n-e4b-it",
@@ -7851,7 +8073,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/google/gemma-4-31b-it",
@@ -7887,7 +8110,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "nvidia/google/google-paligemma",
@@ -7922,7 +8146,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/llama-3.1-nemotron-51b-instruct",
@@ -7954,7 +8179,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "nvidia/llama-3.1-nemotron-70b-instruct",
@@ -7986,7 +8212,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "nvidia/llama-3.1-nemotron-nano-8b-v1",
@@ -8018,7 +8245,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
@@ -8050,7 +8278,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
@@ -8082,7 +8311,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/llama-3.3-nemotron-super-49b-v1",
@@ -8114,7 +8344,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
@@ -8146,7 +8377,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/llama3-chatqa-1.5-70b",
@@ -8178,7 +8410,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "nvidia/meta/esm2-650m",
@@ -8212,7 +8445,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/meta/esmfold",
@@ -8246,7 +8480,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/meta/llama-3.1-70b-instruct",
@@ -8282,7 +8517,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/meta/llama-3.1-8b-instruct",
@@ -8318,7 +8554,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.02
     },
     {
       "id": "nvidia/meta/llama-3.2-11b-vision-instruct",
@@ -8353,7 +8590,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/meta/llama-3.2-1b-instruct",
@@ -8389,7 +8627,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.02
     },
     {
       "id": "nvidia/meta/llama-3.2-3b-instruct",
@@ -8428,7 +8667,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/meta/llama-3.2-90b-vision-instruct",
@@ -8466,7 +8706,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/meta/llama-3.3-70b-instruct",
@@ -8504,7 +8745,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/meta/llama-4-maverick-17b-128e-instruct",
@@ -8544,7 +8786,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/meta/llama-guard-4-12b",
@@ -8581,7 +8824,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/microsoft/phi-4-mini-instruct",
@@ -8621,7 +8865,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/microsoft/phi-4-multimodal-instruct",
@@ -8655,7 +8900,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/minimaxai/minimax-m2.5",
@@ -8689,7 +8935,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.2
     },
     {
       "id": "nvidia/minimaxai/minimax-m2.7",
@@ -8725,7 +8972,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "nvidia/mistral-nemo-minitron-8b-8k-instruct",
@@ -8757,7 +9005,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "nvidia/mistralai/devstral-2-123b-instruct-2512",
@@ -8791,7 +9040,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "nvidia/mistralai/magistral-small-2506",
@@ -8825,7 +9075,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.03
     },
     {
       "id": "nvidia/mistralai/mistral-7b-instruct-v03",
@@ -8859,7 +9110,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.06
     },
     {
       "id": "nvidia/mistralai/mistral-large-3-675b-instruct-2512",
@@ -8898,7 +9150,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.75
     },
     {
       "id": "nvidia/mistralai/mistral-medium-3-instruct",
@@ -8933,7 +9186,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/mistralai/mistral-nemotron",
@@ -8967,7 +9221,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/mistralai/mistral-small-4-119b-2603",
@@ -9001,7 +9256,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/mistralai/mixtral-8x22b-instruct",
@@ -9035,7 +9291,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.06
     },
     {
       "id": "nvidia/mistralai/mixtral-8x7b-instruct",
@@ -9069,7 +9326,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.03
     },
     {
       "id": "nvidia/mistralai/mixtral-8x7b-instruct-v0.1",
@@ -9107,7 +9365,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.03
     },
     {
       "id": "nvidia/moonshotai/kimi-k2-instruct",
@@ -9141,7 +9400,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/moonshotai/kimi-k2-instruct-0905",
@@ -9175,7 +9435,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "nvidia/moonshotai/kimi-k2-thinking",
@@ -9209,7 +9470,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "nvidia/moonshotai/kimi-k2.6",
@@ -9251,7 +9513,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "nvidia/nemotron-3-nano-30b-a3b",
@@ -9283,7 +9546,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.24
     },
     {
       "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
@@ -9315,7 +9579,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.24
     },
     {
       "id": "nvidia/nemotron-3-super-120b-a12b",
@@ -9353,7 +9618,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.95
     },
     {
       "id": "nvidia/nemotron-4-340b-instruct",
@@ -9385,7 +9651,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "nvidia/nemotron-mini-4b-instruct",
@@ -9417,7 +9684,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/nemotron-nano-12b-v2-vl",
@@ -9454,7 +9722,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/nemotron-nano-3-30b-a3b",
@@ -9486,7 +9755,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "nvidia/nvidia-nemotron-nano-9b-v2",
@@ -9518,7 +9788,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/nvidia/active-speaker-detection",
@@ -9552,7 +9823,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": -0.5
     },
     {
       "id": "nvidia/nvidia/bevformer",
@@ -9586,7 +9858,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/nvidia/cosmos-predict1-5b",
@@ -9622,7 +9895,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": -0.5
     },
     {
       "id": "nvidia/nvidia/cosmos-transfer1-7b",
@@ -9658,7 +9932,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": -0.5
     },
     {
       "id": "nvidia/nvidia/cosmos-transfer2_5-2b",
@@ -9694,7 +9969,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": -0.5
     },
     {
       "id": "nvidia/nvidia/gliner-pii",
@@ -9728,7 +10004,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/nvidia/llama-3.1-nemotron-ultra-253b-v1",
@@ -9766,7 +10043,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "nvidia/nvidia/llama-3_1-nemotron-safety-guard-8b-v3",
@@ -9800,7 +10078,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/nvidia/llama-3_2-nemoretriever-300m-embed-v1",
@@ -9834,7 +10113,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.03
     },
     {
       "id": "nvidia/nvidia/llama-3_3-nemotron-super-49b-v1",
@@ -9868,7 +10148,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/nvidia/llama-3_3-nemotron-super-49b-v1_5",
@@ -9902,7 +10183,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/nvidia/llama-nemotron-embed-vl-1b-v2",
@@ -9937,7 +10219,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.03
     },
     {
       "id": "nvidia/nvidia/llama-nemotron-rerank-vl-1b-v2",
@@ -9972,7 +10255,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/nvidia/magpie-tts-zeroshot",
@@ -10007,7 +10291,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": -0.5
     },
     {
       "id": "nvidia/nvidia/nemotron-3-content-safety",
@@ -10041,7 +10326,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/nvidia/nemotron-3-nano-30b-a3b",
@@ -10075,7 +10361,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
@@ -10116,7 +10403,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "nvidia/nvidia/nemotron-content-safety-reasoning-4b",
@@ -10150,7 +10438,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/nvidia/nemotron-mini-4b-instruct",
@@ -10184,7 +10473,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/nvidia/nemotron-voicechat",
@@ -10219,7 +10509,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/nvidia/nv-embed-v1",
@@ -10253,7 +10544,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.03
     },
     {
       "id": "nvidia/nvidia/nv-embedcode-7b-v1",
@@ -10287,7 +10579,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.03
     },
     {
       "id": "nvidia/nvidia/nvidia-nemotron-nano-9b-v2",
@@ -10321,7 +10614,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/nvidia/rerank-qa-mistral-4b",
@@ -10355,7 +10649,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/nvidia/riva-translate-4b-instruct-v1_1",
@@ -10389,7 +10684,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/nvidia/sparsedrive",
@@ -10423,7 +10719,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/nvidia/streampetr",
@@ -10457,7 +10754,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/nvidia/studiovoice",
@@ -10491,7 +10789,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/nvidia/synthetic-video-detector",
@@ -10525,7 +10824,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": -0.5
     },
     {
       "id": "nvidia/nvidia/usdcode",
@@ -10559,7 +10859,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/nvidia/usdvalidate",
@@ -10593,7 +10894,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": -0.5
     },
     {
       "id": "nvidia/openai/gpt-oss-120b",
@@ -10627,7 +10929,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "nvidia/openai/gpt-oss-20b",
@@ -10666,7 +10969,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3.62
     },
     {
       "id": "nvidia/openai/whisper-large-v3",
@@ -10700,7 +11004,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0
     },
     {
       "id": "nvidia/qwen/qwen-image",
@@ -10735,7 +11040,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": -0.5
     },
     {
       "id": "nvidia/qwen/qwen-image-edit",
@@ -10770,7 +11076,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": -0.5
     },
     {
       "id": "nvidia/qwen/qwen2.5-coder-32b-instruct",
@@ -10804,7 +11111,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/qwen/qwen3-coder-480b-a35b-instruct",
@@ -10842,7 +11150,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.75
     },
     {
       "id": "nvidia/qwen/qwen3-next-80b-a3b-instruct",
@@ -10876,7 +11185,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "nvidia/qwen/qwen3-next-80b-a3b-thinking",
@@ -10910,7 +11220,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "nvidia/qwen/qwen3.5-122b-a10b",
@@ -10947,7 +11258,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "nvidia/qwen/qwen3.5-397b-a17b",
@@ -10986,7 +11298,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.75
     },
     {
       "id": "nvidia/sarvamai/sarvam-m",
@@ -11020,7 +11333,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/stepfun-ai/step-3.5-flash",
@@ -11056,7 +11370,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "nvidia/stepfun-ai/step-3.7-flash",
@@ -11094,7 +11409,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.24
     },
     {
       "id": "nvidia/upstage/solar-10_7b-instruct",
@@ -11128,7 +11444,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "nvidia/z-ai/glm-5.1",
@@ -11166,7 +11483,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "nvidia/z-ai/glm4.7",
@@ -11200,7 +11518,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.2
     },
     {
       "id": "opencode/big-pickle",
@@ -11238,7 +11557,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T23:39:16.860Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.5
     },
     {
       "id": "opencode/deepseek-v4-flash-free",
@@ -11276,7 +11596,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T23:39:16.860Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.5
     },
     {
       "id": "opencode/glm-4.7-free",
@@ -11310,7 +11631,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "opencode/glm-5-free",
@@ -11344,7 +11666,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "opencode/grok-code",
@@ -11378,7 +11701,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "opencode/hy3-preview-free",
@@ -11412,7 +11736,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "opencode/kimi-k2.5-free",
@@ -11448,7 +11773,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "opencode/ling-2.6-flash-free",
@@ -11482,7 +11808,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "opencode/mimo-v2-flash-free",
@@ -11516,7 +11843,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "opencode/mimo-v2-omni-free",
@@ -11553,7 +11881,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "opencode/mimo-v2-pro-free",
@@ -11587,7 +11916,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "opencode/mimo-v2.5-free",
@@ -11624,7 +11954,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "opencode/minimax-m2.1-free",
@@ -11658,7 +11989,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "opencode/minimax-m2.5-free",
@@ -11692,7 +12024,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "opencode/minimax-m3-free",
@@ -11728,7 +12061,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "opencode/nemotron-3-super-free",
@@ -11765,7 +12099,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T23:39:16.860Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "opencode/qwen3.6-plus-free",
@@ -11801,7 +12136,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "opencode/ring-2.6-1t-free",
@@ -11835,7 +12171,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "opencode/trinity-large-preview-free",
@@ -11869,7 +12206,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/01-ai/yi-large",
@@ -11901,7 +12239,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/abacusai/dracarys-llama-3.1-70b-instruct",
@@ -11933,7 +12272,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/adept/fuyu-8b",
@@ -11965,7 +12305,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/anthropic/claude-haiku-4.5",
@@ -12007,7 +12348,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.19
     },
     {
       "id": "openrouter/anthropic/claude-opus-4.7",
@@ -12049,7 +12391,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.45
     },
     {
       "id": "openrouter/anthropic/claude-sonnet-4.6",
@@ -12090,7 +12433,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.45
     },
     {
       "id": "openrouter/arcee-ai/trinity-large-thinking",
@@ -12128,7 +12472,8 @@
         "detail": "Model is no longer offered as free on OpenRouter (detected 2026-06-02)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.75
     },
     {
       "id": "openrouter/baai/bge-m3",
@@ -12164,7 +12509,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.01
     },
     {
       "id": "openrouter/bigcode/starcoder2-15b",
@@ -12196,7 +12542,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/bytedance/seed-oss-36b-instruct",
@@ -12232,7 +12579,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "openrouter/cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
@@ -12269,7 +12617,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.03
     },
     {
       "id": "openrouter/deepseek-ai/deepseek-coder-6.7b-instruct",
@@ -12301,7 +12650,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/deepseek-ai/deepseek-v4-flash",
@@ -12343,7 +12693,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.95
     },
     {
       "id": "openrouter/deepseek-ai/deepseek-v4-pro",
@@ -12384,7 +12735,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.45
     },
     {
       "id": "openrouter/deepseek/deepseek-r1",
@@ -12423,7 +12775,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.66
     },
     {
       "id": "openrouter/deepseek/deepseek-v4-flash",
@@ -12465,7 +12818,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.95
     },
     {
       "id": "openrouter/deepseek/deepseek-v4-pro",
@@ -12506,7 +12860,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.45
     },
     {
       "id": "openrouter/google/codegemma-1.1-7b",
@@ -12538,7 +12893,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/google/codegemma-7b",
@@ -12570,7 +12926,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/google/deplot",
@@ -12602,7 +12959,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/google/gemini-2.5-flash",
@@ -12645,7 +13003,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.45
     },
     {
       "id": "openrouter/google/gemini-2.5-pro",
@@ -12690,7 +13049,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.45
     },
     {
       "id": "openrouter/google/gemma-2-2b-it",
@@ -12726,7 +13086,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.01
     },
     {
       "id": "openrouter/google/gemma-2b",
@@ -12758,7 +13119,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/google/gemma-3-12b-it",
@@ -12795,7 +13157,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/google/gemma-3-4b-it",
@@ -12832,7 +13195,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/google/gemma-3n-e2b-it",
@@ -12869,7 +13233,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/google/gemma-3n-e4b-it",
@@ -12905,7 +13270,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/google/gemma-4-26b-a4b-it:free",
@@ -12944,7 +13310,8 @@
         "detail": "5/6 OK. Intermittent failures under load."
       },
       "last_success": "2026-06-01T22:36:57.337Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "openrouter/google/gemma-4-31b-it",
@@ -12983,7 +13350,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "openrouter/google/gemma-4-31b-it:free",
@@ -13022,7 +13390,8 @@
         "detail": "5/6 OK. Intermittent 429s under load, reliable sequentially."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "openrouter/google/lyria-3-clip-preview",
@@ -13058,7 +13427,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 1
     },
     {
       "id": "openrouter/google/lyria-3-pro-preview",
@@ -13094,7 +13464,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 1
     },
     {
       "id": "openrouter/google/recurrentgemma-2b",
@@ -13126,7 +13497,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/gpt-oss-120b",
@@ -13165,7 +13537,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "openrouter/ibm/granite-3.0-3b-a800m-instruct",
@@ -13197,7 +13570,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/ibm/granite-3.0-8b-instruct",
@@ -13229,7 +13603,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/ibm/granite-34b-code-instruct",
@@ -13261,7 +13636,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/ibm/granite-8b-code-instruct",
@@ -13293,7 +13669,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
@@ -13330,7 +13707,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.03
     },
     {
       "id": "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
@@ -13367,7 +13745,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.53
     },
     {
       "id": "openrouter/meta-llama/llama-3.2-3b-instruct:free",
@@ -13406,7 +13785,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/meta-llama/llama-3.3-70b-instruct:free",
@@ -13444,7 +13824,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/meta-llama/llama-4-maverick",
@@ -13484,7 +13865,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.95
     },
     {
       "id": "openrouter/meta-llama/llama-4-scout",
@@ -13524,7 +13906,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 11.54
     },
     {
       "id": "openrouter/meta/codellama-70b",
@@ -13556,7 +13939,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": -0.5
     },
     {
       "id": "openrouter/meta/llama-3.1-70b-instruct",
@@ -13592,7 +13976,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 0.12
     },
     {
       "id": "openrouter/meta/llama-3.1-8b-instruct",
@@ -13628,7 +14013,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 0.02
     },
     {
       "id": "openrouter/meta/llama-3.2-11b-vision-instruct",
@@ -13666,7 +14052,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 0.12
     },
     {
       "id": "openrouter/meta/llama-3.2-1b-instruct",
@@ -13702,7 +14089,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 0.02
     },
     {
       "id": "openrouter/meta/llama-3.2-3b-instruct",
@@ -13741,7 +14129,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/meta/llama-3.2-90b-vision-instruct",
@@ -13779,7 +14168,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 0.12
     },
     {
       "id": "openrouter/meta/llama-guard-4-12b",
@@ -13816,7 +14206,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/meta/llama2-70b",
@@ -13848,7 +14239,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/microsoft/phi-3-vision-128k-instruct",
@@ -13880,7 +14272,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/microsoft/phi-3.5-moe-instruct",
@@ -13916,7 +14309,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/microsoft/phi-4-multimodal-instruct",
@@ -13953,7 +14347,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 0.03
     },
     {
       "id": "openrouter/minimax/minimax-m2.5",
@@ -13992,7 +14387,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.2
     },
     {
       "id": "openrouter/minimax/minimax-m2.5:free",
@@ -14031,7 +14427,8 @@
         "detail": "Model no longer exists in provider API — confirmed not_found (detected 2026-06-02)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.2
     },
     {
       "id": "openrouter/minimaxai/minimax-m2.7",
@@ -14067,7 +14464,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.2
     },
     {
       "id": "openrouter/mistralai/codestral-22b-instruct-v0.1",
@@ -14099,7 +14497,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/mistralai/ministral-14b-instruct-2512",
@@ -14136,7 +14535,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "openrouter/mistralai/mistral-7b-instruct-v0.3",
@@ -14168,7 +14568,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/mistralai/mistral-large",
@@ -14205,7 +14606,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/mistralai/mistral-large-2-instruct",
@@ -14237,7 +14639,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/mistralai/mistral-large-2512",
@@ -14277,7 +14680,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.75
     },
     {
       "id": "openrouter/mistralai/mistral-medium-3.5-128b",
@@ -14314,7 +14718,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "openrouter/mistralai/mistral-nemotron",
@@ -14350,7 +14755,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/mistralai/mistral-small-4-119b-2603",
@@ -14386,7 +14792,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/mistralai/mixtral-8x22b-v0.1",
@@ -14418,7 +14825,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/moonshotai/kimi-k2.6",
@@ -14460,7 +14868,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "openrouter/moonshotai/kimi-k2.6:free",
@@ -14502,7 +14911,8 @@
         "detail": "1/6 OK - sporadic success, not reliably usable."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.25
     },
     {
       "id": "openrouter/nousresearch/hermes-3-llama-3.1-405b:free",
@@ -14541,7 +14951,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "openrouter/nv-mistralai/mistral-nemo-12b-instruct",
@@ -14573,7 +14984,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
@@ -14611,7 +15023,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.74
     },
     {
       "id": "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
@@ -14652,7 +15065,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:36:57.337Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.24
     },
     {
       "id": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
@@ -14690,7 +15104,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:36:57.337Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.95
     },
     {
       "id": "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
@@ -14729,7 +15144,8 @@
         "detail": "All 6 requests failed (non-OK)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/nvidia/nemotron-nano-9b-v2:free",
@@ -14767,7 +15183,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "openrouter/openai/gpt-5.1",
@@ -14808,7 +15225,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.38
     },
     {
       "id": "openrouter/openai/gpt-5.2",
@@ -14850,7 +15268,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.88
     },
     {
       "id": "openrouter/openai/gpt-5.4",
@@ -14892,7 +15311,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.95
     },
     {
       "id": "openrouter/openai/gpt-oss-120b",
@@ -14932,7 +15352,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-02T09:48:46.327Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "openrouter/openai/gpt-oss-120b:free",
@@ -14972,7 +15393,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "openrouter/openai/gpt-oss-20b",
@@ -15011,7 +15433,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "openrouter/openai/gpt-oss-20b:free",
@@ -15050,7 +15473,8 @@
         "detail": "3/6 OK - sporadic, not reliably usable."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "openrouter/openai/o3",
@@ -15092,7 +15516,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.69
     },
     {
       "id": "openrouter/openai/o4-mini",
@@ -15134,7 +15559,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.69
     },
     {
       "id": "openrouter/openrouter/auto",
@@ -15176,7 +15602,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.91
     },
     {
       "id": "openrouter/openrouter/free",
@@ -15214,7 +15641,8 @@
         "detail": "Model no longer exists in provider API — confirmed not_found (detected 2026-06-02)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.19
     },
     {
       "id": "openrouter/owl-alpha",
@@ -15250,7 +15678,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.5
     },
     {
       "id": "openrouter/poolside/laguna-m.1:free",
@@ -15287,7 +15716,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "openrouter/poolside/laguna-xs.2:free",
@@ -15324,7 +15754,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/qwen/qwen3-coder",
@@ -15363,7 +15794,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.45
     },
     {
       "id": "openrouter/qwen/qwen3-coder-flash",
@@ -15401,7 +15833,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.95
     },
     {
       "id": "openrouter/qwen/qwen3-coder-plus",
@@ -15439,7 +15872,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.95
     },
     {
       "id": "openrouter/qwen/qwen3-coder:free",
@@ -15478,7 +15912,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.45
     },
     {
       "id": "openrouter/qwen/qwen3-max",
@@ -15518,7 +15953,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.75
     },
     {
       "id": "openrouter/qwen/qwen3-next-80b-a3b-instruct",
@@ -15558,7 +15994,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.75
     },
     {
       "id": "openrouter/qwen/qwen3-next-80b-a3b-instruct:free",
@@ -15598,7 +16035,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.75
     },
     {
       "id": "openrouter/qwen/qwen3.5-122b-a10b",
@@ -15636,7 +16074,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 0.12
     },
     {
       "id": "openrouter/sarvamai/sarvam-m",
@@ -15672,7 +16111,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/stepfun-ai/step-3.5-flash",
@@ -15708,7 +16148,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.24
     },
     {
       "id": "openrouter/stockmark/stockmark-2-100b-instruct",
@@ -15740,7 +16181,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/upstage/solar-10.7b-instruct",
@@ -15772,7 +16214,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/writer/palmyra-creative-122b",
@@ -15804,7 +16247,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/writer/palmyra-fin-70b-32k",
@@ -15836,7 +16280,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/writer/palmyra-med-70b",
@@ -15868,7 +16313,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/writer/palmyra-med-70b-32k",
@@ -15900,7 +16346,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "openrouter/x-ai/grok-4.3",
@@ -15940,7 +16387,8 @@
         "detail": "Paid model â€” not tested, assumed working"
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 4.45
     },
     {
       "id": "openrouter/z-ai/glm-4.5-air:free",
@@ -15976,7 +16424,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:36:57.337Z",
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 2.12
     },
     {
       "id": "openrouter/z-ai/glm-5-turbo",
@@ -16014,7 +16463,8 @@
         "detail": "Model is no longer offered as free on OpenRouter (detected 2026-06-02)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "openrouter/z-ai/glm-5.1",
@@ -16053,7 +16503,8 @@
         "detail": "Model is no longer offered as free on OpenRouter (detected 2026-06-02)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "openrouter/z-ai/glm-5v-turbo",
@@ -16094,7 +16545,8 @@
         "detail": "Model is no longer offered as free on OpenRouter (detected 2026-06-02)."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "openrouter/zai-glm-4.7",
@@ -16133,7 +16585,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 3.62
     },
     {
       "id": "openrouter/zyphra/zamba2-7b-instruct",
@@ -16165,7 +16618,8 @@
         "detail": "429 on all 6 requests - persistently rate limited."
       },
       "last_success": null,
-      "source": "curated"
+      "source": "curated",
+      "priority_score": 1.5
     },
     {
       "id": "orcarouter/orcarouter/auto",
@@ -16200,7 +16654,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "poe/fireworks-ai/kimi-k2.5-fw",
@@ -16235,7 +16690,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "poe/google/gemma-4-31b",
@@ -16270,7 +16726,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "poe/openai/gpt-5.3-codex-spark",
@@ -16304,7 +16761,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "poolside/poolside/laguna-m.1",
@@ -16341,7 +16799,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3.62
     },
     {
       "id": "poolside/poolside/laguna-xs.2",
@@ -16378,7 +16837,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "privatemode-ai/gemma-3-27b",
@@ -16413,7 +16873,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "privatemode-ai/gpt-oss-120b",
@@ -16447,7 +16908,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.12
     },
     {
       "id": "privatemode-ai/qwen3-coder-30b-a3b",
@@ -16481,7 +16943,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "privatemode-ai/qwen3-embedding-4b",
@@ -16515,7 +16978,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.03
     },
     {
       "id": "privatemode-ai/whisper-large-v3",
@@ -16549,7 +17013,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": -0.5
     },
     {
       "id": "siliconflow-cn/PaddlePaddle/PaddleOCR-VL",
@@ -16584,7 +17049,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.02
     },
     {
       "id": "siliconflow-cn/PaddlePaddle/PaddleOCR-VL-1.5",
@@ -16619,7 +17085,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.02
     },
     {
       "id": "siliconflow-cn/Qwen/Qwen3.5-4B",
@@ -16655,7 +17122,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "siliconflow-cn/deepseek-ai/DeepSeek-OCR",
@@ -16690,7 +17158,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "siliconflow-cn/tencent/Hunyuan-MT-7B",
@@ -16724,7 +17193,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.03
     },
     {
       "id": "siliconflow/tencent/Hunyuan-MT-7B",
@@ -16758,7 +17228,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.03
     },
     {
       "id": "tencent-coding-plan/glm-5",
@@ -16792,7 +17263,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "tencent-coding-plan/hunyuan-2.0-instruct",
@@ -16826,7 +17298,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "tencent-coding-plan/hunyuan-2.0-thinking",
@@ -16860,7 +17333,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "tencent-coding-plan/hunyuan-t1",
@@ -16894,7 +17368,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "tencent-coding-plan/hunyuan-turbos",
@@ -16928,7 +17403,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "tencent-coding-plan/kimi-k2.5",
@@ -16964,7 +17440,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "tencent-coding-plan/minimax-m2.5",
@@ -16998,7 +17475,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "tencent-coding-plan/tc-code-latest",
@@ -17032,7 +17510,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "tencent-tokenhub/hy3-preview",
@@ -17066,7 +17545,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "umans-ai-coding-plan/umans-coder",
@@ -17101,7 +17581,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "umans-ai-coding-plan/umans-flash",
@@ -17136,7 +17617,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "umans-ai-coding-plan/umans-glm-5.1",
@@ -17175,7 +17657,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3.62
     },
     {
       "id": "umans-ai-coding-plan/umans-kimi-k2.6",
@@ -17217,7 +17700,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "umans-ai-coding-plan/umans-qwen3.6-35b-a3b",
@@ -17252,7 +17736,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "vercel/meta/llama-3.3-70b",
@@ -17286,7 +17771,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "vercel/meta/llama-4-maverick",
@@ -17321,7 +17807,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "vercel/meta/llama-4-scout",
@@ -17356,7 +17843,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "xiaomi-token-plan-ams/mimo-v2-omni",
@@ -17394,7 +17882,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "xiaomi-token-plan-ams/mimo-v2-pro",
@@ -17428,7 +17917,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "xiaomi-token-plan-ams/mimo-v2-tts",
@@ -17462,7 +17952,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "xiaomi-token-plan-ams/mimo-v2.5",
@@ -17499,7 +17990,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "xiaomi-token-plan-ams/mimo-v2.5-pro",
@@ -17533,7 +18025,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "xiaomi-token-plan-ams/mimo-v2.5-tts",
@@ -17567,7 +18060,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "xiaomi-token-plan-ams/mimo-v2.5-tts-voiceclone",
@@ -17601,7 +18095,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "xiaomi-token-plan-ams/mimo-v2.5-tts-voicedesign",
@@ -17635,7 +18130,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "xiaomi-token-plan-cn/mimo-v2-omni",
@@ -17673,7 +18169,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "xiaomi-token-plan-cn/mimo-v2-pro",
@@ -17707,7 +18204,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "xiaomi-token-plan-cn/mimo-v2-tts",
@@ -17741,7 +18239,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "xiaomi-token-plan-cn/mimo-v2.5",
@@ -17778,7 +18277,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "xiaomi-token-plan-cn/mimo-v2.5-pro",
@@ -17812,7 +18312,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "xiaomi-token-plan-cn/mimo-v2.5-tts",
@@ -17846,7 +18347,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "xiaomi-token-plan-cn/mimo-v2.5-tts-voiceclone",
@@ -17880,7 +18382,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "xiaomi-token-plan-cn/mimo-v2.5-tts-voicedesign",
@@ -17914,7 +18417,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "xiaomi-token-plan-sgp/mimo-v2-omni",
@@ -17952,7 +18456,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.25
     },
     {
       "id": "xiaomi-token-plan-sgp/mimo-v2-pro",
@@ -17986,7 +18491,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "xiaomi-token-plan-sgp/mimo-v2-tts",
@@ -18020,7 +18526,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "xiaomi-token-plan-sgp/mimo-v2.5",
@@ -18057,7 +18564,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "xiaomi-token-plan-sgp/mimo-v2.5-pro",
@@ -18091,7 +18599,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3
     },
     {
       "id": "xiaomi-token-plan-sgp/mimo-v2.5-tts",
@@ -18125,7 +18634,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "xiaomi-token-plan-sgp/mimo-v2.5-tts-voiceclone",
@@ -18159,7 +18669,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "xiaomi-token-plan-sgp/mimo-v2.5-tts-voicedesign",
@@ -18193,7 +18704,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 0.01
     },
     {
       "id": "zai-coding-plan/glm-4.5-air",
@@ -18227,7 +18739,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "zai-coding-plan/glm-4.7",
@@ -18261,7 +18774,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "zai-coding-plan/glm-5-turbo",
@@ -18295,7 +18809,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "zai-coding-plan/glm-5.1",
@@ -18333,7 +18848,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3.62
     },
     {
       "id": "zai-coding-plan/glm-5v-turbo",
@@ -18370,7 +18886,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "zai/glm-4.5-flash",
@@ -18406,7 +18923,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "zai/glm-4.7-flash",
@@ -18444,7 +18962,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3.62
     },
     {
       "id": "zenmux/stepfun/step-3.5-flash-free",
@@ -18480,7 +18999,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.24
     },
     {
       "id": "zenmux/z-ai/glm-4.6v-flash-free",
@@ -18516,7 +19036,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "zenmux/z-ai/glm-4.7-flash-free",
@@ -18550,7 +19071,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "zhipuai-coding-plan/glm-4.5-air",
@@ -18584,7 +19106,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "zhipuai-coding-plan/glm-4.7",
@@ -18618,7 +19141,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.2
     },
     {
       "id": "zhipuai-coding-plan/glm-5-turbo",
@@ -18652,7 +19176,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "zhipuai-coding-plan/glm-5.1",
@@ -18690,7 +19215,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3.62
     },
     {
       "id": "zhipuai-coding-plan/glm-5v-turbo",
@@ -18727,7 +19253,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.19
     },
     {
       "id": "zhipuai/glm-4.5-flash",
@@ -18763,7 +19290,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 2.12
     },
     {
       "id": "zhipuai/glm-4.7-flash",
@@ -18801,7 +19329,8 @@
         "detail": null
       },
       "last_success": null,
-      "source": "models.dev"
+      "source": "models.dev",
+      "priority_score": 3.62
     }
   ],
   "_test_summary": {
@@ -19351,29 +19880,23 @@
       "openrouter/owl-alpha",
       "opencode/deepseek-v4-flash-free",
       "openrouter/poolside/laguna-m.1:free",
+      "openrouter/openai/gpt-oss-120b",
       "openrouter/openai/gpt-oss-120b:free",
+      "openrouter/openai/gpt-oss-20b",
       "opencode/big-pickle",
       "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
       "openrouter/poolside/laguna-xs.2:free",
-      "google/gemini-2.5-flash",
       "google/gemini-2.5-flash-lite",
       "google/gemini-3.5-flash",
-      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "nvidia/nemotron-3-super-120b-a12b",
+      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "openrouter/google/gemma-4-26b-a4b-it:free",
-      "openrouter/google/gemma-4-31b-it:free",
       "openrouter/google/gemma-4-31b-it",
-      "nvidia/moonshotai/kimi-k2.6",
-      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "openrouter/google/gemma-4-31b-it:free",
       "nvidia/nemotron-3-nano-30b-a3b",
       "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-      "openrouter/z-ai/glm-4.5-air:free",
+      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
       "llmgateway/glm-4.5-flash",
-      "openrouter/gpt-oss-120b",
-      "openrouter/google/gemma-3-12b-it",
-      "openrouter/google/gemma-3-4b-it",
-      "openrouter/google/gemma-3n-e4b-it",
-      "openrouter/mistralai/mistral-large",
       "nvidia/llama-3.1-nemotron-nano-8b-v1",
       "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
       "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
@@ -19382,42 +19905,38 @@
       "nvidia/nemotron-mini-4b-instruct",
       "nvidia/nemotron-nano-12b-v2-vl",
       "nvidia/nvidia-nemotron-nano-9b-v2",
-      "openrouter/openai/gpt-oss-120b",
-      "openrouter/openai/gpt-oss-20b",
       "opencode/nemotron-3-super-free",
+      "openrouter/google/gemma-3-12b-it",
+      "openrouter/google/gemma-3-4b-it",
+      "openrouter/google/gemma-3n-e4b-it",
+      "openrouter/mistralai/mistral-large",
+      "openrouter/z-ai/glm-4.5-air:free",
       "openrouter/nvidia/nemotron-nano-9b-v2:free",
       "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
       "openrouter/liquid/lfm-2.5-1.2b-thinking:free"
     ],
     "model": [
       "openrouter/owl-alpha",
-      "opencode/deepseek-v4-flash-free",
       "opencode/big-pickle",
+      "opencode/deepseek-v4-flash-free",
+      "openrouter/openai/gpt-oss-120b",
       "openrouter/openai/gpt-oss-120b:free",
-      "google/gemini-2.5-flash",
       "openrouter/nvidia/nemotron-nano-9b-v2:free",
-      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "nvidia/nemotron-3-super-120b-a12b",
+      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
       "google/gemini-2.5-flash-lite",
       "google/gemini-3.5-flash",
       "openrouter/poolside/laguna-m.1:free",
+      "openrouter/openai/gpt-oss-20b",
       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
       "openrouter/google/gemma-4-26b-a4b-it:free",
-      "openrouter/google/gemma-4-31b-it:free",
       "openrouter/google/gemma-4-31b-it",
-      "nvidia/moonshotai/kimi-k2.6",
-      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "openrouter/google/gemma-4-31b-it:free",
       "nvidia/nemotron-3-nano-30b-a3b",
       "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-      "openrouter/poolside/laguna-xs.2:free",
-      "openrouter/z-ai/glm-4.5-air:free",
+      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
       "llmgateway/glm-4.5-flash",
-      "openrouter/gpt-oss-120b",
-      "openrouter/google/gemma-3-12b-it",
-      "openrouter/google/gemma-3-4b-it",
-      "openrouter/google/gemma-3n-e4b-it",
-      "openrouter/mistralai/mistral-large",
       "nvidia/llama-3.1-nemotron-nano-8b-v1",
       "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
       "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
@@ -19426,41 +19945,36 @@
       "nvidia/nemotron-mini-4b-instruct",
       "nvidia/nemotron-nano-12b-v2-vl",
       "nvidia/nvidia-nemotron-nano-9b-v2",
-      "openrouter/openai/gpt-oss-120b",
-      "openrouter/openai/gpt-oss-20b",
       "opencode/nemotron-3-super-free",
+      "openrouter/google/gemma-3-12b-it",
+      "openrouter/google/gemma-3-4b-it",
+      "openrouter/google/gemma-3n-e4b-it",
+      "openrouter/mistralai/mistral-large",
+      "openrouter/poolside/laguna-xs.2:free",
+      "openrouter/z-ai/glm-4.5-air:free",
       "openrouter/liquid/lfm-2.5-1.2b-instruct:free"
     ],
     "stable": [],
     "explore": [
       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
       "openrouter/owl-alpha",
-      "opencode/deepseek-v4-flash-free",
-      "opencode/big-pickle",
-      "google/gemini-2.5-flash",
       "google/gemini-3.5-flash",
+      "opencode/big-pickle",
+      "opencode/deepseek-v4-flash-free",
       "openrouter/google/gemma-4-26b-a4b-it:free",
+      "openrouter/google/gemma-4-31b-it",
       "openrouter/google/gemma-4-31b-it:free",
       "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "openrouter/openai/gpt-oss-120b",
       "openrouter/openai/gpt-oss-120b:free",
       "openrouter/nvidia/nemotron-nano-9b-v2:free",
       "google/gemini-2.5-flash-lite",
-      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "nvidia/nemotron-3-super-120b-a12b",
-      "openrouter/google/gemma-4-31b-it",
-      "nvidia/moonshotai/kimi-k2.6",
-      "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "nvidia/nemotron-3-nano-30b-a3b",
       "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-      "openrouter/poolside/laguna-xs.2:free",
-      "openrouter/poolside/laguna-m.1:free",
-      "openrouter/z-ai/glm-4.5-air:free",
+      "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
       "llmgateway/glm-4.5-flash",
-      "openrouter/gpt-oss-120b",
-      "openrouter/google/gemma-3-12b-it",
-      "openrouter/google/gemma-3-4b-it",
-      "openrouter/google/gemma-3n-e4b-it",
-      "openrouter/mistralai/mistral-large",
       "nvidia/llama-3.1-nemotron-nano-8b-v1",
       "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
       "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
@@ -19469,36 +19983,35 @@
       "nvidia/nemotron-mini-4b-instruct",
       "nvidia/nemotron-nano-12b-v2-vl",
       "nvidia/nvidia-nemotron-nano-9b-v2",
-      "openrouter/openai/gpt-oss-120b",
-      "openrouter/openai/gpt-oss-20b",
       "opencode/nemotron-3-super-free",
+      "openrouter/google/gemma-3-12b-it",
+      "openrouter/google/gemma-3-4b-it",
+      "openrouter/google/gemma-3n-e4b-it",
+      "openrouter/mistralai/mistral-large",
+      "openrouter/poolside/laguna-m.1:free",
+      "openrouter/poolside/laguna-xs.2:free",
+      "openrouter/z-ai/glm-4.5-air:free",
+      "openrouter/openai/gpt-oss-20b",
       "openrouter/liquid/lfm-2.5-1.2b-instruct:free"
     ],
     "general": [
       "google/gemini-3.5-flash",
-      "openrouter/z-ai/glm-4.5-air:free",
       "llmgateway/glm-4.5-flash",
-      "google/gemini-2.5-flash",
+      "openrouter/z-ai/glm-4.5-air:free",
       "google/gemini-2.5-flash-lite",
-      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "nvidia/nemotron-3-super-120b-a12b",
+      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "openrouter/google/gemma-4-26b-a4b-it:free",
+      "openrouter/google/gemma-4-31b-it",
       "openrouter/google/gemma-4-31b-it:free",
-      "openrouter/poolside/laguna-xs.2:free",
       "opencode/nemotron-3-super-free",
+      "openrouter/poolside/laguna-xs.2:free",
       "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
       "openrouter/owl-alpha",
       "opencode/big-pickle",
-      "openrouter/google/gemma-4-31b-it",
-      "nvidia/moonshotai/kimi-k2.6",
-      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
       "nvidia/nemotron-3-nano-30b-a3b",
       "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-      "openrouter/gpt-oss-120b",
-      "openrouter/google/gemma-3-12b-it",
-      "openrouter/google/gemma-3-4b-it",
-      "openrouter/google/gemma-3n-e4b-it",
-      "openrouter/mistralai/mistral-large",
+      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
       "nvidia/llama-3.1-nemotron-nano-8b-v1",
       "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
       "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
@@ -19507,45 +20020,40 @@
       "nvidia/nemotron-mini-4b-instruct",
       "nvidia/nemotron-nano-12b-v2-vl",
       "nvidia/nvidia-nemotron-nano-9b-v2",
+      "openrouter/google/gemma-3-12b-it",
+      "openrouter/google/gemma-3-4b-it",
+      "openrouter/google/gemma-3n-e4b-it",
+      "openrouter/mistralai/mistral-large",
       "openrouter/openai/gpt-oss-120b",
+      "openrouter/openai/gpt-oss-120b:free",
       "openrouter/openai/gpt-oss-20b",
       "openrouter/nvidia/nemotron-nano-9b-v2:free",
       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
       "opencode/deepseek-v4-flash-free",
       "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
-      "openrouter/poolside/laguna-m.1:free",
-      "openrouter/openai/gpt-oss-120b:free"
+      "openrouter/poolside/laguna-m.1:free"
     ],
-    "description": "Ranked lists of working, non-rate-limited free models only. Best model first. Providers in _provider_usage for the current month are automatically excluded. Removed, paid, broken, and rate-limited models must not appear here.",
     "small_model": [
       "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
       "google/gemini-2.5-flash-lite",
       "openrouter/poolside/laguna-xs.2:free",
-      "google/gemini-2.5-flash",
       "google/gemini-3.5-flash",
-      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "nvidia/nemotron-3-super-120b-a12b",
-      "openrouter/z-ai/glm-4.5-air:free",
+      "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
       "llmgateway/glm-4.5-flash",
       "opencode/nemotron-3-super-free",
+      "openrouter/z-ai/glm-4.5-air:free",
       "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
       "openrouter/owl-alpha",
-      "opencode/deepseek-v4-flash-free",
       "opencode/big-pickle",
+      "opencode/deepseek-v4-flash-free",
       "openrouter/google/gemma-4-26b-a4b-it:free",
-      "openrouter/google/gemma-4-31b-it:free",
       "openrouter/google/gemma-4-31b-it",
-      "nvidia/moonshotai/kimi-k2.6",
-      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-      "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+      "openrouter/google/gemma-4-31b-it:free",
       "nvidia/nemotron-3-nano-30b-a3b",
       "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-      "openrouter/poolside/laguna-m.1:free",
-      "openrouter/gpt-oss-120b",
-      "openrouter/google/gemma-3-12b-it",
-      "openrouter/google/gemma-3-4b-it",
-      "openrouter/google/gemma-3n-e4b-it",
-      "openrouter/mistralai/mistral-large",
+      "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
+      "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
       "nvidia/llama-3.1-nemotron-nano-8b-v1",
       "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
       "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
@@ -19554,9 +20062,14 @@
       "nvidia/nemotron-mini-4b-instruct",
       "nvidia/nemotron-nano-12b-v2-vl",
       "nvidia/nvidia-nemotron-nano-9b-v2",
+      "openrouter/google/gemma-3-12b-it",
+      "openrouter/google/gemma-3-4b-it",
+      "openrouter/google/gemma-3n-e4b-it",
+      "openrouter/mistralai/mistral-large",
+      "openrouter/poolside/laguna-m.1:free",
       "openrouter/openai/gpt-oss-120b",
-      "openrouter/openai/gpt-oss-20b",
       "openrouter/openai/gpt-oss-120b:free",
+      "openrouter/openai/gpt-oss-20b",
       "openrouter/nvidia/nemotron-nano-9b-v2:free"
     ]
   },

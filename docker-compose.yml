@@ -30,6 +30,8 @@ services:
       API_PORT: 3001
     ports:
       - "3001:3001"
+    volumes:
+      - ./server:/app/server
     depends_on:
       postgres:
         condition: service_healthy

@@ -10,6 +10,7 @@ export interface Model {
   author?: string
   provider: string
   source?: string
+  priority_score?: number
   context_length: number | null
   input_price_per_million: number | null
   output_price_per_million: number | null

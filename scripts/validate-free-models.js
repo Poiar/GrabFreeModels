@@ -427,4 +427,17 @@ async function testModel(apiModelId, phase, apiKey, apiUrl) {
   await saveToDbAndExport();
   console.log('DB updated and JSON exported successfully');
 
+  // --- Auto re-rank if working set changed ---
+  const workingChanged = allResults.some(r => r.status === 'working' || r.status === 'broken' || r.status === 'rate_limited');
+  if (workingChanged) {
+    console.log('\nWorking set changed — auto re-ranking...');
+    const { execFileSync } = require('child_process');
+    try {
+      const output = execFileSync('node', [path.join(__dirname, 'rank-models.js'), '--apply'], { encoding: 'utf8' });
+      console.log(output.trim());
+    } catch (e) {
+      console.error('Auto-rank failed:', e.message);
+    }
+  }
+
 })().catch(e => { console.error(e.message); process.exit(1); });

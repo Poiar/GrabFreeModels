@@ -1,29 +1,46 @@
 #!/usr/bin/env node
 /**
  * sync-models.js
- * Fetches latest free model lists from all providers and diffs against available-models.json.
+ * Fetches latest free model lists from all providers and syncs against PostgreSQL.
  *
  * Usage: node scripts/sync-models.js [--apply]
- *   --apply  : Write changes to available-models.json (default: dry-run / report only)
+ *   --apply  : Write changes to PostgreSQL (default: dry-run / report only)
  */
 
 const https = require('https');
-const fs = require('fs');
-const path = require('path');
+const { Pool } = require('pg');
 
 const APPLY = process.argv.includes('--apply');
 
-const REPO_ROOT = path.join(__dirname, '..');
-const MODELS_FILE = path.join(REPO_ROOT, 'available-models.json');
+const pool = new Pool({
+  host: process.env.PGHOST || 'localhost',
+  port: parseInt(process.env.PGPORT || '5432'),
+  user: process.env.PGUSER || 'gfm',
+  password: process.env.PGPASSWORD || 'gfm',
+  database: process.env.PGDATABASE || 'grabfreemodels',
+});
 
 // Auth file: check env var first, then platform default locations
+const fs = require('fs');
+const path = require('path');
 const AUTH_FILE = process.env.GFM_AUTH_FILE
   || path.join(process.env.XDG_DATA_HOME || path.join(process.env.HOME || process.env.USERPROFILE, '.local', 'share'), 'opencode', 'auth.json');
 
 const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
-const json = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
-const models = json.models;
-const existingIds = new Set(models.map(m => m.id));
+
+// Add removed column to provider_models if not exists
+async function ensureSchema() {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      ALTER TABLE provider_models 
+      ADD COLUMN IF NOT EXISTS removed BOOLEAN DEFAULT false
+    `);
+    console.log('Schema check: ensured "removed" column exists');
+  } finally {
+    client.release();
+  }
+}
 
 function httpsGet(url, headers = {}) {
   return new Promise((resolve, reject) => {
@@ -34,7 +51,7 @@ function httpsGet(url, headers = {}) {
       headers: { 'Content-Type': 'application/json', ...headers },
     };
     https.get(options, res => {
-let data = '';
+      let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
         try { resolve(JSON.parse(data)); } catch (e) { reject(new Error(`Invalid JSON from ${url}: ${e.message}`)); }
@@ -47,7 +64,6 @@ async function getOpenRouterFreeModels() {
   const data = await httpsGet('https://openrouter.ai/api/v1/models');
   return data.data.filter(m => {
     if (m.id.endsWith(':free')) return true;
-    // Also include zero-priced models (like openrouter/owl-alpha)
     const p = m.pricing || {};
     if (typeof p === 'string') return p === '0';
     return parseFloat(p.prompt || p.input) === 0 && parseFloat(p.completion || p.output) === 0;
@@ -78,192 +94,276 @@ async function getNvidiaFreeModels() {
   }).map(m => ({ id: m.id, name: m.id, context_length: m.context_length ?? null }));
 }
 
+async function getSkipRemovalCheck(client) {
+  const { rows } = await client.query('SELECT value::text FROM metadata WHERE key = $1', ['_skip_removal_check']);
+  if (rows.length > 0) {
+    try {
+      const value = JSON.parse(rows[0].value);
+      return new Set(Array.isArray(value) ? value : [value]);
+    } catch {
+      return new Set(['openrouter/owl-alpha', 'openrouter/openrouter/free']);
+    }
+  }
+  return new Set(['openrouter/owl-alpha', 'openrouter/openrouter/free']);
+}
+
 (async () => {
-console.log('=== Syncing free models ===\n');
-
-// --- OpenRouter ---
-console.log('[OpenRouter] Fetching...');
-const orModels = await getOpenRouterFreeModels();
-console.log(`  Found ${orModels.length} free models`);
-
-const newOr = [];
-for (const m of orModels) {
-  const id = `openrouter/${m.id}`;
-  if (!existingIds.has(id)) {
-    newOr.push({ id, name: m.id, provider: 'OpenRouter', context_length: m.context_length, pricing: m.pricing });
-  }
-}
-console.log(`  New: ${newOr.length}`);
-for (const n of newOr) console.log(`    + ${n.id}`);
-
-// --- Cerebras ---
-console.log('\n[Cerebras] Fetching...');
-let newCb = [];
-let cbModels = [];
-try {
-  cbModels = await getCerebrasModels();
-  console.log(`  Found ${cbModels.length} models`);
-  for (const m of cbModels) {
-    if (!existingIds.has(m.id)) newCb.push(m);
-  }
-  console.log(`  New: ${newCb.length}`);
-  for (const n of newCb) console.log(`    + ${n.id}`);
-} catch (e) {
-  console.log(`  ERROR: ${e.message}`);
-}
-
-// --- NVIDIA ---
-console.log('\n[NVIDIA] Fetching...');
-let newNv = [];
-try {
-  const nvModels = await getNvidiaFreeModels();
-  console.log(`  Found ${nvModels.length} free models`);
-  for (const m of nvModels) {
-    const storedId = `nvidia/${m.id}`;
-    if (!existingIds.has(storedId) && !existingIds.has(m.id)) {
-      newNv.push({ id: storedId, name: m.id, provider: 'NVIDIA', context_length: m.context_length });
-    }
-  }
-  console.log(`  New: ${newNv.length}`);
-  for (const n of newNv) console.log(`    + ${n.id}`);
-} catch (e) {
-  console.log(`  ERROR: ${e.message}`);
-}
-
-// --- HuggingFace ---
-// HuggingFace Inference Router: https://huggingface.co/api/inference-providers
-// Free models are those with pricing.input === "0" AND pricing.output === "0".
-console.log('\n[HuggingFace] Fetching...');
-let newHf = [];
-try {
-  const hfData = await httpsGet('https://huggingface.co/api/inference-providers', { Authorization: `Bearer ${auth.huggingface.key}` });
-  const hfFree = [];
-  // The /api/inference-providers endpoint returns providers with their models.
-  // Structure: { providers: [{ provider, models: [{ id, pricing: { input, output } }] }] }
-  // Fallback: use /api/models endpoint filtered for HF inference.
-  const hfModelsData = await httpsGet(
-    'https://huggingface.co/api/models?inference_provider=huggingface&tags=text-generation&limit=200'
-  );
-  const hfModelList = Array.isArray(hfModelsData) ? hfModelsData :
-    (hfModelsData.models || hfModelsData.data || []);
-  for (const m of hfModelList) {
-    const id = m.id || m.modelId;
-    if (!id) continue;
-    const isInferenceFree = m.inference === 'free' || m.inference === 'feather';
-    const config = m.config || {};
-    const cfgSamplers = config.samplers || {};
-    const isFreeByConfig = m.tags && m.tags.includes('free');
-    if (isInferenceFree || isFreeByConfig) {
-      hfFree.push({ id: `huggingface/${id}`, name: id, context_length: m.generation_parameters?.max_new_tokens || null, huggingfaceId: id });
-    }
-  }
-  console.log(`  Found ${hfFree.length} free models`);
-  for (const m of hfFree) {
-    if (!existingIds.has(m.id)) newHf.push(m);
-  }
-  console.log(`  New: ${newHf.length}`);
-  for (const n of newHf) console.log(`    + ${n.id}`);
-} catch (e) {
-  console.log(`  ERROR: ${e.message}`);
-}
-
-// --- LLM Gateway ---
-// LLM Gateway has no public free-model listing API. Models must be added manually.
-// See docs/provider-details.md for details.
-
-// --- Detect removed models ---
-console.log('\n[Status Check] Models in JSON but no longer in OpenRouter/Cerebras...');
-  const allCurrentFreeIds = new Set([
-    ...orModels.map(m => `openrouter/${m.id}`),
-    ...(cbModels || []).map(m => m.id),
-    ...(hfFree || []).map(m => m.id),
-    // Also add bare OpenRouter IDs (without openrouter/) for backward compat
-    ...orModels.map(m => m.id),
-  ]);
-
-  const orCbProviders = ['OpenRouter', 'Cerebras', 'Hugging Face'];
-  const potentiallyRemoved = [];
-  for (const m of models) {
-    if (!m.is_free) continue;
-    if (m.provider === 'OpenCode Zen') continue;
-    // Skip special auto-routing models that don't appear in standard listings
-    // but are verified to still be operational (e.g. owl-alpha, openrouter/free)
-    const SKIP_REMOVAL_CHECK = new Set([
-      'openrouter/owl-alpha',
-      'openrouter/openrouter/free',
-    ]);
-    if (SKIP_REMOVAL_CHECK.has(m.id)) continue;
-    if (orCbProviders.includes(m.provider) && !allCurrentFreeIds.has(m.id)) {
-      potentiallyRemoved.push(m.id);
-    }
-  }
-console.log(`  Potentially removed: ${potentiallyRemoved.length}`);
-for (const r of potentiallyRemoved) console.log(`    ? ${r}`);
-
-// --- Summary ---
-const totalNew = newOr.length + newCb.length + newNv.length + newHf.length;
-console.log('\n=== Summary ===');
-console.log(`  New models found:    ${totalNew}`);
-console.log(`  Potentially removed: ${potentiallyRemoved.length}`);
-
-if (!APPLY) {
-  console.log('\nDry-run mode. Use --apply to update available-models.json');
-} else {
-  console.log('\nApplying changes...');
-
-  function makeEntry(m, provider, contextLength) {
-    return {
-      id: m.id,
-      name: m.name,
-      provider,
-      context_length: contextLength ?? null,
-      input_price_per_million: 0,
-      output_price_per_million: 0,
-      is_free: true,
-      best_for: ['General tasks'],
-      notes: 'Auto-discovered by sync script',
-      status: { tested: null, result: 'untested', detail: 'Not yet tested' },
-    };
-  }
-
-  for (const m of newOr) json.models.push(makeEntry(m, 'OpenRouter', m.context_length));
-  for (const m of newCb) json.models.push(makeEntry(m, 'Cerebras', m.context_length));
-  for (const m of newNv) json.models.push(makeEntry(m, 'NVIDIA', m.context_length));
-  for (const m of newHf) json.models.push(makeEntry(m, 'Hugging Face', m.context_length));
-
-  // Flag potentially removed models
-  for (const m of json.models) {
-    if (potentiallyRemoved.includes(m.id) && m.is_free) {
-      m._removed = true;
-      m._removedDate = new Date().toISOString().slice(0, 10);
-      m.status.result = 'untested';
-      m.status.detail = `Provider no longer lists this model as free (detected ${m._removedDate})`;
-    }
-  }
-
-  // Move removed models to end of array after 30 days
-  const REMOVE_ARCHIVE_DAYS = 30;
-  const archiveCutoff = new Date();
-  archiveCutoff.setDate(archiveCutoff.getDate() - REMOVE_ARCHIVE_DAYS);
-  const archiveCutoffStr = archiveCutoff.toISOString().slice(0, 10);
-  const toArchive = json.models.filter(m => m._removed && m._removedDate <= archiveCutoffStr && m.is_free);
-  if (toArchive.length > 0) {
-    for (const m of toArchive) {
-      m.is_free = false;
-      m.status.detail = `Archived: provider stopped offering free tier on ${m._removedDate}`;
-    }
-    console.log(`  Archived ${toArchive.length} models (removed >${REMOVE_ARCHIVE_DAYS} days ago)`);
-  }
-
-  fs.writeFileSync(MODELS_FILE, JSON.stringify(json, null, 2), 'utf8');
-  console.log(`  Updated ${MODELS_FILE}`);
-
-  // Validate
+  await ensureSchema();
+  
+  const client = await pool.connect();
   try {
-    JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
-    console.log('  JSON validation: OK');
-  } catch (e) {
-    console.log(`  JSON validation: FAILED - ${e.message}`);
+    console.log('=== Syncing free models ===\n');
+
+    // Get existing model IDs from PostgreSQL
+    const { rows: existingRows } = await client.query(`
+      SELECT pm.full_id FROM provider_models pm 
+      WHERE pm.source = 'synced' OR pm.source IS NULL
+      ORDER BY pm.full_id
+    `);
+    const existingIds = new Set(existingRows.map(r => r.full_id));
+
+    // --- OpenRouter ---
+    console.log('[OpenRouter] Fetching...');
+    const orModels = await getOpenRouterFreeModels();
+    console.log(`  Found ${orModels.length} free models`);
+
+    const newOr = [];
+    for (const m of orModels) {
+      const id = `openrouter/${m.id}`;
+      if (!existingIds.has(id)) {
+        newOr.push({ id, name: m.id, provider: 'OpenRouter', context_length: m.context_length, pricing: m.pricing });
+      }
     }
-}
+    console.log(`  New: ${newOr.length}`);
+    for (const n of newOr) console.log(`    + ${n.id}`);
+
+    // --- Cerebras ---
+    console.log('\n[Cerebras] Fetching...');
+    let newCb = [];
+    let cbModels = [];
+    try {
+      cbModels = await getCerebrasModels();
+      console.log(`  Found ${cbModels.length} models`);
+      for (const m of cbModels) {
+        if (!existingIds.has(m.id)) newCb.push(m);
+      }
+      console.log(`  New: ${newCb.length}`);
+      for (const n of newCb) console.log(`    + ${n.id}`);
+    } catch (e) {
+      console.log(`  ERROR: ${e.message}`);
+    }
+
+    // --- NVIDIA ---
+    console.log('\n[NVIDIA] Fetching...');
+    let newNv = [];
+    try {
+      const nvModels = await getNvidiaFreeModels();
+      console.log(`  Found ${nvModels.length} free models`);
+      for (const m of nvModels) {
+        const storedId = `nvidia/${m.id}`;
+        if (!existingIds.has(storedId) && !existingIds.has(m.id)) {
+          newNv.push({ id: storedId, name: m.id, provider: 'NVIDIA', context_length: m.context_length });
+        }
+      }
+      console.log(`  New: ${newNv.length}`);
+      for (const n of newNv) console.log(`    + ${n.id}`);
+    } catch (e) {
+      console.log(`  ERROR: ${e.message}`);
+    }
+
+    // --- HuggingFace ---
+    console.log('\n[HuggingFace] Fetching...');
+    let newHf = [];
+    try {
+      const hfData = await httpsGet('https://huggingface.co/api/inference-providers', { Authorization: `Bearer ${auth.huggingface.key}` });
+      const hfFree = [];
+      const hfModelsData = await httpsGet(
+        'https://huggingface.co/api/models?inference_provider=huggingface&tags=text-generation&limit=200'
+      );
+      const hfModelList = Array.isArray(hfModelsData) ? hfModelsData :
+        (hfModelsData.models || hfModelsData.data || []);
+      for (const m of hfModelList) {
+        const id = m.id || m.modelId;
+        if (!id) continue;
+        const isInferenceFree = m.inference === 'free' || m.inference === 'feather';
+        const config = m.config || {};
+        const cfgSamplers = config.samplers || {};
+        const isFreeByConfig = m.tags && m.tags.includes('free');
+        if (isInferenceFree || isFreeByConfig) {
+          hfFree.push({ id: `huggingface/${id}`, name: id, context_length: m.generation_parameters?.max_new_tokens || null, huggingfaceId: id });
+        }
+      }
+      console.log(`  Found ${hfFree.length} free models`);
+      for (const m of hfFree) {
+        if (!existingIds.has(m.id)) newHf.push(m);
+      }
+      console.log(`  New: ${newHf.length}`);
+      for (const n of newHf) console.log(`    + ${n.id}`);
+    } catch (e) {
+      console.log(`  ERROR: ${e.message}`);
+    }
+
+    // --- Detect removed models ---
+    console.log('\n[Status Check] Models in DB but no longer in OpenRouter/Cerebras...');
+    const allCurrentFreeIds = new Set([
+      ...orModels.map(m => `openrouter/${m.id}`),
+      ...(cbModels || []).map(m => m.id),
+      ...hfFree.map(m => m.id),
+      ...orModels.map(m => m.id),
+    ]);
+
+    const skipRemovalCheck = await getSkipRemovalCheck(client);
+    const potentiallyRemoved = [];
+    
+    const { rows: dbModels } = await client.query(`
+      SELECT pm.full_id, pm.provider_id, p.name AS provider_name
+      FROM provider_models pm 
+      JOIN providers p ON p.id = pm.provider_id 
+      WHERE pm.source IN ('synced', 'curated') OR pm.source IS NULL
+      AND pm.removed = false
+    `);
+    
+    for (const m of dbModels) {
+      if (!allCurrentFreeIds.has(m.full_id) && !skipRemovalCheck.has(m.full_id)) {
+        potentiallyRemoved.push(m);
+      }
+    }
+    console.log(`  Potentially removed: ${potentiallyRemoved.length}`);
+    for (const r of potentiallyRemoved) console.log(`    ? ${r.full_id}`);
+
+    // --- Summary ---
+    const totalNew = newOr.length + newCb.length + newNv.length + newHf.length;
+    console.log('\n=== Summary ===');
+    console.log(`  New models found:    ${totalNew}`);
+    console.log(`  Potentially removed: ${potentiallyRemoved.length}`);
+
+    if (!APPLY) {
+      console.log('\nDry-run mode. Use --apply to update PostgreSQL');
+    } else {
+      console.log('\nApplying changes...');
+
+      // Start transaction
+      await client.query('BEGIN');
+
+      try {
+        // Insert new providers
+        const providers = ['OpenRouter', 'Cerebras', 'NVIDIA', 'Hugging Face'];
+        for (const provider of providers) {
+          await client.query(
+            `INSERT INTO providers (name, slug) VALUES ($1, $2) ON CONFLICT (slug) DO NOTHING`,
+            [provider, provider.toLowerCase()]
+          );
+        }
+
+        // Insert new canonical models
+        const newModels = [];
+        for (const m of [...newOr, ...newCb, ...newNv, ...newHf]) {
+          if (!newModels.find(nm => nm.name === m.name)) {
+            newModels.push({
+              name: m.name,
+              context_length: m.context_length,
+              is_free: true,
+              supports_tools: null,
+              source: 'synced'
+            });
+          }
+        }
+
+        for (const model of newModels) {
+          await client.query(
+            `INSERT INTO models (name, context_length, is_free, supports_tools, source) 
+             VALUES ($1, $2, $3, $4, $5) 
+             ON CONFLICT (name) DO UPDATE SET 
+               context_length = EXCLUDED.context_length,
+               is_free = EXCLUDED.is_free,
+               supports_tools = EXCLUDED.supports_tools,
+               source = EXCLUDED.source`,
+            [model.name, model.context_length, model.is_free, model.supports_tools, model.source]
+          );
+        }
+
+        // Get provider and model IDs
+        const { rows: providerRows } = await client.query('SELECT id, name FROM providers');
+        const providerMap = new Map(providerRows.map(r => [r.name, r.id]));
+        
+        const { rows: modelRows } = await client.query('SELECT id, name FROM models WHERE source = $1', ['synced']);
+        const modelMap = new Map(modelRows.map(r => [r.name, r.id]));
+
+        // Insert new provider_models
+        for (const m of newOr) {
+          await client.query(
+            `INSERT INTO provider_models (model_id, provider_id, remote_id, full_id, source, status_result, status_tested, status_detail)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+            [modelMap.get(m.name), providerMap.get('OpenRouter'), m.name, m.id, 'synced', 'untested', null, 'Auto-discovered by sync script']
+          );
+        }
+
+        for (const m of newCb) {
+          await client.query(
+            `INSERT INTO provider_models (model_id, provider_id, remote_id, full_id, source, status_result, status_tested, status_detail)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+            [modelMap.get(m.name), providerMap.get('Cerebras'), m.name, m.id, 'synced', 'untested', null, 'Auto-discovered by sync script']
+          );
+        }
+
+        for (const m of newNv) {
+          await client.query(
+            `INSERT INTO provider_models (model_id, provider_id, remote_id, full_id, source, status_result, status_tested, status_detail)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+            [modelMap.get(m.name), providerMap.get('NVIDIA'), m.name, m.id, 'synced', 'untested', null, 'Auto-discovered by sync script']
+          );
+        }
+
+        for (const m of newHf) {
+          await client.query(
+            `INSERT INTO provider_models (model_id, provider_id, remote_id, full_id, source, status_result, status_tested, status_detail)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+            [modelMap.get(m.name), providerMap.get('Hugging Face'), m.name, m.id, 'synced', 'untested', null, 'Auto-discovered by sync script']
+          );
+        }
+
+        // Mark potentially removed models
+        for (const m of potentiallyRemoved) {
+          await client.query(
+            `UPDATE provider_models 
+             SET removed = true, status_result = 'untested', status_detail = $1, status_tested = NULL
+             WHERE id = $2`,
+            [`Provider no longer lists this model as free (detected ${new Date().toISOString().slice(0, 10)})`, m.id]
+          );
+        }
+
+        await client.query('COMMIT');
+        console.log('  Changes committed to PostgreSQL');
+
+        // Export to JSON
+        const { spawn } = require('child_process');
+        const exportScript = path.join(__dirname, 'export-from-pg.js');
+        const exportProcess = spawn('node', [exportScript]);
+
+        exportProcess.stdout.on('data', (data) => {
+          console.log(data.toString().trim());
+        });
+
+        exportProcess.stderr.on('data', (data) => {
+          console.error(data.toString().trim());
+        });
+
+        exportProcess.on('close', (code) => {
+          if (code === 0) {
+            console.log('  JSON export completed');
+          } else {
+            console.error(`  JSON export failed with code ${code}`);
+          }
+        });
+
+      } catch (err) {
+        await client.query('ROLLBACK');
+        console.error('Error applying changes:', err.message);
+        process.exitCode = 1;
+      }
+    }
+  } finally {
+    client.release();
+    await pool.end();
+  }
 })().catch(e => { console.error(e.message); process.exit(1); });

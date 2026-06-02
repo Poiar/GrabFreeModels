@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="page-header">
-      <h2>Models</h2>
-      <p>Browse, search, and filter all tracked models</p>
+      <h2>All</h2>
+      <p>Browse, search, and filter all tracked models — free and paid</p>
     </div>
 
     <!-- JQL Filter Bar -->

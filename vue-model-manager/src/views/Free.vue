@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="page-header">
-      <h2>Rankings</h2>
-      <p>Role-specific ranked lists of verified free models only — paid, removed, broken, and rate-limited models are excluded. Use the type picker to switch which ranking to sort by; each model's other role rankings are shown as pills.</p>
+      <h2>Free</h2>
+      <p>Role-specific ranked lists of verified free models — paid, removed, broken, and rate-limited models are excluded. Use the type picker to switch which ranking to sort by; each model's other role rankings are shown as pills.</p>
     </div>
 
     <!-- JQL Filter Bar -->

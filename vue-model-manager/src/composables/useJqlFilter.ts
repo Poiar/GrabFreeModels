@@ -47,6 +47,7 @@ export const FILTERABLE_FIELDS: FieldDef[] = [
     { value: 'curated', label: 'Curated' },
     { value: 'models.dev', label: 'Models.dev' },
   ]},
+  { key: 'priority',  label: 'Priority',  type: 'number', nullable: true },
 ]
 
 export const FIELD_MAP: Record<string, FieldDef> = Object.fromEntries(
@@ -55,7 +56,7 @@ export const FIELD_MAP: Record<string, FieldDef> = Object.fromEntries(
 
 export const FIELD_ALIASES: Record<string, string> = {
   ...Object.fromEntries(FILTERABLE_FIELDS.map(f => [f.label.toLowerCase(), f.key])),
-  p: 'provider', prov: 'provider',
+  p: 'provider', prov: 'provider', prio: 'priority',
   s: 'status', stat: 'status', src: 'source',
   t: 'type', typ: 'type',
   c: 'context', ctx: 'context',
@@ -317,6 +318,13 @@ function matchToken(m: Model, t: FilterToken): boolean {
       r = m.status.result.toLowerCase() === rv; break
     case 'type': r = rv === 'free' ? m.is_free : rv === 'paid' ? !m.is_free : false; break
     case 'source': r = (m.source || 'curated').toLowerCase() === rv; break
+    case 'priority':
+      if (t.op === 'IS EMPTY') { r = m.priority_score == null; break }
+      if (t.op === 'IS NOT EMPTY') { r = m.priority_score != null; break }
+      if (m.priority_score == null) { r = false; break }
+      const pn = Number(rv); if (isNaN(pn)) { r = false; break }
+      r = t.op === ':>' ? m.priority_score > pn : t.op === ':<' ? m.priority_score < pn : m.priority_score === pn
+      break
     case 'context':
       if (t.op === 'IS EMPTY') { r = m.context_length == null; break }
       if (t.op === 'IS NOT EMPTY') { r = m.context_length != null; break }
