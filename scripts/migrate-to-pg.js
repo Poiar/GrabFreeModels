@@ -117,14 +117,15 @@ async function migrate() {
       const ep = m.id.split('/')[0];
       const remoteId = m.id.slice(ep.length + 1);
       let pmRes = await client.query(
-        `INSERT INTO provider_models (model_id, provider_id, remote_id, full_id,
+        `INSERT INTO provider_models (model_id, provider_id, remote_id, full_id, source,
            status_result, status_tested, status_detail, last_success)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+         VALUES ($1,$2,$3,$4,'curated',$5,$6,$7,$8)
          ON CONFLICT (full_id) DO UPDATE SET
-           status_result = EXCLUDED.status_result,
-           status_tested = EXCLUDED.status_tested,
-           status_detail = EXCLUDED.status_detail,
-           last_success  = EXCLUDED.last_success
+           source           = EXCLUDED.source,
+           status_result    = EXCLUDED.status_result,
+           status_tested    = EXCLUDED.status_tested,
+           status_detail    = EXCLUDED.status_detail,
+           last_success     = EXCLUDED.last_success
          RETURNING id`,
         [
           modelId, providerId, remoteId, m.id,

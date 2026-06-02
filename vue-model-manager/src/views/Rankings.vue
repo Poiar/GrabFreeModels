@@ -32,54 +32,6 @@
         </div>
       </div>
 
-      <div class="jql-input-wrap">
-        <span class="jql-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </span>
-        <div class="jql-highlight" aria-hidden="true" v-html="highlightedQuery"></div>
-        <input
-          ref="jql.inputRef"
-          v-model="jql.rawQuery.value"
-          type="text"
-          class="jql-input"
-          :class="{ 'jql-input-invalid': jql.validationErrors.value.length > 0 }"
-          placeholder='Try: provider:openrouter status:working context:>100000 ORDER BY context DESC'
-          spellcheck="false"
-          autocomplete="off"
-          @input="jql.onInput"
-          @keydown="jql.onKeydown"
-          @focus="jql.onFocus"
-          @blur="jql.onBlur"
-          @click="jql.onInput($event)"
-        />
-        <button v-if="jql.rawQuery.value || allTokens.length" class="jql-clear" @click="clearAll" title="Clear all">✕</button>
-        <div class="jql-underline" v-if="jql.validationErrors.value.length">
-          <div
-            v-for="(err, i) in jql.validationErrors.value"
-            :key="i"
-            class="jql-underline-mark"
-            :style="underlineStyle(err)"
-          />
-        </div>
-      </div>
-
-      <div v-if="jql.showSuggestions.value && jql.suggestions.value" class="jql-suggestions">
-        <div
-          v-for="(opt, si) in jql.suggestions.value.options"
-          :key="opt.insert"
-          class="jql-suggestion"
-          :class="{ 'jql-suggestion-active': si === jql.activeSuggestion.value }"
-          @mousedown.prevent="jql.applySuggestion(opt.insert)"
-          @mouseenter="jql.activeSuggestion.value = si"
-        >
-          <span class="jql-suggestion-label">{{ opt.label }}</span>
-          <span class="jql-suggestion-field">{{ opt.insert }}</span>
-        </div>
-        <div v-if="!jql.suggestions.value.options.length" class="jql-suggestion-empty">
-          No matching {{ jql.suggestions.value.field }}s
-        </div>
-      </div>
-
       <div class="jql-bar-footer">
         <span class="filter-count">
           {{ sortedItems.length }} of {{ flatRankings.length }} ranked models
@@ -94,9 +46,6 @@
             JSON
           </button>
         </div>
-        <span class="jql-hint">
-          <kbd>field:value</kbd> · <kbd>!=</kbd> · <kbd>&gt;</kbd> · <kbd>&lt;</kbd> · <kbd>IS EMPTY</kbd> · <kbd>IN (a,b)</kbd> · <kbd>NOT</kbd> · <kbd>OR</kbd> · <kbd>ORDER BY</kbd>
-        </span>
       </div>
     </div>
 
@@ -268,7 +217,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { useModelsStore } from '@/store/models'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import { useJqlFilter } from '@/composables/useJqlFilter'
-import { useSavedSearches } from '@/composables/useSavedSearches'
 import type { FilterToken, SortSpec } from '@/composables/useJqlFilter'
 import type { Model } from '@/types'
 import type { BuilderCondition } from '@/components/QueryBuilder.vue'
@@ -388,8 +336,6 @@ const jql = useJqlFilter(
   rankedProviderNames,
   rankedAuthorNames,
 )
-const { pushHistory } = useSavedSearches()
-
 function readQueryFromUrl() {
   if (route.query.q && typeof route.query.q === 'string') {
     jql.rawQuery.value = route.query.q
@@ -407,12 +353,6 @@ function writeQueryToUrl(q: string) {
 onMounted(() => readQueryFromUrl())
 watch(() => jql.rawQuery.value, (q) => writeQueryToUrl(q))
 watch(() => roleFilter.value, () => writeQueryToUrl(jql.rawQuery.value ?? ''))
-
-let historyTimer: ReturnType<typeof setTimeout> | null = null
-watch(() => jql.rawQuery.value, (q) => {
-  if (historyTimer) clearTimeout(historyTimer)
-  historyTimer = setTimeout(() => { if (q.trim()) pushHistory(q.trim()) }, 2000)
-})
 
 watch(jql.sortSpec, (spec: SortSpec | null) => {
   if (spec) { sortBy.value = spec.field; sortDesc.value = spec.desc }
@@ -449,14 +389,6 @@ function clearAll() {
   sortBy.value = 'rank'
   sortDesc.value = false
 }
-
-function underlineStyle(err: { start: number; end: number }) {
-  const charWidth = 7.8
-  const left = 36 + err.start * charWidth
-  const width = Math.max(8, (err.end - err.start) * charWidth)
-  return { left: `${left}px`, width: `${width}px` }
-}
-
 function syncBuilderToQuery(conditions: BuilderCondition[]) {
   if (conditions.length === 0) { jql.rawQuery.value = ''; return }
   let q = conditions[0].jql
@@ -560,11 +492,6 @@ function handleKeydown(e: KeyboardEvent) {
   const tag = (e.target as HTMLElement)?.tagName
   if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return
 
-  if (e.key === '/') {
-    e.preventDefault()
-    const inputs = document.querySelectorAll<HTMLInputElement>('.jql-input, .search-input, input[type="text"]')
-    if (inputs[0]) inputs[0].focus()
-  }
   if (e.key === 'Escape') {
     if (selectedModel.value) selectedModel.value = null
   }
@@ -633,29 +560,6 @@ function exportJson() {
   download(json, 'rankings.json', 'application/json')
 }
 
-const highlightedQuery = computed(() => {
-  const raw = jql.rawQuery.value
-  if (!raw) return ''
-  const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-  const regex = /(\w+)\s+(NOT\s+IN)\s*\(\s*((?:"[^"]*"|[^)])+)\)|(\w+)\s+(IS\s+NOT\s+EMPTY|IS\s+EMPTY)|(?:NOT\s+)?(\w+)\s*(?:(:?>|:<!|=)|(:!=|!=)|:=|=)\s*(?:"([^"]*?)"|(\S+))|(\w+)\s+(IN)\s*\(\s*((?:"[^"]*"|[^)])+)\)|\b(OR)\b|\b(ORDER\s+BY\s+\w+\s*(?:ASC|DESC)?)\b/gi
-  let result = '', last = 0, m: RegExpExecArray | null
-  while ((m = regex.exec(raw)) !== null) {
-    result += esc(raw.slice(last, m.index))
-    if (m[1] != null) result += `<span class="jql-hl-field">${esc(m[1])}</span> <span class="jql-hl-op jql-hl-neg">${esc(m[2])}</span>(<span class="jql-hl-val jql-hl-neg">${esc(m[3])})</span>`
-    else if (m[4] != null) result += `<span class="jql-hl-field">${esc(m[4])}</span> <span class="jql-hl-kw ${m[5]==='IS NOT EMPTY'?'jql-hl-neg':''}">${esc(m[5])}</span>`
-    else if (m[6] != null) {
-      const nP = m[0].trimStart().toUpperCase().startsWith('NOT')
-      const op = m[7] ?? m[8] ?? ':'; const val = m[9] ?? m[10] ?? ''
-      if (nP) result += `<span class="jql-hl-kw jql-hl-neg">NOT </span>`
-      const n = op === '!=' || nP
-      result += `<span class="jql-hl-field">${esc(m[6])}</span><span class="jql-hl-op${n?' jql-hl-neg':''}">${esc(op)}</span><span class="jql-hl-val${n?' jql-hl-neg':''}">${esc(val)}</span>`
-    } else if (m[11] != null) result += `<span class="jql-hl-field">${esc(m[11])}</span> <span class="jql-hl-kw">${esc(m[12])}</span>(<span class="jql-hl-val">${esc(m[13])})</span>`
-    else if (m[14] != null) result += `<span class="jql-hl-kw">${esc(m[14])}</span>`
-    else if (m[15] != null) result += `<span class="jql-hl-kw">${esc(m[15])}</span>`
-    last = m.index + m[0].length
-  }
-  return result + esc(raw.slice(last))
-})
 </script>
 
 <style scoped>

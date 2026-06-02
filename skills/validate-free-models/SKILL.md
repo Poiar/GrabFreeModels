@@ -54,7 +54,6 @@ node scripts/validate-free-models.js --force --apply
 | `--apply` | Write results to `available-models.json` (default: report only) |
 | `--force` | Re-test all models, skipping the 7-day working model cache |
 | `--models id1,id2` | Test specific model IDs only |
-| `--coding-only` | Only test models with cod/programm/agentic/reasoning/tool use/fast/lightweight keywords |
 | `--coding-only` | Only test models with cod/programm/agentic/reasoning/tool use/fast/lightweight keywords. Excludes models whose `best_for` only has general tags like "Reasoning" or "Thinking" |
 
 ### Rate-Limited Retest Throttling
@@ -76,17 +75,12 @@ Pattern:
 
 ## Test Interpretation
 
-- **6/6 OK** → `working`
-- **4-5/6 OK** → `working` (intermittent 429s, still reliable sequentially)
-- **1-3/6 OK** → `rate_limited`
-- **0/6 OK, all 429** → `rate_limited`
-- **0/6 OK, all 4xx/ERR** → `broken`
-- **Pre-validation: not in provider API** → `not_found`
+See `docs/test-interpretation-reference.md` for the full pattern→status mapping.
 
 ## Key Lessons
 
-- **Pre-validation is essential** — never test a model whose name doesn't exist in the provider API. Wrong names cause false 404s that look like model failures.
-- **Sequential within endpoint, parallel across endpoints** — avoids provider-wide 429s while still being fast (7 endpoints in parallel).
-- **`opencode/` models** use `https://opencode.ai/zen/v1` with `@ai-sdk/openai-compatible`. Testable via raw HTTPS — no longer need to skip.
-- **Burst + delayed phases run in parallel per model** (`Promise.all`) — each phase's 3 requests are sequential within the phase.
-- 404 during test = model genuinely gone from provider. Mark `not_found`, don't keep re-testing.
+- **Pre-validation is essential** — never test a model whose name doesn't exist in the provider API.
+- **Sequential within endpoint, parallel across endpoints** — avoids provider-wide 429s.
+- **`opencode/` models** use `https://opencode.ai/zen/v1` with `@ai-sdk/openai-compatible`. Testable via raw HTTPS.
+- **Burst + delayed phases** run in parallel per model (`Promise.all`), 3 sequential requests within each phase.
+- 404 during test = model genuinely gone. Mark `don't keep re-testing.

@@ -1,11 +1,10 @@
 <template>
   <div>
     <div class="page-header">
-      <h2>All</h2>
-      <p>Browse, search, and filter all tracked free models</p>
+      <h2>Paid</h2>
+      <p>Browse, search, and filter all tracked paid models</p>
     </div>
 
-    <!-- JQL Filter Bar -->
     <div class="jql-bar">
       <div class="jql-chips">
         <button
@@ -25,7 +24,6 @@
         </button>
       </div>
 
-      <!-- Validation errors -->
       <div v-if="jql.validationErrors.value.length" class="jql-errors">
         <div v-for="(err, i) in jql.validationErrors.value" :key="i" class="jql-error">
           <svg class="jql-error-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -83,7 +81,7 @@
 
       <div class="jql-bar-footer">
         <span class="filter-count">
-          {{ sortedModels.length }} of {{ store.allModels.length }} models
+          {{ sortedModels.length }} of {{ paidModels.length }} paid models
         </span>
         <div class="export-btns">
           <button class="export-btn" title="Export as CSV" @click="exportCsv">
@@ -101,17 +99,15 @@
       </div>
     </div>
 
-    <!-- Visual Query Builder -->
     <QueryBuilder
       :conditions="builderConditions"
       :jql-query="jql.rawQuery.value ?? ''"
-      :provider-names="store.allProviderNames"
-      :author-names="store.allAuthorNames"
+      :provider-names="paidProviderNames"
+      :author-names="paidAuthorNames"
       @change="onBuilderChange"
       @clear="onBuilderClear"
     />
 
-    <!-- Virtual Scroll Table -->
     <div class="table-wrap vscroll-table">
       <div class="vscroll-header-row">
         <div class="vscroll-header-cell col-name sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
@@ -119,9 +115,6 @@
         </div>
         <div class="vscroll-header-cell col-provider sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
           Provider <span class="sort-indicator">{{ sortIndicator('provider') }}</span>
-        </div>
-        <div class="vscroll-header-cell col-type sortable" :class="{ active: sortBy === 'type' }" @click="setSort('type')">
-          Type <span class="sort-indicator">{{ sortIndicator('type') }}</span>
         </div>
         <div class="vscroll-header-cell col-status sortable" :class="{ active: sortBy === 'status' }" @click="setSort('status')">
           Status <span class="sort-indicator">{{ sortIndicator('status') }}</span>
@@ -159,13 +152,8 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               </span>
             </div>
-            <div class="vscroll-cell col-type">
-              <span class="badge" :class="model.is_free ? 'badge-free-type' : 'badge-paid-type'">
-                {{ model.is_free ? 'Free' : 'Paid' }}
-              </span>
-            </div>
             <div class="vscroll-cell col-status">
-              <span v-if="model._removed" class="badge badge-removed" title="No longer offered as free by provider">
+              <span v-if="model._removed" class="badge badge-removed">
                 Removed
               </span>
               <span v-else class="badge" :class="`badge-${model.status.result}`">
@@ -190,13 +178,12 @@
       <div v-else class="empty-state">
         <div class="empty-state-inner">
           <span class="empty-state-icon">🔍</span>
-          <p>No models match your filters.</p>
+          <p>No paid models match your filters.</p>
           <button class="refresh-btn" @click="clearAll">Clear all filters</button>
         </div>
       </div>
     </div>
 
-    <!-- Detail Panel -->
     <ModelDetail :model="selectedModel" @close="closeDetail" />
   </div>
 </template>
@@ -222,6 +209,16 @@ const route = useRoute()
 const router = useRouter()
 const selectedModel = ref<Model | null>(null)
 const copiedIds = reactive(new Set<string>())
+
+const paidModels = computed(() => store.allModels.filter(m => !m.is_free))
+const paidProviderNames = computed(() => {
+  const set = new Set(paidModels.value.map(m => m.provider))
+  return Array.from(set).sort()
+})
+const paidAuthorNames = computed(() => {
+  const set = new Set(paidModels.value.map(m => m.author).filter((a): a is string => !!a))
+  return Array.from(set).sort()
+})
 
 watch(() => route.query.model, (id) => {
   if (id && typeof id === 'string') {
@@ -260,9 +257,9 @@ const sortDesc = ref(false)
 const builderConditions = ref<BuilderCondition[]>([])
 
 const jql = useJqlFilter(
-  computed(() => store.allModels),
-  computed(() => store.allProviderNames),
-  computed(() => store.allAuthorNames),
+  paidModels,
+  paidProviderNames,
+  paidAuthorNames,
 )
 function readQueryFromUrl() {
   if (route.query.q && typeof route.query.q === 'string') {
@@ -351,12 +348,12 @@ function exportCsv() {
   ].map(escape).join(','))
   const meta = [
     `# exported_at: ${new Date().toISOString()}`,
-    `# count: ${sortedModels.value.length}/${store.allModels.length}`,
+    `# count: ${sortedModels.value.length}/${paidModels.value.length}`,
     `# query: ${jql.rawQuery.value || '(none)'}`,
     `# sort: ${sortBy.value} ${sortDesc.value ? 'DESC' : 'ASC'}`,
   ]
   const csv = [...meta, header.join(','), ...rows].join('\n')
-  download(csv, 'models.csv', 'text/csv')
+  download(csv, 'paid-models.csv', 'text/csv')
 }
 
 function exportJson() {
@@ -372,14 +369,14 @@ function exportJson() {
     _meta: {
       exported_at: new Date().toISOString(),
       count: data.length,
-      total_models: store.allModels.length,
+      total_models: paidModels.value.length,
       jql_query: jql.rawQuery.value || null,
       sort_by: sortBy.value,
       sort_desc: sortDesc.value,
     },
     models: data,
   }, null, 2)
-  download(json, 'models.json', 'application/json')
+  download(json, 'paid-models.json', 'application/json')
 }
 
 function handleKeydown(e: KeyboardEvent) {
@@ -414,7 +411,6 @@ const sortedModels = computed(() => {
       case 'provider': return dir * a.provider.localeCompare(b.provider)
       case 'status': return dir * a.status.result.localeCompare(b.status.result)
       case 'context': { const ac = a.context_length, bc = b.context_length; if (ac == null && bc == null) return 0; if (ac == null) return 1; if (bc == null) return -1; return dir * (ac - bc) }
-      case 'type': return dir * (a.is_free === b.is_free ? 0 : a.is_free ? -1 : 1)
       case 'detail': return dir * a.status.detail.localeCompare(b.status.detail)
       default: return dir * a.name.localeCompare(b.name)
     }
