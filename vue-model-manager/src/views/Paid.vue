@@ -138,7 +138,7 @@ const router = useRouter()
 const selectedModel = ref<Model | null>(null)
 const copiedIds = reactive(new Set<string>())
 
-const paidModels = computed(() => store.allModels.filter(m => !m.is_free && m.source === 'curated' && !m.id.endsWith(':free') && !m.id.endsWith('/free')))
+const paidModels = computed(() => store.allModels.filter(m => !m.is_free && !m.id.endsWith(':free') && !m.id.endsWith('/free')))
 const paidProviderNames = computed(() => Array.from(new Set(paidModels.value.map(m => m.provider))).sort())
 const paidAuthorNames = computed(() => Array.from(new Set(paidModels.value.map(m => m.author).filter((a): a is string => !!a))).sort())
 

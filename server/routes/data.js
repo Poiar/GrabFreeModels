@@ -13,8 +13,13 @@ router.get('/data', async (req, res) => {
   }
 });
 
-router.get('/health', (req, res) => {
-  res.json({ status: 'ok', time: new Date().toISOString() });
+router.get('/health', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT now()');
+    res.json({ status: 'ok', db: rows[0].now, time: new Date().toISOString() });
+  } catch (err) {
+    res.status(503).json({ status: 'error', db: err.message, time: new Date().toISOString() });
+  }
 });
 
 async function buildModelsData() {

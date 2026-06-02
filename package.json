@@ -10,7 +10,7 @@
   "license": "ISC",
   "scripts": {
     "dev": "cd vue-model-manager && npm run dev",
-    "dev:all": "npm run db:start && npm run api:start & npm run dev",
+    "dev:all": "npm run api:start & npm run dev",
     "build": "cd vue-model-manager && npm run build",
     "preview": "cd vue-model-manager && npm run preview",
     "mcp:playwright": "node node_modules/@playwright/mcp/cli.js --allowed-hosts localhost,127.0.0.1",
@@ -31,15 +31,15 @@
     "summary": "node scripts/model-summary.js",
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
-    "db:reset": "docker compose down -v && docker compose up -d",
     "db:migrate": "node scripts/migrate-to-pg.js",
-    "db:setup": "npm run db:reset && sleep 3 && npm run db:migrate",
     "db:export": "node scripts/export-from-pg.js",
-    "api:start": "node server/index.js"
+    "db:ping": "node -r dotenv/config -e \"const db = require('./server/db'); db.query('SELECT now()').then(r => { console.log('Connected:', r.rows[0].now); process.exit(0); }).catch(e => { console.error('Failed:', e.message); process.exit(1); })\"",
+    "api:start": "node -r dotenv/config server/index.js"
   },
   "dependencies": {
     "@playwright/mcp": "^0.0.75",
     "cors": "^2.8.6",
+    "dotenv": "^16.5.0",
     "express": "^5.2.1",
     "pg": "^8.21.0",
     "playwright": "^1.60.0"

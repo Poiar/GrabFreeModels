@@ -21137,6 +21137,15 @@
   "_known_issues": {
     "issues": [
       {
+        "issue": "opencode zen free tier has a fixed request limit per billing period. Once reached, all requests are blocked until the quota resets.",
+        "impact": "Cannot use opencode zen for model queries until quota resets.",
+        "model_id": "opencode/zen",
+        "reported": "2026-06-02",
+        "severity": "moderate",
+        "workaround": "Wait for quota reset, switch to a different provider, or upgrade to a paid plan.",
+        "last_verified": "2026-06-02"
+      },
+      {
         "issue": "HuggingFace Router free tier has very low rate limits — a few requests per day for unauthenticated users, slightly more with a token. All HF Router models hit 429s quickly in practice.",
         "impact": "All HuggingFace Router models are rate-limited in practice, even though they technically work.",
         "model_id": "huggingface/*",

@@ -11,9 +11,7 @@
         v-for="sev in severityCounts"
         :key="sev.severity"
         class="severity-pill"
-        :class="`severity-pill-${sev.severity}`"
-        @click="toggleSeverityFilter(sev.severity)"
-        :class-active="activeSeverityFilter === sev.severity"
+        :class="[`severity-pill-${sev.severity}`, { active: activeSeverityFilter === sev.severity }]"
       >
         <span class="severity-dot" :class="`severity-dot-${sev.severity}`"></span>
         <span class="severity-label">{{ sev.severity }}</span>

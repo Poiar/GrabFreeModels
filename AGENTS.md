@@ -46,9 +46,10 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 
 ## PostgreSQL Database
 
-- The primary data store is PostgreSQL (Docker), accessed via an Express API on port 3001.
-- Schema: `db/schema.sql` (10 tables + metadata). Columns `source` and `removed` on `provider_models`.
-- Run `npm run db:start` to start PostgreSQL + API, `npm run db:migrate` to load data.
+- The primary data store is Neon Serverless Postgres, accessed via an Express API on port 3001.
+- Connection via `DATABASE_URL` (pooler endpoint) loaded from `.env` — see `.env.example` for template.
+- Schema: `db/schema.sql` — v2 (master_models + datapoint_providers + datapoint_models). See `schema-v2` skill. Run `npm run db:migrate` to load data.
+- Run `npm run db:ping` to verify Neon connectivity.
 
 ## API Server
 
