@@ -62,6 +62,12 @@ export const useModelsStore = defineStore('models', () => {
     return Array.from(set).sort()
   })
 
+  /** Sorted list of all unique author names across all models. */
+  const allAuthorNames = computed(() => {
+    const set = new Set(allModels.value.map(m => m.author).filter((a): a is string => !!a))
+    return Array.from(set).sort()
+  })
+
   /** Provider health derived from live model data (always consistent). */
   const providerHealth = computed(() => {
     const health: Record<string, { working: number; rate_limited: number; broken: number; total: number }> = {}
@@ -212,7 +218,7 @@ export const useModelsStore = defineStore('models', () => {
     loading, error, lastLoaded, isStale,
     allModels, freeModels, paidModels,
     workingModels, brokenModels, rateLimitedModels, untestedModels, removedModels,
-    schemaIssueModels, allProviderNames, providerHealth,
+    schemaIssueModels, allProviderNames, allAuthorNames, providerHealth,
     roleRankings, knownIssues, providerUsage,
     currentMonth, usedUpProviders, usedUpProviderSet, isProviderUsedUp,
     extractProvider, isModelProviderUsedUp,

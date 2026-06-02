@@ -25,6 +25,7 @@ export interface FieldDef {
 }
 
 export const FILTERABLE_FIELDS: FieldDef[] = [
+  { key: 'author',    label: 'Author',    type: 'select', searchable: true },
   { key: 'provider',  label: 'Provider',  type: 'select', searchable: true },
   { key: 'status',    label: 'Status',    type: 'select', searchable: true, options: [
     { value: 'working', label: 'Working' },
@@ -304,6 +305,7 @@ function matchToken(m: Model, t: FilterToken): boolean {
   let r = false
   const rv = t.rawValue.toLowerCase()
   switch (t.field) {
+    case 'author': r = m.author?.toLowerCase() === rv; break
     case 'provider': r = m.provider.toLowerCase() === rv; break
     case 'status':
       if (t.op === 'IN') { if (t.values.length > 0) { const v = m.status.result.toLowerCase(); r = t.values.some(x => x.toLowerCase() === v) } break }
@@ -331,6 +333,7 @@ function getTextField(m: Model, f: string): string | null {
     case 'name': return m.name
     case 'id': return m.id
     case 'notes': return m.notes
+    case 'author': return m.author ?? null
     case 'provider': return m.provider
     case 'status': return m.status.result
     case 'best_for': return m.best_for.join(', ')
@@ -342,7 +345,7 @@ function getTextField(m: Model, f: string): string | null {
 
 export interface SuggestionOption { value: string; label: string; insert: string }
 
-export function getSuggestions(raw: string, cursorPos: number, providerNames: string[]): { field: string; options: SuggestionOption[] } | null {
+export function getSuggestions(raw: string, cursorPos: number, providerNames: string[], authorNames?: string[]): { field: string; options: SuggestionOption[] } | null {
   const before = raw.slice(0, cursorPos)
   const after = raw.slice(cursorPos)
   const spaceIdx = before.lastIndexOf(' ')
@@ -422,6 +425,7 @@ export function getSuggestions(raw: string, cursorPos: number, providerNames: st
   if (fd?.type === 'select' && (opP === ':' || opP === '=' || opP === '!=')) {
     let opts: { value: string; label: string }[]
     if (fn === 'provider') opts = providerNames.map(p => ({ value: p, label: p }))
+    else if (fn === 'author' && authorNames) opts = authorNames.map(a => ({ value: a, label: a }))
     else if (fd.options) opts = fd.options
     else return null
     const fil = rest ? opts.filter(o => o.label.toLowerCase().startsWith(rest.toLowerCase()) || o.value.toLowerCase().startsWith(rest.toLowerCase())) : opts.slice()
@@ -455,6 +459,7 @@ export function getSuggestions(raw: string, cursorPos: number, providerNames: st
 export function useJqlFilter(
   models: Ref<Model[]> | ComputedRef<Model[]>,
   providerNames: Ref<string[]> | ComputedRef<string[]>,
+  authorNames?: Ref<string[]> | ComputedRef<string[]>,
 ) {
   const rawQuery = ref('')
   const cursorPos = ref(0)
@@ -475,7 +480,7 @@ export function useJqlFilter(
   )
 
   const suggestions = computed(() =>
-    showSuggestions.value ? getSuggestions(rawQuery.value, cursorPos.value, providerNames.value) : null,
+    showSuggestions.value ? getSuggestions(rawQuery.value, cursorPos.value, providerNames.value, authorNames?.value) : null,
   )
 
   function applySuggestion(insert: string) {

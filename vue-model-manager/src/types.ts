@@ -7,6 +7,7 @@ export interface ModelStatus {
 export interface Model {
   id: string
   name: string
+  author?: string
   provider: string
   context_length: number | null
   input_price_per_million: number | null

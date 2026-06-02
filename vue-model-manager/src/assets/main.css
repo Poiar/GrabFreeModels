@@ -1864,6 +1864,10 @@ th.sortable.active .sort-indicator { opacity: 1; }
   border-bottom: 1px solid var(--border-light);
 }
 
+.vscroll-row.row-clickable {
+  cursor: pointer;
+}
+
 .vscroll-row.row-removed { opacity: 0.5; }
 .vscroll-row.row-removed:hover { opacity: 0.8; }
 .vscroll-row:hover { background: var(--bg-hover); }

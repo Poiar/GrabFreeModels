@@ -19,7 +19,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:30:02.336Z"
+      "last_success": "2026-06-01T22:30:02.336Z",
+      "author": "Poolside"
     },
     {
       "id": "openrouter/poolside/laguna-m.1:free",
@@ -40,7 +41,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:30:02.336Z"
+      "last_success": "2026-06-01T22:30:02.336Z",
+      "author": "Poolside"
     },
     {
       "id": "openrouter/arcee-ai/trinity-large-thinking",
@@ -63,7 +65,8 @@
       },
       "_removed": true,
       "_removedDate": "2026-06-01",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Arcee AI"
     },
     {
       "id": "openrouter/openai/gpt-oss-120b:free",
@@ -86,7 +89,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:30:02.336Z"
+      "last_success": "2026-06-01T22:30:02.336Z",
+      "author": "OpenAI"
     },
     {
       "id": "openrouter/openai/gpt-oss-20b:free",
@@ -107,7 +111,8 @@
         "result": "rate_limited",
         "detail": "3/6 OK - sporadic, not reliably usable."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "OpenAI"
     },
     {
       "id": "openrouter/z-ai/glm-4.5-air:free",
@@ -127,7 +132,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:36:57.337Z"
+      "last_success": "2026-06-01T22:36:57.337Z",
+      "author": "Zhipu AI"
     },
     {
       "id": "openrouter/google/gemma-4-26b-a4b-it:free",
@@ -148,7 +154,8 @@
         "detail": "5/6 OK. Intermittent failures under load."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:36:57.337Z"
+      "last_success": "2026-06-01T22:36:57.337Z",
+      "author": "Google"
     },
     {
       "id": "openrouter/google/gemma-4-31b-it:free",
@@ -169,7 +176,8 @@
         "detail": "5/6 OK. Intermittent 429s under load, reliable sequentially."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
@@ -190,7 +198,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T22:30:02.336Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Liquid AI"
     },
     {
       "id": "openrouter/liquid/lfm-2.5-1.2b-thinking:free",
@@ -211,7 +220,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:30:02.336Z"
+      "last_success": "2026-06-01T22:30:02.336Z",
+      "author": "Liquid AI"
     },
     {
       "id": "openrouter/nvidia/nemotron-nano-12b-v2-vl:free",
@@ -231,7 +241,8 @@
         "result": "rate_limited",
         "detail": "All 6 requests failed (non-OK)."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
@@ -253,7 +264,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:36:57.337Z"
+      "last_success": "2026-06-01T22:36:57.337Z",
+      "author": "NVIDIA"
     },
     {
       "id": "openrouter/anthropic/claude-opus-4.7",
@@ -275,7 +287,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Anthropic"
     },
     {
       "id": "openrouter/anthropic/claude-sonnet-4.6",
@@ -296,7 +309,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Anthropic"
     },
     {
       "id": "openrouter/anthropic/claude-haiku-4.5",
@@ -318,7 +332,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Anthropic"
     },
     {
       "id": "openrouter/openai/gpt-5.4",
@@ -340,7 +355,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "OpenAI"
     },
     {
       "id": "openrouter/openai/gpt-5.2",
@@ -362,7 +378,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "OpenAI"
     },
     {
       "id": "openrouter/openai/gpt-5.1",
@@ -383,7 +400,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "OpenAI"
     },
     {
       "id": "openrouter/openai/o3",
@@ -405,7 +423,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "OpenAI"
     },
     {
       "id": "openrouter/openai/o4-mini",
@@ -427,7 +446,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "OpenAI"
     },
     {
       "id": "openrouter/deepseek/deepseek-v4-pro",
@@ -449,7 +469,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "DeepSeek"
     },
     {
       "id": "openrouter/deepseek/deepseek-r1",
@@ -470,7 +491,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "DeepSeek"
     },
     {
       "id": "openrouter/deepseek/deepseek-v4-flash",
@@ -491,7 +513,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "DeepSeek"
     },
     {
       "id": "openrouter/qwen/qwen3-coder",
@@ -512,7 +535,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Qwen (Alibaba)"
     },
     {
       "id": "openrouter/qwen/qwen3-coder-plus",
@@ -532,7 +556,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Qwen (Alibaba)"
     },
     {
       "id": "openrouter/qwen/qwen3-coder-flash",
@@ -552,7 +577,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Qwen (Alibaba)"
     },
     {
       "id": "openrouter/qwen/qwen3-max",
@@ -574,7 +600,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": false
+      "supports_tools": false,
+      "author": "Qwen (Alibaba)"
     },
     {
       "id": "openrouter/google/gemini-2.5-pro",
@@ -597,7 +624,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/google/gemini-2.5-flash",
@@ -618,7 +646,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/x-ai/grok-4.3",
@@ -639,7 +668,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "xAI"
     },
     {
       "id": "openrouter/meta-llama/llama-4-maverick",
@@ -660,7 +690,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Meta"
     },
     {
       "id": "openrouter/meta-llama/llama-4-scout",
@@ -680,7 +711,8 @@
       "status": {
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
-      }
+      },
+      "author": "Meta"
     },
     {
       "id": "openrouter/moonshotai/kimi-k2.6",
@@ -701,7 +733,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Moonshot AI"
     },
     {
       "id": "openrouter/mistralai/mistral-large-2512",
@@ -721,7 +754,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "openrouter/minimax/minimax-m2.5",
@@ -742,7 +776,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "MiniMax AI"
     },
     {
       "id": "openrouter/openrouter/auto",
@@ -761,7 +796,8 @@
         "detail": "Paid model â€” not tested, assumed working",
         "result": "paid"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "OpenRouter"
     },
     {
       "id": "openrouter/openrouter/free",
@@ -781,7 +817,8 @@
         "result": "broken",
         "detail": "Model no longer exists in provider API — confirmed not_found (detected 2026-06-02)."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "OpenRouter"
     },
     {
       "id": "cerebras/llama3.1-8b",
@@ -803,7 +840,8 @@
         "detail": "Model no longer exists in provider API — confirmed not_found (detected 2026-06-02)."
       },
       "_removed": true,
-      "_removedDate": "2026-06-01"
+      "_removedDate": "2026-06-01",
+      "author": "Meta"
     },
     {
       "id": "cerebras/zai-glm-4.7",
@@ -827,7 +865,8 @@
       "_removed": true,
       "_removedDate": "2026-06-01",
       "supports_tools": true,
-      "last_success": "2026-06-01T22:30:02.336Z"
+      "last_success": "2026-06-01T22:30:02.336Z",
+      "author": "Zhipu AI"
     },
     {
       "id": "cerebras/qwen-3-235b-a22b-instruct-2507",
@@ -850,7 +889,8 @@
       },
       "_removed": true,
       "_removedDate": "2026-06-01",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Qwen (Alibaba)"
     },
     {
       "id": "llmgateway/glm-4.5-flash",
@@ -870,7 +910,8 @@
         "detail": "5/6 OK. Intermittent failures under load."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:36:57.337Z"
+      "last_success": "2026-06-01T22:36:57.337Z",
+      "author": "Zhipu AI"
     },
     {
       "id": "llmgateway/glm-4.6v-flash",
@@ -891,7 +932,8 @@
         "result": "rate_limited",
         "detail": "1/6 OK - sporadic, not reliably usable."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Zhipu AI"
     },
     {
       "id": "llmgateway/glm-4.7-flash",
@@ -912,7 +954,8 @@
         "result": "rate_limited",
         "detail": "All 6 requests failed (non-OK)."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Zhipu AI"
     },
     {
       "id": "nvidia/nemotron-3-super-120b-a12b",
@@ -934,7 +977,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "huggingface/moonshotai/Kimi-K2-Instruct",
@@ -957,7 +1001,8 @@
         "skip_retest": true
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:36:57.337Z"
+      "last_success": "2026-06-01T22:36:57.337Z",
+      "author": "Moonshot AI"
     },
     {
       "id": "huggingface/Qwen/Qwen3-Coder-30B-A3B-Instruct",
@@ -980,7 +1025,8 @@
         "skip_retest": true
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:30:02.336Z"
+      "last_success": "2026-06-01T22:30:02.336Z",
+      "author": "Qwen"
     },
     {
       "id": "huggingface/zai-org/GLM-4.6",
@@ -1003,7 +1049,8 @@
         "skip_retest": true
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:30:02.336Z"
+      "last_success": "2026-06-01T22:30:02.336Z",
+      "author": "Zhipu AI"
     },
     {
       "id": "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
@@ -1025,7 +1072,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:36:57.337Z"
+      "last_success": "2026-06-01T22:36:57.337Z",
+      "author": "NVIDIA"
     },
     {
       "id": "deepseek/deepseek-v4-flash",
@@ -1049,7 +1097,8 @@
       "_removed": true,
       "_removedDate": "2026-06-01",
       "supports_tools": true,
-      "last_success": "2026-06-01T22:30:02.336Z"
+      "last_success": "2026-06-01T22:30:02.336Z",
+      "author": "DeepSeek"
     },
     {
       "id": "openrouter/moonshotai/kimi-k2.6:free",
@@ -1070,7 +1119,8 @@
         "result": "rate_limited",
         "detail": "1/6 OK - sporadic success, not reliably usable."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Moonshot AI"
     },
     {
       "id": "openrouter/minimax/minimax-m2.5:free",
@@ -1093,7 +1143,8 @@
       },
       "_removed": true,
       "_removedDate": "2026-06-01",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "MiniMax AI"
     },
     {
       "id": "openrouter/nvidia/nemotron-3-nano-30b-a3b:free",
@@ -1115,7 +1166,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:30:02.336Z"
+      "last_success": "2026-06-01T22:30:02.336Z",
+      "author": "NVIDIA"
     },
     {
       "id": "openrouter/qwen/qwen3-next-80b-a3b-instruct:free",
@@ -1137,7 +1189,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": false
+      "supports_tools": false,
+      "author": "Qwen (Alibaba)"
     },
     {
       "id": "openrouter/nvidia/nemotron-nano-9b-v2:free",
@@ -1159,7 +1212,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:30:02.336Z"
+      "last_success": "2026-06-01T22:30:02.336Z",
+      "author": "NVIDIA"
     },
     {
       "id": "openrouter/qwen/qwen3-coder:free",
@@ -1180,7 +1234,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Qwen (Alibaba)"
     },
     {
       "id": "openrouter/cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
@@ -1200,7 +1255,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Cognitive Computations"
     },
     {
       "id": "openrouter/meta-llama/llama-3.3-70b-instruct:free",
@@ -1221,7 +1277,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Meta"
     },
     {
       "id": "openrouter/meta-llama/llama-3.2-3b-instruct:free",
@@ -1242,7 +1299,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Meta"
     },
     {
       "id": "openrouter/nousresearch/hermes-3-llama-3.1-405b:free",
@@ -1264,7 +1322,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Nous Research"
     },
     {
       "id": "openrouter/owl-alpha",
@@ -1288,7 +1347,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T22:30:02.336Z"
+      "last_success": "2026-06-01T22:30:02.336Z",
+      "author": "OpenCode"
     },
     {
       "id": "cerebras/gpt-oss-120b",
@@ -1312,7 +1372,8 @@
       "_removed": true,
       "_removedDate": "2026-06-01",
       "supports_tools": true,
-      "last_success": "2026-06-01T22:30:02.336Z"
+      "last_success": "2026-06-01T22:30:02.336Z",
+      "author": "OpenAI"
     },
     {
       "id": "nvidia/meta/llama-4-maverick-17b-128e-instruct",
@@ -1334,7 +1395,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Meta"
     },
     {
       "id": "nvidia/meta/llama-3.3-70b-instruct",
@@ -1355,7 +1417,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Meta"
     },
     {
       "id": "nvidia/mistralai/mistral-large-3-675b-instruct-2512",
@@ -1376,7 +1439,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "nvidia/mistralai/mixtral-8x7b-instruct-v0.1",
@@ -1397,7 +1461,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "nvidia/qwen/qwen3.5-397b-a17b",
@@ -1418,7 +1483,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Qwen (Alibaba)"
     },
     {
       "id": "nvidia/qwen/qwen3-coder-480b-a35b-instruct",
@@ -1439,7 +1505,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Qwen (Alibaba)"
     },
     {
       "id": "nvidia/z-ai/glm-5.1",
@@ -1460,7 +1527,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Zhipu AI"
     },
     {
       "id": "nvidia/stepfun-ai/step-3.7-flash",
@@ -1480,7 +1548,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "StepFun"
     },
     {
       "id": "nvidia/nvidia/llama-3.1-nemotron-ultra-253b-v1",
@@ -1501,7 +1570,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/microsoft/phi-4-mini-instruct",
@@ -1522,7 +1592,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Microsoft"
     },
     {
       "id": "nvidia/databricks/dbrx-instruct",
@@ -1543,7 +1614,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Databricks"
     },
     {
       "id": "nvidia/ai21labs/jamba-1.5-large-instruct",
@@ -1564,7 +1636,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "AI21 Labs"
     },
     {
       "id": "openrouter/gpt-oss-120b",
@@ -1584,7 +1657,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "OpenAI"
     },
     {
       "id": "openrouter/zai-glm-4.7",
@@ -1603,7 +1677,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Zhipu AI"
     },
     {
       "id": "openrouter/01-ai/yi-large",
@@ -1622,7 +1697,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "01.AI"
     },
     {
       "id": "openrouter/abacusai/dracarys-llama-3.1-70b-instruct",
@@ -1641,7 +1717,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Abacus AI"
     },
     {
       "id": "openrouter/adept/fuyu-8b",
@@ -1660,7 +1737,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Adept"
     },
     {
       "id": "openrouter/baai/bge-m3",
@@ -1679,7 +1757,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "BAAI"
     },
     {
       "id": "openrouter/bigcode/starcoder2-15b",
@@ -1698,7 +1777,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "BigCode"
     },
     {
       "id": "openrouter/bytedance/seed-oss-36b-instruct",
@@ -1717,7 +1797,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "ByteDance"
     },
     {
       "id": "openrouter/deepseek-ai/deepseek-coder-6.7b-instruct",
@@ -1736,7 +1817,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "DeepSeek"
     },
     {
       "id": "openrouter/deepseek-ai/deepseek-v4-flash",
@@ -1755,7 +1837,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "DeepSeek"
     },
     {
       "id": "openrouter/deepseek-ai/deepseek-v4-pro",
@@ -1774,7 +1857,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "DeepSeek"
     },
     {
       "id": "openrouter/google/codegemma-1.1-7b",
@@ -1793,7 +1877,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/google/codegemma-7b",
@@ -1812,7 +1897,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/google/deplot",
@@ -1831,7 +1917,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/google/gemma-2-2b-it",
@@ -1850,7 +1937,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/google/gemma-2b",
@@ -1869,7 +1957,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/google/gemma-3-12b-it",
@@ -1889,7 +1978,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/google/gemma-3-4b-it",
@@ -1909,7 +1999,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/google/gemma-3n-e2b-it",
@@ -1928,7 +2019,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/google/gemma-3n-e4b-it",
@@ -1948,7 +2040,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/google/gemma-4-31b-it",
@@ -1968,7 +2061,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/google/recurrentgemma-2b",
@@ -1987,7 +2081,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "openrouter/ibm/granite-3.0-3b-a800m-instruct",
@@ -2006,7 +2101,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "IBM"
     },
     {
       "id": "openrouter/ibm/granite-3.0-8b-instruct",
@@ -2025,7 +2121,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "IBM"
     },
     {
       "id": "openrouter/ibm/granite-34b-code-instruct",
@@ -2044,7 +2141,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "IBM"
     },
     {
       "id": "openrouter/ibm/granite-8b-code-instruct",
@@ -2063,7 +2161,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "IBM"
     },
     {
       "id": "openrouter/meta/codellama-70b",
@@ -2082,7 +2181,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": false
+      "supports_tools": false,
+      "author": "Meta"
     },
     {
       "id": "openrouter/meta/llama-3.1-70b-instruct",
@@ -2101,7 +2201,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": false
+      "supports_tools": false,
+      "author": "Meta"
     },
     {
       "id": "openrouter/meta/llama-3.1-8b-instruct",
@@ -2120,7 +2221,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": false
+      "supports_tools": false,
+      "author": "Meta"
     },
     {
       "id": "openrouter/meta/llama-3.2-11b-vision-instruct",
@@ -2139,7 +2241,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": false
+      "supports_tools": false,
+      "author": "Meta"
     },
     {
       "id": "openrouter/meta/llama-3.2-1b-instruct",
@@ -2158,7 +2261,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": false
+      "supports_tools": false,
+      "author": "Meta"
     },
     {
       "id": "openrouter/meta/llama-3.2-3b-instruct",
@@ -2177,7 +2281,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": false
+      "supports_tools": false,
+      "author": "Meta"
     },
     {
       "id": "openrouter/meta/llama-3.2-90b-vision-instruct",
@@ -2196,7 +2301,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": false
+      "supports_tools": false,
+      "author": "Meta"
     },
     {
       "id": "openrouter/meta/llama-guard-4-12b",
@@ -2215,7 +2321,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Meta"
     },
     {
       "id": "openrouter/meta/llama2-70b",
@@ -2234,7 +2341,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Meta"
     },
     {
       "id": "openrouter/microsoft/phi-3-vision-128k-instruct",
@@ -2253,7 +2361,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Microsoft"
     },
     {
       "id": "openrouter/microsoft/phi-3.5-moe-instruct",
@@ -2272,7 +2381,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Microsoft"
     },
     {
       "id": "openrouter/microsoft/phi-4-multimodal-instruct",
@@ -2291,7 +2401,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": false
+      "supports_tools": false,
+      "author": "Microsoft"
     },
     {
       "id": "openrouter/minimaxai/minimax-m2.7",
@@ -2310,7 +2421,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "MiniMax AI"
     },
     {
       "id": "openrouter/mistralai/codestral-22b-instruct-v0.1",
@@ -2329,7 +2441,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "openrouter/mistralai/ministral-14b-instruct-2512",
@@ -2348,7 +2461,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "openrouter/mistralai/mistral-7b-instruct-v0.3",
@@ -2367,7 +2481,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "openrouter/mistralai/mistral-large",
@@ -2387,7 +2502,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "openrouter/mistralai/mistral-large-2-instruct",
@@ -2406,7 +2522,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "openrouter/mistralai/mistral-medium-3.5-128b",
@@ -2425,7 +2542,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "openrouter/mistralai/mistral-nemotron",
@@ -2444,7 +2562,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "openrouter/mistralai/mistral-small-4-119b-2603",
@@ -2463,7 +2582,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "openrouter/mistralai/mixtral-8x22b-v0.1",
@@ -2482,7 +2602,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "nvidia/moonshotai/kimi-k2.6",
@@ -2502,7 +2623,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Moonshot AI"
     },
     {
       "id": "openrouter/nv-mistralai/mistral-nemo-12b-instruct",
@@ -2521,7 +2643,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Mistral AI"
     },
     {
       "id": "nvidia/cosmos-reason2-8b",
@@ -2540,7 +2663,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/llama-3.1-nemotron-51b-instruct",
@@ -2559,7 +2683,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/llama-3.1-nemotron-70b-instruct",
@@ -2578,7 +2703,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/llama-3.1-nemotron-nano-8b-v1",
@@ -2598,7 +2724,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
@@ -2618,7 +2745,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
@@ -2638,7 +2766,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/llama-3.3-nemotron-super-49b-v1",
@@ -2658,7 +2787,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
@@ -2678,7 +2808,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/llama3-chatqa-1.5-70b",
@@ -2697,7 +2828,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/mistral-nemo-minitron-8b-8k-instruct",
@@ -2716,7 +2848,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/nemotron-3-nano-30b-a3b",
@@ -2736,7 +2869,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
@@ -2756,7 +2890,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/nemotron-4-340b-instruct",
@@ -2775,7 +2910,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/nemotron-mini-4b-instruct",
@@ -2795,7 +2931,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/nemotron-nano-12b-v2-vl",
@@ -2815,7 +2952,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/nemotron-nano-3-30b-a3b",
@@ -2834,7 +2972,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "nvidia/nvidia-nemotron-nano-9b-v2",
@@ -2854,7 +2993,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "NVIDIA"
     },
     {
       "id": "openrouter/openai/gpt-oss-120b",
@@ -2874,7 +3014,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "OpenAI"
     },
     {
       "id": "openrouter/openai/gpt-oss-20b",
@@ -2894,7 +3035,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "OpenAI"
     },
     {
       "id": "openrouter/qwen/qwen3-next-80b-a3b-instruct",
@@ -2914,7 +3056,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": false
+      "supports_tools": false,
+      "author": "Qwen (Alibaba)"
     },
     {
       "id": "openrouter/qwen/qwen3.5-122b-a10b",
@@ -2934,7 +3077,8 @@
         "detail": "All 6 requests succeeded."
       },
       "last_success": "2026-06-01T12:11:49.393Z",
-      "supports_tools": false
+      "supports_tools": false,
+      "author": "Qwen (Alibaba)"
     },
     {
       "id": "openrouter/sarvamai/sarvam-m",
@@ -2953,7 +3097,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Sarvam AI"
     },
     {
       "id": "openrouter/stepfun-ai/step-3.5-flash",
@@ -2972,7 +3117,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "StepFun"
     },
     {
       "id": "openrouter/stockmark/stockmark-2-100b-instruct",
@@ -2991,7 +3137,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Stockmark"
     },
     {
       "id": "openrouter/upstage/solar-10.7b-instruct",
@@ -3010,7 +3157,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Upstage"
     },
     {
       "id": "openrouter/writer/palmyra-creative-122b",
@@ -3029,7 +3177,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Writer"
     },
     {
       "id": "openrouter/writer/palmyra-fin-70b-32k",
@@ -3048,7 +3197,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Writer"
     },
     {
       "id": "openrouter/writer/palmyra-med-70b",
@@ -3067,7 +3217,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Writer"
     },
     {
       "id": "openrouter/writer/palmyra-med-70b-32k",
@@ -3086,7 +3237,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Writer"
     },
     {
       "id": "openrouter/zyphra/zamba2-7b-instruct",
@@ -3105,7 +3257,8 @@
         "result": "rate_limited",
         "detail": "429 on all 6 requests - persistently rate limited."
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Zyphra"
     },
     {
       "id": "openrouter/z-ai/glm-5.1",
@@ -3129,7 +3282,8 @@
       },
       "_removed": true,
       "_removedDate": "2026-06-01",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Zhipu AI"
     },
     {
       "id": "openrouter/z-ai/glm-5-turbo",
@@ -3152,7 +3306,8 @@
       },
       "_removed": true,
       "_removedDate": "2026-06-01",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Zhipu AI"
     },
     {
       "id": "openrouter/z-ai/glm-5v-turbo",
@@ -3176,7 +3331,8 @@
       },
       "_removed": true,
       "_removedDate": "2026-06-01",
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Zhipu AI"
     },
     {
       "id": "opencode/deepseek-v4-flash-free",
@@ -3198,7 +3354,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T23:39:16.860Z"
+      "last_success": "2026-06-01T23:39:16.860Z",
+      "author": "DeepSeek"
     },
     {
       "id": "opencode/big-pickle",
@@ -3220,7 +3377,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T23:39:16.860Z"
+      "last_success": "2026-06-01T23:39:16.860Z",
+      "author": "OpenCode"
     },
     {
       "id": "opencode/nemotron-3-super-free",
@@ -3241,7 +3399,8 @@
         "detail": "All 6 requests succeeded."
       },
       "supports_tools": true,
-      "last_success": "2026-06-01T23:39:16.860Z"
+      "last_success": "2026-06-01T23:39:16.860Z",
+      "author": "NVIDIA"
     },
     {
       "id": "google/gemini-2.0-flash",
@@ -3262,7 +3421,8 @@
         "result": "rate_limited",
         "tested": "2026-06-02"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "google/gemini-2.0-flash-lite",
@@ -3283,7 +3443,8 @@
         "result": "rate_limited",
         "tested": "2026-06-02"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "google/gemini-2.5-flash",
@@ -3306,7 +3467,8 @@
         "tested": "2026-06-02"
       },
       "supports_tools": true,
-      "last_success": "2026-06-02T08:07:29.672Z"
+      "last_success": "2026-06-02T08:07:29.672Z",
+      "author": "Google"
     },
     {
       "id": "google/gemini-2.5-flash-lite",
@@ -3328,7 +3490,8 @@
         "tested": "2026-06-02"
       },
       "supports_tools": true,
-      "last_success": "2026-06-02T08:07:29.672Z"
+      "last_success": "2026-06-02T08:07:29.672Z",
+      "author": "Google"
     },
     {
       "id": "google/gemini-2.5-pro",
@@ -3352,7 +3515,8 @@
         "result": "rate_limited",
         "tested": "2026-06-02"
       },
-      "supports_tools": true
+      "supports_tools": true,
+      "author": "Google"
     },
     {
       "id": "google/gemini-3.5-flash",
@@ -3375,7 +3539,8 @@
         "tested": "2026-06-02"
       },
       "supports_tools": true,
-      "last_success": "2026-06-02T08:07:29.672Z"
+      "last_success": "2026-06-02T08:07:29.672Z",
+      "author": "Google"
     }
   ],
   "_test_summary": {

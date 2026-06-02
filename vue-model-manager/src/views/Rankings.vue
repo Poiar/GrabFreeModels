@@ -5,16 +5,110 @@
       <p>Role-specific ranked lists of verified free models only — paid, removed, broken, and rate-limited models are excluded. Use the type picker to switch which ranking to sort by; each model's other role rankings are shown as pills.</p>
     </div>
 
-    <div class="filters">
-      <div class="search-wrap">
-        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input
-          v-model.trim="searchTerm"
-          type="text"
-          placeholder="Search models…"
-          class="search-input"
-        />
+    <!-- JQL Filter Bar -->
+    <div class="jql-bar">
+      <div class="jql-chips">
+        <button
+          v-for="(token, i) in allTokens"
+          :key="`${token.field}-${token.rawValue}-${i}`"
+          class="jql-chip"
+          :class="{ 'jql-chip-negated': token.op === '!=' || token.op === 'NOT IN' }"
+          @click="jql.removeToken(i)"
+          :title="`Remove ${token.label}`"
+        >
+          <span class="jql-chip-label">{{ token.label }}</span>
+          <span class="jql-chip-remove">✕</span>
+        </button>
+        <button v-if="hasOrderBy" class="jql-chip jql-chip-sort" @click="clearOrderBy" title="Remove sort">
+          <span class="jql-chip-label">ORDER BY {{ jql.parsed.value.orderBy }} {{ jql.parsed.value.orderDir }}</span>
+          <span class="jql-chip-remove">✕</span>
+        </button>
       </div>
+
+      <div v-if="jql.validationErrors.value.length" class="jql-errors">
+        <div v-for="(err, i) in jql.validationErrors.value" :key="i" class="jql-error">
+          <svg class="jql-error-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span class="jql-error-msg">{{ err.message }}</span>
+        </div>
+      </div>
+
+      <div class="jql-input-wrap">
+        <span class="jql-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <div class="jql-highlight" aria-hidden="true" v-html="highlightedQuery"></div>
+        <input
+          ref="jql.inputRef"
+          v-model="jql.rawQuery.value"
+          type="text"
+          class="jql-input"
+          :class="{ 'jql-input-invalid': jql.validationErrors.value.length > 0 }"
+          placeholder='Try: provider:openrouter status:working context:>100000 ORDER BY context DESC'
+          spellcheck="false"
+          autocomplete="off"
+          @input="jql.onInput"
+          @keydown="jql.onKeydown"
+          @focus="jql.onFocus"
+          @blur="jql.onBlur"
+          @click="jql.onInput($event)"
+        />
+        <button v-if="jql.rawQuery.value || allTokens.length" class="jql-clear" @click="clearAll" title="Clear all">✕</button>
+        <div class="jql-underline" v-if="jql.validationErrors.value.length">
+          <div
+            v-for="(err, i) in jql.validationErrors.value"
+            :key="i"
+            class="jql-underline-mark"
+            :style="underlineStyle(err)"
+          />
+        </div>
+      </div>
+
+      <div v-if="jql.showSuggestions.value && jql.suggestions.value" class="jql-suggestions">
+        <div
+          v-for="(opt, si) in jql.suggestions.value.options"
+          :key="opt.insert"
+          class="jql-suggestion"
+          :class="{ 'jql-suggestion-active': si === jql.activeSuggestion.value }"
+          @mousedown.prevent="jql.applySuggestion(opt.insert)"
+          @mouseenter="jql.activeSuggestion.value = si"
+        >
+          <span class="jql-suggestion-label">{{ opt.label }}</span>
+          <span class="jql-suggestion-field">{{ opt.insert }}</span>
+        </div>
+        <div v-if="!jql.suggestions.value.options.length" class="jql-suggestion-empty">
+          No matching {{ jql.suggestions.value.field }}s
+        </div>
+      </div>
+
+      <div class="jql-bar-footer">
+        <span class="filter-count">
+          {{ sortedItems.length }} of {{ flatRankings.length }} ranked models
+        </span>
+        <div class="export-btns">
+          <button class="export-btn" title="Export as CSV" @click="exportCsv">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            CSV
+          </button>
+          <button class="export-btn" title="Export as JSON" @click="exportJson">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            JSON
+          </button>
+        </div>
+        <span class="jql-hint">
+          <kbd>field:value</kbd> · <kbd>!=</kbd> · <kbd>&gt;</kbd> · <kbd>&lt;</kbd> · <kbd>IS EMPTY</kbd> · <kbd>IN (a,b)</kbd> · <kbd>NOT</kbd> · <kbd>OR</kbd> · <kbd>ORDER BY</kbd>
+        </span>
+      </div>
+    </div>
+
+    <!-- Visual Query Builder -->
+    <QueryBuilder
+      :conditions="builderConditions"
+      :jql-query="jql.rawQuery.value ?? ''"
+      @change="onBuilderChange"
+      @clear="onBuilderClear"
+    />
+
+    <div class="filters">
       <div class="role-filter">
         <div class="type-pills">
           <button
@@ -27,19 +121,10 @@
           </button>
         </div>
       </div>
-      <div class="status-filter">
-        <button
-          v-for="opt in statusOptions"
-          :key="opt.value"
-          :class="['status-btn', { active: statusFilter === opt.value }]"
-          @click="statusFilter = opt.value"
-        >
-          {{ opt.label }}
-        </button>
-      </div>
       <div class="sort-controls" v-if="sortBy !== 'rank'">
         <select v-model="sortBy" class="sort-select">
           <option value="name">Sort: Name</option>
+          <option value="author">Sort: Author</option>
           <option value="provider">Sort: Provider</option>
           <option value="context">Sort: Context</option>
         </select>
@@ -59,6 +144,9 @@
         <div class="vscroll-header-cell col-model sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
           Model <SortArrow :active="sortBy === 'name'" :desc="sortDesc" />
         </div>
+        <div class="vscroll-header-cell col-author sortable" :class="{ active: sortBy === 'author' }" @click="setSort('author')">
+          Author <SortArrow :active="sortBy === 'author'" :desc="sortDesc" />
+        </div>
         <div class="vscroll-header-cell col-provider sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
           Provider <SortArrow :active="sortBy === 'provider'" :desc="sortDesc" />
         </div>
@@ -72,6 +160,7 @@
 
       <RecycleScroller
         v-if="sortedItems.length > 0"
+        ref="scrollerRef"
         :items="sortedItems"
         :item-size="56"
         key-field="modelId"
@@ -103,6 +192,7 @@
                 </button>
               </div>
             </div>
+            <div class="vscroll-cell col-author">{{ item.model?.author ?? '' }}</div>
             <div class="vscroll-cell col-provider">{{ item.model?.provider ?? '' }}</div>
             <div class="vscroll-cell col-status">
               <span class="badge" :class="`badge-${item.model?.status?.result ?? ''}`">
@@ -133,7 +223,7 @@
         <div class="empty-state-inner">
           <div class="empty-state-icon">🔍</div>
           <p>No models match the current filters</p>
-          <button class="clear-btn" @click="searchTerm = ''; statusFilter = 'all'">Clear filters</button>
+          <button class="clear-btn" @click="clearAll">Clear filters</button>
         </div>
       </div>
     </div>
@@ -167,10 +257,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, h, defineComponent } from 'vue'
+import { ref, computed, reactive, watch, onMounted, onUnmounted, h, defineComponent } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useModelsStore } from '@/store/models'
 import { RecycleScroller } from 'vue-virtual-scroller'
+import { useJqlFilter } from '@/composables/useJqlFilter'
+import { useSavedSearches } from '@/composables/useSavedSearches'
+import type { FilterToken, SortSpec } from '@/composables/useJqlFilter'
+import type { Model } from '@/types'
+import type { BuilderCondition } from '@/components/QueryBuilder.vue'
+import QueryBuilder from '@/components/QueryBuilder.vue'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+
+type ScrollerExposed = { scrollToPosition: (pos: number) => void }
+const scrollerRef = ref<ScrollerExposed | null>(null)
 
 const SortArrow = defineComponent({
   props: { active: Boolean, desc: Boolean },
@@ -182,6 +282,8 @@ const SortArrow = defineComponent({
 })
 
 const store = useModelsStore()
+const route = useRoute()
+const router = useRouter()
 const copiedIds = reactive(new Set<string>())
 let copyTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -236,7 +338,7 @@ const flatRankings = computed<ModelRanking[]>(() => {
   const list: ModelRanking[] = []
   for (let i = 0; i < arr.length; i++) {
     const modelId = arr[i]
-    const model = store.allModels.find(m => m.id === modelId)
+    const model = store.getModelById(modelId)
     if (!model || !model.is_free || model._removed || model.status.result === 'broken' || model.status.result === 'rate_limited') continue
     const allRankings: { role: string; rank: number }[] = []
     for (const role of ROLES) {
@@ -250,34 +352,104 @@ const flatRankings = computed<ModelRanking[]>(() => {
   return list
 })
 
-const searchTerm = ref('')
-const statusFilter = ref<'all' | 'working' | 'untested'>('all')
+const sortBy = ref('rank')
+const sortDesc = ref(false)
+const builderConditions = ref<BuilderCondition[]>([])
 
-const statusOptions = [
-  { label: 'All', value: 'all' as const },
-  { label: 'Working', value: 'working' as const },
-  { label: 'Untested', value: 'untested' as const },
-]
+const jql = useJqlFilter(
+  computed(() => store.allModels),
+  computed(() => store.allProviderNames),
+  computed(() => store.allAuthorNames),
+)
+const { pushHistory } = useSavedSearches()
+
+function readQueryFromUrl() {
+  if (route.query.q && typeof route.query.q === 'string') {
+    jql.rawQuery.value = route.query.q
+  }
+}
+function writeQueryToUrl(q: string) {
+  router.replace({ ...route, query: { ...route.query, q: q.trim() || undefined } })
+}
+onMounted(() => readQueryFromUrl())
+watch(() => jql.rawQuery.value, (q) => writeQueryToUrl(q))
+
+let historyTimer: ReturnType<typeof setTimeout> | null = null
+watch(() => jql.rawQuery.value, (q) => {
+  if (historyTimer) clearTimeout(historyTimer)
+  historyTimer = setTimeout(() => { if (q.trim()) pushHistory(q.trim()) }, 2000)
+})
+
+watch(jql.sortSpec, (spec: SortSpec | null) => {
+  if (spec) { sortBy.value = spec.field; sortDesc.value = spec.desc }
+  else { sortBy.value = 'rank'; sortDesc.value = false }
+})
+
+watch([() => jql.rawQuery.value, sortBy, sortDesc, roleFilter], () => {
+  scrollerRef.value?.scrollToPosition(0)
+})
+
+const allTokens = computed<FilterToken[]>(() =>
+  jql.parsed.value.expression.flat().filter(t => t.field !== '_text'),
+)
+const hasOrderBy = computed(() => !!jql.parsed.value.orderBy)
+
+function onBuilderChange(conditions: BuilderCondition[]) {
+  builderConditions.value = conditions
+  syncBuilderToQuery(conditions)
+}
+function onBuilderClear() {
+  builderConditions.value = []
+  jql.rawQuery.value = ''
+}
+function clearAll() {
+  jql.rawQuery.value = ''
+  builderConditions.value = []
+  sortBy.value = 'rank'
+  sortDesc.value = false
+}
+
+function underlineStyle(err: { start: number; end: number }) {
+  const charWidth = 7.8
+  const left = 36 + err.start * charWidth
+  const width = Math.max(8, (err.end - err.start) * charWidth)
+  return { left: `${left}px`, width: `${width}px` }
+}
+
+function syncBuilderToQuery(conditions: BuilderCondition[]) {
+  if (conditions.length === 0) { jql.rawQuery.value = ''; return }
+  let q = conditions[0].jql
+  for (let i = 1; i < conditions.length; i++) {
+    q += conditions[i].joinOr ? ' OR ' : ' AND '
+    q += conditions[i].jql
+  }
+  jql.rawQuery.value = q
+}
+watch(() => jql.rawQuery.value, () => {
+  const tt = jql.parsed.value.expression.flat().filter(t => t.field !== '_text')
+  if (tt.length !== builderConditions.value.length) builderConditions.value = []
+})
+function clearOrderBy() {
+  jql.rawQuery.value = jql.rawQuery.value.replace(/\s+ORDER\s+BY\s+\w+\s*(ASC|DESC)?\s*$/i, '').trim()
+  sortBy.value = 'rank'; sortDesc.value = false
+}
+
+function onLoadSavedQuery(e: Event) {
+  const q = (e as CustomEvent).detail as string
+  jql.rawQuery.value = q
+  builderConditions.value = []
+}
+onMounted(() => window.addEventListener('load-saved-query', onLoadSavedQuery))
+onUnmounted(() => window.removeEventListener('load-saved-query', onLoadSavedQuery))
 
 const filtered = computed(() => {
-  const term = searchTerm.value.toLowerCase()
-  return flatRankings.value.filter(mr => {
-    const model = store.getModelById(mr.modelId)
-    const result = model?.status?.result
-    if (statusFilter.value === 'working' && result !== 'working') return false
-    if (statusFilter.value === 'untested' && result !== 'untested') return false
-    if (!term) return true
-    const name = model?.name?.toLowerCase() ?? ''
-    return name.includes(term) || mr.modelId.toLowerCase().includes(term)
-  })
+  const jqlIds = new Set(jql.filteredModels.value.map(m => m.id))
+  return flatRankings.value.filter(mr => jqlIds.has(mr.modelId))
 })
 
 const STATUS_ORDER: Record<string, number> = { working: 0, untested: 1, rate_limited: 2, broken: 3, paid: 4 }
 const ROLE_ORDER: Record<string, number> = {}
 ROLES.forEach((r, i) => { ROLE_ORDER[r] = i })
-
-const sortBy = ref('name')
-const sortDesc = ref(false)
 
 function setSort(field: string) {
   if (sortBy.value === field) {
@@ -339,6 +511,106 @@ const unrankedWorking = computed(() =>
   store.workingModels.filter(m => !m._removed && !rankedIds.value.has(m.id) && !store.isModelProviderUsedUp(m.id))
 )
 
+function handleKeydown(e: KeyboardEvent) {
+  const tag = (e.target as HTMLElement)?.tagName
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return
+
+  if (e.key === '/') {
+    e.preventDefault()
+    const inputs = document.querySelectorAll<HTMLInputElement>('.jql-input, .search-input, input[type="text"]')
+    if (inputs[0]) inputs[0].focus()
+  }
+  if (e.key === 'Escape') {
+    if (selectedModel.value) selectedModel.value = null
+  }
+}
+
+onMounted(() => window.addEventListener('keydown', handleKeydown))
+onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
+
+const selectedModel = ref<Model | null>(null)
+
+function download(content: string, filename: string, mime: string) {
+  const blob = new Blob([content], { type: mime })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+function exportCsv() {
+  const header = ['model_id', 'model_name', 'provider', 'status', 'context_length', 'best_for', 'role_rankings']
+  const esc = (v: unknown) => {
+    const s = String(v ?? '')
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g, '""') + '"' : s
+  }
+  const rows = sortedItems.value.map(mr => [
+    mr.modelId, mr.model?.name ?? '', mr.model?.provider ?? '',
+    mr.model?.status?.result ?? '', mr.model?.context_length ?? '',
+    (mr.model?.best_for ?? []).join('; '),
+    mr.rankings.map(r => `${r.role}:${r.rank}`).join('; '),
+  ].map(esc).join(','))
+  const meta = [
+    `# exported_at: ${new Date().toISOString()}`,
+    `# count: ${sortedItems.value.length}/${flatRankings.value.length}`,
+    `# role: ${roleFilter.value}`,
+    `# query: ${jql.rawQuery.value || '(none)'}`,
+  ]
+  const csv = [...meta, header.join(','), ...rows].join('\n')
+  download(csv, 'rankings.csv', 'text/csv')
+}
+
+function exportJson() {
+  const data = sortedItems.value.map(mr => ({
+    model_id: mr.modelId,
+    model_name: mr.model?.name ?? null,
+    provider: mr.model?.provider ?? null,
+    status: mr.model?.status?.result ?? null,
+    context_length: mr.model?.context_length ?? null,
+    best_for: mr.model?.best_for ?? [],
+    tools: mr.model?.supports_tools ?? null,
+    role_rankings: mr.rankings.map(r => ({ role: r.role, rank: r.rank })),
+  }))
+  const json = JSON.stringify({
+    _meta: {
+      exported_at: new Date().toISOString(),
+      count: data.length,
+      total_ranked: flatRankings.value.length,
+      role: roleFilter.value,
+      jql_query: jql.rawQuery.value || null,
+    },
+    rankings: data,
+  }, null, 2)
+  download(json, 'rankings.json', 'application/json')
+}
+
+const highlightedQuery = computed(() => {
+  const raw = jql.rawQuery.value
+  if (!raw) return ''
+  const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  const regex = /(\w+)\s+(NOT\s+IN)\s*\(\s*((?:"[^"]*"|[^)])+)\)|(\w+)\s+(IS\s+NOT\s+EMPTY|IS\s+EMPTY)|(?:NOT\s+)?(\w+)\s*(?:(:?>|:<!|=)|(:!=|!=)|:=|=)\s*(?:"([^"]*?)"|(\S+))|(\w+)\s+(IN)\s*\(\s*((?:"[^"]*"|[^)])+)\)|\b(OR)\b|\b(ORDER\s+BY\s+\w+\s*(?:ASC|DESC)?)\b/gi
+  let result = '', last = 0, m: RegExpExecArray | null
+  while ((m = regex.exec(raw)) !== null) {
+    result += esc(raw.slice(last, m.index))
+    if (m[1] != null) result += `<span class="jql-hl-field">${esc(m[1])}</span> <span class="jql-hl-op jql-hl-neg">${esc(m[2])}</span>(<span class="jql-hl-val jql-hl-neg">${esc(m[3])})</span>`
+    else if (m[4] != null) result += `<span class="jql-hl-field">${esc(m[4])}</span> <span class="jql-hl-kw ${m[5]==='IS NOT EMPTY'?'jql-hl-neg':''}">${esc(m[5])}</span>`
+    else if (m[6] != null) {
+      const nP = m[0].trimStart().toUpperCase().startsWith('NOT')
+      const op = m[7] ?? m[8] ?? ':'; const val = m[9] ?? m[10] ?? ''
+      if (nP) result += `<span class="jql-hl-kw jql-hl-neg">NOT </span>`
+      const n = op === '!=' || nP
+      result += `<span class="jql-hl-field">${esc(m[6])}</span><span class="jql-hl-op${n?' jql-hl-neg':''}">${esc(op)}</span><span class="jql-hl-val${n?' jql-hl-neg':''}">${esc(val)}</span>`
+    } else if (m[11] != null) result += `<span class="jql-hl-field">${esc(m[11])}</span> <span class="jql-hl-kw">${esc(m[12])}</span>(<span class="jql-hl-val">${esc(m[13])})</span>`
+    else if (m[14] != null) result += `<span class="jql-hl-kw">${esc(m[14])}</span>`
+    else if (m[15] != null) result += `<span class="jql-hl-kw">${esc(m[15])}</span>`
+    last = m.index + m[0].length
+  }
+  return result + esc(raw.slice(last))
+})
 </script>
 
 <style scoped>
@@ -351,58 +623,12 @@ const unrankedWorking = computed(() =>
   flex-wrap: wrap;
 }
 
-.search-wrap {
-  position: relative;
-  flex: 1;
-  min-width: 200px;
-  max-width: 300px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 7px 10px 7px 32px;
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.search-input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(88,166,255,0.12);
-}
-
-.search-input::placeholder {
-  color: var(--text-muted);
-}
-
 .role-filter {
   display: flex;
   align-items: center;
 }
 
 .type-pills {
-  display: flex;
-  gap: 0;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 3px;
-}
-
-.status-filter {
   display: flex;
   gap: 0;
   background: var(--bg-card);
@@ -488,12 +714,9 @@ const unrankedWorking = computed(() =>
   min-height: 300px;
 }
 
-:deep(.vscroll-row) {
-  cursor: default;
-}
-
 .col-rank    { width: 18%; min-width: 180px; }
 .col-model   { width: 24%; min-width: 200px; }
+.col-author  { width: 10%; min-width: 100px; }
 .col-tools   { width: 6%;  min-width: 60px; }
 .col-tags    { width: 14%; min-width: 140px; }
 
@@ -781,4 +1004,8 @@ const unrankedWorking = computed(() =>
   font-weight: 600;
 }
 
+/* ── JQL bar spacing within rankings ── */
+.jql-bar {
+  margin-bottom: 4px;
+}
 </style>

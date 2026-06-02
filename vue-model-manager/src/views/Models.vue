@@ -141,7 +141,7 @@
         :emit-update="false"
       >
         <template #default="{ item: model }">
-          <div class="vscroll-row" :class="{ 'row-removed': model._removed }" @click="selectedModel = model" role="button" :title="'View details for ' + model.name">
+          <div class="vscroll-row row-clickable" :class="{ 'row-removed': model._removed }" @click="selectedModel = model" role="button" :title="'View details for ' + model.name">
             <div class="vscroll-cell col-name">
               <div class="model-name" :title="model.name">{{ model.name }}</div>
               <div class="model-id-wrap">
@@ -261,23 +261,17 @@ const builderConditions = ref<BuilderCondition[]>([])
 const jql = useJqlFilter(
   computed(() => store.allModels),
   computed(() => store.allProviderNames),
+  computed(() => store.allAuthorNames),
 )
 const { pushHistory } = useSavedSearches()
 
 function readQueryFromUrl() {
-  try {
-    const params = new URLSearchParams(window.location.search)
-    const q = params.get('q')
-    if (q) jql.rawQuery.value = decodeURIComponent(q)
-  } catch { /* */ }
+  if (route.query.q && typeof route.query.q === 'string') {
+    jql.rawQuery.value = route.query.q
+  }
 }
 function writeQueryToUrl(q: string) {
-  try {
-    const url = new URL(window.location.href)
-    if (q.trim()) url.searchParams.set('q', encodeURIComponent(q.trim()))
-    else url.searchParams.delete('q')
-    window.history.replaceState(null, '', url.toString())
-  } catch { /* */ }
+  router.replace({ ...route, query: { ...route.query, q: q.trim() || undefined } })
 }
 onMounted(() => readQueryFromUrl())
 watch(() => jql.rawQuery.value, (q) => writeQueryToUrl(q))
