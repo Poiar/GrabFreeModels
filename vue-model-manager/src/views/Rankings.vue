@@ -305,7 +305,7 @@ async function handleCopy(id: string) {
   copyTimer = setTimeout(() => { copiedIds.delete(id) }, 1500)
 }
 
-const ROLES = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
+const ROLES = ['model', 'build', 'general', 'small_model', 'explore'] as const
 type Role = (typeof ROLES)[number]
 
 function formatRole(role: string): string {
@@ -767,8 +767,6 @@ const highlightedQuery = computed(() => {
 .rank-pill[data-role="general"]     { background: rgba(188,140,255,0.12); color: var(--purple); }
 .rank-pill[data-role="small_model"] { background: rgba(210,153,34,0.12); color: var(--orange); }
 .rank-pill[data-role="explore"]     { background: rgba(57,210,192,0.12);  color: var(--cyan); }
-.rank-pill[data-role="stable"]      { background: rgba(230,237,243,0.06); color: var(--text-dim); }
-
 /* Active role filter highlight */
 .rank-pill.rank-active                        { box-shadow: 0 0 0 2px currentColor, 0 0 8px rgba(255,255,255,0.08); font-size: 0.72rem; padding: 4px 11px; }
 
