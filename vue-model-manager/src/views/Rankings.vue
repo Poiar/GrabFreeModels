@@ -51,30 +51,35 @@
       <span class="result-count">{{ sortedItems.length }} result{{ sortedItems.length !== 1 ? 's' : '' }}</span>
     </div>
 
-    <div class="table-wrap">
-      <table v-if="sortedItems.length > 0">
-        <thead>
-          <tr>
-            <th class="sortable" :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
-              {{ formatRole(roleFilter) }} Rank <SortArrow :active="sortBy === 'rank'" :desc="sortDesc" />
-            </th>
-            <th class="sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
-              Model <SortArrow :active="sortBy === 'name'" :desc="sortDesc" />
-            </th>
-            <th class="sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
-              Provider <SortArrow :active="sortBy === 'provider'" :desc="sortDesc" />
-            </th>
-            <th>Status</th>
-            <th class="sortable" :class="{ active: sortBy === 'context' }" @click="setSort('context')">
-              Context <SortArrow :active="sortBy === 'context'" :desc="sortDesc" />
-            </th>
-            <th>Tools</th>
-            <th>Tags</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in pagedItems" :key="item.modelId">
-            <td>
+    <div class="vscroll-table">
+      <div class="vscroll-header-row">
+        <div class="vscroll-cell col-rank sortable" :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
+          {{ formatRole(roleFilter) }} Rank <SortArrow :active="sortBy === 'rank'" :desc="sortDesc" />
+        </div>
+        <div class="vscroll-cell col-model sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
+          Model <SortArrow :active="sortBy === 'name'" :desc="sortDesc" />
+        </div>
+        <div class="vscroll-cell col-provider sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
+          Provider <SortArrow :active="sortBy === 'provider'" :desc="sortDesc" />
+        </div>
+        <div class="vscroll-cell col-status">Status</div>
+        <div class="vscroll-cell col-context sortable" :class="{ active: sortBy === 'context' }" @click="setSort('context')">
+          Context <SortArrow :active="sortBy === 'context'" :desc="sortDesc" />
+        </div>
+        <div class="vscroll-cell col-tools">Tools</div>
+        <div class="vscroll-cell col-tags">Tags</div>
+      </div>
+
+      <RecycleScroller
+        v-if="sortedItems.length > 0"
+        :items="sortedItems"
+        :item-size="52"
+        key-field="modelId"
+        class="vscroll-body"
+      >
+        <template #default="{ item }">
+          <div class="vscroll-row">
+            <div class="vscroll-cell col-rank">
               <div class="rank-pills">
                 <span
                   v-for="r in item.rankings"
@@ -88,8 +93,8 @@
                   <span class="rp-role">{{ formatRole(r.role) }}</span>
                 </span>
               </div>
-            </td>
-            <td>
+            </div>
+            <div class="vscroll-cell col-model">
               <div class="model-name" :title="item.model?.name ?? item.modelId">{{ item.model?.name ?? item.modelId }}</div>
               <div class="model-id-wrap">
                 <span class="model-id" :title="item.modelId">{{ item.modelId }}</span>
@@ -97,32 +102,32 @@
                   {{ copiedIds.has(item.modelId) ? '✓' : '📋' }}
                 </button>
               </div>
-            </td>
-            <td>{{ item.model?.provider ?? '' }}</td>
-            <td>
+            </div>
+            <div class="vscroll-cell col-provider">{{ item.model?.provider ?? '' }}</div>
+            <div class="vscroll-cell col-status">
               <span class="badge" :class="`badge-${item.model?.status?.result ?? ''}`">
                 {{ formatStatus(item.model?.status?.result) }}
               </span>
-            </td>
-            <td>
+            </div>
+            <div class="vscroll-cell col-context">
               <span class="context-badge" v-if="item.model?.context_length">
                 {{ fmtContext(item.model.context_length) }}
               </span>
-            </td>
-            <td>
+            </div>
+            <div class="vscroll-cell col-tools">
               <span v-if="item.model?.supports_tools === true" class="tool-badge tool-yes" title="Supports tool calling">✓</span>
               <span v-else-if="item.model?.supports_tools === false" class="tool-badge tool-no" title="No tool calling">✗</span>
               <span v-else class="tool-badge tool-unknown">—</span>
-            </td>
-            <td>
+            </div>
+            <div class="vscroll-cell col-tags">
               <div class="best-for-tags">
                 <span v-for="tag in (item.model?.best_for ?? []).slice(0, 3)" :key="tag" class="tag">{{ tag }}</span>
                 <span v-if="(item.model?.best_for?.length ?? 0) > 3" class="tag">+{{ (item.model?.best_for?.length ?? 0) - 3 }}</span>
               </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+          </div>
+        </template>
+      </RecycleScroller>
 
       <div v-else class="empty-state">
         <div class="empty-state-inner">
@@ -158,34 +163,14 @@
         </div>
       </div>
     </div>
-
-    <div class="pagination" v-if="sortedItems.length > 0 && totalPages > 1">
-      <button class="pg-btn" :disabled="page === 1" @click="page = 1" title="First">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
-      </button>
-      <button class="pg-btn" :disabled="page === 1" @click="page--" title="Previous">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <span class="pg-info">{{ page }} / {{ totalPages }} <span class="pg-total">({{ sortedItems.length }} rows)</span></span>
-      <button class="pg-btn" :disabled="page === totalPages" @click="page++" title="Next">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-      <button class="pg-btn" :disabled="page === totalPages" @click="page = totalPages" title="Last">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-      </button>
-      <select v-model.number="perPage" class="pg-per-page">
-        <option :value="10">10 / page</option>
-        <option :value="25">25 / page</option>
-        <option :value="50">50 / page</option>
-        <option :value="0">All</option>
-      </select>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, reactive, h, defineComponent } from 'vue'
+import { ref, computed, reactive, h, defineComponent } from 'vue'
 import { useModelsStore } from '@/store/models'
+import { RecycleScroller } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 const SortArrow = defineComponent({
   props: { active: Boolean, desc: Boolean },
@@ -354,21 +339,6 @@ const unrankedWorking = computed(() =>
   store.workingModels.filter(m => !m._removed && !rankedIds.value.has(m.id) && !store.isModelProviderUsedUp(m.id))
 )
 
-const perPage = ref(25)
-const page = ref(1)
-
-watch([sortedItems, perPage, roleFilter], () => { page.value = 1 })
-
-const totalPages = computed(() => {
-  if (perPage.value <= 0) return 1
-  return Math.max(1, Math.ceil(sortedItems.value.length / perPage.value))
-})
-
-const pagedItems = computed(() => {
-  if (perPage.value <= 0) return sortedItems.value
-  const start = (page.value - 1) * perPage.value
-  return sortedItems.value.slice(start, start + perPage.value)
-})
 </script>
 
 <style scoped>
@@ -512,42 +482,76 @@ const pagedItems = computed(() => {
   font-weight: 500;
 }
 
-/* ── Table ── */
-.table-wrap {
-  overflow-x: auto;
+/* ── Virtual scroll table ── */
+.vscroll-table {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 260px);
+  min-height: 300px;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.82rem;
-}
-
-thead th {
-  text-align: left;
-  padding: 8px 12px;
+.vscroll-header-row {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
   user-select: none;
 }
 
-thead th.sortable {
+.vscroll-header-row .sortable {
   cursor: pointer;
   transition: color 0.15s;
 }
 
-thead th.sortable:hover {
+.vscroll-header-row .sortable:hover {
   color: var(--text);
 }
 
-thead th.active {
+.vscroll-header-row .active {
   color: var(--accent);
 }
+
+.vscroll-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.vscroll-row {
+  display: flex;
+  align-items: center;
+  height: 52px;
+  border-bottom: 1px solid var(--border-subtle, rgba(255,255,255,0.04));
+  transition: background 0.1s;
+  font-size: 0.82rem;
+}
+
+.vscroll-row:hover {
+  background: var(--bg-hover, rgba(255,255,255,0.02));
+}
+
+.vscroll-cell {
+  padding: 0 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vscroll-header-row .vscroll-cell {
+  padding: 8px 12px;
+}
+
+.col-rank    { flex: 0 0 200px; min-width: 160px; }
+.col-model   { flex: 1 1 260px; min-width: 180px; }
+.col-provider { flex: 0 0 120px; min-width: 90px; }
+.col-status  { flex: 0 0 110px; min-width: 90px; }
+.col-context { flex: 0 0 80px;  min-width: 70px; }
+.col-tools   { flex: 0 0 60px;  min-width: 50px; }
+.col-tags    { flex: 1 1 160px; min-width: 120px; overflow: visible; }
 
 .sort-arrow {
   font-size: 0.65rem;
@@ -557,20 +561,6 @@ thead th.active {
 
 .sort-arrow.active {
   opacity: 1;
-}
-
-tbody tr {
-  border-bottom: 1px solid var(--border-subtle, rgba(255,255,255,0.04));
-  transition: background 0.1s;
-}
-
-tbody tr:hover {
-  background: var(--bg-hover, rgba(255,255,255,0.02));
-}
-
-tbody td {
-  padding: 8px 12px;
-  vertical-align: top;
 }
 
 /* ── Rank pills ── */
@@ -847,61 +837,4 @@ tbody td {
   font-weight: 600;
 }
 
-/* ── Pagination ── */
-.pagination {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 20px;
-  justify-content: center;
-}
-
-.pg-btn {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-}
-
-.pg-btn:hover:not(:disabled) {
-  color: var(--text);
-  border-color: var(--accent);
-  background: var(--bg-hover, rgba(255,255,255,0.04));
-}
-
-.pg-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.pg-info {
-  font-size: 0.75rem;
-  color: var(--text-dim);
-  padding: 0 8px;
-  font-weight: 500;
-}
-
-.pg-total {
-  color: var(--text-muted);
-  font-size: 0.68rem;
-}
-
-.pg-per-page {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 5px 8px;
-  border-radius: var(--radius-sm);
-  font-size: 0.7rem;
-  outline: none;
-  cursor: pointer;
-  margin-left: 6px;
-}
 </style>
