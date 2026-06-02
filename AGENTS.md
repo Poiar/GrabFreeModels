@@ -48,8 +48,9 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 
 - The primary data store is Neon Serverless Postgres, accessed via an Express API on port 3001.
 - Connection via `DATABASE_URL` (pooler endpoint) loaded from `.env` — see `.env.example` for template.
-- Schema: `db/schema.sql` — v2 (master_models + datapoint_providers + datapoint_models). See `schema-v2` skill. Run `npm run db:migrate` to load data.
+- Schema: `db/schema.sql` — v2 (master_models + datapoint_providers + datapoint_models). See `schema-v2` skill.
 - Run `npm run db:ping` to verify Neon connectivity.
+- Run `npm run db:export` to backup Neon → `available-models.json`.
 
 ## API Server
 
@@ -75,8 +76,6 @@ All scripts live in `scripts/`. Each script has a corresponding skill — see th
 | `validate-jsonc.js` | Validate opencode.jsonc JSONC syntax: `node scripts/validate-jsonc.js [--short]` |
 | `get-auth-key.js` | Read a provider API key from auth.json: `node scripts/get-auth-key.js --provider <name> [--list]` |
 | `sync-auth-keys.js` | Sync API keys from auth.json into opencode.jsonc: `node scripts/sync-auth-keys.js [--apply] [--check]` |
-| `migrate-to-pg.js` | Load `available-models.json` into PostgreSQL (normalized tables) |
-| `migrate-modelsdev.js` | Load `modelsdev-free-models.json` into PostgreSQL (346 new models) |
 | `export-from-pg.js` | Dump PostgreSQL → `available-models.json` (module + CLI) |
 | `sync-models.js` | Fetch latest free models from providers, diff against DB. `--apply` inserts new + flags removed |
 | `validate-free-models.js` | Read/write DB. Tests models against APIs, auto re-ranks on `--apply` |

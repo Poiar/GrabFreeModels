@@ -1,7 +1,10 @@
 require('dotenv').config();
 const { Pool } = require('pg');
 
-const connectionString = process.env.DATABASE_URL;
+let connectionString = process.env.DATABASE_URL;
+if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
+  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+}
 
 const isNeon = connectionString?.includes('neon.tech');
 
