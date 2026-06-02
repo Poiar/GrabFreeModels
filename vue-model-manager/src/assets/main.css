@@ -249,6 +249,9 @@ body {
 }
 
 .nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 1.1rem;
   position: relative;
   z-index: 1;
@@ -957,7 +960,7 @@ tr:hover td { background: var(--bg-hover); }
 
 .qb-field { min-width: 110px; }
 .qb-op { min-width: 90px; }
-.qb-value { min-width: 130px; flex: 1; }
+.qb-value { min-width: 130px; flex: 0 1 200px; }
 
 .qb-input {
   flex: 1;
@@ -1283,15 +1286,15 @@ tr:hover td { background: var(--bg-hover); }
 .ss-trigger {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 6px 10px;
+  padding: 4px 8px;
   border-radius: var(--radius-sm);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   cursor: pointer;
-  min-height: 32px;
+  min-height: 28px;
   overflow: hidden;
   transition: all 0.2s;
 }
@@ -1333,28 +1336,29 @@ tr:hover td { background: var(--bg-hover); }
   position: absolute;
   top: 100%;
   left: 0;
-  right: 0;
+  min-width: 160px;
+  max-width: 280px;
   background: var(--bg-card);
   border: 1px solid var(--accent);
   border-top: none;
-  border-radius: 0 0 var(--radius) var(--radius);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
   box-shadow: var(--shadow-xl);
   z-index: 200;
-  max-height: 240px;
+  max-height: 200px;
   display: flex;
   flex-direction: column;
 }
 
-.ss-search-wrap { padding: 6px; border-bottom: 1px solid var(--border-light); }
+.ss-search-wrap { padding: 4px; border-bottom: 1px solid var(--border-light); }
 
 .ss-search {
   width: 100%;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 5px 10px;
+  padding: 3px 8px;
   border-radius: var(--radius-sm);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   outline: none;
   box-sizing: border-box;
   transition: all 0.2s;
@@ -1367,10 +1371,10 @@ tr:hover td { background: var(--bg-hover); }
 .ss-opt {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
+  gap: 6px;
+  padding: 4px 10px;
   cursor: pointer;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   transition: background 0.1s;
   color: var(--text);
 }
@@ -1379,10 +1383,10 @@ tr:hover td { background: var(--bg-hover); }
 .ss-opt.selected { background: var(--accent-subtle); color: var(--accent); }
 
 .ss-check {
-  font-size: 0.68rem;
+  font-size: 0.6rem;
   font-weight: 700;
   color: var(--accent);
-  width: 14px;
+  width: 12px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -1859,7 +1863,7 @@ th.sortable.active .sort-indicator { opacity: 1; }
 .vscroll-row {
   display: flex;
   align-items: center;
-  min-height: 56px;
+  height: 56px;
   transition: background 0.15s;
   border-bottom: 1px solid var(--border-light);
 }

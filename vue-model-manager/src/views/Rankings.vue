@@ -104,6 +104,8 @@
     <QueryBuilder
       :conditions="builderConditions"
       :jql-query="jql.rawQuery.value ?? ''"
+      :provider-names="rankedProviderNames"
+      :author-names="rankedAuthorNames"
       @change="onBuilderChange"
       @clear="onBuilderClear"
     />
@@ -115,7 +117,7 @@
             v-for="role in ROLES"
             :key="role"
             :class="['status-btn', { active: roleFilter === role }]"
-            @click="roleFilter = role"
+            @click="onRoleClick(role)"
           >
             {{ formatRole(role) }}
           </button>
@@ -136,12 +138,12 @@
       <span class="result-count">{{ sortedItems.length }} result{{ sortedItems.length !== 1 ? 's' : '' }}</span>
     </div>
 
-    <div class="vscroll-table">
+    <div class="table-wrap vscroll-table">
       <div class="vscroll-header-row">
         <div class="vscroll-header-cell col-rank sortable" :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
-          {{ formatRole(roleFilter) }} Rank <SortArrow :active="sortBy === 'rank'" :desc="sortDesc" />
+          Rank <SortArrow :active="sortBy === 'rank'" :desc="sortDesc" />
         </div>
-        <div class="vscroll-header-cell col-model sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
+        <div class="vscroll-header-cell col-name sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
           Model <SortArrow :active="sortBy === 'name'" :desc="sortDesc" />
         </div>
         <div class="vscroll-header-cell col-author sortable" :class="{ active: sortBy === 'author' }" @click="setSort('author')">
@@ -154,20 +156,20 @@
         <div class="vscroll-header-cell col-context sortable" :class="{ active: sortBy === 'context' }" @click="setSort('context')">
           Context <SortArrow :active="sortBy === 'context'" :desc="sortDesc" />
         </div>
-        <div class="vscroll-header-cell col-tools">Tools</div>
-        <div class="vscroll-header-cell col-tags">Tags</div>
+        <div class="vscroll-header-cell col-detail">Details</div>
       </div>
 
-      <RecycleScroller
+      <DynamicScroller
         v-if="sortedItems.length > 0"
         ref="scrollerRef"
         :items="sortedItems"
-        :item-size="56"
+        :min-item-size="56"
         key-field="modelId"
         class="vscroll-body"
       >
-        <template #default="{ item }">
-          <div class="vscroll-row">
+        <template #default="{ item, active }">
+          <DynamicScrollerItem :item="item" :active="active">
+          <div class="vscroll-row row-clickable" :class="{ 'row-removed': item.model?._removed }" @click="selectedModel = (item.model ?? null)" role="button" :title="'View details for ' + (item.model?.name ?? item.modelId)">
             <div class="vscroll-cell col-rank">
               <div class="rank-pills">
                 <span
@@ -183,7 +185,7 @@
                 </span>
               </div>
             </div>
-            <div class="vscroll-cell col-model">
+            <div class="vscroll-cell col-name">
               <div class="model-name" :title="item.model?.name ?? item.modelId">{{ item.model?.name ?? item.modelId }}</div>
               <div class="model-id-wrap">
                 <span class="model-id" :title="item.modelId">{{ item.modelId }}</span>
@@ -193,31 +195,32 @@
               </div>
             </div>
             <div class="vscroll-cell col-author">{{ item.model?.author ?? '' }}</div>
-            <div class="vscroll-cell col-provider">{{ item.model?.provider ?? '' }}</div>
+            <div class="vscroll-cell col-provider">
+              <span>{{ item.model?.provider ?? '' }}</span>
+              <span v-if="item.model && store.isModelProviderUsedUp(item.modelId)" class="used-up-icon" title="Provider used up for this month">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </span>
+            </div>
             <div class="vscroll-cell col-status">
               <span class="badge" :class="`badge-${item.model?.status?.result ?? ''}`">
                 {{ formatStatus(item.model?.status?.result) }}
               </span>
             </div>
             <div class="vscroll-cell col-context">
-              <span class="context-badge" v-if="item.model?.context_length">
-                {{ fmtContext(item.model.context_length) }}
-              </span>
+              <span class="context-len">{{ item.model?.context_length != null ? formatContext(item.model.context_length) : '—' }}</span>
             </div>
-            <div class="vscroll-cell col-tools">
-              <span v-if="item.model?.supports_tools === true" class="tool-badge tool-yes" title="Supports tool calling">✓</span>
-              <span v-else-if="item.model?.supports_tools === false" class="tool-badge tool-no" title="No tool calling">✗</span>
-              <span v-else class="tool-badge tool-unknown">—</span>
-            </div>
-            <div class="vscroll-cell col-tags">
+            <div class="vscroll-cell col-detail">
               <div class="best-for-tags">
                 <span v-for="tag in (item.model?.best_for ?? []).slice(0, 3)" :key="tag" class="tag">{{ tag }}</span>
                 <span v-if="(item.model?.best_for?.length ?? 0) > 3" class="tag">+{{ (item.model?.best_for?.length ?? 0) - 3 }}</span>
+                <span v-if="item.model?.supports_tools === true" class="tag tool-tag">Tools ✓</span>
               </div>
+              <div class="detail-text" :title="item.model?.status?.detail ?? ''">{{ item.model?.status?.detail ?? '' }}</div>
             </div>
           </div>
+          </DynamicScrollerItem>
         </template>
-      </RecycleScroller>
+      </DynamicScroller>
 
       <div v-else class="empty-state">
         <div class="empty-state-inner">
@@ -227,6 +230,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Detail Panel -->
+    <ModelDetail :model="selectedModel" @close="selectedModel = null" />
 
     <!-- Working but unranked -->
     <div v-if="unrankedWorking.length > 0" class="unranked-section">
@@ -260,13 +266,14 @@
 import { ref, computed, reactive, watch, onMounted, onUnmounted, h, defineComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useModelsStore } from '@/store/models'
-import { RecycleScroller } from 'vue-virtual-scroller'
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import { useJqlFilter } from '@/composables/useJqlFilter'
 import { useSavedSearches } from '@/composables/useSavedSearches'
 import type { FilterToken, SortSpec } from '@/composables/useJqlFilter'
 import type { Model } from '@/types'
 import type { BuilderCondition } from '@/components/QueryBuilder.vue'
 import QueryBuilder from '@/components/QueryBuilder.vue'
+import ModelDetail from '@/components/ModelDetail.vue'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 type ScrollerExposed = { scrollToPosition: (pos: number) => void }
@@ -312,6 +319,9 @@ function formatRole(role: string): string {
   return role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
+const fmtCompact = new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 })
+function formatContext(n: number): string { return fmtCompact.format(n) }
+
 function formatStatus(s: string | undefined): string {
   if (!s) return '—'
   if (s === 'rate_limited') return 'Rate-limited'
@@ -356,10 +366,27 @@ const sortBy = ref('rank')
 const sortDesc = ref(false)
 const builderConditions = ref<BuilderCondition[]>([])
 
+const rankedProviderNames = computed(() => {
+  const set = new Set<string>()
+  for (const mr of flatRankings.value) {
+    const m = store.getModelById(mr.modelId)
+    if (m) set.add(m.provider)
+  }
+  return Array.from(set).sort()
+})
+const rankedAuthorNames = computed(() => {
+  const set = new Set<string>()
+  for (const mr of flatRankings.value) {
+    const m = store.getModelById(mr.modelId)
+    if (m?.author) set.add(m.author)
+  }
+  return Array.from(set).sort()
+})
+
 const jql = useJqlFilter(
   computed(() => store.allModels),
-  computed(() => store.allProviderNames),
-  computed(() => store.allAuthorNames),
+  rankedProviderNames,
+  rankedAuthorNames,
 )
 const { pushHistory } = useSavedSearches()
 
@@ -367,12 +394,19 @@ function readQueryFromUrl() {
   if (route.query.q && typeof route.query.q === 'string') {
     jql.rawQuery.value = route.query.q
   }
+  if (route.query.role && typeof route.query.role === 'string') {
+    const r = route.query.role.toLowerCase() as Role
+    if (ROLES.includes(r)) roleFilter.value = r
+  }
 }
 function writeQueryToUrl(q: string) {
-  router.replace({ ...route, query: { ...route.query, q: q.trim() || undefined } })
+  const query: Record<string, string | undefined> = { q: q.trim() || undefined }
+  if (roleFilter.value !== 'model') query.role = roleFilter.value
+  router.replace({ ...route, query })
 }
 onMounted(() => readQueryFromUrl())
 watch(() => jql.rawQuery.value, (q) => writeQueryToUrl(q))
+watch(() => roleFilter.value, () => writeQueryToUrl(jql.rawQuery.value ?? ''))
 
 let historyTimer: ReturnType<typeof setTimeout> | null = null
 watch(() => jql.rawQuery.value, (q) => {
@@ -388,6 +422,13 @@ watch(jql.sortSpec, (spec: SortSpec | null) => {
 watch([() => jql.rawQuery.value, sortBy, sortDesc, roleFilter], () => {
   scrollerRef.value?.scrollToPosition(0)
 })
+
+function onRoleClick(role: Role) {
+  roleFilter.value = role
+  builderConditions.value = []
+  sortBy.value = 'rank'
+  sortDesc.value = false
+}
 
 const allTokens = computed<FilterToken[]>(() =>
   jql.parsed.value.expression.flat().filter(t => t.field !== '_text'),
@@ -484,6 +525,10 @@ const sortedItems = computed(() => {
         break
       case 'name':
         cmp = (a.model?.name ?? '').localeCompare(b.model?.name ?? '')
+        break
+      case 'author':
+        cmp = (a.model?.author ?? '').localeCompare(b.model?.author ?? '')
+        if (cmp === 0) cmp = (a.model?.provider ?? '').localeCompare(b.model?.provider ?? '')
         break
       case 'provider':
         cmp = (a.model?.provider ?? '').localeCompare(b.model?.provider ?? '')
@@ -709,16 +754,44 @@ const highlightedQuery = computed(() => {
 }
 
 /* ── Rankings vscroll overrides ── */
-:deep(.vscroll-table) {
+.vscroll-table {
   height: calc(100vh - 260px);
   min-height: 300px;
 }
 
-.col-rank    { width: 18%; min-width: 180px; }
-.col-model   { width: 24%; min-width: 200px; }
-.col-author  { width: 10%; min-width: 100px; }
-.col-tools   { width: 6%;  min-width: 60px; }
-.col-tags    { width: 14%; min-width: 140px; }
+.vscroll-row {
+  min-height: 56px;
+  height: auto;
+  align-items: flex-start;
+  padding: 4px 0;
+}
+
+.vscroll-cell {
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  min-height: 48px;
+}
+
+.col-status,
+.col-context,
+.col-tools {
+  align-items: center;
+}
+
+:deep(.vscroll-row) {
+  cursor: pointer;
+}
+
+.col-rank    { width: 16%; min-width: 140px; }
+.col-name    { width: 24%; min-width: 180px; }
+.col-author  { width: 10%; min-width: 80px; }
+.col-provider { width: 12%; min-width: 100px; }
+.col-status  { width: 9%;  min-width: 80px; }
+.col-context { width: 7%;  min-width: 60px; }
+.col-tools   { width: 5%;  min-width: 50px; }
+.col-detail  { width: 17%; min-width: 160px; }
 
 .sort-arrow {
   font-size: 0.65rem;

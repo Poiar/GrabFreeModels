@@ -44,12 +44,25 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - **Code examples must earn their place**: If the pattern is already taught elsewhere or is self-evident from the rules, don't include it.
 - **Frontmatter stays concise**: Skill descriptions mention *what* triggers them, not implementation details.
 
+## PostgreSQL Database
+
+- The primary data store is PostgreSQL (Docker), accessed via an Express API on port 3001.
+- Schema: `db/schema.sql` (8 tables + metadata).
+- Run `npm run db:start` to start PostgreSQL + API, `npm run db:migrate` to load data.
+
+## API Server
+
+- `server/index.js` — Express app serving `GET /api/data` (full ModelsData) and `GET /api/health`.
+- The Vue dev server proxies `/api` → `localhost:3001`.
+- The Vue store fetches from `/api/data` instead of the JSON file directly.
+
 ## Vue Project
 
-- `vue-model-manager/` — Vue 3 + Vite + Pinia SPA that visualizes `available-models.json`
-- `npm run dev` starts dev server at `http://localhost:5173`
-- `npm run build` produces production build in `dist/`
-- Consult `vue-gotchas` skill when writing or reviewing Vue code
+- `vue-model-manager/` — Vue 3 + Vite + Pinia SPA that visualizes model data from the API.
+- `npm run dev` starts dev server at `http://localhost:5173` (proxies `/api` to port 3001).
+- `npm run dev:all` starts DB + API + Vite together.
+- `npm run build` produces production build in `dist/`.
+- Consult `vue-gotchas` skill when writing or reviewing Vue code.
 
 ## Scripts
 
@@ -61,3 +74,5 @@ All scripts live in `scripts/`. Each script has a corresponding skill — see th
 | `validate-jsonc.js` | Validate opencode.jsonc JSONC syntax: `node scripts/validate-jsonc.js [--short]` |
 | `get-auth-key.js` | Read a provider API key from auth.json: `node scripts/get-auth-key.js --provider <name> [--list]` |
 | `sync-auth-keys.js` | Sync API keys from auth.json into opencode.jsonc: `node scripts/sync-auth-keys.js [--apply] [--check]` |
+| `migrate-to-pg.js` | Load `available-models.json` into PostgreSQL (normalized tables) |
+| `export-from-pg.js` | Dump PostgreSQL → `available-models.json` (for git/backward compat) |

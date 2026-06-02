@@ -56,6 +56,7 @@ const props = defineProps<{
   options: Opt[]
   placeholder?: string
   multiple?: boolean
+  startOpen?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -107,6 +108,9 @@ function onOutside(e: MouseEvent) {
   if (rootRef.value && !rootRef.value.contains(e.target as Node)) isOpen.value = false
 }
 
-onMounted(() => document.addEventListener('mousedown', onOutside))
+onMounted(() => {
+  document.addEventListener('mousedown', onOutside)
+  if (props.startOpen) toggle()
+})
 onUnmounted(() => document.removeEventListener('mousedown', onOutside))
 </script>

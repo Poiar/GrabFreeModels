@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: grabfreemodels-db
+    environment:
+      POSTGRES_USER: gfm
+      POSTGRES_PASSWORD: gfm
+      POSTGRES_DB: grabfreemodels
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gfm -d grabfreemodels"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: grabfreemodels-api
+    environment:
+      PGHOST: postgres
+      PGUSER: gfm
+      PGPASSWORD: gfm
+      PGDATABASE: grabfreemodels
+      API_PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

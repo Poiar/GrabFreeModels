@@ -28,6 +28,9 @@
             :options="valueOptions"
             placeholder="Select…"
             class="qb-value"
+            :start-open="true"
+            :key="'ss-' + field"
+            @change="submit"
           />
           <MultiSelect
             v-else-if="isMultiOp"
@@ -38,11 +41,6 @@
           />
           <input v-else v-model="value" type="text" class="qb-input qb-value" :placeholder="valuePlaceholder" @keydown.enter="submit" />
         </template>
-
-        <!-- Add -->
-        <button class="qb-add" :disabled="!canAdd" @click="submit" title="Add condition">
-          <span class="qb-add-icon">+</span><span class="qb-add-label">Add</span>
-        </button>
       </div>
 
       <!-- Saved / History / Import-Export row -->
@@ -112,7 +110,7 @@ export interface BuilderCondition {
   joinOr?: boolean  // if true, this condition is OR'd with the previous; default AND
 }
 
-const props = defineProps<{ conditions: BuilderCondition[]; jqlQuery?: string }>()
+const props = defineProps<{ conditions: BuilderCondition[]; jqlQuery?: string; providerNames?: string[]; authorNames?: string[] }>()
 const emit = defineEmits<{ change: [c: BuilderCondition[]]; clear: [] }>()
 
 const { saved: savedSearches, history, hasHistory, save, remove: removeSaved, clearHistory } = useSavedSearches()
@@ -150,7 +148,13 @@ const availableOps = computed(() => {
   return o
 })
 
-const valueOptions = computed(() => fieldDef.value?.type === 'select' && fieldDef.value.options ? fieldDef.value.options : [])
+const valueOptions = computed(() => {
+  const fd = fieldDef.value
+  if (fd?.type !== 'select') return []
+  if (fd.key === 'provider' && props.providerNames) return props.providerNames.map(n => ({ value: n, label: n }))
+  if (fd.key === 'author' && props.authorNames) return props.authorNames.map(n => ({ value: n, label: n }))
+  return fd.options ?? []
+})
 const valuePlaceholder = computed(() => { const f = fieldDef.value; return f?.type === 'number' ? 'Number…' : `${f?.label ?? 'Value'}…` })
 const canAdd = computed(() => {
   if (!field.value || !op.value) return false
@@ -159,8 +163,9 @@ const canAdd = computed(() => {
   return true
 })
 
-function onFieldChange() { op.value = ''; value.value = ''; multiValue.value = [] }
+function onFieldChange() { op.value = ':'; value.value = ''; multiValue.value = [] }
 watch(op, () => { value.value = ''; multiValue.value = [] })
+watch(multiValue, (v) => { if (isMultiOp.value && v.length > 0) submit() })
 
 function submit() {
   if (!canAdd.value) return

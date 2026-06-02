@@ -201,7 +201,7 @@ export const useModelsStore = defineStore('models', () => {
     loading.value = true
     error.value = null
     try {
-      const resp = await fetchWithRetry('/available-models.json', abortController.signal)
+      const resp = await fetchWithRetry('/api/data', abortController.signal)
       data.value = await resp.json()
       lastLoaded.value = new Date()
       isStale.value = false

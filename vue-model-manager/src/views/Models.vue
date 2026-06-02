@@ -105,6 +105,8 @@
     <QueryBuilder
       :conditions="builderConditions"
       :jql-query="jql.rawQuery.value ?? ''"
+      :provider-names="store.allProviderNames"
+      :author-names="store.allAuthorNames"
       @change="onBuilderChange"
       @clear="onBuilderClear"
     />

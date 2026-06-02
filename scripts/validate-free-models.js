@@ -15,6 +15,15 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const { Pool } = require('pg');
+
+const DB_POOL = new Pool({
+  host: process.env.PGHOST || 'localhost',
+  port: parseInt(process.env.PGPORT || '5432'),
+  user: process.env.PGUSER || 'gfm',
+  password: process.env.PGPASSWORD || 'gfm',
+  database: process.env.PGDATABASE || 'grabfreemodels',
+});
 
 const args = process.argv.slice(2);
 const APPLY = args.includes('--apply');
@@ -29,11 +38,91 @@ for (let i = 0; i < args.length; i++) {
 
 const REPO_ROOT = path.join(__dirname, '..');
 const MODELS_FILE = path.join(REPO_ROOT, 'available-models.json');
-const AUTH_FILE = process.env.GFM_AUTH_FILE
-  || path.join(process.env.XDG_DATA_HOME || path.join(process.env.HOME || process.env.USERPROFILE, '.local', 'share'), 'opencode', 'auth.json');
-
+const AUTH_FILE = path.join(process.env.HOME || process.env.USERPROFILE || 'C:\\Users\\pc', '.local', 'share', 'opencode', 'auth.json');
 const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
-let json = JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8'));
+
+// Load data from PostgreSQL
+let json = null;
+async function loadFromDb() {
+  const { rows: providers } = await DB_POOL.query('SELECT * FROM providers ORDER BY name');
+  const { rows: authors } = await DB_POOL.query('SELECT * FROM authors ORDER BY name');
+  const { rows: models } = await DB_POOL.query(`
+    SELECT m.*, a.name AS author_name FROM models m LEFT JOIN authors a ON a.id = m.author_id ORDER BY m.name
+  `);
+  const { rows: providerModels } = await DB_POOL.query(`
+    SELECT pm.*, p.name AS provider_name, p.slug AS provider_slug
+    FROM provider_models pm JOIN providers p ON p.id = pm.provider_id ORDER BY pm.full_id
+  `);
+  const { rows: irows } = await DB_POOL.query('SELECT model_id, input_type FROM model_input_types ORDER BY model_id');
+  const { rows: orows } = await DB_POOL.query('SELECT model_id, output_type FROM model_output_types ORDER BY model_id');
+  const { rows: frows } = await DB_POOL.query('SELECT model_id, feature_type, value FROM model_features ORDER BY model_id');
+  const { rows: mrows } = await DB_POOL.query('SELECT key, value::text FROM metadata ORDER BY key');
+
+  const modelMap = new Map(); for (const m of models) modelMap.set(m.id, m);
+  const imap = new Map(); for (const r of irows) { if (!imap.has(r.model_id)) imap.set(r.model_id, []); imap.get(r.model_id).push(r.input_type); }
+  const omap = new Map(); for (const r of orows) { if (!omap.has(r.model_id)) omap.set(r.model_id, []); omap.get(r.model_id).push(r.output_type); }
+  const fmap = new Map(); for (const r of frows) { if (!fmap.has(r.model_id)) fmap.set(r.model_id, { tag: [], best_for: [] }); fmap.get(r.model_id)[r.feature_type].push(r.value); }
+  const meta = {}; for (const r of mrows) { try { meta[r.key] = JSON.parse(r.value); } catch { meta[r.key] = r.value; } }
+
+  // Build _test_summary from provider_models statuses
+  const ts = { working: [], rate_limited: [], broken: [], untested: [], not_found: [] };
+  const outputModels = providerModels.map(pm => {
+    const m = modelMap.get(pm.model_id); if (!m) return null;
+    const mid = pm.full_id;
+    const r = pm.status_result || 'untested';
+    if (ts[r]) ts[r].push(mid); else ts.untested.push(mid);
+    return {
+      id: mid, name: m.name, provider: pm.provider_name, author: m.author_name || null,
+      context_length: m.context_length || null,
+      input_price_per_million: Number(m.input_price_per_million) || 0,
+      output_price_per_million: Number(m.output_price_per_million) || 0,
+      is_free: m.is_free, supports_tools: m.supports_tools,
+      supports_reasoning: m.supports_reasoning,
+      output_limit: m.output_limit || null, temperature: m.temperature,
+      open_weights: m.open_weights, family: m.family || null,
+      knowledge_cutoff: m.knowledge_cutoff || null,
+      releaseDate: m.release_date ? (''+m.release_date).slice(0,10) : null,
+      lastUpdated: m.last_updated ? (''+m.last_updated).slice(0,10) : null,
+      tags: fmap.get(m.id)?.tag || [],
+      best_for: fmap.get(m.id)?.best_for || [],
+      input_types: imap.get(m.id) || [],
+      output_types: omap.get(m.id) || [],
+      status: { tested: pm.status_tested || null, result: pm.status_result || 'untested', detail: pm.status_detail || null },
+      last_success: pm.last_success || null,
+    };
+  }).filter(Boolean);
+
+  json = {
+    models: outputModels,
+    _test_summary: { date: new Date().toISOString().slice(0, 10), results: ts },
+    _role_rankings: meta._role_rankings || { description: '', model: [], build: [], general: [], small_model: [], explore: [], stable: [] },
+    _provider_usage: meta._provider_usage || { description: '' },
+    _known_issues: meta._known_issues || { description: '', issues: [] },
+    _validation_method: meta._validation_method || { description: '' },
+  };
+}
+
+async function saveToDbAndExport() {
+  // Update each model's status in provider_models
+  for (const m of json.models) {
+    await DB_POOL.query(
+      `UPDATE provider_models SET
+         status_result = $1, status_tested = $2, status_detail = $3, last_success = $4
+       WHERE full_id = $5`,
+      [m.status.result, m.status.tested, m.status.detail, m.last_success || null, m.id]
+    );
+  }
+  // Update _test_summary date in metadata
+  await DB_POOL.query(
+    `INSERT INTO metadata (key, value) VALUES ('_test_summary', $1)
+     ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+    [JSON.stringify(json._test_summary)]
+  );
+  // Export to JSON
+  const exporter = require('./export-from-pg');
+  await exporter();
+  console.log(`Exported to ${MODELS_FILE}`);
+}
 
 // --- Helpers ---
 function httpsGet(url, headers) {
@@ -156,52 +245,53 @@ async function testModel(apiModelId, phase, apiKey, apiUrl) {
   return results;
 }
 
-// --- Determine which models to test ---
-const TEST_AGAIN_AFTER_DAYS = 7;
-const cutoff = new Date();
-cutoff.setDate(cutoff.getDate() - TEST_AGAIN_AFTER_DAYS);
-const cutoffStr = cutoff.toISOString().slice(0, 10);
-
-let toTest;
-if (specificModels && specificModels.length > 0) {
-  toTest = json.models.filter(m => specificModels.includes(m.id));
-} else {
-  toTest = json.models.filter(m => {
-    if (!m.is_free) return false;
-    const result = m.status.result;
-    if (result === 'broken' || result === 'untested') return true;
-    if (result === 'rate_limited') {
-      if (m.status.skip_retest === true && !FORCE) return false;
-      // Re-test rate-limited models, but skip if tested very recently (< 1 day) to avoid API waste
-      if (!FORCE) {
-        const tested = m.status.tested || '';
-        const oneDayAgo = new Date();
-        oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-        if (tested >= oneDayAgo.toISOString().slice(0, 10)) return false;
-      }
-      return true;
-    }
-    if (result === 'working' && FORCE) return true;
-    if (result === 'working') {
-      const tested = m.status.tested || '';
-      const lastSuccess = m.last_success || '';
-      return !(tested >= cutoffStr && lastSuccess >= cutoffStr);
-    }
-    return false;
-  });
-}
-
-if (CODING_ONLY) {
-  // Models useful for sub-agent / coding / agentic roles
-  toTest = toTest.filter(m => m.best_for && m.best_for.some(f =>
-    /\b(cod|programm|agentic|reasoning|tool use|fast coding|fast responses?|lightweight|small tasks|function calling|code generation|code review|refactoring|thinking)\b/i.test(f)
-  ));
-}
-
-if (toTest.length === 0) { console.log('No models to test.'); process.exit(0); }
-
-// --- Run ---
+// --- Load from DB ---
 (async () => {
+  await loadFromDb();
+  console.log(`Loaded ${json.models.length} models from PostgreSQL`);
+
+  // --- Determine which models to test ---
+  const TEST_AGAIN_AFTER_DAYS = 7;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - TEST_AGAIN_AFTER_DAYS);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+  let toTest;
+  if (specificModels && specificModels.length > 0) {
+    toTest = json.models.filter(m => specificModels.includes(m.id));
+  } else {
+    toTest = json.models.filter(m => {
+      if (!m.is_free) return false;
+      const result = m.status.result;
+      if (result === 'broken' || result === 'untested') return true;
+      if (result === 'rate_limited') {
+        if (m.status.skip_retest === true && !FORCE) return false;
+        if (!FORCE) {
+          const tested = m.status.tested || '';
+          const oneDayAgo = new Date();
+          oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+          if (tested >= oneDayAgo.toISOString().slice(0, 10)) return false;
+        }
+        return true;
+      }
+      if (result === 'working' && FORCE) return true;
+      if (result === 'working') {
+        const tested = m.status.tested || '';
+        const lastSuccess = m.last_success || '';
+        return !(tested >= cutoffStr && lastSuccess >= cutoffStr);
+      }
+      return false;
+    });
+  }
+
+  if (CODING_ONLY) {
+    toTest = toTest.filter(m => m.best_for && m.best_for.some(f =>
+      /\b(cod|programm|agentic|reasoning|tool use|fast coding|fast responses?|lightweight|small tasks|function calling|code generation|code review|refactoring|thinking)\b/i.test(f)
+    ));
+  }
+
+  if (toTest.length === 0) { console.log('No models to test.'); process.exit(0); }
+
   // 1. Fetch valid model IDs from each provider
   console.log('Fetching valid model IDs from providers...');
   const validIds = {};
@@ -334,9 +424,7 @@ if (toTest.length === 0) { console.log('No models to test.'); process.exit(0); }
   }
 
   json._test_summary.date = today;
-  fs.writeFileSync(MODELS_FILE, JSON.stringify(json, null, 2), 'utf8');
-  console.log(`Updated ${MODELS_FILE}`);
-  try { JSON.parse(fs.readFileSync(MODELS_FILE, 'utf8')); console.log('JSON validation: OK'); }
-  catch (e) { console.log(`JSON validation: FAILED - ${e.message}`); }
+  await saveToDbAndExport();
+  console.log('DB updated and JSON exported successfully');
 
 })().catch(e => { console.error(e.message); process.exit(1); });
