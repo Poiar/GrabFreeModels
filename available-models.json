@@ -3690,5 +3690,67 @@
       "broken": 0,
       "total": 3
     }
+  },
+  "_benchmark_scores": {
+    "aaii": {
+      "source": "Artificial Analysis Intelligence Index v4.0",
+      "url": "https://artificialanalysis.ai/",
+      "scraped_date": "2026-06-02",
+      "description": "Composite of 10 benchmarks (GDPval-AA, τ²-Bench Telecom, Terminal-Bench Hard, SciCode, AA-LCR, AA-Omniscience, IFBench, Humanity's Last Exam, GPQA Diamond, CritPt)",
+      "scores": {
+        "openrouter/owl-alpha": {
+          "score": 43,
+          "name": "Owl Alpha"
+        },
+        "opencode/deepseek-v4-flash-free": {
+          "score": 46.5,
+          "name": "DeepSeek V4 Flash (Max)"
+        },
+        "openrouter/openai/gpt-oss-120b": {
+          "score": 33.3,
+          "name": "gpt-oss-120b (high)"
+        },
+        "openrouter/openai/gpt-oss-120b:free": {
+          "score": 33.3,
+          "name": "gpt-oss-120b (high)"
+        },
+        "openrouter/openai/gpt-oss-20b": {
+          "score": 24.5,
+          "name": "gpt-oss-20b (high)"
+        },
+        "openrouter/google/gemma-4-31b-it": {
+          "score": 39.2,
+          "name": "Gemma 4 31B"
+        },
+        "openrouter/google/gemma-3-12b-it": {
+          "score": 24.5,
+          "name": "gpt-oss-20B (high)"
+        },
+        "openrouter/z-ai/glm-4.5-air:free": {
+          "score": 51.4,
+          "name": "GLM-5.1"
+        },
+        "openrouter/nvidia/nemotron-3-super-120b-a12b:free": {
+          "score": 36,
+          "name": "NVIDIA Nemotron 3 Super"
+        },
+        "nvidia/nemotron-3-super-120b-a12b": {
+          "score": 36,
+          "name": "NVIDIA Nemotron 3 Super"
+        },
+        "opencode/nemotron-3-super-free": {
+          "score": 36,
+          "name": "NVIDIA Nemotron 3 Super"
+        },
+        "llmgateway/glm-4.5-flash": {
+          "score": 51.4,
+          "name": "GLM-5.1"
+        },
+        "openrouter/google/gemma-3-4b-it": {
+          "score": 24.5,
+          "name": "gemma-3-4b"
+        }
+      }
+    }
   }
 }

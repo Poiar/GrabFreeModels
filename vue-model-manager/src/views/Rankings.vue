@@ -2,7 +2,7 @@
   <div>
     <div class="page-header">
       <h2>Rankings</h2>
-      <p>Role-specific ranked lists of verified free models only — paid, removed, broken, and rate-limited models are excluded. Each model appears once with all its role rankings shown as pills.</p>
+      <p>Role-specific ranked lists of verified free models only — paid, removed, broken, and rate-limited models are excluded. Use the type picker to switch which ranking to sort by; each model's other role rankings are shown as pills.</p>
     </div>
 
     <div class="filters">
@@ -15,6 +15,18 @@
           class="search-input"
         />
       </div>
+      <div class="role-filter">
+        <div class="type-pills">
+          <button
+            v-for="role in ROLES"
+            :key="role"
+            :class="['status-btn', { active: roleFilter === role }]"
+            @click="roleFilter = role"
+          >
+            {{ formatRole(role) }}
+          </button>
+        </div>
+      </div>
       <div class="status-filter">
         <button
           v-for="opt in statusOptions"
@@ -25,9 +37,8 @@
           {{ opt.label }}
         </button>
       </div>
-      <div class="sort-controls">
+      <div class="sort-controls" v-if="sortBy !== 'rank'">
         <select v-model="sortBy" class="sort-select">
-          <option value="rank">Sort: Rank</option>
           <option value="name">Sort: Name</option>
           <option value="provider">Sort: Provider</option>
           <option value="context">Sort: Context</option>
@@ -45,7 +56,7 @@
         <thead>
           <tr>
             <th class="sortable" :class="{ active: sortBy === 'rank' }" @click="setSort('rank')">
-              Rankings <SortArrow :active="sortBy === 'rank'" :desc="sortDesc" />
+              {{ formatRole(roleFilter) }} Rank <SortArrow :active="sortBy === 'rank'" :desc="sortDesc" />
             </th>
             <th class="sortable" :class="{ active: sortBy === 'name' }" @click="setSort('name')">
               Model <SortArrow :active="sortBy === 'name'" :desc="sortDesc" />
@@ -69,7 +80,7 @@
                   v-for="r in item.rankings"
                   :key="r.role"
                   class="rank-pill"
-                  :class="{ 'rank-top': r.rank <= 3 }"
+                  :class="{ 'rank-top': r.rank <= 3, 'rank-active': r.role === roleFilter }"
                   :data-role="r.role"
                   :title="formatRole(r.role) + ' rank #' + r.rank"
                 >
@@ -208,6 +219,7 @@ async function handleCopy(id: string) {
 }
 
 const ROLES = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
+type Role = (typeof ROLES)[number]
 
 function formatRole(role: string): string {
   return role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
@@ -228,24 +240,27 @@ interface ModelRanking {
   modelId: string
   rankings: { role: string; rank: number }[]
   bestRank: number
+  roleRank: number
 }
 
+const roleFilter = ref<Role>('model')
+
 const flatRankings = computed<ModelRanking[]>(() => {
-  const map = new Map<string, { role: string; rank: number }[]>()
-  for (const role of ROLES) {
-    const arr = store.roleRankings[role] ?? []
-    for (let i = 0; i < arr.length; i++) {
-      const modelId = arr[i]
-      if (!map.has(modelId)) map.set(modelId, [])
-      map.get(modelId)!.push({ role, rank: i + 1 })
-    }
-  }
+  const selectedRole = roleFilter.value
+  const arr = store.roleRankings[selectedRole] ?? []
   const list: ModelRanking[] = []
-  for (const [modelId, rankings] of map) {
+  for (let i = 0; i < arr.length; i++) {
+    const modelId = arr[i]
     const model = store.allModels.find(m => m.id === modelId)
     if (!model || !model.is_free || model._removed || model.status.result === 'broken' || model.status.result === 'rate_limited') continue
-    rankings.sort((a, b) => a.rank - b.rank)
-    list.push({ modelId, rankings, bestRank: rankings[0].rank })
+    const allRankings: { role: string; rank: number }[] = []
+    for (const role of ROLES) {
+      const roleArr = store.roleRankings[role] ?? []
+      const idx = roleArr.indexOf(modelId)
+      if (idx !== -1) allRankings.push({ role, rank: idx + 1 })
+    }
+    allRankings.sort((a, b) => a.rank - b.rank)
+    list.push({ modelId, rankings: allRankings, bestRank: allRankings[0].rank, roleRank: i + 1 })
   }
   return list
 })
@@ -276,7 +291,7 @@ const STATUS_ORDER: Record<string, number> = { working: 0, untested: 1, rate_lim
 const ROLE_ORDER: Record<string, number> = {}
 ROLES.forEach((r, i) => { ROLE_ORDER[r] = i })
 
-const sortBy = ref('rank')
+const sortBy = ref('name')
 const sortDesc = ref(false)
 
 function setSort(field: string) {
@@ -306,8 +321,8 @@ const sortedItems = computed(() => {
     let cmp = 0
     switch (sortBy.value) {
       case 'rank':
-        cmp = (STATUS_ORDER[a.model?.status?.result ?? ''] ?? 5) - (STATUS_ORDER[b.model?.status?.result ?? ''] ?? 5)
-        if (cmp === 0) cmp = a.bestRank - b.bestRank
+        cmp = a.roleRank - b.roleRank
+        if (cmp === 0) cmp = (STATUS_ORDER[a.model?.status?.result ?? ''] ?? 5) - (STATUS_ORDER[b.model?.status?.result ?? ''] ?? 5)
         if (cmp === 0) cmp = bestRoleOrder(a) - bestRoleOrder(b)
         break
       case 'name':
@@ -342,7 +357,7 @@ const unrankedWorking = computed(() =>
 const perPage = ref(25)
 const page = ref(1)
 
-watch([sortedItems, perPage], () => { page.value = 1 })
+watch([sortedItems, perPage, roleFilter], () => { page.value = 1 })
 
 const totalPages = computed(() => {
   if (perPage.value <= 0) return 1
@@ -401,6 +416,20 @@ const pagedItems = computed(() => {
 
 .search-input::placeholder {
   color: var(--text-muted);
+}
+
+.role-filter {
+  display: flex;
+  align-items: center;
+}
+
+.type-pills {
+  display: flex;
+  gap: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px;
 }
 
 .status-filter {
@@ -582,6 +611,9 @@ tbody td {
 .rank-pill[data-role="small_model"] { background: rgba(210,153,34,0.12); color: var(--orange); }
 .rank-pill[data-role="explore"]     { background: rgba(57,210,192,0.12);  color: var(--cyan); }
 .rank-pill[data-role="stable"]      { background: rgba(230,237,243,0.06); color: var(--text-dim); }
+
+/* Active role filter highlight */
+.rank-pill.rank-active                        { box-shadow: 0 0 0 2px currentColor, 0 0 8px rgba(255,255,255,0.08); font-size: 0.72rem; padding: 4px 11px; }
 
 /* Top 3 highlight */
 .rank-pill.rank-top[data-role="model"]       { background: rgba(88,166,255,0.22); box-shadow: 0 0 0 1px rgba(88,166,255,0.2); }

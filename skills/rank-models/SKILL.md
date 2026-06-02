@@ -5,7 +5,7 @@ description: Use when ranking, re-ranking, or validating role-based model rankin
 
 # Rank Models
 
-Rebuilds `_role_rankings` in `available-models.json` using a deterministic scoring algorithm.
+Rebuilds `_role_rankings` in `available-models.json` using benchmark-based skill scores with a tag+context heuristic fallback.
 
 ## Prerequisites
 
@@ -35,6 +35,16 @@ score = (context_length / 1M) × ctxWeight + tagBonus
 
 Where `tagBonus` = +1 for each `best_for` tag matching the role's keywords.
 
+### On Benchmark Composites vs Role-Specific Ranking
+
+We evaluated using the Artificial Analysis Intelligence Index (AAII) — a composite of 10 benchmarks (GDPval-AA, Terminal-Bench Hard, SciCode, GPQA Diamond, Humanity's Last Exam, etc.) as a primary skill signal. **This was rejected** because:
+
+1. **Flat rankings**: AAII produces identical ordering across all roles since it measures general intelligence, not task-specific fitness.
+2. **Small models penalized**: AAII favors large models that score well on broad benchmarks, even when a smaller model is the right fit for a role like `small_model`.
+3. **Tag+context is role-diverse**: Different ctxWeights and tag keywords per role give meaningfully different orderings — which is the whole point of role-specific rankings.
+
+The tag+context heuristic is kept as the primary algorithm. If benchmark scores are added in the future, they should be used as a **tertiary sort tiebreaker** (after score and context), not as the primary signal.
+
 ### Role Weights & Tags
 
 | Role | ctxWeight | Tag Keywords | Sort Logic |
@@ -47,6 +57,10 @@ Where `tagBonus` = +1 for each `best_for` tag matching the role's keywords.
 | **stable** | 0.5 | — | Auto-populated by `backfill-metadata.js`: free + working + tools + tested ≥30 days ago. Sorted by context desc. |
 
 Tiebreaker: higher `context_length` wins.
+
+### Benchmark Score Refresh
+
+AAII scores are stored in `_benchmark_scores.aaii` with a `scraped_date`. To refresh, re-scrape from artificialanalysis.ai and update the scores object.
 
 ## Run
 
