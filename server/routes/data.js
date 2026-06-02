@@ -3,7 +3,6 @@ const pool = require('../db');
 
 const router = express.Router();
 
-// GET /api/data — full ModelsData structure reconstructed from DB
 router.get('/data', async (req, res) => {
   try {
     const result = await buildModelsData();
@@ -14,177 +13,124 @@ router.get('/data', async (req, res) => {
   }
 });
 
-// GET /api/health — simple health check
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
 async function buildModelsData() {
-  const { rows: providers } = await pool.query('SELECT * FROM providers ORDER BY name');
-  const { rows: authors } = await pool.query('SELECT * FROM authors ORDER BY name');
+  // Load metadata
   const { rows: metadataRows } = await pool.query('SELECT key, value::text FROM metadata ORDER BY key');
-
   const meta = {};
   for (const r of metadataRows) {
     try { meta[r.key] = JSON.parse(r.value); }
     catch { meta[r.key] = r.value; }
   }
 
-  // ── Curated models ──
-  const { rows: models } = await pool.query(`
-    SELECT m.*, a.name AS author_name
-    FROM models m LEFT JOIN authors a ON a.id = m.author_id ORDER BY m.name
+  // Load all datapoint models with master + provider info in one query
+  const { rows: dmRows } = await pool.query(`
+    SELECT dm.*, mm.name AS master_name, mm.slug AS master_slug,
+           dp.name AS provider_name, dp.slug AS provider_slug
+    FROM datapoint_models dm
+    JOIN master_models mm ON mm.id = dm.master_model_id
+    JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
+    ORDER BY mm.name, dp.name
   `);
-  const { rows: providerModels } = await pool.query(`
-    SELECT pm.*, p.name AS provider_name, p.slug AS provider_slug
-    FROM provider_models pm JOIN providers p ON p.id = pm.provider_id ORDER BY pm.full_id
-  `);
-  const { rows: inputTypesRows } = await pool.query(
-    'SELECT model_id, input_type FROM model_input_types ORDER BY model_id, input_type'
-  );
-  const { rows: outputTypesRows } = await pool.query(
-    'SELECT model_id, output_type FROM model_output_types ORDER BY model_id, output_type'
-  );
-  const { rows: featuresRows } = await pool.query(
-    'SELECT model_id, feature_type, value FROM model_features ORDER BY model_id'
-  );
 
-  // ── models.dev models ──
-  const { rows: modelsdev } = await pool.query('SELECT * FROM modelsdev ORDER BY name');
-  const { rows: mdProviderModels } = await pool.query(`
-    SELECT mpm.*, p.name AS provider_name, p.slug AS provider_slug
-    FROM modelsdev_provider_models mpm JOIN providers p ON p.id = mpm.provider_id ORDER BY mpm.full_id
-  `);
-  const { rows: mdInputTypesRows } = await pool.query(
-    'SELECT modelsdev_id, input_type FROM modelsdev_input_types ORDER BY modelsdev_id, input_type'
-  );
-  const { rows: mdOutputTypesRows } = await pool.query(
-    'SELECT modelsdev_id, output_type FROM modelsdev_output_types ORDER BY modelsdev_id, output_type'
-  );
-  const { rows: mdFeaturesRows } = await pool.query(
-    'SELECT modelsdev_id, feature_type, value FROM modelsdev_features ORDER BY modelsdev_id'
-  );
+  // Build lookup: datapoint_model_id → { inputs, outputs, features }
+  const dmIds = dmRows.map(r => r.id);
+  const inputMap = new Map();
+  const outputMap = new Map();
+  const featMap = new Map();
 
-  // Build lookup maps for curated
-  const modelMap = new Map();
-  for (const m of models) modelMap.set(m.id, m);
-  const inputMap = groupByModel(inputTypesRows, 'input_type');
-  const outputMap = groupByModel(outputTypesRows, 'output_type');
-  const featMap = groupFeatures(featuresRows);
+  if (dmIds.length > 0) {
+    const { rows: inputRows } = await pool.query(
+      'SELECT datapoint_model_id, input_type FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1)',
+      [dmIds]
+    );
+    for (const r of inputRows) {
+      if (!inputMap.has(r.datapoint_model_id)) inputMap.set(r.datapoint_model_id, []);
+      inputMap.get(r.datapoint_model_id).push(r.input_type);
+    }
 
-  // Build lookup maps for models.dev
-  const mdModelMap = new Map();
-  for (const m of modelsdev) mdModelMap.set(m.id, m);
-  const mdInputMap = groupByModel(mdInputTypesRows, 'input_type');
-  const mdOutputMap = groupByModel(mdOutputTypesRows, 'output_type');
-  const mdFeatMap = groupFeatures(mdFeaturesRows);
+    const { rows: outputRows } = await pool.query(
+      'SELECT datapoint_model_id, output_type FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1)',
+      [dmIds]
+    );
+    for (const r of outputRows) {
+      if (!outputMap.has(r.datapoint_model_id)) outputMap.set(r.datapoint_model_id, []);
+      outputMap.get(r.datapoint_model_id).push(r.output_type);
+    }
 
+    const { rows: featRows } = await pool.query(
+      'SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)',
+      [dmIds]
+    );
+    for (const r of featRows) {
+      if (!featMap.has(r.datapoint_model_id)) featMap.set(r.datapoint_model_id, { tag: [], best_for: [] });
+      featMap.get(r.datapoint_model_id)[r.feature_type === 'best_for' ? 'best_for' : 'tag'].push(r.value);
+    }
+  }
+
+  const CTX_NORM = 1048756;
   const outputModels = [];
   const workingIds = [];
   const rateLimitedIds = [];
   const brokenIds = [];
   const untestedIds = [];
 
-  // ── Emit curated models ──
-  for (const pm of providerModels) {
-    const m = modelMap.get(pm.model_id);
-    if (!m) continue;
-    const modelId = pm.full_id;
-    const mid = m.id;
-
+  for (const dm of dmRows) {
     const entry = {
-      id: modelId,
-      name: m.name,
-      provider: pm.provider_name,
-      author: m.author_name || null,
-      context_length: m.context_length || null,
-      input_price_per_million: Number(m.input_price_per_million) || 0,
-      output_price_per_million: Number(m.output_price_per_million) || 0,
-      is_free: m.is_free,
-      supports_tools: m.supports_tools,
-      supports_reasoning: m.supports_reasoning,
-      output_limit: m.output_limit || null,
-      temperature: m.temperature,
-      open_weights: m.open_weights,
-      family: m.family || null,
-      knowledge_cutoff: m.knowledge_cutoff || null,
-      releaseDate: formatDate(m.release_date),
-      lastUpdated: formatDate(m.last_updated),
-      tags: featMap.get(mid)?.tag || [],
-      best_for: featMap.get(mid)?.best_for || [],
-      input_types: inputMap.get(mid) || [],
-      output_types: outputMap.get(mid) || [],
-      status: {
-        tested: pm.status_tested || null,
-        result: pm.status_result || 'untested',
-        detail: pm.status_detail || null,
-      },
-      last_success: pm.last_success || null,
-      source: pm.source || 'curated',
-      _removed: pm.removed || false,
-    };
-
-    outputModels.push(entry);
-    const result = pm.status_result || 'untested';
-    if (result === 'working') workingIds.push(modelId);
-    else if (result === 'rate_limited') rateLimitedIds.push(modelId);
-    else if (result === 'broken') brokenIds.push(modelId);
-    else untestedIds.push(modelId);
-  }
-
-  // ── Emit models.dev models ──
-  for (const mpm of mdProviderModels) {
-    const m = mdModelMap.get(mpm.modelsdev_id);
-    if (!m) continue;
-    const modelId = mpm.full_id;
-    const mid = m.id;
-
-    const entry = {
-      id: modelId,
-      name: m.name,
-      provider: mpm.provider_name,
+      id: dm.full_id,
+      master_id: dm.master_model_id,
+      master_name: dm.master_name,
+      name: dm.master_name,
+      provider: dm.provider_name,
       author: null,
-      context_length: m.context_length || null,
-      input_price_per_million: Number(m.input_price_per_million) || 0,
-      output_price_per_million: Number(m.output_price_per_million) || 0,
-      is_free: m.is_free,
-      supports_tools: m.supports_tools,
-      supports_reasoning: m.supports_reasoning,
-      output_limit: m.output_limit || null,
-      temperature: m.temperature,
-      open_weights: m.open_weights,
-      family: m.family || null,
-      knowledge_cutoff: m.knowledge_cutoff || null,
-      releaseDate: formatDate(m.release_date),
-      lastUpdated: formatDate(m.last_updated),
-      tags: mdFeatMap.get(mid)?.tag || [],
-      best_for: mdFeatMap.get(mid)?.best_for || [],
-      input_types: mdInputMap.get(mid) || [],
-      output_types: mdOutputMap.get(mid) || [],
+      context_length: dm.context_length || null,
+      input_price_per_million: Number(dm.input_price_per_million) || 0,
+      output_price_per_million: Number(dm.output_price_per_million) || 0,
+      is_free: dm.is_free,
+      supports_tools: dm.supports_tools,
+      supports_reasoning: dm.supports_reasoning,
+      output_limit: dm.output_limit || null,
+      temperature: dm.temperature,
+      open_weights: dm.open_weights,
+      family: dm.family || null,
+      knowledge_cutoff: dm.knowledge_cutoff || null,
+      releaseDate: formatDate(dm.release_date),
+      lastUpdated: formatDate(dm.last_updated),
+      tags: featMap.get(dm.id)?.tag || [],
+      best_for: featMap.get(dm.id)?.best_for || [],
+      input_types: inputMap.get(dm.id) || [],
+      output_types: outputMap.get(dm.id) || [],
       status: {
-        tested: mpm.status_tested || null,
-        result: mpm.status_result || 'untested',
-        detail: mpm.status_detail || null,
+        tested: dm.status_tested || null,
+        result: dm.status_result || 'untested',
+        detail: dm.status_detail || null,
       },
-      last_success: mpm.last_success || null,
-      source: 'models.dev',
+      last_success: dm.last_success || null,
+      source: dm.provider_slug,
+      _removed: dm.is_removed || false,
+      _removedDate: null,
+      notes: null,
     };
 
+    // Priority score
+    const ctx = entry.context_length ? entry.context_length / CTX_NORM : -0.5;
+    const toolsBonus = entry.supports_tools === true ? 2 : 0;
+    const codingTags = (entry.best_for || []).some(t =>
+      /\b(cod|programm|agentic|reasoning|tool use|function calling|refactor)\b/i.test(t)
+    ) ? 1.5 : 0;
+    entry.priority_score = Math.round((ctx * 1.0 + toolsBonus + codingTags) * 100) / 100;
+
     outputModels.push(entry);
-    const result = mpm.status_result || 'untested';
-    if (result === 'working') workingIds.push(modelId);
-    else if (result === 'rate_limited') rateLimitedIds.push(modelId);
-    else if (result === 'broken') brokenIds.push(modelId);
-    else untestedIds.push(modelId);
+    const result = dm.status_result || 'untested';
+    if (result === 'working') workingIds.push(dm.full_id);
+    else if (result === 'rate_limited') rateLimitedIds.push(dm.full_id);
+    else if (result === 'broken') brokenIds.push(dm.full_id);
+    else untestedIds.push(dm.full_id);
   }
 
-  // Build _test_summary
-  const testSummary = {
-    date: new Date().toISOString().slice(0, 10),
-    results: { working: workingIds, rate_limited: rateLimitedIds, broken: brokenIds, untested: untestedIds },
-  };
-
-  // Build provider_health (free models only)
   const health = {};
   for (const m of outputModels) {
     if (!m.is_free) continue;
@@ -197,33 +143,16 @@ async function buildModelsData() {
 
   return {
     models: outputModels,
-    _test_summary: testSummary,
+    _test_summary: {
+      date: new Date().toISOString().slice(0, 10),
+      results: { working: workingIds, rate_limited: rateLimitedIds, broken: brokenIds, untested: untestedIds },
+    },
     _role_rankings: meta._role_rankings || { description: '', model: [], build: [], general: [], small_model: [], explore: [], stable: [] },
     _provider_usage: meta._provider_usage || { description: '' },
     _known_issues: meta._known_issues || { description: '', issues: [] },
     _validation_method: meta._validation_method || { description: '' },
     provider_health: health,
   };
-}
-
-function groupByModel(rows, field) {
-  const map = new Map();
-  for (const row of rows) {
-    const key = row.model_id || row.modelsdev_id;
-    if (!map.has(key)) map.set(key, []);
-    map.get(key).push(row[field]);
-  }
-  return map;
-}
-
-function groupFeatures(rows) {
-  const map = new Map();
-  for (const row of rows) {
-    const key = row.model_id || row.modelsdev_id;
-    if (!map.has(key)) map.set(key, { tag: [], best_for: [] });
-    map.get(key)[row.feature_type].push(row.value);
-  }
-  return map;
 }
 
 function formatDate(d) {

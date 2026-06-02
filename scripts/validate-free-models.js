@@ -44,53 +44,52 @@ const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
 // Load data from PostgreSQL
 let json = null;
 async function loadFromDb() {
-  const { rows: providers } = await DB_POOL.query('SELECT * FROM providers ORDER BY name');
-  const { rows: authors } = await DB_POOL.query('SELECT * FROM authors ORDER BY name');
-  const { rows: models } = await DB_POOL.query(`
-    SELECT m.*, a.name AS author_name FROM models m LEFT JOIN authors a ON a.id = m.author_id ORDER BY m.name
+  const { rows: dmRows } = await DB_POOL.query(`
+    SELECT dm.*, mm.name AS master_name, mm.slug AS master_slug,
+           dp.name AS provider_name, dp.slug AS provider_slug
+    FROM datapoint_models dm
+    JOIN master_models mm ON mm.id = dm.master_model_id
+    JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
+    ORDER BY dm.full_id
   `);
-  const { rows: providerModels } = await DB_POOL.query(`
-    SELECT pm.*, p.name AS provider_name, p.slug AS provider_slug
-    FROM provider_models pm JOIN providers p ON p.id = pm.provider_id ORDER BY pm.full_id
-  `);
-  const { rows: irows } = await DB_POOL.query('SELECT model_id, input_type FROM model_input_types ORDER BY model_id');
-  const { rows: orows } = await DB_POOL.query('SELECT model_id, output_type FROM model_output_types ORDER BY model_id');
-  const { rows: frows } = await DB_POOL.query('SELECT model_id, feature_type, value FROM model_features ORDER BY model_id');
+  const { rows: irows } = await DB_POOL.query('SELECT datapoint_model_id, input_type FROM datapoint_model_input_types');
+  const { rows: orows } = await DB_POOL.query('SELECT datapoint_model_id, output_type FROM datapoint_model_output_types');
+  const { rows: frows } = await DB_POOL.query('SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features');
   const { rows: mrows } = await DB_POOL.query('SELECT key, value::text FROM metadata ORDER BY key');
 
-  const modelMap = new Map(); for (const m of models) modelMap.set(m.id, m);
-  const imap = new Map(); for (const r of irows) { if (!imap.has(r.model_id)) imap.set(r.model_id, []); imap.get(r.model_id).push(r.input_type); }
-  const omap = new Map(); for (const r of orows) { if (!omap.has(r.model_id)) omap.set(r.model_id, []); omap.get(r.model_id).push(r.output_type); }
-  const fmap = new Map(); for (const r of frows) { if (!fmap.has(r.model_id)) fmap.set(r.model_id, { tag: [], best_for: [] }); fmap.get(r.model_id)[r.feature_type].push(r.value); }
+  const imap = new Map(); for (const r of irows) { if (!imap.has(r.datapoint_model_id)) imap.set(r.datapoint_model_id, []); imap.get(r.datapoint_model_id).push(r.input_type); }
+  const omap = new Map(); for (const r of orows) { if (!omap.has(r.datapoint_model_id)) omap.set(r.datapoint_model_id, []); omap.get(r.datapoint_model_id).push(r.output_type); }
+  const fmap = new Map(); for (const r of frows) { if (!fmap.has(r.datapoint_model_id)) fmap.set(r.datapoint_model_id, { tag: [], best_for: [] }); fmap.get(r.datapoint_model_id)[r.feature_type].push(r.value); }
   const meta = {}; for (const r of mrows) { try { meta[r.key] = JSON.parse(r.value); } catch { meta[r.key] = r.value; } }
 
-  // Build _test_summary from provider_models statuses
   const ts = { working: [], rate_limited: [], broken: [], untested: [], not_found: [] };
-  const outputModels = providerModels.map(pm => {
-    const m = modelMap.get(pm.model_id); if (!m) return null;
-    const mid = pm.full_id;
-    const r = pm.status_result || 'untested';
+  const outputModels = dmRows.map(dm => {
+    const mid = dm.full_id;
+    const r = dm.status_result || 'untested';
     if (ts[r]) ts[r].push(mid); else ts.untested.push(mid);
     return {
-      id: mid, name: m.name, provider: pm.provider_name, author: m.author_name || null,
-      context_length: m.context_length || null,
-      input_price_per_million: Number(m.input_price_per_million) || 0,
-      output_price_per_million: Number(m.output_price_per_million) || 0,
-      is_free: m.is_free, supports_tools: m.supports_tools,
-      supports_reasoning: m.supports_reasoning,
-      output_limit: m.output_limit || null, temperature: m.temperature,
-      open_weights: m.open_weights, family: m.family || null,
-      knowledge_cutoff: m.knowledge_cutoff || null,
-      releaseDate: m.release_date ? (''+m.release_date).slice(0,10) : null,
-      lastUpdated: m.last_updated ? (''+m.last_updated).slice(0,10) : null,
-      tags: fmap.get(m.id)?.tag || [],
-      best_for: fmap.get(m.id)?.best_for || [],
-      input_types: imap.get(m.id) || [],
-      output_types: omap.get(m.id) || [],
-      status: { tested: pm.status_tested || null, result: pm.status_result || 'untested', detail: pm.status_detail || null },
-      last_success: pm.last_success || null,
+      id: mid, name: dm.master_name, provider: dm.provider_name, author: null,
+      context_length: dm.context_length || null,
+      input_price_per_million: Number(dm.input_price_per_million) || 0,
+      output_price_per_million: Number(dm.output_price_per_million) || 0,
+      is_free: dm.is_free, supports_tools: dm.supports_tools,
+      supports_reasoning: dm.supports_reasoning,
+      output_limit: dm.output_limit || null, temperature: dm.temperature,
+      open_weights: dm.open_weights, family: dm.family || null,
+      knowledge_cutoff: dm.knowledge_cutoff || null,
+      releaseDate: dm.release_date ? (''+dm.release_date).slice(0,10) : null,
+      lastUpdated: dm.last_updated ? (''+dm.last_updated).slice(0,10) : null,
+      tags: fmap.get(dm.id)?.tag || [],
+      best_for: fmap.get(dm.id)?.best_for || [],
+      input_types: imap.get(dm.id) || [],
+      output_types: omap.get(dm.id) || [],
+      status: { tested: dm.status_tested || null, result: dm.status_result || 'untested', detail: dm.status_detail || null },
+      last_success: dm.last_success || null,
+      source: dm.provider_slug,
+      _removedDate: null,
+      notes: null,
     };
-  }).filter(Boolean);
+  });
 
   json = {
     models: outputModels,
@@ -103,22 +102,19 @@ async function loadFromDb() {
 }
 
 async function saveToDbAndExport() {
-  // Update each model's status in provider_models
   for (const m of json.models) {
     await DB_POOL.query(
-      `UPDATE provider_models SET
+      `UPDATE datapoint_models SET
          status_result = $1, status_tested = $2, status_detail = $3, last_success = $4
        WHERE full_id = $5`,
       [m.status.result, m.status.tested, m.status.detail, m.last_success || null, m.id]
     );
   }
-  // Update _test_summary date in metadata
   await DB_POOL.query(
     `INSERT INTO metadata (key, value) VALUES ('_test_summary', $1)
      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
     [JSON.stringify(json._test_summary)]
   );
-  // Export to JSON
   const exporter = require('./export-from-pg');
   await exporter();
   console.log(`Exported to ${MODELS_FILE}`);

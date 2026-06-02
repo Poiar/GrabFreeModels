@@ -43,10 +43,7 @@ export const FILTERABLE_FIELDS: FieldDef[] = [
   { key: 'id',        label: 'ID',        type: 'text' },
   { key: 'notes',     label: 'Notes',     type: 'text', nullable: true },
   { key: 'best_for',  label: 'Best For',  type: 'text' },
-  { key: 'source',    label: 'Source',    type: 'select', searchable: true, options: [
-    { value: 'curated', label: 'Curated' },
-    { value: 'models.dev', label: 'Models.dev' },
-  ]},
+  { key: 'source',    label: 'Provider',  type: 'select', searchable: true },
   { key: 'priority',  label: 'Priority',  type: 'number', nullable: true },
 ]
 
@@ -335,7 +332,7 @@ function matchToken(m: Model, t: FilterToken): boolean {
     case 'notes':
       if (t.op === 'IS EMPTY') { r = !m.notes || !m.notes.trim(); break }
       if (t.op === 'IS NOT EMPTY') { r = !!m.notes && !!m.notes.trim(); break }
-      r = m.notes.toLowerCase().includes(rv); break
+      r = (m.notes ?? '').toLowerCase().includes(rv); break
     default: { const h = getTextField(m, t.field)?.toLowerCase() ?? ''; r = t.values.some(v => h.includes(v.toLowerCase())) }
   }
   return neg ? !r : r
@@ -345,7 +342,7 @@ function getTextField(m: Model, f: string): string | null {
   switch (f) {
     case 'name': return m.name
     case 'id': return m.id
-    case 'notes': return m.notes
+    case 'notes': return m.notes ?? null
     case 'author': return m.author ?? null
     case 'provider': return m.provider
     case 'status': return m.status.result

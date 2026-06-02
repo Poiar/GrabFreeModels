@@ -4,24 +4,53 @@ export interface ModelStatus {
   detail: string
 }
 
-export interface Model {
-  id: string
-  name: string
-  author?: string
+/** @deprecated Use DatapointModel */
+export type Model = DatapointModel;
+
+export interface DatapointModel {
+  id: string              // full_id: "openrouter/owl-alpha"
+  master_id: number
+  master_name: string
+  name: string          // alias for master_name (backward compat)
   provider: string
-  source?: string
-  priority_score?: number
+  author: string | null
+  source: string          // provider slug
   context_length: number | null
-  input_price_per_million: number | null
-  output_price_per_million: number | null
+  input_price_per_million: number
+  output_price_per_million: number
   is_free: boolean
+  supports_tools: boolean | null
+  supports_reasoning: boolean | null
+  output_limit: number | null
+  temperature: boolean | null
+  open_weights: boolean | null
+  family: string | null
+  knowledge_cutoff: string | null
+  releaseDate: string | null
+  lastUpdated: string | null
+  tags: string[]
   best_for: string[]
-  notes: string
+  input_types: string[]
+  output_types: string[]
   status: ModelStatus
-  last_success?: string
-  _removed?: boolean
+  last_success: string | null
+  _removed: boolean
   _removedDate?: string
-  supports_tools?: boolean
+  notes?: string
+  priority_score: number | null
+}
+
+export interface MasterModel {
+  id: number
+  name: string
+  datapoints: DatapointModel[]
+  // Aggregated: best values across all datapoints
+  best_context_length: number | null
+  any_working: boolean
+  any_tools: boolean
+  providers: string[]
+  all_free: boolean
+  sources: string[]
 }
 
 export interface TestSummary {
@@ -68,7 +97,7 @@ export interface ValidationMethod {
 }
 
 export interface ModelsData {
-  models: Model[]
+  models: DatapointModel[]
   _test_summary: TestSummary
   _role_rankings: {
     description: string

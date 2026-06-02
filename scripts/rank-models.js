@@ -29,41 +29,40 @@ async function rankModels() {
   try {
     // Load eligible models: free + working + tools + not removed
     const { rows: eligibleRows } = await client.query(`
-      SELECT pm.full_id AS id, m.name, m.context_length, m.is_free, m.supports_tools,
-             p.name AS provider, a.name AS author
-      FROM provider_models pm
-      JOIN models m ON m.id = pm.model_id
-      JOIN providers p ON p.id = pm.provider_id
-      LEFT JOIN authors a ON a.id = m.author_id
-      WHERE m.is_free = true
-        AND m.supports_tools = true
-        AND pm.status_result = 'working'
-      ORDER BY pm.full_id
+      SELECT dm.full_id AS id, mm.name, dm.context_length, dm.is_free, dm.supports_tools,
+             dp.name AS provider
+      FROM datapoint_models dm
+      JOIN master_models mm ON mm.id = dm.master_model_id
+      JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
+      WHERE dm.is_free = true
+        AND dm.supports_tools = true
+        AND dm.status_result = 'working'
+        AND dm.is_removed = false
+      ORDER BY dm.full_id
     `)
 
     // Load ineligible (working + free but no tools) for reporting
     const { rows: ineligibleRows } = await client.query(`
-      SELECT pm.full_id AS id
-      FROM provider_models pm
-      JOIN models m ON m.id = pm.model_id
-      WHERE m.is_free = true
-        AND m.supports_tools IS NOT TRUE
-        AND pm.status_result = 'working'
-      ORDER BY pm.full_id
+      SELECT dm.full_id AS id
+      FROM datapoint_models dm
+      WHERE dm.is_free = true
+        AND dm.supports_tools IS NOT TRUE
+        AND dm.status_result = 'working'
+        AND dm.is_removed = false
     `)
 
-    // Load best_for tags for eligible models
-    const eligibleIds = new Set(eligibleRows.map(m => m.id))
+    // Load best_for tags for eligible datapoint models
+    const eligibleFullIds = new Set(eligibleRows.map(m => m.id));
     const { rows: featureRows } = await client.query(`
-      SELECT pm.full_id, mf.value
-      FROM model_features mf
-      JOIN provider_models pm ON pm.model_id = mf.model_id
-      WHERE mf.feature_type = 'best_for'
-        AND pm.status_result = 'working'
+      SELECT dm.full_id, dmf.value
+      FROM datapoint_model_features dmf
+      JOIN datapoint_models dm ON dm.id = dmf.datapoint_model_id
+      WHERE dmf.feature_type = 'best_for'
+        AND dm.status_result = 'working'
     `)
     const bestForMap = new Map()
     for (const r of featureRows) {
-      if (!eligibleIds.has(r.full_id)) continue
+      if (!eligibleFullIds.has(r.full_id)) continue
       if (!bestForMap.has(r.full_id)) bestForMap.set(r.full_id, [])
       bestForMap.get(r.full_id).push(r.value)
     }

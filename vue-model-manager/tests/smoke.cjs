@@ -54,25 +54,25 @@ async function getCount(page) {
   const input = await page.$('.jql-input');
   if (input) {
     await input.click();
-    await input.fill('source:curated');
+    await input.fill('source:openrouter');
     await page.keyboard.press('Tab');
     await page.waitForTimeout(2000);
-    const curatedCount = await getCount(page);
-    assert(curatedCount > 0, `source:curated returns ${curatedCount} results`);
+    const orCount = await getCount(page);
+    assert(orCount > 0, `source:openrouter returns ${orCount} results`);
 
     await input.click();
-    await input.fill('source:models.dev');
+    await input.fill('source:nvidia');
     await page.keyboard.press('Tab');
     await page.waitForTimeout(2000);
-    const mdCount = await getCount(page);
-    assert(mdCount > 0, `source:models.dev returns ${mdCount} results`);
+    const nvCount = await getCount(page);
+    assert(nvCount > 0, `source:nvidia returns ${nvCount} results`);
 
     await input.click();
     await input.fill('');
     await page.keyboard.press('Tab');
     await page.waitForTimeout(1500);
     const allCount = await getCount(page);
-    assert(allCount > curatedCount, `Clearing filter returns ${allCount} (more than curated ${curatedCount})`);
+    assert(allCount > orCount, `Clearing filter returns ${allCount} (more than openrouter ${orCount})`);
   } else {
     failed++;
     console.log('  FAIL: JQL input not found');

@@ -51,14 +51,14 @@ const KNOWN_CONTEXT = JSON.parse(
   const client = await pool.connect()
   try {
     const { rows: targets } = await client.query(`
-      SELECT m.id, m.name
-      FROM models m
-      JOIN provider_models pm ON pm.model_id = m.id
-      WHERE m.context_length IS NULL
-        AND m.is_free = true
-        AND pm.status_result = 'working'
-        AND pm.removed = false
-      ORDER BY m.id
+      SELECT dm.id, dm.full_id
+      FROM datapoint_models dm
+      JOIN master_models mm ON mm.id = dm.master_model_id
+      WHERE dm.context_length IS NULL
+        AND dm.is_free = true
+        AND dm.status_result = 'working'
+        AND dm.is_removed = false
+      ORDER BY dm.full_id
     `)
 
     console.log(`Models with null context_length: ${targets.length}\n`)
@@ -75,22 +75,22 @@ const KNOWN_CONTEXT = JSON.parse(
     for (const m of targets) {
       let ctx = null
 
-      const orId = m.id.startsWith('nvidia/') ? m.id.replace('nvidia/', '') : m.id
+      const orId = m.full_id.startsWith('nvidia/') ? m.full_id.replace('nvidia/', '') : m.full_id
       ctx = await getOpenRouterContext(orId)
-      if (ctx) { console.log(`  ${m.id}: ${ctx} (from OpenRouter)`) }
+      if (ctx) { console.log(`  ${m.full_id}: ${ctx} (from OpenRouter)`) }
 
-      if (!ctx && KNOWN_CONTEXT[m.id]) {
-        ctx = KNOWN_CONTEXT[m.id]
-        console.log(`  ${m.id}: ${ctx} (from known catalog)`)
+      if (!ctx && KNOWN_CONTEXT[m.full_id]) {
+        ctx = KNOWN_CONTEXT[m.full_id]
+        console.log(`  ${m.full_id}: ${ctx} (from known catalog)`)
       }
 
       if (ctx) {
         if (APPLY) {
-          await client.query('UPDATE models SET context_length = $1 WHERE id = $2', [ctx, m.id])
+          await client.query('UPDATE datapoint_models SET context_length = $1 WHERE id = $2', [ctx, m.id])
         }
         updated++
       } else {
-        console.log(`  ${m.id}: still null (no source)`)
+        console.log(`  ${m.full_id}: still null (no source)`)
       }
     }
 

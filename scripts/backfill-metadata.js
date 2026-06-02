@@ -49,45 +49,38 @@ async function backfillMetadata() {
   try {
     // ── Pass 1: backfill supports_tools ──
     const { rows: toolsNullRows } = await client.query(`
-      SELECT pm.full_id AS id
-      FROM provider_models pm
-      JOIN models m ON m.id = pm.model_id
-      WHERE m.supports_tools IS NULL
-        AND m.is_free = true
-        AND pm.status_result = 'working'
-      ORDER BY pm.full_id
+      SELECT dm.id, dm.full_id
+      FROM datapoint_models dm
+      WHERE dm.supports_tools IS NULL
+        AND dm.is_free = true
+      ORDER BY dm.full_id
     `)
 
     let toolsUpdates = 0
     for (const row of toolsNullRows) {
-      const id = row.id
-      const val = !isToolsFalse(id)
+      const val = !isToolsFalse(row.full_id)
       toolsUpdates++
-      console.log(`  ${id}: supports_tools → ${val}`)
-      
+      console.log(`  ${row.full_id}: supports_tools → ${val}`)
+
       if (APPLY) {
         await client.query(
-          'UPDATE models SET supports_tools = $1 WHERE id = (SELECT model_id FROM provider_models WHERE full_id = $2)',
-          [val, id]
+          'UPDATE datapoint_models SET supports_tools = $1 WHERE id = $2',
+          [val, row.id]
         )
       }
     }
     console.log(`\nsupports_tools: ${toolsUpdates} models ${APPLY ? 'updated' : 'would be updated'}`)
 
     // ── Pass 2: populate stable ranking ──
-    const now = new Date()
-    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000
-
     const { rows: stableCandidates } = await client.query(`
-      SELECT pm.full_id AS id, m.context_length
-      FROM provider_models pm
-      JOIN models m ON m.id = pm.model_id
-      WHERE m.is_free = true
-        AND m.supports_tools = true
-        AND pm.status_result = 'working'
-        AND pm.status_tested IS NOT NULL
-        AND (now() - pm.status_tested) >= interval '30 days'
-      ORDER BY m.context_length DESC, pm.full_id
+      SELECT dm.full_id AS id, dm.context_length
+      FROM datapoint_models dm
+      WHERE dm.is_free = true
+        AND dm.supports_tools = true
+        AND dm.status_result = 'working'
+        AND dm.is_removed = false
+        AND dm.status_tested IS NOT NULL
+      ORDER BY dm.context_length DESC, dm.full_id
     `)
 
     const newStable = stableCandidates.map(m => m.id)
