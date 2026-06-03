@@ -84,3 +84,6 @@ write_free*.py
 qa-*.mjs
 groq-models.json
 _check-*.js
+
+# Scratch / ad-hoc scripts (underscore prefix)
+_*.js
