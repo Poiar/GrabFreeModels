@@ -17,10 +17,11 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 
 ### Available Skills
 - `test-model-auth` — manage provider API keys, read from auth.json
-- `model-recommendations` — ALWAYS consult before suggesting any model
+- **Model recommendations**: Before suggesting any model, check `supports_tools` in `datapoint_models` (or via `GET /api/data`). If `false`, do NOT recommend. Refer to `best_for` field for role-fit. If unfamiliar, say "I need to verify tool calling support first".
 - `parallel-todos` — use for independent parallel subagent tasks
 - `validate-free-models` — test and validate free model statuses
-- `sync-models` — fetch latest free models from providers, sync to DB + JSON
+- `sync-models` — fetch latest free models from providers, sync to DB
+- `import-modelsdev` — import models.dev data into super_models + datapoint_models
 - `validate-jsonc` — validate opencode.jsonc syntax before session end
 - `secret-scanning` — run Gitleaks locally, update allowlist, validate config, handle CI failures
 - `vue-gotchas` — Vue 3 + Pinia framework gotchas
@@ -28,7 +29,7 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `nightly-maintenance` — full nightly validation pipeline
 - `metrics-exporter` — Prometheus metrics endpoint / service installer
 - `rank-models` — rebuild `_role-rankings` using deterministic scoring algorithm
-- `extract-modelsdev` — scrape models.dev for free model data
+- `import-modelsdev` — scrape + import models.dev free model data
 - `schema-v2` — DB schema documentation (super_models + datapoint_providers + datapoint_models)
 
 ## Lean Files Policy
@@ -67,24 +68,27 @@ All scripts live in `scripts/`. Some have corresponding skills with additional w
 
 | Script | Purpose |
 |--------|---------|
-| `kill-port.js` | Kill process on a given port: `node scripts/kill-port.js --port 5173` |
-| `validate-jsonc.js` | Validate opencode.jsonc JSONC syntax: `node scripts/validate-jsonc.js [--short]` |
-| `get-auth-key.js` | Read a provider API key from auth.json: `node scripts/get-auth-key.js --provider <name> [--list]` |
-| `sync-auth-keys.js` | Sync API keys from auth.json into opencode.jsonc: `node scripts/sync-auth-keys.js [--apply] [--check]` |
+| `health-check.js` | DB integrity: slug uniqueness, author coverage, modelsdev coverage, orphan check |
 | `load-models.js` | Shared module: builds full models data from PG (same shape as `/api/data`) |
 | `export-from-pg.js` | Export PostgreSQL → `available-models.json` (for git history snapshots) |
+| `import-modelsdev.js` | Import models.dev → super_models + datapoint_models (see `import-modelsdev` skill) |
+| `import-modelsdev-backfill.js` | Fuzzy-match remaining supers to modelsdev by remote_id normalization |
 | `sync-models.js` | Fetch latest free models from providers, diff against DB. `--apply` inserts new + flags removed |
 | `validate-free-models.js` | Read/write DB. Tests models against APIs, auto re-ranks on `--apply` |
 | `rank-models.js` | Read/write DB metadata. Rebuilds `_role_rankings` via tag+ctx scoring |
 | `backfill-context.js` | Read/write DB. Fetches `context_length` for null entries from OpenRouter catalog |
 | `backfill-metadata.js` | Read/write DB. Backfills `supports_tools` + populates `stable` ranking |
-| `extract-modelsdev.js` | Scrape models.dev via Playwright → `modelsdev-free-models.json` |
 | `check-rankings.js` | Sanity-check `_role_rankings` integrity (reads from DB) |
-| `cleanup-snapshots.js` | Rotate old model snapshots: `node scripts/cleanup-snapshots.js --keep 30` |
+| `nightly-maintenance.js` | Full nightly pipeline (validate → rank → commit) |
 | `generate-dashboard.js` | Generate HTML dashboard of provider health and rankings (reads from DB) |
 | `health-badge.js` | Generate Shields.io health badge JSON (reads from DB) |
 | `model-summary.js` | Text overview of model statuses and ranking sizes (reads from DB) |
-| `nightly-maintenance.js` | Full nightly pipeline (validate → rank → commit) |
-| `migrate-v1-to-v2.js` | Migrate v1 schema → v2 (super_models + datapoint_providers + datapoint_models) |
 | `metrics-exporter.js` | Serve Prometheus metrics (reads from DB) |
+| `extract-modelsdev.js` | Scrape models.dev via Playwright → `modelsdev-free-models.json` |
+| `kill-port.js` | Kill process on a given port |
+| `validate-jsonc.js` | Validate opencode.jsonc JSONC syntax |
+| `get-auth-key.js` | Read a provider API key from auth.json |
+| `sync-auth-keys.js` | Sync API keys from auth.json into opencode.jsonc |
+| `cleanup-snapshots.js` | Rotate old model snapshots |
+| `migrate-v1-to-v2.js` | Migrate v1 schema → v2 |
 | `install-metrics-service.js` | Install metrics exporter as a Windows service |
