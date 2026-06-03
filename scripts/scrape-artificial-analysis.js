@@ -190,13 +190,11 @@ async function scrape() {
 
   if (!APPLY) { console.log('\nDry-run. Use --apply.'); return; }
 
-  const useChanges = typeof deduped !== 'undefined' ? deduped : changes;
-
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     let n = 0;
-    for (const c of useChanges) {
+    for (const c of deduped) {
       for (const s of c.sc) {
         await client.query(
           'INSERT INTO model_scores (datapoint_model_id, source, score_type, score_value, fetched_at) VALUES ($1,$2,$3,$4,now()) ON CONFLICT (datapoint_model_id, source, score_type) DO UPDATE SET score_value=EXCLUDED.score_value, fetched_at=now()',
@@ -206,7 +204,7 @@ async function scrape() {
       }
     }
     await client.query('COMMIT');
-    console.log(n, 'scores written (' + useChanges.length + ' unique models).');
+    console.log(n, 'scores written (' + deduped.length + ' unique models).');
   } catch (e) { await client.query('ROLLBACK'); throw e; }
   finally { client.release(); }
 }
@@ -222,4 +220,4 @@ function buildScores(aa) {
   return sc;
 }
 
-scrape().catch(e => { console.error(e.message); process.exitCode = 1; }).finally(() => pool.end());
+scrape().catch(e => { console.error(e.message); process.exitCode = 1; }).finally(() => pool.end().catch(() => {}));

@@ -17,7 +17,15 @@ for (let i = 0; i < args.length; i++) {
   if (args[i] === '--port' && args[i + 1]) port = parseInt(args[++i], 10);
 }
 
+let cache = null;
+let cacheTime = 0;
+const CACHE_TTL = 60_000;
+
 async function getMetrics() {
+  const now = Date.now();
+  if (cache && now - cacheTime < CACHE_TTL) {
+    return cache;
+  }
   let json;
   try {
     json = await loadModels();
@@ -73,7 +81,9 @@ async function getMetrics() {
     lines.push('model_test_timestamp 0');
   }
 
-  return lines.join('\n') + '\n';
+  cache = lines.join('\n') + '\n';
+  cacheTime = Date.now();
+  return cache;
 }
 
 const server = http.createServer(async (req, res) => {
