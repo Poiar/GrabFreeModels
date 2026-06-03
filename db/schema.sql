@@ -1,13 +1,13 @@
--- v2 schema: Master-model + datapoint-provider pattern
--- Key changes: Unified super_models + datapoint_models table structure
--- Replaces old schema's models + provider_models + modelsdev + modelsdev_provider_models
--- Migration 001: status_result → ENUM, passive columns → datapoint_model_features, test_results dropped
+-- v2 schema: Super-model + datapoint-provider pattern
+-- Canonical source: models.dev (import via scripts/import-modelsdev.js)
+-- Old tables (models, provider_models, providers, authors) dropped — data migrated into super_models/datapoint_models
 
 -- Master model: the abstract identity
 CREATE TABLE super_models (
     id              SERIAL PRIMARY KEY,
-    name            VARCHAR(256) NOT NULL UNIQUE,
+    name            VARCHAR(256) NOT NULL,
     slug            VARCHAR(256) NOT NULL UNIQUE,  -- normalized lowercase, no spaces
+    author          VARCHAR(128),                  -- organization behind the model
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -99,6 +99,8 @@ BEGIN
     result := regexp_replace(result, '^(coding[-_]|xiaomi[-_])', '');
     -- Remove (free), (free tier) suffixes
     result := regexp_replace(result, '\s*\(free\s*(tier)?\)\s*$', '');
+    -- Remove trailing " free" or "-free" bare word
+    result := regexp_replace(result, '([-\s])free\s*$', '');
     -- Replace spaces and special chars with hyphens
     result := regexp_replace(result, '[^a-z0-9]+', '-', 'g');
     -- Trim leading/trailing hyphens
