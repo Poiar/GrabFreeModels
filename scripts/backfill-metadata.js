@@ -141,4 +141,4 @@ async function backfillMetadata() {
   }
 }
 
-backfillMetadata()
+backfillMetadata().catch(e => { console.error(e.message); process.exit(1); })
