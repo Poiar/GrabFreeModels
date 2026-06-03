@@ -216,9 +216,9 @@ console.log('\n=== backfill-context.js: auth file error handling ===');
 test('auth file read is wrapped in try/catch', () => {
   const fs = require('fs');
   const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'backfill-context.js'), 'utf8');
-  // Should have try/catch around the auth read
-  const authReadPattern = /let auth;\s*try\s*\{[\s\S]*?auth = JSON\.parse[\s\S]*?\} catch[\s\S]*?process\.exit\(1\)/m;
-  assert.ok(authReadPattern.test(src), 'auth file read should be wrapped in try/catch with process.exit(1)');
+  // Should have try/catch around the auth read (catches and re-throws; outer .catch handles exit)
+  const authReadPattern = /let auth;\s*try\s*\{[\s\S]*?auth = JSON\.parse[\s\S]*?\} catch/m;
+  assert.ok(authReadPattern.test(src), 'auth file read should be wrapped in try/catch');
 });
 
 // ── validate-free-models.js: status_result handling ──
@@ -227,11 +227,13 @@ console.log('\n=== validate-free-models.js: status_result coverage ===');
 test('handles all 5 status_result values in test summary', () => {
   const fs = require('fs');
   const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'validate-free-models.js'), 'utf8');
-  // The loadFromDb function should handle: working, rate_limited, broken, untested, not_found
-  const statusPattern = /ts\[r\]\.push/;
-  assert.ok(statusPattern.test(src), 'Should push statuses to test summary');
-  // Check that not_found is handled in the apply section
-  assert.ok(src.includes("r.status === 'not_found'"), 'Should handle not_found status in apply');
+  // loadFromDb uses ts.working, ts.rate_limited, ts.broken, ts.untested, ts.not_found
+  assert.ok(src.includes('ts.not_found'), 'Should have ts.not_found array in loadFromDb');
+  // The apply section should handle all statuses including not_found
+  assert.ok(src.includes("r.status === 'working'"), 'Should handle working status');
+  assert.ok(src.includes("r.status === 'rate_limited'"), 'Should handle rate_limited status');
+  assert.ok(src.includes("r.status === 'broken'"), 'Should handle broken status');
+  assert.ok(src.includes("r.status === 'not_found'"), 'Should handle not_found status');
 });
 
 // ── import-modelsdev-backfill.js: uses correct variable name ──
