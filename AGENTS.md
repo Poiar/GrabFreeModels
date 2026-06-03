@@ -21,15 +21,15 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `parallel-todos` — use for independent parallel subagent tasks
 - `validate-free-models` — test and validate free model statuses
 - `sync-models` — fetch latest free models from providers, sync to DB
-- `import-modelsdev` — import models.dev data into super_models + datapoint_models
+- `import-modelsdev` — import models.dev data into super_models + datapoint_models (see also `extract-modelsdev`)
+- `extract-modelsdev` — scrape models.dev via Playwright → `modelsdev-free-models.json`
 - `validate-jsonc` — validate opencode.jsonc syntax before session end
 - `secret-scanning` — run Gitleaks locally, update allowlist, validate config, handle CI failures
 - `vue-gotchas` — Vue 3 + Pinia framework gotchas
 - `playwright-test` — test/screenshot the Vue frontend at localhost:5173
 - `nightly-maintenance` — full nightly validation pipeline
 - `metrics-exporter` — Prometheus metrics endpoint / service installer
-- `rank-models` — rebuild `_role-rankings` using deterministic scoring algorithm
-- `import-modelsdev` — scrape + import models.dev free model data
+- `rank-models` — rebuild `_role_rankings` using deterministic scoring algorithm
 - `schema-v2` — DB schema documentation (super_models + datapoint_providers + datapoint_models)
 
 ## Lean Files Policy
