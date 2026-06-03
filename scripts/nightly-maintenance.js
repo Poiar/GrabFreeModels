@@ -173,15 +173,11 @@ const nowMs = Date.now();
     }
   }
 
-  // 7. Populate stable ranking
-  console.log('Populating stable ranking...');
-  execSync('node scripts/backfill-metadata.js --apply', { stdio: 'inherit' });
-
-  // 8. Run ranking sanity check (reads from DB)
+  // 7. Run ranking sanity check (reads from DB)
   console.log('Running ranking sanity check...');
   execSync('node scripts/check-rankings.js', { stdio: 'inherit' });
 
-  // 9. Regenerate _test_summary and persist to PG
+  // 8. Regenerate _test_summary and persist to PG
   console.log('Regenerating _test_summary...');
   const summaryData = await loadFromDb();
   const freeModels = summaryData.models.filter(m => m.is_free);
@@ -260,7 +256,7 @@ const nowMs = Date.now();
         fs.copyFileSync(PREV_COPY, 'available-models.json');
         execSync('git add available-models.json');
         execSync(`git commit -m "chore(models): automatic rollback to previous stable state (health ${healthPct}%)"`);
-        execSync('git push origin super');
+         execSync('git push origin master');
         console.log('Rollback committed and pushed');
       }
       process.exit(0);
@@ -270,7 +266,7 @@ const nowMs = Date.now();
     execSync(`git commit -m "chore(models): nightly validation ${today}"`);
 
     // Push
-    execSync('git push origin super');
+    execSync('git push origin master');
     console.log('Pushed commits');
   } else {
     console.log('No changes detected; nothing to commit.');
