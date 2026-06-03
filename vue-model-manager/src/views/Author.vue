@@ -108,7 +108,12 @@
         </template>
       </DynamicScroller>
       <div v-else class="empty-state">
-        <div class="empty-state-inner"><p>No authors match your search.</p></div>
+        <div class="empty-state-inner">
+          <svg class="empty-state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <h3>No authors found</h3>
+<p>No authors match your current search or filters.</p>
+          <button class="clear-btn" @click="searchQuery = ''; statusFilter = 'all'">Clear all filters</button>
+        </div>
       </div>
     </div>
 

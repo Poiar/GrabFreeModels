@@ -1,5 +1,8 @@
 <template>
   <div class="layout">
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-icon-wrap">
@@ -67,9 +70,9 @@
           <span>Updated {{ timeAgo(store.lastLoaded) }}</span>
         </div>
         <div class="footer-actions">
-          <button class="theme-toggle" @click="toggleTheme" :title="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'" :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'" :aria-pressed="theme !== 'dark'">
+          <button class="theme-toggle" @click="toggleTheme" :title="theme === 'dark' ? 'Switch to light mode (T)' : 'Switch to dark mode (T)'" :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'" :aria-pressed="theme !== 'dark'">
             <svg aria-hidden="true" v-if="theme === 'dark'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          <svg aria-hidden="true" v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg aria-hidden="true" v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           </button>
           <button @click="store.loadData()" class="refresh-btn" :disabled="store.loading">
             <svg aria-hidden="true" v-if="!store.loading" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
@@ -77,9 +80,13 @@
             {{ store.loading ? 'Loading…' : 'Refresh' }}
           </button>
         </div>
+        <button class="footer-shortcuts-hint" @click="shortcutsModalOpen = true" title="Keyboard shortcuts (?)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="6" y1="16" x2="6" y2="16"/><line x1="18" y1="16" x2="18" y2="16"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+          <span>? shortcuts</span>
+        </button>
       </div>
     </aside>
-    <main class="content">
+    <main id="main-content" class="content" tabindex="-1">
       <div v-if="store.loading" class="center-message">
         <div class="loading-state">
           <div class="loading-spinner"></div>
@@ -102,17 +109,29 @@
       </router-view>
     </main>
   </div>
+
+  <!-- Keyboard shortcuts modal -->
+  <KeyboardShortcutsModal :open="shortcutsModalOpen" @close="shortcutsModalOpen = false" />
+
+  <!-- Toast container -->
+  <ToastContainer ref="toastRef" />
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useModelsStore } from '@/store/models'
 import { useTheme } from '@/composables/useTheme'
+import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
+import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal.vue'
+import ToastContainer from '@/components/ToastContainer.vue'
 
 const route = useRoute()
 const store = useModelsStore()
 const { theme, toggle: toggleTheme } = useTheme()
+const { shortcutsModalOpen } = useKeyboardShortcuts()
+const toastRef = ref<InstanceType<typeof ToastContainer> | null>(null)
+
 const isSuperActive = computed(() => route.path === '/models' || route.path.startsWith('/super/'))
 onMounted(() => store.loadData())
 
@@ -126,9 +145,39 @@ function timeAgo(date: Date): string {
   const days = Math.floor(hours / 24)
   return `${days}d ago`
 }
+
+// Expose toast to window for use in views
+function showToast(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') {
+  toastRef.value?.add(message, type)
+}
+if (typeof window !== 'undefined') {
+  (window as unknown as Record<string, unknown>).$toast = showToast
+}
 </script>
 
 <style scoped>
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  padding: 8px 20px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 0 0 var(--radius) var(--radius);
+  text-decoration: none;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .brand-icon-wrap {
   width: 40px;
   height: 40px;
@@ -186,6 +235,24 @@ function timeAgo(date: Date): string {
   animation: spin 0.6s linear infinite;
 }
 
+.footer-shortcuts-hint {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+
+.footer-shortcuts-hint:hover {
+  color: var(--accent);
+}
+
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -212,5 +279,10 @@ function timeAgo(date: Date): string {
 .error-icon {
   font-size: 2.5rem;
   margin-bottom: 4px;
+}
+
+/* Focus styles for main content area */
+.content:focus {
+  outline: none;
 }
 </style>

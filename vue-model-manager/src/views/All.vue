@@ -191,9 +191,12 @@
 
       <div v-else class="empty-state">
         <div class="empty-state-inner">
-          <div class="empty-state-icon">🔍</div>
-          <p>No models match the current filters</p>
-          <button class="clear-btn" @click="clearAll">Clear filters</button>
+          <div class="empty-state-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </div>
+          <h3>No models found</h3>
+          <p>No models match the current filters. Try adjusting your search criteria or clearing all filters.</p>
+          <button class="clear-btn" @click="clearAll">Clear all filters</button>
         </div>
       </div>
     </div>
@@ -234,6 +237,11 @@ const router = useRouter()
 const selectedModel = ref<Model | null>(null)
 const copiedIds = reactive(new Set<string>())
 
+function showToast(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') {
+  const w = window as unknown as Record<string, unknown>
+  if (typeof w.$toast === 'function') (w.$toast as (m: string, t: 'success' | 'error' | 'info' | 'warning') => void)(message, type)
+}
+
 watch(() => route.query.model, (id) => {
   if (id && typeof id === 'string') {
     selectedModel.value = store.getModelById(id) ?? null
@@ -262,6 +270,7 @@ async function handleCopy(id: string) {
     document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta)
   }
   copiedIds.add(id)
+  showToast(`Copied: ${id}`, 'success')
   if (copyTimer) clearTimeout(copyTimer)
   copyTimer = setTimeout(() => copiedIds.delete(id), 1500)
 }

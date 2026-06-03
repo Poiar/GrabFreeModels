@@ -40,15 +40,18 @@
 
     <div v-if="!store.loading && !store.error && filteredIssues.length === 0 && store.knownIssues.length === 0" class="card">
       <div class="empty-state-inner" style="padding: 24px;">
-        <div class="empty-state-icon" style="font-size: 2rem;">✅</div>
-        <p>No known issues — all clear!</p>
+        <svg class="empty-state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <h3>All clear!</h3>
+        <p>No known issues — everything is working as expected.</p>
       </div>
     </div>
 
     <div v-else-if="!store.loading && !store.error && filteredIssues.length === 0" class="card">
       <div class="empty-state-inner" style="padding: 24px;">
-        <div class="empty-state-icon" style="font-size: 2rem;">🔍</div>
+        <svg class="empty-state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <h3>No matching issues</h3>
         <p>No issues match the selected severity filters.</p>
+        <button class="clear-btn" @click="activeSeverityFilter = null">Clear filter</button>
       </div>
     </div>
 

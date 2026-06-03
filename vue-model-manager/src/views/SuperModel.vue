@@ -21,10 +21,10 @@
     </div>
 
     <div v-else-if="notFound" class="center-message error-box">
-      <div class="error-icon">?</div>
+      <svg class="empty-state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <h2>Model not found</h2>
-<p class="error-message">No super model with ID <code>{{ route.params.id }}</code>.</p>
-        <router-link to="/all" class="refresh-btn">Browse all models</router-link>
+      <p class="error-message">No super model with ID <code>{{ route.params.id }}</code>.</p>
+      <router-link to="/all" class="refresh-btn">Browse all models</router-link>
     </div>
 
     <template v-else-if="super_"">
