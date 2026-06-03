@@ -33,7 +33,7 @@ async function exportData(pool) {
 
   const client = await pool.connect();
   try {
-    const result = await buildModelsData(client);
+    const result = await buildModelsData(client, pool);
     fs.writeFileSync(DATA_FILE, JSON.stringify(result, null, 2) + '\n');
     console.log(`Exported ${result.models.length} models to ${DATA_FILE}`);
   } catch (err) {

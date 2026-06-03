@@ -10,7 +10,7 @@
  *   const data = await buildModelsData(client);
  */
 
-async function buildModelsData(client) {
+async function buildModelsData(client, pool) {
   const { rows: metadataRows } = await client.query('SELECT key, value::text FROM metadata ORDER BY key');
   const meta = {};
   for (const r of metadataRows) {
@@ -34,10 +34,11 @@ async function buildModelsData(client) {
   const knownFeatures = ['best_for', 'tag', 'supports_reasoning', 'output_limit', 'temperature', 'open_weights', 'family', 'knowledge_cutoff', 'release_date', 'last_updated'];
 
   if (dmIds.length > 0) {
+    const useClient = pool || client;
     const [inputResult, outputResult, featResult] = await Promise.all([
-      client.query('SELECT datapoint_model_id, input_type FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1)', [dmIds]),
-      client.query('SELECT datapoint_model_id, output_type FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1)', [dmIds]),
-      client.query('SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)', [dmIds]),
+      useClient.query('SELECT datapoint_model_id, input_type FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1)', [dmIds]),
+      useClient.query('SELECT datapoint_model_id, output_type FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1)', [dmIds]),
+      useClient.query('SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)', [dmIds]),
     ]);
 
     for (const r of inputResult.rows) {

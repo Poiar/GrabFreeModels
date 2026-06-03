@@ -51,7 +51,7 @@ async function loadModels(existingPool) {
 
   const client = await pool.connect();
   try {
-    return await buildModelsData(client);
+    return await buildModelsData(client, pool);
   } finally {
     client.release();
     if (ownPool) await pool.end();

@@ -71,28 +71,18 @@
           </span>
         </div>
         <div class="provider-bars">
-          <div class="bar-row">
-            <span class="bar-label">Working</span>
-            <div class="bar-track">
+          <div class="bar-row bar-row-summary">
+            <div class="bar-track bar-track-multi">
               <div class="bar-fill working" :style="{ width: entry.pctWorking }"></div>
-            </div>
-            <span class="bar-count">{{ entry.health.working }}</span>
-          </div>
-          <div class="bar-row">
-            <span class="bar-label">Rate Limited</span>
-            <div class="bar-track">
               <div class="bar-fill rate_limited" :style="{ width: entry.pctRateLimited }"></div>
-            </div>
-            <span class="bar-count">{{ entry.health.rate_limited }}</span>
-          </div>
-          <div class="bar-row">
-            <span class="bar-label">Broken</span>
-            <div class="bar-track">
               <div class="bar-fill broken" :style="{ width: entry.pctBroken }"></div>
             </div>
-            <span class="bar-count">{{ entry.health.broken }}</span>
           </div>
-
+          <div class="bar-legend">
+            <span class="legend-item"><span class="legend-dot working"></span>{{ entry.health.working }} working</span>
+            <span class="legend-item"><span class="legend-dot rate_limited"></span>{{ entry.health.rate_limited }} rate-limited</span>
+            <span class="legend-item"><span class="legend-dot broken"></span>{{ entry.health.broken }} broken</span>
+          </div>
         </div>
         <div class="provider-total">
           {{ entry.health.total }} model{{ entry.health.total !== 1 ? 's' : '' }} total
@@ -213,4 +203,61 @@ const providerEntries = computed(() => {
   font-size: 0.72rem;
   margin-left: auto;
 }
+
+.bar-row-summary {
+  margin-bottom: 6px;
+}
+
+.bar-track-multi {
+  display: flex;
+  height: 8px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+
+.bar-track-multi .bar-fill {
+  height: 100%;
+  border-radius: 0;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bar-track-multi .bar-fill:first-child {
+  border-radius: var(--radius-full) 0 0 var(--radius-full);
+}
+
+.bar-track-multi .bar-fill:last-child {
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+}
+
+.bar-track-multi .bar-fill:only-child {
+  border-radius: var(--radius-full);
+}
+
+.bar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot.working { background: var(--green); }
+.legend-dot.rate_limited { background: var(--orange); }
+.legend-dot.broken { background: var(--red); }
 </style>

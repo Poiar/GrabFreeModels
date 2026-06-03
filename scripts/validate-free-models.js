@@ -53,7 +53,7 @@ const buildModelsData = require('./build-models-data');
 async function loadFromDb() {
   const client = await DB_POOL.connect();
   try {
-    json = await buildModelsData(client);
+    json = await buildModelsData(client, DB_POOL);
   } finally {
     client.release();
   }
