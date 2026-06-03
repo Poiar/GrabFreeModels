@@ -119,4 +119,4 @@ const KNOWN_CONTEXT = JSON.parse(
     client.release()
     await pool.end()
   }
-})()
+})().catch(e => { console.error(e.message); process.exit(1); })

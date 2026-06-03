@@ -184,17 +184,17 @@ test('Express error-handling middleware exists', () => {
 // ── nightly-maintenance.js: pool cleanup before exit ──
 console.log('\n=== nightly-maintenance.js: pool cleanup ===');
 
-test('summaryPool is closed before process.exit(0) on rollback', () => {
+test('pool is closed before process.exit(0) on rollback', () => {
   const fs = require('fs');
   const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'nightly-maintenance.js'), 'utf8');
-  // Find the rollback block - summaryPool.end() should come before process.exit(0)
+  // Find the rollback block - pool.end() should come before process.exit(0)
   const rollbackBlock = src.match(/shouldRollback[\s\S]*?process\.exit\(0\)/);
   assert.ok(rollbackBlock, 'Rollback block found');
   const block = rollbackBlock[0];
-  const endPos = block.indexOf('summaryPool.end');
+  const endPos = block.indexOf('await pool.end()');
   const exitPos = block.indexOf('process.exit(0)');
-  assert.ok(endPos !== -1, 'summaryPool.end() should exist in rollback block');
-  assert.ok(endPos < exitPos, 'summaryPool.end() should come before process.exit(0)');
+  assert.ok(endPos !== -1, 'await pool.end() should exist in rollback block');
+  assert.ok(endPos < exitPos, 'await pool.end() should come before process.exit(0)');
 });
 
 test('summary log generation is wrapped in try/catch', () => {

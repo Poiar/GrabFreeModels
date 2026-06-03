@@ -90,10 +90,10 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejec
     if (!APPLY) {
       console.log('\nDry-run. Use --apply to write.');
     }
-
-    await client.end();
   } catch (err) {
     console.error('Import failed:', err.message);
-    process.exit(1);
+    process.exitCode = 1;
+  } finally {
+    await client.end();
   }
 })();

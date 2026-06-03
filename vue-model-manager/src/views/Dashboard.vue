@@ -14,6 +14,10 @@
 
     <!-- Stats -->
     <div class="stats-grid">
+      <div class="stat-card stat-card-highlight">
+        <div class="stat-value green">{{ store.stats.working }}</div>
+        <div class="stat-label">Working</div>
+      </div>
       <div class="stat-card">
         <div class="stat-value">{{ store.stats.supers }}</div>
         <div class="stat-label">Super Models</div>
@@ -26,9 +30,9 @@
         <div class="stat-value accent">{{ store.stats.free }}</div>
         <div class="stat-label">Free Instances</div>
       </div>
-      <div class="stat-card stat-card-highlight">
-        <div class="stat-value green">{{ store.stats.working }}</div>
-        <div class="stat-label">Working</div>
+      <div class="stat-card">
+        <div class="stat-value purple">{{ Math.round(store.stats.workingRatio * 100) }}%</div>
+        <div class="stat-label">Success Rate</div>
       </div>
       <div class="stat-card">
         <div class="stat-value orange">{{ store.stats.rateLimited }}</div>
@@ -41,10 +45,6 @@
       <div class="stat-card">
         <div class="stat-value accent">{{ store.stats.untested }}</div>
         <div class="stat-label">Untested</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value purple">{{ Math.round(store.stats.workingRatio * 100) }}%</div>
-        <div class="stat-label">Success Rate</div>
       </div>
       <div class="stat-card" v-if="store.removedModels.length > 0">
         <div class="stat-value orange">{{ store.removedModels.length }}</div>
@@ -92,6 +92,7 @@
             </div>
             <span class="bar-count">{{ entry.health.broken }}</span>
           </div>
+
         </div>
         <div class="provider-total">
           {{ entry.health.total }} model{{ entry.health.total !== 1 ? 's' : '' }} total

@@ -65,4 +65,4 @@ const screenshotPath = get('--screenshot') || null;
   } finally {
     await browser.close();
   }
-})();
+})().catch(e => { console.error(e.message); process.exit(1); });

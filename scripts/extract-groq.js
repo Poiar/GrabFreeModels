@@ -124,4 +124,4 @@ const timeout = parseInt(get('--timeout') || '30000', 10);
   } finally {
     await browser.close();
   }
-})();
+})().catch(e => { console.error(e.message); process.exit(1); });

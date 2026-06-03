@@ -242,4 +242,4 @@ function normalizeCreator(name) {
   } finally {
     await pool.end();
   }
-})();
+})().catch(e => { console.error(e.message); process.exit(1); });

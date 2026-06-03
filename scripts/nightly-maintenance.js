@@ -15,12 +15,25 @@ require('dotenv').config();
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { Pool } = require('pg');
 
 const REPO_ROOT = path.join(__dirname, '..');
 const SNAPSHOT_DIR = path.join(REPO_ROOT, 'snapshots');
 const SUMMARY_LOG = path.join(REPO_ROOT, 'nightly-summary.log');
 const EXPORT_SCRIPT = path.join(__dirname, 'export-from-pg.js');
 const LOAD_SCRIPT = path.join(__dirname, 'load-models.js');
+
+const connectionString = process.env.DATABASE_URL;
+const pool = connectionString
+  ? new Pool({ connectionString, ssl: { rejectUnauthorized: false }, max: 2 })
+  : new Pool({
+      host: process.env.PGHOST || 'localhost',
+      port: parseInt(process.env.PGPORT || '5432', 10),
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+      max: 2,
+    });
 
 if (!fs.existsSync(SNAPSHOT_DIR)) fs.mkdirSync(SNAPSHOT_DIR, { recursive: true });
 
@@ -59,14 +72,15 @@ function exportJson() {
   execSync(`node ${EXPORT_SCRIPT}`, { stdio: 'inherit' });
 }
 
-/** Load full models data from DB */
+/** Load full models data from DB using the shared pool */
 function loadFromDb() {
-  // Use require to get fresh data each time (invalidate cache)
   delete require.cache[require.resolve(LOAD_SCRIPT)];
   const load = require(LOAD_SCRIPT);
-  return load();
+  return load(pool);
 }
 
+(async () => {
+  try {
 // 0. Save previous state for rollback and recovery detection
 exportJson();
 if (fs.existsSync('available-models.json')) {
@@ -79,24 +93,10 @@ execSync('node scripts/validate-free-models.js --apply', { stdio: 'inherit' });
 
 // 2. Prune stale non-working models from rankings metadata (7-day burn-in)
 console.log('Pruning stale non-working models from rankings (7-day burn-in)...');
-const { Pool } = require('pg');
 const BURN_IN_MS = 7 * 24 * 60 * 60 * 1000;
 const nowMs = Date.now();
 
-(async () => {
-  const connectionString = process.env.DATABASE_URL;
-  const pool = connectionString
-    ? new Pool({ connectionString, ssl: { rejectUnauthorized: false }, max: 2 })
-    : new Pool({
-        host: process.env.PGHOST || 'localhost',
-        port: parseInt(process.env.PGPORT || '5432', 10),
-        user: process.env.PGUSER,
-        password: process.env.PGPASSWORD,
-        database: process.env.PGDATABASE,
-        max: 2,
-      });
-
-  try {
+  {
     // Load current rankings + model test dates from DB
     const { rows: metaRows } = await pool.query(
       "SELECT value::text FROM metadata WHERE key = '_role_rankings'"
@@ -140,8 +140,6 @@ const nowMs = Date.now();
         console.log('  No stale entries to prune.');
       }
     }
-  } finally {
-    await pool.end();
   }
 
   // 3. Backfill context_length
@@ -193,24 +191,10 @@ const nowMs = Date.now();
     },
   };
 
-  const summaryPool = connectionString
-    ? new Pool({ connectionString, ssl: { rejectUnauthorized: false }, max: 1 })
-    : new Pool({
-        host: process.env.PGHOST || 'localhost',
-        port: parseInt(process.env.PGPORT || '5432', 10),
-        user: process.env.PGUSER,
-        password: process.env.PGPASSWORD,
-        database: process.env.PGDATABASE,
-        max: 1,
-      });
-  try {
-    await summaryPool.query(
-      "INSERT INTO metadata (key, value) VALUES ('_test_summary', $1) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()",
-      [JSON.stringify(newSummary)]
-    );
-  } finally {
-    await summaryPool.end();
-  }
+  await pool.query(
+    "INSERT INTO metadata (key, value) VALUES ('_test_summary', $1) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()",
+    [JSON.stringify(newSummary)]
+  );
   console.log(`  _test_summary updated: ${newSummary.results.working.length} working, ${newSummary.results.rate_limited.length} rate_limited, ${newSummary.results.broken.length} broken`);
 
   // 10. Generate summary log
@@ -263,7 +247,7 @@ const nowMs = Date.now();
         execSync('git push origin master');
         console.log('Rollback committed and pushed');
       }
-      await summaryPool.end();
+      await pool.end();
       process.exit(0);
     }
 
@@ -302,5 +286,8 @@ const nowMs = Date.now();
       }
       fs.unlinkSync(tmpFile);
     }
+  }
+  } finally {
+    await pool.end();
   }
 })().catch(e => { console.error(e.message); process.exit(1); });

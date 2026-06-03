@@ -110,4 +110,4 @@ function httpGet(url, headers) {
   for (const m of recent.slice(0, 10)) {
     console.log('  ' + m.id + ' (' + (m.created || '').split('T')[0] + ')');
   }
-})();
+})().catch(e => { console.error(e.message); process.exit(1); });

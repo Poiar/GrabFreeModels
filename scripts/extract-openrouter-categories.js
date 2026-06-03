@@ -79,4 +79,4 @@ const OUTPUT = path.join(__dirname, '..', 'data', 'openrouter-categories.json');
     await browser.close();
     process.exit(1);
   }
-})();
+})().catch(e => { console.error(e.message); process.exit(1); });
