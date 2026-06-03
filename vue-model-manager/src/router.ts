@@ -8,6 +8,18 @@ const routes = [
     meta: { title: 'Dashboard' },
   },
   {
+    path: '/author',
+    name: 'Author',
+    component: () => import('@/views/Author.vue'),
+    meta: { title: 'Author' },
+  },
+  {
+    path: '/family',
+    name: 'Family',
+    component: () => import('@/views/Family.vue'),
+    meta: { title: 'Family' },
+  },
+  {
     path: '/models',
     name: 'SuperModels',
     component: () => import('@/views/SuperModels.vue'),
