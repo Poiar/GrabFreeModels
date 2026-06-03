@@ -18,6 +18,7 @@
  *   node scripts/backfill-metadata.js --apply  # write changes
  */
 
+require('dotenv').config();
 const { Pool } = require('pg')
 
 const APPLY = process.argv.includes('--apply')

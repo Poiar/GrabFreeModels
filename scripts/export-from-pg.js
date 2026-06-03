@@ -1,3 +1,4 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
@@ -30,10 +31,10 @@ async function exportData(pool) {
     }
 
     const { rows: dmRows } = await client.query(`
-      SELECT dm.*, mm.name AS master_name, mm.slug AS master_slug,
+      SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug,
              dp.name AS provider_name, dp.slug AS provider_slug
       FROM datapoint_models dm
-      JOIN master_models mm ON mm.id = dm.master_model_id
+      JOIN super_models mm ON mm.id = dm.super_model_id
       JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
       ORDER BY mm.name, dp.name
     `);
@@ -86,9 +87,9 @@ async function exportData(pool) {
     for (const dm of dmRows) {
       const entry = {
         id: dm.full_id,
-        master_id: dm.master_model_id,
-        master_name: dm.master_name,
-        name: dm.master_name,
+        super_id: dm.super_model_id,
+        super_name: dm.super_name,
+        name: dm.super_name,
         provider: dm.provider_name,
         author: null,
         context_length: dm.context_length || null,

@@ -10,6 +10,7 @@
  *   node scripts/rank-models.js --apply  # write rankings to DB + export JSON
  */
 
+require('dotenv').config();
 const fs = require('fs')
 const path = require('path')
 const { Pool } = require('pg')
@@ -35,7 +36,7 @@ async function rankModels() {
       SELECT dm.full_id AS id, mm.name, dm.context_length, dm.is_free, dm.supports_tools,
              dp.name AS provider
       FROM datapoint_models dm
-      JOIN master_models mm ON mm.id = dm.master_model_id
+      JOIN super_models mm ON mm.id = dm.super_model_id
       JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
       WHERE dm.is_free = true
         AND dm.supports_tools = true

@@ -10,6 +10,7 @@
  *   node scripts/backfill-context.js --apply  # write changes
  */
 
+require('dotenv').config();
 const https = require('https')
 const fs = require('fs')
 const path = require('path')
@@ -56,7 +57,7 @@ const KNOWN_CONTEXT = JSON.parse(
     const { rows: targets } = await client.query(`
       SELECT dm.id, dm.full_id
       FROM datapoint_models dm
-      JOIN master_models mm ON mm.id = dm.master_model_id
+      JOIN super_models mm ON mm.id = dm.super_model_id
       WHERE dm.context_length IS NULL
         AND dm.is_free = true
         AND dm.status_result = 'working'

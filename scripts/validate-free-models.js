@@ -12,6 +12,7 @@
  *   --coding-only  : Only test models whose best_for tags match coding/agentic/reasoning patterns
  */
 
+require('dotenv').config();
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
@@ -48,10 +49,10 @@ const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
 let json = null;
 async function loadFromDb() {
   const { rows: dmRows } = await DB_POOL.query(`
-    SELECT dm.*, mm.name AS master_name, mm.slug AS master_slug,
+    SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug,
            dp.name AS provider_name, dp.slug AS provider_slug
     FROM datapoint_models dm
-    JOIN master_models mm ON mm.id = dm.master_model_id
+    JOIN super_models mm ON mm.id = dm.super_model_id
     JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
     ORDER BY dm.full_id
   `);
@@ -72,7 +73,7 @@ async function loadFromDb() {
     const r = dm.status_result || 'untested';
     if (ts[r]) ts[r].push(mid); else ts.untested.push(mid);
     return {
-      id: mid, name: dm.master_name, provider: dm.provider_name, author: null,
+      id: mid, name: dm.super_name, provider: dm.provider_name, author: null,
       context_length: dm.context_length || null,
       input_price_per_million: Number(dm.input_price_per_million) || 0,
       output_price_per_million: Number(dm.output_price_per_million) || 0,
