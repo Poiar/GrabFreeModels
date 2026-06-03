@@ -67,13 +67,19 @@ const KNOWN_CONTEXT = JSON.parse(
 
     console.log(`Models with null context_length: ${targets.length}\n`)
 
-    const auth = JSON.parse(
+  let auth;
+  try {
+    auth = JSON.parse(
       fs.readFileSync(
         process.env.GFM_AUTH_FILE ||
           path.join(process.env.XDG_DATA_HOME || path.join(process.env.HOME || process.env.USERPROFILE, '.local', 'share'), 'opencode', 'auth.json'),
         'utf8'
       )
-    )
+    );
+  } catch (e) {
+    console.error(`Failed to read auth file: ${e.message}`);
+    process.exit(1);
+  }
 
     let updated = 0
     for (const m of targets) {

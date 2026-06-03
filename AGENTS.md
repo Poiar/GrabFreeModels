@@ -88,11 +88,12 @@ All scripts live in `scripts/`. Some have corresponding skills with additional w
 | `export-from-pg.js` | Export PostgreSQL → `available-models.json` (for git history snapshots) |
 | `import-modelsdev.js` | Import models.dev → super_models + datapoint_models (see `import-modelsdev` skill) |
 | `import-modelsdev-backfill.js` | Fuzzy-match remaining supers to modelsdev by remote_id normalization |
-| `sync-models.js` | Fetch latest free models from providers (OpenRouter, Cerebras, NVIDIA, HuggingFace, Google, DeepSeek), diff against DB. `--apply` inserts new + flags removed |
+| `sync-models.js` | Fetch latest free models from providers (OpenRouter, Cerebras, NVIDIA, HuggingFace, Google, DeepSeek, Groq), diff against DB. `--apply` inserts new + flags removed |
 | `validate-free-models.js` | Read/write DB. Tests models against APIs, auto re-ranks on `--apply` |
 | `rank-models.js` | Read/write DB metadata. Rebuilds `_role_rankings` via tag+ctx scoring |
 | `backfill-context.js` | Read/write DB. Fetches `context_length` for null entries from OpenRouter catalog |
 | `backfill-metadata.js` | Read/write DB. Backfills `supports_tools` + populates `stable` ranking |
+| `backfill-from-openrouter.js` | Enrich `supports_tools` from OpenRouter API `supported_parameters` for accurate tool-support detection |
 | `check-rankings.js` | Sanity-check `_role_rankings` integrity (reads from DB) |
 | `nightly-maintenance.js` | Full nightly pipeline (validate → rank → commit) |
 | `generate-dashboard.js` | Generate HTML dashboard of provider health and rankings (reads from DB) |
@@ -101,6 +102,9 @@ All scripts live in `scripts/`. Some have corresponding skills with additional w
 | `metrics-exporter.js` | Serve Prometheus metrics (reads from DB) |
 | `extract-modelsdev.js` | Scrape models.dev via Playwright → `modelsdev-free-models.json` |
 | `extract-groq.js` | Scrape Groq docs via Playwright → `groq-models.json` |
+| `extract-openrouter-categories.js` | Scrape OpenRouter model categories/rankings → `data/openrouter-categories.json` |
+| `snapshot-openrouter-catalog.js` | Snapshot full OpenRouter model catalog (344+ models) to `data/openrouter-catalog.json` |
+| `import-openrouter-categories.js` | Import `data/openrouter-categories.json` → `datapoint_model_features.best_for` |
 | `import-groq.js` | Import groq-models.json → super_models + datapoint_models |
 | `kill-port.js` | Kill process on a given port |
 | `validate-jsonc.js` | Validate opencode.jsonc JSONC syntax |

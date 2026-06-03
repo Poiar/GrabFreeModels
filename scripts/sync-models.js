@@ -29,7 +29,13 @@ const pool = new Pool({
 const AUTH_FILE = process.env.GFM_AUTH_FILE
   || path.join(process.env.XDG_DATA_HOME || path.join(process.env.HOME || process.env.USERPROFILE, '.local', 'share'), 'opencode', 'auth.json');
 
-const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
+let auth;
+try {
+  auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
+} catch (e) {
+  console.error(`Failed to read auth file (${AUTH_FILE}): ${e.message}`);
+  process.exit(1);
+}
 
 function httpGet(url, headers = {}) {
   return new Promise((resolve, reject) => {
@@ -282,7 +288,7 @@ function normalizeModelSlug(name) {
     // --- Groq ---
     console.log('\n[Groq] Fetching...');
     let newGroq = [];
-    const groqModels = getGroqModels();
+    const groqModels = await getGroqModels();
     console.log(`  Found ${groqModels.length} free models`);
     for (const m of groqModels) {
       if (!existingIds.has(m.id)) newGroq.push(m);

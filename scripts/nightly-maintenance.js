@@ -214,9 +214,13 @@ const nowMs = Date.now();
   console.log(`  _test_summary updated: ${newSummary.results.working.length} working, ${newSummary.results.rate_limited.length} rate_limited, ${newSummary.results.broken.length} broken`);
 
   // 10. Generate summary log
-  const summaryOutput = execSync('node scripts/model-summary.js', { encoding: 'utf8' });
-  fs.writeFileSync(SUMMARY_LOG, summaryOutput, 'utf8');
-  console.log(`Summary written to ${SUMMARY_LOG}`);
+  try {
+    const summaryOutput = execSync('node scripts/model-summary.js', { encoding: 'utf8' });
+    fs.writeFileSync(SUMMARY_LOG, summaryOutput, 'utf8');
+    console.log(`Summary written to ${SUMMARY_LOG}`);
+  } catch (e) {
+    console.error(`Failed to generate summary log: ${e.message}`);
+  }
 
   // 11. Export final JSON for git
   exportJson();
@@ -256,9 +260,10 @@ const nowMs = Date.now();
         fs.copyFileSync(PREV_COPY, 'available-models.json');
         execSync('git add available-models.json');
         execSync(`git commit -m "chore(models): automatic rollback to previous stable state (health ${healthPct}%)"`);
-         execSync('git push origin master');
+        execSync('git push origin master');
         console.log('Rollback committed and pushed');
       }
+      await summaryPool.end();
       process.exit(0);
     }
 

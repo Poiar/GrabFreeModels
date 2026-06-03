@@ -14,17 +14,22 @@
  */
 
 const path = require('path');
+require('dotenv').config();
 
 async function loadModels(existingPool) {
   let pool = existingPool;
   let ownPool = false;
 
   if (!pool) {
-    const connectionString = process.env.DATABASE_URL;
+    const rawConnectionString = process.env.DATABASE_URL;
+    let connectionString = rawConnectionString;
+    if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
+      connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+    }
     // eslint-disable-next-line global-require
     const { Pool } = require('pg');
     if (connectionString) {
-      const isNeon = connectionString.includes('neon.tech');
+      const isNeon = (rawConnectionString || '').includes('neon.tech');
       pool = new Pool({
         connectionString,
         max: isNeon ? 3 : 10,

@@ -37,6 +37,9 @@ qa-deep-*.json
 available-models.json
 modelsdev-free-models.json
 
+# Generated scraping output
+data/
+
 # Nightly summary log
 nightly-summary.log
 
@@ -76,3 +79,8 @@ update_*.py
 update_scraper*.py
 write_*.py
 write_free*.py
+
+# QA debug files
+qa-*.mjs
+groq-models.json
+_check-*.js

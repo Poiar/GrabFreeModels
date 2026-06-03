@@ -28,7 +28,113 @@ const CREATORS = {
   'together': 'Together AI',
   'cerebras': 'Cerebras',
   'groq': 'Groq',
+
+  // Additional creator aliases
+  'meta-llama': 'Meta',
+  'mistralai': 'Mistral AI',
+  'mistral-ai': 'Mistral AI',
+  'nv-mistralai': 'Mistral AI',
+  'ibm': 'IBM',
+  'writer': 'Writer',
+  'bigcode': 'BigCode',
+  'zyphra': 'Zyphra',
+  'arcee-ai': 'Arcee AI',
+  'arceeai': 'Arcee AI',
+  'poolside': 'Poolside',
+  'nousresearch': 'Nous Research',
+  'stockmark': 'Stockmark',
+  'core42': 'Core42',
+  'meituan': 'Meituan',
+  'baidu': 'Baidu',
+  'liquid': 'Liquid AI',
+  'lumalabs': 'Luma AI',
+  'topazlabs-co': 'Topaz Labs',
+  'voyage': 'Voyage AI',
+  'elevenlabs': 'ElevenLabs',
+  'ideogramai': 'Ideogram',
+  'recraft': 'Recraft',
+  'runwayml': 'Runway',
+  'xiaomimimo': 'Xiaomi',
+  'fireworks': 'Fireworks AI',
+  'fireworks-ai': 'Fireworks AI',
+  'kwaipilot': 'Kwaipilot',
+  'poetools': 'POE',
+  'bfl': 'Black Forest Labs',
+  'paddlepaddle': 'PaddlePaddle',
+  'tencent': 'Tencent',
+  'workers-ai': 'Cloudflare',
+  'deepgram': 'Deepgram',
+  'inclusionai': 'Inclusion AI',
+  'zhipuai': 'Zhipu AI',
+  'novita': 'Novita AI',
+  'trytako': 'Tako',
+  'devstral': 'Devstral',
+  'longcat': 'Meituan',
+  'llama': 'Meta',
+  'opencode': 'opencode',
+  'nova': 'Nova',
+  'nano-gpt': 'Nano GPT',
+  'umans': 'Umans AI',
+  'xiaomi': 'Xiaomi',
+  'chatgpt': 'OpenAI',
 };
+
+// Model family name prefixes → creator (fallback when segment matching fails)
+const NAME_PREFIXES = {
+  'claude': 'Anthropic',
+  'gemini': 'Google',
+  'gemma': 'Google',
+  'llama': 'Meta',
+  'mistral': 'Mistral AI',
+  'ministral': 'Mistral AI',
+  'codestral': 'Mistral AI',
+  'mixtral': 'Mistral AI',
+  'phi': 'Microsoft',
+  'granite': 'IBM',
+  'hunyuan': 'Tencent',
+  'kimi': 'Moonshot AI',
+  'doubao': 'ByteDance',
+  'aya': 'Cohere',
+  'c4ai': 'Cohere',
+  'palmyra': 'Writer',
+  'zamba': 'Zyphra',
+  'stockmark': 'Stockmark',
+  'sarvam': 'Sarvam AI',
+  'devstral': 'Devstral',
+  'qwen': 'Qwen',
+  'starcoder2': 'BigCode',
+  'flux': 'Black Forest Labs',
+  'bart': 'Meta',
+  'deepgram': 'Deepgram',
+  'elevenlabs': 'ElevenLabs',
+  'ideogram': 'Ideogram',
+  'recraft': 'Recraft',
+  'runway': 'Runway',
+  'voyage': 'Voyage AI',
+  'topazlabs': 'Topaz Labs',
+  'ling': 'Inclusion AI',
+  'wan': 'Wan',
+  'melotts': 'MyShell',
+  'kling': 'Kling',
+  'ring': 'Ring',
+  'grok': 'xAI',
+  'mimo': 'Xiaomi',
+  'longcat': 'Meituan',
+  'trinity': 'Arcee AI',
+  'laguna': 'Poolside',
+  'hermes': 'Nous Research',
+  'jais': 'Core42',
+  'rnj': 'RNJ',
+  'cogito': 'Cogito',
+  'glm': 'Zhipu AI',
+  'hidream': 'HiDream',
+  'ray': 'Luma AI',
+};
+
+function firstWord(name) {
+  const word = name.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)[0] || '';
+  return word.replace(/\d+$/, '');
+}
 
 // Prefixes that are routing/aggregator providers, NOT the actual creator
 const ROUTER_PREFIXES = new Set([
@@ -47,7 +153,7 @@ const ROUTER_PREFIXES = new Set([
 
 function normalizeCreator(name) {
   const key = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  return CREATORS[name.toLowerCase()] || CREATORS[key] || null;
+  return CREATORS[name.toLowerCase()] || CREATORS[key] || CREATORS[key.split('-')[0]] || null;
 }
 
 (async () => {
@@ -87,6 +193,34 @@ function normalizeCreator(name) {
         if (ROUTER_PREFIXES.has(parts[0]) && parts.length >= 3) {
           author = normalizeCreator(parts[1]);
           if (author) break;
+        }
+
+        // Case 3: First segment is a router, only 2 parts total (name is in second part)
+        // E.g., modelsdev/claude-3.5-sonnet, modelsdev/kimi-k2.5
+        if (ROUTER_PREFIXES.has(parts[0]) && parts.length === 2) {
+          author = normalizeCreator(parts[1]);
+          if (author) break;
+          author = NAME_PREFIXES[firstWord(parts[1])];
+          if (author) break;
+        }
+
+        // Case 4: Name prefix matching on the last segment
+        // E.g., modelsdev/mistral-ai/mistral-nemo → 'mistral' prefix
+        if (!author) {
+          const last = parts[parts.length - 1];
+          author = NAME_PREFIXES[firstWord(last)];
+          if (author) break;
+        }
+
+        // Case 5: GitLab Duo Chat rebranded models
+        // duo-chat-gpt* → OpenAI, duo-chat-(haiku|opus|sonnet|claude) → Anthropic
+        if (!author) {
+          const last = parts[parts.length - 1].toLowerCase();
+          const duoMatch = last.match(/duo[._-]chat[._-](gpt|claude|haiku|opus|sonnet)/);
+          if (duoMatch) {
+            author = duoMatch[1] === 'gpt' ? 'OpenAI' : 'Anthropic';
+            break;
+          }
         }
       }
 

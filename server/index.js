@@ -10,6 +10,11 @@ app.use(express.json());
 
 app.use('/api', dataRouter);
 
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err.message);
+  res.status(500).json({ error: 'Internal server error' });
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`GFM API server listening on port ${PORT}`);
 });

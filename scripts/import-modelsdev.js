@@ -105,7 +105,7 @@ function slugify(name) {
            VALUES ($1,$2,$3,$4,$5,0::numeric,0::numeric,true,$6,'untested','From models.dev')
            ON CONFLICT (datapoint_provider_id, remote_id) DO NOTHING
            RETURNING id`,
-          [masterId, provId, m.modelId, fullId, ctxLen, m.toolCall ? true : null]
+           [superId, provId, m.modelId, fullId, ctxLen, m.toolCall ? true : null]
         );
 
         if (dpIns.length === 0) { dpsSkipped++; continue; }
@@ -152,7 +152,7 @@ function slugify(name) {
       }
     }
 
-    console.log(`\nSupers matched: ${mastersMatched}`);
+    console.log(`\nSupers matched: ${supersMatched}`);
     console.log(`Supers created: ${mastersCreated}`);
     console.log(`Datapoints created: ${dpsCreated}`);
     console.log(`Datapoints skipped (already exist): ${dpsSkipped}`);

@@ -9,7 +9,7 @@ router.get('/data', async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error('Failed to build ModelsData:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -18,7 +18,8 @@ router.get('/health', async (req, res) => {
     const { rows } = await pool.query('SELECT now()');
     res.json({ status: 'ok', db: rows[0].now, time: new Date().toISOString() });
   } catch (err) {
-    res.status(503).json({ status: 'error', db: err.message, time: new Date().toISOString() });
+    console.error('Health check failed:', err.message);
+    res.status(503).json({ status: 'error', db: 'Database unavailable', time: new Date().toISOString() });
   }
 });
 

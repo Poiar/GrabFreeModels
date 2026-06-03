@@ -10,6 +10,7 @@
  * Usage: node scripts/check-rankings.js
  */
 
+require('dotenv').config();
 const loadModels = require('./load-models');
 
 (async () => {
