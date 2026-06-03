@@ -2,7 +2,7 @@
 /**
  * nightly-maintenance.js
  * Intended for scheduled execution (e.g., Windows Task Scheduler / cron).
- * Snapshots current state, validates free models, backfills context, re-ranks, populates stable,
+ * Snapshots current state, validates free models, backfills context, re-ranks,
  * runs ranking sanity check, regenerates test summary, commits and pushes changes.
  * Auto-rolls back if working count drops or health falls below 70%.
  *
@@ -11,6 +11,7 @@
  * Usage: node scripts/nightly-maintenance.js
  */
 
+require('dotenv').config();
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
