@@ -1,6 +1,6 @@
 <template>
   <div class="ms" ref="rootRef" :class="{ open: isOpen }">
-    <div class="ms-trigger" @click="toggle" :class="{ 'ms-has-val': modelValue.length > 0 }">
+    <div class="ms-trigger" role="button" tabindex="0" @click="toggle" @keydown.enter.prevent="toggle" @keydown.space.prevent="toggle" :class="{ 'ms-has-val': modelValue.length > 0 }">
       <template v-if="modelValue.length > 0">
         <span class="ms-pill" v-for="v in modelValue.slice(0, 3)" :key="v">{{ optLabel(v) }}</span>
         <span v-if="modelValue.length > 3" class="ms-count">+{{ modelValue.length - 3 }}</span>

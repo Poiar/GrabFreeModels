@@ -1,0 +1,156 @@
+{
+  "_generated": "2026-06-03T08:56:06.356Z",
+  "total": 15,
+  "models": [
+    {
+      "model_id": "llama-3.1-8b-instant",
+      "display_name": "Llama 3.1 8B",
+      "section": "Getting Started",
+      "speed_tps": 560,
+      "input_price_per_million": 0.05,
+      "output_price_per_million": 0.08,
+      "context_length": 131072,
+      "is_free": false
+    },
+    {
+      "model_id": "llama-3.3-70b-versatile",
+      "display_name": "Llama 3.3 70B",
+      "section": "Getting Started",
+      "speed_tps": 280,
+      "input_price_per_million": 0.59,
+      "output_price_per_million": 0.79,
+      "context_length": 131072,
+      "is_free": false
+    },
+    {
+      "model_id": "openai/gpt-oss-120b",
+      "display_name": "GPT OSS 120B",
+      "section": "Getting Started",
+      "speed_tps": 500,
+      "input_price_per_million": 0.15,
+      "output_price_per_million": 0.6,
+      "context_length": 131072,
+      "is_free": false
+    },
+    {
+      "model_id": "openai/gpt-oss-20b",
+      "display_name": "GPT OSS 20B",
+      "section": "Getting Started",
+      "speed_tps": 1000,
+      "input_price_per_million": 0.075,
+      "output_price_per_million": 0.3,
+      "context_length": 131072,
+      "is_free": false
+    },
+    {
+      "model_id": "whisper-large-v3",
+      "display_name": "Whisper",
+      "section": "Getting Started",
+      "speed_tps": null,
+      "input_price_per_million": null,
+      "output_price_per_million": null,
+      "context_length": null,
+      "is_free": true
+    },
+    {
+      "model_id": "whisper-large-v3-turbo",
+      "display_name": "Whisper Large V3 Turbo",
+      "section": "Getting Started",
+      "speed_tps": null,
+      "input_price_per_million": null,
+      "output_price_per_million": null,
+      "context_length": null,
+      "is_free": true
+    },
+    {
+      "model_id": "groq/compound",
+      "display_name": "Compound",
+      "section": "Getting Started",
+      "speed_tps": 450,
+      "input_price_per_million": null,
+      "output_price_per_million": null,
+      "context_length": 131072,
+      "is_free": true
+    },
+    {
+      "model_id": "groq/compound-mini",
+      "display_name": "Compound Mini",
+      "section": "Getting Started",
+      "speed_tps": 450,
+      "input_price_per_million": null,
+      "output_price_per_million": null,
+      "context_length": 131072,
+      "is_free": true
+    },
+    {
+      "model_id": "canopylabs/orpheus-arabic-saudi",
+      "display_name": "Canopy Labs Orpheus Arabic Saudi",
+      "section": "Getting Started",
+      "speed_tps": null,
+      "input_price_per_million": null,
+      "output_price_per_million": null,
+      "context_length": 4000,
+      "is_free": true
+    },
+    {
+      "model_id": "canopylabs/orpheus-v1-english",
+      "display_name": "Canopy Labs Orpheus V1 English",
+      "section": "Getting Started",
+      "speed_tps": null,
+      "input_price_per_million": null,
+      "output_price_per_million": null,
+      "context_length": 4000,
+      "is_free": true
+    },
+    {
+      "model_id": "meta-llama/llama-4-scout-17b-16e-instruct",
+      "display_name": "Llama 4 Scout 17B 16E",
+      "section": "Getting Started",
+      "speed_tps": 750,
+      "input_price_per_million": 0.11,
+      "output_price_per_million": 0.34,
+      "context_length": 131072,
+      "is_free": false
+    },
+    {
+      "model_id": "meta-llama/llama-prompt-guard-2-22m",
+      "display_name": "Llama Prompt Guard 2 22M",
+      "section": "Getting Started",
+      "speed_tps": null,
+      "input_price_per_million": 0.03,
+      "output_price_per_million": 0.03,
+      "context_length": 512,
+      "is_free": false
+    },
+    {
+      "model_id": "meta-llama/llama-prompt-guard-2-86m",
+      "display_name": "Prompt Guard 2 86M",
+      "section": "Getting Started",
+      "speed_tps": null,
+      "input_price_per_million": 0.04,
+      "output_price_per_million": 0.04,
+      "context_length": 512,
+      "is_free": false
+    },
+    {
+      "model_id": "openai/gpt-oss-safeguard-20b",
+      "display_name": "Safety GPT OSS 20B",
+      "section": "Getting Started",
+      "speed_tps": 1000,
+      "input_price_per_million": 0.075,
+      "output_price_per_million": 0.3,
+      "context_length": 131072,
+      "is_free": false
+    },
+    {
+      "model_id": "qwen/qwen3-32b",
+      "display_name": "Qwen3-32B",
+      "section": "Getting Started",
+      "speed_tps": 400,
+      "input_price_per_million": 0.29,
+      "output_price_per_million": 0.59,
+      "context_length": 131072,
+      "is_free": false
+    }
+  ]
+}

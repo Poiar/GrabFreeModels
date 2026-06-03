@@ -8,7 +8,7 @@
     <!-- Search + Filters -->
     <div class="super-list-controls">
       <div class="super-list-search">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input
           v-model="searchQuery"
           type="text"
@@ -40,8 +40,8 @@
             <option value="free">Sort: Free</option>
           </select>
           <button class="sort-dir-btn" @click="sortDesc = !sortDesc" :title="sortDesc ? 'Descending' : 'Ascending'">
-            <svg v-if="sortDesc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
-            <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+            <svg aria-hidden="true" v-if="sortDesc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+            <svg aria-hidden="true" v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
           </button>
         </div>
       </div>
@@ -84,17 +84,17 @@
         </div>
         <div class="vscroll-header-cell col-roles">Top Roles</div>
       </div>
-      <RecycleScroller
+      <DynamicScroller
         v-if="sortedItems.length > 0"
         ref="scrollerRef"
         :items="sortedItems"
-        :item-size="56"
+        :min-item-size="56"
         key-field="id"
         class="vscroll-body"
-        :emit-update="false"
       >
-        <template #default="{ item }">
-          <div class="vscroll-row row-clickable" :class="{ 'row-has-removed': item.hasRemoved }" @click="$router.push(`/super/${item.id}`)" role="button" :title="'View ' + item.name">
+        <template #default="{ item, active }">
+          <DynamicScrollerItem :item="item" :active="active">
+          <div class="vscroll-row row-clickable" :class="{ 'row-has-removed': item.hasRemoved }" @click="$router.push(`/super/${item.id}`)" role="button" tabindex="0" :title="'View ' + item.name">
             <div class="vscroll-cell col-name">
               <span class="super-name" :title="item.name">{{ item.name }}</span>
               <span v-if="item.family" class="super-family">{{ item.family }}</span>
@@ -140,8 +140,9 @@
               </div>
             </div>
           </div>
+          </DynamicScrollerItem>
         </template>
-      </RecycleScroller>
+      </DynamicScroller>
 
       <div v-else class="empty-state">
         <div class="empty-state-inner">
@@ -154,7 +155,7 @@
 
 <script setup lang="ts">
 import { computed, defineComponent, h, ref, watch } from 'vue'
-import { RecycleScroller } from 'vue-virtual-scroller'
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import { useModelsStore } from '@/store/models'
 
 const ROLES = ['model', 'build', 'general', 'small_model', 'explore'] as const

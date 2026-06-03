@@ -57,49 +57,50 @@
         </div>
         <div class="vscroll-header-cell col-members">Members</div>
       </div>
-      <RecycleScroller
+      <DynamicScroller
         v-if="sortedItems.length > 0"
         ref="scrollerRef"
         :items="sortedItems"
-        :item-size="56"
+        :min-item-size="56"
         key-field="family"
         class="vscroll-body"
-        :emit-update="false"
       >
-        <template #default="{ item }">
-          <div class="vscroll-row row-clickable" @click="selectedFamily = item.family || null" role="button" :title="item.family || 'Models without a family'">
-            <div class="vscroll-cell col-family-name">
-              <span class="family-name" :class="{ 'no-family': !item.family }" :title="item.family || 'Models without a family'">
-                {{ item.family || '—' }}
-              </span>
-            </div>
-            <div class="vscroll-cell col-models">
-              <span class="instance-badge">{{ item.modelCount }}</span>
-            </div>
-            <div class="vscroll-cell col-providers">
-              <div class="provider-tags">
-                <span v-for="p in item.providers.slice(0, 5)" :key="p" class="provider-tag">{{ p }}</span>
-                <span v-if="item.providers.length > 5" class="provider-tag more">+{{ item.providers.length - 5 }}</span>
+        <template #default="{ item, active }">
+          <DynamicScrollerItem :item="item" :active="active">
+            <div class="vscroll-row row-clickable" @click="selectedFamily = item.family || null" role="button" :title="item.family || 'Models without a family'">
+              <div class="vscroll-cell col-family-name">
+                <span class="family-name" :class="{ 'no-family': !item.family }" :title="item.family || 'Models without a family'">
+                  {{ item.family || '—' }}
+                </span>
+              </div>
+              <div class="vscroll-cell col-models">
+                <span class="instance-badge">{{ item.modelCount }}</span>
+              </div>
+              <div class="vscroll-cell col-providers">
+                <div class="provider-tags">
+                  <span v-for="p in item.providers.slice(0, 5)" :key="p" class="provider-tag">{{ p }}</span>
+                  <span v-if="item.providers.length > 5" class="provider-tag more">+{{ item.providers.length - 5 }}</span>
+                </div>
+              </div>
+              <div class="vscroll-cell col-instances">
+                <span class="instance-badge">{{ item.instanceCount }}</span>
+              </div>
+              <div class="vscroll-cell col-working">
+                <span v-if="item.workingCount > 0" class="badge badge-working">{{ item.workingCount }} working</span>
+                <span v-else-if="item.untestedCount > 0" class="badge badge-untested">{{ item.untestedCount }} untested</span>
+                <span v-else-if="item.rateLimitedCount > 0" class="badge badge-rate_limited">{{ item.rateLimitedCount }} rate limited</span>
+                <span v-else class="badge badge-broken">—</span>
+              </div>
+              <div class="vscroll-cell col-members">
+                <div class="member-names">
+                  <span v-for="name in item.memberNames.slice(0, 4)" :key="name" class="member-chip">{{ name }}</span>
+                  <span v-if="item.memberNames.length > 4" class="member-chip more">+{{ item.memberNames.length - 4 }}</span>
+                </div>
               </div>
             </div>
-            <div class="vscroll-cell col-instances">
-              <span class="instance-badge">{{ item.instanceCount }}</span>
-            </div>
-            <div class="vscroll-cell col-working">
-              <span v-if="item.workingCount > 0" class="badge badge-working">{{ item.workingCount }} working</span>
-              <span v-else-if="item.untestedCount > 0" class="badge badge-untested">{{ item.untestedCount }} untested</span>
-              <span v-else-if="item.rateLimitedCount > 0" class="badge badge-rate_limited">{{ item.rateLimitedCount }} rate limited</span>
-              <span v-else class="badge badge-broken">—</span>
-            </div>
-            <div class="vscroll-cell col-members">
-              <div class="member-names">
-                <span v-for="name in item.memberNames.slice(0, 4)" :key="name" class="member-chip">{{ name }}</span>
-                <span v-if="item.memberNames.length > 4" class="member-chip more">+{{ item.memberNames.length - 4 }}</span>
-              </div>
-            </div>
-          </div>
+          </DynamicScrollerItem>
         </template>
-      </RecycleScroller>
+      </DynamicScroller>
       <div v-else class="empty-state">
         <div class="empty-state-inner"><p>No families match your search.</p></div>
       </div>
@@ -153,7 +154,7 @@
 
 <script setup lang="ts">
 import { computed, defineComponent, h, onMounted, onUnmounted, ref, watch } from 'vue'
-import { RecycleScroller } from 'vue-virtual-scroller'
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { useModelsStore } from '@/store/models'
 
@@ -198,7 +199,7 @@ const familyItems = computed<FamilyItem[]>(() => {
         if (d.status.result === 'working') entry.working++
         else if (d.status.result === 'untested') entry.untested++
         else if (d.status.result === 'rate_limited') entry.rateLimited++
-        else entry.broken++
+        else if (d.status.result === 'broken') entry.broken++
       }
     }
   }
@@ -208,7 +209,7 @@ const familyItems = computed<FamilyItem[]>(() => {
     items.push({
       family,
       modelCount: entry.supers.length,
-      instanceCount: entry.supers.reduce((s, m) => s + m.datapoints.length, 0),
+      instanceCount: entry.supers.reduce((s: number, m: any) => s + m.datapoints.filter((d: any) => (d.family === family || d.family == null && family === '')).length, 0),
       providers: [...entry.allProviders].sort(),
       memberNames: entry.supers.map(m => m.name).sort(),
       workingCount: entry.working,

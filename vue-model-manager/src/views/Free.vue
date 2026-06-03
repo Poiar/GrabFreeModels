@@ -8,7 +8,7 @@
     <!-- JQL Filter Bar -->
     <div class="jql-bar">
       <div class="jql-input-row">
-        <svg class="jql-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg aria-hidden="true" class="jql-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input
           ref="jql.inputRef"
           v-model="jql.rawQuery.value"
@@ -57,22 +57,22 @@
 
       <div v-if="jql.validationErrors.value.length" class="jql-errors">
         <div v-for="(err, i) in jql.validationErrors.value" :key="i" class="jql-error">
-          <svg class="jql-error-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <svg aria-hidden="true" class="jql-error-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           <span class="jql-error-msg">{{ err.message }}</span>
         </div>
       </div>
 
       <div class="jql-bar-footer">
         <span class="filter-count">
-          {{ jql.filteredModels.value.length }} of {{ flatRankings.length }} ranked models
+          {{ filtered.length }} of {{ flatRankings.length }} ranked models
         </span>
         <div class="export-btns">
           <button class="export-btn" title="Export as CSV" @click="exportCsv">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             CSV
           </button>
           <button class="export-btn" title="Export as JSON" @click="exportJson">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             JSON
           </button>
         </div>
@@ -118,6 +118,13 @@
         <span v-if="currentRoleMeta.maxCtx" class="constraint-badge">Max {{ formatContext(currentRoleMeta.maxCtx) }} ctx</span>
       </div>
     </div>
+    <div class="role-info-panel external" v-else-if="currentRoleMeta && scoringSource !== 'internal'">
+      <div class="role-info-header">
+        <span class="role-info-name" :data-role="roleFilter">{{ formatRole(roleFilter) }}</span>
+        <span class="role-info-desc">{{ currentRoleMeta.description }}</span>
+      </div>
+      <p class="scoring-source-note">Ranked by <strong>{{ availableSources.find(s => s.id === scoringSource)?.label ?? scoringSource }}</strong> intelligence scores. Sorted by rank descending within the same external score tier.</p>
+    </div>
 
     <div class="filters">
       <div class="role-filter">
@@ -150,8 +157,8 @@
           <option value="family">Sort: Family</option>
         </select>
         <button class="sort-dir-btn" @click="sortDesc = !sortDesc" :title="sortDesc ? 'Descending' : 'Ascending'">
-          <svg v-if="sortDesc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
-          <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+          <svg aria-hidden="true" v-if="sortDesc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+          <svg aria-hidden="true" v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
         </button>
       </div>
       <span class="result-count">{{ sortedItems.length }} result{{ sortedItems.length !== 1 ? 's' : '' }}</span>
@@ -197,7 +204,7 @@
       >
         <template #default="{ item, active }">
           <DynamicScrollerItem :item="item" :active="active">
-          <div class="vscroll-row row-clickable" :class="{ 'row-removed': item.model?._removed }" @click="selectedModel = (item.model ?? null)" role="button" :title="'View details for ' + (item.model?.name ?? item.modelId)">
+          <div class="vscroll-row row-clickable" :class="{ 'row-removed': item.model?._removed }" @click="selectedModel = (item.model ?? null)" role="button" tabindex="0" :title="'View details for ' + (item.model?.name ?? item.modelId)">
             <div class="vscroll-cell col-rank">
               <div class="rank-pills">
                 <span
@@ -218,10 +225,11 @@
               <span v-else class="score-val" :title="'External score: ' + (item.externalScore ?? 'N/A') + (item.externalScore !== null ? ' from ' + scoringSource : '')">{{ item.externalScore != null ? item.externalScore.toFixed(2) : '—' }}</span>
             </div>
             <div class="vscroll-cell col-name">
-              <router-link :to="item.model ? `/super/${item.model.super_id}` : ''" class="model-name-link" :title="item.model?.name ?? item.modelId" @click.stop>{{ item.model?.name ?? item.modelId }}</router-link>
+              <router-link v-if="item.model" :to="`/super/${item.model.super_id}`" class="model-name-link" :title="item.model.name" @click.stop>{{ item.model.name }}</router-link>
+              <span v-else class="model-name-link disabled" :title="item.modelId">{{ item.modelId }}</span>
               <div class="model-id-wrap">
                 <span class="model-id" :title="item.modelId">{{ item.modelId }}</span>
-                <button class="copy-btn" :class="{ copied: copiedIds.has(item.modelId) }" :title="copiedIds.has(item.modelId) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(item.modelId)">
+                <button class="copy-btn" :class="{ copied: copiedIds.has(item.modelId) }" :title="copiedIds.has(item.modelId) ? 'Copied!' : 'Copy ID'" aria-label="Copy model ID" @click.stop="handleCopy(item.modelId)">
                   {{ copiedIds.has(item.modelId) ? '✓' : '📋' }}
                 </button>
               </div>
@@ -270,7 +278,7 @@
     <!-- Working but unranked -->
     <div v-if="unrankedWorking.length > 0" class="unranked-section">
       <h3 class="section-title">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>
         Working but Unranked
         <span class="unranked-count">{{ unrankedWorking.length }} model{{ unrankedWorking.length !== 1 ? 's' : '' }}</span>
       </h3>
@@ -280,7 +288,7 @@
           <div class="unranked-name" :title="model.name">{{ model.name }}</div>
           <div class="unranked-id-wrap">
             <span class="model-id" :title="model.id">{{ model.id }}</span>
-            <button class="copy-btn" :class="{ copied: copiedIds.has(model.id) }" :title="copiedIds.has(model.id) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(model.id)">
+            <button class="copy-btn" :class="{ copied: copiedIds.has(model.id) }" :title="copiedIds.has(model.id) ? 'Copied!' : 'Copy ID'" aria-label="Copy model ID" @click.stop="handleCopy(model.id)">
               {{ copiedIds.has(model.id) ? '✓' : '📋' }}
             </button>
           </div>
@@ -443,7 +451,7 @@ const flatRankings = computed<ModelRanking[]>(() => {
       if (idx !== -1) allRankings.push({ role, rank: idx + 1 })
     }
     allRankings.sort((a, b) => a.rank - b.rank)
-    list.push({ modelId, rankings: allRankings, bestRank: allRankings[0].rank, roleRank: i + 1 })
+    list.push({ modelId, rankings: allRankings, bestRank: allRankings.length > 0 ? allRankings[0].rank : 999, roleRank: i + 1 })
   }
   return list
 })
@@ -950,6 +958,23 @@ function exportJson() {
 .rank-pill.rank-active[data-role="general"]     { background: rgba(188,140,255,0.28); box-shadow: 0 0 0 2px currentColor, 0 0 8px rgba(255,255,255,0.08); font-size: 0.72rem; padding: 4px 11px; }
 .rank-pill.rank-active[data-role="small_model"] { background: rgba(210,153,34,0.28); box-shadow: 0 0 0 2px currentColor, 0 0 8px rgba(255,255,255,0.08); font-size: 0.72rem; padding: 4px 11px; }
 .rank-pill.rank-active[data-role="explore"]     { background: rgba(57,210,192,0.28);  box-shadow: 0 0 0 2px currentColor, 0 0 8px rgba(255,255,255,0.08); font-size: 0.72rem; padding: 4px 11px; }
+
+.model-name-link.disabled {
+  color: var(--text-muted);
+  cursor: default;
+  pointer-events: none;
+}
+
+.scoring-source-note {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.role-info-panel.external {
+  opacity: 0.8;
+}
 
 /* ── Model cell ── */
 .model-name {

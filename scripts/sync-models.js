@@ -83,6 +83,51 @@ async function getNvidiaFreeModels() {
   }).map(m => ({ id: m.id, name: m.id, context_length: m.context_length ?? null }));
 }
 
+async function getGoogleModels() {
+  const key = auth.google?.key;
+  if (!key) throw new Error('No Google API key found in auth');
+  const { data } = await httpGet(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+  return (data.models || []).filter(m =>
+    m.supportedGenerationMethods?.includes('generateContent')
+  ).map(m => ({
+    id: `google/${m.name.replace('models/', '')}`,
+    name: m.displayName || m.name.replace('models/', ''),
+    context_length: m.inputTokenLimit ?? null,
+    model_id: m.name.replace('models/', ''),
+  }));
+}
+
+async function getDeepSeekModels() {
+  const key = auth.deepseek?.key;
+  if (!key) throw new Error('No DeepSeek API key found in auth');
+  const { data } = await httpGet('https://api.deepseek.com/models', { Authorization: `Bearer ${key}` });
+  return (data.data || []).map(m => ({
+    id: `deepseek/${m.id}`,
+    name: m.id,
+    context_length: null,
+  }));
+}
+
+async function getGroqModels() {
+  const groqJsonPath = path.join(__dirname, '..', 'groq-models.json');
+  if (!fs.existsSync(groqJsonPath)) {
+    console.log('  (no groq-models.json found — run scripts/extract-groq.js first)');
+    return [];
+  }
+  const raw = JSON.parse(fs.readFileSync(groqJsonPath, 'utf8'));
+  const models = raw.models || [];
+  return models.filter(m => {
+    if (m.is_free) return true;
+    if (m.input_price_per_million === null && m.output_price_per_million === null) return true;
+    if (m.input_price_per_million === 0 || m.output_price_per_million === 0) return true;
+    return false;
+  }).map(m => ({
+    id: `groq/${m.model_id}`,
+    name: m.display_name || m.model_id,
+    context_length: m.context_length ?? null,
+  }));
+}
+
 async function getSkipRemovalCheck(client) {
   const { rows } = await client.query("SELECT value FROM metadata WHERE key = '_skip_removal_check'");
   if (rows.length > 0) {
@@ -155,8 +200,9 @@ function normalizeModelSlug(name) {
     // --- NVIDIA ---
     console.log('\n[NVIDIA] Fetching...');
     let newNv = [];
+    let nvModels = [];
     try {
-      const nvModels = await getNvidiaFreeModels();
+      nvModels = await getNvidiaFreeModels();
       console.log(`  Found ${nvModels.length} free models`);
       for (const m of nvModels) {
         const storedId = `nvidia/${m.id}`;
@@ -201,12 +247,59 @@ function normalizeModelSlug(name) {
       console.log(`  ERROR: ${e.message}`);
     }
 
+    // --- Google Gemini ---
+    console.log('\n[Google] Fetching...');
+    let newGoogle = [];
+    let googleModels = [];
+    try {
+      googleModels = await getGoogleModels();
+      console.log(`  Found ${googleModels.length} chat models`);
+      for (const m of googleModels) {
+        if (!existingIds.has(m.id)) newGoogle.push(m);
+      }
+      console.log(`  New: ${newGoogle.length}`);
+      for (const n of newGoogle) console.log(`    + ${n.id}`);
+    } catch (e) {
+      console.log(`  ERROR: ${e.message}`);
+    }
+
+    // --- DeepSeek ---
+    console.log('\n[DeepSeek] Fetching...');
+    let newDs = [];
+    let dsModels = [];
+    try {
+      dsModels = await getDeepSeekModels();
+      console.log(`  Found ${dsModels.length} models`);
+      for (const m of dsModels) {
+        if (!existingIds.has(m.id)) newDs.push(m);
+      }
+      console.log(`  New: ${newDs.length}`);
+      for (const n of newDs) console.log(`    + ${n.id}`);
+    } catch (e) {
+      console.log(`  ERROR: ${e.message}`);
+    }
+
+    // --- Groq ---
+    console.log('\n[Groq] Fetching...');
+    let newGroq = [];
+    const groqModels = getGroqModels();
+    console.log(`  Found ${groqModels.length} free models`);
+    for (const m of groqModels) {
+      if (!existingIds.has(m.id)) newGroq.push(m);
+    }
+    console.log(`  New: ${newGroq.length}`);
+    for (const n of newGroq) console.log(`    + ${n.id}`);
+
     // --- Detect removed models ---
     console.log('\n[Status Check] Models in DB but no longer in provider listings...');
     const allCurrentFreeIds = new Set([
       ...orModels.map(m => `openrouter/${m.id}`),
       ...(cbModels || []).map(m => m.id),
+      ...(nvModels || []).map(m => `nvidia/${m.id}`),
       ...hfFree.map(m => m.id),
+      ...(googleModels || []).map(m => m.id),
+      ...(dsModels || []).map(m => m.id),
+      ...groqModels.map(m => m.id),
     ]);
 
     const skipRemovalCheck = await getSkipRemovalCheck(client);
@@ -228,7 +321,7 @@ function normalizeModelSlug(name) {
     for (const r of potentiallyRemoved) console.log(`    ? ${r.full_id}`);
 
     // --- Summary ---
-    const totalNew = newOr.length + newCb.length + newNv.length + newHf.length;
+    const totalNew = newOr.length + newCb.length + newNv.length + newHf.length + newGoogle.length + newDs.length + newGroq.length;
     console.log('\n=== Summary ===');
     console.log(`  New models found:    ${totalNew}`);
     console.log(`  Potentially removed: ${potentiallyRemoved.length}`);
@@ -241,7 +334,7 @@ function normalizeModelSlug(name) {
 
       try {
         // Ensure datapoint_providers exist
-        const providerSlugs = ['openrouter', 'cerebras', 'nvidia', 'huggingface'];
+        const providerSlugs = ['openrouter', 'cerebras', 'nvidia', 'huggingface', 'google', 'deepseek', 'groq'];
         for (const slug of providerSlugs) {
           await client.query(
             `INSERT INTO datapoint_providers (slug, name) VALUES ($1, $2) ON CONFLICT (slug) DO NOTHING`,
@@ -253,7 +346,7 @@ function normalizeModelSlug(name) {
         const { rows: providerRows } = await client.query('SELECT id, slug FROM datapoint_providers');
         const providerMap = new Map(providerRows.map(r => [r.slug, r.id]));
 
-        const allNew = [...newOr, ...newCb, ...newNv, ...newHf];
+        const allNew = [...newOr, ...newCb, ...newNv, ...newHf, ...newGoogle, ...newDs, ...newGroq];
 
         for (const m of allNew) {
           const providerSlug = m.id.split('/')[0];

@@ -143,12 +143,12 @@
       >
         <template #default="{ item, active }">
           <DynamicScrollerItem :item="item" :active="active">
-          <div class="vscroll-row row-clickable" :class="{ 'row-removed': item._removed }" @click="selectedModel = item" role="button" :title="'View details for ' + item.name">
+          <div class="vscroll-row row-clickable" :class="{ 'row-removed': item._removed }" @click="selectedModel = item" role="button" tabindex="0" :title="'View details for ' + item.name">
             <div class="vscroll-cell col-name">
               <router-link :to="`/super/${item.super_id}`" class="model-name-link" :title="item.name" @click.stop>{{ item.name }}</router-link>
               <div class="model-id-wrap">
                 <span class="model-id" :title="item.id">{{ item.id }}</span>
-                <button class="copy-btn" :class="{ copied: copiedIds.has(item.id) }" :title="copiedIds.has(item.id) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(item.id)">
+                <button class="copy-btn" :class="{ copied: copiedIds.has(item.id) }" :title="copiedIds.has(item.id) ? 'Copied!' : 'Copy ID'" aria-label="Copy model ID" @click.stop="handleCopy(item.id)">
                   {{ copiedIds.has(item.id) ? '✓' : '📋' }}
                 </button>
               </div>
@@ -419,7 +419,7 @@ function exportCsv() {
     m.id, m.name, m.author ?? '', m.provider, m._removed ? 'removed' : m.status.result,
     m.context_length ?? '', m.is_free ? 'free' : 'paid',
     m.input_price_per_million ?? '', m.output_price_per_million ?? '',
-    m.best_for.join('; '), m.supports_tools ? 'yes' : 'no', m.notes,
+    m.best_for.join('; '), m.supports_tools ? 'yes' : 'no', m.notes ?? '',
     m.status.detail, m.status.tested || '', m.last_success || '',
     m._removed ? 'yes' : 'no', m._removedDate || '',
   ].map(esc).join(','))

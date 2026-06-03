@@ -52,7 +52,7 @@ const routes = [
     name: 'Paid',
     component: () => import('@/views/Paid.vue'),
     meta: { title: 'Paid' },
-  },
+  }, 
   {
     path: '/issues',
     name: 'Issues',

@@ -1,6 +1,6 @@
 <template>
   <div class="ss" ref="rootRef" :class="{ open: isOpen }">
-    <div class="ss-trigger" @click="toggle" :class="{ 'ss-has-val': hasValue }">
+    <div class="ss-trigger" role="button" tabindex="0" @click="toggle" @keydown.enter.prevent="toggle" @keydown.space.prevent="toggle" :class="{ 'ss-has-val': hasValue }">
       <template v-if="multiple && (modelValue as string[]).length > 0">
         <span class="ss-multi-pill" v-for="v in (modelValue as string[]).slice(0, 3)" :key="v">{{ optLabel(v) }}</span>
         <span v-if="(modelValue as string[]).length > 3" class="ss-multi-count">+{{ (modelValue as string[]).length - 3 }}</span>

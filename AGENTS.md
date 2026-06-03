@@ -62,6 +62,21 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `npm run build` produces production build in `dist/`.
 - Consult `vue-gotchas` skill when writing or reviewing Vue code.
 
+### Rebuilding / Restarting the Dev Server
+
+**Never rebuild or restart the dev server yourself.** If code changes are not being picked up:
+
+1. First check if the issue is HMR not picking up `.vue` file changes — this happens specifically with `RecycleScroller`/`DynamicScroller` component swaps and structural template changes.
+2. Tell the user: "The Vite dev server needs a restart to pick up the changes. Can you restart it with `cd vue-model-manager && npm run dev`?"
+3. If the dev server was killed, the user needs to restart it manually — you cannot reliably restart background processes from the agent.
+
+**⚠️ Known issue:** Vite HMR sometimes fails silently for `.vue` file changes involving virtual scroller component swaps (`RecycleScroller` → `DynamicScroller`), structural template changes to scoped styles, or changes to `<script setup>` imports. A full dev server restart is required in these cases.
+
+**Do NOT:**
+- Run `npm run build` to "fix" a dev issue — that only checks production output
+- Kill/restart Vite processes yourself — ask the user
+- Assume HMR picked up your changes — verify with a test first
+
 ## Scripts
 
 All scripts live in `scripts/`. Some have corresponding skills with additional workflow guidance — see the skill for details.
@@ -73,7 +88,7 @@ All scripts live in `scripts/`. Some have corresponding skills with additional w
 | `export-from-pg.js` | Export PostgreSQL → `available-models.json` (for git history snapshots) |
 | `import-modelsdev.js` | Import models.dev → super_models + datapoint_models (see `import-modelsdev` skill) |
 | `import-modelsdev-backfill.js` | Fuzzy-match remaining supers to modelsdev by remote_id normalization |
-| `sync-models.js` | Fetch latest free models from providers, diff against DB. `--apply` inserts new + flags removed |
+| `sync-models.js` | Fetch latest free models from providers (OpenRouter, Cerebras, NVIDIA, HuggingFace, Google, DeepSeek), diff against DB. `--apply` inserts new + flags removed |
 | `validate-free-models.js` | Read/write DB. Tests models against APIs, auto re-ranks on `--apply` |
 | `rank-models.js` | Read/write DB metadata. Rebuilds `_role_rankings` via tag+ctx scoring |
 | `backfill-context.js` | Read/write DB. Fetches `context_length` for null entries from OpenRouter catalog |
@@ -85,6 +100,8 @@ All scripts live in `scripts/`. Some have corresponding skills with additional w
 | `model-summary.js` | Text overview of model statuses and ranking sizes (reads from DB) |
 | `metrics-exporter.js` | Serve Prometheus metrics (reads from DB) |
 | `extract-modelsdev.js` | Scrape models.dev via Playwright → `modelsdev-free-models.json` |
+| `extract-groq.js` | Scrape Groq docs via Playwright → `groq-models.json` |
+| `import-groq.js` | Import groq-models.json → super_models + datapoint_models |
 | `kill-port.js` | Kill process on a given port |
 | `validate-jsonc.js` | Validate opencode.jsonc JSONC syntax |
 | `get-auth-key.js` | Read a provider API key from auth.json |

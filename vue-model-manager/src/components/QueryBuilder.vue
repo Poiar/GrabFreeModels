@@ -174,8 +174,8 @@ function submit() {
   let jql = ''
   if (op.value === 'IS EMPTY') jql = `${fd.key} IS EMPTY`
   else if (op.value === 'IS NOT EMPTY') jql = `${fd.key} IS NOT EMPTY`
-  else if (op.value === 'IN') jql = `${fd.key} IN (${multiValue.value.join(',')})`
-  else if (op.value === 'NOT IN') jql = `${fd.key} NOT IN (${multiValue.value.join(',')})`
+  else if (op.value === 'IN') jql = `${fd.key} IN (${multiValue.value.map(v => `"${v}"`).join(',')})`
+  else if (op.value === 'NOT IN') jql = `${fd.key} NOT IN (${multiValue.value.map(v => `"${v}"`).join(',')})`
   else if (op.value === '!=') jql = `${fd.key}!=${value.value}`
   else jql = `${fd.key}${op.value}${value.value}`
   emit('change', [...props.conditions, { field: field.value, op: op.value, value: multiValue.value.join(',') || value.value, negated: neg, jql, joinOr: false }])

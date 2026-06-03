@@ -57,49 +57,50 @@
         </div>
         <div class="vscroll-header-cell col-members">Members</div>
       </div>
-      <RecycleScroller
+      <DynamicScroller
         v-if="sortedItems.length > 0"
         ref="scrollerRef"
         :items="sortedItems"
-        :item-size="56"
+        :min-item-size="56"
         key-field="author"
         class="vscroll-body"
-        :emit-update="false"
       >
-        <template #default="{ item }">
-          <div class="vscroll-row row-clickable" @click="selectedAuthor = item.author || null" role="button" :title="item.author || 'Models without an author'">
-            <div class="vscroll-cell col-author-name">
-              <span class="author-name" :class="{ 'no-author': !item.author }" :title="item.author || 'Models without an author'">
-                {{ item.author || '—' }}
-              </span>
-            </div>
-            <div class="vscroll-cell col-models">
-              <span class="instance-badge">{{ item.modelCount }}</span>
-            </div>
-            <div class="vscroll-cell col-providers">
-              <div class="provider-tags">
-                <span v-for="p in item.providers.slice(0, 5)" :key="p" class="provider-tag">{{ p }}</span>
-                <span v-if="item.providers.length > 5" class="provider-tag more">+{{ item.providers.length - 5 }}</span>
+        <template #default="{ item, active }">
+          <DynamicScrollerItem :item="item" :active="active">
+            <div class="vscroll-row row-clickable" @click="selectedAuthor = item.author || null" role="button" :title="item.author || 'Models without an author'">
+              <div class="vscroll-cell col-author-name">
+                <span class="author-name" :class="{ 'no-author': !item.author }" :title="item.author || 'Models without an author'">
+                  {{ item.author || '—' }}
+                </span>
+              </div>
+              <div class="vscroll-cell col-models">
+                <span class="instance-badge">{{ item.modelCount }}</span>
+              </div>
+              <div class="vscroll-cell col-providers">
+                <div class="provider-tags">
+                  <span v-for="p in item.providers.slice(0, 5)" :key="p" class="provider-tag">{{ p }}</span>
+                  <span v-if="item.providers.length > 5" class="provider-tag more">+{{ item.providers.length - 5 }}</span>
+                </div>
+              </div>
+              <div class="vscroll-cell col-instances">
+                <span class="instance-badge">{{ item.instanceCount }}</span>
+              </div>
+              <div class="vscroll-cell col-working">
+                <span v-if="item.workingCount > 0" class="badge badge-working">{{ item.workingCount }} working</span>
+                <span v-else-if="item.untestedCount > 0" class="badge badge-untested">{{ item.untestedCount }} untested</span>
+                <span v-else-if="item.rateLimitedCount > 0" class="badge badge-rate_limited">{{ item.rateLimitedCount }} rate limited</span>
+                <span v-else class="badge badge-broken">—</span>
+              </div>
+              <div class="vscroll-cell col-members">
+                <div class="member-names">
+                  <span v-for="name in item.memberNames.slice(0, 4)" :key="name" class="member-chip">{{ name }}</span>
+                  <span v-if="item.memberNames.length > 4" class="member-chip more">+{{ item.memberNames.length - 4 }}</span>
+                </div>
               </div>
             </div>
-            <div class="vscroll-cell col-instances">
-              <span class="instance-badge">{{ item.instanceCount }}</span>
-            </div>
-            <div class="vscroll-cell col-working">
-              <span v-if="item.workingCount > 0" class="badge badge-working">{{ item.workingCount }} working</span>
-              <span v-else-if="item.untestedCount > 0" class="badge badge-untested">{{ item.untestedCount }} untested</span>
-              <span v-else-if="item.rateLimitedCount > 0" class="badge badge-rate_limited">{{ item.rateLimitedCount }} rate limited</span>
-              <span v-else class="badge badge-broken">—</span>
-            </div>
-            <div class="vscroll-cell col-members">
-              <div class="member-names">
-                <span v-for="name in item.memberNames.slice(0, 4)" :key="name" class="member-chip">{{ name }}</span>
-                <span v-if="item.memberNames.length > 4" class="member-chip more">+{{ item.memberNames.length - 4 }}</span>
-              </div>
-            </div>
-          </div>
+          </DynamicScrollerItem>
         </template>
-      </RecycleScroller>
+      </DynamicScroller>
       <div v-else class="empty-state">
         <div class="empty-state-inner"><p>No authors match your search.</p></div>
       </div>
@@ -153,7 +154,7 @@
 
 <script setup lang="ts">
 import { computed, defineComponent, h, onMounted, onUnmounted, ref, watch } from 'vue'
-import { RecycleScroller } from 'vue-virtual-scroller'
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { useModelsStore } from '@/store/models'
 
@@ -194,7 +195,7 @@ const authorItems = computed<AuthorItem[]>(() => {
     if (dp.status.result === 'working') entry.working++
     else if (dp.status.result === 'untested') entry.untested++
     else if (dp.status.result === 'rate_limited') entry.rateLimited++
-    else entry.broken++
+    else if (dp.status.result === 'broken') entry.broken++
   }
 
   const items: AuthorItem[] = []

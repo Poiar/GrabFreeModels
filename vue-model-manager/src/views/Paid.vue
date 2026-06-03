@@ -137,12 +137,12 @@
       >
         <template #default="{ item, active }">
           <DynamicScrollerItem :item="item" :active="active">
-          <div class="vscroll-row row-clickable" :class="{ 'row-removed': item._removed }" @click="selectedModel = item" role="button" :title="'View details for ' + item.name">
+          <div class="vscroll-row row-clickable" :class="{ 'row-removed': item._removed }" @click="selectedModel = item" role="button" tabindex="0" :title="'View details for ' + item.name">
             <div class="vscroll-cell col-name">
               <router-link :to="`/super/${item.super_id}`" class="model-name-link" :title="item.name" @click.stop>{{ item.name }}</router-link>
               <div class="model-id-wrap">
                 <span class="model-id" :title="item.id">{{ item.id }}</span>
-                <button class="copy-btn" :class="{ copied: copiedIds.has(item.id) }" :title="copiedIds.has(item.id) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(item.id)">
+                <button class="copy-btn" :class="{ copied: copiedIds.has(item.id) }" :title="copiedIds.has(item.id) ? 'Copied!' : 'Copy ID'" aria-label="Copy model ID" @click.stop="handleCopy(item.id)">
                   {{ copiedIds.has(item.id) ? '✓' : '📋' }}
                 </button>
               </div>
@@ -150,9 +150,6 @@
             <div class="vscroll-cell col-author">{{ item.author }}</div>
             <div class="vscroll-cell col-provider">
               <span>{{ item.provider }}</span>
-              <span v-if="store.isModelProviderUsedUp(item.id)" class="used-up-icon" title="Provider used up for this month">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              </span>
             </div>
             <div class="vscroll-cell col-status">
               <span v-if="item._removed" class="badge badge-removed">Removed</span>
@@ -375,7 +372,7 @@ function exportCsv() {
   const rows = sortedItems.value.map(m => [
     m.id, m.name, m.author ?? '', m.provider, m._removed ? 'removed' : m.status.result,
     m.context_length ?? '', m.input_price_per_million ?? '', m.output_price_per_million ?? '',
-    'paid', m.best_for.join('; '), m.supports_tools ? 'yes' : 'no', m.notes,
+    'paid', m.best_for.join('; '), m.supports_tools ? 'yes' : 'no', m.notes ?? '',
     m.status.detail, m.status.tested || '', m.last_success || '',
     m._removed ? 'yes' : 'no', m._removedDate || '',
   ].map(esc).join(','))

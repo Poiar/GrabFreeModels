@@ -640,6 +640,99 @@ tr:hover td { background: var(--bg-hover); }
   margin-bottom: 20px;
 }
 
+.jql-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-elevated, var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+
+.jql-search-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.jql-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  outline: none;
+  padding: 0;
+  min-width: 0;
+}
+
+.jql-input::placeholder {
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+}
+
+.jql-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.jql-clear:hover {
+  color: var(--text);
+}
+
+.jql-suggestions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-top: -8px;
+  margin-bottom: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+}
+
+.jql-suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  transition: background 0.1s;
+}
+.jql-suggestion:hover,
+.jql-suggestion.active {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+.jql-sugg-label {
+  font-weight: 500;
+  white-space: nowrap;
+}
+.jql-sugg-insert {
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 50%;
+  text-align: right;
+}
+
 .jql-bar-footer {
   display: flex;
   align-items: center;
