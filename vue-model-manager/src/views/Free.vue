@@ -7,6 +7,36 @@
 
     <!-- JQL Filter Bar -->
     <div class="jql-bar">
+      <div class="jql-input-row">
+        <svg class="jql-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input
+          ref="jql.inputRef"
+          v-model="jql.rawQuery.value"
+          type="text"
+          class="jql-input"
+          placeholder="Filter: field:value, field:>number, field IN (a,b), ORDER BY field DESC…"
+          spellcheck="false"
+          @input="jql.onInput"
+          @keydown="jql.onKeydown"
+          @focus="jql.onFocus"
+          @blur="jql.onBlur"
+        />
+        <button v-if="jql.rawQuery.value" class="jql-clear" @click="jql.rawQuery.value = ''" title="Clear filter">✕</button>
+      </div>
+
+      <div v-if="jql.suggestions.value" class="jql-suggestions">
+        <div
+          v-for="(opt, i) in jql.suggestions.value.options"
+          :key="opt.value"
+          class="jql-suggestion"
+          :class="{ active: i === jql.activeSuggestion.value }"
+          @mousedown.prevent="jql.applySuggestion(opt.insert)"
+        >
+          <span class="jql-sugg-label">{{ opt.label }}</span>
+          <span class="jql-sugg-insert">{{ opt.insert }}</span>
+        </div>
+      </div>
+
       <div class="jql-chips">
         <button
           v-for="(token, i) in allTokens"
@@ -34,7 +64,7 @@
 
       <div class="jql-bar-footer">
         <span class="filter-count">
-          {{ sortedItems.length }} of {{ flatRankings.length }} ranked models
+          {{ jql.filteredModels.value.length }} of {{ flatRankings.length }} ranked models
         </span>
         <div class="export-btns">
           <button class="export-btn" title="Export as CSV" @click="exportCsv">
@@ -184,7 +214,8 @@
               </div>
             </div>
             <div class="vscroll-cell col-score">
-              <span class="score-val" :title="scoreTooltip(itemScore(item.modelId))">{{ formatScore(itemScore(item.modelId)) }}</span>
+              <span v-if="scoringSource === 'internal'" class="score-val" :title="scoreTooltip(itemScore(item.modelId))">{{ formatScore(itemScore(item.modelId)) }}</span>
+              <span v-else class="score-val" :title="'External score: ' + (item.externalScore ?? 'N/A') + (item.externalScore !== null ? ' from ' + scoringSource : '')">{{ item.externalScore != null ? item.externalScore.toFixed(2) : '—' }}</span>
             </div>
             <div class="vscroll-cell col-name">
               <router-link :to="item.model ? `/super/${item.model.super_id}` : ''" class="model-name-link" :title="item.model?.name ?? item.modelId" @click.stop>{{ item.model?.name ?? item.modelId }}</router-link>
@@ -271,7 +302,7 @@ import { useModelsStore } from '@/store/models'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import { useJqlFilter } from '@/composables/useJqlFilter'
 import type { FilterToken, SortSpec } from '@/composables/useJqlFilter'
-import type { Model, RoleScore } from '@/types'
+import type { Model, ModelScore, RoleScore, RoleMeta } from '@/types'
 import type { BuilderCondition } from '@/components/QueryBuilder.vue'
 import QueryBuilder from '@/components/QueryBuilder.vue'
 import ModelDetail from '@/components/ModelDetail.vue'
@@ -327,8 +358,7 @@ const availableSources = computed(() => {
   return SCORING_SOURCES.filter(s => s.id !== 'internal').filter(s => {
     const scores = store.modelScores
     if (!scores || !scores.scores) return false
-    const m = scores.scores instanceof Map ? scores.scores : new Map(Object.entries(scores.scores).map(([k, v]) => [Number(k), v]))
-    for (const arr of m.values()) {
+    for (const arr of Object.values(scores.scores)) {
       if (arr && arr.some(sc => sc.source === s.id)) return true
     }
     return false
@@ -338,10 +368,9 @@ const availableSources = computed(() => {
 function getExternalScore(modelId: string, source: string) {
   const scores = store.modelScores
   if (!scores || !scores.scores) return null
-  const m = scores.scores instanceof Map ? scores.scores : new Map(Object.entries(scores.scores).map(([k, v]) => [Number(k), v]))
-  const arr = m.get(Number(modelId))
+  const arr = scores.scores[modelId]
   if (!arr) return null
-  const s = arr.find(sc => sc.source === source && sc.score_type === 'intelligence') || arr.find(sc => sc.source === source)
+  const s = arr.find((sc: ModelScore) => sc.source === source && sc.score_type === 'intelligence') || arr.find((sc: ModelScore) => sc.source === source)
   return s ? s.score_value : null
 }
 
@@ -361,7 +390,15 @@ function formatStatus(s: string | undefined): string {
 
 
 
-const currentRoleMeta = computed(() => store.roleMeta[roleFilter.value] ?? null)
+const DEFAULT_META: Record<string, RoleMeta> = {
+  model:      { description: 'Best overall model for general use', ctxWeight: 1.0, tagKeywords: ['chat', 'general', 'reasoning'], tagPenaltyKeywords: [], nameSizePenalty: false, maxCtx: null, needsTools: false },
+  build:      { description: 'Optimized for code generation and development', ctxWeight: 1.0, tagKeywords: ['code', 'programming', 'agentic'], tagPenaltyKeywords: ['small'], nameSizePenalty: true, maxCtx: null, needsTools: true },
+  general:    { description: 'Balanced model for everyday tasks', ctxWeight: 1.0, tagKeywords: ['chat', 'general'], tagPenaltyKeywords: [], nameSizePenalty: false, maxCtx: null, needsTools: false },
+  small_model:{ description: 'Lightweight model for simple tasks', ctxWeight: 0.5, tagKeywords: ['small', 'fast', 'lightweight'], tagPenaltyKeywords: ['large'], nameSizePenalty: false, maxCtx: 32768, needsTools: false },
+  explore:    { description: 'Experimental or newly released models', ctxWeight: 1.0, tagKeywords: ['new', 'experimental'], tagPenaltyKeywords: [], nameSizePenalty: false, maxCtx: null, needsTools: false },
+}
+
+const currentRoleMeta = computed(() => store.roleMeta[roleFilter.value] ?? DEFAULT_META[roleFilter.value] ?? null)
 
 function itemScore(modelId: string): RoleScore | undefined {
   return store.getRoleScore(roleFilter.value, modelId)
@@ -454,7 +491,6 @@ function writeQueryToUrl(q: string) {
 onMounted(() => readQueryFromUrl())
 watch(() => jql.rawQuery.value, (q) => writeQueryToUrl(q))
 watch(() => roleFilter.value, () => writeQueryToUrl(jql.rawQuery.value ?? ''))
-watch(() => scoringSource.value, () => { sortBy.value = 'rank'; sortDesc.value = false })
 watch(() => scoringSource.value, () => { sortBy.value = 'rank'; sortDesc.value = false })
 
 watch(jql.sortSpec, (spec: SortSpec | null) => {
@@ -1144,6 +1180,40 @@ function exportJson() {
 .jql-bar {
   margin-bottom: 4px;
 }
+.jql-input-row {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg-elevated, var(--surface)); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 6px 10px; margin-bottom: 4px;
+  position: relative;
+}
+.jql-input-row:focus-within { border-color: var(--accent); }
+.jql-search-icon { color: var(--text-muted); flex-shrink: 0; }
+.jql-input {
+  flex: 1; background: none; border: none; color: var(--text);
+  font-size: 0.78rem; outline: none; padding: 0; font-family: inherit;
+}
+.jql-input::placeholder { color: var(--text-muted); font-size: 0.75rem; }
+.jql-clear {
+  background: none; border: none; color: var(--text-muted); cursor: pointer;
+  padding: 0 2px; font-size: 0.8rem; line-height: 1;
+}
+.jql-clear:hover { color: var(--text); }
+.jql-suggestions {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); max-height: 240px; overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35); margin-top: 2px;
+}
+.jql-suggestion {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px; cursor: pointer; font-size: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.jql-suggestion:last-child { border-bottom: none; }
+.jql-suggestion.active { background: rgba(88,166,255,0.12); }
+.jql-suggestion:hover { background: rgba(88,166,255,0.08); }
+.jql-sugg-label { font-weight: 600; color: var(--text); flex: 1; }
+.jql-sugg-insert { color: var(--text-muted); font-size: 0.7rem; font-family: monospace; }
 
 /* ── Role info panel ── */
 .role-info-panel {

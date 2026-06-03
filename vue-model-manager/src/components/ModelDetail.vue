@@ -164,12 +164,9 @@ function formatStatus(s: string) {
 const fmt = new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 })
 function formatContext(n: number) { return fmt.format(n) }
 
-watch(() => props.model, (m) => {
-  if (m) {
-    document.addEventListener('keydown', onKey)
-  } else {
-    document.removeEventListener('keydown', onKey)
-  }
+watch(() => props.model, (m, old) => {
+  if (old) document.removeEventListener('keydown', onKey)
+  if (m) document.addEventListener('keydown', onKey)
 })
 
 onUnmounted(() => {

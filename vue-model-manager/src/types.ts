@@ -129,7 +129,7 @@ export interface ModelScore {
 export interface ModelScoresData {
   description: string
   sources: string[]
-  scores: Map<number, ModelScore[]> | Record<number, ModelScore[]>
+  scores: Record<string, ModelScore[]>
 }
 
 export interface ModelsData {

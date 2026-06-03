@@ -67,10 +67,10 @@
         :emit-update="false"
       >
         <template #default="{ item }">
-          <div class="vscroll-row row-clickable" @click="selectedAuthor = item.author" role="button" :title="'View models by ' + item.author">
+          <div class="vscroll-row row-clickable" @click="selectedAuthor = item.author || null" role="button" :title="item.author || 'Models without an author'">
             <div class="vscroll-cell col-author-name">
-              <span class="author-name" :title="item.author === '(unknown)' ? 'No author assigned' : item.author">
-                {{ item.author === '(unknown)' ? '— unknown —' : item.author }}
+              <span class="author-name" :class="{ 'no-author': !item.author }" :title="item.author || 'Models without an author'">
+                {{ item.author || '—' }}
               </span>
             </div>
             <div class="vscroll-cell col-models">
@@ -109,7 +109,7 @@
     <div v-if="selectedAuthor" class="family-detail-overlay" @click.self="selectedAuthor = null">
       <div class="family-detail-panel">
         <div class="detail-header">
-          <h3>{{ selectedAuthor === '(unknown)' ? 'No Author Assigned' : selectedAuthor }}</h3>
+          <h3>{{ selectedAuthor || '—' }}</h3>
           <button class="detail-close" @click="selectedAuthor = null">✕</button>
         </div>
         <div class="detail-body">
@@ -152,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, ref, watch } from 'vue'
+import { computed, defineComponent, h, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { useModelsStore } from '@/store/models'
@@ -186,7 +186,7 @@ const authorItems = computed<AuthorItem[]>(() => {
   const map = new Map<string, { superIds: Set<number>, allProviders: Set<string>, working: number, untested: number, rateLimited: number, broken: number }>()
 
   for (const dp of store.allDatapoints) {
-    const author = dp.author || '(unknown)'
+    const author = dp.author || ''
     if (!map.has(author)) map.set(author, { superIds: new Set(), allProviders: new Set(), working: 0, untested: 0, rateLimited: 0, broken: 0 })
     const entry = map.get(author)!
     entry.superIds.add(dp.super_id)
@@ -206,7 +206,7 @@ const authorItems = computed<AuthorItem[]>(() => {
     items.push({
       author,
       modelCount: entry.superIds.size,
-      instanceCount: store.allDatapoints.filter(dp => (dp.author || '(unknown)') === author).length,
+      instanceCount: store.allDatapoints.filter(dp => (dp.author || '') === author).length,
       providers: [...entry.allProviders].sort(),
       memberNames: superNames,
       workingCount: entry.working,
@@ -259,13 +259,19 @@ function setSort(field: string) {
 
 watch([searchQuery, sortBy, sortDesc], () => scrollerRef.value?.scrollToPosition(0))
 
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && selectedAuthor.value) selectedAuthor.value = null
+}
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onUnmounted(() => window.removeEventListener('keydown', onKeydown))
+
 function formatContext(n: number): string {
   return new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 }).format(n)
 }
 
 const authorSupers = computed(() => {
   if (!selectedAuthor.value) return []
-  const auth = selectedAuthor.value === '(unknown)' ? '' : selectedAuthor.value
+  const auth = selectedAuthor.value || ''
   const supers = store.superModels.filter(m =>
     m.datapoints.some(dp => (dp.author || '') === auth)
   )
@@ -333,6 +339,9 @@ const authorSupers = computed(() => {
 .author-name {
   font-weight: 600; color: var(--accent);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 100%;
+}
+.author-name.no-author {
+  color: var(--text-muted); font-weight: 400; font-style: italic;
 }
 
 .instance-badge {

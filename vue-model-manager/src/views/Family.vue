@@ -67,10 +67,10 @@
         :emit-update="false"
       >
         <template #default="{ item }">
-          <div class="vscroll-row row-clickable" @click="selectedFamily = item.family === '(no family)' ? '(no family)' : item.family" role="button" :title="'View models in ' + item.family">
+          <div class="vscroll-row row-clickable" @click="selectedFamily = item.family || null" role="button" :title="item.family || 'Models without a family'">
             <div class="vscroll-cell col-family-name">
-              <span class="family-name" :title="item.family === '(no family)' ? 'Models without an assigned family' : item.family">
-                {{ item.family === '(no family)' ? '🚫 NO FAMILY' : item.family }}
+              <span class="family-name" :class="{ 'no-family': !item.family }" :title="item.family || 'Models without a family'">
+                {{ item.family || '—' }}
               </span>
             </div>
             <div class="vscroll-cell col-models">
@@ -109,7 +109,7 @@
     <div v-if="selectedFamily" class="family-detail-overlay" @click.self="selectedFamily = null">
       <div class="family-detail-panel">
         <div class="detail-header">
-          <h3>{{ selectedFamily === '(no family)' ? '🚫 NO FAMILY' : selectedFamily }}</h3>
+          <h3>{{ selectedFamily || '—' }}</h3>
           <button class="detail-close" @click="selectedFamily = null">✕</button>
         </div>
         <div class="detail-body">
@@ -152,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, ref, watch } from 'vue'
+import { computed, defineComponent, h, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { useModelsStore } from '@/store/models'
@@ -187,15 +187,14 @@ const familyItems = computed<FamilyItem[]>(() => {
 
   for (const m of store.superModels) {
     const families = new Set(m.datapoints.map(d => d.family).filter((f): f is string => !!f))
-    if (families.size === 0)     families.add('(no family)')
+    if (families.size === 0)     families.add('')
     for (const fam of families) {
       if (!map.has(fam)) map.set(fam, { supers: [], allProviders: new Set(), working: 0, untested: 0, rateLimited: 0, broken: 0 })
       const entry = map.get(fam)!
       entry.supers.push(m)
       for (const p of m.providers) entry.allProviders.add(p)
       for (const d of m.datapoints) {
-        if (d.family !== fam && fam !== '(unknown)' && d.family != null) continue
-        if (fam === '(unknown)' && d.family != null) continue
+        if (d.family !== fam && d.family != null) continue
         if (d.status.result === 'working') entry.working++
         else if (d.status.result === 'untested') entry.untested++
         else if (d.status.result === 'rate_limited') entry.rateLimited++
@@ -262,6 +261,12 @@ function setSort(field: string) {
 
 watch([searchQuery, sortBy, sortDesc], () => scrollerRef.value?.scrollToPosition(0))
 
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && selectedFamily.value) selectedFamily.value = null
+}
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onUnmounted(() => window.removeEventListener('keydown', onKeydown))
+
 function formatContext(n: number): string {
   return new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 }).format(n)
 }
@@ -271,7 +276,7 @@ const familyMasters = computed(() => {
   const fam = selectedFamily.value
   const supers = store.superModels.filter(m => {
     const families = new Set(m.datapoints.map(d => d.family).filter((f): f is string => !!f))
-    if (fam === '(no family)') return families.size === 0
+    if (fam === '') return families.size === 0
     return families.has(fam)
   })
   return supers.map(m => ({
@@ -338,6 +343,9 @@ const familyMasters = computed(() => {
 .family-name {
   font-weight: 600; color: var(--accent);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 100%;
+}
+.family-name.no-family {
+  color: var(--text-muted); font-weight: 400; font-style: italic;
 }
 
 .instance-badge {

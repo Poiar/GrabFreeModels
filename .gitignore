@@ -29,6 +29,10 @@ badge/
 # Generated dashboard
 dashboard.html
 
+# QA test artifacts
+qa-deep-*.mjs
+qa-deep-*.json
+
 # Generated model data (source of truth is PostgreSQL)
 available-models.json
 modelsdev-free-models.json

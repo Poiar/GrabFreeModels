@@ -7,6 +7,36 @@
 
     <!-- JQL Filter Bar -->
     <div class="jql-bar">
+      <div class="jql-input-row">
+        <svg class="jql-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input
+          ref="jql.inputRef"
+          v-model="jql.rawQuery.value"
+          type="text"
+          class="jql-input"
+          placeholder="Filter: field:value, field:>number, field IN (a,b), ORDER BY field DESC…"
+          spellcheck="false"
+          @input="jql.onInput"
+          @keydown="jql.onKeydown"
+          @focus="jql.onFocus"
+          @blur="jql.onBlur"
+        />
+        <button v-if="jql.rawQuery.value" class="jql-clear" @click="jql.rawQuery.value = ''" title="Clear filter">✕</button>
+      </div>
+
+      <div v-if="jql.suggestions.value" class="jql-suggestions">
+        <div
+          v-for="(opt, i) in jql.suggestions.value.options"
+          :key="opt.value"
+          class="jql-suggestion"
+          :class="{ active: i === jql.activeSuggestion.value }"
+          @mousedown.prevent="jql.applySuggestion(opt.insert)"
+        >
+          <span class="jql-sugg-label">{{ opt.label }}</span>
+          <span class="jql-sugg-insert">{{ opt.insert }}</span>
+        </div>
+      </div>
+
       <div class="jql-chips">
         <button
           v-for="(token, i) in allTokens"
@@ -33,7 +63,7 @@
       </div>
 
       <div class="jql-bar-footer">
-        <span class="filter-count">{{ sortedItems.length }} of {{ paidModels.length }} paid models</span>
+        <span class="filter-count">{{ jql.filteredModels.value.length }} of {{ paidModels.length }} paid models</span>
         <div class="export-btns">
           <button class="export-btn" title="Export as CSV" @click="exportCsv">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -498,6 +528,40 @@ function formatContext(n: number): string { return fmtCompact.format(n) }
 .jql-bar {
   margin-bottom: 4px;
 }
+.jql-input-row {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg-elevated, var(--surface)); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 6px 10px; margin-bottom: 4px;
+  position: relative;
+}
+.jql-input-row:focus-within { border-color: var(--accent); }
+.jql-search-icon { color: var(--text-muted); flex-shrink: 0; }
+.jql-input {
+  flex: 1; background: none; border: none; color: var(--text);
+  font-size: 0.78rem; outline: none; padding: 0; font-family: inherit;
+}
+.jql-input::placeholder { color: var(--text-muted); font-size: 0.75rem; }
+.jql-clear {
+  background: none; border: none; color: var(--text-muted); cursor: pointer;
+  padding: 0 2px; font-size: 0.8rem; line-height: 1;
+}
+.jql-clear:hover { color: var(--text); }
+.jql-suggestions {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); max-height: 240px; overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35); margin-top: 2px;
+}
+.jql-suggestion {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px; cursor: pointer; font-size: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.jql-suggestion:last-child { border-bottom: none; }
+.jql-suggestion.active { background: rgba(88,166,255,0.12); }
+.jql-suggestion:hover { background: rgba(88,166,255,0.08); }
+.jql-sugg-label { font-weight: 600; color: var(--text); flex: 1; }
+.jql-sugg-insert { color: var(--text-muted); font-size: 0.7rem; font-family: monospace; }
 
 .tool-tag {
   background: rgba(88,166,255,0.10);
