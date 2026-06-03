@@ -88,3 +88,6 @@ _check-*.js
 
 # Scratch / ad-hoc scripts (underscore prefix)
 _*.js
+
+# Temp config files with secrets
+scripts/_tmp_cfg.json
