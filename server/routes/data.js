@@ -31,12 +31,12 @@ async function buildModelsData() {
     catch { meta[r.key] = r.value; }
   }
 
-  // Load all datapoint models with master + provider info in one query
+  // Load all datapoint models with super + provider info in one query
   const { rows: dmRows } = await pool.query(`
-    SELECT dm.*, mm.name AS master_name, mm.slug AS master_slug,
+    SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug, mm.author AS super_author,
            dp.name AS provider_name, dp.slug AS provider_slug
     FROM datapoint_models dm
-    JOIN master_models mm ON mm.id = dm.master_model_id
+    JOIN super_models mm ON mm.id = dm.super_model_id
     JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
     ORDER BY mm.name, dp.name
   `);
@@ -92,11 +92,11 @@ async function buildModelsData() {
   for (const dm of dmRows) {
     const entry = {
       id: dm.full_id,
-      master_id: dm.master_model_id,
-      master_name: dm.master_name,
-      name: dm.master_name,
+      super_id: dm.super_model_id,
+      super_name: dm.super_name,
+      name: dm.super_name,
       provider: dm.provider_name,
-      author: null,
+      author: dm.super_author || null,
       context_length: dm.context_length || null,
       input_price_per_million: Number(dm.input_price_per_million) || 0,
       output_price_per_million: Number(dm.output_price_per_million) || 0,
@@ -142,14 +142,14 @@ async function buildModelsData() {
     else untestedIds.push(dm.full_id);
   }
 
-  // Load model_scores
+  // Load model_scores, keyed by full_id for frontend lookup
   const { rows: scoreRows } = await pool.query(
-    'SELECT datapoint_model_id, source, score_type, score_value FROM model_scores'
+    'SELECT dm.full_id, ms.source, ms.score_type, ms.score_value FROM model_scores ms JOIN datapoint_models dm ON dm.id = ms.datapoint_model_id'
   );
-  const scoreMap = new Map();
+  const scoreMap = {};
   for (const r of scoreRows) {
-    if (!scoreMap.has(r.datapoint_model_id)) scoreMap.set(r.datapoint_model_id, []);
-    scoreMap.get(r.datapoint_model_id).push({
+    if (!scoreMap[r.full_id]) scoreMap[r.full_id] = [];
+    scoreMap[r.full_id].push({
       source: r.source,
       score_type: r.score_type,
       score_value: r.score_value !== null ? Number(r.score_value) : null,
@@ -176,7 +176,7 @@ async function buildModelsData() {
     _model_scores: {
       description: 'External benchmark scores by source',
       sources: ['artificial_analysis'],
-      scores: Object.fromEntries(scoreMap),
+      scores: scoreMap,
     },
     _provider_usage: meta._provider_usage || { description: '' },
     _known_issues: meta._known_issues || { description: '', issues: [] },

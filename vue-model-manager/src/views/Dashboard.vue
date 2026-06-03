@@ -15,8 +15,8 @@
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-value">{{ store.stats.masters }}</div>
-        <div class="stat-label">Master Models</div>
+        <div class="stat-value">{{ store.stats.supers }}</div>
+        <div class="stat-label">Super Models</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">{{ store.stats.total }}</div>

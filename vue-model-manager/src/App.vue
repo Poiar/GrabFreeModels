@@ -17,11 +17,23 @@
           </span>
           <span>Dashboard</span>
         </router-link>
-        <router-link to="/masters" active-class="active" :class="{ active: isMastersActive }">
+        <router-link to="/author" active-class="active">
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          <span>Author</span>
+        </router-link>
+        <router-link to="/family" active-class="active">
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6h.01L12 15l5.99-7H18V2z"/><path d="M6 2a4 4 0 0 0 8 0"/><path d="M8 8v4a4 4 0 0 0 8 0V8"/><path d="M12 15v3"/><path d="M8 22v-3"/><path d="M16 22v-3"/></svg>
+          </span>
+          <span>Family</span>
+        </router-link>
+        <router-link to="/models" active-class="active" :class="{ active: isSuperActive }">
           <span class="nav-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </span>
-          <span>Masters</span>
+          <span>Super</span>
         </router-link>
         <router-link to="/all" active-class="active">
           <span class="nav-icon">
@@ -93,12 +105,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useModelsStore } from '@/store/models'
 import { useTheme } from '@/composables/useTheme'
 
+const route = useRoute()
 const store = useModelsStore()
 const { theme, toggle: toggleTheme } = useTheme()
+const isSuperActive = computed(() => route.path === '/models' || route.path.startsWith('/super/'))
 onMounted(() => store.loadData())
 
 function timeAgo(date: Date): string {

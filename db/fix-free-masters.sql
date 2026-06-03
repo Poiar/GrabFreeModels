@@ -1,5 +1,5 @@
 -- fix-free-masters.sql
--- Merges "Free"-suffixed duplicate master_models into their canonical counterparts,
+-- Merges "Free"-suffixed duplicate super_models into their canonical counterparts,
 -- then normalizes all remaining slugs (spaces→hyphens, strip free suffixes).
 --
 -- Run: \i db/fix-free-masters.sql   (or paste into psql)
@@ -66,19 +66,19 @@ BEGIN
 
         -- Reassign datapoints that won't conflict
         UPDATE datapoint_models dm
-        SET master_model_id = target_id,
+        SET super_model_id = target_id,
             updated_at = now()
-        WHERE dm.master_model_id = free_id
+        WHERE dm.super_model_id = free_id
           AND NOT EXISTS (
               SELECT 1 FROM datapoint_models existing
               WHERE existing.datapoint_provider_id = dm.datapoint_provider_id
                 AND existing.remote_id = dm.remote_id
-                AND existing.master_model_id = target_id
+                AND existing.super_model_id = target_id
           );
         merged := merged + 1;
 
         -- Delete the free master (cascade-safe: datapoints already moved or will be skipped)
-        DELETE FROM master_models WHERE id = free_id;
+        DELETE FROM super_models WHERE id = free_id;
     END LOOP;
 
     RAISE NOTICE 'Processed % merge pairs', array_length(merge_pairs, 1);
@@ -89,7 +89,7 @@ END $$;
 -- Affected: 1061 (Kilo Auto Free), 966 (Ling 2.6 Flash Free),
 --           999 (MiMo V2 Flash Free), 1017 (MiMo V2.5 Free),
 --           864 (MiniMax M2.1 Free), 1212 (Ring 2.6 1T Free)
-UPDATE master_models
+UPDATE super_models
 SET name = regexp_replace(name, '\s+Free$', ''),
     slug = normalize_model_slug(regexp_replace(name, '\s+Free$', ''))
 WHERE name LIKE '% Free';
@@ -101,14 +101,14 @@ DECLARE
     updated INT := 0;
 BEGIN
     FOR r IN SELECT id, name, slug
-             FROM master_models
+             FROM super_models
              WHERE slug LIKE '% %'
                 OR slug LIKE '%(%'
                 OR slug LIKE '%)%'
                 OR slug LIKE '%:%'
                 OR slug LIKE '%+%'
     LOOP
-        UPDATE master_models SET slug = normalize_model_slug(r.name) WHERE id = r.id;
+        UPDATE super_models SET slug = normalize_model_slug(r.name) WHERE id = r.id;
         updated := updated + 1;
     END LOOP;
     RAISE NOTICE 'Normalized % slugs', updated;
@@ -123,12 +123,12 @@ DECLARE
 BEGIN
     FOR r IN
         SELECT slug, array_agg(id ORDER BY id) AS ids
-        FROM master_models
+        FROM super_models
         GROUP BY slug
         HAVING COUNT(*) > 1
     LOOP
         FOR i IN 2..array_length(r.ids, 1) LOOP
-            UPDATE master_models
+            UPDATE super_models
             SET slug = r.slug || '-' || (i - 1)
             WHERE id = r.ids[i];
             dup_count := dup_count + 1;

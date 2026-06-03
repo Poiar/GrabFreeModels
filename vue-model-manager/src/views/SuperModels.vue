@@ -46,16 +46,16 @@
         </div>
       </div>
       <div class="super-list-count">
-        {{ filteredItems.length }} of {{ masterItems.length }} super models
+        {{ filteredItems.length }} of {{ superItems.length }} super models
       </div>
     </div>
 
     <!-- Status summary bar -->
     <div class="super-status-bar">
-      <div class="status-segment working" :style="{ flex: workingMasters }" :title="workingMasters + ' fully working'"></div>
-      <div class="status-segment partial" :style="{ flex: partialMasters }" :title="partialMasters + ' partially working'"></div>
-      <div class="status-segment untested" :style="{ flex: untestedMasters }" :title="untestedMasters + ' untested'"></div>
-      <div class="status-segment broken" :style="{ flex: brokenMasters }" :title="brokenMasters + ' not working'"></div>
+      <div class="status-segment working" :style="{ flex: workingSupers }" :title="workingSupers + ' fully working'"></div>
+      <div class="status-segment partial" :style="{ flex: partialSupers }" :title="partialSupers + ' partially working'"></div>
+      <div class="status-segment untested" :style="{ flex: untestedSupers }" :title="untestedSupers + ' untested'"></div>
+      <div class="status-segment broken" :style="{ flex: brokenSupers }" :title="brokenSupers + ' not working'"></div>
     </div>
 
     <!-- Table -->
@@ -157,8 +157,8 @@ import { computed, defineComponent, h, ref, watch } from 'vue'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import { useModelsStore } from '@/store/models'
 
-const ROLES = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
-const ROLE_SHORT: Record<string, string> = { model: 'Mod', build: 'Bld', general: 'Gen', small_model: 'Sml', explore: 'Exp', stable: 'Stb' }
+const ROLES = ['model', 'build', 'general', 'small_model', 'explore'] as const
+const ROLE_SHORT: Record<string, string> = { model: 'Mod', build: 'Bld', general: 'Gen', small_model: 'Sml', explore: 'Exp' }
 
 const SortArrow = defineComponent({
   props: { active: Boolean, desc: Boolean },
@@ -172,7 +172,7 @@ const SortArrow = defineComponent({
 const store = useModelsStore()
 const scrollerRef = ref()
 
-interface MasterItem {
+interface SuperItem {
   id: number
   name: string
   family: string | null
@@ -192,7 +192,7 @@ interface MasterItem {
   topRoles: { role: string; label: string; rank: number }[]
 }
 
-const masterItems = computed<MasterItem[]>(() => {
+const superItems = computed<SuperItem[]>(() => {
   return store.superModels.map(m => {
     const working = m.datapoints.filter(d => d.status.result === 'working')
     const broken = m.datapoints.filter(d => d.status.result === 'broken')
@@ -242,8 +242,8 @@ const sortDesc = ref(false)
 
 const searchedItems = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
-  if (!q) return masterItems.value
-  return masterItems.value.filter(m =>
+  if (!q) return superItems.value
+  return superItems.value.filter(m =>
     m.name.toLowerCase().includes(q) ||
     m.providers.some(p => p.toLowerCase().includes(q)) ||
     m.allTags.some(t => t.toLowerCase().includes(q))
@@ -261,7 +261,7 @@ const filteredItems = computed(() => {
 })
 
 const statusPills = computed(() => {
-  const items = masterItems.value
+  const items = superItems.value
   return [
     { key: 'all', label: 'All', count: items.length },
     { key: 'working', label: 'Working', count: items.filter(i => i.workingCount > 0).length },
@@ -272,15 +272,15 @@ const statusPills = computed(() => {
 })
 
 const statusCounts = computed(() => ({
-  working: masterItems.value.filter(i => i.workingCount > 0).length,
-  partial: masterItems.value.filter(i => i.workingCount > 0 && (i.rateLimitedCount > 0 || i.brokenCount > 0)).length,
-  untested: masterItems.value.filter(i => i.untestedCount > 0 && i.workingCount === 0).length,
-  broken: masterItems.value.filter(i => i.workingCount === 0 && i.untestedCount === 0).length,
+  working: superItems.value.filter(i => i.workingCount > 0).length,
+  partial: superItems.value.filter(i => i.workingCount > 0 && (i.rateLimitedCount > 0 || i.brokenCount > 0)).length,
+  untested: superItems.value.filter(i => i.untestedCount > 0 && i.workingCount === 0).length,
+  broken: superItems.value.filter(i => i.workingCount === 0 && i.untestedCount === 0).length,
 }))
-const workingMasters = computed(() => statusCounts.value.working)
-const partialMasters = computed(() => statusCounts.value.partial)
-const untestedMasters = computed(() => statusCounts.value.untested)
-const brokenMasters = computed(() => statusCounts.value.broken)
+const workingSupers = computed(() => statusCounts.value.working)
+const partialSupers = computed(() => statusCounts.value.partial)
+const untestedSupers = computed(() => statusCounts.value.untested)
+const brokenSupers = computed(() => statusCounts.value.broken)
 
 const sortedItems = computed(() => {
   const arr = [...filteredItems.value]
@@ -292,7 +292,7 @@ const sortedItems = computed(() => {
       case 'instances': cmp = b.datapointsCount - a.datapointsCount; break
       case 'context': cmp = (b.best_context_length ?? 0) - (a.best_context_length ?? 0); break
       case 'status': {
-        const score = (i: MasterItem) => i.workingCount > 0 ? 3 : i.untestedCount > 0 ? 2 : i.rateLimitedCount > 0 ? 1 : 0
+        const score = (i: SuperItem) => i.workingCount > 0 ? 3 : i.untestedCount > 0 ? 2 : i.rateLimitedCount > 0 ? 1 : 0
         cmp = score(b) - score(a); break
       }
       case 'tools': cmp = (b.any_tools ? 0 : 1) - (a.any_tools ? 0 : 1); break

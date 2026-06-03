@@ -2,7 +2,7 @@
 -- 1. Replace status_result VARCHAR with ENUM
 -- 2. Move 8 pass-through columns into datapoint_model_features
 -- 3. Drop orphaned test_results table (zero reads/writes in codebase)
--- 4. Drop dead author column from master_models (always null)
+-- 4. Drop dead author column from super_models (always null)
 -- 5. Drop the now-removed columns from datapoint_models
 
 BEGIN;
@@ -85,8 +85,8 @@ ON CONFLICT (datapoint_model_id, feature_type, value) DO NOTHING;
 DROP TABLE IF EXISTS test_results CASCADE;
 DROP INDEX IF EXISTS idx_test_results_dm;
 
--- 4. Drop dead author column from master_models (never populated, always null in API output)
-ALTER TABLE master_models
+-- 4. Drop dead author column from super_models (never populated, always null in API output)
+ALTER TABLE super_models
     DROP COLUMN IF EXISTS author;
 
 -- 5. Drop the migrated columns from datapoint_models

@@ -8,7 +8,7 @@
  *  4. All IDs in _role_rankings exist in models[]
  *  5. No duplicate model IDs
  *  6. _test_summary results reference valid model IDs
- *  7. No duplicate master_model slugs
+ *  7. No duplicate super_model slugs
  */
 
 const loadModels = require('../scripts/load-models');

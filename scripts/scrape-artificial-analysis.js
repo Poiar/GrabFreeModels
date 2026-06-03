@@ -115,7 +115,7 @@ async function scrape() {
   models.slice(0, 3).forEach(m => console.log(' ', m.name, 'intel:', m.intelligence, 'price:', m.price, 'ctx:', m.context));
 
   const { rows: ourModels } = await pool.query(
-    "SELECT dm.id, dm.full_id, mm.name AS master_name FROM datapoint_models dm JOIN master_models mm ON mm.id = dm.master_model_id WHERE dm.is_free = true AND dm.status_result = 'working' AND dm.is_removed = false"
+    "SELECT dm.id, dm.full_id, mm.name AS super_name FROM datapoint_models dm JOIN super_models mm ON mm.id = dm.super_model_id WHERE dm.is_free = true AND dm.status_result = 'working' AND dm.is_removed = false"
   );
 
   let matched = 0;
@@ -125,7 +125,7 @@ async function scrape() {
     const aaNorm = normalizeName(aa.name);
     let best = null, bestScore = 0;
     for (const m of ourModels) {
-      const n = normalizeName(m.master_name);
+      const n = normalizeName(m.super_name);
       if (aaNorm === n) { best = m; bestScore = 100; break; }
       if (aaNorm.includes(n) || n.includes(aaNorm)) {
         const s = Math.min(aaNorm.length, n.length) / Math.max(aaNorm.length, n.length);
@@ -141,7 +141,7 @@ async function scrape() {
       if (aa.ttft) sc.push({ t: 'latency_ttft', v: aa.ttft });
       if (aa.total) sc.push({ t: 'latency_total', v: aa.total });
       if (aa.context) sc.push({ t: 'context_window', v: aa.context });
-      if (sc.length > 0) changes.push({ id: best.id, aa: aa.name, our: best.master_name, sc });
+      if (sc.length > 0) changes.push({ id: best.id, aa: aa.name, our: best.super_name, sc });
     }
   }
 

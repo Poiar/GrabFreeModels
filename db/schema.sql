@@ -1,10 +1,10 @@
 -- v2 schema: Master-model + datapoint-provider pattern
--- Key changes: Unified master_models + datapoint_models table structure
+-- Key changes: Unified super_models + datapoint_models table structure
 -- Replaces old schema's models + provider_models + modelsdev + modelsdev_provider_models
 -- Migration 001: status_result → ENUM, passive columns → datapoint_model_features, test_results dropped
 
 -- Master model: the abstract identity
-CREATE TABLE master_models (
+CREATE TABLE super_models (
     id              SERIAL PRIMARY KEY,
     name            VARCHAR(256) NOT NULL UNIQUE,
     slug            VARCHAR(256) NOT NULL UNIQUE,  -- normalized lowercase, no spaces
@@ -28,7 +28,7 @@ CREATE TYPE model_status AS ENUM (
 -- One row per provider's version of a model
 CREATE TABLE datapoint_models (
     id                      SERIAL PRIMARY KEY,
-    master_model_id         INTEGER NOT NULL REFERENCES master_models(id) ON DELETE CASCADE,
+    super_model_id         INTEGER NOT NULL REFERENCES super_models(id) ON DELETE CASCADE,
     datapoint_provider_id   INTEGER NOT NULL REFERENCES datapoint_providers(id) ON DELETE CASCADE,
     remote_id               VARCHAR(256) NOT NULL,        -- provider's own ID
     full_id                 VARCHAR(512) NOT NULL UNIQUE, -- providerSlug/remoteId
@@ -79,13 +79,13 @@ CREATE TABLE metadata (
 );
 
 -- Indexes
-CREATE INDEX idx_dp_models_master ON datapoint_models(master_model_id);
+CREATE INDEX idx_dp_models_super ON datapoint_models(super_model_id);
 CREATE INDEX idx_dp_models_provider ON datapoint_models(datapoint_provider_id);
 CREATE INDEX idx_dp_models_full_id ON datapoint_models(full_id);
 CREATE INDEX idx_dp_models_status ON datapoint_models(status_result);
 CREATE INDEX idx_dp_models_free ON datapoint_models(is_free);
 CREATE INDEX idx_dp_models_removed ON datapoint_models(is_removed);
-CREATE INDEX idx_master_slug ON master_models(slug);
+CREATE INDEX idx_super_slug ON super_models(slug);
 
 -- Helper function: normalize model name to slug
 -- Strips provider prefixes, lowercases, removes special chars

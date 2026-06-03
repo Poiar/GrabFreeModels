@@ -58,9 +58,9 @@ function slugify(name) {
       // Also index by the lowercased raw name
       if (!byNorm.has(mm.name.toLowerCase())) byNorm.set(mm.name.toLowerCase(), mm);
     }
-    console.log(`Existing masters: ${existingMm.length}`);
+    console.log(`Existing supers: ${existingMm.length}`);
 
-    let mastersCreated = 0, mastersMatched = 0, dpsCreated = 0, dpsSkipped = 0, errors = 0;
+    let supersCreated = 0, supersMatched = 0, dpsCreated = 0, dpsSkipped = 0, errors = 0;
 
     for (const m of modelsdevModels) {
       const cleanName = normalizeName(m.modelName);
@@ -73,26 +73,25 @@ function slugify(name) {
         const { rows: existDp } = await client.query('SELECT 1 FROM datapoint_models WHERE full_id = $1', [fullId]);
         if (existDp.length > 0) { dpsSkipped++; continue; }
 
-        // Find or create master
-        let master = bySlug.get(slug) || byNorm.get(cleanName.toLowerCase());
-        let masterId;
+        // Find or create super
+        let super_ = bySlug.get(slug) || byNorm.get(cleanName.toLowerCase());
+        let superId;
 
-        if (master) {
-          masterId = master.id;
-          mastersMatched++;
+        if (super_) {
+          superId = super_.id;
+          supersMatched++;
         } else {
-          if (!APPLY) { mastersCreated++; continue; }
-          // Try insert; on conflict use existing
+          if (!APPLY) { supersCreated++; continue; }
           const { rows: ins } = await client.query(
             `INSERT INTO super_models (name, slug) VALUES ($1,$2)
              ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
              RETURNING id`,
             [cleanName, slug]
           );
-          masterId = ins[0].id;
-          bySlug.set(slug, { id: masterId });
-          byNorm.set(cleanName.toLowerCase(), { id: masterId });
-          mastersCreated++;
+          superId = ins[0].id;
+          bySlug.set(slug, { id: superId });
+          byNorm.set(cleanName.toLowerCase(), { id: superId });
+          supersCreated++;
         }
 
         if (!APPLY) continue;
@@ -153,8 +152,8 @@ function slugify(name) {
       }
     }
 
-    console.log(`\nMasters matched: ${mastersMatched}`);
-    console.log(`Masters created: ${mastersCreated}`);
+    console.log(`\nSupers matched: ${mastersMatched}`);
+    console.log(`Supers created: ${mastersCreated}`);
     console.log(`Datapoints created: ${dpsCreated}`);
     console.log(`Datapoints skipped (already exist): ${dpsSkipped}`);
     if (errors) console.log(`Errors: ${errors}`);
@@ -166,7 +165,7 @@ function slugify(name) {
       const { rows: cnt } = await client.query(
         "SELECT COUNT(DISTINCT mm.id) FROM super_models mm JOIN datapoint_models dm ON dm.super_model_id = mm.id JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id WHERE dp.slug = 'modelsdev'"
       );
-      console.log(`\nMasters with modelsdev datapoint: ${cnt[0].count}`);
+      console.log(`\nSupers with modelsdev datapoint: ${cnt[0].count}`);
     }
   } finally {
     client.release();

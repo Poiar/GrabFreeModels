@@ -76,19 +76,19 @@ async function migrate() {
     }
     console.log(`  Unique model names: ${allNames.size}`);
 
-    // ── Step 4: Create master_models ──
-    console.log('\nStep 3: Creating master_models...');
+    // ── Step 4: Create super_models ──
+    console.log('\nStep 3: Creating super_models...');
     const masterMap = new Map(); // slug → master_id
     for (const [slug, name] of allNames) {
       const res = await client.query(
-        `INSERT INTO master_models (name, slug) VALUES ($1, $2)
+        `INSERT INTO super_models (name, slug) VALUES ($1, $2)
          ON CONFLICT (slug) DO UPDATE SET slug = EXCLUDED.slug
          RETURNING id`,
         [name, slug]
       );
       masterMap.set(slug, res.rows[0].id);
     }
-    console.log(`  master_models: ${masterMap.size}`);
+    console.log(`  super_models: ${masterMap.size}`);
 
     // ── Step 5: Migrate provider_models → datapoint_models ──
     if (oldPM && oldModels) {
@@ -114,7 +114,7 @@ async function migrate() {
 
         await client.query(`
           INSERT INTO datapoint_models (
-            master_model_id, datapoint_provider_id, remote_id, full_id,
+            super_model_id, datapoint_provider_id, remote_id, full_id,
             context_length, input_price_per_million, output_price_per_million,
             is_free, supports_tools, supports_reasoning, output_limit,
             temperature, open_weights, family, knowledge_cutoff,
@@ -166,7 +166,7 @@ async function migrate() {
 
         await client.query(`
           INSERT INTO datapoint_models (
-            master_model_id, datapoint_provider_id, remote_id, full_id,
+            super_model_id, datapoint_provider_id, remote_id, full_id,
             context_length, input_price_per_million, output_price_per_million,
             is_free, supports_tools, supports_reasoning, output_limit,
             temperature, open_weights, family, knowledge_cutoff,
@@ -259,7 +259,7 @@ async function migrate() {
 
     // ── Verification ──
     console.log('\n── Verification ──');
-    for (const tbl of ['master_models','datapoint_providers','datapoint_models','datapoint_model_features','datapoint_model_input_types','datapoint_model_output_types']) {
+    for (const tbl of ['super_models','datapoint_providers','datapoint_models','datapoint_model_features','datapoint_model_input_types','datapoint_model_output_types']) {
       const r = await client.query(`SELECT count(*) FROM ${tbl}`);
       console.log(`  ${tbl}: ${r.rows[0].count}`);
     }

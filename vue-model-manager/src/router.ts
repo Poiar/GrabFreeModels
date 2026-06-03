@@ -8,6 +8,16 @@ const routes = [
     meta: { title: 'Dashboard' },
   },
   {
+    path: '/models',
+    name: 'SuperModels',
+    component: () => import('@/views/SuperModels.vue'),
+    meta: { title: 'Super' },
+  },
+  {
+    path: '/master/:id',
+    redirect: (to: { params: Record<string, string | string[]> }) => `/super/${to.params.id}`,
+  },
+  {
     path: '/all',
     name: 'All',
     component: () => import('@/views/All.vue'),
@@ -30,18 +40,6 @@ const routes = [
     name: 'Issues',
     component: () => import('@/views/Issues.vue'),
     meta: { title: 'Issues' },
-  },
-  {
-    path: '/models',
-    name: 'MasterList',
-    component: () => import('@/views/MasterList.vue'),
-    meta: { title: 'Models' },
-  },
-  {
-    path: '/master/:id',
-    name: 'MasterModel',
-    component: () => import('@/views/MasterModel.vue'),
-    meta: { title: 'Model' },
   },
 ]
 

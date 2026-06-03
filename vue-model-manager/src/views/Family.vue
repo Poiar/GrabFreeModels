@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <div class="master-status-bar">
+    <div class="super-status-bar">
       <div class="status-segment working" :style="{ flex: workingCount }" :title="workingCount + ' all working'"></div>
       <div class="status-segment partial" :style="{ flex: partialCount }" :title="partialCount + ' partially working'"></div>
       <div class="status-segment untested" :style="{ flex: untestedCount }" :title="untestedCount + ' untested'"></div>
@@ -113,7 +113,7 @@
           <button class="detail-close" @click="selectedFamily = null">✕</button>
         </div>
         <div class="detail-body">
-          <div class="masters-table">
+          <div class="supers-table">
             <div class="vscroll-header-row">
               <div class="vscroll-header-cell col-name">Model</div>
               <div class="vscroll-header-cell col-status">Status</div>
@@ -183,15 +183,15 @@ interface FamilyItem {
 }
 
 const familyItems = computed<FamilyItem[]>(() => {
-  const map = new Map<string, { masters: any[], allProviders: Set<string>, working: number, untested: number, rateLimited: number, broken: number }>()
+  const map = new Map<string, { supers: any[], allProviders: Set<string>, working: number, untested: number, rateLimited: number, broken: number }>()
 
   for (const m of store.superModels) {
     const families = new Set(m.datapoints.map(d => d.family).filter((f): f is string => !!f))
     if (families.size === 0)     families.add('(no family)')
     for (const fam of families) {
-      if (!map.has(fam)) map.set(fam, { masters: [], allProviders: new Set(), working: 0, untested: 0, rateLimited: 0, broken: 0 })
+      if (!map.has(fam)) map.set(fam, { supers: [], allProviders: new Set(), working: 0, untested: 0, rateLimited: 0, broken: 0 })
       const entry = map.get(fam)!
-      entry.masters.push(m)
+      entry.supers.push(m)
       for (const p of m.providers) entry.allProviders.add(p)
       for (const d of m.datapoints) {
         if (d.family !== fam && fam !== '(unknown)' && d.family != null) continue
@@ -208,10 +208,10 @@ const familyItems = computed<FamilyItem[]>(() => {
   for (const [family, entry] of map) {
     items.push({
       family,
-      modelCount: entry.masters.length,
-      instanceCount: entry.masters.reduce((s, m) => s + m.datapoints.length, 0),
+      modelCount: entry.supers.length,
+      instanceCount: entry.supers.reduce((s, m) => s + m.datapoints.length, 0),
       providers: [...entry.allProviders].sort(),
-      memberNames: entry.masters.map(m => m.name).sort(),
+      memberNames: entry.supers.map(m => m.name).sort(),
       workingCount: entry.working,
       untestedCount: entry.untested,
       rateLimitedCount: entry.rateLimited,
@@ -269,12 +269,12 @@ function formatContext(n: number): string {
 const familyMasters = computed(() => {
   if (!selectedFamily.value) return []
   const fam = selectedFamily.value
-  const masters = store.superModels.filter(m => {
+  const supers = store.superModels.filter(m => {
     const families = new Set(m.datapoints.map(d => d.family).filter((f): f is string => !!f))
     if (fam === '(no family)') return families.size === 0
     return families.has(fam)
   })
-  return masters.map(m => ({
+  return supers.map(m => ({
     id: m.id,
     name: m.name,
     providers: m.providers,
@@ -315,7 +315,7 @@ const familyMasters = computed(() => {
 
 .super-list-count { font-size: 0.68rem; color: var(--text-muted); }
 
-.master-status-bar {
+.super-status-bar {
   display: flex; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 14px; gap: 1px;
 }
 .status-segment { min-width: 2px; transition: flex 0.3s; }
@@ -387,14 +387,14 @@ const familyMasters = computed(() => {
 }
 .detail-close:hover { color: var(--text); }
 .detail-body { overflow-y: auto; padding: 0 0 12px; }
-.masters-table { padding: 0 12px; }
-.masters-table .vscroll-header-row { padding: 10px 10px 8px; }
-.masters-table .vscroll-row { padding: 10px; }
-.masters-table .col-name      { width: 28%; }
-.masters-table .col-status    { width: 18%; }
-.masters-table .col-providers { width: 26%; }
-.masters-table .col-context   { width: 14%; }
-.masters-table .col-tools     { width: 7%; }
+.supers-table { padding: 0 12px; }
+.supers-table .vscroll-header-row { padding: 10px 10px 8px; }
+.supers-table .vscroll-row { padding: 10px; }
+.supers-table .col-name      { width: 28%; }
+.supers-table .col-status    { width: 18%; }
+.supers-table .col-providers { width: 26%; }
+.supers-table .col-context   { width: 14%; }
+.supers-table .col-tools     { width: 7%; }
 
 .model-name {
   font-weight: 600; color: var(--accent);

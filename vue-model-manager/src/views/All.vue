@@ -115,7 +115,7 @@
           <DynamicScrollerItem :item="item" :active="active">
           <div class="vscroll-row row-clickable" :class="{ 'row-removed': item._removed }" @click="selectedModel = item" role="button" :title="'View details for ' + item.name">
             <div class="vscroll-cell col-name">
-              <router-link :to="`/master/${item.master_id}`" class="model-name-link" :title="item.name" @click.stop>{{ item.name }}</router-link>
+              <router-link :to="`/super/${item.super_id}`" class="model-name-link" :title="item.name" @click.stop>{{ item.name }}</router-link>
               <div class="model-id-wrap">
                 <span class="model-id" :title="item.id">{{ item.id }}</span>
                 <button class="copy-btn" :class="{ copied: copiedIds.has(item.id) }" :title="copiedIds.has(item.id) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(item.id)">

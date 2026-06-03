@@ -9,9 +9,9 @@ export type Model = DatapointModel;
 
 export interface DatapointModel {
   id: string              // full_id: "openrouter/owl-alpha"
-  master_id: number
-  master_name: string
-  name: string          // alias for master_name (backward compat)
+  super_id: number
+  super_name: string
+  name: string          // alias for super_name (backward compat)
   provider: string
   author: string | null
   source: string          // provider slug
@@ -40,7 +40,7 @@ export interface DatapointModel {
   priority_score: number | null
 }
 
-export interface MasterModel {
+export interface SuperModel {
   id: number
   name: string
   datapoints: DatapointModel[]

@@ -60,7 +60,7 @@
     />
 
     <!-- Role Info Panel -->
-    <div class="role-info-panel" v-if="currentRoleMeta">
+    <div class="role-info-panel" v-if="currentRoleMeta && scoringSource === 'internal'">
       <div class="role-info-header">
         <span class="role-info-name" :data-role="roleFilter">{{ formatRole(roleFilter) }}</span>
         <span class="role-info-desc">{{ currentRoleMeta.description }}</span>
@@ -117,6 +117,7 @@
           <option value="author">Sort: Author</option>
           <option value="provider">Sort: Provider</option>
           <option value="context">Sort: Context</option>
+          <option value="family">Sort: Family</option>
         </select>
         <button class="sort-dir-btn" @click="sortDesc = !sortDesc" :title="sortDesc ? 'Descending' : 'Ascending'">
           <svg v-if="sortDesc" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
@@ -124,6 +125,9 @@
         </button>
       </div>
       <span class="result-count">{{ sortedItems.length }} result{{ sortedItems.length !== 1 ? 's' : '' }}</span>
+      <span class="score-count" v-if="scoringSource !== 'internal'">
+        {{ sortedItems.filter(i => i.externalScore !== null).length }} scored
+      </span>
     </div>
 
     <div class="table-wrap vscroll-table">
@@ -139,6 +143,9 @@
         </div>
         <div class="vscroll-header-cell col-author sortable" :class="{ active: sortBy === 'author' }" @click="setSort('author')">
           Author <SortArrow :active="sortBy === 'author'" :desc="sortDesc" />
+        </div>
+        <div class="vscroll-header-cell col-family sortable" :class="{ active: sortBy === 'family' }" @click="setSort('family')">
+          Family <SortArrow :active="sortBy === 'family'" :desc="sortDesc" />
         </div>
         <div class="vscroll-header-cell col-provider sortable" :class="{ active: sortBy === 'provider' }" @click="setSort('provider')">
           Provider <SortArrow :active="sortBy === 'provider'" :desc="sortDesc" />
@@ -180,7 +187,7 @@
               <span class="score-val" :title="scoreTooltip(itemScore(item.modelId))">{{ formatScore(itemScore(item.modelId)) }}</span>
             </div>
             <div class="vscroll-cell col-name">
-              <router-link :to="item.model ? `/master/${item.model.master_id}` : ''" class="model-name-link" :title="item.model?.name ?? item.modelId" @click.stop>{{ item.model?.name ?? item.modelId }}</router-link>
+              <router-link :to="item.model ? `/super/${item.model.super_id}` : ''" class="model-name-link" :title="item.model?.name ?? item.modelId" @click.stop>{{ item.model?.name ?? item.modelId }}</router-link>
               <div class="model-id-wrap">
                 <span class="model-id" :title="item.modelId">{{ item.modelId }}</span>
                 <button class="copy-btn" :class="{ copied: copiedIds.has(item.modelId) }" :title="copiedIds.has(item.modelId) ? 'Copied!' : 'Copy ID'" @click.stop="handleCopy(item.modelId)">
@@ -189,6 +196,7 @@
               </div>
             </div>
             <div class="vscroll-cell col-author">{{ item.model?.author ?? '' }}</div>
+            <div class="vscroll-cell col-family">{{ item.model?.family ?? '' }}</div>
             <div class="vscroll-cell col-provider">
               <span>{{ item.model?.provider ?? '' }}</span>
               <span v-if="item.model && store.isModelProviderUsedUp(item.modelId)" class="used-up-icon" title="Provider used up for this month">
@@ -327,7 +335,7 @@ const availableSources = computed(() => {
   })
 })
 
-function getExternalScore(modelId, source) {
+function getExternalScore(modelId: string, source: string) {
   const scores = store.modelScores
   if (!scores || !scores.scores) return null
   const m = scores.scores instanceof Map ? scores.scores : new Map(Object.entries(scores.scores).map(([k, v]) => [Number(k), v]))
@@ -564,6 +572,10 @@ const sortedItems = computed(() => {
         cmp = (a.model?.author ?? '').localeCompare(b.model?.author ?? '')
         if (cmp === 0) cmp = (a.model?.provider ?? '').localeCompare(b.model?.provider ?? '')
         break
+      case 'family':
+        cmp = (a.model?.family ?? '').localeCompare(b.model?.family ?? '')
+        if (cmp === 0) cmp = (a.model?.provider ?? '').localeCompare(b.model?.provider ?? '')
+        break
       case 'provider':
         cmp = (a.model?.provider ?? '').localeCompare(b.model?.provider ?? '')
         break
@@ -731,6 +743,26 @@ function exportJson() {
 .status-btn.active[data-role="small_model"] { background: rgba(210,153,34,0.12); color: var(--orange);  box-shadow: 0 0 0 2px var(--orange),  0 0 8px rgba(255,255,255,0.08); }
 .status-btn.active[data-role="explore"]     { background: rgba(57,210,192,0.12);  color: var(--cyan);    box-shadow: 0 0 0 2px var(--cyan),    0 0 8px rgba(255,255,255,0.08); }
 
+.scoring-source {
+  display: flex;
+  align-items: center;
+}
+
+.score-count {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+.score-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--accent-subtle, rgba(88,166,255,0.12));
+  color: var(--accent);
+}
+
 .sort-controls {
   display: flex;
   align-items: center;
@@ -814,7 +846,8 @@ function exportJson() {
 .col-rank    { width: 13%; min-width: 110px; padding-right: 8px; }
 .col-score   { width: 12%; min-width: 110px; }
 .col-name    { width: 20%; min-width: 150px; }
-.col-author  { width: 9%;  min-width: 75px; }
+.col-author   { width: 8%;  min-width: 75px; }
+.col-family   { width: 9%;  min-width: 85px; }
 .col-provider { width: 11%; min-width: 95px; }
 .col-status  { width: 8%;  min-width: 75px; }
 .col-context { width: 7%;  min-width: 60px; }

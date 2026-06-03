@@ -261,16 +261,16 @@ function normalizeModelSlug(name) {
           if (!providerId) { console.log(`  SKIP ${m.id}: unknown provider "${providerSlug}"`); continue; }
 
           const remoteId = m.id.includes('/') ? m.id.slice(m.id.indexOf('/') + 1) : m.id;
-          const masterSlug = normalizeModelSlug(m.name);
+          const superSlug = normalizeModelSlug(m.name);
 
-          // Upsert master model
+          // Upsert super model
           const { rows: mmRows } = await client.query(
             `INSERT INTO super_models (name, slug) VALUES ($1, $2)
              ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
              RETURNING id`,
-            [m.name, masterSlug]
+            [m.name, superSlug]
           );
-          const masterId = mmRows[0].id;
+          const superId = mmRows[0].id;
 
           // Upsert datapoint model
           await client.query(
@@ -280,7 +280,7 @@ function normalizeModelSlug(name) {
                context_length = EXCLUDED.context_length,
                is_removed = false,
                updated_at = now()`,
-            [masterId, providerId, remoteId, m.id, m.context_length]
+            [superId, providerId, remoteId, m.id, m.context_length]
           );
         }
 

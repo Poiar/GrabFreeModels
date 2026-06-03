@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * import-modelsdev-backfill.js
- * Match remaining masters to models.dev by normalizing remote_ids and names.
+ * Match remaining supers to models.dev by normalizing remote_ids and names.
  * Uses multiple normalization strategies for fuzzy matching.
  *
  * Usage: node scripts/import-modelsdev-backfill.js [--apply]
@@ -98,7 +98,7 @@ function noDots(s) { return s.replace(/\./g, '-'); }
         || mdIndex.get(rid.replace(/-(instruct|chat|v\d+|it|\d+b)$/, ''))
         || mdIndex.get(noHyphens(rid.replace(/-(instruct|chat|v\d+|it|\d+b)$/, '')));
 
-      // Try matching by master name vs models.dev modelName
+      // Try matching by super name vs models.dev modelName
       if (!md) {
         const cleanName = row.super_name.replace(/\s*\(free\)\s*/gi, '').trim().toLowerCase();
         for (const m of mdModels) {

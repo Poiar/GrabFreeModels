@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { ModelsData, DatapointModel, MasterModel, RoleScore, RoleMeta, ModelScoresData } from '@/types'
+import type { ModelsData, DatapointModel, SuperModel, RoleScore, RoleMeta, ModelScoresData } from '@/types'
 
-const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
+const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore'] as const
 type Role = (typeof ROLE_ORDER)[number]
 
 export const useModelsStore = defineStore('models', () => {
@@ -19,14 +19,14 @@ export const useModelsStore = defineStore('models', () => {
   // ── Raw datapoints ──
   const allDatapoints = computed(() => data.value?.models ?? [])
 
-  // ── Grouped by master model ──
-  const masterModels = computed((): MasterModel[] => {
-    const map = new Map<number, MasterModel>()
+  // ── Grouped by super model ──
+  const superModels = computed((): SuperModel[] => {
+    const map = new Map<number, SuperModel>()
     for (const dp of allDatapoints.value) {
-      if (!map.has(dp.master_id)) {
-        map.set(dp.master_id, {
-          id: dp.master_id,
-          name: dp.master_name,
+      if (!map.has(dp.super_id)) {
+        map.set(dp.super_id, {
+          id: dp.super_id,
+          name: dp.super_name,
           datapoints: [],
           best_context_length: null,
           any_working: false,
@@ -36,7 +36,7 @@ export const useModelsStore = defineStore('models', () => {
           sources: [],
         })
       }
-      const m = map.get(dp.master_id)!
+      const m = map.get(dp.super_id)!
       m.datapoints.push(dp)
       if (dp.context_length && (!m.best_context_length || dp.context_length > m.best_context_length)) {
         m.best_context_length = dp.context_length
@@ -50,9 +50,9 @@ export const useModelsStore = defineStore('models', () => {
     return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name))
   })
 
-  const masterModelById = computed(() => {
-    const map = new Map<number, MasterModel>()
-    for (const m of masterModels.value) map.set(m.id, m)
+  const superModelById = computed(() => {
+    const map = new Map<number, SuperModel>()
+    for (const m of superModels.value) map.set(m.id, m)
     return map
   })
 
@@ -161,7 +161,7 @@ export const useModelsStore = defineStore('models', () => {
 
   const stats = computed(() => ({
     total: allDatapoints.value.length,
-    masters: masterModels.value.length,
+    supers: superModels.value.length,
     free: freeModels.value.length,
     paid: paidModels.value.length,
     working: workingModels.value.length,
@@ -224,8 +224,8 @@ export const useModelsStore = defineStore('models', () => {
 
   return {
     loading, error, lastLoaded, isStale,
-    // New: master model grouping
-    masterModels, masterModelById,
+    // Super model grouping
+    superModels, superModelById,
     // Flat lists (backward compat)
     allModels, allDatapoints, freeModels, paidModels,
     workingModels, brokenModels, rateLimitedModels, untestedModels, removedModels,

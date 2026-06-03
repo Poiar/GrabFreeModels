@@ -219,31 +219,13 @@ const brokenCount = computed(() => super_.value?.datapoints.filter(d => d.status
 const untestedCount = computed(() => super_.value?.datapoints.filter(d => d.status.result === 'untested').length ?? 0)
 const bestContext = computed(() => super_.value?.best_context_length ?? null)
 
-const roleRankings = computed(() => {
-  if (!super_.value) return []
-  const ROLES = ['model', 'build', 'general', 'small_model', 'explore', 'stable']
-  const result: { role: string; label: string; rank: number }[] = []
-  for (const role of ROLES) {
-    const arr = store.roleRankings[role] ?? []
-    let bestRank = Infinity
-    for (const dp of super_.value.datapoints) {
-      const idx = arr.indexOf(dp.id)
-      if (idx !== -1 && idx + 1 < bestRank) bestRank = idx + 1
-    }
-    if (bestRank < Infinity) result.push({ role, label: role.slice(0, 3).toUpperCase(), rank: bestRank })
-  }
-  result.sort((a, b) => a.rank - b.rank)
-  return result
-})
-
-const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore', 'stable'] as const
+const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore'] as const
 const ROLE_LABELS: Record<string, string> = {
   model: 'Model',
   build: 'Build',
   general: 'General',
   small_model: 'Small Model',
   explore: 'Explore',
-  stable: 'Stable',
 }
 
 interface ModelRole {
