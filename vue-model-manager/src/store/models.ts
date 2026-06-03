@@ -183,40 +183,32 @@ export const useModelsStore = defineStore('models', () => {
 
   // ── Actions ──
   let abortController: AbortController | null = null
-  const LOAD_RETRIES = 3
-  const LOAD_RETRY_MS = 1500
-
-  async function fetchWithRetry(url: string, signal: AbortSignal): Promise<Response> {
-    let lastErr: Error | null = null
-    for (let attempt = 1; attempt <= LOAD_RETRIES; attempt++) {
-      try {
-        const resp = await fetch(url, { signal })
-        if (resp.ok) return resp
-        if (resp.status < 500) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`)
-        lastErr = new Error(`HTTP ${resp.status}: ${resp.statusText}`)
-      } catch (e: unknown) {
-        if (e instanceof DOMException && e.name === 'AbortError') throw e
-        lastErr = e instanceof Error ? e : new Error(String(e))
-      }
-      if (attempt < LOAD_RETRIES) await new Promise(r => setTimeout(r, LOAD_RETRY_MS * attempt))
-    }
-    throw lastErr ?? new Error('Unknown error')
-  }
 
   async function loadData() {
     abortController?.abort()
     abortController = new AbortController()
     loading.value = true
     error.value = null
+    const signal = abortController.signal
     try {
-      const resp = await fetchWithRetry('/api/data', abortController.signal)
+      let resp = await fetch('/api/data', { signal })
+      if (!resp.ok) resp = await fetch('/available-models.json', { signal })
       data.value = await resp.json()
       lastLoaded.value = new Date()
       isStale.value = false
       startStaleTimer()
     } catch (e: unknown) {
       if (e instanceof DOMException && e.name === 'AbortError') return
-      error.value = e instanceof Error ? e.message : String(e)
+      try {
+        const fallback = await fetch('/available-models.json', { signal })
+        data.value = await fallback.json()
+        lastLoaded.value = new Date()
+        isStale.value = false
+        startStaleTimer()
+      } catch (fe: unknown) {
+        if (fe instanceof DOMException && (fe as DOMException).name === 'AbortError') return
+        error.value = e instanceof Error ? e.message : String(e)
+      }
     } finally {
       loading.value = false
     }

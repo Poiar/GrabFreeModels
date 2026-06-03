@@ -58,6 +58,7 @@ node_modules/
 
 # Build artifacts
 vue-model-manager/dist/
+vue-model-manager/public/available-models.json
 tmp/
 
 # Trace/debug scripts

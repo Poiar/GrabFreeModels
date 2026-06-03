@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "cd vue-model-manager && npm run dev",
     "dev:all": "node scripts/dev-all.js",
-    "build": "cd vue-model-manager && npm install && npm run build",
+    "build": "node -e \"require('fs').copyFileSync('available-models.json','vue-model-manager/public/available-models.json')\" && cd vue-model-manager && npm install && npm run build",
     "preview": "cd vue-model-manager && npm run preview",
     "mcp:playwright": "node node_modules/@playwright/mcp/cli.js --allowed-hosts localhost,127.0.0.1",
     "validate": "node scripts/validate-free-models.js",
