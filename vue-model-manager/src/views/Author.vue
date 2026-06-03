@@ -12,6 +12,12 @@
         <button v-if="searchQuery" class="search-clear" @click="searchQuery = ''">✕</button>
       </div>
       <div class="super-list-filters">
+        <div class="filter-pills">
+          <button v-for="f in statusPills" :key="f.key" :class="['filter-pill', { active: statusFilter === f.key }]" @click="statusFilter = f.key">
+            {{ f.label }}
+            <span class="pill-count">{{ f.count }}</span>
+          </button>
+        </div>
         <div class="sort-controls">
           <select v-model="sortBy" class="sort-select">
             <option value="name">Sort: Name</option>
@@ -27,7 +33,7 @@
         </div>
       </div>
       <div class="super-list-count">
-        {{ sortedItems.length }} of {{ authorItems.length }} authors
+        {{ sortedItems.length }} of {{ filteredItems.length }} authors
       </div>
     </div>
 
@@ -67,10 +73,10 @@
       >
         <template #default="{ item, active }">
           <DynamicScrollerItem :item="item" :active="active">
-            <div class="vscroll-row row-clickable" @click="selectedAuthor = item.author || null" role="button" :title="item.author || 'Models without an author'">
+            <div class="vscroll-row row-clickable" @click="selectedAuthor = item.author || null" role="button" :title="item.author ? item.author : 'Models without an author'">
               <div class="vscroll-cell col-author-name">
-                <span class="author-name" :class="{ 'no-author': !item.author }" :title="item.author || 'Models without an author'">
-                  {{ item.author || '—' }}
+                <span class="author-name" :class="{ 'no-author': !item.author }" :title="item.author ? item.author : 'Models without an author'">
+                  {{ item.author || 'Unknown' }}
                 </span>
               </div>
               <div class="vscroll-cell col-models">
@@ -110,7 +116,7 @@
     <div v-if="selectedAuthor" class="family-detail-overlay" @click.self="selectedAuthor = null">
       <div class="family-detail-panel">
         <div class="detail-header">
-          <h3>{{ selectedAuthor || '—' }}</h3>
+          <h3>{{ selectedAuthor || 'Unknown Author' }}</h3>
           <button class="detail-close" @click="selectedAuthor = null">✕</button>
         </div>
         <div class="detail-body">
@@ -220,6 +226,7 @@ const authorItems = computed<AuthorItem[]>(() => {
 })
 
 const searchQuery = ref('')
+const statusFilter = ref('all')
 const sortBy = ref('name')
 const sortDesc = ref(false)
 
@@ -232,8 +239,29 @@ const searchedItems = computed(() => {
   )
 })
 
+const filteredItems = computed(() => {
+  const items = searchedItems.value
+  if (statusFilter.value === 'all') return items
+  if (statusFilter.value === 'working') return items.filter(i => i.workingCount > 0 && i.brokenCount === 0 && i.rateLimitedCount === 0)
+  if (statusFilter.value === 'partial') return items.filter(i => i.workingCount > 0 && (i.brokenCount > 0 || i.rateLimitedCount > 0))
+  if (statusFilter.value === 'untested') return items.filter(i => i.untestedCount > 0 && i.workingCount === 0)
+  if (statusFilter.value === 'not_working') return items.filter(i => i.workingCount === 0 && i.untestedCount === 0)
+  return items
+})
+
+const statusPills = computed(() => {
+  const items = authorItems.value
+  return [
+    { key: 'all', label: 'All', count: items.length },
+    { key: 'working', label: 'Working', count: items.filter(i => i.workingCount > 0 && i.brokenCount === 0 && i.rateLimitedCount === 0).length },
+    { key: 'partial', label: 'Mixed', count: items.filter(i => i.workingCount > 0 && (i.brokenCount > 0 || i.rateLimitedCount > 0)).length },
+    { key: 'untested', label: 'Untested', count: items.filter(i => i.untestedCount > 0 && i.workingCount === 0).length },
+    { key: 'not_working', label: 'Down', count: items.filter(i => i.workingCount === 0 && i.untestedCount === 0).length },
+  ]
+})
+
 const sortedItems = computed(() => {
-  const arr = [...searchedItems.value]
+  const arr = [...filteredItems.value]
   arr.sort((a, b) => {
     let cmp = 0
     switch (sortBy.value) {
@@ -258,7 +286,7 @@ function setSort(field: string) {
   else { sortBy.value = field; sortDesc.value = false }
 }
 
-watch([searchQuery, sortBy, sortDesc], () => scrollerRef.value?.scrollToPosition(0))
+watch([searchQuery, statusFilter, sortBy, sortDesc], () => scrollerRef.value?.scrollToPosition(0))
 
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && selectedAuthor.value) selectedAuthor.value = null
@@ -302,6 +330,17 @@ const authorSupers = computed(() => {
 .search-clear:hover { color: var(--text); }
 
 .super-list-filters { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.filter-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+.filter-pill {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: var(--radius-full, 999px);
+  border: 1px solid var(--border); background: none;
+  color: var(--text-dim); font-size: 0.72rem; font-weight: 500;
+  cursor: pointer; transition: all 0.12s;
+}
+.filter-pill:hover { color: var(--text); border-color: var(--text-muted); }
+.filter-pill.active { color: var(--accent); border-color: var(--accent); background: var(--accent-subtle); }
+.pill-count { font-size: 0.6rem; opacity: 0.7; font-weight: 600; }
 
 .sort-controls { display: flex; align-items: center; gap: 6px; }
 .sort-select {

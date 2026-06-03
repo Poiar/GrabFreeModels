@@ -49,28 +49,25 @@ async function buildModelsData() {
   const featMap = new Map();
 
   if (dmIds.length > 0) {
-    const { rows: inputRows } = await pool.query(
-      'SELECT datapoint_model_id, input_type FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1)',
-      [dmIds]
-    );
+    const [inputResult, outputResult, featResult] = await Promise.all([
+      pool.query('SELECT datapoint_model_id, input_type FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1)', [dmIds]),
+      pool.query('SELECT datapoint_model_id, output_type FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1)', [dmIds]),
+      pool.query('SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)', [dmIds]),
+    ]);
+
+    const inputRows = inputResult.rows;
     for (const r of inputRows) {
       if (!inputMap.has(r.datapoint_model_id)) inputMap.set(r.datapoint_model_id, []);
       inputMap.get(r.datapoint_model_id).push(r.input_type);
     }
 
-    const { rows: outputRows } = await pool.query(
-      'SELECT datapoint_model_id, output_type FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1)',
-      [dmIds]
-    );
+    const outputRows = outputResult.rows;
     for (const r of outputRows) {
       if (!outputMap.has(r.datapoint_model_id)) outputMap.set(r.datapoint_model_id, []);
       outputMap.get(r.datapoint_model_id).push(r.output_type);
     }
 
-    const { rows: featRows } = await pool.query(
-      'SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)',
-      [dmIds]
-    );
+    const featRows = featResult.rows;
     const knownFeatures = ['best_for', 'tag', 'supports_reasoning', 'output_limit', 'temperature', 'open_weights', 'family', 'knowledge_cutoff', 'release_date', 'last_updated'];
     for (const r of featRows) {
       if (!featMap.has(r.datapoint_model_id)) {
@@ -91,6 +88,7 @@ async function buildModelsData() {
   const untestedIds = [];
 
   for (const dm of dmRows) {
+    const feat = featMap.get(dm.id);
     const entry = {
       id: dm.full_id,
       super_id: dm.super_model_id,
@@ -103,16 +101,16 @@ async function buildModelsData() {
       output_price_per_million: Number(dm.output_price_per_million) || 0,
       is_free: dm.is_free,
       supports_tools: dm.supports_tools,
-      supports_reasoning: featMap.get(dm.id)?.supports_reasoning?.[0] === 'true' || null,
-      output_limit: featMap.get(dm.id)?.output_limit?.[0] ? parseInt(featMap.get(dm.id).output_limit[0], 10) : null,
-      temperature: featMap.get(dm.id)?.temperature?.[0] === 'true' || null,
-      open_weights: featMap.get(dm.id)?.open_weights?.[0] === 'true' || null,
-      family: featMap.get(dm.id)?.family?.[0] || null,
-      knowledge_cutoff: featMap.get(dm.id)?.knowledge_cutoff?.[0] || null,
-      releaseDate: featMap.get(dm.id)?.release_date?.[0] || null,
-      lastUpdated: featMap.get(dm.id)?.last_updated?.[0] || null,
-      tags: featMap.get(dm.id)?.tag || [],
-      best_for: featMap.get(dm.id)?.best_for || [],
+      supports_reasoning: feat?.supports_reasoning?.[0] === undefined ? null : feat.supports_reasoning[0] === 'true',
+      output_limit: feat?.output_limit?.[0] ? parseInt(feat.output_limit[0], 10) : null,
+      temperature: feat?.temperature?.[0] === undefined ? null : feat.temperature[0] === 'true',
+      open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
+      family: feat?.family?.[0] || null,
+      knowledge_cutoff: feat?.knowledge_cutoff?.[0] || null,
+      releaseDate: feat?.release_date?.[0] || null,
+      lastUpdated: feat?.last_updated?.[0] || null,
+      tags: feat?.tag || [],
+      best_for: feat?.best_for || [],
       input_types: inputMap.get(dm.id) || [],
       output_types: outputMap.get(dm.id) || [],
       status: {

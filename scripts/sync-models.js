@@ -63,7 +63,7 @@ async function getOpenRouterFreeModels() {
     if (m.id.endsWith(':free')) return true;
     const p = m.pricing || {};
     if (typeof p === 'string') return p === '0';
-    return parseFloat(p.prompt || p.input) === 0 && parseFloat(p.completion || p.output) === 0;
+    return parseFloat(p.prompt ?? p.input) === 0 && parseFloat(p.completion ?? p.output) === 0;
   });
 }
 
@@ -402,7 +402,8 @@ function normalizeModelSlug(name) {
         const exportProcess = spawn('node', [exportScript]);
         exportProcess.stdout.on('data', d => console.log(d.toString().trim()));
         exportProcess.stderr.on('data', d => console.error(d.toString().trim()));
-        exportProcess.on('close', code => console.log(code === 0 ? '  JSON export completed' : `  JSON export failed with code ${code}`));
+        const exportCode = await new Promise(resolve => exportProcess.on('close', resolve));
+        console.log(exportCode === 0 ? '  JSON export completed' : `  JSON export failed with code ${exportCode}`);
 
       } catch (err) {
         await client.query('ROLLBACK');

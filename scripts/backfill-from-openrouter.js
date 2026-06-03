@@ -86,7 +86,6 @@ function httpGet(url, headers = {}) {
     console.log(`  ${existingDps.length} active datapoints in DB\n`);
 
     let toolsUpdates = 0;
-    let newModalities = 0;
     let matched = 0;
     let skippedSame = 0;
 
@@ -117,7 +116,6 @@ function httpGet(url, headers = {}) {
     console.log(`\nMatched ${matched} models against OpenRouter catalog`);
     console.log(`Tools updates:     ${toolsUpdates} models ${APPLY ? 'written' : 'would be written'}`);
     console.log(`Already correct:   ${skippedSame} models`);
-    console.log(`New modality info: ${newModalities} models`);
 
     if (!APPLY) {
       console.log('\nDry-run mode. Use --apply to write changes.');

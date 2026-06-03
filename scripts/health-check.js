@@ -12,17 +12,22 @@ const p = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUn
   try {
     const checks = [];
 
+    // 0. Total super model count
+    const total = await c.query('SELECT COUNT(*) FROM super_models');
+    const totalSupers = parseInt(total.rows[0].count, 10);
+    checks.push(`Total super_models: ${totalSupers}`);
+
     // 1. Slug uniqueness
     const dups = await c.query('SELECT slug, COUNT(*) as cnt FROM super_models GROUP BY slug HAVING COUNT(*) > 1');
     checks.push(`Slug duplicates: ${dups.rows.length} (should be 0)`);
 
     // 2. Models with author
     const auth = await c.query('SELECT COUNT(*) FROM super_models WHERE author IS NOT NULL');
-    checks.push(`Models with author: ${auth.rows[0].count} / 564`);
+    checks.push(`Models with author: ${auth.rows[0].count} / ${totalSupers}`);
 
     // 3. modelsdev coverage
     const md = await c.query("SELECT COUNT(DISTINCT dm.super_model_id) FROM datapoint_models dm JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id WHERE dp.slug = 'modelsdev'");
-    checks.push(`Models with modelsdev: ${md.rows[0].count} / 564 (should be 615 before merge)`);
+    checks.push(`Models with modelsdev: ${md.rows[0].count} / ${totalSupers}`);
 
     // 4. Old tables gone
     const old = await c.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('models','providers','authors','provider_models','model_features','model_input_types','model_output_types')");

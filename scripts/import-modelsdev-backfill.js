@@ -131,7 +131,7 @@ function noDots(s) { return s.replace(/\./g, '-'); }
              VALUES ($1,$2,$3,$4,$5,0::numeric,0::numeric,true,$6,'untested','From models.dev')
              ON CONFLICT (datapoint_provider_id, remote_id) DO NOTHING
              RETURNING id`,
-            [row.super_id, provId, mdRemoteId, `modelsdev/${mdRemoteId}`, ctxLen, md.toolCall ? true : null]
+            [row.super_id, provId, mdRemoteId, `modelsdev/${mdRemoteId}`, ctxLen, md.toolCall ?? null]
           );
           if (dpIns.length > 0) {
             insertedIds.add(mdRemoteId.toLowerCase());

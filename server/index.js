@@ -12,6 +12,7 @@ app.use('/api', dataRouter);
 
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err.message);
+  if (res.headersSent) return next(err);
   res.status(500).json({ error: 'Internal server error' });
 });
 

@@ -41,7 +41,7 @@ const timeout = parseInt(get('--timeout') || '30000', 10);
       const getSection = (table) => {
         let section = 'unknown';
         for (const h of allHeadings) {
-          if (h.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING) {
+          if (h.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_PRECEDING) {
             section = h.textContent.trim();
           }
         }

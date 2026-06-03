@@ -49,17 +49,26 @@ const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
 let json = null;
 async function loadFromDb() {
   const { rows: dmRows } = await DB_POOL.query(`
-    SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug,
+    SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug, mm.author AS super_author,
            dp.name AS provider_name, dp.slug AS provider_slug
     FROM datapoint_models dm
     JOIN super_models mm ON mm.id = dm.super_model_id
     JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
     ORDER BY dm.full_id
   `);
-  const { rows: irows } = await DB_POOL.query('SELECT datapoint_model_id, input_type FROM datapoint_model_input_types');
-  const { rows: orows } = await DB_POOL.query('SELECT datapoint_model_id, output_type FROM datapoint_model_output_types');
-  const { rows: frows } = await DB_POOL.query('SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features');
-  const { rows: mrows } = await DB_POOL.query('SELECT key, value::text FROM metadata ORDER BY key');
+  const dmIds = dmRows.map(r => r.id);
+  const [irows, orows, frows, mrows] = (await Promise.all([
+    dmIds.length
+      ? DB_POOL.query('SELECT datapoint_model_id, input_type FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1)', [dmIds])
+      : { rows: [] },
+    dmIds.length
+      ? DB_POOL.query('SELECT datapoint_model_id, output_type FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1)', [dmIds])
+      : { rows: [] },
+    dmIds.length
+      ? DB_POOL.query('SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)', [dmIds])
+      : { rows: [] },
+    DB_POOL.query('SELECT key, value::text FROM metadata ORDER BY key'),
+  ])).map(r => r.rows);
 
   const imap = new Map(); for (const r of irows) { if (!imap.has(r.datapoint_model_id)) imap.set(r.datapoint_model_id, []); imap.get(r.datapoint_model_id).push(r.input_type); }
   const omap = new Map(); for (const r of orows) { if (!omap.has(r.datapoint_model_id)) omap.set(r.datapoint_model_id, []); omap.get(r.datapoint_model_id).push(r.output_type); }
@@ -72,22 +81,23 @@ async function loadFromDb() {
     const mid = dm.full_id;
     const r = dm.status_result || 'untested';
     if (ts[r]) ts[r].push(mid); else ts.untested.push(mid);
+    const feat = fmap.get(dm.id);
     return {
-      id: mid, name: dm.super_name, provider: dm.provider_name, author: null,
+      id: mid, name: dm.super_name, provider: dm.provider_name, author: dm.super_author || null,
       context_length: dm.context_length || null,
       input_price_per_million: Number(dm.input_price_per_million) || 0,
       output_price_per_million: Number(dm.output_price_per_million) || 0,
       is_free: dm.is_free, supports_tools: dm.supports_tools,
-      supports_reasoning: fmap.get(dm.id)?.supports_reasoning?.[0] === 'true' || null,
-      output_limit: fmap.get(dm.id)?.output_limit?.[0] ? parseInt(fmap.get(dm.id).output_limit[0], 10) : null,
-      temperature: fmap.get(dm.id)?.temperature?.[0] === 'true' || null,
-      open_weights: fmap.get(dm.id)?.open_weights?.[0] === 'true' || null,
-      family: fmap.get(dm.id)?.family?.[0] || null,
-      knowledge_cutoff: fmap.get(dm.id)?.knowledge_cutoff?.[0] || null,
-      releaseDate: fmap.get(dm.id)?.release_date?.[0] || null,
-      lastUpdated: fmap.get(dm.id)?.last_updated?.[0] || null,
-      tags: fmap.get(dm.id)?.tag || [],
-      best_for: fmap.get(dm.id)?.best_for || [],
+      supports_reasoning: feat?.supports_reasoning?.[0] === undefined ? null : feat.supports_reasoning[0] === 'true',
+      output_limit: feat?.output_limit?.[0] ? parseInt(feat.output_limit[0], 10) : null,
+      temperature: feat?.temperature?.[0] === undefined ? null : feat.temperature[0] === 'true',
+      open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
+      family: feat?.family?.[0] || null,
+      knowledge_cutoff: feat?.knowledge_cutoff?.[0] || null,
+      releaseDate: feat?.release_date?.[0] || null,
+      lastUpdated: feat?.last_updated?.[0] || null,
+      tags: feat?.tag || [],
+      best_for: feat?.best_for || [],
       input_types: imap.get(dm.id) || [],
       output_types: omap.get(dm.id) || [],
       status: { tested: dm.status_tested || null, result: dm.status_result || 'untested', detail: dm.status_detail || null },
@@ -192,7 +202,7 @@ async function parseOpenRouterModels(key) {
     // Also include zero-priced models (like openrouter/owl-alpha)
     const p = m.pricing || {};
     if (typeof p === 'string') return p === '0';
-    return parseFloat(p.prompt || p.input) === 0 && parseFloat(p.completion || p.output) === 0;
+    return parseFloat(p.prompt ?? p.input) === 0 && parseFloat(p.completion ?? p.output) === 0;
   }).map(m => m.id.replace(/^openrouter\//, ''))); // strip prefix for comparison
 }
 

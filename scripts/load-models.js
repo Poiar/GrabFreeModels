@@ -58,7 +58,7 @@ async function loadModels(existingPool) {
     }
 
     const { rows: dmRows } = await client.query(`
-      SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug,
+      SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug, mm.author AS super_author,
              dp.name AS provider_name, dp.slug AS provider_slug
       FROM datapoint_models dm
       JOIN super_models mm ON mm.id = dm.super_model_id
@@ -107,28 +107,29 @@ async function loadModels(existingPool) {
     const untestedIds = [];
 
     for (const dm of dmRows) {
+      const feat = featMap.get(dm.id);
       const entry = {
         id: dm.full_id,
         super_id: dm.super_model_id,
         super_name: dm.super_name,
         name: dm.super_name,
         provider: dm.provider_name,
-        author: null,
+        author: dm.super_author || null,
         context_length: dm.context_length || null,
         input_price_per_million: Number(dm.input_price_per_million) || 0,
         output_price_per_million: Number(dm.output_price_per_million) || 0,
         is_free: dm.is_free,
         supports_tools: dm.supports_tools,
-        supports_reasoning: featMap.get(dm.id)?.supports_reasoning?.[0] === 'true' || null,
-        output_limit: featMap.get(dm.id)?.output_limit?.[0] ? parseInt(featMap.get(dm.id).output_limit[0], 10) : null,
-        temperature: featMap.get(dm.id)?.temperature?.[0] === 'true' ? true : null,
-        open_weights: featMap.get(dm.id)?.open_weights?.[0] === 'true' ? true : null,
-        family: featMap.get(dm.id)?.family?.[0] || null,
-        knowledge_cutoff: featMap.get(dm.id)?.knowledge_cutoff?.[0] || null,
-        releaseDate: featMap.get(dm.id)?.release_date?.[0] || null,
-        lastUpdated: featMap.get(dm.id)?.last_updated?.[0] || null,
-        tags: featMap.get(dm.id)?.tag || [],
-        best_for: featMap.get(dm.id)?.best_for || [],
+        supports_reasoning: feat?.supports_reasoning?.[0] === undefined ? null : feat.supports_reasoning[0] === 'true',
+        output_limit: feat?.output_limit?.[0] ? parseInt(feat.output_limit[0], 10) : null,
+        temperature: feat?.temperature?.[0] === undefined ? null : feat.temperature[0] === 'true',
+        open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
+        family: feat?.family?.[0] || null,
+        knowledge_cutoff: feat?.knowledge_cutoff?.[0] || null,
+        releaseDate: feat?.release_date?.[0] || null,
+        lastUpdated: feat?.last_updated?.[0] || null,
+        tags: feat?.tag || [],
+        best_for: feat?.best_for || [],
         input_types: inputMap.get(dm.id) || [],
         output_types: outputMap.get(dm.id) || [],
         status: {

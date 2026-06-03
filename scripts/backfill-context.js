@@ -78,7 +78,7 @@ const KNOWN_CONTEXT = JSON.parse(
     );
   } catch (e) {
     console.error(`Failed to read auth file: ${e.message}`);
-    process.exit(1);
+    throw e;
   }
 
     let updated = 0

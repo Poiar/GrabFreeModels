@@ -73,4 +73,8 @@ router.afterEach((to) => {
   document.title = page ? `${page} — ${BASE_TITLE}` : BASE_TITLE
 })
 
+router.onError((err) => {
+  console.error('Router error:', err.message || err)
+})
+
 export default router
