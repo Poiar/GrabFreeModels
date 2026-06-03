@@ -88,10 +88,7 @@
     </aside>
     <main id="main-content" class="content" tabindex="-1">
       <div v-if="store.loading" class="center-message">
-        <div class="loading-state">
-          <div class="loading-spinner"></div>
-          <p>Loading model intelligence…</p>
-        </div>
+        <SkeletonLoader />
       </div>
       <div v-else-if="store.error" class="center-message error-box">
         <div class="error-icon">⚠</div>
@@ -125,6 +122,7 @@ import { useTheme } from '@/composables/useTheme'
 import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
 import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal.vue'
 import ToastContainer from '@/components/ToastContainer.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
 
 const route = useRoute()
 const store = useModelsStore()
@@ -251,29 +249,6 @@ if (typeof window !== 'undefined') {
 
 .footer-shortcuts-hint:hover {
   color: var(--accent);
-}
-
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-.loading-spinner {
-  width: 48px;
-  height: 48px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  box-shadow: 0 0 20px var(--accent-glow);
-}
-
-.loading-state p {
-  font-size: 0.9rem;
-  color: var(--text-dim);
-  font-weight: 500;
 }
 
 .error-icon {

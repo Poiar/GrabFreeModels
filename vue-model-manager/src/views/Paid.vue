@@ -130,6 +130,7 @@
       <DynamicScroller
         v-if="sortedItems.length > 0"
         ref="scrollerRef"
+        :key="'scroller-' + isMobile"
         :items="sortedItems"
         :min-item-size="56"
         key-field="id"
@@ -147,18 +148,18 @@
                 </button>
               </div>
             </div>
-            <div class="vscroll-cell col-author">{{ item.author }}</div>
-            <div class="vscroll-cell col-provider">
+            <div class="vscroll-cell col-author" data-label="Author" aria-label="Author">{{ item.author }}</div>
+            <div class="vscroll-cell col-provider" data-label="Provider" aria-label="Provider">
               <span>{{ item.provider }}</span>
             </div>
-            <div class="vscroll-cell col-status">
+            <div class="vscroll-cell col-status" data-label="Status" aria-label="Status">
               <span v-if="item._removed" class="badge badge-removed">Removed</span>
               <span v-else class="badge" :class="`badge-${item.status.result}`">{{ formatStatus(item.status.result) }}</span>
             </div>
-            <div class="vscroll-cell col-context">
+            <div class="vscroll-cell col-context" data-label="Context" aria-label="Context">
               <span class="context-len">{{ item.context_length != null ? formatContext(item.context_length) : '—' }}</span>
             </div>
-            <div class="vscroll-cell col-detail">
+            <div class="vscroll-cell col-detail" data-label="Details" aria-label="Details">
               <div class="best-for-tags">
                 <span v-for="tag in item.best_for.slice(0, 3)" :key="tag" class="tag">{{ tag }}</span>
                 <span v-if="item.best_for.length > 3" class="tag">+{{ item.best_for.length - 3 }}</span>
@@ -191,6 +192,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useModelsStore } from '@/store/models'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import { useJqlFilter } from '@/composables/useJqlFilter'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 import type { FilterToken, SortSpec } from '@/composables/useJqlFilter'
 import type { Model } from '@/types'
 import type { BuilderCondition } from '@/components/QueryBuilder.vue'
@@ -211,6 +213,7 @@ const SortArrow = defineComponent({
 })
 
 const store = useModelsStore()
+const { isMobile } = useBreakpoint()
 const route = useRoute()
 const router = useRouter()
 const selectedModel = ref<Model | null>(null)

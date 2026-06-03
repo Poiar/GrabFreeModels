@@ -31,6 +31,33 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `metrics-exporter` — Prometheus metrics endpoint / service installer
 - `rank-models` — rebuild `_role_rankings` using deterministic scoring algorithm
 - `schema-v2` — DB schema documentation (super_models + datapoint_providers + datapoint_models)
+- `browse` — Browser automation CLI by Browserbase (local scraping, screenshots, form fill, bot bypass)
+
+## Agent Team
+
+Specialized agents in `.claude/agents/` for code review, analysis, and task delegation. Each agent has persistent memory in `.claude/agent-memory/<name>/`.
+
+| Agent | Role | Model | Triggers |
+|-------|------|-------|----------|
+| `ui-ux-reviewer` | UI/UX design, accessibility, responsive design, visual consistency | Sonnet | UI changes, design feedback, component review |
+| `performance` | Full-stack performance: DB queries, API latency, bundle size, Web Vitals | Sonnet | Slow queries, bundle size, latency, optimization |
+| `scraping` | Web scraping: Playwright scripts, browse CLI, bot bypass, rate limiting | Sonnet | Scrape, extract, crawl, sync providers |
+| `security` | Security review: OWASP, secrets detection, dependency audit, SQL injection | Sonnet | Security review, vulnerability, secret scanning |
+| `qa` | Test planning, edge cases, regression analysis, manual test scripts | Sonnet | Test plan, QA, regression, edge cases |
+| `code-quality` | Code structure, DRY, naming, conventions, dead code, refactoring | Sonnet | Code review, refactor, code smell, DRY |
+| `memory-management` | Memory system health, deduplication, staleness detection, index maintenance | Haiku | Memory, MEMORY.md, stale memory, remember |
+| `skill-management` | Skill ecosystem: create/update/audit skills, skill index, lean files | Haiku | Skill, SKILL.md, create skill, skill audit |
+
+### When to Delegate
+
+- **UI/UX feedback** → `ui-ux-reviewer` agent (proactive on any UI change)
+- **Performance investigation** → `performance` agent
+- **Scraping/playwright tasks** → `scraping` agent
+- **Security-sensitive changes** → `security` agent
+- **Test planning for complex changes** → `qa` agent
+- **Code smell detection / refactoring** → `code-quality` agent
+- **Memory system maintenance** → `memory-management` agent
+- **Skill creation or auditing** → `skill-management` agent
 
 ## Lean Files Policy
 

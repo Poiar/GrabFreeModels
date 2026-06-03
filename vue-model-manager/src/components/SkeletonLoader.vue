@@ -101,4 +101,11 @@ const style = computed(() => ({
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-line::after {
+    animation: none;
+    display: none;
+  }
+}
 </style>

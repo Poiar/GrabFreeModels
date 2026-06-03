@@ -66,6 +66,7 @@
       <DynamicScroller
         v-if="sortedItems.length > 0"
         ref="scrollerRef"
+        :key="'scroller-' + isMobile"
         :items="sortedItems"
         :min-item-size="56"
         key-field="author"
@@ -79,25 +80,25 @@
                   {{ item.author || 'Unknown' }}
                 </span>
               </div>
-              <div class="vscroll-cell col-models">
+              <div class="vscroll-cell col-models" data-label="Models" aria-label="Models">
                 <span class="instance-badge">{{ item.modelCount }}</span>
               </div>
-              <div class="vscroll-cell col-providers">
+              <div class="vscroll-cell col-providers" data-label="Providers" aria-label="Providers">
                 <div class="provider-tags">
                   <span v-for="p in item.providers.slice(0, 5)" :key="p" class="provider-tag">{{ p }}</span>
                   <span v-if="item.providers.length > 5" class="provider-tag more">+{{ item.providers.length - 5 }}</span>
                 </div>
               </div>
-              <div class="vscroll-cell col-instances">
+              <div class="vscroll-cell col-instances" data-label="Instances" aria-label="Instances">
                 <span class="instance-badge">{{ item.instanceCount }}</span>
               </div>
-              <div class="vscroll-cell col-working">
+              <div class="vscroll-cell col-working" data-label="Status" aria-label="Status">
                 <span v-if="item.workingCount > 0" class="badge badge-working">{{ item.workingCount }} working</span>
                 <span v-else-if="item.untestedCount > 0" class="badge badge-untested">{{ item.untestedCount }} untested</span>
                 <span v-else-if="item.rateLimitedCount > 0" class="badge badge-rate_limited">{{ item.rateLimitedCount }} rate limited</span>
                 <span v-else class="badge badge-broken">—</span>
               </div>
-              <div class="vscroll-cell col-members">
+              <div class="vscroll-cell col-members" data-label="Members" aria-label="Members">
                 <div class="member-names">
                   <span v-for="name in item.memberNames.slice(0, 4)" :key="name" class="member-chip">{{ name }}</span>
                   <span v-if="item.memberNames.length > 4" class="member-chip more">+{{ item.memberNames.length - 4 }}</span>
@@ -134,24 +135,24 @@
               <div class="vscroll-header-cell col-tools">Tools</div>
             </div>
             <div v-for="m in authorSupers" :key="m.id" class="vscroll-row row-clickable" @click="$router.push(`/super/${m.id}`)">
-              <div class="vscroll-cell col-name">
+              <div class="vscroll-cell col-name" data-label="Model" aria-label="Model">
                 <span class="model-name" :title="m.name">{{ m.name }}</span>
               </div>
-              <div class="vscroll-cell col-status">
+              <div class="vscroll-cell col-status" data-label="Status" aria-label="Status">
                 <span v-if="m.workingCount > 0" class="badge badge-working">Working ({{ m.workingCount }})</span>
                 <span v-else-if="m.untestedCount > 0" class="badge badge-untested">Untested</span>
                 <span v-else class="badge badge-broken">—</span>
               </div>
-              <div class="vscroll-cell col-providers">
+              <div class="vscroll-cell col-providers" data-label="Providers" aria-label="Providers">
                 <div class="provider-tags">
                   <span v-for="p in m.providers.slice(0, 4)" :key="p" class="provider-tag">{{ p }}</span>
                   <span v-if="m.providers.length > 4" class="provider-tag more">+{{ m.providers.length - 4 }}</span>
                 </div>
               </div>
-              <div class="vscroll-cell col-context">
+              <div class="vscroll-cell col-context" data-label="Context" aria-label="Context">
                 <span class="context-len">{{ m.best_context_length ? formatContext(m.best_context_length) : '—' }}</span>
               </div>
-              <div class="vscroll-cell col-tools">
+              <div class="vscroll-cell col-tools" data-label="Tools" aria-label="Tools">
                 <span v-if="m.any_tools" class="check-yes">✓</span>
                 <span v-else class="check-no">—</span>
               </div>
@@ -168,6 +169,7 @@ import { computed, defineComponent, h, onMounted, onUnmounted, ref, watch } from
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { useModelsStore } from '@/store/models'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 
 const SortArrow = defineComponent({
   props: { active: Boolean, desc: Boolean },
@@ -179,6 +181,7 @@ const SortArrow = defineComponent({
 })
 
 const store = useModelsStore()
+const { isMobile } = useBreakpoint()
 const scrollerRef = ref()
 const selectedAuthor = ref<string | null>(null)
 

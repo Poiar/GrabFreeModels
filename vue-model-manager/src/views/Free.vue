@@ -197,6 +197,7 @@
       <DynamicScroller
         v-if="sortedItems.length > 0"
         ref="scrollerRef"
+        :key="'scroller-' + isMobile"
         :items="sortedItems"
         :min-item-size="56"
         key-field="modelId"
@@ -205,7 +206,7 @@
         <template #default="{ item, active }">
           <DynamicScrollerItem :item="item" :active="active">
           <div class="vscroll-row row-clickable" :class="{ 'row-removed': item.model?._removed }" @click="selectedModel = (item.model ?? null)" role="button" tabindex="0" :title="'View details for ' + (item.model?.name ?? item.modelId)">
-            <div class="vscroll-cell col-rank">
+            <div class="vscroll-cell col-rank" data-label="Rank" aria-label="Rank">
               <div class="rank-pills">
                 <span
                   v-for="r in item.rankings"
@@ -220,7 +221,7 @@
                 </span>
               </div>
             </div>
-            <div class="vscroll-cell col-score">
+            <div class="vscroll-cell col-score" data-label="Score" aria-label="Score">
               <span v-if="scoringSource === 'internal'" class="score-val" :title="scoreTooltip(itemScore(item.modelId))">{{ formatScore(itemScore(item.modelId)) }}</span>
               <span v-else class="score-val" :title="'External score: ' + (item.externalScore ?? 'N/A') + (item.externalScore !== null ? ' from ' + scoringSource : '')">{{ item.externalScore != null ? item.externalScore.toFixed(2) : '—' }}</span>
             </div>
@@ -234,23 +235,23 @@
                 </button>
               </div>
             </div>
-            <div class="vscroll-cell col-author">{{ item.model?.author ?? '' }}</div>
-            <div class="vscroll-cell col-family">{{ item.model?.family ?? '' }}</div>
-            <div class="vscroll-cell col-provider">
+            <div class="vscroll-cell col-author" data-label="Author" aria-label="Author">{{ item.model?.author ?? '' }}</div>
+            <div class="vscroll-cell col-family" data-label="Family" aria-label="Family">{{ item.model?.family ?? '' }}</div>
+            <div class="vscroll-cell col-provider" data-label="Provider" aria-label="Provider">
               <span>{{ item.model?.provider ?? '' }}</span>
               <span v-if="item.model && store.isModelProviderUsedUp(item.modelId)" class="used-up-icon" title="Provider used up for this month">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               </span>
             </div>
-            <div class="vscroll-cell col-status">
+            <div class="vscroll-cell col-status" data-label="Status" aria-label="Status">
               <span class="badge" :class="`badge-${item.model?.status?.result ?? ''}`">
                 {{ formatStatus(item.model?.status?.result) }}
               </span>
             </div>
-            <div class="vscroll-cell col-context">
+            <div class="vscroll-cell col-context" data-label="Context" aria-label="Context">
               <span class="context-len">{{ item.model?.context_length != null ? formatContext(item.model.context_length) : '—' }}</span>
             </div>
-            <div class="vscroll-cell col-detail">
+            <div class="vscroll-cell col-detail" data-label="Details" aria-label="Details">
               <div class="best-for-tags">
                 <span v-for="tag in (item.model?.best_for ?? []).slice(0, 3)" :key="tag" class="tag">{{ tag }}</span>
                 <span v-if="(item.model?.best_for?.length ?? 0) > 3" class="tag">+{{ (item.model?.best_for?.length ?? 0) - 3 }}</span>
@@ -312,6 +313,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useModelsStore } from '@/store/models'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import { useJqlFilter } from '@/composables/useJqlFilter'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 import type { FilterToken, SortSpec } from '@/composables/useJqlFilter'
 import type { Model, ModelScore, RoleScore, RoleMeta } from '@/types'
 import type { BuilderCondition } from '@/components/QueryBuilder.vue'
@@ -332,6 +334,7 @@ const SortArrow = defineComponent({
 })
 
 const store = useModelsStore()
+const { isMobile } = useBreakpoint()
 const route = useRoute()
 const router = useRouter()
 const copiedIds = reactive(new Set<string>())
@@ -1027,6 +1030,8 @@ function exportJson() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
 }
 
 .copy-btn:hover {

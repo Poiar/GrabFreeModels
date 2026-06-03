@@ -1369,6 +1369,8 @@ tr:hover td { background: var(--bg-hover); }
   line-height: 1;
   transition: all 0.2s;
   opacity: 0;
+  min-width: 36px;
+  min-height: 36px;
 }
 
 tr:hover .copy-btn { opacity: 1; }
@@ -1746,7 +1748,7 @@ th.sortable.active .sort-indicator { opacity: 1; }
 .model-name-link:hover { text-decoration: underline; }
 .model-id-wrap { display: flex; align-items: center; gap: 5px; margin-top: 3px; }
 .model-id { font-size: 0.68rem; color: var(--text-muted); max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-mono, monospace); line-height: 1; }
-.copy-btn { background: none; border: 1px solid transparent; color: var(--text-muted); cursor: pointer; padding: 3px 6px; border-radius: 4px; font-size: 0.85rem; line-height: 1; transition: all 0.15s; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }
+.copy-btn { background: none; border: 1px solid transparent; color: var(--text-muted); cursor: pointer; padding: 3px 6px; border-radius: 4px; font-size: 0.85rem; line-height: 1; transition: all 0.15s; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; min-width: 36px; min-height: 36px; }
 .copy-btn:hover { color: var(--text); background: var(--bg-hover, rgba(255,255,255,0.06)); }
 .copy-btn.copied { color: var(--green); }
 
@@ -1807,3 +1809,91 @@ th.sortable.active .sort-indicator { opacity: 1; }
   .jql-bar-footer { flex-wrap: wrap; }
   .qb-builder-row { flex-wrap: wrap; }
 }
+
+/* ── Mobile Card Layout for Virtual Scroll Tables ── */
+@media (max-width: 640px) {
+  .vscroll-table {
+    height: auto;
+    min-height: 200px;
+    border: none;
+    background: transparent;
+  }
+
+  .vscroll-header-row {
+    display: none;
+  }
+
+  .vscroll-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: visible;
+  }
+
+  .vue-recycle-scroller__item-view {
+    padding: 0;
+  }
+
+  .vscroll-row {
+    flex-direction: column;
+    align-items: stretch;
+    height: auto;
+    min-height: 0;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    gap: 6px;
+  }
+
+  @media (hover: hover) {
+    .vscroll-row:hover {
+      border-color: var(--border-focus);
+      box-shadow: var(--shadow-md);
+    }
+  }
+
+  .vscroll-cell {
+    flex: none;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 2px 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .vscroll-cell::before {
+    content: attr(data-label);
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    min-width: 70px;
+    flex-shrink: 0;
+  }
+
+  .col-name {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .col-name::before {
+    display: none;
+  }
+
+  .col-name .model-name,
+  .col-name .super-name {
+    font-size: 0.95rem;
+  }
+
+  .col-status,
+  .col-context,
+  .col-tools,
+  .col-free {
+    justify-content: flex-start;
+  }
+}
+

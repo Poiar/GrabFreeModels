@@ -136,6 +136,7 @@
       <DynamicScroller
         v-if="sortedItems.length > 0"
         ref="scrollerRef"
+        :key="'scroller-' + isMobile"
         :items="sortedItems"
         :min-item-size="56"
         key-field="id"
@@ -153,19 +154,19 @@
                 </button>
               </div>
             </div>
-            <div class="vscroll-cell col-author">{{ item.author }}</div>
-            <div class="vscroll-cell col-provider">
+            <div class="vscroll-cell col-author" data-label="Author" aria-label="Author">{{ item.author }}</div>
+            <div class="vscroll-cell col-provider" data-label="Provider" aria-label="Provider">
               <span>{{ item.provider }}</span>
               <span v-if="store.isModelProviderUsedUp(item.id)" class="used-up-icon" title="Provider used up for this month">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               </span>
             </div>
-            <div class="vscroll-cell col-type">
+            <div class="vscroll-cell col-type" data-label="Type" aria-label="Type">
               <span class="badge" :class="item.is_free ? 'badge-free-type' : 'badge-paid-type'">
                 {{ item.is_free ? 'Free' : 'Paid' }}
               </span>
             </div>
-            <div class="vscroll-cell col-status">
+            <div class="vscroll-cell col-status" data-label="Status" aria-label="Status">
               <span v-if="item._removed" class="badge badge-removed" title="No longer offered as free by provider">
                 Removed
               </span>
@@ -173,10 +174,10 @@
                 {{ formatStatus(item.status.result) }}
               </span>
             </div>
-            <div class="vscroll-cell col-context">
+            <div class="vscroll-cell col-context" data-label="Context" aria-label="Context">
               <span class="context-len">{{ item.context_length != null ? formatContext(item.context_length) : '—' }}</span>
             </div>
-            <div class="vscroll-cell col-detail">
+            <div class="vscroll-cell col-detail" data-label="Details" aria-label="Details">
               <div class="best-for-tags">
                 <span v-for="tag in item.best_for.slice(0, 3)" :key="tag" class="tag">{{ tag }}</span>
                 <span v-if="item.best_for.length > 3" class="tag">+{{ item.best_for.length - 3 }}</span>
@@ -212,6 +213,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useModelsStore } from '@/store/models'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import { useJqlFilter } from '@/composables/useJqlFilter'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 import type { FilterToken, SortSpec } from '@/composables/useJqlFilter'
 import type { Model } from '@/types'
 import type { BuilderCondition } from '@/components/QueryBuilder.vue'
@@ -232,6 +234,7 @@ const SortArrow = defineComponent({
 })
 
 const store = useModelsStore()
+const { isMobile } = useBreakpoint()
 const route = useRoute()
 const router = useRouter()
 const selectedModel = ref<Model | null>(null)

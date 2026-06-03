@@ -87,6 +87,7 @@
       <DynamicScroller
         v-if="sortedItems.length > 0"
         ref="scrollerRef"
+        :key="'scroller-' + isMobile"
         :items="sortedItems"
         :min-item-size="56"
         key-field="id"
@@ -99,36 +100,36 @@
               <span class="super-name" :title="item.name">{{ item.name }}</span>
               <span v-if="item.family" class="super-family">{{ item.family }}</span>
             </div>
-            <div class="vscroll-cell col-status">
+            <div class="vscroll-cell col-status" data-label="Status" aria-label="Status">
               <span v-if="item.workingCount > 0" class="badge badge-working">Working ({{ item.workingCount }})</span>
               <span v-else-if="item.untestedCount > 0" class="badge badge-untested">{{ item.untestedCount }} untested</span>
               <span v-else-if="item.rateLimitedCount > 0" class="badge badge-rate_limited">{{ item.rateLimitedCount }} rate limited</span>
               <span v-else-if="item.brokenCount > 0" class="badge badge-broken">{{ item.brokenCount }} broken</span>
               <span v-else class="badge badge-not_found">—</span>
             </div>
-            <div class="vscroll-cell col-providers">
+            <div class="vscroll-cell col-providers" data-label="Providers" aria-label="Providers">
               <div class="provider-tags">
                 <span v-for="p in item.providers.slice(0, 4)" :key="p" class="provider-tag">{{ p }}</span>
                 <span v-if="item.providers.length > 4" class="provider-tag more">+{{ item.providers.length - 4 }}</span>
               </div>
             </div>
-            <div class="vscroll-cell col-instances">
+            <div class="vscroll-cell col-instances" data-label="Instances" aria-label="Instances">
               <span class="instance-badge">{{ item.datapointsCount }}</span>
               <span class="instance-label">instance{{ item.datapointsCount !== 1 ? 's' : '' }}</span>
             </div>
-            <div class="vscroll-cell col-context">
+            <div class="vscroll-cell col-context" data-label="Context" aria-label="Context">
               <span class="context-len">{{ item.best_context_length ? formatContext(item.best_context_length) : '—' }}</span>
             </div>
-            <div class="vscroll-cell col-tools">
+            <div class="vscroll-cell col-tools" data-label="Tools" aria-label="Tools">
               <span v-if="item.any_tools" class="check-yes">✓</span>
               <span v-else class="check-no">—</span>
             </div>
-            <div class="vscroll-cell col-free">
+            <div class="vscroll-cell col-free" data-label="Free" aria-label="Free">
               <span v-if="item.all_free" class="check-yes">All</span>
               <span v-else-if="item.hasPaid" class="check-mixed">Some</span>
               <span v-else class="check-no">—</span>
             </div>
-            <div class="vscroll-cell col-roles">
+            <div class="vscroll-cell col-roles" data-label="Roles" aria-label="Roles">
               <div class="role-badges-inline">
                 <span
                   v-for="r in item.topRoles"
@@ -160,6 +161,7 @@
 import { computed, defineComponent, h, ref, watch } from 'vue'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import { useModelsStore } from '@/store/models'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 
 const ROLES = ['model', 'build', 'general', 'small_model', 'explore'] as const
 const ROLE_SHORT: Record<string, string> = { model: 'Mod', build: 'Bld', general: 'Gen', small_model: 'Sml', explore: 'Exp' }
@@ -174,6 +176,7 @@ const SortArrow = defineComponent({
 })
 
 const store = useModelsStore()
+const { isMobile } = useBreakpoint()
 const scrollerRef = ref()
 
 interface SuperItem {
