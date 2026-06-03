@@ -18,6 +18,12 @@ const routes = [
     redirect: (to: { params: Record<string, string | string[]> }) => `/super/${to.params.id}`,
   },
   {
+    path: '/super/:id',
+    name: 'SuperModel',
+    component: () => import('@/views/SuperModel.vue'),
+    meta: { title: 'SuperModel' },
+  },
+  {
     path: '/all',
     name: 'All',
     component: () => import('@/views/All.vue'),
