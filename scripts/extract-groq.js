@@ -37,18 +37,18 @@ const timeout = parseInt(get('--timeout') || '30000', 10);
       const result = [];
 
       const tables = document.querySelectorAll('table');
-      for (const table of tables) {
-        // Walk up to find the section heading (h2/h3 in main content area)
-        let el = table.parentElement;
+      const allHeadings = document.querySelectorAll('h2, h3');
+      const getSection = (table) => {
         let section = 'unknown';
-        for (let i = 0; i < 10 && el; i++) {
-          const heading = el.previousElementSibling?.querySelector('h2, h3');
-          if (heading) {
-            section = heading.textContent.trim();
-            break;
+        for (const h of allHeadings) {
+          if (h.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING) {
+            section = h.textContent.trim();
           }
-          el = el.parentElement;
         }
+        return section;
+      };
+      for (const table of tables) {
+        const section = getSection(table);
 
         const rows = table.querySelectorAll('tbody tr');
         for (const row of rows) {

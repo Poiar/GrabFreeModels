@@ -153,7 +153,7 @@ function slugify(name) {
     }
 
     console.log(`\nSupers matched: ${supersMatched}`);
-    console.log(`Supers created: ${mastersCreated}`);
+    console.log(`Supers created: ${supersCreated}`);
     console.log(`Datapoints created: ${dpsCreated}`);
     console.log(`Datapoints skipped (already exist): ${dpsSkipped}`);
     if (errors) console.log(`Errors: ${errors}`);
