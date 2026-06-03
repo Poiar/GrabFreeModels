@@ -134,8 +134,12 @@ const normalizeModelSlug = (name) => {
   return slug;
 };
 
-test('strips :free suffix', () => {
-  assert.strictEqual(normalizeModelSlug('gpt-4:free'), 'gpt-4');
+test('does NOT strip :free (colon prefix is OpenRouter convention)', () => {
+  // The function strips -free (hyphen) and (free) but not :free
+  // :free is an OpenRouter model suffix that should be preserved
+  assert.strictEqual(normalizeModelSlug('gpt-4:free'), 'gpt-4-free');
+  // After the general cleanup pass, : becomes -
+  assert.strictEqual(normalizeModelSlug('model:free'), 'model-free');
 });
 
 test('strips -free suffix', () => {

@@ -47,75 +47,16 @@ const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
 
 // Load data from PostgreSQL
 let json = null;
+
+const buildModelsData = require('./build-models-data');
+
 async function loadFromDb() {
-  const { rows: dmRows } = await DB_POOL.query(`
-    SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug, mm.author AS super_author,
-           dp.name AS provider_name, dp.slug AS provider_slug
-    FROM datapoint_models dm
-    JOIN super_models mm ON mm.id = dm.super_model_id
-    JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
-    ORDER BY dm.full_id
-  `);
-  const dmIds = dmRows.map(r => r.id);
-  const [irows, orows, frows, mrows] = (await Promise.all([
-    dmIds.length
-      ? DB_POOL.query('SELECT datapoint_model_id, input_type FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1)', [dmIds])
-      : { rows: [] },
-    dmIds.length
-      ? DB_POOL.query('SELECT datapoint_model_id, output_type FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1)', [dmIds])
-      : { rows: [] },
-    dmIds.length
-      ? DB_POOL.query('SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)', [dmIds])
-      : { rows: [] },
-    DB_POOL.query('SELECT key, value::text FROM metadata ORDER BY key'),
-  ])).map(r => r.rows);
-
-  const imap = new Map(); for (const r of irows) { if (!imap.has(r.datapoint_model_id)) imap.set(r.datapoint_model_id, []); imap.get(r.datapoint_model_id).push(r.input_type); }
-  const omap = new Map(); for (const r of orows) { if (!omap.has(r.datapoint_model_id)) omap.set(r.datapoint_model_id, []); omap.get(r.datapoint_model_id).push(r.output_type); }
-  const knownFeatures = ['best_for', 'tag', 'supports_reasoning', 'output_limit', 'temperature', 'open_weights', 'family', 'knowledge_cutoff', 'release_date', 'last_updated'];
-  const fmap = new Map(); for (const r of frows) { if (!fmap.has(r.datapoint_model_id)) { const o = { tag: [], best_for: [] }; for (const f of knownFeatures) o[f] = []; fmap.set(r.datapoint_model_id, o); } const b = knownFeatures.includes(r.feature_type) ? r.feature_type : 'tag'; fmap.get(r.datapoint_model_id)[b].push(r.value); }
-  const meta = {}; for (const r of mrows) { try { meta[r.key] = JSON.parse(r.value); } catch { meta[r.key] = r.value; } }
-
-  const ts = { working: [], rate_limited: [], broken: [], untested: [], not_found: [] };
-  const outputModels = dmRows.map(dm => {
-    const mid = dm.full_id;
-    const r = dm.status_result || 'untested';
-    if (ts[r]) ts[r].push(mid); else ts.untested.push(mid);
-    const feat = fmap.get(dm.id);
-    return {
-      id: mid, name: dm.super_name, provider: dm.provider_name, author: dm.super_author || null,
-      context_length: dm.context_length || null,
-      input_price_per_million: Number(dm.input_price_per_million) || 0,
-      output_price_per_million: Number(dm.output_price_per_million) || 0,
-      is_free: dm.is_free, supports_tools: dm.supports_tools,
-      supports_reasoning: feat?.supports_reasoning?.[0] === undefined ? null : feat.supports_reasoning[0] === 'true',
-      output_limit: feat?.output_limit?.[0] ? parseInt(feat.output_limit[0], 10) : null,
-      temperature: feat?.temperature?.[0] === undefined ? null : feat.temperature[0] === 'true',
-      open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
-      family: feat?.family?.[0] || null,
-      knowledge_cutoff: feat?.knowledge_cutoff?.[0] || null,
-      releaseDate: feat?.release_date?.[0] || null,
-      lastUpdated: feat?.last_updated?.[0] || null,
-      tags: feat?.tag || [],
-      best_for: feat?.best_for || [],
-      input_types: imap.get(dm.id) || [],
-      output_types: omap.get(dm.id) || [],
-      status: { tested: dm.status_tested || null, result: dm.status_result || 'untested', detail: dm.status_detail || null },
-      last_success: dm.last_success || null,
-      source: dm.provider_slug,
-      _removedDate: null,
-      notes: null,
-    };
-  });
-
-  json = {
-    models: outputModels,
-    _test_summary: { date: new Date().toISOString().slice(0, 10), results: ts },
-    _role_rankings: meta._role_rankings || { description: '', model: [], build: [], general: [], small_model: [], explore: [], stable: [] },
-    _provider_usage: meta._provider_usage || { description: '' },
-    _known_issues: meta._known_issues || { description: '', issues: [] },
-    _validation_method: meta._validation_method || { description: '' },
-  };
+  const client = await DB_POOL.connect();
+  try {
+    json = await buildModelsData(client);
+  } finally {
+    client.release();
+  }
 }
 
 async function saveToDbAndExport() {
@@ -366,10 +307,8 @@ async function testModel(apiModelId, phase, apiKey, apiUrl) {
     // If resolveApiModelId returns something not in valid set, it's a fallback — still try it
 
     console.log(`[${ep}] ${m.id} → ${apiId}`);
-    const [burst, delayed] = await Promise.all([
-      testModel(apiId, 'burst', cfg.key(), cfg.url),
-      testModel(apiId, 'delayed', cfg.key(), cfg.url),
-    ]);
+    const burst = await testModel(apiId, 'burst', cfg.key(), cfg.url);
+    const delayed = await testModel(apiId, 'delayed', cfg.key(), cfg.url);
     console.log(`  Burst:   ${burst.join(', ')}`);
     console.log(`  Delayed: ${delayed.join(', ')}`);
 
@@ -379,7 +318,11 @@ async function testModel(apiModelId, phase, apiKey, apiUrl) {
 
     let status, detail;
     if (ok === total) { status = 'working'; detail = `All ${total} requests succeeded.`; }
-    else if (ok === 0) { status = 'rate_limited'; detail = `All ${total} requests failed (non-OK).`; }
+    else if (ok === 0) {
+      const all429 = all.every(r => r === '429');
+      status = all429 ? 'rate_limited' : 'broken';
+      detail = all429 ? `All ${total} requests rate-limited (429).` : `All ${total} requests failed — server errors or connection issues.`;
+    }
     else if (ok >= 4) { status = 'working'; detail = `${ok}/${total} OK. Intermittent failures under load.`; }
     else { status = 'rate_limited'; detail = `${ok}/${total} OK - sporadic, not reliably usable.`; }
 
