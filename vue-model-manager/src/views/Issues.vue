@@ -392,4 +392,89 @@ function toggleSeverityFilter(severity: string) {
 .date-sep {
   color: var(--border);
 }
+
+/* ── Mobile overrides (≤ 768px) ── */
+@media (max-width: 768px) {
+  .severity-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .severity-bar::-webkit-scrollbar { display: none; }
+
+  .severity-pill {
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 8px 14px;
+  }
+
+  .severity-clear {
+    flex-shrink: 0;
+    min-height: 44px;
+  }
+
+  .issue-card {
+    margin-bottom: 10px;
+  }
+
+  .issue-content {
+    padding: 14px 16px;
+  }
+
+  .issue-header {
+    gap: 6px;
+  }
+
+  .issue-title {
+    font-size: 0.88rem;
+  }
+
+  .issue-detail-row .label {
+    min-width: 70px;
+  }
+
+  .issues-sort-bar {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .issues-sort-bar select {
+    min-height: 44px;
+  }
+
+  .sort-dir-btn {
+    min-height: 44px;
+    padding: 8px 14px;
+  }
+}
+
+/* ── Small mobile (≤ 360px) ── */
+@media (max-width: 360px) {
+  .issue-content {
+    padding: 12px;
+  }
+
+  .issue-title {
+    font-size: 0.82rem;
+  }
+
+  .issue-detail-row {
+    font-size: 0.76rem;
+  }
+
+  .issue-detail-row .label {
+    min-width: 60px;
+  }
+
+  .severity-bar {
+    gap: 6px;
+  }
+
+  .severity-pill {
+    padding: 6px 10px;
+    font-size: 0.65rem;
+  }
+}
 </style>

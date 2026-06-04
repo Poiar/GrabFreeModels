@@ -260,4 +260,56 @@ const providerEntries = computed(() => {
 .legend-dot.working { background: var(--green); }
 .legend-dot.rate_limited { background: var(--orange); }
 .legend-dot.broken { background: var(--red); }
+
+/* ── Mobile overrides (≤ 768px) ── */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 1rem;
+    margin-bottom: 14px;
+  }
+
+  .provider-card {
+    padding: 12px;
+  }
+
+  .provider-name {
+    font-size: 0.85rem;
+  }
+
+  .bar-track-multi {
+    height: 10px;
+  }
+
+  .bar-legend {
+    gap: 8px;
+  }
+
+  .legend-item {
+    font-size: 0.62rem;
+  }
+
+  .card-title {
+    font-size: 0.85rem;
+  }
+}
+
+/* ── Small mobile (≤ 360px) ── */
+@media (max-width: 360px) {
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+  }
+
+  .provider-card {
+    padding: 10px;
+  }
+
+  .bar-legend {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
 </style>

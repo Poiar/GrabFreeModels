@@ -1346,4 +1346,119 @@ function exportJson() {
   cursor: help;
   border-bottom: 1px dotted var(--text-dim);
 }
+
+/* ── Mobile overrides (≤ 768px) ── */
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .type-pills {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .type-pills::-webkit-scrollbar { display: none; }
+
+  .status-btn {
+    min-height: 44px;
+    padding: 8px 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .sort-select,
+  .scoring-select {
+    min-height: 44px;
+    width: 100%;
+  }
+
+  .sort-controls {
+    justify-content: space-between;
+  }
+
+  .sort-dir-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .result-count {
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .jql-input {
+    min-height: 44px;
+    font-size: 0.85rem;
+  }
+
+  .jql-chip {
+    min-height: 36px;
+  }
+
+  .jql-bar-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .export-btns {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .export-btn {
+    min-height: 44px;
+    padding: 8px 14px;
+  }
+
+  .role-info-panel {
+    padding: 10px 12px;
+  }
+
+  .rank-pills {
+    min-width: 80px;
+  }
+
+  .rank-pill .rp-role {
+    display: none;
+  }
+
+  .unranked-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .model-name-link {
+    font-size: 0.88rem;
+  }
+
+  .vscroll-table {
+    height: calc(100dvh - 420px);
+    min-height: 200px;
+  }
+}
+
+/* ── Small mobile (≤ 360px) ── */
+@media (max-width: 360px) {
+  .type-pills {
+    gap: 0;
+  }
+
+  .status-btn {
+    padding: 6px 10px;
+    font-size: 0.68rem;
+  }
+
+  .rank-pill {
+    padding: 2px 6px;
+    font-size: 0.62rem;
+  }
+
+  .rank-pill .rp-num {
+    font-size: 0.62rem;
+  }
+}
 </style>

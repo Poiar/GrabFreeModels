@@ -1,7 +1,7 @@
 <template>
   <transition name="panel">
     <div v-if="model" class="detail-overlay" @click.self="close">
-      <aside class="detail-panel" role="dialog" aria-modal="true" :aria-label="model.name">
+      <aside ref="panelRef" class="detail-panel" role="dialog" aria-modal="true" :aria-label="model.name">
         <header class="detail-header">
           <div class="detail-header-info">
             <div class="detail-status-row">
@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onUnmounted } from 'vue'
+import { computed, ref, watch, onUnmounted, onMounted } from 'vue'
 import type { Model } from '@/types'
 import { useModelsStore } from '@/store/models'
 
@@ -126,7 +126,45 @@ const emit = defineEmits<(e: 'close') => void>()
 const store = useModelsStore()
 
 const copied = ref(false)
+const panelRef = ref<HTMLElement | null>(null)
 let copyTimer: ReturnType<typeof setTimeout> | null = null
+
+// Swipe-to-dismiss (mobile bottom sheet)
+let touchStartY = 0
+let touchCurrentY = 0
+let touchStartTime = 0
+let isDragging = false
+
+function onTouchStart(e: TouchEvent) {
+  touchStartY = e.touches[0].clientY
+  touchCurrentY = touchStartY
+  touchStartTime = Date.now()
+  isDragging = true
+  if (panelRef.value) panelRef.value.style.transition = 'none'
+}
+
+function onTouchMove(e: TouchEvent) {
+  if (!isDragging) return
+  touchCurrentY = e.touches[0].clientY
+  const delta = touchCurrentY - touchStartY
+  if (delta > 0 && panelRef.value) {
+    panelRef.value.style.transform = `translateY(${delta}px)`
+  }
+}
+
+function onTouchEnd() {
+  if (!isDragging) return
+  isDragging = false
+  const delta = touchCurrentY - touchStartY
+  const elapsed = Date.now() - touchStartTime
+  const velocity = delta / Math.max(elapsed, 1)
+  if (panelRef.value) panelRef.value.style.transition = ''
+  if (delta > 80 || velocity > 0.5) {
+    close()
+  } else if (panelRef.value) {
+    panelRef.value.style.transform = ''
+  }
+}
 
 const providerUsedUp = computed(() => props.model ? store.isModelProviderUsedUp(props.model.id) : false)
 
@@ -136,6 +174,14 @@ const modelIssues = computed(() => {
 })
 
 function close() { emit('close') }
+
+onMounted(() => {
+  if (panelRef.value && props.model) {
+    panelRef.value.addEventListener('touchstart', onTouchStart, { passive: true })
+    panelRef.value.addEventListener('touchmove', onTouchMove, { passive: true })
+    panelRef.value.addEventListener('touchend', onTouchEnd)
+  }
+})
 
 async function doCopy() {
   if (!props.model) return
@@ -166,12 +212,26 @@ function formatContext(n: number) { return fmt.format(n) }
 
 watch(() => props.model, (m, old) => {
   if (old) document.removeEventListener('keydown', onKey)
-  if (m) document.addEventListener('keydown', onKey)
+  if (m) {
+    document.addEventListener('keydown', onKey)
+    // Re-attach touch listeners when panel re-mounts for a new model
+    const panel = panelRef.value
+    if (panel) {
+      panel.addEventListener('touchstart', onTouchStart, { passive: true })
+      panel.addEventListener('touchmove', onTouchMove, { passive: true })
+      panel.addEventListener('touchend', onTouchEnd)
+    }
+  }
 })
 
 onUnmounted(() => {
   document.removeEventListener('keydown', onKey)
   if (copyTimer) clearTimeout(copyTimer)
+  if (panelRef.value) {
+    panelRef.value.removeEventListener('touchstart', onTouchStart)
+    panelRef.value.removeEventListener('touchmove', onTouchMove)
+    panelRef.value.removeEventListener('touchend', onTouchEnd)
+  }
 })
 
 function onKey(e: KeyboardEvent) {
@@ -446,5 +506,64 @@ function onKey(e: KeyboardEvent) {
 .panel-enter-from .detail-panel,
 .panel-leave-to .detail-panel {
   transform: translateX(100%);
+}
+
+/* ── Mobile bottom sheet (≤ 768px) ── */
+@media (max-width: 768px) {
+  .detail-overlay {
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  .detail-panel {
+    width: 100%;
+    max-width: 100%;
+    height: 85dvh;
+    border-left: none;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-top: 3px solid var(--border);
+    padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Drag handle */
+  .detail-panel::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: var(--text-muted);
+    border-radius: 2px;
+    margin: 12px auto 0;
+    flex-shrink: 0;
+  }
+
+  /* Close button: 44px touch target */
+  .detail-close {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Mobile panel transition: slide from bottom */
+  .panel-enter-from .detail-panel,
+  .panel-leave-to .detail-panel {
+    transform: translateY(100%);
+  }
+
+  /* Header padding tighter on mobile */
+  .detail-header {
+    padding: 16px 16px 14px;
+  }
+
+  /* Body padding tighter */
+  .detail-body {
+    padding: 16px;
+  }
+
+  /* ID wrap: allow text to break */
+  .detail-id {
+    max-width: 200px;
+    word-break: break-all;
+    white-space: normal;
+  }
 }
 </style>

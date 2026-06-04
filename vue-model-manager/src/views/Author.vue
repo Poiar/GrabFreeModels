@@ -461,4 +461,21 @@ const authorSupers = computed(() => {
 .check-no { color: var(--text-muted); }
 .empty-state { padding: 48px 0; text-align: center; }
 .empty-state p { color: var(--text-muted); font-size: 0.85rem; }
+
+/* ── Mobile overrides (≤ 768px) ── */
+@media (max-width: 768px) {
+  .jql-input {
+    min-height: 44px;
+    font-size: 0.85rem;
+  }
+
+  .jql-chip {
+    min-height: 36px;
+  }
+
+  .vscroll-table {
+    height: calc(100dvh - 300px);
+    min-height: 200px;
+  }
+}
 </style>

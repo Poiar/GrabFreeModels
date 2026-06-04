@@ -1,0 +1,320 @@
+- generic [ref=e3]:
+  - link "Skip to main content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e83]:
+    - button "Open navigation" [ref=e830] [cursor=pointer]:
+      - img [ref=e831]
+    - generic [ref=e86]: GrabFreeModels
+    - button "Switch to dark mode" [ref=e87] [cursor=pointer]:
+      - img [ref=e88]
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e8]: ⚡
+      - generic [ref=e9]:
+        - heading "GrabFreeModels" [level=1] [ref=e10]
+        - paragraph [ref=e11]: Free LLM Intelligence
+    - navigation "Main navigation" [ref=e12]:
+      - link "Dashboard" [ref=e13] [cursor=pointer]:
+        - /url: "#/"
+        - img [ref=e15]
+        - generic [ref=e20]: Dashboard
+      - link "Author" [ref=e21] [cursor=pointer]:
+        - /url: "#/author"
+        - img [ref=e23]
+        - generic [ref=e26]: Author
+      - link "Family" [ref=e27] [cursor=pointer]:
+        - /url: "#/family"
+        - img [ref=e29]
+        - generic [ref=e33]: Family
+      - link "Super" [ref=e34] [cursor=pointer]:
+        - /url: "#/models"
+        - img [ref=e36]
+        - generic [ref=e38]: Super
+      - link "All" [ref=e39] [cursor=pointer]:
+        - /url: "#/all"
+        - img [ref=e41]
+        - generic [ref=e46]: All
+      - link "Free" [ref=e47] [cursor=pointer]:
+        - /url: "#/free"
+        - img [ref=e49]
+        - generic [ref=e54]: Free
+      - link "Paid" [ref=e55] [cursor=pointer]:
+        - /url: "#/paid"
+        - img [ref=e57]
+        - generic [ref=e59]: Paid
+      - link "Issues" [ref=e60] [cursor=pointer]:
+        - /url: "#/issues"
+        - img [ref=e62]
+        - generic [ref=e64]: Issues
+    - generic [ref=e65]:
+      - generic [ref=e92]: Updated 1m ago
+      - generic [ref=e66]:
+        - button "Switch to dark mode" [pressed] [ref=e67] [cursor=pointer]:
+          - img [ref=e68]
+        - button "Refresh" [ref=e93] [cursor=pointer]:
+          - img [ref=e94]
+          - text: Refresh
+      - button "? shortcuts" [ref=e72] [cursor=pointer]:
+        - img [ref=e73]
+        - generic [ref=e75]: "? shortcuts"
+  - main [ref=e76]:
+    - generic [ref=e969]:
+      - generic [ref=e970]:
+        - generic [ref=e971]:
+          - link "SuperModels" [ref=e972] [cursor=pointer]:
+            - /url: "#/models"
+          - generic [ref=e973]: ›
+          - generic [ref=e974]: gpt-oss-120b
+        - heading "gpt-oss-120b gpt-oss" [level=2] [ref=e975]
+        - paragraph [ref=e976]: 13 instances across 6 providers
+      - generic [ref=e977]:
+        - generic [ref=e978]:
+          - generic [ref=e979]: "13"
+          - generic [ref=e980]: Providers
+        - generic [ref=e981]:
+          - generic [ref=e982]: "3"
+          - generic [ref=e983]: Working
+        - generic [ref=e984]:
+          - generic [ref=e985]: "0"
+          - generic [ref=e986]: Rate Limited
+        - generic [ref=e987]:
+          - generic [ref=e988]: "0"
+          - generic [ref=e989]: Broken
+        - generic [ref=e990]:
+          - generic [ref=e991]: "10"
+          - generic [ref=e992]: Untested
+        - generic [ref=e993]:
+          - generic [ref=e994]: 131K
+          - generic [ref=e995]: Best Context
+        - generic [ref=e996]:
+          - generic [ref=e997]: "Yes"
+          - generic [ref=e998]: Tool Support
+        - generic [ref=e999]:
+          - generic [ref=e1000]: Some Paid
+          - generic [ref=e1001]: Pricing
+      - generic [ref=e1002]:
+        - heading "Provider Comparison" [level=3] [ref=e1003]
+        - paragraph [ref=e1004]: Click a row to see test details
+        - table [ref=e1006]:
+          - rowgroup [ref=e1007]:
+            - row "Provider Status Context Input Price Output Price Tools Free Last Tested" [ref=e1008]:
+              - columnheader "Provider" [ref=e1009]
+              - columnheader "Status" [ref=e1010]
+              - columnheader "Context" [ref=e1011]
+              - columnheader "Input Price" [ref=e1012]
+              - columnheader "Output Price" [ref=e1013]
+              - columnheader "Tools" [ref=e1014]
+              - columnheader "Free" [ref=e1015]
+              - columnheader "Last Tested" [ref=e1016]
+          - rowgroup [ref=e1017]:
+            - button "models.dev modelsdev Removed — — — ✓ ✓ —" [ref=e1018] [cursor=pointer]:
+              - cell "models.dev modelsdev" [ref=e1019]:
+                - generic [ref=e1020]: models.dev
+                - generic [ref=e1021]: modelsdev
+              - cell "Removed" [ref=e1022]:
+                - generic [ref=e1023]: Removed
+              - cell "—" [ref=e1024]:
+                - generic [ref=e1025]: —
+              - cell "—" [ref=e1026]
+              - cell "—" [ref=e1027]
+              - cell "✓" [ref=e1028]
+              - cell "✓" [ref=e1029]
+              - cell "—" [ref=e1030]
+            - button "models.dev modelsdev Removed 128K — — ✓ ✓ —" [ref=e1031] [cursor=pointer]:
+              - cell "models.dev modelsdev" [ref=e1032]:
+                - generic [ref=e1033]: models.dev
+                - generic [ref=e1034]: modelsdev
+              - cell "Removed" [ref=e1035]:
+                - generic [ref=e1036]: Removed
+              - cell "128K" [ref=e1037]:
+                - generic [ref=e1038]: 128K
+              - cell "—" [ref=e1039]
+              - cell "—" [ref=e1040]
+              - cell "✓" [ref=e1041]
+              - cell "✓" [ref=e1042]
+              - cell "—" [ref=e1043]
+            - button "models.dev modelsdev Removed 128K — — ✓ ✓ —" [ref=e1044] [cursor=pointer]:
+              - cell "models.dev modelsdev" [ref=e1045]:
+                - generic [ref=e1046]: models.dev
+                - generic [ref=e1047]: modelsdev
+              - cell "Removed" [ref=e1048]:
+                - generic [ref=e1049]: Removed
+              - cell "128K" [ref=e1050]:
+                - generic [ref=e1051]: 128K
+              - cell "—" [ref=e1052]
+              - cell "—" [ref=e1053]
+              - cell "✓" [ref=e1054]
+              - cell "✓" [ref=e1055]
+              - cell "—" [ref=e1056]
+            - button "models.dev modelsdev Removed 131K — — ✓ ✓ —" [ref=e1057] [cursor=pointer]:
+              - cell "models.dev modelsdev" [ref=e1058]:
+                - generic [ref=e1059]: models.dev
+                - generic [ref=e1060]: modelsdev
+              - cell "Removed" [ref=e1061]:
+                - generic [ref=e1062]: Removed
+              - cell "131K" [ref=e1063]:
+                - generic [ref=e1064]: 131K
+              - cell "—" [ref=e1065]
+              - cell "—" [ref=e1066]
+              - cell "✓" [ref=e1067]
+              - cell "✓" [ref=e1068]
+              - cell "—" [ref=e1069]
+            - button "models.dev modelsdev Removed 131K — — ✓ ✓ —" [ref=e1070] [cursor=pointer]:
+              - cell "models.dev modelsdev" [ref=e1071]:
+                - generic [ref=e1072]: models.dev
+                - generic [ref=e1073]: modelsdev
+              - cell "Removed" [ref=e1074]:
+                - generic [ref=e1075]: Removed
+              - cell "131K" [ref=e1076]:
+                - generic [ref=e1077]: 131K
+              - cell "—" [ref=e1078]
+              - cell "—" [ref=e1079]
+              - cell "✓" [ref=e1080]
+              - cell "✓" [ref=e1081]
+              - cell "—" [ref=e1082]
+            - button "models.dev modelsdev Removed — — — ✓ ✓ —" [ref=e1083] [cursor=pointer]:
+              - cell "models.dev modelsdev" [ref=e1084]:
+                - generic [ref=e1085]: models.dev
+                - generic [ref=e1086]: modelsdev
+              - cell "Removed" [ref=e1087]:
+                - generic [ref=e1088]: Removed
+              - cell "—" [ref=e1089]:
+                - generic [ref=e1090]: —
+              - cell "—" [ref=e1091]
+              - cell "—" [ref=e1092]
+              - cell "✓" [ref=e1093]
+              - cell "✓" [ref=e1094]
+              - cell "—" [ref=e1095]
+            - button "NVIDIA nvidia Removed 128K — — — ✓ —" [ref=e1096] [cursor=pointer]:
+              - cell "NVIDIA nvidia" [ref=e1097]:
+                - generic [ref=e1098]: NVIDIA
+                - generic [ref=e1099]: nvidia
+              - cell "Removed" [ref=e1100]:
+                - generic [ref=e1101]: Removed
+              - cell "128K" [ref=e1102]:
+                - generic [ref=e1103]: 128K
+              - cell "—" [ref=e1104]
+              - cell "—" [ref=e1105]
+              - cell "—" [ref=e1106]
+              - cell "✓" [ref=e1107]
+              - cell "—" [ref=e1108]
+            - button "OpenRouter openrouter Removed 131K — — ✓ ✓ —" [ref=e1109] [cursor=pointer]:
+              - cell "OpenRouter openrouter" [ref=e1110]:
+                - generic [ref=e1111]: OpenRouter
+                - generic [ref=e1112]: openrouter
+              - cell "Removed" [ref=e1113]:
+                - generic [ref=e1114]: Removed
+              - cell "131K" [ref=e1115]:
+                - generic [ref=e1116]: 131K
+              - cell "—" [ref=e1117]
+              - cell "—" [ref=e1118]
+              - cell "✓" [ref=e1119]
+              - cell "✓" [ref=e1120]
+              - cell "—" [ref=e1121]
+            - button "OpenRouter openrouter Working 131K — — ✓ ✓ 2026-05-31T22:00:00.000Z" [ref=e1122] [cursor=pointer]:
+              - cell "OpenRouter openrouter" [ref=e1123]:
+                - generic [ref=e1124]: OpenRouter
+                - generic [ref=e1125]: openrouter
+              - cell "Working" [ref=e1126]:
+                - generic [ref=e1127]: Working
+              - cell "131K" [ref=e1128]:
+                - generic [ref=e1129]: 131K
+              - cell "—" [ref=e1130]
+              - cell "—" [ref=e1131]
+              - cell "✓" [ref=e1132]
+              - cell "✓" [ref=e1133]
+              - cell "2026-05-31T22:00:00.000Z" [ref=e1134]
+            - button "Privatemode AI privatemode-ai Removed 128K — — — ✓ —" [ref=e1135] [cursor=pointer]:
+              - cell "Privatemode AI privatemode-ai" [ref=e1136]:
+                - generic [ref=e1137]: Privatemode AI
+                - generic [ref=e1138]: privatemode-ai
+              - cell "Removed" [ref=e1139]:
+                - generic [ref=e1140]: Removed
+              - cell "128K" [ref=e1141]:
+                - generic [ref=e1142]: 128K
+              - cell "—" [ref=e1143]
+              - cell "—" [ref=e1144]
+              - cell "—" [ref=e1145]
+              - cell "✓" [ref=e1146]
+              - cell "—" [ref=e1147]
+            - button "Cerebras cerebras Working 131K — — ✓ ✗ 2026-05-31T22:00:00.000Z" [ref=e1148] [cursor=pointer]:
+              - cell "Cerebras cerebras" [ref=e1149]:
+                - generic [ref=e1150]: Cerebras
+                - generic [ref=e1151]: cerebras
+              - cell "Working" [ref=e1152]:
+                - generic [ref=e1153]: Working
+              - cell "131K" [ref=e1154]:
+                - generic [ref=e1155]: 131K
+              - cell "—" [ref=e1156]
+              - cell "—" [ref=e1157]
+              - cell "✓" [ref=e1158]
+              - cell "✗" [ref=e1159]
+              - cell "2026-05-31T22:00:00.000Z" [ref=e1160]
+            - button "Cortecs cortecs Untested 131K — — ✓ ✗ —" [ref=e1161] [cursor=pointer]:
+              - cell "Cortecs cortecs" [ref=e1162]:
+                - generic [ref=e1163]: Cortecs
+                - generic [ref=e1164]: cortecs
+              - cell "Untested" [ref=e1165]:
+                - generic [ref=e1166]: Untested
+              - cell "131K" [ref=e1167]:
+                - generic [ref=e1168]: 131K
+              - cell "—" [ref=e1169]
+              - cell "—" [ref=e1170]
+              - cell "✓" [ref=e1171]
+              - cell "✗" [ref=e1172]
+              - cell "—" [ref=e1173]
+            - button "OpenRouter openrouter Working 131K — — ✓ ✗ 2026-05-31T22:00:00.000Z" [ref=e1174] [cursor=pointer]:
+              - cell "OpenRouter openrouter" [ref=e1175]:
+                - generic [ref=e1176]: OpenRouter
+                - generic [ref=e1177]: openrouter
+              - cell "Working" [ref=e1178]:
+                - generic [ref=e1179]: Working
+              - cell "131K" [ref=e1180]:
+                - generic [ref=e1181]: 131K
+              - cell "—" [ref=e1182]
+              - cell "—" [ref=e1183]
+              - cell "✓" [ref=e1184]
+              - cell "✗" [ref=e1185]
+              - cell "2026-05-31T22:00:00.000Z" [ref=e1186]
+      - generic [ref=e1187]:
+        - heading "Features" [level=3] [ref=e1188]
+        - generic [ref=e1189]:
+          - generic [ref=e1190]:
+            - generic [ref=e1191]: Best For
+            - generic [ref=e1192]:
+              - generic [ref=e1193]: Academia
+              - generic [ref=e1194]: Agentic tasks
+              - generic [ref=e1195]: Finance
+              - generic [ref=e1196]: Function calling
+              - generic [ref=e1197]: General tasks
+              - generic [ref=e1198]: Health
+              - generic [ref=e1199]: Legal
+              - generic [ref=e1200]: Marketing
+              - generic [ref=e1201]: Open-weight reasoning
+              - generic [ref=e1202]: Tool use
+          - generic [ref=e1203]:
+            - generic [ref=e1204]: Family
+            - generic [ref=e1206]: gpt-oss
+          - generic [ref=e1207]:
+            - generic [ref=e1208]: Release Date
+            - generic [ref=e1209]:
+              - generic [ref=e1210]: 2025-08-04
+              - generic [ref=e1211]: 2025-08-05
+          - generic [ref=e1212]:
+            - generic [ref=e1213]: Reasoning
+            - generic [ref=e1215]: "Yes"
+          - generic [ref=e1216]:
+            - generic [ref=e1217]: Open Weights
+            - generic [ref=e1219]: "Yes"
+          - generic [ref=e1220]:
+            - generic [ref=e1221]: Knowledge Cutoff
+            - generic [ref=e1223]: 2024-06-30
+      - generic [ref=e1224]:
+        - heading "Known Issues" [level=3] [ref=e1225]
+        - generic [ref=e1226]:
+          - generic [ref=e1227]:
+            - generic [ref=e1228]: moderate
+            - generic [ref=e1229]: "Returns extra fields in assistant messages: reasoning, reasoning_details"
+            - generic [ref=e1230]: on openrouter/openai/gpt-oss-120b:free
+          - paragraph [ref=e1231]: "Impact: Causes schema validation errors in strict OpenAI-compatible clients that reject unknown properties"
+          - paragraph [ref=e1232]: "Workaround: Use through OpenRouter opencode gateway, or configure client to ignore/strip unknown fields"

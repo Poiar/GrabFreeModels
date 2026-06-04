@@ -568,4 +568,36 @@ function formatContext(n: number): string { return fmtCompact.format(n) }
   color: var(--accent);
   border-color: rgba(88,166,255,0.2);
 }
+
+/* ── Mobile overrides (≤ 768px) ── */
+@media (max-width: 768px) {
+  .jql-input {
+    min-height: 44px;
+    font-size: 0.85rem;
+  }
+
+  .jql-chip {
+    min-height: 36px;
+  }
+
+  .jql-bar-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .export-btns {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .export-btn {
+    min-height: 44px;
+    padding: 8px 14px;
+  }
+
+  .vscroll-table {
+    height: calc(100dvh - 300px);
+    min-height: 200px;
+  }
+}
 </style>

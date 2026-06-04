@@ -568,4 +568,55 @@ function formatContext(n: number): string {
 .sortActive {
   color: var(--accent);
 }
+
+/* ── Mobile overrides (≤ 768px) ── */
+@media (max-width: 768px) {
+  .super-list-search {
+    padding: 10px 12px;
+  }
+
+  .super-list-search input {
+    font-size: 0.85rem;
+    min-height: 44px;
+  }
+
+  .super-list-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .filter-pill {
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+
+  .sort-controls {
+    justify-content: space-between;
+  }
+
+  .sort-select {
+    min-height: 44px;
+    width: 100%;
+  }
+
+  .sort-dir-btn {
+    min-height: 44px;
+    padding: 8px 16px;
+  }
+
+  .super-list-count {
+    text-align: right;
+    padding-right: 4px;
+  }
+
+  .super-name {
+    max-width: 200px;
+  }
+
+  .super-status-bar {
+    height: 6px;
+    margin-bottom: 10px;
+  }
+}
 </style>

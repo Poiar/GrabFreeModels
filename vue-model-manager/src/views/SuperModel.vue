@@ -593,4 +593,28 @@ tbody tr.row-removed {
   font-weight: 600;
   color: var(--text-muted);
 }
+
+/* ── Mobile overrides (≤ 768px) ── */
+@media (max-width: 768px) {
+  .summary-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .detail-inline-close {
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .provider-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .issue-card {
+    padding: 12px;
+  }
+}
 </style>

@@ -3,7 +3,13 @@
     <!-- Skip to content link for accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
-    <aside class="sidebar">
+    <!-- Mobile top bar -->
+    <MobileHeader :open="mobileDrawerOpen" :theme="theme" @toggle="mobileDrawerOpen = !mobileDrawerOpen" @toggle-theme="toggleTheme" />
+
+    <!-- Sidebar backdrop (mobile only) -->
+    <div class="sidebar-backdrop" :class="{ visible: mobileDrawerOpen }" @click="mobileDrawerOpen = false" aria-hidden="true"></div>
+
+    <aside class="sidebar" :class="{ 'drawer-open': mobileDrawerOpen }">
       <div class="brand">
         <div class="brand-icon-wrap">
           <span class="brand-icon">⚡</span>
@@ -115,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useModelsStore } from '@/store/models'
 import { useTheme } from '@/composables/useTheme'
@@ -123,11 +129,27 @@ import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
 import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal.vue'
 import ToastContainer from '@/components/ToastContainer.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
+import MobileHeader from '@/components/MobileHeader.vue'
 
 const route = useRoute()
 const store = useModelsStore()
 const { theme, toggle: toggleTheme } = useTheme()
 const { shortcutsModalOpen } = useKeyboardShortcuts()
+
+const mobileDrawerOpen = ref(false)
+
+// Close drawer on route change
+watch(() => route.path, () => { mobileDrawerOpen.value = false })
+
+// Close drawer on Escape key
+function onKey(e: KeyboardEvent) {
+  if (e.key === 'Escape' && mobileDrawerOpen.value) {
+    mobileDrawerOpen.value = false
+  }
+}
+onMounted(() => {
+  document.addEventListener('keydown', onKey)
+})
 
 const isSuperActive = computed(() => route.path === '/models' || route.path.startsWith('/super/'))
 onMounted(() => store.loadData())
@@ -142,6 +164,7 @@ function timeAgo(date: Date): string {
   const days = Math.floor(hours / 24)
   return `${days}d ago`
 }
+
 
 </script>
 
@@ -251,5 +274,43 @@ function timeAgo(date: Date): string {
 /* Focus styles for main content area */
 .content:focus {
   outline: none;
+}
+
+/* ── Mobile drawer (≤ 768px) ── */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    height: calc(100dvh - 56px);
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 200;
+    border-right: none;
+    box-shadow: none;
+  }
+
+  .sidebar.drawer-open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    top: 56px;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 199;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .sidebar-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 </style>
