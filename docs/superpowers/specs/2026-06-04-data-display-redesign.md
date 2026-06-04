@@ -250,6 +250,7 @@ interface ModelsData {
 
 ### Data layer changes
 - `scripts/build-models-data.js`: Restructure output from flat array to `creators[]` hierarchy. Compute `best_*` and `cheapest_*` fields per model. Build `providers[]` reference array with aggregated stats.
+  - **Creator slug normalization:** `author` strings (e.g., "Google LLC", "Meta Platforms, Inc.") are normalized to slugs via a deterministic `slugify()` function: lowercase, strip common legal suffixes ("LLC", "Inc.", "Ltd.", "Corp.", "PBC", "Inc"), replace spaces/special chars with hyphens. The `name` field retains the original display name. A small override map handles known edge cases (e.g., "Google LLC" → `{ id: "google", name: "Google" }`).
 - `server/routes/data.js`: No structural changes needed — just passes through the new shape from builder.
 - API consumers: The fallback to `/available-models.json` needs the same shape.
 
