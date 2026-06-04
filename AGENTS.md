@@ -35,21 +35,36 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 
 ## Agent Team
 
-Specialized agents in `.claude/agents/` for code review, analysis, and task delegation. Each agent has persistent memory in `.claude/agent-memory/<name>/`.
+12 specialized senior agents in `.claude/agents/` covering all major engineering disciplines. Each agent runs on Sonnet and has persistent memory in `.claude/agent-memory/<name>/`.
 
-| Agent | Role | Model | Triggers |
-|-------|------|-------|----------|
-| `ui-ux-reviewer` | UI/UX design, accessibility, responsive design, visual consistency | Sonnet | UI changes, design feedback, component review |
-| `performance` | Full-stack performance: DB queries, API latency, bundle size, Web Vitals | Sonnet | Slow queries, bundle size, latency, optimization |
-| `scraping` | Web scraping: Playwright scripts, browse CLI, bot bypass, rate limiting | Sonnet | Scrape, extract, crawl, sync providers |
-| `security` | Security review: OWASP, secrets detection, dependency audit, SQL injection | Sonnet | Security review, vulnerability, secret scanning |
-| `qa` | Test planning, edge cases, regression analysis, manual test scripts | Sonnet | Test plan, QA, regression, edge cases |
-| `code-quality` | Code structure, DRY, naming, conventions, dead code, refactoring | Sonnet | Code review, refactor, code smell, DRY |
-| `memory-management` | Memory system health, deduplication, staleness detection, index maintenance | Haiku | Memory, MEMORY.md, stale memory, remember |
-| `skill-management` | Skill ecosystem: create/update/audit skills, skill index, lean files | Haiku | Skill, SKILL.md, create skill, skill audit |
+### Engineering Roles
+
+| Agent | Role | Triggers |
+|-------|------|----------|
+| `architect` | Staff Engineer — system design, trade-off analysis, task decomposition, cross-cutting architecture | Architecture, design, trade-off, how should we, module boundary |
+| `backend-engineer` | API & server — Express routes, middleware, error handling, script module architecture | API, Express, server, route, middleware, endpoint, backend |
+| `data-engineer` | Database & pipelines — PostgreSQL schema, migrations, query optimization, data integrity | Schema, migration, SQL, database, data model, pipeline, index |
+| `devops-engineer` | DevOps & SRE — CI/CD, deployment, monitoring, Windows Service, infrastructure | Deploy, CI/CD, monitoring, Prometheus, service, infrastructure |
+| `ui-ux-reviewer` | UI/UX design — accessibility, responsive design, visual consistency, design system | UI changes, design feedback, component review |
+| `performance` | Performance — DB queries, API latency, bundle size, Web Vitals, memory | Slow, latency, bundle size, optimization, memory leak |
+| `scraping` | Web scraping — Playwright, browse CLI, bot bypass, rate limiting, data extraction | Scrape, extract, crawl, sync providers |
+| `security` | AppSec — OWASP, secrets detection, dependency audit, SQL injection, auth | Security review, vulnerability, secret scanning |
+| `qa` | QA — test planning, edge cases, regression analysis, manual test scripts | Test plan, QA, regression, edge cases |
+| `code-quality` | Code quality — structure, DRY, naming, conventions, dead code, refactoring | Code review, refactor, code smell, DRY |
+
+### System Roles
+
+| Agent | Role | Triggers |
+|-------|------|----------|
+| `memory-management` | Memory curator — quality audits, deduplication, staleness detection, index maintenance | Memory, MEMORY.md, stale memory, remember |
+| `skill-management` | Skill ecosystem — create/update/audit skills, skill index, lean files policy | Skill, SKILL.md, create skill, skill audit |
 
 ### When to Delegate
 
+- **Cross-cutting architecture / complex design** → `architect` agent
+- **API / server / backend changes** → `backend-engineer` agent
+- **Database / schema / pipeline changes** → `data-engineer` agent
+- **Deployment / CI/CD / monitoring** → `devops-engineer` agent
 - **UI/UX feedback** → `ui-ux-reviewer` agent (proactive on any UI change)
 - **Performance investigation** → `performance` agent
 - **Scraping/playwright tasks** → `scraping` agent

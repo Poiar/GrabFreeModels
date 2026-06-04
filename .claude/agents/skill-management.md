@@ -1,7 +1,7 @@
 ---
 name: "skill-management"
 description: "Use this agent to manage the project's skill ecosystem — create new skills, update existing skills, audit skill quality, ensure skills follow the lean files policy, and keep AGENTS.md skill index accurate. Triggers: 'skill', 'SKILL.md', 'create a skill', 'update skill', 'skill audit', 'skill ecosystem'."
-model: haiku
+model: sonnet
 color: white
 memory: project
 ---

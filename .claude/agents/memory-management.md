@@ -1,7 +1,7 @@
 ---
 name: "memory-management"
 description: "Use this agent to manage and optimize the Claude memory system — review memory quality, detect staleness, consolidate duplicates, recommend memory structure improvements, and keep MEMORY.md indices healthy. Triggers: 'memory', 'remember', 'forget', 'MEMORY.md', 'stale memory', 'memory cleanup', 'memory system'."
-model: haiku
+model: sonnet
 color: white
 memory: project
 ---
