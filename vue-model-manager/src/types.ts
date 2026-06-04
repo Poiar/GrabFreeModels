@@ -4,6 +4,77 @@ export interface ModelStatus {
   detail: string
 }
 
+// NEW hierarchical types
+
+export interface ProviderDatapoint {
+  full_id: string
+  provider: string
+  provider_slug: string
+  context_length: number | null
+  input_price_per_million: number
+  output_price_per_million: number
+  is_free: boolean
+  supports_tools: boolean | null
+  supports_reasoning: boolean | null
+  output_limit: number | null
+  temperature: boolean | null
+  open_weights: boolean | null
+  tags: string[]
+  best_for: string[]
+  input_types: string[]
+  output_types: string[]
+  status: ModelStatus
+  last_success: string | null
+  _removed: boolean
+  _removedDate?: string
+  notes?: string
+  priority_score: number | null
+}
+
+export interface ModelData {
+  super_id: number
+  name: string
+  slug: string
+  family: string | null
+  best_for: string[]
+  best_context: number | null
+  cheapest_input_price: number
+  cheapest_output_price: number
+  role_rankings: Record<string, number>
+  providers: ProviderDatapoint[]
+}
+
+export interface CreatorData {
+  id: number
+  name: string
+  model_count: number
+  provider_count: number
+  models: ModelData[]
+}
+
+export interface ProviderReference {
+  id: string
+  slug: string
+  name: string
+  base_url: string
+  model_count: number
+  working_count: number
+  health_status: string
+}
+
+export interface ModelsData {
+  creators: CreatorData[]
+  providers: ProviderReference[]
+  _test_summary: TestSummary
+  _role_rankings: { description: string; model: string[]; build: string[]; small_model: string[]; explore: string[]; stable: string[]; _scores?: Record<string, RoleScore[]>; _meta?: Record<string, RoleMeta> }
+  _model_scores: ModelScoresData
+  _provider_usage: { description: string; [provider: string]: ProviderUsage | string }
+  _known_issues: { description: string; issues: KnownIssue[] }
+  _validation_method: ValidationMethod
+}
+
+// EXISTING types (kept for backward compatibility)
+
 /** @deprecated Use DatapointModel */
 export type Model = DatapointModel;
 
@@ -130,30 +201,4 @@ export interface ModelScoresData {
   description: string
   sources: string[]
   scores: Record<string, ModelScore[]>
-}
-
-export interface ModelsData {
-  models: DatapointModel[]
-  _test_summary: TestSummary
-  _role_rankings: {
-    description: string
-    model: string[]
-    build: string[]
-    general: string[]
-    small_model: string[]
-    explore: string[]
-    stable: string[]
-    _scores?: Record<string, RoleScore[]>
-    _meta?: Record<string, RoleMeta>
-  }
-  _model_scores: ModelScoresData
-  _provider_usage: {
-    description: string
-    [provider: string]: ProviderUsage | string
-  }
-  _known_issues: {
-    description: string
-    issues: KnownIssue[]
-  }
-  _validation_method: ValidationMethod
 }
