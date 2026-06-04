@@ -45,7 +45,7 @@ export interface ModelData {
 }
 
 export interface CreatorData {
-  id: number
+  id: string
   name: string
   model_count: number
   provider_count: number
@@ -66,7 +66,7 @@ export interface ModelsData {
   creators: CreatorData[]
   providers: ProviderReference[]
   _test_summary: TestSummary
-  _role_rankings: { description: string; model: string[]; build: string[]; small_model: string[]; explore: string[]; stable: string[]; _scores?: Record<string, RoleScore[]>; _meta?: Record<string, RoleMeta> }
+  _role_rankings: { description: string; model: string[]; build: string[]; general: string[]; small_model: string[]; explore: string[]; stable: string[]; _scores?: Record<string, RoleScore[]>; _meta?: Record<string, RoleMeta> }
   _model_scores: ModelScoresData
   _provider_usage: { description: string; [provider: string]: ProviderUsage | string }
   _known_issues: { description: string; issues: KnownIssue[] }
