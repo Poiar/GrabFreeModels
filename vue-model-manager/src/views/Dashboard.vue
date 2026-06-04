@@ -62,7 +62,10 @@
         v-for="entry in providerEntries"
         :key="entry.provider"
         class="provider-card"
-        :class="{ 'used-up': store.isProviderUsedUp(entry.provider) }"
+        :class="{
+          'used-up': store.isProviderUsedUp(entry.provider),
+          'inactive': !entry.hasActivity
+        }"
       >
         <div class="provider-name">
           {{ entry.provider }}
@@ -82,6 +85,13 @@
             <span class="legend-item"><span class="legend-dot working"></span>{{ entry.health.working }} working</span>
             <span class="legend-item"><span class="legend-dot rate_limited"></span>{{ entry.health.rate_limited }} rate-limited</span>
             <span class="legend-item"><span class="legend-dot broken"></span>{{ entry.health.broken }} broken</span>
+          </div>
+          <div class="bar-legend-compact">
+            <span class="legend-dot working"></span>{{ entry.health.working }}
+            <span class="legend-sep">&middot;</span>
+            <span class="legend-dot rate_limited"></span>{{ entry.health.rate_limited }}
+            <span class="legend-sep">&middot;</span>
+            <span class="legend-dot broken"></span>{{ entry.health.broken }}
           </div>
         </div>
         <div class="provider-total">
@@ -164,6 +174,7 @@ const providerEntries = computed(() => {
       pctWorking: pct(health.working, health.total),
       pctRateLimited: pct(health.rate_limited, health.total),
       pctBroken: pct(health.broken, health.total),
+      hasActivity: health.working > 0 || health.rate_limited > 0 || health.broken > 0,
     }))
 })
 </script>
@@ -261,6 +272,27 @@ const providerEntries = computed(() => {
 .legend-dot.rate_limited { background: var(--orange); }
 .legend-dot.broken { background: var(--red); }
 
+/* Compact legend (mobile only) */
+.bar-legend-compact {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.bar-legend-compact .legend-dot {
+  width: 6px;
+  height: 6px;
+}
+
+.legend-sep {
+  color: var(--text-muted);
+  margin: 0 1px;
+}
+
 /* ── Mobile overrides (≤ 768px) ── */
 @media (max-width: 768px) {
   .section-title {
@@ -291,12 +323,44 @@ const providerEntries = computed(() => {
   .card-title {
     font-size: 0.85rem;
   }
+
+  /* Compact legend replaces full legend on mobile */
+  .bar-legend {
+    display: none;
+  }
+
+  .bar-legend-compact {
+    display: flex;
+  }
+
+  /* De-emphasize providers with no activity */
+  .provider-card.inactive {
+    opacity: 0.45;
+    border-color: transparent;
+    max-height: 90px;
+    transition: opacity 0.2s, max-height 0.3s ease, border-color 0.2s;
+  }
+
+  .provider-card.inactive:hover,
+  .provider-card.inactive:focus-within {
+    opacity: 1;
+    border-color: var(--border);
+    max-height: none;
+  }
+
+  .provider-card.inactive .provider-bars {
+    margin-bottom: 6px;
+  }
+
+  .provider-card.inactive .provider-total {
+    display: none;
+  }
 }
 
 /* ── Small mobile (≤ 360px) ── */
 @media (max-width: 360px) {
   .stat-card {
-    padding: 12px;
+    padding: 14px 18px;
   }
 
   .stat-value {

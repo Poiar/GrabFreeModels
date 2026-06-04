@@ -1,0 +1,218 @@
+- generic [ref=e3]:
+  - link "Skip to main content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e5]:
+    - button "Open navigation" [ref=e830] [cursor=pointer]:
+      - img [ref=e831]
+    - generic [ref=e8]: GrabFreeModels
+    - button "Switch to dark mode" [ref=e9] [cursor=pointer]:
+      - img [ref=e10]
+  - complementary [ref=e12]:
+    - generic [ref=e13]:
+      - generic [ref=e15]: ⚡
+      - generic [ref=e16]:
+        - heading "GrabFreeModels" [level=1] [ref=e17]
+        - paragraph [ref=e18]: Free LLM Intelligence
+    - navigation "Main navigation" [ref=e19]:
+      - link "Dashboard" [ref=e20] [cursor=pointer]:
+        - /url: "#/"
+        - img [ref=e22]
+        - generic [ref=e27]: Dashboard
+      - link "Author" [ref=e28] [cursor=pointer]:
+        - /url: "#/author"
+        - img [ref=e30]
+        - generic [ref=e33]: Author
+      - link "Family" [ref=e34] [cursor=pointer]:
+        - /url: "#/family"
+        - img [ref=e36]
+        - generic [ref=e40]: Family
+      - link "Super" [ref=e41] [cursor=pointer]:
+        - /url: "#/models"
+        - img [ref=e43]
+        - generic [ref=e45]: Super
+      - link "All" [ref=e46] [cursor=pointer]:
+        - /url: "#/all"
+        - img [ref=e48]
+        - generic [ref=e53]: All
+      - link "Free" [active] [ref=e54] [cursor=pointer]:
+        - /url: "#/free"
+        - img [ref=e56]
+        - generic [ref=e61]: Free
+      - link "Paid" [ref=e62] [cursor=pointer]:
+        - /url: "#/paid"
+        - img [ref=e64]
+        - generic [ref=e66]: Paid
+      - link "Issues" [ref=e67] [cursor=pointer]:
+        - /url: "#/issues"
+        - img [ref=e69]
+        - generic [ref=e71]: Issues
+    - generic [ref=e72]:
+      - generic [ref=e92]: Updated just now
+      - generic [ref=e73]:
+        - button "Switch to dark mode" [pressed] [ref=e74] [cursor=pointer]:
+          - img [ref=e75]
+        - button "Refresh" [ref=e93] [cursor=pointer]:
+          - img [ref=e94]
+          - text: Refresh
+      - button "? shortcuts" [ref=e79] [cursor=pointer]:
+        - img [ref=e80]
+        - generic [ref=e82]: "? shortcuts"
+  - main [ref=e83]:
+    - generic [ref=e832]:
+      - generic [ref=e833]:
+        - heading "Free" [level=2] [ref=e834]
+        - paragraph [ref=e835]: Role-specific ranked lists of verified free models — paid, removed, broken, and rate-limited models are excluded. Use the type picker to switch which ranking to sort by; each model's other role rankings are shown as pills.
+      - generic [ref=e836]:
+        - generic [ref=e837]:
+          - img [ref=e838]
+          - 'textbox "Filter: field:value, field:>number, field IN (a,b), ORDER BY field DESC…" [ref=e841]'
+        - generic [ref=e842]:
+          - generic [ref=e843]: 22 of 22 ranked models
+          - generic [ref=e844]:
+            - button "CSV" [ref=e845] [cursor=pointer]:
+              - img [ref=e846]
+              - text: CSV
+            - button "JSON" [ref=e849] [cursor=pointer]:
+              - img [ref=e850]
+              - text: JSON
+      - generic [ref=e854]:
+        - generic [ref=e855]:
+          - generic [ref=e856]: Add filter
+          - combobox [ref=e857] [cursor=pointer]:
+            - option "Field…" [disabled] [selected]
+            - option "Author"
+            - option "Provider"
+            - option "Status"
+            - option "Type"
+            - option "Context"
+            - option "Name"
+            - option "ID"
+            - option "Notes"
+            - option "Best For"
+            - option "Provider"
+            - option "Priority"
+          - combobox [disabled] [ref=e858]
+        - generic [ref=e859]:
+          - button "★ Saved" [ref=e860] [cursor=pointer]
+          - generic [ref=e861]:
+            - button "⬇ Export" [ref=e862] [cursor=pointer]
+            - button "⬆ Import" [ref=e863] [cursor=pointer]
+      - generic [ref=e864]:
+        - generic [ref=e865]:
+          - generic [ref=e866]: Model
+          - generic [ref=e867]: Best overall model for general use
+        - generic [ref=e868]:
+          - generic [ref=e869]: Score
+          - generic [ref=e870]:
+            - generic "Context length / 1,048,756 × 1" [ref=e871]: (ctx / 1M) × 1
+            - generic [ref=e872]: +
+            - 'generic "3 tags: chat, general, reasoning" [ref=e873]': tags(3)
+      - generic [ref=e874]:
+        - generic [ref=e876]:
+          - button "Model" [ref=e877] [cursor=pointer]
+          - button "Build" [ref=e878] [cursor=pointer]
+          - button "General" [ref=e879] [cursor=pointer]
+          - button "Small Model" [ref=e880] [cursor=pointer]
+          - button "Explore" [ref=e881] [cursor=pointer]
+        - combobox [ref=e883] [cursor=pointer]:
+          - 'option "Scoring: Internal" [selected]'
+          - 'option "Scoring: Artificial Analysis"'
+        - generic [ref=e884]:
+          - combobox [ref=e885] [cursor=pointer]:
+            - 'option "Sort: Rank" [selected]'
+            - 'option "Sort: Score"'
+            - 'option "Sort: Name"'
+            - 'option "Sort: Author"'
+            - 'option "Sort: Provider"'
+            - 'option "Sort: Context"'
+            - 'option "Sort: Family"'
+          - button "Ascending" [ref=e886] [cursor=pointer]:
+            - img [ref=e887]
+        - generic [ref=e889]: 22 results
+      - generic [ref=e892]:
+        - button "Rank Score OWL Alpha openrouter/owl-alpha Copy model ID Author Family Provider Status Context Details" [ref=e895] [cursor=pointer]:
+          - generic "Rank" [ref=e896]:
+            - text: Rank
+            - generic [ref=e897]:
+              - 'generic "Model rank #1" [ref=e898]':
+                - generic [ref=e899]: "#1"
+              - 'generic "Build rank #1" [ref=e900]':
+                - generic [ref=e901]: "#1"
+              - 'generic "Explore rank #2" [ref=e902]':
+                - generic [ref=e903]: "#2"
+              - 'generic "Small Model rank #8" [ref=e904]':
+                - generic [ref=e905]: "#8"
+              - 'generic "General rank #9" [ref=e906]':
+                - generic [ref=e907]: "#9"
+          - generic "Score" [ref=e908]:
+            - text: Score
+            - generic "No score data" [ref=e909]: —
+          - generic [ref=e910]:
+            - link "OWL Alpha" [ref=e911]:
+              - /url: "#/super/848"
+            - generic [ref=e912]:
+              - generic "openrouter/owl-alpha" [ref=e913]
+              - button "Copy model ID" [ref=e914]: 📋
+          - generic "Author" [ref=e915]
+          - generic "Family" [ref=e916]
+          - generic "Provider" [ref=e917]:
+            - text: Provider
+            - generic [ref=e918]: OpenRouter
+          - generic "Status" [ref=e919]:
+            - text: Status
+            - generic [ref=e920]: Working
+          - generic "Context" [ref=e921]:
+            - text: Context
+            - generic [ref=e922]: 1.05M
+          - generic "Details" [ref=e923]:
+            - text: Details
+            - generic [ref=e924]:
+              - generic [ref=e925]: Reasoning
+              - generic [ref=e926]: Current default
+              - generic [ref=e927]: Tool use
+              - generic [ref=e928]: "+2"
+              - generic [ref=e929]: Tools ✓
+            - generic "All 6 requests succeeded." [ref=e930]
+        - button "Rank Score gpt-oss-120b openrouter/openai/gpt-oss-120b:free Copy model ID Author Family Provider Status Context Details" [ref=e933] [cursor=pointer]:
+          - generic "Rank" [ref=e934]:
+            - text: Rank
+            - generic [ref=e935]:
+              - 'generic "Model rank #2" [ref=e936]':
+                - generic [ref=e937]: "#2"
+              - 'generic "Build rank #3" [ref=e938]':
+                - generic [ref=e939]: "#3"
+              - 'generic "Explore rank #7" [ref=e940]':
+                - generic [ref=e941]: "#7"
+              - 'generic "General rank #11" [ref=e942]':
+                - generic [ref=e943]: "#11"
+              - 'generic "Small Model rank #21" [ref=e944]':
+                - generic [ref=e945]: "#21"
+          - generic "Score" [ref=e946]:
+            - text: Score
+            - generic "No score data" [ref=e947]: —
+          - generic [ref=e948]:
+            - link "gpt-oss-120b" [ref=e949]:
+              - /url: "#/super/924"
+            - generic [ref=e950]:
+              - generic "openrouter/openai/gpt-oss-120b:free" [ref=e951]
+              - button "Copy model ID" [ref=e952]: 📋
+          - generic "Author" [ref=e953]: Author Cerebras
+          - generic "Family" [ref=e954]: Family gpt-oss
+          - generic "Provider" [ref=e955]:
+            - text: Provider
+            - generic [ref=e956]: OpenRouter
+          - generic "Status" [ref=e957]:
+            - text: Status
+            - generic [ref=e958]: Working
+          - generic "Context" [ref=e959]:
+            - text: Context
+            - generic [ref=e960]: 131K
+          - generic "Details" [ref=e961]:
+            - text: Details
+            - generic [ref=e962]:
+              - generic [ref=e963]: General tasks
+              - generic [ref=e964]: Function calling
+              - generic [ref=e965]: Tool use
+              - generic [ref=e966]: "+7"
+              - generic [ref=e967]: Tools ✓
+            - generic "All 6 requests succeeded." [ref=e968]

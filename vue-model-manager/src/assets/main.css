@@ -1773,6 +1773,23 @@ th.sortable.active .sort-indicator { opacity: 1; }
 .fade-leave-to { opacity: 0; transform: translateY(-8px); }
 
 /* ═══════════════════════════════════════════════════════
+   RESPONSIVE — Tablet (769px – 1024px)
+   Sidebar stays inline (not a drawer), narrower width
+   ═══════════════════════════════════════════════════════ */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+  }
+
+  .content {
+    padding: 24px 24px;
+  }
+
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ═══════════════════════════════════════════════════════
    RESPONSIVE — Tablet (640px – 1024px)
    ═══════════════════════════════════════════════════════ */
 @media (max-width: 1024px) {
@@ -1995,6 +2012,7 @@ th.sortable.active .sort-indicator { opacity: 1; }
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 6px;
+    padding-inline: 4px;
     scrollbar-width: none;
     gap: 6px;
   }
@@ -2016,6 +2034,7 @@ th.sortable.active .sort-indicator { opacity: 1; }
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     padding-bottom: 4px;
+    padding-inline: 4px;
     gap: 6px;
   }
   .filter-pills::-webkit-scrollbar { display: none; }

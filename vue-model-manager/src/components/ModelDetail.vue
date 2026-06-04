@@ -18,7 +18,7 @@
               </button>
             </div>
           </div>
-          <button class="detail-close" @click="close" aria-label="Close">
+          <button class="detail-close" @click="close" aria-label="Close model details">
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </header>
@@ -529,12 +529,13 @@ function onKey(e: KeyboardEvent) {
   .detail-panel::before {
     content: '';
     display: block;
-    width: 36px;
-    height: 4px;
+    width: 48px;
+    height: 5px;
     background: var(--text-muted);
-    border-radius: 2px;
-    margin: 12px auto 0;
+    border-radius: 3px;
+    margin: 14px auto 0;
     flex-shrink: 0;
+    opacity: 0.6;
   }
 
   /* Close button: 44px touch target */

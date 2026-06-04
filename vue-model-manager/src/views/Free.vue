@@ -1361,6 +1361,7 @@ function exportJson() {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     padding-bottom: 4px;
+    padding-inline: 4px;
   }
   .type-pills::-webkit-scrollbar { display: none; }
 
