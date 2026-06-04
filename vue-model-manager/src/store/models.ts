@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { ModelsData, DatapointModel, SuperModel, RoleScore, RoleMeta, ModelScoresData } from '@/types'
+import type { ModelsData, CreatorData, ModelData, ProviderDatapoint, ProviderReference, RoleScore, RoleMeta } from '@/types'
 
 const ROLE_ORDER = ['model', 'build', 'stable', 'general', 'small_model', 'explore'] as const
 type Role = (typeof ROLE_ORDER)[number]
@@ -16,78 +16,110 @@ export const useModelsStore = defineStore('models', () => {
   function startStaleTimer() { stopStaleTimer(); staleTimer = setTimeout(() => { isStale.value = true }, 3_600_000) }
   function stopStaleTimer() { if (staleTimer !== null) { clearTimeout(staleTimer); staleTimer = null } }
 
-  // ── Raw datapoints ──
-  const allDatapoints = computed(() => data.value?.models ?? [])
+  // ── Hierarchical data access ──
+  const creators = computed((): CreatorData[] => data.value?.creators ?? [])
+  const providerRefs = computed((): ProviderReference[] => data.value?.providers ?? [])
 
-  // ── Grouped by super model ──
-  const superModels = computed((): SuperModel[] => {
-    const map = new Map<number, SuperModel>()
-    for (const dp of allDatapoints.value) {
-      if (!map.has(dp.super_id)) {
-        map.set(dp.super_id, {
-          id: dp.super_id,
-          name: dp.super_name,
-          datapoints: [],
-          best_context_length: null,
-          any_working: false,
-          any_tools: false,
-          providers: [],
-          all_free: true,
-          sources: [],
-        })
+  // ── Flatten all models across all creators ──
+  const allModels = computed((): ModelData[] => {
+    const result: ModelData[] = []
+    for (const creator of creators.value) {
+      for (const model of creator.models) {
+        result.push(model)
       }
-      const m = map.get(dp.super_id)!
-      m.datapoints.push(dp)
-      if (dp.context_length && (!m.best_context_length || dp.context_length > m.best_context_length)) {
-        m.best_context_length = dp.context_length
-      }
-      if (dp.status.result === 'working') m.any_working = true
-      if (dp.supports_tools === true) m.any_tools = true
-      if (!dp.is_free) m.all_free = false
-      if (!m.providers.includes(dp.provider)) m.providers.push(dp.provider)
-      if (!m.sources.includes(dp.source)) m.sources.push(dp.source)
     }
-    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name))
+    return result
   })
 
-  const superModelById = computed(() => {
-    const map = new Map<number, SuperModel>()
-    for (const m of superModels.value) map.set(m.id, m)
+  // ── Flatten all provider datapoints ──
+  const allDatapoints = computed((): ProviderDatapoint[] => {
+    const result: ProviderDatapoint[] = []
+    for (const model of allModels.value) {
+      for (const dp of model.providers) {
+        result.push(dp)
+      }
+    }
+    return result
+  })
+
+  // ── Model lookup by super_id ──
+  const modelBySuperId = computed((): Map<number, { model: ModelData; creator: CreatorData }> => {
+    const map = new Map()
+    for (const creator of creators.value) {
+      for (const model of creator.models) {
+        map.set(model.super_id, { model, creator })
+      }
+    }
     return map
   })
 
-  // ── Convenience: flat lists (backward compat) ──
-  const allModels = computed(() => allDatapoints.value)
-  const freeModels = computed(() => allDatapoints.value.filter(d => d.is_free))
-  const paidModels = computed(() => allDatapoints.value.filter(d => !d.is_free))
-  const workingModels = computed(() => freeModels.value.filter(d => !d._removed && d.status.result === 'working'))
-  const brokenModels = computed(() => freeModels.value.filter(d => d.status.result === 'broken'))
-  const rateLimitedModels = computed(() => freeModels.value.filter(d => d.status.result === 'rate_limited'))
-  const untestedModels = computed(() => freeModels.value.filter(d => d.status.result === 'untested'))
-  const removedModels = computed(() => allDatapoints.value.filter(d => d._removed === true))
-
-  const allProviderNames = computed(() => {
-    const set = new Set(allDatapoints.value.map(d => d.provider))
-    return Array.from(set).sort()
-  })
-
-  const allAuthorNames = computed(() => {
-    const set = new Set(allDatapoints.value.map(d => d.author).filter((a): a is string => !!a))
-    return Array.from(set).sort()
-  })
-
-  const providerHealth = computed(() => {
-    const health: Record<string, { working: number; rate_limited: number; broken: number; total: number }> = {}
-    for (const d of freeModels.value) {
-      if (!health[d.provider]) health[d.provider] = { working: 0, rate_limited: 0, broken: 0, total: 0 }
-      const h = health[d.provider]; h.total++
-      if (d.status.result === 'working') h.working++
-      else if (d.status.result === 'rate_limited') h.rate_limited++
-      else if (d.status.result === 'broken') h.broken++
+  // ── Datapoint lookup by full_id ──
+  const datapointById = computed((): Map<string, { dp: ProviderDatapoint; model: ModelData; creator: CreatorData }> => {
+    const map = new Map()
+    for (const creator of creators.value) {
+      for (const model of creator.models) {
+        for (const dp of model.providers) {
+          map.set(dp.full_id, { dp, model, creator })
+        }
+      }
     }
-    return health
+    return map
   })
 
+  // ── Filtered model lists ──
+  const freeModels = computed(() =>
+    allModels.value.filter(m => m.providers.some(p => p.is_free && !p._removed))
+  )
+
+  const paidModels = computed(() =>
+    allModels.value.filter(m => m.providers.some(p => !p.is_free && !p._removed))
+  )
+
+  const workingModels = computed(() =>
+    allModels.value.filter(m =>
+      m.providers.some(p => !p._removed && p.status.result === 'working')
+    )
+  )
+
+  const brokenModels = computed(() =>
+    allModels.value.filter(m =>
+      m.providers.some(p => p.status.result === 'broken')
+    )
+  )
+
+  const rateLimitedModels = computed(() =>
+    allModels.value.filter(m =>
+      m.providers.some(p => p.status.result === 'rate_limited')
+    )
+  )
+
+  const untestedModels = computed(() =>
+    allModels.value.filter(m =>
+      m.providers.some(p => p.status.result === 'untested')
+    )
+  )
+
+  const removedModels = computed(() =>
+    allModels.value.filter(m =>
+      m.providers.every(p => p._removed)
+    )
+  )
+
+  // ── Model status classification ──
+  function getModelStatus(model: ModelData): 'working' | 'mixed' | 'untested' | 'down' {
+    const activeProviders = model.providers.filter(p => !p._removed)
+    if (activeProviders.length === 0) return 'down'
+    const working = activeProviders.filter(p => p.status.result === 'working').length
+    const untested = activeProviders.filter(p => p.status.result === 'untested').length
+    const broken = activeProviders.filter(p => p.status.result === 'broken').length
+    if (working === activeProviders.length) return 'working'
+    if (untested === activeProviders.length) return 'untested'
+    if (working > 0) return 'mixed'
+    if (broken === activeProviders.length) return 'down'
+    return 'mixed'
+  }
+
+  // ── Metadata ──
   const roleRankings = computed(() => {
     const r = data.value?._role_rankings
     if (!r) return {} as Record<Role, string[]>
@@ -97,20 +129,12 @@ export const useModelsStore = defineStore('models', () => {
   })
 
   const roleScores = computed(() => data.value?._role_rankings?._scores ?? {} as Record<string, RoleScore[]>)
-
   const roleMeta = computed(() => data.value?._role_rankings?._meta ?? {} as Record<string, RoleMeta>)
 
-  const modelScores = computed((): ModelScoresData | null => {
-    const raw = data.value?._model_scores;
-    if (!raw) return null;
-    return raw as ModelScoresData;
-  });
+  const knownIssues = computed(() => data.value?._known_issues?.issues ?? [])
 
-  function getRoleScore(role: string, modelId: string): RoleScore | undefined {
-    return roleScores.value[role]?.find(s => s.id === modelId)
-  }
-
-  const knownIssues = computed(() => data.value?._known_issues.issues ?? [])
+  const testSummary = computed(() => data.value?._test_summary ?? null)
+  const validationMethod = computed(() => data.value?._validation_method ?? null)
 
   const providerUsage = computed(() => {
     const raw = data.value?._provider_usage
@@ -118,7 +142,9 @@ export const useModelsStore = defineStore('models', () => {
     const result: Record<string, { month: string; reason: string }> = {}
     for (const [key, value] of Object.entries(raw)) {
       if (key === 'description') continue
-      if (typeof value === 'object' && value !== null && 'month' in value) result[key] = value as { month: string; reason: string }
+      if (typeof value === 'object' && value !== null && 'month' in value) {
+        result[key] = value as { month: string; reason: string }
+      }
     }
     return result
   })
@@ -132,54 +158,26 @@ export const useModelsStore = defineStore('models', () => {
     const current = currentMonth.value
     return Object.entries(providerUsage.value).filter(([, u]) => u.month === current).map(([p]) => p)
   })
-  const usedUpProviderSet = computed(() => new Set(usedUpProviders.value))
 
-  function isProviderUsedUp(provider: string): boolean {
-    return usedUpProviderSet.value.has(provider)
-  }
+  // ── Stats ──
+  const stats = computed(() => {
+    const totalModels = allModels.value.length
+    const totalDatapoints = allDatapoints.value.length
+    const freeCount = allDatapoints.value.filter(d => d.is_free).length
+    const workingCount = allDatapoints.value.filter(d => d.status.result === 'working').length
+    const brokenCount = allDatapoints.value.filter(d => d.status.result === 'broken').length
 
-  function extractProvider(modelId: string): string {
-    const slash = modelId.indexOf('/')
-    return slash === -1 ? modelId : modelId.substring(0, slash)
-  }
-
-  function isModelProviderUsedUp(modelId: string): boolean {
-    return isProviderUsedUp(extractProvider(modelId))
-  }
-
-  const schemaIssueModels = computed(() => {
-    const ids = data.value?._test_summary.results.schema_issues ?? []
-    return ids.map(entry => {
-      const sep = entry.indexOf(' — ')
-      if (sep === -1) return { modelId: entry.trim(), detail: '' }
-      return { modelId: entry.substring(0, sep).trim(), detail: entry.substring(sep + 3).trim() }
-    })
+    return {
+      creators: creators.value.length,
+      models: totalModels,
+      datapoints: totalDatapoints,
+      providers: providerRefs.value.length,
+      free: freeCount,
+      working: workingCount,
+      broken: brokenCount,
+      workingRatio: freeCount > 0 ? workingCount / freeCount : 0,
+    }
   })
-
-  const testSummary = computed(() => data.value?._test_summary ?? null)
-  const validationMethod = computed(() => data.value?._validation_method ?? null)
-
-  const stats = computed(() => ({
-    total: allDatapoints.value.length,
-    supers: superModels.value.length,
-    free: freeModels.value.length,
-    paid: paidModels.value.length,
-    working: workingModels.value.length,
-    broken: brokenModels.value.length,
-    rateLimited: rateLimitedModels.value.length,
-    untested: untestedModels.value.length,
-    workingRatio: freeModels.value.length > 0 ? workingModels.value.length / freeModels.value.length : 0,
-  }))
-
-  const modelById = computed(() => {
-    const map = new Map<string, DatapointModel>()
-    for (const d of allDatapoints.value) map.set(d.id, d)
-    return map
-  })
-
-  function getModelById(id: string): DatapointModel | undefined {
-    return modelById.value.get(id)
-  }
 
   // ── Actions ──
   let abortController: AbortController | null = null
@@ -216,16 +214,23 @@ export const useModelsStore = defineStore('models', () => {
 
   return {
     loading, error, lastLoaded, isStale,
-    // Super model grouping
-    superModels, superModelById,
-    // Flat lists (backward compat)
-    allModels, allDatapoints, freeModels, paidModels,
-    workingModels, brokenModels, rateLimitedModels, untestedModels, removedModels,
-    schemaIssueModels, allProviderNames, allAuthorNames, providerHealth,
-    roleRankings, roleScores, roleMeta, getRoleScore, knownIssues, providerUsage,
-    currentMonth, usedUpProviders, usedUpProviderSet, isProviderUsedUp,
-    extractProvider, isModelProviderUsedUp,
-    testSummary, validationMethod, stats,
-    modelById, getModelById, loadData, modelScores,
+    // Hierarchical access
+    creators, providerRefs,
+    // Flat lists
+    allModels, allDatapoints,
+    // Lookups
+    modelBySuperId, datapointById,
+    // Filtered lists
+    freeModels, paidModels, workingModels, brokenModels, rateLimitedModels, untestedModels, removedModels,
+    // Model status helper
+    getModelStatus,
+    // Metadata
+    roleRankings, roleScores, roleMeta, knownIssues, testSummary, validationMethod,
+    // Provider usage
+    providerUsage, currentMonth, usedUpProviders,
+    // Stats
+    stats,
+    // Actions
+    loadData,
   }
 })
