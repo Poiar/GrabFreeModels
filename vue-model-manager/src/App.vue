@@ -22,45 +22,21 @@
       <nav aria-label="Main navigation">
         <router-link to="/" active-class="active">
           <span class="nav-icon">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          </span>
+          <span>Models</span>
+        </router-link>
+        <router-link to="/dashboard" active-class="active">
+          <span class="nav-icon">
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
           </span>
           <span>Dashboard</span>
         </router-link>
-        <router-link to="/author" active-class="active">
+        <router-link to="/creators" active-class="active">
           <span class="nav-icon">
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </span>
-          <span>Author</span>
-        </router-link>
-        <router-link to="/family" active-class="active">
-          <span class="nav-icon">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6h.01L12 15l5.99-7H18V2z"/><path d="M6 2a4 4 0 0 0 8 0"/><path d="M8 8v4a4 4 0 0 0 8 0V8"/><path d="M12 15v3"/><path d="M8 22v-3"/><path d="M16 22v-3"/></svg>
-          </span>
-          <span>Family</span>
-        </router-link>
-        <router-link to="/models" active-class="active" :class="{ active: isSuperActive }">
-          <span class="nav-icon">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          </span>
-          <span>Super</span>
-        </router-link>
-        <router-link to="/all" active-class="active">
-          <span class="nav-icon">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M12 22a2 2 0 0 1 2-2v-2a2 2 0 0 1-2-2 2 2 0 0 1-2 2v2a2 2 0 0 1 2 2z"/><path d="M22 12a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2 2 2 0 0 1 2-2h2a2 2 0 0 1 2 2z"/><path d="M2 12a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z"/></svg>
-          </span>
-          <span>All</span>
-        </router-link>
-        <router-link to="/free" active-class="active">
-          <span class="nav-icon">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          </span>
-          <span>Free</span>
-        </router-link>
-        <router-link to="/paid" active-class="active">
-          <span class="nav-icon">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          </span>
-          <span>Paid</span>
+          <span>Creators</span>
         </router-link>
         <router-link to="/issues" active-class="active">
           <span class="nav-icon">
@@ -151,7 +127,7 @@ onMounted(() => {
   document.addEventListener('keydown', onKey)
 })
 
-const isSuperActive = computed(() => route.path === '/models' || route.path.startsWith('/super/'))
+const isSuperActive = computed(() => route.path === '/' || route.path.startsWith('/creator/'))
 onMounted(() => store.loadData())
 
 function timeAgo(date: Date): string {
