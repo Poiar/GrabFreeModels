@@ -1,8 +1,10 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useTheme } from './useTheme'
 
 export function useKeyboardShortcuts() {
   const router = useRouter()
+  const { toggle: toggleTheme } = useTheme()
   const shortcutsModalOpen = ref(false)
 
   function handleKeydown(e: KeyboardEvent) {
@@ -19,9 +21,11 @@ export function useKeyboardShortcuts() {
 
     // Navigation shortcuts (vim-style g + key)
     if (e.key === 'g' && !e.ctrlKey && !e.metaKey) {
-      // Wait for next key
+      const G_TIMEOUT = 500
+      let timeoutId: ReturnType<typeof setTimeout> | null = null
+
       const handler = (nextE: KeyboardEvent) => {
-        window.removeEventListener('keydown', handler)
+        cleanup()
         switch (nextE.key) {
           case 'd': router.push('/'); break
           case 'a': router.push('/all'); break
@@ -33,6 +37,13 @@ export function useKeyboardShortcuts() {
           case 'm': router.push('/family'); break
         }
       }
+
+      function cleanup() {
+        window.removeEventListener('keydown', handler)
+        if (timeoutId !== null) clearTimeout(timeoutId)
+      }
+
+      timeoutId = setTimeout(cleanup, G_TIMEOUT)
       window.addEventListener('keydown', handler)
       return
     }
@@ -47,7 +58,7 @@ export function useKeyboardShortcuts() {
 
     // t toggles theme
     if (e.key === 't' && !e.ctrlKey && !e.metaKey) {
-      document.querySelector('.theme-toggle')?.dispatchEvent(new MouseEvent('click'))
+      toggleTheme()
       return
     }
   }

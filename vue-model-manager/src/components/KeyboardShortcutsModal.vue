@@ -2,7 +2,7 @@
   <Teleport to="body">
     <Transition name="modal">
       <div v-if="open" class="modal-overlay" @click.self="$emit('close')" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
-        <div class="modal-content shortcuts-modal">
+        <div ref="modalRef" class="modal-content shortcuts-modal">
           <div class="modal-header">
             <h2>Keyboard Shortcuts</h2>
             <button class="modal-close" @click="$emit('close')" aria-label="Close shortcuts">
@@ -74,8 +74,48 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ open: boolean }>()
+import { ref, watch, nextTick } from 'vue'
+
+const props = defineProps<{ open: boolean }>()
 defineEmits<{ close: [] }>()
+
+const modalRef = ref<HTMLDivElement | null>(null)
+
+function getFocusableElements(): HTMLElement[] {
+  if (!modalRef.value) return []
+  const selectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  return Array.from(modalRef.value.querySelectorAll<HTMLElement>(selectors))
+}
+
+function trapFocus(e: KeyboardEvent) {
+  if (e.key !== 'Tab') return
+  const focusable = getFocusableElements()
+  if (focusable.length === 0) return
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+  if (e.shiftKey) {
+    if (document.activeElement === first) {
+      e.preventDefault()
+      last.focus()
+    }
+  } else {
+    if (document.activeElement === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }
+}
+
+watch(() => props.open, async (isOpen) => {
+  if (isOpen) {
+    await nextTick()
+    const focusable = getFocusableElements()
+    focusable[0]?.focus()
+    modalRef.value?.addEventListener('keydown', trapFocus)
+  } else {
+    modalRef.value?.removeEventListener('keydown', trapFocus)
+  }
+})
 </script>
 
 <style scoped>

@@ -214,6 +214,7 @@ import { useModelsStore } from '@/store/models'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import { useJqlFilter } from '@/composables/useJqlFilter'
 import { useBreakpoint } from '@/composables/useBreakpoint'
+import { useToast } from '@/composables/useToast'
 import type { FilterToken, SortSpec } from '@/composables/useJqlFilter'
 import type { Model } from '@/types'
 import type { BuilderCondition } from '@/components/QueryBuilder.vue'
@@ -240,10 +241,7 @@ const router = useRouter()
 const selectedModel = ref<Model | null>(null)
 const copiedIds = reactive(new Set<string>())
 
-function showToast(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') {
-  const w = window as unknown as Record<string, unknown>
-  if (typeof w.$toast === 'function') (w.$toast as (m: string, t: 'success' | 'error' | 'info' | 'warning') => void)(message, type)
-}
+const { showToast } = useToast()
 
 watch(() => route.query.model, (id) => {
   if (id && typeof id === 'string') {

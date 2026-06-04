@@ -111,11 +111,11 @@
   <KeyboardShortcutsModal :open="shortcutsModalOpen" @close="shortcutsModalOpen = false" />
 
   <!-- Toast container -->
-  <ToastContainer ref="toastRef" />
+  <ToastContainer />
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useModelsStore } from '@/store/models'
 import { useTheme } from '@/composables/useTheme'
@@ -128,7 +128,6 @@ const route = useRoute()
 const store = useModelsStore()
 const { theme, toggle: toggleTheme } = useTheme()
 const { shortcutsModalOpen } = useKeyboardShortcuts()
-const toastRef = ref<InstanceType<typeof ToastContainer> | null>(null)
 
 const isSuperActive = computed(() => route.path === '/models' || route.path.startsWith('/super/'))
 onMounted(() => store.loadData())
@@ -144,13 +143,6 @@ function timeAgo(date: Date): string {
   return `${days}d ago`
 }
 
-// Expose toast to window for use in views
-function showToast(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') {
-  toastRef.value?.add(message, type)
-}
-if (typeof window !== 'undefined') {
-  (window as unknown as Record<string, unknown>).$toast = showToast
-}
 </script>
 
 <style scoped>

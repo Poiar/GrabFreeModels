@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { ModelsData, DatapointModel, SuperModel, RoleScore, RoleMeta, ModelScoresData } from '@/types'
 
-const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore'] as const
+const ROLE_ORDER = ['model', 'build', 'stable', 'general', 'small_model', 'explore'] as const
 type Role = (typeof ROLE_ORDER)[number]
 
 export const useModelsStore = defineStore('models', () => {
