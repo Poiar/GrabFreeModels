@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useModelsStore } from '@/store/models'
 import { useTheme } from '@/composables/useTheme'
@@ -127,7 +127,6 @@ onMounted(() => {
   document.addEventListener('keydown', onKey)
 })
 
-const isSuperActive = computed(() => route.path === '/' || route.path.startsWith('/creator/'))
 onMounted(() => store.loadData())
 
 function timeAgo(date: Date): string {

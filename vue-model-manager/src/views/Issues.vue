@@ -78,8 +78,8 @@
       <div class="issue-content">
         <div class="issue-header">
            <span class="model-id">{{ issue.model_id }}</span>
-           <span v-if="store.getModelById(issue.model_id)?.supports_tools === true" class="badge badge-tools-yes" title="Supports tool calling">tools</span>
-           <span v-else-if="store.getModelById(issue.model_id)?.supports_tools === false" class="badge badge-tools-no" title="No tool calling">no tools</span>
+           <span v-if="store.getModelWithSupportTools(issue.model_id)?.supports_tools === true" class="badge badge-tools-yes" title="Supports tool calling">tools</span>
+           <span v-else-if="store.getModelWithSupportTools(issue.model_id)?.supports_tools === false" class="badge badge-tools-no" title="No tool calling">no tools</span>
            <span class="badge" :class="`badge-severity-${issue.severity}`">
              {{ issue.severity }}
            </span>

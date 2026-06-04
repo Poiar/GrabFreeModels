@@ -107,7 +107,7 @@ function goNext() {
   emit('navigate-to', entry)
 }
 
-function formatContext(ctx: number): string {
+function formatContext(ctx: number | null): string {
   if (!ctx) return '—'
   if (ctx >= 1_000_000) return `${(ctx / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
   return `${Math.round(ctx / 1000)}K`

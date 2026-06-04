@@ -53,6 +53,42 @@ export const useModelsStore = defineStore('models', () => {
     return map
   })
 
+  // ── Model lookup by id (full_id) ──
+  function getModelById(id: string): ModelData | null {
+    // First try to find a datapoint with this id
+    const found = datapointById.value.get(id)
+    if (found) return found.model
+
+    // If not found as a datapoint, look through all models
+    for (const creator of creators.value) {
+      for (const model of creator.models) {
+        // Check providers for full_id match
+        for (const dp of model.providers) {
+          if (dp.full_id === id) return model
+        }
+      }
+    }
+    return null
+  }
+
+  // ── Model lookup with tool support by id (full_id) ──
+  function getModelWithSupportTools(id: string): { model: ModelData; supports_tools: boolean | null } | null {
+    // First try to find a datapoint with this id
+    const found = datapointById.value.get(id)
+    if (found) return { model: found.model, supports_tools: found.dp.supports_tools }
+
+    // If not found as a datapoint, look through all models
+    for (const creator of creators.value) {
+      for (const model of creator.models) {
+        // Check providers for full_id match
+        for (const dp of model.providers) {
+          if (dp.full_id === id) return { model, supports_tools: dp.supports_tools }
+        }
+      }
+    }
+    return null
+  }
+
   // ── Datapoint lookup by full_id ──
   const datapointById = computed((): Map<string, { dp: ProviderDatapoint; model: ModelData; creator: CreatorData }> => {
     const map = new Map()
@@ -219,7 +255,7 @@ export const useModelsStore = defineStore('models', () => {
     // Flat lists
     allModels, allDatapoints,
     // Lookups
-    modelBySuperId, datapointById,
+    modelBySuperId, datapointById, getModelById, getModelWithSupportTools,
     // Filtered lists
     freeModels, paidModels, workingModels, brokenModels, rateLimitedModels, untestedModels, removedModels,
     // Model status helper

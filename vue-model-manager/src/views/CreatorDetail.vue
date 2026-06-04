@@ -68,7 +68,7 @@ const creator = computed(() => store.creators.find(c => c.id === creatorId.value
 const detailModel = ref<ModelData | null>(null)
 function openDetail(model: ModelData) { detailModel.value = model }
 
-function formatContext(ctx: number): string {
+function formatContext(ctx: number | null): string {
   if (!ctx) return '—'
   if (ctx >= 1_000_000) return `${(ctx / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
   return `${Math.round(ctx / 1000)}K`
@@ -82,7 +82,8 @@ function formatPrice(price: number): string {
 
 const bestContext = computed(() => {
   if (!creator.value) return 0
-  return Math.max(...creator.value.models.map(m => m.best_context), 0)
+  const contexts = creator.value.models.map(m => m.best_context).filter(ctx => ctx !== null)
+  return contexts.length > 0 ? Math.max(...contexts, 0) : 0
 })
 
 const cheapestInput = computed(() => {
