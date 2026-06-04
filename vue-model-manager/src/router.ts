@@ -3,55 +3,27 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
+    name: 'Models',
+    component: () => import('@/views/ModelList.vue'),
+    meta: { title: 'Models' },
+  },
+  {
+    path: '/dashboard',
     name: 'Dashboard',
-    component: () => import('@/views/Dashboard.vue'),
+    component: () => import('@/views/NewDashboard.vue'),
     meta: { title: 'Dashboard' },
   },
   {
-    path: '/author',
-    name: 'Author',
-    component: () => import('@/views/Author.vue'),
-    meta: { title: 'Author' },
+    path: '/creators',
+    name: 'Creators',
+    component: () => import('@/views/CreatorList.vue'),
+    meta: { title: 'Creators' },
   },
   {
-    path: '/family',
-    name: 'Family',
-    component: () => import('@/views/Family.vue'),
-    meta: { title: 'Family' },
-  },
-  {
-    path: '/models',
-    name: 'SuperModels',
-    component: () => import('@/views/SuperModels.vue'),
-    meta: { title: 'Super' },
-  },
-  {
-    path: '/master/:id',
-    redirect: (to: { params: Record<string, string | string[]> }) => `/super/${to.params.id}`,
-  },
-  {
-    path: '/super/:id',
-    name: 'SuperModel',
-    component: () => import('@/views/SuperModel.vue'),
-    meta: { title: 'SuperModel' },
-  },
-  {
-    path: '/all',
-    name: 'All',
-    component: () => import('@/views/All.vue'),
-    meta: { title: 'All' },
-  },
-  {
-    path: '/free',
-    name: 'Free',
-    component: () => import('@/views/Free.vue'),
-    meta: { title: 'Free' },
-  },
-  {
-    path: '/paid',
-    name: 'Paid',
-    component: () => import('@/views/Paid.vue'),
-    meta: { title: 'Paid' },
+    path: '/creator/:id',
+    name: 'CreatorDetail',
+    component: () => import('@/views/CreatorDetail.vue'),
+    meta: { title: 'Creator' },
   },
   {
     path: '/issues',
@@ -59,6 +31,15 @@ const routes = [
     component: () => import('@/views/Issues.vue'),
     meta: { title: 'Issues' },
   },
+  // Redirect old routes
+  { path: '/free', redirect: '/' },
+  { path: '/paid', redirect: '/' },
+  { path: '/all', redirect: '/' },
+  { path: '/models', redirect: '/' },
+  { path: '/master/:id', redirect: '/' },
+  { path: '/super/:id', redirect: '/' },
+  { path: '/author', redirect: '/creators' },
+  { path: '/family', redirect: '/creators' },
 ]
 
 const router = createRouter({
