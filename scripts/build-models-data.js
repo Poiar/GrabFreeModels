@@ -120,6 +120,231 @@ async function buildModelsData(client, pool) {
     else untestedIds.push(dm.full_id);
   }
 
+  // ── Hierarchy building: creators → models → providers ──
+
+  const AUTHOR_OVERRIDES = {
+    'google llc': { id: 'google', name: 'Google' },
+    'google': { id: 'google', name: 'Google' },
+    'meta platforms, inc.': { id: 'meta', name: 'Meta' },
+    'meta platforms inc.': { id: 'meta', name: 'Meta' },
+    'meta': { id: 'meta', name: 'Meta' },
+    'anthropic': { id: 'anthropic', name: 'Anthropic' },
+    'anthropic, pbc': { id: 'anthropic', name: 'Anthropic' },
+    'openai': { id: 'openai', name: 'OpenAI' },
+    'openai, llc.': { id: 'openai', name: 'OpenAI' },
+    'mistral ai': { id: 'mistral', name: 'Mistral' },
+    'mistral ai, pbc': { id: 'mistral', name: 'Mistral' },
+    'deepseek': { id: 'deepseek', name: 'DeepSeek' },
+    'alibaba group': { id: 'alibaba', name: 'Alibaba' },
+    'alibaba cloud': { id: 'alibaba', name: 'Alibaba' },
+    'nvidia': { id: 'nvidia', name: 'NVIDIA' },
+    'nvidia corporation': { id: 'nvidia', name: 'NVIDIA' },
+    'cohere': { id: 'cohere', name: 'Cohere' },
+    'cohere inc.': { id: 'cohere', name: 'Cohere' },
+    'microsoft': { id: 'microsoft', name: 'Microsoft' },
+    'microsoft corporation': { id: 'microsoft', name: 'Microsoft' },
+    'xai': { id: 'xai', name: 'xAI' },
+    'xai corp': { id: 'xai', name: 'xAI' },
+    'zhipu ai': { id: 'zhipu', name: 'Zhipu AI' },
+    '01-ai': { id: '01-ai', name: '01.AI' },
+    'minimax': { id: 'minimax', name: 'MiniMax' },
+    'minimax group': { id: 'minimax', name: 'MiniMax' },
+    'moonshot ai': { id: 'moonshot', name: 'Moonshot AI' },
+    'stepfun': { id: 'stepfun', name: 'StepFun' },
+    'bytedance': { id: 'bytedance', name: 'ByteDance' },
+    'tencent': { id: 'tencent', name: 'Tencent' },
+    'tencent cloud': { id: 'tencent', name: 'Tencent' },
+    'baidu': { id: 'baidu', name: 'Baidu' },
+    'inflection ai': { id: 'inflection', name: 'Inflection' },
+    'stability ai': { id: 'stability', name: 'Stability AI' },
+    'eleutherai': { id: 'eleutherai', name: 'EleutherAI' },
+    'qwq': { id: 'qwen', name: 'Qwen' },
+    'qwen': { id: 'qwen', name: 'Qwen' },
+    'alibaba tongyi lab': { id: 'qwen', name: 'Qwen' },
+  };
+
+  const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holdings)\b\.?$/gi;
+
+  function slugifyAuthor(raw) {
+    if (!raw) return { id: 'unknown', name: 'Unknown' };
+    const trimmed = raw.trim();
+    const lowered = trimmed.toLowerCase();
+    if (AUTHOR_OVERRIDES[lowered]) return AUTHOR_OVERRIDES[lowered];
+    const cleaned = lowered.replace(LEGAL_SUFFIX_RE, '').trim();
+    const slug = cleaned.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return { id: slug || 'unknown', name: trimmed };
+  }
+
+  // Group by creator → super_model → providers
+  const creatorMap = new Map();
+  const roleRankingsRaw = meta._role_rankings || {};
+
+  for (const dp of outputModels) {
+    if (dp._removed) continue;
+
+    const authorInfo = slugifyAuthor(dp.author);
+    const creatorId = authorInfo.id;
+
+    if (!creatorMap.has(creatorId)) {
+      creatorMap.set(creatorId, {
+        id: creatorId,
+        name: authorInfo.name,
+        modelMap: new Map(),
+      });
+    }
+    const creator = creatorMap.get(creatorId);
+
+    // Update creator name if we find a better (longer/more canonical) one
+    if (authorInfo.name.length > creator.name.length) {
+      creator.name = authorInfo.name;
+    }
+
+    if (!creator.modelMap.has(dp.super_id)) {
+      creator.modelMap.set(dp.super_id, {
+        super_id: dp.super_id,
+        name: dp.super_name,
+        slug: (dp.super_name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+        family: dp.family,
+        best_for: [...(dp.best_for || [])],
+        best_context: dp.context_length || 0,
+        cheapest_input_price: dp.input_price_per_million,
+        cheapest_output_price: dp.output_price_per_million,
+        role_rankings: {},
+        providers: [],
+      });
+    }
+    const model = creator.modelMap.get(dp.super_id);
+    model.providers.push({
+      full_id: dp.id,
+      provider: dp.provider,
+      provider_slug: dp.source,
+      context_length: dp.context_length,
+      input_price_per_million: dp.input_price_per_million,
+      output_price_per_million: dp.output_price_per_million,
+      is_free: dp.is_free,
+      supports_tools: dp.supports_tools,
+      supports_reasoning: dp.supports_reasoning,
+      output_limit: dp.output_limit,
+      temperature: dp.temperature,
+      open_weights: dp.open_weights,
+      tags: dp.tags,
+      best_for: dp.best_for,
+      input_types: dp.input_types,
+      output_types: dp.output_types,
+      status: dp.status,
+      last_success: dp.last_success,
+      _removed: dp._removed,
+      _removedDate: dp._removedDate,
+      notes: dp.notes,
+      priority_score: dp.priority_score,
+    });
+
+    // Update model-level aggregates
+    if (dp.context_length && dp.context_length > model.best_context) {
+      model.best_context = dp.context_length;
+    }
+    if (dp.input_price_per_million < model.cheapest_input_price) {
+      model.cheapest_input_price = dp.input_price_per_million;
+    }
+    if (dp.output_price_per_million < model.cheapest_output_price) {
+      model.cheapest_output_price = dp.output_price_per_million;
+    }
+    for (const tag of (dp.best_for || [])) {
+      if (!model.best_for.includes(tag)) model.best_for.push(tag);
+    }
+  }
+
+  // Build role_rankings per model (map full_id rankings to super_id)
+  const roleRankingBySuperId = {};
+  for (const [role, ids] of Object.entries(roleRankingsRaw)) {
+    if (!Array.isArray(ids) || role.startsWith('_')) continue;
+    for (const fullId of ids) {
+      const dp = outputModels.find(m => m.id === fullId);
+      if (dp) {
+        const key = `${dp.super_id}`;
+        if (!roleRankingBySuperId[key]) roleRankingBySuperId[key] = {};
+        const rank = ids.indexOf(fullId) + 1;
+        if (!roleRankingBySuperId[key][role] || roleRankingBySuperId[key][role] > rank) {
+          roleRankingBySuperId[key][role] = rank;
+        }
+      }
+    }
+  }
+
+  // Assemble creators array
+  const creators = Array.from(creatorMap.values())
+    .map(creator => {
+      const models = Array.from(creator.modelMap.values())
+        .map(model => ({
+          super_id: model.super_id,
+          name: model.name,
+          slug: model.slug,
+          family: model.family || null,
+          best_for: model.best_for,
+          best_context: model.best_context,
+          cheapest_input_price: model.cheapest_input_price,
+          cheapest_output_price: model.cheapest_output_price,
+          role_rankings: roleRankingBySuperId[`${model.super_id}`] || {},
+          providers: model.providers,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      const providerSet = new Set();
+      for (const model of models) {
+        for (const p of model.providers) providerSet.add(p.provider_slug);
+      }
+
+      return {
+        id: creator.id,
+        name: creator.name,
+        model_count: models.length,
+        provider_count: providerSet.size,
+        models,
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  // Build provider references
+  const providerRefMap = new Map();
+  for (const dp of outputModels) {
+    if (dp._removed) continue;
+    if (!providerRefMap.has(dp.source)) {
+      providerRefMap.set(dp.source, {
+        id: dp.source,
+        slug: dp.source,
+        name: dp.provider,
+        model_count: 0,
+        working_count: 0,
+      });
+    }
+    const ref = providerRefMap.get(dp.source);
+    ref.model_count++;
+    if (dp.status.result === 'working') ref.working_count++;
+  }
+
+  const PROVIDER_BASE_URLS = {
+    'openrouter': 'https://openrouter.ai/api/v1',
+    'nvidia': 'https://integrate.api.nvidia.com/v1',
+    'cerebras': 'https://api.cerebras.ai/v1',
+    'groq': 'https://api.groq.com/openai/v1',
+    'togetherai': 'https://api.together.xyz/v1',
+    'mistral': 'https://api.mistral.ai/v1',
+    'deepseek': 'https://api.deepseek.com/v1',
+    'huggingface': 'https://api-inference.huggingface.co/v1',
+    'google': 'https://generativelanguage.googleapis.com/v1beta',
+    'openai': 'https://api.openai.com/v1',
+    'anthropic': 'https://api.anthropic.com/v1',
+  };
+
+  const providers = Array.from(providerRefMap.values())
+    .map(ref => ({
+      ...ref,
+      base_url: PROVIDER_BASE_URLS[ref.slug] || '',
+      health_status: ref.working_count === ref.model_count && ref.model_count > 0 ? 'healthy'
+        : ref.working_count > 0 ? 'degraded' : 'down',
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
   // Model scores
   const { rows: scoreRows } = await client.query(
     'SELECT dm.full_id, ms.source, ms.score_type, ms.score_value FROM model_scores ms JOIN datapoint_models dm ON dm.id = ms.datapoint_model_id'
@@ -146,7 +371,8 @@ async function buildModelsData(client, pool) {
   }
 
   return {
-    models: outputModels,
+    creators,
+    providers,
     _test_summary: {
       date: new Date().toISOString().slice(0, 10),
       results: { working: workingIds, rate_limited: rateLimitedIds, broken: brokenIds, untested: untestedIds },
