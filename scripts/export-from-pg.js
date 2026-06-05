@@ -35,7 +35,9 @@ async function exportData(pool) {
   try {
     const result = await buildModelsData(client, pool);
     fs.writeFileSync(DATA_FILE, JSON.stringify(result, null, 2) + '\n');
-    console.log(`Exported ${result.models.length} models to ${DATA_FILE}`);
+    console.log(
+      `Exported ${result.creators.reduce((sum, c) => sum + c.model_count, 0)} models to ${DATA_FILE}`,
+    );
   } catch (err) {
     console.error('Export failed:', err.message);
     process.exitCode = 1;

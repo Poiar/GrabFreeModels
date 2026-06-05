@@ -31,6 +31,7 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `metrics-exporter` — Prometheus metrics endpoint / service installer
 - `rank-models` — rebuild `_role_rankings` using deterministic scoring algorithm
 - `schema-v2` — DB schema documentation (super_models + datapoint_providers + datapoint_models)
+- `deepclaude` — add/update/manage backends in `C:\Users\pc\.local\bin\deepclaude.ps1`
 
 ## Agent Team
 

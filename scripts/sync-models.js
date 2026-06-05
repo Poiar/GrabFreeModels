@@ -17,8 +17,15 @@ const path = require('path');
 const APPLY = process.argv.includes('--apply');
 
 let connectionString = process.env.DATABASE_URL;
-if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+if (
+  connectionString &&
+  connectionString.includes('sslmode=require') &&
+  !connectionString.includes('uselibpqcompat')
+) {
+  connectionString = connectionString.replace(
+    'sslmode=require',
+    'uselibpqcompat=true&sslmode=require',
+  );
 }
 
 const pool = new Pool({
@@ -26,8 +33,14 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 });
 
-const AUTH_FILE = process.env.GFM_AUTH_FILE
-  || path.join(process.env.XDG_DATA_HOME || path.join(process.env.HOME || process.env.USERPROFILE, '.local', 'share'), 'opencode', 'auth.json');
+const AUTH_FILE =
+  process.env.GFM_AUTH_FILE ||
+  path.join(
+    process.env.XDG_DATA_HOME ||
+      path.join(process.env.HOME || process.env.USERPROFILE, '.local', 'share'),
+    'opencode',
+    'auth.json',
+  );
 
 let auth;
 try {
@@ -46,20 +59,25 @@ function httpGet(url, headers = {}) {
       path: u.pathname + u.search,
       headers: { 'Content-Type': 'application/json', ...headers },
     };
-    mod.get(options, res => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try { resolve({ status: res.statusCode, data: JSON.parse(data) }); }
-        catch (e) { reject(new Error(`Invalid JSON from ${url}: ${e.message}`)); }
-      });
-    }).on('error', reject);
+    mod
+      .get(options, (res) => {
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          try {
+            resolve({ status: res.statusCode, data: JSON.parse(data) });
+          } catch (e) {
+            reject(new Error(`Invalid JSON from ${url}: ${e.message}`));
+          }
+        });
+      })
+      .on('error', reject);
   });
 }
 
 async function getOpenRouterFreeModels() {
   const { data } = await httpGet('https://openrouter.ai/api/v1/models');
-  return (data.data || []).filter(m => {
+  return (data.data || []).filter((m) => {
     if (m.id.endsWith(':free')) return true;
     const p = m.pricing || {};
     if (typeof p === 'string') return p === '0';
@@ -67,9 +85,58 @@ async function getOpenRouterFreeModels() {
   });
 }
 
+async function testOpenRouterModel(modelId, key) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify({
+      model: modelId,
+      max_tokens: 4,
+      messages: [{ role: 'user', content: 'ok' }],
+    });
+    const req = https.request(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${key}`,
+          'HTTP-Referer': 'https://opencode.ai',
+          'X-Title': 'GrabFreeModels',
+        },
+      },
+      (res) => {
+        let body = '';
+        res.on('data', (c) => (body += c));
+        res.on('end', () => {
+          if (res.statusCode === 200) resolve(true);
+          else if (res.statusCode === 404 || res.statusCode === 429) resolve(false);
+          else {
+            try {
+              const j = JSON.parse(body);
+              const err = j.error?.message || body.slice(0, 200);
+              if (err.includes('not found') || err.includes('not available')) resolve(false);
+              else resolve(true); // 5xx or unknown = still add it
+            } catch {
+              resolve(true);
+            }
+          }
+        });
+      },
+    );
+    req.on('error', reject);
+    req.setTimeout(15000, () => {
+      req.destroy();
+      reject(new Error('timeout'));
+    });
+    req.write(data);
+    req.end();
+  });
+}
+
 async function getCerebrasModels() {
-  const { data } = await httpGet('https://api.cerebras.ai/v1/models', { Authorization: `Bearer ${auth.cerebras.key}` });
-  return (data.data || []).map(m => ({
+  const { data } = await httpGet('https://api.cerebras.ai/v1/models', {
+    Authorization: `Bearer ${auth.cerebras.key}`,
+  });
+  return (data.data || []).map((m) => ({
     id: `cerebras/${m.id}`,
     name: m.id,
     context_length: 131072,
@@ -77,37 +144,48 @@ async function getCerebrasModels() {
 }
 
 async function getNvidiaFreeModels() {
-  const { data } = await httpGet('https://integrate.api.nvidia.com/v1/models', { Authorization: `Bearer ${auth.nvidia.key}` });
-  const excludePattern = /embed|reward|detector|translate|clip|neva|vila|kosmos|riva|gliner|ising|calibration|nemoguard|nemoretriever|content-safety|parse/i;
-  return (data.data || []).filter(m => {
-    if (m.object !== 'model') return false;
-    if (m.task && m.task !== 'chat' && m.task !== 'text-generation' && m.type !== 'chat') return false;
-    const isFree = !m.pricing || m.pricing === '0' || (m.pricing.input === '0' && m.pricing.output === '0');
-    if (!isFree) return false;
-    if (excludePattern.test(m.id)) return false;
-    return true;
-  }).map(m => ({ id: m.id, name: m.id, context_length: m.context_length ?? null }));
+  const { data } = await httpGet('https://integrate.api.nvidia.com/v1/models', {
+    Authorization: `Bearer ${auth.nvidia.key}`,
+  });
+  const excludePattern =
+    /embed|reward|detector|translate|clip|neva|vila|kosmos|riva|gliner|ising|calibration|nemoguard|nemoretriever|content-safety|parse/i;
+  return (data.data || [])
+    .filter((m) => {
+      if (m.object !== 'model') return false;
+      if (m.task && m.task !== 'chat' && m.task !== 'text-generation' && m.type !== 'chat')
+        return false;
+      const isFree =
+        !m.pricing || m.pricing === '0' || (m.pricing.input === '0' && m.pricing.output === '0');
+      if (!isFree) return false;
+      if (excludePattern.test(m.id)) return false;
+      return true;
+    })
+    .map((m) => ({ id: `nvidia/${m.id.replace(/^nvidia\//, '')}`, name: m.id, context_length: m.context_length ?? null }));
 }
 
 async function getGoogleModels() {
   const key = auth.google?.key;
   if (!key) throw new Error('No Google API key found in auth');
-  const { data } = await httpGet(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
-  return (data.models || []).filter(m =>
-    m.supportedGenerationMethods?.includes('generateContent')
-  ).map(m => ({
-    id: `google/${m.name.replace('models/', '')}`,
-    name: m.displayName || m.name.replace('models/', ''),
-    context_length: m.inputTokenLimit ?? null,
-    model_id: m.name.replace('models/', ''),
-  }));
+  const { data } = await httpGet(
+    `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`,
+  );
+  return (data.models || [])
+    .filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
+    .map((m) => ({
+      id: `google/${m.name.replace('models/', '')}`,
+      name: m.displayName || m.name.replace('models/', ''),
+      context_length: m.inputTokenLimit ?? null,
+      model_id: m.name.replace('models/', ''),
+    }));
 }
 
 async function getDeepSeekModels() {
   const key = auth.deepseek?.key;
   if (!key) throw new Error('No DeepSeek API key found in auth');
-  const { data } = await httpGet('https://api.deepseek.com/models', { Authorization: `Bearer ${key}` });
-  return (data.data || []).map(m => ({
+  const { data } = await httpGet('https://api.deepseek.com/models', {
+    Authorization: `Bearer ${key}`,
+  });
+  return (data.data || []).map((m) => ({
     id: `deepseek/${m.id}`,
     name: m.id,
     context_length: null,
@@ -122,20 +200,48 @@ async function getGroqModels() {
   }
   const raw = JSON.parse(fs.readFileSync(groqJsonPath, 'utf8'));
   const models = raw.models || [];
-  return models.filter(m => {
-    if (m.is_free) return true;
-    if (m.input_price_per_million === null && m.output_price_per_million === null) return true;
-    if (m.input_price_per_million === 0 || m.output_price_per_million === 0) return true;
-    return false;
-  }).map(m => ({
-    id: `groq/${m.model_id}`,
-    name: m.display_name || m.model_id,
-    context_length: m.context_length ?? null,
-  }));
+  return models
+    .filter((m) => {
+      if (m.is_free) return true;
+      if (m.input_price_per_million === null && m.output_price_per_million === null) return true;
+      if (m.input_price_per_million === 0 || m.output_price_per_million === 0) return true;
+      return false;
+    })
+    .map((m) => ({
+      id: `groq/${m.model_id}`,
+      name: m.display_name || m.model_id,
+      context_length: m.context_length ?? null,
+    }));
+}
+
+async function getOpenCodeModels() {
+  const key = auth.opencode?.key;
+  if (!key) throw new Error('No OpenCode API key found in auth');
+  const { data: resp } = await httpGet('https://opencode.ai/zen/v1/models', {
+    Authorization: `Bearer ${key}`,
+  });
+  const modelList = Array.isArray(resp) ? resp : resp.data || [];
+  const freeIds = [
+    'big-pickle',
+    'deepseek-v4-flash-free',
+    'mimo-v2.5-free',
+    'qwen3.6-plus-free',
+    'minimax-m3-free',
+    'nemotron-3-super-free',
+  ];
+  return modelList
+    .filter((m) => freeIds.includes(m.id))
+    .map((m) => ({
+      id: `opencode/${m.id}`,
+      name: m.id,
+      context_length: null,
+    }));
 }
 
 async function getSkipRemovalCheck(client) {
-  const { rows } = await client.query("SELECT value FROM metadata WHERE key = '_skip_removal_check'");
+  const { rows } = await client.query(
+    "SELECT value FROM metadata WHERE key = '_skip_removal_check'",
+  );
   if (rows.length > 0) {
     try {
       const value = typeof rows[0].value === 'string' ? JSON.parse(rows[0].value) : rows[0].value;
@@ -148,7 +254,8 @@ async function getSkipRemovalCheck(client) {
 }
 
 function normalizeModelSlug(name) {
-  let slug = name.toLowerCase()
+  let slug = name
+    .toLowerCase()
     .replace(/\(free\)/g, '')
     .replace(/\(free tier\)/g, '')
     .replace(/^coding-/, '')
@@ -170,7 +277,7 @@ function normalizeModelSlug(name) {
     const { rows: existingRows } = await client.query(`
       SELECT dm.full_id FROM datapoint_models dm WHERE dm.is_free = true ORDER BY dm.full_id
     `);
-    const existingIds = new Set(existingRows.map(r => r.full_id));
+    const existingIds = new Set(existingRows.map((r) => r.full_id));
 
     // --- OpenRouter ---
     console.log('[OpenRouter] Fetching...');
@@ -181,7 +288,13 @@ function normalizeModelSlug(name) {
     for (const m of orModels) {
       const id = `openrouter/${m.id}`;
       if (!existingIds.has(id)) {
-        newOr.push({ id, name: m.id, provider: 'openrouter', context_length: m.context_length, pricing: m.pricing });
+        newOr.push({
+          id,
+          name: m.id,
+          provider: 'openrouter',
+          context_length: m.context_length,
+          pricing: m.pricing,
+        });
       }
     }
     console.log(`  New: ${newOr.length}`);
@@ -213,7 +326,12 @@ function normalizeModelSlug(name) {
       for (const m of nvModels) {
         const storedId = `nvidia/${m.id}`;
         if (!existingIds.has(storedId) && !existingIds.has(m.id)) {
-          newNv.push({ id: storedId, name: m.id, provider: 'nvidia', context_length: m.context_length });
+          newNv.push({
+            id: storedId,
+            name: m.id,
+            provider: 'nvidia',
+            context_length: m.context_length,
+          });
         }
       }
       console.log(`  New: ${newNv.length}`);
@@ -227,20 +345,24 @@ function normalizeModelSlug(name) {
     let newHf = [];
     let hfFree = [];
     try {
-      const hfData = await httpGet('https://huggingface.co/api/inference-providers', { Authorization: `Bearer ${auth.huggingface.key}` });
       const hfModelsData = await httpGet(
         'https://huggingface.co/api/models?inference_provider=huggingface&tags=text-generation&limit=200',
-        { Authorization: `Bearer ${auth.huggingface.key}` }
+        { Authorization: `Bearer ${auth.huggingface.key}` },
       );
-      const hfModelList = Array.isArray(hfModelsData.data) ? hfModelsData.data :
-        (hfModelsData.data?.models || hfModelsData.data?.data || []);
+      const hfModelList = Array.isArray(hfModelsData.data)
+        ? hfModelsData.data
+        : hfModelsData.data?.models || hfModelsData.data?.data || [];
       for (const m of hfModelList) {
         const id = m.id || m.modelId;
         if (!id) continue;
         const isInferenceFree = m.inference === 'free' || m.inference === 'feather';
         const isFreeByConfig = m.tags && m.tags.includes('free');
         if (isInferenceFree || isFreeByConfig) {
-          hfFree.push({ id: `huggingface/${id}`, name: id, context_length: m.generation_parameters?.max_new_tokens || null });
+          hfFree.push({
+            id: `huggingface/${id}`,
+            name: id,
+            context_length: m.generation_parameters?.max_new_tokens || null,
+          });
         }
       }
       console.log(`  Found ${hfFree.length} free models`);
@@ -296,16 +418,33 @@ function normalizeModelSlug(name) {
     console.log(`  New: ${newGroq.length}`);
     for (const n of newGroq) console.log(`    + ${n.id}`);
 
+    // --- OpenCode ---
+    console.log('\n[OpenCode] Fetching...');
+    let newOc = [];
+    let ocModels = [];
+    try {
+      ocModels = await getOpenCodeModels();
+      console.log(`  Found ${ocModels.length} free models`);
+      for (const m of ocModels) {
+        if (!existingIds.has(m.id)) newOc.push(m);
+      }
+      console.log(`  New: ${newOc.length}`);
+      for (const n of newOc) console.log(`    + ${n.id}`);
+    } catch (e) {
+      console.log(`  ERROR: ${e.message}`);
+    }
+
     // --- Detect removed models ---
     console.log('\n[Status Check] Models in DB but no longer in provider listings...');
     const allCurrentFreeIds = new Set([
-      ...orModels.map(m => `openrouter/${m.id}`),
-      ...(cbModels || []).map(m => m.id),
-      ...(nvModels || []).map(m => `nvidia/${m.id}`),
-      ...hfFree.map(m => m.id),
-      ...(googleModels || []).map(m => m.id),
-      ...(dsModels || []).map(m => m.id),
-      ...groqModels.map(m => m.id),
+      ...orModels.map((m) => `openrouter/${m.id}`),
+      ...(cbModels || []).map((m) => m.id),
+      ...(nvModels || []).map((m) => `nvidia/${m.id}`),
+      ...hfFree.map((m) => m.id),
+      ...(googleModels || []).map((m) => m.id),
+      ...(dsModels || []).map((m) => m.id),
+      ...groqModels.map((m) => m.id),
+      ...(ocModels || []).map((m) => m.id),
     ]);
 
     const skipRemovalCheck = await getSkipRemovalCheck(client);
@@ -327,7 +466,15 @@ function normalizeModelSlug(name) {
     for (const r of potentiallyRemoved) console.log(`    ? ${r.full_id}`);
 
     // --- Summary ---
-    const totalNew = newOr.length + newCb.length + newNv.length + newHf.length + newGoogle.length + newDs.length + newGroq.length;
+    const totalNew =
+      newOr.length +
+      newCb.length +
+      newNv.length +
+      newHf.length +
+      newGoogle.length +
+      newDs.length +
+      newGroq.length +
+      newOc.length;
     console.log('\n=== Summary ===');
     console.log(`  New models found:    ${totalNew}`);
     console.log(`  Potentially removed: ${potentiallyRemoved.length}`);
@@ -335,29 +482,74 @@ function normalizeModelSlug(name) {
     if (!APPLY) {
       console.log('\nDry-run mode. Use --apply to update PostgreSQL');
     } else {
+      // --- Pre-validate: test new OpenRouter models respond before adding to DB ---
+      const newOrIds = newOr.map((m) => m.id);
+      if (newOrIds.length > 0) {
+        console.log('\n[Pre-validate] Testing', newOrIds.length, 'new OpenRouter models...');
+        for (let i = newOr.length - 1; i >= 0; i--) {
+          const m = newOr[i];
+          const apiModelId = m.id.replace('openrouter/', '');
+          try {
+            const valid = await testOpenRouterModel(apiModelId, auth.openrouter?.key);
+            if (valid) {
+              console.log(`  ✓ ${m.id}`);
+            } else {
+              console.log(`  ✗ ${m.id} — not responding, skipping`);
+              newOr.splice(i, 1);
+            }
+          } catch (e) {
+            console.log(`  ✗ ${m.id} — ${e.message}`);
+            newOr.splice(i, 1);
+          }
+        }
+      }
+
       console.log('\nApplying changes...');
       await client.query('BEGIN');
 
       try {
         // Ensure datapoint_providers exist
-        const providerSlugs = ['openrouter', 'cerebras', 'nvidia', 'huggingface', 'google', 'deepseek', 'groq'];
+        const providerSlugs = [
+          'openrouter',
+          'cerebras',
+          'nvidia',
+          'huggingface',
+          'google',
+          'deepseek',
+          'groq',
+          'opencode',
+        ];
         for (const slug of providerSlugs) {
           await client.query(
             `INSERT INTO datapoint_providers (slug, name) VALUES ($1, $2) ON CONFLICT (slug) DO NOTHING`,
-            [slug, slug.charAt(0).toUpperCase() + slug.slice(1)]
+            [slug, slug.charAt(0).toUpperCase() + slug.slice(1)],
           );
         }
 
         // Get provider ID map
-        const { rows: providerRows } = await client.query('SELECT id, slug FROM datapoint_providers');
-        const providerMap = new Map(providerRows.map(r => [r.slug, r.id]));
+        const { rows: providerRows } = await client.query(
+          'SELECT id, slug FROM datapoint_providers',
+        );
+        const providerMap = new Map(providerRows.map((r) => [r.slug, r.id]));
 
-        const allNew = [...newOr, ...newCb, ...newNv, ...newHf, ...newGoogle, ...newDs, ...newGroq];
+        const allNew = [
+          ...newOr,
+          ...newCb,
+          ...newNv,
+          ...newHf,
+          ...newGoogle,
+          ...newDs,
+          ...newGroq,
+          ...newOc,
+        ];
 
         for (const m of allNew) {
           const providerSlug = m.id.split('/')[0];
           const providerId = providerMap.get(providerSlug);
-          if (!providerId) { console.log(`  SKIP ${m.id}: unknown provider "${providerSlug}"`); continue; }
+          if (!providerId) {
+            console.log(`  SKIP ${m.id}: unknown provider "${providerSlug}"`);
+            continue;
+          }
 
           const remoteId = m.id.includes('/') ? m.id.slice(m.id.indexOf('/') + 1) : m.id;
           const superSlug = normalizeModelSlug(m.name);
@@ -367,7 +559,7 @@ function normalizeModelSlug(name) {
             `INSERT INTO super_models (name, slug) VALUES ($1, $2)
              ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
              RETURNING id`,
-            [m.name, superSlug]
+            [m.name, superSlug],
           );
           const superId = mmRows[0].id;
 
@@ -379,7 +571,7 @@ function normalizeModelSlug(name) {
                context_length = EXCLUDED.context_length,
                is_removed = false,
                updated_at = now()`,
-            [superId, providerId, remoteId, m.id, m.context_length]
+            [superId, providerId, remoteId, m.id, m.context_length],
           );
         }
 
@@ -389,7 +581,10 @@ function normalizeModelSlug(name) {
             `UPDATE datapoint_models
              SET is_removed = true, status_result = 'untested', status_detail = $1, status_tested = NULL, updated_at = now()
              WHERE full_id = $2`,
-            [`Provider no longer lists this model as free (detected ${new Date().toISOString().slice(0, 10)})`, m.full_id]
+            [
+              `Provider no longer lists this model as free (detected ${new Date().toISOString().slice(0, 10)})`,
+              m.full_id,
+            ],
           );
         }
 
@@ -400,11 +595,14 @@ function normalizeModelSlug(name) {
         const { spawn } = require('child_process');
         const exportScript = path.join(__dirname, 'export-from-pg.js');
         const exportProcess = spawn('node', [exportScript]);
-        exportProcess.stdout.on('data', d => console.log(d.toString().trim()));
-        exportProcess.stderr.on('data', d => console.error(d.toString().trim()));
-        const exportCode = await new Promise(resolve => exportProcess.on('close', resolve));
-        console.log(exportCode === 0 ? '  JSON export completed' : `  JSON export failed with code ${exportCode}`);
-
+        exportProcess.stdout.on('data', (d) => console.log(d.toString().trim()));
+        exportProcess.stderr.on('data', (d) => console.error(d.toString().trim()));
+        const exportCode = await new Promise((resolve) => exportProcess.on('close', resolve));
+        console.log(
+          exportCode === 0
+            ? '  JSON export completed'
+            : `  JSON export failed with code ${exportCode}`,
+        );
       } catch (err) {
         await client.query('ROLLBACK');
         console.error('Error applying changes:', err.message);
@@ -415,4 +613,7 @@ function normalizeModelSlug(name) {
     client.release();
     await pool.end();
   }
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

@@ -1,0 +1,60 @@
+import js from '@eslint/js';
+
+export default [
+  js.configs.recommended,
+  {
+    ignores: [
+      'node_modules/**',
+      'vue-model-manager/**',
+      'dist/**',
+      'available-models.json',
+      'eslint.config.mjs',
+      'fix_sup1.js',
+      'qa-quick.mjs',
+      'qa-quick2.mjs',
+    ],
+  },
+  {
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'commonjs',
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        Buffer: 'readonly',
+        setTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearTimeout: 'readonly',
+        clearInterval: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        fetch: 'readonly',
+        AbortSignal: 'readonly',
+        AbortController: 'readonly',
+        TextEncoder: 'readonly',
+        TextDecoder: 'readonly',
+        Response: 'readonly',
+        Request: 'readonly',
+        Headers: 'readonly',
+        structuredClone: 'readonly',
+        crypto: 'readonly',
+        btoa: 'readonly',
+        atob: 'readonly',
+        // Playwright page.evaluate() globals (browser context)
+        document: 'readonly',
+        window: 'readonly',
+        Node: 'readonly',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { args: 'none' }],
+      'no-console': 'off',
+      'no-empty': ['error', { allowEmptyCatch: true }],
+    },
+  },
+];
