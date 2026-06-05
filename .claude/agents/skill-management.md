@@ -47,7 +47,7 @@ Brief purpose (1-2 sentences).
 6. **Lean Files Compliance**: Skills must not duplicate content from AGENTS.md or other skills. Each fact lives in exactly one place.
 7. **Skill Quality**: Skills should be actionable, specific, and scoped. A skill that's too vague ("do the needful") is worse than no skill.
 
-## Existing Skills (17 skills)
+## Existing Skills (16 skills)
 
 | Skill | Domain | Status |
 |-------|--------|--------|
@@ -66,7 +66,6 @@ Brief purpose (1-2 sentences).
 | `metrics-exporter` | Prometheus metrics endpoint/service | Active |
 | `rank-models` | Rebuild _role_rankings scoring | Active |
 | `schema-v2` | DB schema documentation | Active |
-| `browse` | Browser automation CLI by Browserbase | Active |
 | `neon-ops` | Neon database operations | Active |
 
 ## Skill Creation Checklist

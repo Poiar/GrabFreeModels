@@ -31,7 +31,6 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `metrics-exporter` — Prometheus metrics endpoint / service installer
 - `rank-models` — rebuild `_role_rankings` using deterministic scoring algorithm
 - `schema-v2` — DB schema documentation (super_models + datapoint_providers + datapoint_models)
-- `browse` — Browser automation CLI by Browserbase (local scraping, screenshots, form fill, bot bypass)
 
 ## Agent Team
 
@@ -47,7 +46,7 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 | `devops-engineer` | DevOps & SRE — CI/CD, deployment, monitoring, Windows Service, infrastructure | Deploy, CI/CD, monitoring, Prometheus, service, infrastructure |
 | `ui-ux-reviewer` | UI/UX design — accessibility, responsive design, visual consistency, design system | UI changes, design feedback, component review |
 | `performance` | Performance — DB queries, API latency, bundle size, Web Vitals, memory | Slow, latency, bundle size, optimization, memory leak |
-| `scraping` | Web scraping — Playwright, browse CLI, bot bypass, rate limiting, data extraction | Scrape, extract, crawl, sync providers |
+| `scraping` | Web scraping — Playwright, bot bypass, rate limiting, data extraction | Scrape, extract, crawl, sync providers |
 | `security` | AppSec — OWASP, secrets detection, dependency audit, SQL injection, auth | Security review, vulnerability, secret scanning |
 | `qa` | QA — test planning, edge cases, regression analysis, manual test scripts | Test plan, QA, regression, edge cases |
 | `code-quality` | Code quality — structure, DRY, naming, conventions, dead code, refactoring | Code review, refactor, code smell, DRY |
