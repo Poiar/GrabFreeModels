@@ -4,7 +4,12 @@ const fs = require('fs');
 let c = fs.readFileSync('vue-model-manager/src/views/SuperModel.vue', 'utf8');
 c = c.replace('const roleRankings = computed(() => {', '// roleRankings computed removed - unused');
 c = c.replace(
-  "if (!super_.value) return \[\];\n  const ROLES = \['model', 'build', 'general', 'small_model', 'explore', 'stable'\];\n  const result: { role: string; label: string; rank: number }\[\] = \[\];\n  for (const role of ROLES) {\n    const arr = store.roleRankings\[role\] ?? \[\];",
+  `if (!super_.value) return [];
+  const ROLES = ['model', 'build', 'general', 'small_model', 'explore', 'stable'];
+  const result: { role: string; label: string; rank: number }[] = [];
+  for (const role of ROLES) {
+    const arr = store.roleRankings[role] ?? [];
+`,
   'const _roleRankings = {}; // placeholder',
 );
 // Remove the rest of the roleRankings computed
