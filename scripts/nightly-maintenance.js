@@ -8,7 +8,9 @@
  *
  * Source of truth: PostgreSQL. JSON snapshots are exported only for git history.
  *
- * Usage: node scripts/nightly-maintenance.js
+ * Usage: node scripts/nightly-maintenance.js [--step <name>] [--continue]
+ *   --step     : Run starting from a named step, skipping earlier ones
+ *   --continue : When combined with --step, continue past the target step
  */
 
 require('dotenv').config();
@@ -85,6 +87,54 @@ function loadFromDb() {
   return load(pool);
 }
 
+// --- CLI: --step <name> [--continue] ---
+const STEP_NAMES = [
+  'snapshot-prev-state',
+  'validate',
+  'prune-stale-rankings',
+  'backfill-context',
+  'snapshot-pre-rank-state',
+  're-rank',
+  'detect-ranking-drift',
+  'ranking-sanity-check',
+  'regenerate-test-summary',
+  'generate-summary-log',
+  'export-final-json',
+  'commit-push',
+  'webhook-alerts',
+];
+
+const cliArgs = process.argv.slice(2);
+let targetStep = null;
+let continueAfter = false;
+for (let i = 0; i < cliArgs.length; i++) {
+  if (cliArgs[i] === '--step' && cliArgs[i + 1]) {
+    targetStep = cliArgs[++i];
+    if (!STEP_NAMES.includes(targetStep)) {
+      console.error(`Unknown step: ${targetStep}`);
+      console.error(`Available steps: ${STEP_NAMES.join(', ')}`);
+      process.exit(1);
+    }
+  }
+  if (cliArgs[i] === '--continue') continueAfter = true;
+}
+
+if (targetStep) {
+  console.log(
+    `\nSingle-step mode: starting at "${targetStep}"${continueAfter ? ' (will continue)' : ' (exits after step)'}\n`,
+  );
+}
+
+/** Check if a step should be executed given --step targeting */
+function shouldRunStep(name) {
+  if (!targetStep) return true; // normal full-pipeline mode
+  const targetIdx = STEP_NAMES.indexOf(targetStep);
+  const thisIdx = STEP_NAMES.indexOf(name);
+  if (thisIdx < targetIdx) return false; // skip steps before target
+  if (!continueAfter && thisIdx > targetIdx) return false; // skip steps after target unless --continue
+  return true;
+}
+
 /** Track per-step results for the summary table */
 const stepResults = [];
 
@@ -96,20 +146,36 @@ function recordStep(name, status, error, duration) {
  * Wrap a pipeline step with timing, error handling, and criticality check.
  * Returns the step's return value. Throws on critical failures.
  */
+let stepTargetHit = false;
 
 async function runStep(name, fn, { critical = false } = {}) {
+  // --step targeting: skip steps before target
+  if (!shouldRunStep(name)) {
+    recordStep(name, 'skip', null, '0.0');
+    console.log(`  [SKIP] ${name} (--step targets "${targetStep}")`);
+    return;
+  }
+  if (targetStep && !continueAfter && stepTargetHit) {
+    // Past the target step and --continue not set; skip remaining
+    recordStep(name, 'skip', null, '0.0');
+    console.log(`  [SKIP] ${name} (--step mode, exiting after "${targetStep}")`);
+    return;
+  }
+
   const start = Date.now();
   try {
     const result = await fn();
     const duration = ((Date.now() - start) / 1000).toFixed(1);
     recordStep(name, 'pass', null, duration);
     console.log(`  [OK] ${name} (${duration}s)`);
+    if (targetStep && !continueAfter) stepTargetHit = true;
     return result;
   } catch (e) {
     const duration = ((Date.now() - start) / 1000).toFixed(1);
     const msg = e.message || String(e);
     recordStep(name, 'fail', msg, duration);
     console.error(`  [FAIL] ${name} (${duration}s): ${msg}`);
+    if (targetStep && !continueAfter) stepTargetHit = true; // still mark that we reached the target
     if (critical) {
       throw e;
     }
@@ -124,7 +190,7 @@ function printStepTable(totalDuration) {
   console.log(`  ${'Step'.padEnd(36)} ${'Status'.padEnd(7)} ${'Duration'.padEnd(9)} Error`);
   console.log('  ' + '─'.repeat(80));
   for (const s of stepResults) {
-    const marker = s.status === 'pass' ? 'OK' : 'FAIL';
+    const marker = s.status === 'pass' ? 'OK' : s.status === 'skip' ? 'SKIP' : 'FAIL';
     const err = s.error ? ` (${s.error})` : '';
     console.log(`  ${s.name.padEnd(36)} ${marker.padEnd(7)} ${`${s.duration}s`.padEnd(9)}${err}`);
   }
@@ -135,9 +201,11 @@ function printStepTable(totalDuration) {
   console.log('────────────────────────\n');
 }
 
+let pipelineStart = Date.now();
+
 (async () => {
   try {
-    const pipelineStart = Date.now();
+    pipelineStart = Date.now();
 
     // 0. Save previous state for rollback and recovery detection
     await runStep('snapshot-prev-state', async () => {
@@ -413,6 +481,6 @@ function printStepTable(totalDuration) {
   }
 })().catch((e) => {
   console.error(`Pipeline aborted: ${e.message}`);
-  printStepTable(Date.now());
+  printStepTable(Date.now() - pipelineStart);
   process.exit(1);
 });

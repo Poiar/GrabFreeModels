@@ -22,8 +22,11 @@ let pids = [];
 try {
   if (platform === 'win32') {
     // Windows: use netstat
-    const output = execSync(`netstat -ano | findstr ":${port}"`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
-    const lines = output.split('\n').filter(l => l.trim());
+    const output = execSync(`netstat -ano | findstr ":${port}"`, {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+    });
+    const lines = output.split('\n').filter((l) => l.trim());
     for (const line of lines) {
       const parts = line.trim().split(/\s+/);
       const pid = parts[parts.length - 1];
@@ -31,8 +34,11 @@ try {
     }
   } else {
     // Linux/macOS: use lsof
-    const output = execSync(`lsof -ti :${port} 2>/dev/null || true`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
-    pids = output.split('\n').filter(p => p.trim());
+    const output = execSync(`lsof -ti :${port} 2>/dev/null || true`, {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+    });
+    pids = output.split('\n').filter((p) => p.trim());
   }
 } catch {
   // No process found
@@ -46,7 +52,10 @@ if (pids.length === 0) {
 for (const pid of pids) {
   try {
     if (platform === 'win32') {
-      const nameOutput = execSync(`tasklist /FI "PID eq ${pid}" /FO CSV /NH`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+      const nameOutput = execSync(`tasklist /FI "PID eq ${pid}" /FO CSV /NH`, {
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'ignore'],
+      });
       const name = nameOutput.split(',')[0].replace(/"/g, '').trim();
       execSync(`taskkill /PID ${pid} /F`, { stdio: 'ignore' });
       console.log(`Killed process '${name}' (PID ${pid}) on port ${port}`);

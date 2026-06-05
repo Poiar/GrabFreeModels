@@ -34,9 +34,9 @@
     "api": "node --watch -r dotenv/config server/index.js",
     "db:export": "node scripts/export-from-pg.js",
     "db:ping": "node -r dotenv/config -e \"const db = require('./server/db'); db.query('SELECT now()').then(r => { console.log('Connected:', r.rows[0].now); process.exit(0); }).catch(e => { console.error('Failed:', e.message); process.exit(1); })\"",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"**/*.{js,mjs,json}\"",
+    "lint": "eslint scripts/ server/ tests/",
+    "lint:fix": "eslint scripts/ server/ tests/ --fix",
+    "format": "prettier --write \"**/*.{js,mjs,ts,vue,json,md}\"",
     "api:start": "node -r dotenv/config server/index.js"
   },
   "dependencies": {

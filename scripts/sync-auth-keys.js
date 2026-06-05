@@ -28,9 +28,18 @@ function stripJsonc(s) {
       out += '"';
       i++;
       while (i < s.length) {
-        if (s[i] === '\\') { out += s[i] + (s[i + 1] ?? ''); i += 2; continue; }
-        if (s[i] === '"') { out += '"'; i++; break; }
-        out += s[i]; i++;
+        if (s[i] === '\\') {
+          out += s[i] + (s[i + 1] ?? '');
+          i += 2;
+          continue;
+        }
+        if (s[i] === '"') {
+          out += '"';
+          i++;
+          break;
+        }
+        out += s[i];
+        i++;
       }
       continue;
     }
@@ -46,7 +55,8 @@ function stripJsonc(s) {
       i += 2;
       continue;
     }
-    out += s[i]; i++;
+    out += s[i];
+    i++;
   }
   return out;
 }
@@ -60,16 +70,32 @@ const LIST = args.includes('--list');
 const CHECK = args.includes('--check');
 
 let authRaw, configRaw;
-try { authRaw = fs.readFileSync(AUTH_PATH, 'utf8'); }
-catch { console.error(`ERROR: cannot read ${AUTH_PATH}`); process.exit(1); }
-try { configRaw = fs.readFileSync(CONFIG_PATH, 'utf8'); }
-catch { console.error(`ERROR: cannot read ${CONFIG_PATH}`); process.exit(1); }
+try {
+  authRaw = fs.readFileSync(AUTH_PATH, 'utf8');
+} catch {
+  console.error(`ERROR: cannot read ${AUTH_PATH}`);
+  process.exit(1);
+}
+try {
+  configRaw = fs.readFileSync(CONFIG_PATH, 'utf8');
+} catch {
+  console.error(`ERROR: cannot read ${CONFIG_PATH}`);
+  process.exit(1);
+}
 
 let auth, config;
-try { auth = JSON.parse(authRaw); }
-catch { console.error('ERROR: auth.json is not valid JSON'); process.exit(1); }
-try { config = JSON.parse(stripJsonc(configRaw)); }
-catch { console.error('ERROR: opencode.jsonc has invalid JSONC'); process.exit(1); }
+try {
+  auth = JSON.parse(authRaw);
+} catch {
+  console.error('ERROR: auth.json is not valid JSON');
+  process.exit(1);
+}
+try {
+  config = JSON.parse(stripJsonc(configRaw));
+} catch {
+  console.error('ERROR: opencode.jsonc has invalid JSONC');
+  process.exit(1);
+}
 
 if (LIST) {
   console.log(Object.keys(auth).join('\n'));
@@ -78,32 +104,46 @@ if (LIST) {
 
 const authProviders = Object.keys(auth);
 const configProviders = Object.keys(config.provider || {});
-const inBoth = authProviders.filter(p => configProviders.includes(p));
-const onlyInAuth = authProviders.filter(p => !configProviders.includes(p));
-const onlyInConfig = configProviders.filter(p => !authProviders.includes(p));
+const inBoth = authProviders.filter((p) => configProviders.includes(p));
+const onlyInAuth = authProviders.filter((p) => !configProviders.includes(p));
+const onlyInConfig = configProviders.filter((p) => !authProviders.includes(p));
 
-let changed = 0, synced = 0;
+let changed = 0,
+  synced = 0;
 
 for (const p of inBoth) {
   const newKey = auth[p]?.key ?? auth[p]?.apiKey;
   const prov = config.provider[p];
   const hasField = prov?.options && 'apiKey' in prov.options;
-  if (!newKey) { console.warn(`  WARN: no key for "${p}" in auth.json`); continue; }
-  if (!hasField) { console.warn(`  WARN: no options.apiKey for "${p}" in opencode.jsonc`); continue; }
+  if (!newKey) {
+    console.warn(`  WARN: no key for "${p}" in auth.json`);
+    continue;
+  }
+  if (!hasField) {
+    console.warn(`  WARN: no options.apiKey for "${p}" in opencode.jsonc`);
+    continue;
+  }
 
   const oldKey = prov.options.apiKey;
-  if (oldKey === newKey) { synced++; }
-  else {
+  if (oldKey === newKey) {
+    synced++;
+  } else {
     console.log(`  ${p}: ${APPLY ? 'updated' : 'differs'}`);
     changed++;
     if (APPLY) {
       // Targeted replacement: find 'apiKey' within this provider's block.
       const providerHeader = `"${p}"`;
       const headerIdx = configRaw.indexOf(providerHeader);
-      if (headerIdx === -1) { console.warn(`  WARN: could not locate "${p}" in raw file`); continue; }
+      if (headerIdx === -1) {
+        console.warn(`  WARN: could not locate "${p}" in raw file`);
+        continue;
+      }
       const searchFrom = headerIdx + providerHeader.length;
       const keyIdx = configRaw.indexOf('"apiKey"', searchFrom);
-      if (keyIdx === -1) { console.warn(`  WARN: could not locate apiKey for "${p}"`); continue; }
+      if (keyIdx === -1) {
+        console.warn(`  WARN: could not locate apiKey for "${p}"`);
+        continue;
+      }
       const colonIdx = configRaw.indexOf(':', keyIdx + 7);
       const startQuote = configRaw.indexOf('"', colonIdx + 1);
       const endQuote = configRaw.indexOf('"', startQuote + 1);
@@ -115,14 +155,20 @@ for (const p of inBoth) {
 for (const p of onlyInAuth) console.warn(`  WARN: "${p}" in auth.json but not opencode.jsonc`);
 for (const p of onlyInConfig) console.warn(`  WARN: "${p}" in opencode.jsonc but not auth.json`);
 
-console.log(`${changed} changed, ${synced} in sync, ${onlyInAuth.length + onlyInConfig.length} warnings`);
+console.log(
+  `${changed} changed, ${synced} in sync, ${onlyInAuth.length + onlyInConfig.length} warnings`,
+);
 
 if (APPLY && changed > 0) {
   fs.writeFileSync(CONFIG_PATH, configRaw, 'utf8');
   console.log(`Wrote ${CONFIG_PATH}`);
   // Validate after write
-  try { JSON.parse(stripJsonc(fs.readFileSync(CONFIG_PATH, 'utf8'))); }
-  catch { console.error('ERROR: opencode.jsonc is no longer valid JSONC after write'); process.exit(1); }
+  try {
+    JSON.parse(stripJsonc(fs.readFileSync(CONFIG_PATH, 'utf8')));
+  } catch {
+    console.error('ERROR: opencode.jsonc is no longer valid JSONC after write');
+    process.exit(1);
+  }
   console.log('JSONC validation passed');
 }
 

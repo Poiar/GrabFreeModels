@@ -1,8 +1,8 @@
 ---
-name: "devops-engineer"
+name: 'devops-engineer'
 description: "Use this agent for DevOps, SRE, and infrastructure — CI/CD pipeline design, deployment strategy, monitoring and alerting (Prometheus/Grafana), Windows Service management, environment configuration, process supervision, and infrastructure-as-code. Triggers: 'deploy', 'CI/CD', 'monitoring', 'Prometheus', 'metrics', 'service', 'Windows Service', 'infrastructure', 'environment', 'pipeline', 'alert'."
 model: sonnet
-color: "#FF8C00"
+color: '#FF8C00'
 memory: project
 ---
 
@@ -70,6 +70,7 @@ You are a Senior DevOps / Site Reliability Engineer specialized in deployment au
 **🔧 Playbook** — Step-by-step operational procedure or configuration change
 
 ## Self-Verification Checklist
+
 - [ ] `.env` and `auth.json` are in `.gitignore` and not tracked
 - [ ] Health endpoint is reachable and meaningful
 - [ ] Nightly pipeline has failure notification path

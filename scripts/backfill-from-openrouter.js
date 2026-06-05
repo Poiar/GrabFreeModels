@@ -20,7 +20,8 @@ const { Pool } = require('pg');
 
 const APPLY = process.argv.includes('--apply');
 
-const authPath = process.env.OPENCODE_AUTH_PATH || require('os').homedir() + '/.local/share/opencode/auth.json';
+const authPath =
+  process.env.OPENCODE_AUTH_PATH || require('os').homedir() + '/.local/share/opencode/auth.json';
 
 const connectionString = process.env.DATABASE_URL;
 const pool = connectionString
@@ -37,14 +38,19 @@ function httpGet(url, headers = {}) {
   return new Promise((resolve, reject) => {
     const u = new URL(url);
     const mod = u.protocol === 'https:' ? https : require('http');
-    mod.get({ hostname: u.hostname, path: u.pathname + u.search, headers }, res => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch (e) { reject(new Error(`Invalid JSON from ${url}: ${e.message}`)); }
-      });
-    }).on('error', reject);
+    mod
+      .get({ hostname: u.hostname, path: u.pathname + u.search, headers }, (res) => {
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          try {
+            resolve(JSON.parse(data));
+          } catch (e) {
+            reject(new Error(`Invalid JSON from ${url}: ${e.message}`));
+          }
+        });
+      })
+      .on('error', reject);
   });
 }
 
@@ -90,7 +96,7 @@ function httpGet(url, headers = {}) {
     let skippedSame = 0;
 
     for (const orm of allModels) {
-      const fullId = orm.id;  // e.g., "nvidia/nemotron-3-nano-omni:free"
+      const fullId = orm.id; // e.g., "nvidia/nemotron-3-nano-omni:free"
       const dp = dpByFullId[fullId];
       if (!dp) continue;
 
@@ -102,10 +108,10 @@ function httpGet(url, headers = {}) {
       if (currentTools === null || currentTools !== supportsTools) {
         toolsUpdates++;
         if (APPLY) {
-          await client.query(
-            'UPDATE datapoint_models SET supports_tools = $1 WHERE id = $2',
-            [supportsTools, dp.id]
-          );
+          await client.query('UPDATE datapoint_models SET supports_tools = $1 WHERE id = $2', [
+            supportsTools,
+            dp.id,
+          ]);
         }
         console.log(`  ${fullId}: tools ${currentTools} → ${supportsTools}`);
       } else {
@@ -114,7 +120,9 @@ function httpGet(url, headers = {}) {
     }
 
     console.log(`\nMatched ${matched} models against OpenRouter catalog`);
-    console.log(`Tools updates:     ${toolsUpdates} models ${APPLY ? 'written' : 'would be written'}`);
+    console.log(
+      `Tools updates:     ${toolsUpdates} models ${APPLY ? 'written' : 'would be written'}`,
+    );
     console.log(`Already correct:   ${skippedSame} models`);
 
     if (!APPLY) {
@@ -134,4 +142,7 @@ function httpGet(url, headers = {}) {
     client.release();
     await pool.end();
   }
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

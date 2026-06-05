@@ -33,7 +33,7 @@ const OUTPUT = path.join(__dirname, '..', 'data', 'openrouter-categories.json');
       const categoryButtons = document.querySelectorAll('button');
       const cardMap = new Map();
 
-      categoryButtons.forEach(btn => {
+      categoryButtons.forEach((btn) => {
         const span = btn.querySelector('span');
         if (!span) return;
         const title = span.getAttribute('title') || '';
@@ -66,11 +66,14 @@ const OUTPUT = path.join(__dirname, '..', 'data', 'openrouter-categories.json');
     console.log(`\nExtracted ${models.length} models with category data:\n`);
     for (const m of models) {
       console.log(`  ${m.modelId}`);
-      m.categories.forEach(c => console.log(`    ${c}`));
+      m.categories.forEach((c) => console.log(`    ${c}`));
     }
 
     fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
-    fs.writeFileSync(OUTPUT, JSON.stringify({ scraped_at: new Date().toISOString(), models }, null, 2));
+    fs.writeFileSync(
+      OUTPUT,
+      JSON.stringify({ scraped_at: new Date().toISOString(), models }, null, 2),
+    );
     console.log(`\nSaved to ${OUTPUT}`);
 
     await browser.close();
@@ -79,4 +82,7 @@ const OUTPUT = path.join(__dirname, '..', 'data', 'openrouter-categories.json');
     await browser.close();
     process.exit(1);
   }
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

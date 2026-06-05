@@ -13,6 +13,7 @@ metadata:
 **Severity**: 🔴 Critical
 
 ### Current Code
+
 ```javascript
 // server/index.js - no compression middleware
 const express = require('express');
@@ -26,6 +27,7 @@ app.use('/api', dataRouter);
 ```
 
 ### Fix Required
+
 ```javascript
 const express = require('express');
 const cors = require('cors');
@@ -40,16 +42,20 @@ app.use('/api', dataRouter);
 ```
 
 ### Expected Impact
+
 - 70%+ reduction in payload size (1.1MB → ~300KB gzipped)
 - Faster initial page load
 - Reduced bandwidth usage
 
 ### Dependencies
+
 - Need to install: `npm install compression`
 - Update package.json dependencies
 
 ### Verification
+
 After implementing:
+
 1. Check response headers contain `Content-Encoding: gzip`
 2. Measure payload size with `curl -I` and `Content-Length`
 3. Test in browser network tab

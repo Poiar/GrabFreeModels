@@ -1,7 +1,25 @@
 #!/usr/bin/env bash
-# Pre-commit hook: scan staged files for secrets via Gitleaks
+# Pre-commit hook: lint check + scan staged files for secrets via Gitleaks
 # Skips silently if Gitleaks is not installed.
 
+# --- ESLint check on staged JS/MJS files ---
+STAGED_JS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|mjs)$' || true)
+
+if [ -n "$STAGED_JS" ]; then
+  echo "Linting staged JS files..."
+  npx eslint $STAGED_JS
+  LINT_EXIT=$?
+  if [ $LINT_EXIT -ne 0 ]; then
+    echo ""
+    echo "Commit blocked: lint errors found."
+    echo "   Fix them with: npm run lint:fix  (or check 'npm run lint' for details)"
+    echo "   To bypass (not recommended): git commit --no-verify"
+    exit 1
+  fi
+  echo "Lint passed."
+fi
+
+# --- Gitleaks scan ---
 GITLEAKS_BIN=""
 
 # Check common locations

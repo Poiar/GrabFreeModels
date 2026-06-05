@@ -15,8 +15,15 @@ const path = require('path');
 const APPLY = process.argv.includes('--apply');
 
 let connectionString = process.env.DATABASE_URL;
-if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+if (
+  connectionString &&
+  connectionString.includes('sslmode=require') &&
+  !connectionString.includes('uselibpqcompat')
+) {
+  connectionString = connectionString.replace(
+    'sslmode=require',
+    'uselibpqcompat=true&sslmode=require',
+  );
 }
 
 const pool = new Pool({
@@ -27,7 +34,8 @@ const pool = new Pool({
 const GROQ_JSON = path.join(__dirname, '..', 'groq-models.json');
 
 function normalizeModelSlug(name) {
-  let slug = name.toLowerCase()
+  let slug = name
+    .toLowerCase()
     .replace(/\(free\)/g, '')
     .replace(/\(free tier\)/g, '')
     .replace(/^coding-/, '')
@@ -50,7 +58,7 @@ function normalizeModelSlug(name) {
   const models = raw.models || [];
 
   // Filter to free models (no pricing = free listing, or explicitly free)
-  const freeModels = models.filter(m => {
+  const freeModels = models.filter((m) => {
     if (m.is_free) return true;
     if (m.input_price_per_million === null && m.output_price_per_million === null) return true;
     if (m.input_price_per_million === 0 || m.output_price_per_million === 0) return true;
@@ -63,18 +71,20 @@ function normalizeModelSlug(name) {
   try {
     // Ensure groq provider exists
     await client.query(
-      `INSERT INTO datapoint_providers (slug, name, base_url) VALUES ('groq', 'Groq', 'https://api.groq.com') ON CONFLICT (slug) DO NOTHING`
+      `INSERT INTO datapoint_providers (slug, name, base_url) VALUES ('groq', 'Groq', 'https://api.groq.com') ON CONFLICT (slug) DO NOTHING`,
     );
 
-    const { rows: provRows } = await client.query("SELECT id FROM datapoint_providers WHERE slug = 'groq'");
+    const { rows: provRows } = await client.query(
+      "SELECT id FROM datapoint_providers WHERE slug = 'groq'",
+    );
     const providerId = provRows[0].id;
 
     // Get existing groq datapoints
     const { rows: existingRows } = await client.query(
       'SELECT full_id FROM datapoint_models WHERE datapoint_provider_id = $1',
-      [providerId]
+      [providerId],
     );
-    const existingIds = new Set(existingRows.map(r => r.full_id));
+    const existingIds = new Set(existingRows.map((r) => r.full_id));
 
     const newModels = [];
     const modelCounts = { new: 0, existing: 0 };
@@ -117,7 +127,7 @@ function normalizeModelSlug(name) {
             `INSERT INTO super_models (name, slug) VALUES ($1, $2)
              ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
              RETURNING id`,
-            [modelName, superSlug]
+            [modelName, superSlug],
           );
           const superId = smRows[0].id;
 
@@ -129,7 +139,7 @@ function normalizeModelSlug(name) {
                context_length = EXCLUDED.context_length,
                is_removed = false,
                updated_at = now()`,
-            [superId, providerId, remoteId, fullId, m.context_length]
+            [superId, providerId, remoteId, fullId, m.context_length],
           );
         }
 
@@ -143,14 +153,21 @@ function normalizeModelSlug(name) {
     }
 
     // Also show paid models that were skipped
-    const paidModels = models.filter(m => !m.is_free && m.input_price_per_million !== null && m.input_price_per_million > 0);
+    const paidModels = models.filter(
+      (m) => !m.is_free && m.input_price_per_million !== null && m.input_price_per_million > 0,
+    );
     if (paidModels.length > 0) {
       console.log(`\n  Paid models skipped:   ${paidModels.length}`);
-      for (const m of paidModels) console.log(`    - groq/${m.model_id} ($${m.input_price_per_million}/$${m.output_price_per_million})`);
+      for (const m of paidModels)
+        console.log(
+          `    - groq/${m.model_id} ($${m.input_price_per_million}/$${m.output_price_per_million})`,
+        );
     }
-
   } finally {
     client.release();
     await pool.end();
   }
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

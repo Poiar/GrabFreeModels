@@ -13,6 +13,7 @@ metadata:
 **Severity**: 🟡 Warning
 
 ### Current Implementation
+
 ```vue
 <DynamicScroller
   v-if="sortedItems.length > 0"
@@ -26,6 +27,7 @@ metadata:
 ```
 
 ### Issues
+
 1. **Variable Heights**: Models have different context lengths, status badges, and tags
 2. **Fixed Min Size**: 56px may be too small for some items
 3. **No Size Tracking**: No measurement of actual item heights
@@ -33,6 +35,7 @@ metadata:
 ### Optimization Options
 
 #### Option 1: Use RecycleScroller for Fixed Height
+
 ```vue
 <RecycleScroller
   v-if="sortedItems.length > 0"
@@ -44,6 +47,7 @@ metadata:
 ```
 
 #### Option 2: Dynamic Size with Item Resizing
+
 ```vue
 <DynamicScroller
   :items="sortedItems"
@@ -65,10 +69,11 @@ function getItemSize(item) {
 ```
 
 #### Option 3: CSS Grid Alternative
+
 ```vue
 <div class="model-grid">
-  <div 
-    v-for="item in visibleItems" 
+  <div
+    v-for="item in visibleItems"
     :key="item.id"
     class="model-card"
   >
@@ -86,17 +91,20 @@ function getItemSize(item) {
 ```
 
 ### Best Practice: Hybrid Approach
+
 1. **Use RecycleScroller** for most cases (better performance)
 2. **Implement item size estimation** for DynamicScroller
 3. **Add resize observer** for dynamic content
 4. **Consider placeholder loading** for smooth scrolling
 
 ### Expected Impact
+
 - Smoother scrolling experience
 - Better performance with large lists
 - More accurate scroll positioning
 
 ### Verification
+
 1. Test with large datasets (1000+ items)
 2. Measure scroll performance with Chrome DevTools
 3. Check for visual artifacts during scrolling

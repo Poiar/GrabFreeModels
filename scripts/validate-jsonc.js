@@ -16,7 +16,7 @@ const configPath = 'C:\\Users\\pc\\.config\\opencode\\opencode.jsonc';
 let raw;
 try {
   raw = fs.readFileSync(configPath, 'utf8');
-} catch (e) {
+} catch {
   if (isShort) console.error('ERROR:READ');
   else console.error(`❌ Cannot read config: ${configPath}`);
   process.exit(1);

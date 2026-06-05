@@ -22,7 +22,13 @@ const APPLY = process.argv.includes('--apply');
 const connectionString = process.env.DATABASE_URL;
 const pool = connectionString
   ? new Pool({ connectionString, ssl: { rejectUnauthorized: false } })
-  : new Pool({ host: process.env.PGHOST || 'localhost', port: parseInt(process.env.PGPORT || '5432'), user: process.env.PGUSER, password: process.env.PGPASSWORD, database: process.env.PGDATABASE });
+  : new Pool({
+      host: process.env.PGHOST || 'localhost',
+      port: parseInt(process.env.PGPORT || '5432'),
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+    });
 
 const SOURCE = 'artificial_analysis';
 
@@ -48,13 +54,19 @@ const NAME_OVERRIDES = new Map([
 
 function fetchPage() {
   return new Promise((resolve, reject) => {
-    https.get('https://artificialanalysis.ai/leaderboards/models', {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-    }, res => {
-      let d = '';
-      res.on('data', c => d += c);
-      res.on('end', () => resolve(d));
-    }).on('error', reject);
+    https
+      .get(
+        'https://artificialanalysis.ai/leaderboards/models',
+        {
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+        },
+        (res) => {
+          let d = '';
+          res.on('data', (c) => (d += c));
+          res.on('end', () => resolve(d));
+        },
+      )
+      .on('error', reject);
   });
 }
 
@@ -83,7 +95,13 @@ function extractModels(html) {
       const tdEnd = row.indexOf('</td>', tdContent);
       if (tdEnd < 0) break;
       let cellText = row.substring(tdContent, tdEnd);
-      cellText = cellText.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ').trim();
+      cellText = cellText
+        .replace(/<[^>]+>/g, '')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&nbsp;/g, ' ')
+        .trim();
       cells.push(cellText);
       pos = tdEnd + 5;
     }
@@ -107,10 +125,14 @@ function extractModels(html) {
 }
 
 function normalizeName(name) {
-  return name.toLowerCase()
+  return name
+    .toLowerCase()
     .replace(/[^a-z0-9]/g, '')
     .replace(/\b(instruct|chat|preview|turbo|lite|nonreasoning|adaptive)\b/g, '')
-    .replace(/(google|anthropic|openai|meta|nvidia|xai|alibaba|minimax|xiaomi|zai|mistral|cohere|deepseek|ibm|amazon|bytedance|baidu|tencent|lg|stepfun|inception|command)/, '')
+    .replace(
+      /(google|anthropic|openai|meta|nvidia|xai|alibaba|minimax|xiaomi|zai|mistral|cohere|deepseek|ibm|amazon|bytedance|baidu|tencent|lg|stepfun|inception|command)/,
+      '',
+    )
     .trim();
 }
 
@@ -125,11 +147,15 @@ async function scrape() {
   }
   console.log('Extracted', models.length, 'models');
   console.log('First 3:');
-  models.slice(0, 3).forEach(m => console.log(' ', m.name, 'intel:', m.intelligence, 'price:', m.price, 'ctx:', m.context));
+  models
+    .slice(0, 3)
+    .forEach((m) =>
+      console.log(' ', m.name, 'intel:', m.intelligence, 'price:', m.price, 'ctx:', m.context),
+    );
 
   // Load all free datapoints grouped by super_name, prefer working
   const { rows: allRows } = await pool.query(
-    "SELECT dm.id, dm.full_id, mm.name AS super_name, dm.status_result FROM datapoint_models dm JOIN super_models mm ON mm.id = dm.super_model_id WHERE dm.is_free = true AND dm.is_removed = false ORDER BY dm.status_result = 'working' DESC, dm.status_result = 'untested' DESC"
+    "SELECT dm.id, dm.full_id, mm.name AS super_name, dm.status_result FROM datapoint_models dm JOIN super_models mm ON mm.id = dm.super_model_id WHERE dm.is_free = true AND dm.is_removed = false ORDER BY dm.status_result = 'working' DESC, dm.status_result = 'untested' DESC",
   );
   // Deduplicate: for each super_name, pick the best datapoint (working > untested > other)
   const bestBySuper = new Map();
@@ -148,7 +174,7 @@ async function scrape() {
     // Check manual override first
     const override = NAME_OVERRIDES.get(aa.name);
     if (override) {
-      const found = ourModels.find(m => m.super_name === override);
+      const found = ourModels.find((m) => m.super_name === override);
       if (found) {
         matched++;
         const sc = buildScores(aa);
@@ -158,15 +184,25 @@ async function scrape() {
     }
 
     const aaNorm = normalizeName(aa.name);
-    let best = null, bestScore = 0;
+    /* eslint-disable no-useless-assignment */
+    let best = null,
+      bestScore = 0;
     for (const m of ourModels) {
       const n = normalizeName(m.super_name);
-      if (aaNorm === n) { best = m; bestScore = 100; break; }
+      if (aaNorm === n) {
+        best = m;
+        bestScore = 100;
+        break;
+      }
       if (aaNorm.includes(n) || n.includes(aaNorm)) {
         const s = Math.min(aaNorm.length, n.length) / Math.max(aaNorm.length, n.length);
-        if (s > bestScore && s > 0.5) { bestScore = s; best = m; }
+        if (s > bestScore && s > 0.5) {
+          bestScore = s;
+          best = m;
+        }
       }
     }
+    /* eslint-enable no-useless-assignment */
     if (best) {
       matched++;
       const sc = buildScores(aa);
@@ -175,20 +211,35 @@ async function scrape() {
   }
 
   console.log('Matched:', matched + '/' + models.length);
-  if (!changes.length) { console.log('No changes.'); return; }
+  if (!changes.length) {
+    console.log('No changes.');
+    return;
+  }
 
   // Deduplicate by super_name: keep first match (base tier)
   const seen = new Set();
   const deduped = [];
   for (const c of changes) {
-    if (!seen.has(c.our)) { seen.add(c.our); deduped.push(c); }
+    if (!seen.has(c.our)) {
+      seen.add(c.our);
+      deduped.push(c);
+    }
   }
   console.log('Unique models:', deduped.length);
 
   console.log('\nSample:');
-  deduped.slice(0, 10).forEach(c => console.log('  ' + c.our + ' <- ' + c.aa + ': ' + c.sc.map(s => s.t + '=' + s.v).join(', ')));
+  deduped
+    .slice(0, 10)
+    .forEach((c) =>
+      console.log(
+        '  ' + c.our + ' <- ' + c.aa + ': ' + c.sc.map((s) => s.t + '=' + s.v).join(', '),
+      ),
+    );
 
-  if (!APPLY) { console.log('\nDry-run. Use --apply.'); return; }
+  if (!APPLY) {
+    console.log('\nDry-run. Use --apply.');
+    return;
+  }
 
   const client = await pool.connect();
   try {
@@ -198,15 +249,19 @@ async function scrape() {
       for (const s of c.sc) {
         await client.query(
           'INSERT INTO model_scores (datapoint_model_id, source, score_type, score_value, fetched_at) VALUES ($1,$2,$3,$4,now()) ON CONFLICT (datapoint_model_id, source, score_type) DO UPDATE SET score_value=EXCLUDED.score_value, fetched_at=now()',
-          [c.id, SOURCE, s.t, s.v]
+          [c.id, SOURCE, s.t, s.v],
         );
         n++;
       }
     }
     await client.query('COMMIT');
     console.log(n, 'scores written (' + deduped.length + ' unique models).');
-  } catch (e) { await client.query('ROLLBACK'); throw e; }
-  finally { client.release(); }
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
 }
 
 function buildScores(aa) {
@@ -220,4 +275,9 @@ function buildScores(aa) {
   return sc;
 }
 
-scrape().catch(e => { console.error(e.message); process.exitCode = 1; }).finally(() => pool.end().catch(() => {}));
+scrape()
+  .catch((e) => {
+    console.error(e.message);
+    process.exitCode = 1;
+  })
+  .finally(() => pool.end().catch(() => {}));

@@ -1,59 +1,63 @@
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue';
 
 export interface SavedSearch {
-  id: string
-  name: string
-  query: string
-  ts: number
+  id: string;
+  name: string;
+  query: string;
+  ts: number;
 }
 
-const STORAGE_KEY = 'gfm-saved-searches'
-const HISTORY_KEY = 'gfm-search-history'
+const STORAGE_KEY = 'gfm-saved-searches';
+const HISTORY_KEY = 'gfm-search-history';
 
 function loadJson<T>(key: string, fallback: T): T {
   try {
-    const raw = localStorage.getItem(key)
-    if (!raw) return fallback
-    return JSON.parse(raw) as T
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    return JSON.parse(raw) as T;
   } catch {
-    return fallback
+    return fallback;
   }
 }
 
 function saveJson<T>(key: string, val: T) {
-  try { localStorage.setItem(key, JSON.stringify(val)) } catch { /* quota */ }
+  try {
+    localStorage.setItem(key, JSON.stringify(val));
+  } catch {
+    /* quota */
+  }
 }
 
 export function useSavedSearches() {
-  const saved = ref<SavedSearch[]>(loadJson(STORAGE_KEY, []))
-  const history = ref<SavedSearch[]>(loadJson(HISTORY_KEY, []))
+  const saved = ref<SavedSearch[]>(loadJson(STORAGE_KEY, []));
+  const history = ref<SavedSearch[]>(loadJson(HISTORY_KEY, []));
 
-  watch(saved, (v) => saveJson(STORAGE_KEY, v), { deep: true })
-  watch(history, (v) => saveJson(HISTORY_KEY, v), { deep: true })
+  watch(saved, (v) => saveJson(STORAGE_KEY, v), { deep: true });
+  watch(history, (v) => saveJson(HISTORY_KEY, v), { deep: true });
 
   function save(name: string, query: string) {
-    const s: SavedSearch = { id: crypto.randomUUID(), name, query, ts: Date.now() }
-    saved.value = [s, ...saved.value]
-    return s
+    const s: SavedSearch = { id: crypto.randomUUID(), name, query, ts: Date.now() };
+    saved.value = [s, ...saved.value];
+    return s;
   }
 
   function remove(id: string) {
-    saved.value = saved.value.filter(s => s.id !== id)
+    saved.value = saved.value.filter((s) => s.id !== id);
   }
 
   function pushHistory(query: string) {
-    if (!query.trim()) return
-    history.value = history.value.filter(h => h.query !== query)
-    history.value.unshift({ id: crypto.randomUUID(), name: '', query, ts: Date.now() })
-    if (history.value.length > 20) history.value.length = 20
+    if (!query.trim()) return;
+    history.value = history.value.filter((h) => h.query !== query);
+    history.value.unshift({ id: crypto.randomUUID(), name: '', query, ts: Date.now() });
+    if (history.value.length > 20) history.value.length = 20;
   }
 
   function clearHistory() {
-    history.value = []
+    history.value = [];
   }
 
-  const hasSaved = computed(() => saved.value.length > 0)
-  const hasHistory = computed(() => history.value.length > 0)
+  const hasSaved = computed(() => saved.value.length > 0);
+  const hasHistory = computed(() => history.value.length > 0);
 
-  return { saved, history, hasSaved, hasHistory, save, remove, pushHistory, clearHistory }
+  return { saved, history, hasSaved, hasHistory, save, remove, pushHistory, clearHistory };
 }

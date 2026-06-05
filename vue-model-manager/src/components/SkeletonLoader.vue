@@ -17,30 +17,38 @@
       <div class="skeleton-line skeleton-line-lg" style="width: 40%"></div>
     </div>
     <div v-else-if="variant === 'text'">
-      <div v-for="i in lines" :key="i" class="skeleton-line" :style="{ width: i === lines ? '60%' : '100%' }"></div>
+      <div
+        v-for="i in lines"
+        :key="i"
+        class="skeleton-line"
+        :style="{ width: i === lines ? '60%' : '100%' }"
+      ></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from 'vue';
 
-const props = withDefaults(defineProps<{
-  variant?: 'card' | 'row' | 'stat' | 'text'
-  width?: string
-  height?: string
-  lines?: number
-}>(), {
-  variant: 'text',
-  width: '100%',
-  height: 'auto',
-  lines: 3,
-})
+const props = withDefaults(
+  defineProps<{
+    variant?: 'card' | 'row' | 'stat' | 'text';
+    width?: string;
+    height?: string;
+    lines?: number;
+  }>(),
+  {
+    variant: 'text',
+    width: '100%',
+    height: 'auto',
+    lines: 3,
+  },
+);
 
 const style = computed(() => ({
   width: props.width,
   height: props.height,
-}))
+}));
 </script>
 
 <style scoped>
@@ -80,12 +88,7 @@ const style = computed(() => ({
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--skeleton-shine) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg, transparent 0%, var(--skeleton-shine) 50%, transparent 100%);
   animation: skeleton-shine 1.8s ease-in-out infinite;
 }
 
@@ -98,8 +101,12 @@ const style = computed(() => ({
 }
 
 @keyframes skeleton-shine {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

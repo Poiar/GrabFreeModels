@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 const routes = [
   {
@@ -40,22 +40,22 @@ const routes = [
   { path: '/super/:id', redirect: '/' },
   { path: '/author', redirect: '/creators' },
   { path: '/family', redirect: '/creators' },
-]
+];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior: () => ({ top: 0, left: 0 }),
-})
+});
 
-const BASE_TITLE = 'GrabFreeModels'
+const BASE_TITLE = 'GrabFreeModels';
 router.afterEach((to) => {
-  const page = to.meta?.title as string | undefined
-  document.title = page ? `${page} — ${BASE_TITLE}` : BASE_TITLE
-})
+  const page = to.meta?.title as string | undefined;
+  document.title = page ? `${page} — ${BASE_TITLE}` : BASE_TITLE;
+});
 
 router.onError((err) => {
-  console.error('Router error:', err.message || err)
-})
+  console.error('Router error:', err.message || err);
+});
 
-export default router
+export default router;

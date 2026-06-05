@@ -9,14 +9,14 @@ File: `C:\Users\pc\.local\bin\deepclaude.ps1` — routes Claude Code through che
 
 ## Registry
 
-| Slug | Name | Key | Notes |
-|------|------|-----|-------|
-| `ds` | DeepSeek (direct) | `DEEPSEEK_API_KEY` | Default |
-| `or` | OpenRouter (owl-alpha) | `OPENROUTER_API_KEY` | |
-| `or2` | OpenRouter (deepseek) | `OPENROUTER_API_KEY` | Clone of `or` |
-| `or3` | OpenRouter (best free) | `OPENROUTER_API_KEY` | Clone of `or`, no owl-alpha |
-| `fw` | Fireworks AI | `FIREWORKS_API_KEY` | |
-| `oc` | OpenCode Zen | `OPENCODEZEN_API_KEY` | |
+| Slug  | Name                   | Key                   | Notes                       |
+| ----- | ---------------------- | --------------------- | --------------------------- |
+| `ds`  | DeepSeek (direct)      | `DEEPSEEK_API_KEY`    | Default                     |
+| `or`  | OpenRouter (owl-alpha) | `OPENROUTER_API_KEY`  |                             |
+| `or2` | OpenRouter (deepseek)  | `OPENROUTER_API_KEY`  | Clone of `or`               |
+| `or3` | OpenRouter (best free) | `OPENROUTER_API_KEY`  | Clone of `or`, no owl-alpha |
+| `fw`  | Fireworks AI           | `FIREWORKS_API_KEY`   |                             |
+| `oc`  | OpenCode Zen           | `OPENCODEZEN_API_KEY` |                             |
 
 ## Adding a Backend
 

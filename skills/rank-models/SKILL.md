@@ -26,11 +26,10 @@ score = (context_length / 1M) × ctxWeight + tagBonus
 
 ## Roles
 
-| Role | ctxWeight | Tag Keywords |
-|---|---|---|
-| **model** | 1.2 | agentic, tool, reasoning, current default, general purpose |
-| **build** | 0.6 | coding, code, refactor, agentic, tool |
-| **general** | 0.5 | general, multimodal, fast, lightweight, chinese |
-| **small_model** | 0.0 | lightweight, ultra-lightweight, fast, quick, small |
-| **explore** | 0.3 | thinking, reasoning, multimodal, new |
-| **stable** | manual | — populated by `backfill-metadata.js`: free + working + tools + tested ≥30d ago |
+| Role            | ctxWeight | Tag Keywords                                               |
+| --------------- | --------- | ---------------------------------------------------------- |
+| **model**       | 1.2       | agentic, tool, reasoning, current default, general purpose |
+| **build**       | 0.6       | coding, code, refactor, agentic, tool                      |
+| **general**     | 0.5       | general, multimodal, fast, lightweight, chinese            |
+| **small_model** | 0.0       | lightweight, ultra-lightweight, fast, quick, small         |
+| **explore**     | 0.3       | thinking, reasoning, multimodal, new                       |

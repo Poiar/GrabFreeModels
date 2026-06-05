@@ -22,6 +22,7 @@ gitleaks detect --source . --config .gitleaks.toml --no-git --verbose
 ## Install Gitleaks
 
 Windows (winget):
+
 ```bash
 winget install gitleaks.gitleaks
 ```

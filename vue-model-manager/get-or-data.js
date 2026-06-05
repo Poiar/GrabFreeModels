@@ -10,7 +10,7 @@ const fs = require('fs');
     if (response.url().includes('/api/frontend/models') && !modelsData) {
       try {
         modelsData = await response.json();
-      } catch(e) {}
+      } catch {}
     }
   });
 
@@ -20,14 +20,26 @@ const fs = require('fs');
   if (modelsData) {
     const models = modelsData.data || modelsData;
     console.log('Total models:', models.length);
-    console.log('Top-level keys:', Object.keys(models[0]||{}).join(', '));
+    console.log('Top-level keys:', Object.keys(models[0] || {}).join(', '));
 
     // Save full data for analysis
-    fs.writeFileSync('C:\\Users\\pc\\AppData\\Local\\Temp\\opencode\\or-frontend-models.json', JSON.stringify(modelsData, null, 2));
+    fs.writeFileSync(
+      'C:\\Users\\pc\\AppData\\Local\\Temp\\opencode\\or-frontend-models.json',
+      JSON.stringify(modelsData, null, 2),
+    );
 
     // Check specific models
-    for (const slug of ['gpt-oss-120b', 'deepseek-v4-flash', 'owl-alpha', 'glm-4.5', 'gemini-3', 'hy3', 'parakeet', 'qwen3.7']) {
-      const m = models.find(m => m.slug && m.slug.includes(slug));
+    for (const slug of [
+      'gpt-oss-120b',
+      'deepseek-v4-flash',
+      'owl-alpha',
+      'glm-4.5',
+      'gemini-3',
+      'hy3',
+      'parakeet',
+      'qwen3.7',
+    ]) {
+      const m = models.find((m) => m.slug && m.slug.includes(slug));
       if (m) {
         console.log(`\n=== ${m.slug} ===`);
         console.log(JSON.stringify(m, null, 2).slice(0, 3000));
@@ -38,4 +50,4 @@ const fs = require('fs');
   }
 
   await browser.close();
-})().catch(e => console.error(e.message));
+})().catch((e) => console.error(e.message));

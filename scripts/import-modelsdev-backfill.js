@@ -20,7 +20,14 @@ const mdModels = raw.models;
 const connectionString = process.env.DATABASE_URL;
 const pool = connectionString
   ? new Pool({ connectionString, ssl: { rejectUnauthorized: false }, max: 3 })
-  : new Pool({ host: process.env.PGHOST || 'localhost', port: parseInt(process.env.PGPORT || '5432', 10), user: process.env.PGUSER, password: process.env.PGPASSWORD, database: process.env.PGDATABASE, max: 3 });
+  : new Pool({
+      host: process.env.PGHOST || 'localhost',
+      port: parseInt(process.env.PGPORT || '5432', 10),
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+      max: 3,
+    });
 
 function strip(rid) {
   let r = rid.toLowerCase();
@@ -33,20 +40,30 @@ function strip(rid) {
   return r;
 }
 
-function noHyphens(s) { return s.replace(/-/g, ''); }
-function noDots(s) { return s.replace(/\./g, '-'); }
+function noHyphens(s) {
+  return s.replace(/-/g, '');
+}
+function noDots(s) {
+  return s.replace(/\./g, '-');
+}
 
 (async () => {
   const client = await pool.connect();
   try {
-    const { rows: pr } = await client.query("SELECT id FROM datapoint_providers WHERE slug = 'modelsdev'");
-    if (!pr.length) { console.error('Run import-modelsdev.js first'); process.exit(1); }
+    const { rows: pr } = await client.query(
+      "SELECT id FROM datapoint_providers WHERE slug = 'modelsdev'",
+    );
+    if (!pr.length) {
+      console.error('Run import-modelsdev.js first');
+      process.exit(1);
+    }
     const provId = pr[0].id;
 
     const { rows: existingDps } = await client.query(
-      "SELECT remote_id FROM datapoint_models WHERE datapoint_provider_id = $1", [provId]
+      'SELECT remote_id FROM datapoint_models WHERE datapoint_provider_id = $1',
+      [provId],
     );
-    const insertedIds = new Set(existingDps.map(r => r.remote_id.toLowerCase()));
+    const insertedIds = new Set(existingDps.map((r) => r.remote_id.toLowerCase()));
 
     // Build multi-key index from models.dev
     const mdIndex = new Map(); // key -> { modelId, modelName, ... }
@@ -84,25 +101,34 @@ function noDots(s) { return s.replace(/\./g, '-'); }
 
     console.log(`Unmatched masters: ${unmatched.length}\n`);
 
-    let found = 0, notFound = 0, inserted = 0;
+    let found = 0,
+      notFound = 0,
+      inserted = 0;
 
     for (const row of unmatched) {
       const rid = strip(row.remote_id);
       const ridNoHyphens = noHyphens(rid);
 
       // Try matching with all normalization variants
-      let md = mdIndex.get(rid)
-        || mdIndex.get(ridNoHyphens)
-        || mdIndex.get(noDots(rid))
-        || mdIndex.get(noHyphens(noDots(rid)))
-        || mdIndex.get(rid.replace(/-(instruct|chat|v\d+|it|\d+b)$/, ''))
-        || mdIndex.get(noHyphens(rid.replace(/-(instruct|chat|v\d+|it|\d+b)$/, '')));
+      let md =
+        mdIndex.get(rid) ||
+        mdIndex.get(ridNoHyphens) ||
+        mdIndex.get(noDots(rid)) ||
+        mdIndex.get(noHyphens(noDots(rid))) ||
+        mdIndex.get(rid.replace(/-(instruct|chat|v\d+|it|\d+b)$/, '')) ||
+        mdIndex.get(noHyphens(rid.replace(/-(instruct|chat|v\d+|it|\d+b)$/, '')));
 
       // Try matching by super name vs models.dev modelName
       if (!md) {
-        const cleanName = row.super_name.replace(/\s*\(free\)\s*/gi, '').trim().toLowerCase();
+        const cleanName = row.super_name
+          .replace(/\s*\(free\)\s*/gi, '')
+          .trim()
+          .toLowerCase();
         for (const m of mdModels) {
-          const mdClean = m.modelName.replace(/\s*\(free\)\s*/gi, '').trim().toLowerCase();
+          const mdClean = m.modelName
+            .replace(/\s*\(free\)\s*/gi, '')
+            .trim()
+            .toLowerCase();
           if (mdClean === cleanName || noHyphens(mdClean) === noHyphens(cleanName)) {
             md = m;
             break;
@@ -112,7 +138,8 @@ function noDots(s) { return s.replace(/\./g, '-'); }
 
       if (!md) {
         notFound++;
-        if (notFound <= 30) console.log(`  SKIP: ${row.super_name} (${row.provider_slug}/${row.remote_id})`);
+        if (notFound <= 30)
+          console.log(`  SKIP: ${row.super_name} (${row.provider_slug}/${row.remote_id})`);
         continue;
       }
 
@@ -131,7 +158,14 @@ function noDots(s) { return s.replace(/\./g, '-'); }
              VALUES ($1,$2,$3,$4,$5,0::numeric,0::numeric,true,$6,'untested','From models.dev')
              ON CONFLICT (datapoint_provider_id, remote_id) DO NOTHING
              RETURNING id`,
-            [row.super_id, provId, mdRemoteId, `modelsdev/${mdRemoteId}`, ctxLen, md.toolCall ?? null]
+            [
+              row.super_id,
+              provId,
+              mdRemoteId,
+              `modelsdev/${mdRemoteId}`,
+              ctxLen,
+              md.toolCall ?? null,
+            ],
           );
           if (dpIns.length > 0) {
             insertedIds.add(mdRemoteId.toLowerCase());
@@ -141,7 +175,10 @@ function noDots(s) { return s.replace(/\./g, '-'); }
             if (md.releaseDate) feats.push(['release_date', md.releaseDate]);
             if (md.reasoning) feats.push(['supports_reasoning', 'true']);
             for (const [ft, fv] of feats) {
-              await client.query('INSERT INTO datapoint_model_features (datapoint_model_id, feature_type, value) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING', [dpId, ft, fv]);
+              await client.query(
+                'INSERT INTO datapoint_model_features (datapoint_model_id, feature_type, value) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING',
+                [dpId, ft, fv],
+              );
             }
             inserted++;
           }
@@ -155,7 +192,7 @@ function noDots(s) { return s.replace(/\./g, '-'); }
     if (APPLY) {
       console.log(`Inserted: ${inserted}`);
       const { rows: cnt } = await client.query(
-        "SELECT COUNT(DISTINCT dm.super_model_id) FROM datapoint_models dm JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id WHERE dp.slug = 'modelsdev'"
+        "SELECT COUNT(DISTINCT dm.super_model_id) FROM datapoint_models dm JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id WHERE dp.slug = 'modelsdev'",
       );
       console.log(`Masters with modelsdev: ${cnt[0].count}`);
     } else {
@@ -165,4 +202,7 @@ function noDots(s) { return s.replace(/\./g, '-'); }
     client.release();
     await pool.end();
   }
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

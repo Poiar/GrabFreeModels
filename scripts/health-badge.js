@@ -14,8 +14,8 @@ const loadModels = require('./load-models');
 (async () => {
   const data = await loadModels();
 
-  const free = data.models.filter(m => m.is_free);
-  const working = free.filter(m => m.status.result === 'working');
+  const free = data.models.filter((m) => m.is_free);
+  const working = free.filter((m) => m.status.result === 'working');
   const percent = Math.round((working.length / free.length) * 100);
 
   const color = percent >= 80 ? 'green' : percent >= 50 ? 'yellow' : 'red';
@@ -31,6 +31,13 @@ const loadModels = require('./load-models');
   const badgeDir = path.join(repoRoot, 'badge');
   if (!fs.existsSync(badgeDir)) fs.mkdirSync(badgeDir, { recursive: true });
 
-  fs.writeFileSync(path.join(badgeDir, 'health.json'), JSON.stringify(badge, null, 2) + '\n', 'utf8');
+  fs.writeFileSync(
+    path.join(badgeDir, 'health.json'),
+    JSON.stringify(badge, null, 2) + '\n',
+    'utf8',
+  );
   console.log(`Health badge written to ${path.join(badgeDir, 'health.json')}`);
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

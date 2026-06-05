@@ -1,12 +1,31 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="open" class="modal-overlay" @click.self="$emit('close')" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+      <div
+        v-if="open"
+        class="modal-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Keyboard shortcuts"
+        @click.self="$emit('close')"
+      >
         <div ref="modalRef" class="modal-content shortcuts-modal">
           <div class="modal-header">
             <h2>Keyboard Shortcuts</h2>
-            <button class="modal-close" @click="$emit('close')" aria-label="Close shortcuts">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <button class="modal-close" aria-label="Close shortcuts" @click="$emit('close')">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           </div>
           <div class="shortcuts-body">
@@ -74,48 +93,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick } from 'vue';
 
-const props = defineProps<{ open: boolean }>()
-defineEmits<{ close: [] }>()
+const props = defineProps<{ open: boolean }>();
+defineEmits<{ close: [] }>();
 
-const modalRef = ref<HTMLDivElement | null>(null)
+const modalRef = ref<HTMLDivElement | null>(null);
 
 function getFocusableElements(): HTMLElement[] {
-  if (!modalRef.value) return []
-  const selectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  return Array.from(modalRef.value.querySelectorAll<HTMLElement>(selectors))
+  if (!modalRef.value) return [];
+  const selectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  return Array.from(modalRef.value.querySelectorAll<HTMLElement>(selectors));
 }
 
 function trapFocus(e: KeyboardEvent) {
-  if (e.key !== 'Tab') return
-  const focusable = getFocusableElements()
-  if (focusable.length === 0) return
-  const first = focusable[0]
-  const last = focusable[focusable.length - 1]
+  if (e.key !== 'Tab') return;
+  const focusable = getFocusableElements();
+  if (focusable.length === 0) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
   if (e.shiftKey) {
     if (document.activeElement === first) {
-      e.preventDefault()
-      last.focus()
+      e.preventDefault();
+      last.focus();
     }
   } else {
     if (document.activeElement === last) {
-      e.preventDefault()
-      first.focus()
+      e.preventDefault();
+      first.focus();
     }
   }
 }
 
-watch(() => props.open, async (isOpen) => {
-  if (isOpen) {
-    await nextTick()
-    const focusable = getFocusableElements()
-    focusable[0]?.focus()
-    modalRef.value?.addEventListener('keydown', trapFocus)
-  } else {
-    modalRef.value?.removeEventListener('keydown', trapFocus)
-  }
-})
+watch(
+  () => props.open,
+  async (isOpen) => {
+    if (isOpen) {
+      await nextTick();
+      const focusable = getFocusableElements();
+      focusable[0]?.focus();
+      modalRef.value?.addEventListener('keydown', trapFocus);
+    } else {
+      modalRef.value?.removeEventListener('keydown', trapFocus);
+    }
+  },
+);
 </script>
 
 <style scoped>
@@ -135,7 +157,7 @@ watch(() => props.open, async (isOpen) => {
   background: var(--bg-elevated, #161b26);
   border: 1px solid var(--border, #1e2538);
   border-radius: var(--radius-lg, 14px);
-  box-shadow: var(--shadow-lg, 0 20px 25px -5px rgba(0,0,0,0.4));
+  box-shadow: var(--shadow-lg, 0 20px 25px -5px rgba(0, 0, 0, 0.4));
   max-width: 520px;
   width: 100%;
   max-height: 80vh;
@@ -231,10 +253,22 @@ kbd {
 }
 
 /* Transition */
-.modal-enter-active { transition: all 0.2s ease-out; }
-.modal-leave-active { transition: all 0.15s ease-in; }
-.modal-enter-from { opacity: 0; }
-.modal-enter-from .modal-content { transform: scale(0.95) translateY(10px); }
-.modal-leave-to { opacity: 0; }
-.modal-leave-to .modal-content { transform: scale(0.98); }
+.modal-enter-active {
+  transition: all 0.2s ease-out;
+}
+.modal-leave-active {
+  transition: all 0.15s ease-in;
+}
+.modal-enter-from {
+  opacity: 0;
+}
+.modal-enter-from .modal-content {
+  transform: scale(0.95) translateY(10px);
+}
+.modal-leave-to {
+  opacity: 0;
+}
+.modal-leave-to .modal-content {
+  transform: scale(0.98);
+}
 </style>

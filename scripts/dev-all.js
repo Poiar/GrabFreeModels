@@ -20,5 +20,11 @@ function killBoth() {
 process.on('SIGINT', killBoth);
 process.on('SIGTERM', killBoth);
 
-api.on('exit', () => { vue.kill(); process.exit(); });
-vue.on('exit', () => { api.kill(); process.exit(); });
+api.on('exit', () => {
+  vue.kill();
+  process.exit();
+});
+vue.on('exit', () => {
+  api.kill();
+  process.exit();
+});

@@ -17,7 +17,10 @@ const path = require('path');
 const { chromium } = require('playwright');
 
 const args = process.argv.slice(2);
-const get = (flag) => { const i = args.indexOf(flag); return i >= 0 ? args[i + 1] : null; };
+const get = (flag) => {
+  const i = args.indexOf(flag);
+  return i >= 0 ? args[i + 1] : null;
+};
 
 const outputPath = get('--output') || path.join(__dirname, '..', 'modelsdev-free-models.json');
 const includeAll = args.includes('--all');
@@ -27,7 +30,8 @@ const timeout = parseInt(get('--timeout') || '30000', 10);
   console.log('Launching Playwright...');
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    userAgent:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
   });
   const page = await context.newPage();
 
@@ -42,8 +46,12 @@ const timeout = parseInt(get('--timeout') || '30000', 10);
     });
 
     if (!rawModels || !Array.isArray(rawModels)) {
-      console.error('Could not find model data in page. Tried window.__TABLE_DATA__ and window.__DATA__.');
-      console.error('The site may have changed its data injection method. Inspect the page source.');
+      console.error(
+        'Could not find model data in page. Tried window.__TABLE_DATA__ and window.__DATA__.',
+      );
+      console.error(
+        'The site may have changed its data injection method. Inspect the page source.',
+      );
       process.exitCode = 1;
       return;
     }
@@ -52,9 +60,9 @@ const timeout = parseInt(get('--timeout') || '30000', 10);
 
     const models = includeAll
       ? rawModels
-      : rawModels.filter(m => (m.inputCost ?? 0) === 0 && (m.outputCost ?? 0) === 0);
+      : rawModels.filter((m) => (m.inputCost ?? 0) === 0 && (m.outputCost ?? 0) === 0);
 
-    const uniqueModelIds = new Set(models.map(m => m.modelId)).size;
+    const uniqueModelIds = new Set(models.map((m) => m.modelId)).size;
 
     const byProvider = {};
     for (const m of models) {
@@ -73,7 +81,9 @@ const timeout = parseInt(get('--timeout') || '30000', 10);
     };
 
     fs.writeFileSync(outputPath, JSON.stringify(result, null, 2) + '\n');
-    console.log(`\nExported ${models.length} free models (${uniqueModelIds} unique) across ${Object.keys(byProvider).length} providers.`);
+    console.log(
+      `\nExported ${models.length} free models (${uniqueModelIds} unique) across ${Object.keys(byProvider).length} providers.`,
+    );
     console.log(`Output: ${outputPath}`);
   } catch (err) {
     console.error(`Extraction failed: ${err.message}`);
@@ -81,4 +91,7 @@ const timeout = parseInt(get('--timeout') || '30000', 10);
   } finally {
     await browser.close();
   }
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

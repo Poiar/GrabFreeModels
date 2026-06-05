@@ -36,7 +36,13 @@ function pass(msg) {
   }
 
   // Required top-level keys
-  const requiredKeys = ['models', '_test_summary', '_role_rankings', '_known_issues', '_validation_method'];
+  const requiredKeys = [
+    'models',
+    '_test_summary',
+    '_role_rankings',
+    '_known_issues',
+    '_validation_method',
+  ];
   for (const key of requiredKeys) {
     if (!data[key]) {
       fail(`Missing top-level key: "${key}"`);
@@ -51,7 +57,7 @@ function pass(msg) {
   }
 
   const models = data.models;
-  const modelIds = new Set(models.map(m => m.id));
+  const modelIds = new Set(models.map((m) => m.id));
 
   // Model field validation
   const requiredModelFields = ['id', 'name', 'provider', 'status', 'is_free'];
@@ -117,9 +123,13 @@ function pass(msg) {
   if (summaryErrors === 0) pass('All _test_summary result IDs reference valid models');
 
   // Warn about free models missing supports_tools
-  const missingTools = models.filter(m => m.is_free && m.status.result === 'working' && !('supports_tools' in m));
+  const missingTools = models.filter(
+    (m) => m.is_free && m.status.result === 'working' && !('supports_tools' in m),
+  );
   if (missingTools.length > 0) {
-    console.log(`\n  ⚠️  ${missingTools.length} working free model(s) missing supports_tools field:`);
+    console.log(
+      `\n  ⚠️  ${missingTools.length} working free model(s) missing supports_tools field:`,
+    );
     for (const m of missingTools) console.log(`     ${m.id}`);
     console.log('     Run: node scripts/backfill-metadata.js --apply');
   }
@@ -130,4 +140,7 @@ function pass(msg) {
   } else {
     console.log(`\n✅ All checks passed. ${models.length} models validated.`);
   }
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

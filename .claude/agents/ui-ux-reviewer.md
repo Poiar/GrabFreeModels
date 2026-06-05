@@ -1,6 +1,6 @@
 ---
-name: "ui-ux-reviewer"
-description: "Use this agent when reviewing UI/UX aspects of the system, including interface code changes, design implementation, accessibility, responsiveness, visual consistency, or interaction patterns. Use proactively when the user introduces new UI components, modifies frontend code, asks for design feedback, or discusses user experience decisions."
+name: 'ui-ux-reviewer'
+description: 'Use this agent when reviewing UI/UX aspects of the system, including interface code changes, design implementation, accessibility, responsiveness, visual consistency, or interaction patterns. Use proactively when the user introduces new UI components, modifies frontend code, asks for design feedback, or discusses user experience decisions.'
 model: sonnet
 color: yellow
 memory: project
@@ -41,6 +41,7 @@ You are a Senior UI/UX Design Engineer with deep expertise in user-centered desi
 **💡 Recommendations** — Specific, actionable suggestions with code snippets where helpful
 
 ## Self-Verification Checklist
+
 - [ ] Every interactive element is keyboard-accessible
 - [ ] All images have appropriate alt text
 - [ ] Color is never the only indicator of state

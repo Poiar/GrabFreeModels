@@ -13,7 +13,6 @@
  *   node scripts/load-models.js
  */
 
-const path = require('path');
 require('dotenv').config();
 const buildModelsData = require('./build-models-data');
 
@@ -24,8 +23,15 @@ async function loadModels(existingPool) {
   if (!pool) {
     const rawConnectionString = process.env.DATABASE_URL;
     let connectionString = rawConnectionString;
-    if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-      connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+    if (
+      connectionString &&
+      connectionString.includes('sslmode=require') &&
+      !connectionString.includes('uselibpqcompat')
+    ) {
+      connectionString = connectionString.replace(
+        'sslmode=require',
+        'uselibpqcompat=true&sslmode=require',
+      );
     }
     const { Pool } = require('pg');
     if (connectionString) {
@@ -62,6 +68,11 @@ module.exports = loadModels;
 
 if (require.main === module) {
   loadModels()
-    .then(data => { process.stdout.write(JSON.stringify(data, null, 2) + '\n'); })
-    .catch(err => { console.error(err.message); process.exit(1); });
+    .then((data) => {
+      process.stdout.write(JSON.stringify(data, null, 2) + '\n');
+    })
+    .catch((err) => {
+      console.error(err.message);
+      process.exit(1);
+    });
 }

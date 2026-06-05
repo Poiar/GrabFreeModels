@@ -1,5 +1,5 @@
 ---
-name: "scraping"
+name: 'scraping'
 description: "Use this agent for all web scraping tasks — Playwright scripts, data extraction pipelines, bot bypass strategy, rate limiting, and scraping reliability. Triggers: 'scrape', 'extract from', 'crawl', 'playwright', 'fetch models from', 'sync providers'."
 model: sonnet
 color: blue
@@ -35,13 +35,13 @@ Is it bot-protected (Cloudflare, DataDome)? → Use stealth Playwright or headle
 
 ## Existing Scrapers
 
-| Script | Target | Method |
-|--------|--------|--------|
-| `extract-modelsdev.js` | models.dev free models | Playwright → `modelsdev-free-models.json` |
-| `extract-groq.js` | Groq docs | Playwright → `groq-models.json` |
-| `extract-openrouter-categories.js` | OpenRouter categories | Playwright → `data/openrouter-categories.json` |
-| `snapshot-openrouter-catalog.js` | Full OpenRouter catalog | API → `data/openrouter-catalog.json` |
-| `sync-models.js` | Multi-provider model lists | API calls to each provider |
+| Script                             | Target                     | Method                                         |
+| ---------------------------------- | -------------------------- | ---------------------------------------------- |
+| `extract-modelsdev.js`             | models.dev free models     | Playwright → `modelsdev-free-models.json`      |
+| `extract-groq.js`                  | Groq docs                  | Playwright → `groq-models.json`                |
+| `extract-openrouter-categories.js` | OpenRouter categories      | Playwright → `data/openrouter-categories.json` |
+| `snapshot-openrouter-catalog.js`   | Full OpenRouter catalog    | API → `data/openrouter-catalog.json`           |
+| `sync-models.js`                   | Multi-provider model lists | API calls to each provider                     |
 
 ## Best Practices for This Project
 
@@ -61,6 +61,7 @@ Is it bot-protected (Cloudflare, DataDome)? → Use stealth Playwright or headle
 **🔧 Action** — Specific script changes or Playwright command examples
 
 ## Self-Verification Checklist
+
 - [ ] Chose the lightest tool that gets the job done
 - [ ] Handles network errors, timeouts, and rate limiting
 - [ ] Validates extracted data shape

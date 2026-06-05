@@ -50,7 +50,9 @@ const loadModels = require('./load-models');
   for (const name of Object.keys(providerHealth).sort()) {
     const health = providerHealth[name];
     const isUsedUp = usedUpProviders.includes(name);
-    const style = isUsedUp ? " style='background:#f0f0f0;color:#999;text-decoration:line-through'" : '';
+    const style = isUsedUp
+      ? " style='background:#f0f0f0;color:#999;text-decoration:line-through'"
+      : '';
     const badge = isUsedUp ? ` <span title='Used up for ${currentMonth}'>⚠</span>` : '';
     provRows += `<tr${style}><td>${name}${badge}</td><td>${health.total}</td><td>${health.working}</td><td>${health.rate_limited}</td><td>${health.broken}</td></tr>\n`;
   }
@@ -109,4 +111,7 @@ ${roleTables}
 
   fs.writeFileSync(outputPath, html, 'utf8');
   console.log(`Dashboard written to ${outputPath}`);
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

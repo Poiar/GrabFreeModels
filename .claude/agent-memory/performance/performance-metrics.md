@@ -8,6 +8,7 @@ metadata:
 ## Performance Metrics - Baseline 2026-06-04
 
 ### API Performance
+
 - **Response Time**: ~0.5s (local development)
 - **Payload Size**: 1.1MB (uncompressed)
 - **Gzipped Size**: ~300KB (estimated)
@@ -15,12 +16,14 @@ metadata:
 - **Status**: No compression enabled
 
 ### Database Performance
+
 - **Connection Pool**: Max 3 (Neon-appropriate)
 - **Query Pattern**: N+1 identified in build-models-data.js
 - **Index Usage**: Basic indexes present
 - **Join Optimization**: Opportunity for materialized views
 
 ### Frontend Performance
+
 - **Main Bundle**: 136.54kB (unzipped)
 - **Main Bundle (gzipped)**: 50.74kB
 - **Route Chunks**: 17-28kB each (gzipped)
@@ -28,17 +31,20 @@ metadata:
 - **Framework**: Vue 3 + Vite (good tree shaking)
 
 ### Network Performance
+
 - **HTTP Caching**: Not implemented
 - **Compression**: Not enabled
 - **CDN**: Not using (static files served locally)
 - **Static Assets**: 4.76-45.01kB CSS (gzipped 1.16-8.47kB)
 
 ### Memory Usage
+
 - **Nightly Pipeline**: Potential memory leaks during long runs
 - **Virtual Scroller**: Efficient for large lists
 - **Store Computed Properties**: Well memoized
 
 ### Target Metrics (After Optimization)
+
 1. **API Payload**: <400KB (70% compression)
 2. **Initial Load Time**: <2s (currently ~3s with 1.1MB)
 3. **Time to Interactive**: <1.5s
@@ -47,6 +53,7 @@ metadata:
 6. **Bundle Size**: Main <100KB gzipped
 
 ### Monitoring Plan
+
 1. **Lighthouse Audits**: Weekly
 2. **Bundle Analyzer**: After each build
 3. **Query Performance**: EXPLAIN ANALYZE on critical queries
@@ -54,6 +61,7 @@ metadata:
 5. **Real User Monitoring**: Implement RUM
 
 ### Tools for Measurement
+
 - WebPageTest.org
 - Lighthouse CI
 - Chrome DevTools

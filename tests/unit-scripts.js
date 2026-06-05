@@ -24,12 +24,13 @@ function test(name, fn) {
 // ── import-modelsdev.js: normalizeName ──
 console.log('\n=== import-modelsdev.js: normalizeName ===');
 
-const normalizeName = (name) => name
-  .replace(/\s*\(free\)\s*/gi, '')
-  .replace(/\s*\(free tier\)\s*/gi, '')
-  .replace(/^coding[-_]/i, '')
-  .replace(/^xiaomi[-_]/i, '')
-  .trim();
+const normalizeName = (name) =>
+  name
+    .replace(/\s*\(free\)\s*/gi, '')
+    .replace(/\s*\(free tier\)\s*/gi, '')
+    .replace(/^coding[-_]/i, '')
+    .replace(/^xiaomi[-_]/i, '')
+    .trim();
 
 test('strips (free) suffix', () => {
   assert.strictEqual(normalizeName('GPT-4 (free)'), 'GPT-4');
@@ -54,7 +55,12 @@ test('handles plain name', () => {
 // ── import-modelsdev.js: slugify ──
 console.log('\n=== import-modelsdev.js: slugify ===');
 
-const slugify = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').replace(/-{2,}/g, '-');
+const slugify = (name) =>
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .replace(/-{2,}/g, '-');
 
 test('lowercases and hyphenates', () => {
   assert.strictEqual(slugify('GPT-4 Turbo'), 'gpt-4-turbo');
@@ -73,9 +79,14 @@ console.log('\n=== import-modelsdev.js: no masterId bug ===');
 
 test('source file does not contain masterId variable', () => {
   const fs = require('fs');
-  const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'import-modelsdev.js'), 'utf8');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'import-modelsdev.js'),
+    'utf8',
+  );
   // The INSERT query should reference superId, not masterId
-  const insertMatch = src.match(/const \{ rows: dpIns \} = await client\.query\([\s\S]*?\[([^\]]+)\]/);
+  const insertMatch = src.match(
+    /const \{ rows: dpIns \} = await client\.query\([\s\S]*?\[([^\]]+)\]/,
+  );
   assert.ok(insertMatch, 'INSERT query found');
   assert.ok(!insertMatch[1].includes('masterId'), 'masterId should not appear in INSERT values');
   assert.ok(insertMatch[1].includes('superId'), 'superId should appear in INSERT values');
@@ -83,7 +94,10 @@ test('source file does not contain masterId variable', () => {
 
 test('source file uses supersMatched (not mastersMatched) in log', () => {
   const fs = require('fs');
-  const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'import-modelsdev.js'), 'utf8');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'import-modelsdev.js'),
+    'utf8',
+  );
   assert.ok(!src.includes('mastersMatched'), 'mastersMatched should not appear in source');
   assert.ok(src.includes('supersMatched'), 'supersMatched should appear in source');
 });
@@ -93,16 +107,25 @@ console.log('\n=== sync-models.js: await on getGroqModels ===');
 
 test('getGroqModels call is awaited', () => {
   const fs = require('fs');
-  const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'sync-models.js'), 'utf8');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'sync-models.js'),
+    'utf8',
+  );
   // Find the line that assigns groqModels
   const groqAssign = src.match(/const groqModels = .*/);
   assert.ok(groqAssign, 'groqModels assignment found');
-  assert.ok(groqAssign[0].includes('await'), `groqModels assignment should use await: "${groqAssign[0].trim()}"`);
+  assert.ok(
+    groqAssign[0].includes('await'),
+    `groqModels assignment should use await: "${groqAssign[0].trim()}"`,
+  );
 });
 
 test('getGroqModels is declared as async', () => {
   const fs = require('fs');
-  const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'sync-models.js'), 'utf8');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'sync-models.js'),
+    'utf8',
+  );
   assert.ok(src.includes('async function getGroqModels'), 'getGroqModels should be declared async');
 });
 
@@ -111,9 +134,14 @@ console.log('\n=== sync-models.js: auth file error handling ===');
 
 test('auth file read is wrapped in try/catch', () => {
   const fs = require('fs');
-  const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'sync-models.js'), 'utf8');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'sync-models.js'),
+    'utf8',
+  );
   // Find the auth reading block - should have try/catch, not bare readFileSync
-  const authBlock = src.match(/let auth;[\s\S]*?auth = JSON\.parse[\s\S]*?} catch[\s\S]*?process\.exit\(1\)/);
+  const authBlock = src.match(
+    /let auth;[\s\S]*?auth = JSON\.parse[\s\S]*?} catch[\s\S]*?process\.exit\(1\)/,
+  );
   assert.ok(authBlock, 'auth file read should be wrapped in try/catch with process.exit(1)');
 });
 
@@ -121,7 +149,8 @@ test('auth file read is wrapped in try/catch', () => {
 console.log('\n=== sync-models.js: normalizeModelSlug ===');
 
 const normalizeModelSlug = (name) => {
-  let slug = name.toLowerCase()
+  let slug = name
+    .toLowerCase()
     .replace(/\(free\)/g, '')
     .replace(/\(free tier\)/g, '')
     .replace(/^coding-/, '')
@@ -155,7 +184,10 @@ console.log('\n=== server/routes/data.js: error sanitization ===');
 
 test('/api/data does not leak err.message to client', () => {
   const fs = require('fs');
-  const src = fs.readFileSync(require('path').join(__dirname, '..', 'server', 'routes', 'data.js'), 'utf8');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'server', 'routes', 'data.js'),
+    'utf8',
+  );
   // Find all res.json responses - none should contain err.message
   const responseMatches = src.match(/res\.status\(\d+\)\.json\(\{[^}]+\}\)/g) || [];
   for (const match of responseMatches) {
@@ -165,10 +197,15 @@ test('/api/data does not leak err.message to client', () => {
 
 test('/api/health does not leak err.message to client', () => {
   const fs = require('fs');
-  const src = fs.readFileSync(require('path').join(__dirname, '..', 'server', 'routes', 'data.js'), 'utf8');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'server', 'routes', 'data.js'),
+    'utf8',
+  );
   // The health endpoint should return generic message
-  assert.ok(src.includes("'Database unavailable'") || src.includes('"Database unavailable"'),
-    'Health endpoint should return generic "Database unavailable" message');
+  assert.ok(
+    src.includes("'Database unavailable'") || src.includes('"Database unavailable"'),
+    'Health endpoint should return generic "Database unavailable" message',
+  );
 });
 
 // ── server/index.js: has error middleware ──
@@ -177,7 +214,10 @@ console.log('\n=== server/index.js: error middleware ===');
 test('Express error-handling middleware exists', () => {
   const fs = require('fs');
   const src = fs.readFileSync(require('path').join(__dirname, '..', 'server', 'index.js'), 'utf8');
-  assert.ok(src.includes('app.use((err, req, res, next)'), 'Error middleware with (err, req, res, next) signature should exist');
+  assert.ok(
+    src.includes('app.use((err, req, res, next)'),
+    'Error middleware with (err, req, res, next) signature should exist',
+  );
   assert.ok(src.includes('500'), 'Error middleware should return 500 status');
 });
 
@@ -186,7 +226,10 @@ console.log('\n=== nightly-maintenance.js: pool cleanup ===');
 
 test('pool is closed before process.exit(0) on rollback', () => {
   const fs = require('fs');
-  const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'nightly-maintenance.js'), 'utf8');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'nightly-maintenance.js'),
+    'utf8',
+  );
   // Find the rollback block - pool.end() should come before process.exit(0)
   const rollbackBlock = src.match(/shouldRollback[\s\S]*?process\.exit\(0\)/);
   assert.ok(rollbackBlock, 'Rollback block found');
@@ -199,15 +242,23 @@ test('pool is closed before process.exit(0) on rollback', () => {
 
 test('summary log generation is wrapped in try/catch', () => {
   const fs = require('fs');
-  const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'nightly-maintenance.js'), 'utf8');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'nightly-maintenance.js'),
+    'utf8',
+  );
   // The model-summary.js execSync should be inside a try/catch
-  const summaryBlock = src.match(/10\. Generate summary log[\s\S]*?execSync\('node scripts\/model-summary\.js'/);
+  const summaryBlock = src.match(
+    /10\. Generate summary log[\s\S]*?execSync\('node scripts\/model-summary\.js'/,
+  );
   assert.ok(summaryBlock, 'Summary log generation block found');
   // Check that the broader context has try/catch
   const contextStart = src.indexOf('10. Generate summary log');
   const contextEnd = src.indexOf('exportJson()', contextStart);
   const context = src.slice(contextStart, contextEnd);
-  assert.ok(context.includes('try {') && context.includes('catch'), 'Summary generation should be in try/catch');
+  assert.ok(
+    context.includes('try {') && context.includes('catch'),
+    'Summary generation should be in try/catch',
+  );
 });
 
 // ── backfill-context.js: auth file error handling ──
@@ -215,7 +266,10 @@ console.log('\n=== backfill-context.js: auth file error handling ===');
 
 test('auth file read is wrapped in try/catch', () => {
   const fs = require('fs');
-  const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'backfill-context.js'), 'utf8');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'backfill-context.js'),
+    'utf8',
+  );
   // Should have try/catch around the auth read (catches and re-throws; outer .catch handles exit)
   const authReadPattern = /let auth;\s*try\s*\{[\s\S]*?auth = JSON\.parse[\s\S]*?\} catch/m;
   assert.ok(authReadPattern.test(src), 'auth file read should be wrapped in try/catch');
@@ -226,7 +280,10 @@ console.log('\n=== validate-free-models.js: status_result coverage ===');
 
 test('handles all 5 status_result values in test summary', () => {
   const fs = require('fs');
-  const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'validate-free-models.js'), 'utf8');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'validate-free-models.js'),
+    'utf8',
+  );
   // loadFromDb uses ts.working, ts.rate_limited, ts.broken, ts.untested, ts.not_found
   assert.ok(src.includes('ts.not_found'), 'Should have ts.not_found array in loadFromDb');
   // The apply section should handle all statuses including not_found
@@ -241,7 +298,10 @@ console.log('\n=== import-modelsdev-backfill.js: variable names ===');
 
 test('uses row.super_id (not masterId) for INSERT', () => {
   const fs = require('fs');
-  const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'import-modelsdev-backfill.js'), 'utf8');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'import-modelsdev-backfill.js'),
+    'utf8',
+  );
   // The INSERT should reference row.super_id
   const insertMatch = src.match(/VALUES \(\$1,\$2,\$3,\$4,\$5[^)]+\)/);
   assert.ok(insertMatch, 'INSERT VALUES found');

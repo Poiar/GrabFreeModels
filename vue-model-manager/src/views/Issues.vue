@@ -6,15 +6,15 @@
     </div>
 
     <div v-if="store.loading" class="card">
-      <div class="empty-state-inner" style="padding: 24px;">
-        <div class="empty-state-icon" style="font-size: 2rem;">⏳</div>
+      <div class="empty-state-inner" style="padding: 24px">
+        <div class="empty-state-icon" style="font-size: 2rem">⏳</div>
         <p>Loading issues…</p>
       </div>
     </div>
 
     <div v-else-if="store.error" class="card">
-      <div class="empty-state-inner" style="padding: 24px;">
-        <div class="empty-state-icon" style="font-size: 2rem;">⚠️</div>
+      <div class="empty-state-inner" style="padding: 24px">
+        <div class="empty-state-icon" style="font-size: 2rem">⚠️</div>
         <p>Failed to load issues: {{ store.error }}</p>
         <button class="refresh-btn" @click="store.loadData()">Retry</button>
       </div>
@@ -26,29 +26,70 @@
         v-for="sev in severityCounts"
         :key="sev.severity"
         class="severity-pill"
-        :class="[`severity-pill-${sev.severity}`, { active: activeSeverityFilter === sev.severity }]"
+        :class="[
+          `severity-pill-${sev.severity}`,
+          { active: activeSeverityFilter === sev.severity },
+        ]"
         @click="toggleSeverityFilter(sev.severity)"
       >
         <span class="severity-dot" :class="`severity-dot-${sev.severity}`"></span>
         <span class="severity-label">{{ sev.severity }}</span>
         <span class="severity-count">{{ sev.count }}</span>
       </div>
-      <button v-if="activeSeverityFilter" class="severity-clear" @click="activeSeverityFilter = null">
+      <button
+        v-if="activeSeverityFilter"
+        class="severity-clear"
+        @click="activeSeverityFilter = null"
+      >
         Clear filter
       </button>
     </div>
 
-    <div v-if="!store.loading && !store.error && filteredIssues.length === 0 && store.knownIssues.length === 0" class="card">
-      <div class="empty-state-inner" style="padding: 24px;">
-        <svg class="empty-state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <div
+      v-if="
+        !store.loading &&
+        !store.error &&
+        filteredIssues.length === 0 &&
+        store.knownIssues.length === 0
+      "
+      class="card"
+    >
+      <div class="empty-state-inner" style="padding: 24px">
+        <svg
+          class="empty-state-icon"
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
         <h3>All clear!</h3>
         <p>No known issues — everything is working as expected.</p>
       </div>
     </div>
 
     <div v-else-if="!store.loading && !store.error && filteredIssues.length === 0" class="card">
-      <div class="empty-state-inner" style="padding: 24px;">
-        <svg class="empty-state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <div class="empty-state-inner" style="padding: 24px">
+        <svg
+          class="empty-state-icon"
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
         <h3>No matching issues</h3>
         <p>No issues match the selected severity filters.</p>
         <button class="clear-btn" @click="activeSeverityFilter = null">Clear filter</button>
@@ -63,7 +104,12 @@
         <option value="severity">Severity</option>
         <option value="model_id">Model ID</option>
       </select>
-      <button class="sort-dir-btn" @click="issuesSortDesc = !issuesSortDesc" :title="issuesSortDesc ? 'Descending' : 'Ascending'" :aria-label="issuesSortDesc ? 'Sort descending' : 'Sort ascending'">
+      <button
+        class="sort-dir-btn"
+        :title="issuesSortDesc ? 'Descending' : 'Ascending'"
+        :aria-label="issuesSortDesc ? 'Sort descending' : 'Sort ascending'"
+        @click="issuesSortDesc = !issuesSortDesc"
+      >
         {{ issuesSortDesc ? '↓' : '↑' }}
       </button>
     </div>
@@ -77,30 +123,70 @@
       <div class="issue-severity-bar" :class="`issue-severity-bar-${issue.severity}`"></div>
       <div class="issue-content">
         <div class="issue-header">
-           <span class="model-id">{{ issue.model_id }}</span>
-           <span v-if="store.getModelWithSupportTools(issue.model_id)?.supports_tools === true" class="badge badge-tools-yes" title="Supports tool calling">tools</span>
-           <span v-else-if="store.getModelWithSupportTools(issue.model_id)?.supports_tools === false" class="badge badge-tools-no" title="No tool calling">no tools</span>
-           <span class="badge" :class="`badge-severity-${issue.severity}`">
-             {{ issue.severity }}
-           </span>
+          <span class="model-id">{{ issue.model_id }}</span>
+          <span
+            v-if="store.getModelWithSupportTools(issue.model_id)?.supports_tools === true"
+            class="badge badge-tools-yes"
+            title="Supports tool calling"
+            >tools</span
+          >
+          <span
+            v-else-if="store.getModelWithSupportTools(issue.model_id)?.supports_tools === false"
+            class="badge badge-tools-no"
+            title="No tool calling"
+            >no tools</span
+          >
+          <span class="badge" :class="`badge-severity-${issue.severity}`">
+            {{ issue.severity }}
+          </span>
         </div>
         <div class="issue-body">
           <p class="issue-title">{{ issue.issue }}</p>
           <div class="issue-details">
             <div class="issue-detail-row">
               <span class="detail-icon">
-                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <svg
+                  aria-hidden="true"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
               </span>
               <span class="label">Impact</span>
               <span class="value">{{ issue.impact }}</span>
             </div>
-              <div class="issue-detail-row">
-               <span class="detail-icon">
-                 <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-               </span>
-               <span class="label">Workaround</span>
-               <span class="value">{{ issue.workaround }}</span>
-             </div>
+            <div class="issue-detail-row">
+              <span class="detail-icon">
+                <svg
+                  aria-hidden="true"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+                  />
+                </svg>
+              </span>
+              <span class="label">Workaround</span>
+              <span class="value">{{ issue.workaround }}</span>
+            </div>
           </div>
           <p class="issue-dates">
             <span>Reported: {{ issue.reported }}</span>
@@ -114,58 +200,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useModelsStore } from '@/store/models'
-import type { KnownIssue } from '@/types'
+import { ref, computed } from 'vue';
+import { useModelsStore } from '@/store/models';
+import type { KnownIssue } from '@/types';
 
-const store = useModelsStore()
-const activeSeverityFilter = ref<string | null>(null)
-const issuesSortBy = ref('reported')
-const issuesSortDesc = ref(true)
+const store = useModelsStore();
+const activeSeverityFilter = ref<string | null>(null);
+const issuesSortBy = ref('reported');
+const issuesSortDesc = ref(true);
 
-const severityOrder = ['critical', 'high', 'moderate', 'low'] as const
+const severityOrder = ['critical', 'high', 'moderate', 'low'] as const;
 
-const severityRank: Record<string, number> = { critical: 0, high: 1, moderate: 2, low: 3 }
+const severityRank: Record<string, number> = { critical: 0, high: 1, moderate: 2, low: 3 };
 
 const severityCounts = computed(() => {
-  const counts: Record<string, number> = {}
+  const counts: Record<string, number> = {};
   for (const issue of store.knownIssues) {
-    counts[issue.severity] = (counts[issue.severity] || 0) + 1
+    counts[issue.severity] = (counts[issue.severity] || 0) + 1;
   }
-  return severityOrder
-    .filter(s => counts[s])
-    .map(s => ({ severity: s, count: counts[s] }))
-})
+  return severityOrder.filter((s) => counts[s]).map((s) => ({ severity: s, count: counts[s] }));
+});
 
 const filteredIssues = computed(() => {
-  const issues = store.knownIssues
-  if (!activeSeverityFilter.value) return issues
-  return issues.filter(i => i.severity === activeSeverityFilter.value)
-})
+  const issues = store.knownIssues;
+  if (!activeSeverityFilter.value) return issues;
+  return issues.filter((i) => i.severity === activeSeverityFilter.value);
+});
 
 const sortedIssues = computed((): KnownIssue[] => {
-  const sorted = [...filteredIssues.value]
-  const dir = issuesSortDesc.value ? -1 : 1
+  const sorted = [...filteredIssues.value];
+  const dir = issuesSortDesc.value ? -1 : 1;
   sorted.sort((a, b) => {
     switch (issuesSortBy.value) {
       case 'severity':
-        return dir * ((severityRank[a.severity] ?? 9) - (severityRank[b.severity] ?? 9))
+        return dir * ((severityRank[a.severity] ?? 9) - (severityRank[b.severity] ?? 9));
       case 'model_id':
-        return dir * a.model_id.localeCompare(b.model_id)
+        return dir * a.model_id.localeCompare(b.model_id);
       case 'last_verified':
-        return dir * ((a.last_verified ?? '').localeCompare(b.last_verified ?? ''))
+        return dir * (a.last_verified ?? '').localeCompare(b.last_verified ?? '');
       default:
-        return dir * (a.reported ?? '').localeCompare(b.reported ?? '')
+        return dir * (a.reported ?? '').localeCompare(b.reported ?? '');
     }
-  })
-  return sorted
-})
+  });
+  return sorted;
+});
 
 function toggleSeverityFilter(severity: string) {
   if (activeSeverityFilter.value === severity) {
-    activeSeverityFilter.value = null
+    activeSeverityFilter.value = null;
   } else {
-    activeSeverityFilter.value = severity
+    activeSeverityFilter.value = severity;
   }
 }
 </script>
@@ -244,10 +328,26 @@ function toggleSeverityFilter(severity: string) {
   box-shadow: var(--shadow-md);
 }
 
-.severity-pill-critical.active { border-color: var(--red); background: var(--red-subtle); color: var(--red); }
-.severity-pill-high.active { border-color: var(--red-dim); background: var(--red-subtle); color: var(--red-dim); }
-.severity-pill-moderate.active { border-color: var(--orange); background: var(--orange-subtle); color: var(--orange); }
-.severity-pill-low.active { border-color: var(--accent); background: var(--accent-subtle); color: var(--accent); }
+.severity-pill-critical.active {
+  border-color: var(--red);
+  background: var(--red-subtle);
+  color: var(--red);
+}
+.severity-pill-high.active {
+  border-color: var(--red-dim);
+  background: var(--red-subtle);
+  color: var(--red-dim);
+}
+.severity-pill-moderate.active {
+  border-color: var(--orange);
+  background: var(--orange-subtle);
+  color: var(--orange);
+}
+.severity-pill-low.active {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
 
 .severity-dot {
   width: 8px;
@@ -256,10 +356,19 @@ function toggleSeverityFilter(severity: string) {
   flex-shrink: 0;
 }
 
-.severity-dot-critical { background: var(--red); box-shadow: 0 0 6px var(--red-glow); }
-.severity-dot-high { background: var(--red-dim); }
-.severity-dot-moderate { background: var(--orange); }
-.severity-dot-low { background: var(--accent); }
+.severity-dot-critical {
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red-glow);
+}
+.severity-dot-high {
+  background: var(--red-dim);
+}
+.severity-dot-moderate {
+  background: var(--orange);
+}
+.severity-dot-low {
+  background: var(--accent);
+}
 
 .severity-count {
   font-weight: 700;
@@ -313,10 +422,18 @@ function toggleSeverityFilter(severity: string) {
   width: 5px;
 }
 
-.issue-severity-bar-critical { background: var(--red); }
-.issue-severity-bar-high { background: var(--red-dim); }
-.issue-severity-bar-moderate { background: var(--orange); }
-.issue-severity-bar-low { background: var(--accent); }
+.issue-severity-bar-critical {
+  background: var(--red);
+}
+.issue-severity-bar-high {
+  background: var(--red-dim);
+}
+.issue-severity-bar-moderate {
+  background: var(--orange);
+}
+.issue-severity-bar-low {
+  background: var(--accent);
+}
 
 .issue-content {
   flex: 1;
@@ -374,12 +491,40 @@ function toggleSeverityFilter(severity: string) {
   color: var(--text);
 }
 
-.badge-tools-yes { border-color: var(--green); background: var(--green-subtle); color: var(--green); font-size: 0.6rem; padding: 2px 8px; }
-.badge-tools-no { border-color: var(--red); background: rgba(239,68,68,0.1); color: var(--red); font-size: 0.6rem; padding: 2px 8px; }
-.badge-severity-critical { border-color: var(--red); background: rgba(248,81,73,0.12); color: var(--red); }
-.badge-severity-high { border-color: var(--red-dim); background: rgba(248,81,73,0.08); color: var(--red-dim); }
-.badge-severity-moderate { border-color: var(--orange); background: rgba(210,153,34,0.12); color: var(--orange); }
-.badge-severity-low { border-color: var(--accent); background: rgba(88,166,255,0.12); color: var(--accent); }
+.badge-tools-yes {
+  border-color: var(--green);
+  background: var(--green-subtle);
+  color: var(--green);
+  font-size: 0.6rem;
+  padding: 2px 8px;
+}
+.badge-tools-no {
+  border-color: var(--red);
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--red);
+  font-size: 0.6rem;
+  padding: 2px 8px;
+}
+.badge-severity-critical {
+  border-color: var(--red);
+  background: rgba(248, 81, 73, 0.12);
+  color: var(--red);
+}
+.badge-severity-high {
+  border-color: var(--red-dim);
+  background: rgba(248, 81, 73, 0.08);
+  color: var(--red-dim);
+}
+.badge-severity-moderate {
+  border-color: var(--orange);
+  background: rgba(210, 153, 34, 0.12);
+  color: var(--orange);
+}
+.badge-severity-low {
+  border-color: var(--accent);
+  background: rgba(88, 166, 255, 0.12);
+  color: var(--accent);
+}
 
 .issue-dates {
   font-size: 0.7rem;
@@ -402,7 +547,9 @@ function toggleSeverityFilter(severity: string) {
     padding-bottom: 4px;
     scrollbar-width: none;
   }
-  .severity-bar::-webkit-scrollbar { display: none; }
+  .severity-bar::-webkit-scrollbar {
+    display: none;
+  }
 
   .severity-pill {
     flex-shrink: 0;

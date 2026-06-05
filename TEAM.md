@@ -3,6 +3,7 @@
 ## Team Roster
 
 ### 1. UI/UX Lead
+
 - **Owns:** Vue 3 SPA (`vue-model-manager/`), user flows, accessibility, visual design
 - **Key files:** `vue-model-manager/src/`, `vue-gotchas` skill
 - **Responsibilities:**
@@ -13,6 +14,7 @@
 - **Escalation:** Performance Lead (render bottlenecks), Code Quality Lead (anti-patterns)
 
 ### 2. Performance Lead
+
 - **Owns:** API response times, DB query optimization, bundle size, caching
 - **Key files:** `server/index.js`, `load-models.js`, `rank-models.js`
 - **Responsibilities:**
@@ -23,6 +25,7 @@
 - **Escalation:** Scraping Lead (slow external fetches), Security Lead (rate limiting)
 
 ### 3. Scraping Lead
+
 - **Owns:** External data ingestion from model providers
 - **Key files:** `sync-models.js`, `extract-modelsdev.js`, `extract-groq.js`, `extract-openrouter-categories.js`, `snapshot-openrouter-catalog.js`
 - **Responsibilities:**
@@ -33,6 +36,7 @@
 - **Escalation:** Security Lead (API key rotation, bot detection), Performance Lead (timeouts)
 
 ### 4. Security Lead
+
 - **Owns:** Secret management, auth, CI security, dependency audits
 - **Key files:** `secret-scanning` skill, `get-auth-key.js`, `sync-auth-keys.js`, `auth.json`
 - **Responsibilities:**
@@ -44,6 +48,7 @@
 - **Escalation:** Scraping Lead (credential issues), Code Quality Lead (vulnerable deps)
 
 ### 5. QA Lead
+
 - **Owns:** Test coverage, validation pipelines, bug triage
 - **Key files:** `validate-free-models.js`, `health-check.js`, `nightly-maintenance.js`, `playwright-test` skill
 - **Responsibilities:**
@@ -55,6 +60,7 @@
 - **Escalation:** Code Quality Lead (test gaps), Performance Lead (flaky timeouts)
 
 ### 6. Code Quality Lead
+
 - **Owns:** Linting, review standards, refactoring, architecture decisions
 - **Key skills:** `requesting-code-review`, `systematic-debugging`, `test-driven-development`
 - **Responsibilities:**
@@ -66,6 +72,7 @@
 - **Escalation:** Security Lead (vulnerable patterns), UI/UX Lead (component architecture)
 
 ### 7. Memory Management Lead
+
 - **Owns:** Persistent context, session memory, cross-session knowledge
 - **Key tools:** `memory` tool, `session_search`, `AGENTS.md`
 - **Responsibilities:**
@@ -78,6 +85,7 @@
 - **Escalation:** Skill Management Lead (outdated skills causing bad memory)
 
 ### 8. Skill Management Lead
+
 - **Owns:** Skill lifecycle — create, patch, deprecate, consolidate
 - **Key tools:** `skill_manage`, `skill_view`, `skills_list`
 - **Responsibilities:**
@@ -91,14 +99,14 @@
 
 ## Cross-Cutting Workflows
 
-| Workflow                      | Leads Involved                                  |
-|-------------------------------|------------------------------------------------|
-| New model provider onboarding | Scraping → QA → Performance → Code Quality     |
-| Security incident             | Security → Scraping → Code Quality → Memory    |
-| Nightly pipeline failure      | QA → Performance → Scraping → Code Quality     |
-| Vue feature development       | UI/UX → Code Quality → QA → Performance        |
-| Skill deprecation             | Skill Mgmt → Memory → Code Quality             |
-| Auth/key rotation             | Security → Scraping → QA                       |
+| Workflow                      | Leads Involved                              |
+| ----------------------------- | ------------------------------------------- |
+| New model provider onboarding | Scraping → QA → Performance → Code Quality  |
+| Security incident             | Security → Scraping → Code Quality → Memory |
+| Nightly pipeline failure      | QA → Performance → Scraping → Code Quality  |
+| Vue feature development       | UI/UX → Code Quality → QA → Performance     |
+| Skill deprecation             | Skill Mgmt → Memory → Code Quality          |
+| Auth/key rotation             | Security → Scraping → QA                    |
 
 ## Escalation Order
 

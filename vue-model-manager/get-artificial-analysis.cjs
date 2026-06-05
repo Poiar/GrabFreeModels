@@ -1,5 +1,4 @@
 const { chromium } = require('playwright');
-const fs = require('fs');
 
 (async () => {
   const browser = await chromium.launch();
@@ -15,7 +14,7 @@ const fs = require('fs');
           const body = await response.text();
           apiCalls.push({ url, body: body.slice(0, 20000) });
         }
-      } catch(e) {}
+      } catch {}
     }
   });
 

@@ -1,8 +1,8 @@
 ---
-name: "backend-engineer"
+name: 'backend-engineer'
 description: "Use this agent for backend and API engineering — Express server design, route architecture, middleware patterns, error handling strategy, API contract design, server configuration, and Node.js script module architecture. Triggers: 'API', 'Express', 'server', 'route', 'middleware', 'endpoint', 'backend', 'script architecture', 'module design'."
 model: sonnet
-color: "#008080"
+color: '#008080'
 memory: project
 ---
 
@@ -65,6 +65,7 @@ You are a Senior Backend Engineer specialized in Node.js API design, Express ser
 **🔧 Recommendation** — Specific code change with before/after
 
 ## Self-Verification Checklist
+
 - [ ] API response shape matches what Vue store expects
 - [ ] Error responses don't leak stack traces or DB internals
 - [ ] CORS configuration is intentional and documented

@@ -9,14 +9,14 @@ description: Use when testing or updating free model statuses. Triggers: "valida
 
 ## API Model ID Resolution
 
-| Stored (`full_id`) | API | API model ID |
-|---|---|---|
-| `openrouter/provider/model:free` | openrouter.ai | `provider/model:free` |
-| `openrouter/owl-alpha` | openrouter.ai | `owl-alpha` |
-| `nvidia/meta/llama-4-maverick` | integrate.api.nvidia.com | `meta/llama-4-maverick` |
-| `huggingface/moonshotai/Kimi-K2` | router.huggingface.co | `moonshotai/Kimi-K2` |
-| `deepseek/deepseek-v4-flash` | deepseek.com | `deepseek-v4-flash` |
-| `opencode/big-pickle` | opencode.ai/zen/v1 | `big-pickle` |
+| Stored (`full_id`)               | API                      | API model ID            |
+| -------------------------------- | ------------------------ | ----------------------- |
+| `openrouter/provider/model:free` | openrouter.ai            | `provider/model:free`   |
+| `openrouter/owl-alpha`           | openrouter.ai            | `owl-alpha`             |
+| `nvidia/meta/llama-4-maverick`   | integrate.api.nvidia.com | `meta/llama-4-maverick` |
+| `huggingface/moonshotai/Kimi-K2` | router.huggingface.co    | `moonshotai/Kimi-K2`    |
+| `deepseek/deepseek-v4-flash`     | deepseek.com             | `deepseek-v4-flash`     |
+| `opencode/big-pickle`            | opencode.ai/zen/v1       | `big-pickle`            |
 
 Strip provider prefix; keep `nvidia/` if the result starts with `nvidia/`. OpenRouter free models: `:free` suffix OR zero pricing.
 

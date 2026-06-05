@@ -82,6 +82,7 @@ The current GrabFreeModels UI treats providers as second-class citizens (badges 
 ```
 
 **Key changes from current:**
+
 - `creators[]` replaces flat `models[]` as the primary response body
 - Each creator contains `models[]`, each model contains `providers[]`
 - `providers[]` is a flat reference array at top level (for dashboard, filtering)
@@ -128,6 +129,7 @@ New landing page. Replaces the current Dashboard as the default route.
 Opens when clicking a model card. Slides in from the right (like current `ModelDetail.vue`).
 
 **Top section:**
+
 ```
 [←] Gemini 3 Flash  [Google]  [close]
 
@@ -138,11 +140,11 @@ Best For: general, multimodal
 
 **Provider comparison table (Mastra-style):**
 
-| Provider | Context | Tools | Reasoning | Image | Audio | Input $/1M | Output $/1M | Status | Last Success |
-|---|---|---|---|---|---|---|---|---|---|
-| OpenRouter | 1.0M | ✓ | ✓ | ✓ | — | $0 | $0 | 🟢 working | 2h ago |
-| Google | 1.0M | ✓ | ✓ | ✓ | — | Free | Free | 🟢 working | 1h ago |
-| Groq | 8K | ✓ | — | — | — | Free | Free | 🟡 rate-limited | 3d ago |
+| Provider   | Context | Tools | Reasoning | Image | Audio | Input $/1M | Output $/1M | Status          | Last Success |
+| ---------- | ------- | ----- | --------- | ----- | ----- | ---------- | ----------- | --------------- | ------------ |
+| OpenRouter | 1.0M    | ✓     | ✓         | ✓     | —     | $0         | $0          | 🟢 working      | 2h ago       |
+| Google     | 1.0M    | ✓     | ✓         | ✓     | —     | Free       | Free        | 🟢 working      | 1h ago       |
+| Groq       | 8K      | ✓     | —         | —     | —     | Free       | Free        | 🟡 rate-limited | 3d ago       |
 
 - All existing capability columns (input_types, output_types, features) rendered as ✓/— icons
 - Pricing formatted to show "Free" when $0
@@ -150,6 +152,7 @@ Best For: general, multimodal
 - Sortable by any column
 
 **Bottom sections:**
+
 - Known issues (if any for this model or providers)
 - Raw metadata (collapsible)
 - Previous/Next navigation between models
@@ -167,10 +170,12 @@ Secondary route. Ecosystem-level overview:
 ### 5. Creator Pages (`/creators` → `/creator/:id`)
 
 **Creator list (`/creators`):**
+
 - Grid of creator cards: name, model count, provider count, top model
 - Click to drill into creator detail
 
 **Creator detail (`/creator/:id`):**
+
 - Header: creator name, total models, total providers
 - Model table: all models from this creator, each with a provider strip (same format as main view)
 - Cross-model provider analysis: which providers carry the most models? which is cheapest overall?
@@ -184,15 +189,16 @@ Secondary route. Ecosystem-level overview:
 └────────────────────────────────────────────┘
 ```
 
-| Route | Purpose | Notes |
-|---|---|---|
-| `/` | Main model list | New landing page |
-| `/dashboard` | Ecosystem overview | Was `/`, now secondary |
-| `/creators` | Creator list | New |
-| `/creator/:id` | Creator detail | New |
-| `/issues` | Known issues | Largely unchanged |
+| Route          | Purpose            | Notes                  |
+| -------------- | ------------------ | ---------------------- |
+| `/`            | Main model list    | New landing page       |
+| `/dashboard`   | Ecosystem overview | Was `/`, now secondary |
+| `/creators`    | Creator list       | New                    |
+| `/creator/:id` | Creator detail     | New                    |
+| `/issues`      | Known issues       | Largely unchanged      |
 
 **Deprecated views (removed):**
+
 - `/free`, `/paid` → replaced by Free/Paid toggle on main view
 - `/all` → replaced by main view (which already shows all models)
 - `/models` (SuperModels list) → replaced by main view
@@ -249,12 +255,14 @@ interface ModelsData {
 ## Implementation Notes
 
 ### Data layer changes
+
 - `scripts/build-models-data.js`: Restructure output from flat array to `creators[]` hierarchy. Compute `best_*` and `cheapest_*` fields per model. Build `providers[]` reference array with aggregated stats.
   - **Creator slug normalization:** `author` strings (e.g., "Google LLC", "Meta Platforms, Inc.") are normalized to slugs via a deterministic `slugify()` function: lowercase, strip common legal suffixes ("LLC", "Inc.", "Ltd.", "Corp.", "PBC", "Inc"), replace spaces/special chars with hyphens. The `name` field retains the original display name. A small override map handles known edge cases (e.g., "Google LLC" → `{ id: "google", name: "Google" }`).
 - `server/routes/data.js`: No structural changes needed — just passes through the new shape from builder.
 - API consumers: The fallback to `/available-models.json` needs the same shape.
 
 ### Frontend changes
+
 - Pinia store: Rewrite to consume `creators[]` hierarchy. Computed properties now work at creator/model/provider levels.
 - New components: `ModelCard.vue`, `ProviderStrip.vue`, `ProviderBlock.vue`, `ProviderTable.vue`, `CreatorGrid.vue`, `CreatorDetail.vue`
 - Modified components: `ModelDetail.vue` (redesign), `Dashboard.vue` (redesign)
@@ -263,9 +271,11 @@ interface ModelsData {
 - Keep `QueryBuilder.vue`, `FilterBar.vue` if JQL filtering is retained (likely not — replace with simple search + filter chips)
 
 ### Routing changes
+
 - `vue-model-manager/src/router/index.ts`: New routes for `/`, `/dashboard`, `/creators`, `/creator/:id`, `/issues`
 
 ### Preserved functionality
+
 - Role rankings (now shown per model in card header and detail panel)
 - Validation status (shown as status dots and in provider table)
 - JQL filtering → replaced with simpler search + filter chips
@@ -277,10 +287,12 @@ interface ModelsData {
 ## Trade-offs
 
 **Why hierarchical API vs flat:**
+
 - Hierarchical is the natural shape for the new UI. Computing hierarchy on the frontend would duplicate logic across views and make the store bloated.
 - Downside: requires changes to `build-models-data.js` and the JSON fallback file.
 
 **Why remove 7 views:**
+
 - Free/Paid/All are just filter variants of the same list — a toggle on the main view handles this.
 - SuperModels list and detail are replaced by the new model-centric view and slide-out panel.
 - Family/Author were string-grouping hacks — creator pages do the same thing but with proper entity semantics.

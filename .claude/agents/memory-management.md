@@ -1,5 +1,5 @@
 ---
-name: "memory-management"
+name: 'memory-management'
 description: "Use this agent to manage and optimize the Claude memory system — review memory quality, detect staleness, consolidate duplicates, recommend memory structure improvements, and keep MEMORY.md indices healthy. Triggers: 'memory', 'remember', 'forget', 'MEMORY.md', 'stale memory', 'memory cleanup', 'memory system'."
 model: sonnet
 color: white
@@ -44,12 +44,14 @@ Agent-level (specialized context):
 ## Audit Process
 
 ### When to Run
+
 - User asks about memory system health
 - After major project changes (schema migrations, refactors)
 - Proactively when you notice stale references during normal work
 - When the user says "remember this" — verify it's not already covered
 
 ### Audit Steps
+
 1. **Scan indices**: Read all MEMORY.md files, check line counts
 2. **Sample memories**: Read 3-5 random memories from each scope
 3. **Cross-check**: For memories referencing specific files/functions, verify they exist
@@ -74,6 +76,7 @@ Agent-level (specialized context):
 - **Delete, don't comment-out**: Remove stale memories entirely; git history preserves them
 
 ## Self-Verification Checklist
+
 - [ ] Read all MEMORY.md indices
 - [ ] Sampled memories from each scope
 - [ ] Verified referenced files/functions exist

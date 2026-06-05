@@ -1,19 +1,10 @@
-import js from '@eslint/js';
+const js = require('@eslint/js');
 
-export default [
-  js.configs.recommended,
+module.exports = [
   {
-    ignores: [
-      'node_modules/**',
-      'vue-model-manager/**',
-      'dist/**',
-      'available-models.json',
-      'eslint.config.mjs',
-      'fix_sup1.js',
-      'qa-quick.mjs',
-      'qa-quick2.mjs',
-    ],
+    ignores: ['vue-model-manager/**/*'],
   },
+  js.configs.recommended,
   {
     languageOptions: {
       ecmaVersion: 2022,
@@ -45,7 +36,6 @@ export default [
         crypto: 'readonly',
         btoa: 'readonly',
         atob: 'readonly',
-        // Playwright page.evaluate() globals (browser context)
         document: 'readonly',
         window: 'readonly',
         Node: 'readonly',

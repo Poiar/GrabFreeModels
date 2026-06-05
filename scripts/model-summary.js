@@ -11,10 +11,10 @@ const loadModels = require('./load-models');
 (async () => {
   const json = await loadModels();
 
-  const free = json.models.filter(m => m.is_free);
-  const working = free.filter(m => m.status.result === 'working');
-  const rateLimited = free.filter(m => m.status.result === 'rate_limited');
-  const broken = free.filter(m => m.status.result === 'broken');
+  const free = json.models.filter((m) => m.is_free);
+  const working = free.filter((m) => m.status.result === 'working');
+  const rateLimited = free.filter((m) => m.status.result === 'rate_limited');
+  const broken = free.filter((m) => m.status.result === 'broken');
 
   console.log(`Free models: ${free.length}`);
   console.log(`  Working: ${working.length}`);
@@ -30,4 +30,7 @@ const loadModels = require('./load-models');
       console.log(`  ${role}: ${list.length}`);
     }
   }
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

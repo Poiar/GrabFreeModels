@@ -20,7 +20,14 @@ const modelsdevModels = raw.models;
 const connectionString = process.env.DATABASE_URL;
 const pool = connectionString
   ? new Pool({ connectionString, ssl: { rejectUnauthorized: false }, max: 3 })
-  : new Pool({ host: process.env.PGHOST || 'localhost', port: parseInt(process.env.PGPORT || '5432', 10), user: process.env.PGUSER, password: process.env.PGPASSWORD, database: process.env.PGDATABASE, max: 3 });
+  : new Pool({
+      host: process.env.PGHOST || 'localhost',
+      port: parseInt(process.env.PGPORT || '5432', 10),
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+      max: 3,
+    });
 
 function normalizeName(name) {
   return name
@@ -32,7 +39,11 @@ function normalizeName(name) {
 }
 
 function slugify(name) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').replace(/-{2,}/g, '-');
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .replace(/-{2,}/g, '-');
 }
 
 (async () => {
@@ -42,9 +53,11 @@ function slugify(name) {
 
     // 1. Ensure modelsdev provider
     await client.query(
-      `INSERT INTO datapoint_providers (slug, name, base_url) VALUES ('modelsdev','models.dev','https://models.dev') ON CONFLICT (slug) DO NOTHING`
+      `INSERT INTO datapoint_providers (slug, name, base_url) VALUES ('modelsdev','models.dev','https://models.dev') ON CONFLICT (slug) DO NOTHING`,
     );
-    const { rows: pr } = await client.query("SELECT id FROM datapoint_providers WHERE slug = 'modelsdev'");
+    const { rows: pr } = await client.query(
+      "SELECT id FROM datapoint_providers WHERE slug = 'modelsdev'",
+    );
     const provId = pr[0].id;
 
     // 2. Build existing lookups
@@ -60,7 +73,11 @@ function slugify(name) {
     }
     console.log(`Existing supers: ${existingMm.length}`);
 
-    let supersCreated = 0, supersMatched = 0, dpsCreated = 0, dpsSkipped = 0, errors = 0;
+    let supersCreated = 0,
+      supersMatched = 0,
+      dpsCreated = 0,
+      dpsSkipped = 0,
+      errors = 0;
 
     for (const m of modelsdevModels) {
       const cleanName = normalizeName(m.modelName);
@@ -70,8 +87,14 @@ function slugify(name) {
 
       try {
         // Check if this modelsdev datapoint already inserted
-        const { rows: existDp } = await client.query('SELECT 1 FROM datapoint_models WHERE full_id = $1', [fullId]);
-        if (existDp.length > 0) { dpsSkipped++; continue; }
+        const { rows: existDp } = await client.query(
+          'SELECT 1 FROM datapoint_models WHERE full_id = $1',
+          [fullId],
+        );
+        if (existDp.length > 0) {
+          dpsSkipped++;
+          continue;
+        }
 
         // Find or create super
         let super_ = bySlug.get(slug) || byNorm.get(cleanName.toLowerCase());
@@ -81,12 +104,15 @@ function slugify(name) {
           superId = super_.id;
           supersMatched++;
         } else {
-          if (!APPLY) { supersCreated++; continue; }
+          if (!APPLY) {
+            supersCreated++;
+            continue;
+          }
           const { rows: ins } = await client.query(
             `INSERT INTO super_models (name, slug) VALUES ($1,$2)
              ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
              RETURNING id`,
-            [cleanName, slug]
+            [cleanName, slug],
           );
           superId = ins[0].id;
           bySlug.set(slug, { id: superId });
@@ -105,10 +131,13 @@ function slugify(name) {
            VALUES ($1,$2,$3,$4,$5,0::numeric,0::numeric,true,$6,'untested','From models.dev')
            ON CONFLICT (datapoint_provider_id, remote_id) DO NOTHING
            RETURNING id`,
-           [superId, provId, m.modelId, fullId, ctxLen, m.toolCall ?? null]
+          [superId, provId, m.modelId, fullId, ctxLen, m.toolCall ?? null],
         );
 
-        if (dpIns.length === 0) { dpsSkipped++; continue; }
+        if (dpIns.length === 0) {
+          dpsSkipped++;
+          continue;
+        }
         const dpId = dpIns[0].id;
 
         // Features
@@ -123,7 +152,7 @@ function slugify(name) {
         for (const [ft, fv] of featRows) {
           await client.query(
             'INSERT INTO datapoint_model_features (datapoint_model_id, feature_type, value) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING',
-            [dpId, ft, fv]
+            [dpId, ft, fv],
           );
         }
 
@@ -132,7 +161,7 @@ function slugify(name) {
           for (const it of m.input) {
             await client.query(
               'INSERT INTO datapoint_model_input_types (datapoint_model_id, input_type) VALUES ($1,$2) ON CONFLICT DO NOTHING',
-              [dpId, it]
+              [dpId, it],
             );
           }
         }
@@ -140,7 +169,7 @@ function slugify(name) {
           for (const ot of m.output) {
             await client.query(
               'INSERT INTO datapoint_model_output_types (datapoint_model_id, output_type) VALUES ($1,$2) ON CONFLICT DO NOTHING',
-              [dpId, ot]
+              [dpId, ot],
             );
           }
         }
@@ -163,7 +192,7 @@ function slugify(name) {
     } else {
       // Final counts
       const { rows: cnt } = await client.query(
-        "SELECT COUNT(DISTINCT mm.id) FROM super_models mm JOIN datapoint_models dm ON dm.super_model_id = mm.id JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id WHERE dp.slug = 'modelsdev'"
+        "SELECT COUNT(DISTINCT mm.id) FROM super_models mm JOIN datapoint_models dm ON dm.super_model_id = mm.id JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id WHERE dp.slug = 'modelsdev'",
       );
       console.log(`\nSupers with modelsdev datapoint: ${cnt[0].count}`);
     }
@@ -171,4 +200,7 @@ function slugify(name) {
     client.release();
     await pool.end();
   }
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

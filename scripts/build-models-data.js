@@ -11,11 +11,16 @@
  */
 
 async function buildModelsData(client, pool) {
-  const { rows: metadataRows } = await client.query('SELECT key, value::text FROM metadata ORDER BY key');
+  const { rows: metadataRows } = await client.query(
+    'SELECT key, value::text FROM metadata ORDER BY key',
+  );
   const meta = {};
   for (const r of metadataRows) {
-    try { meta[r.key] = JSON.parse(r.value); }
-    catch { meta[r.key] = r.value; }
+    try {
+      meta[r.key] = JSON.parse(r.value);
+    } catch {
+      meta[r.key] = r.value;
+    }
   }
 
   const { rows: dmRows } = await client.query(`
@@ -27,18 +32,38 @@ async function buildModelsData(client, pool) {
     ORDER BY mm.name, dp.name
   `);
 
-  const dmIds = dmRows.map(r => r.id);
+  const dmIds = dmRows.map((r) => r.id);
   const inputMap = new Map();
   const outputMap = new Map();
   const featMap = new Map();
-  const knownFeatures = ['best_for', 'tag', 'supports_reasoning', 'output_limit', 'temperature', 'open_weights', 'family', 'knowledge_cutoff', 'release_date', 'last_updated'];
+  const knownFeatures = [
+    'best_for',
+    'tag',
+    'supports_reasoning',
+    'output_limit',
+    'temperature',
+    'open_weights',
+    'family',
+    'knowledge_cutoff',
+    'release_date',
+    'last_updated',
+  ];
 
   if (dmIds.length > 0) {
     const useClient = pool || client;
     const [inputResult, outputResult, featResult] = await Promise.all([
-      useClient.query('SELECT datapoint_model_id, input_type FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1)', [dmIds]),
-      useClient.query('SELECT datapoint_model_id, output_type FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1)', [dmIds]),
-      useClient.query('SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)', [dmIds]),
+      useClient.query(
+        'SELECT datapoint_model_id, input_type FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1)',
+        [dmIds],
+      ),
+      useClient.query(
+        'SELECT datapoint_model_id, output_type FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1)',
+        [dmIds],
+      ),
+      useClient.query(
+        'SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)',
+        [dmIds],
+      ),
     ]);
 
     for (const r of inputResult.rows) {
@@ -81,7 +106,8 @@ async function buildModelsData(client, pool) {
       output_price_per_million: Number(dm.output_price_per_million) || 0,
       is_free: dm.is_free,
       supports_tools: dm.supports_tools,
-      supports_reasoning: feat?.supports_reasoning?.[0] === undefined ? null : feat.supports_reasoning[0] === 'true',
+      supports_reasoning:
+        feat?.supports_reasoning?.[0] === undefined ? null : feat.supports_reasoning[0] === 'true',
       output_limit: feat?.output_limit?.[0] ? parseInt(feat.output_limit[0], 10) : null,
       temperature: feat?.temperature?.[0] === undefined ? null : feat.temperature[0] === 'true',
       open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
@@ -107,9 +133,11 @@ async function buildModelsData(client, pool) {
 
     const ctx_val = entry.context_length ? entry.context_length / CTX_NORM : -0.5;
     const toolsBonus = entry.supports_tools === true ? 2 : 0;
-    const codingTags = (entry.best_for || []).some(t =>
-      /\b(cod|programm|agentic|reasoning|tool use|function calling|refactor)\b/i.test(t)
-    ) ? 1.5 : 0;
+    const codingTags = (entry.best_for || []).some((t) =>
+      /\b(cod|programm|agentic|reasoning|tool use|function calling|refactor)\b/i.test(t),
+    )
+      ? 1.5
+      : 0;
     entry.priority_score = Math.round((ctx_val * 1.0 + toolsBonus + codingTags) * 100) / 100;
 
     outputModels.push(entry);
@@ -124,42 +152,42 @@ async function buildModelsData(client, pool) {
 
   const AUTHOR_OVERRIDES = {
     'google llc': { id: 'google', name: 'Google' },
-    'google': { id: 'google', name: 'Google' },
+    google: { id: 'google', name: 'Google' },
     'meta platforms, inc.': { id: 'meta', name: 'Meta' },
     'meta platforms inc.': { id: 'meta', name: 'Meta' },
-    'meta': { id: 'meta', name: 'Meta' },
-    'anthropic': { id: 'anthropic', name: 'Anthropic' },
+    meta: { id: 'meta', name: 'Meta' },
+    anthropic: { id: 'anthropic', name: 'Anthropic' },
     'anthropic, pbc': { id: 'anthropic', name: 'Anthropic' },
-    'openai': { id: 'openai', name: 'OpenAI' },
+    openai: { id: 'openai', name: 'OpenAI' },
     'openai, llc.': { id: 'openai', name: 'OpenAI' },
     'mistral ai': { id: 'mistral', name: 'Mistral' },
     'mistral ai, pbc': { id: 'mistral', name: 'Mistral' },
-    'deepseek': { id: 'deepseek', name: 'DeepSeek' },
+    deepseek: { id: 'deepseek', name: 'DeepSeek' },
     'alibaba group': { id: 'alibaba', name: 'Alibaba' },
     'alibaba cloud': { id: 'alibaba', name: 'Alibaba' },
-    'nvidia': { id: 'nvidia', name: 'NVIDIA' },
+    nvidia: { id: 'nvidia', name: 'NVIDIA' },
     'nvidia corporation': { id: 'nvidia', name: 'NVIDIA' },
-    'cohere': { id: 'cohere', name: 'Cohere' },
+    cohere: { id: 'cohere', name: 'Cohere' },
     'cohere inc.': { id: 'cohere', name: 'Cohere' },
-    'microsoft': { id: 'microsoft', name: 'Microsoft' },
+    microsoft: { id: 'microsoft', name: 'Microsoft' },
     'microsoft corporation': { id: 'microsoft', name: 'Microsoft' },
-    'xai': { id: 'xai', name: 'xAI' },
+    xai: { id: 'xai', name: 'xAI' },
     'xai corp': { id: 'xai', name: 'xAI' },
     'zhipu ai': { id: 'zhipu', name: 'Zhipu AI' },
     '01-ai': { id: '01-ai', name: '01.AI' },
-    'minimax': { id: 'minimax', name: 'MiniMax' },
+    minimax: { id: 'minimax', name: 'MiniMax' },
     'minimax group': { id: 'minimax', name: 'MiniMax' },
     'moonshot ai': { id: 'moonshot', name: 'Moonshot AI' },
-    'stepfun': { id: 'stepfun', name: 'StepFun' },
-    'bytedance': { id: 'bytedance', name: 'ByteDance' },
-    'tencent': { id: 'tencent', name: 'Tencent' },
+    stepfun: { id: 'stepfun', name: 'StepFun' },
+    bytedance: { id: 'bytedance', name: 'ByteDance' },
+    tencent: { id: 'tencent', name: 'Tencent' },
     'tencent cloud': { id: 'tencent', name: 'Tencent' },
-    'baidu': { id: 'baidu', name: 'Baidu' },
+    baidu: { id: 'baidu', name: 'Baidu' },
     'inflection ai': { id: 'inflection', name: 'Inflection' },
     'stability ai': { id: 'stability', name: 'Stability AI' },
-    'eleutherai': { id: 'eleutherai', name: 'EleutherAI' },
-    'qwq': { id: 'qwen', name: 'Qwen' },
-    'qwen': { id: 'qwen', name: 'Qwen' },
+    eleutherai: { id: 'eleutherai', name: 'EleutherAI' },
+    qwq: { id: 'qwen', name: 'Qwen' },
+    qwen: { id: 'qwen', name: 'Qwen' },
     'alibaba tongyi lab': { id: 'qwen', name: 'Qwen' },
   };
 
@@ -203,7 +231,10 @@ async function buildModelsData(client, pool) {
       creator.modelMap.set(dp.super_id, {
         super_id: dp.super_id,
         name: dp.super_name,
-        slug: (dp.super_name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+        slug: (dp.super_name || '')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, ''),
         family: dp.family,
         best_for: [...(dp.best_for || [])],
         best_context: dp.context_length || 0,
@@ -249,7 +280,7 @@ async function buildModelsData(client, pool) {
     if (dp.output_price_per_million < model.cheapest_output_price) {
       model.cheapest_output_price = dp.output_price_per_million;
     }
-    for (const tag of (dp.best_for || [])) {
+    for (const tag of dp.best_for || []) {
       if (!model.best_for.includes(tag)) model.best_for.push(tag);
     }
   }
@@ -259,7 +290,7 @@ async function buildModelsData(client, pool) {
   for (const [role, ids] of Object.entries(roleRankingsRaw)) {
     if (!Array.isArray(ids) || role.startsWith('_')) continue;
     for (const fullId of ids) {
-      const dp = outputModels.find(m => m.id === fullId);
+      const dp = outputModels.find((m) => m.id === fullId);
       if (dp) {
         const key = `${dp.super_id}`;
         if (!roleRankingBySuperId[key]) roleRankingBySuperId[key] = {};
@@ -273,9 +304,9 @@ async function buildModelsData(client, pool) {
 
   // Assemble creators array
   const creators = Array.from(creatorMap.values())
-    .map(creator => {
+    .map((creator) => {
       const models = Array.from(creator.modelMap.values())
-        .map(model => ({
+        .map((model) => ({
           super_id: model.super_id,
           name: model.name,
           slug: model.slug,
@@ -286,6 +317,7 @@ async function buildModelsData(client, pool) {
           cheapest_output_price: model.cheapest_output_price,
           role_rankings: roleRankingBySuperId[`${model.super_id}`] || {},
           providers: model.providers,
+        models: outputModels,
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -323,31 +355,35 @@ async function buildModelsData(client, pool) {
   }
 
   const PROVIDER_BASE_URLS = {
-    'openrouter': 'https://openrouter.ai/api/v1',
-    'nvidia': 'https://integrate.api.nvidia.com/v1',
-    'cerebras': 'https://api.cerebras.ai/v1',
-    'groq': 'https://api.groq.com/openai/v1',
-    'togetherai': 'https://api.together.xyz/v1',
-    'mistral': 'https://api.mistral.ai/v1',
-    'deepseek': 'https://api.deepseek.com/v1',
-    'huggingface': 'https://api-inference.huggingface.co/v1',
-    'google': 'https://generativelanguage.googleapis.com/v1beta',
-    'openai': 'https://api.openai.com/v1',
-    'anthropic': 'https://api.anthropic.com/v1',
+    openrouter: 'https://openrouter.ai/api/v1',
+    nvidia: 'https://integrate.api.nvidia.com/v1',
+    cerebras: 'https://api.cerebras.ai/v1',
+    groq: 'https://api.groq.com/openai/v1',
+    togetherai: 'https://api.together.xyz/v1',
+    mistral: 'https://api.mistral.ai/v1',
+    deepseek: 'https://api.deepseek.com/v1',
+    huggingface: 'https://api-inference.huggingface.co/v1',
+    google: 'https://generativelanguage.googleapis.com/v1beta',
+    openai: 'https://api.openai.com/v1',
+    anthropic: 'https://api.anthropic.com/v1',
   };
 
   const providers = Array.from(providerRefMap.values())
-    .map(ref => ({
+    .map((ref) => ({
       ...ref,
       base_url: PROVIDER_BASE_URLS[ref.slug] || '',
-      health_status: ref.working_count === ref.model_count && ref.model_count > 0 ? 'healthy'
-        : ref.working_count > 0 ? 'degraded' : 'down',
+      health_status:
+        ref.working_count === ref.model_count && ref.model_count > 0
+          ? 'healthy'
+          : ref.working_count > 0
+            ? 'degraded'
+            : 'down',
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
   // Model scores
   const { rows: scoreRows } = await client.query(
-    'SELECT dm.full_id, ms.source, ms.score_type, ms.score_value FROM model_scores ms JOIN datapoint_models dm ON dm.id = ms.datapoint_model_id'
+    'SELECT dm.full_id, ms.source, ms.score_type, ms.score_value FROM model_scores ms JOIN datapoint_models dm ON dm.id = ms.datapoint_model_id',
   );
   const scoreMap = {};
   for (const r of scoreRows) {
@@ -363,7 +399,8 @@ async function buildModelsData(client, pool) {
   const health = {};
   for (const m of outputModels) {
     if (!m.is_free) continue;
-    if (!health[m.provider]) health[m.provider] = { working: 0, rate_limited: 0, broken: 0, total: 0 };
+    if (!health[m.provider])
+      health[m.provider] = { working: 0, rate_limited: 0, broken: 0, total: 0 };
     health[m.provider].total++;
     if (m.status.result === 'working') health[m.provider].working++;
     else if (m.status.result === 'rate_limited') health[m.provider].rate_limited++;
@@ -373,11 +410,24 @@ async function buildModelsData(client, pool) {
   return {
     creators,
     providers,
+        models: outputModels,
     _test_summary: {
       date: new Date().toISOString().slice(0, 10),
-      results: { working: workingIds, rate_limited: rateLimitedIds, broken: brokenIds, untested: untestedIds },
+      results: {
+        working: workingIds,
+        rate_limited: rateLimitedIds,
+        broken: brokenIds,
+        untested: untestedIds,
+      },
     },
-    _role_rankings: meta._role_rankings || { description: '', model: [], build: [], general: [], small_model: [], explore: [], stable: [] },
+    _role_rankings: meta._role_rankings || {
+      description: '',
+      model: [],
+      build: [],
+      general: [],
+      small_model: [],
+      explore: [],
+    },
     _model_scores: {
       description: 'External benchmark scores by source',
       sources: ['artificial_analysis'],

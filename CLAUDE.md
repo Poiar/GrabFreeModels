@@ -91,17 +91,17 @@ npm run summary          # Text overview of model counts and ranking sizes
 
 ## Key files
 
-| File | Role |
-|------|------|
-| `db/schema.sql` | Canonical schema + seed data (v2) |
-| `scripts/build-models-data.js` | Shared data builder — builds ModelsData from PG |
-| `scripts/sync-models.js` | Fetch free models from providers, diff against DB |
-| `scripts/validate-free-models.js` | Test models against live APIs |
-| `scripts/rank-models.js` | Deterministic role ranking algorithm |
-| `scripts/nightly-maintenance.js` | Full nightly pipeline orchestrator |
-| `server/db.js` | Postgres pool (Neon-aware) |
-| `server/routes/data.js` | API routes (`/api/data`, `/api/health`) |
-| `vue-model-manager/src/store/models.ts` | Pinia store — fetches + derives all model data |
-| `vue-model-manager/src/types.ts` | TypeScript interfaces matching the API response shape |
-| `vue-model-manager/vite.config.ts` | Vite config with `/api` proxy + port-kill plugin |
-| `package.json` | Root scripts — most operations have npm run wrappers |
+| File                                    | Role                                                  |
+| --------------------------------------- | ----------------------------------------------------- |
+| `db/schema.sql`                         | Canonical schema + seed data (v2)                     |
+| `scripts/build-models-data.js`          | Shared data builder — builds ModelsData from PG       |
+| `scripts/sync-models.js`                | Fetch free models from providers, diff against DB     |
+| `scripts/validate-free-models.js`       | Test models against live APIs                         |
+| `scripts/rank-models.js`                | Deterministic role ranking algorithm                  |
+| `scripts/nightly-maintenance.js`        | Full nightly pipeline orchestrator                    |
+| `server/db.js`                          | Postgres pool (Neon-aware)                            |
+| `server/routes/data.js`                 | API routes (`/api/data`, `/api/health`)               |
+| `vue-model-manager/src/store/models.ts` | Pinia store — fetches + derives all model data        |
+| `vue-model-manager/src/types.ts`        | TypeScript interfaces matching the API response shape |
+| `vue-model-manager/vite.config.ts`      | Vite config with `/api` proxy + port-kill plugin      |
+| `package.json`                          | Root scripts — most operations have npm run wrappers  |

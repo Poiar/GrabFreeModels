@@ -4,10 +4,20 @@
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
     <!-- Mobile top bar -->
-    <MobileHeader :open="mobileDrawerOpen" :theme="theme" @toggle="mobileDrawerOpen = !mobileDrawerOpen" @toggle-theme="toggleTheme" />
+    <MobileHeader
+      :open="mobileDrawerOpen"
+      :theme="theme"
+      @toggle="mobileDrawerOpen = !mobileDrawerOpen"
+      @toggle-theme="toggleTheme"
+    />
 
     <!-- Sidebar backdrop (mobile only) -->
-    <div class="sidebar-backdrop" :class="{ visible: mobileDrawerOpen }" @click="mobileDrawerOpen = false" aria-hidden="true"></div>
+    <div
+      class="sidebar-backdrop"
+      :class="{ visible: mobileDrawerOpen }"
+      aria-hidden="true"
+      @click="mobileDrawerOpen = false"
+    ></div>
 
     <aside class="sidebar" :class="{ 'drawer-open': mobileDrawerOpen }">
       <div class="brand">
@@ -22,48 +32,183 @@
       <nav aria-label="Main navigation">
         <router-link to="/" active-class="active">
           <span class="nav-icon">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+              />
+            </svg>
           </span>
           <span>Models</span>
         </router-link>
         <router-link to="/dashboard" active-class="active">
           <span class="nav-icon">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
           </span>
           <span>Dashboard</span>
         </router-link>
         <router-link to="/creators" active-class="active">
           <span class="nav-icon">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
           </span>
           <span>Creators</span>
         </router-link>
         <router-link to="/issues" active-class="active">
           <span class="nav-icon">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
           </span>
           <span>Issues</span>
         </router-link>
       </nav>
 
       <div class="sidebar-footer">
-        <div class="footer-status" v-if="store.lastLoaded">
+        <div v-if="store.lastLoaded" class="footer-status">
           <span class="status-dot" :class="{ 'is-stale': store.isStale }"></span>
           <span>Updated {{ timeAgo(store.lastLoaded) }}</span>
         </div>
         <div class="footer-actions">
-          <button class="theme-toggle" @click="toggleTheme" :title="theme === 'dark' ? 'Switch to light mode (T)' : 'Switch to dark mode (T)'" :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'" :aria-pressed="theme !== 'dark'">
-            <svg aria-hidden="true" v-if="theme === 'dark'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-            <svg aria-hidden="true" v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <button
+            class="theme-toggle"
+            :title="theme === 'dark' ? 'Switch to light mode (T)' : 'Switch to dark mode (T)'"
+            :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+            :aria-pressed="theme !== 'dark'"
+            @click="toggleTheme"
+          >
+            <svg
+              v-if="theme === 'dark'"
+              aria-hidden="true"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+            <svg
+              v-else
+              aria-hidden="true"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
           </button>
-          <button @click="store.loadData()" class="refresh-btn" :disabled="store.loading">
-            <svg aria-hidden="true" v-if="!store.loading" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+          <button class="refresh-btn" :disabled="store.loading" @click="store.loadData()">
+            <svg
+              v-if="!store.loading"
+              aria-hidden="true"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+              <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+              <path d="M16 21h5v-5" />
+            </svg>
             <span v-else class="btn-spinner"></span>
             {{ store.loading ? 'Loading…' : 'Refresh' }}
           </button>
         </div>
-        <button class="footer-shortcuts-hint" @click="shortcutsModalOpen = true" title="Keyboard shortcuts (?)">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="6" y1="16" x2="6" y2="16"/><line x1="18" y1="16" x2="18" y2="16"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+        <button
+          class="footer-shortcuts-hint"
+          title="Keyboard shortcuts (?)"
+          @click="shortcutsModalOpen = true"
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="2" y="4" width="20" height="16" rx="2" />
+            <line x1="6" y1="8" x2="6" y2="8" />
+            <line x1="10" y1="8" x2="10" y2="8" />
+            <line x1="14" y1="8" x2="14" y2="8" />
+            <line x1="18" y1="8" x2="18" y2="8" />
+            <line x1="8" y1="12" x2="16" y2="12" />
+            <line x1="6" y1="16" x2="6" y2="16" />
+            <line x1="18" y1="16" x2="18" y2="16" />
+            <line x1="10" y1="16" x2="14" y2="16" />
+          </svg>
           <span>? shortcuts</span>
         </button>
       </div>
@@ -79,7 +224,7 @@
         <p v-if="store.lastLoaded" class="error-last-loaded">
           Last successful load: {{ timeAgo(store.lastLoaded) }}
         </p>
-        <button @click="store.loadData()" class="refresh-btn">Retry</button>
+        <button class="refresh-btn" @click="store.loadData()">Retry</button>
       </div>
       <router-view v-else v-slot="{ Component }">
         <transition name="fade" mode="out-in">
@@ -97,50 +242,53 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { useModelsStore } from '@/store/models'
-import { useTheme } from '@/composables/useTheme'
-import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
-import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal.vue'
-import ToastContainer from '@/components/ToastContainer.vue'
-import SkeletonLoader from '@/components/SkeletonLoader.vue'
-import MobileHeader from '@/components/MobileHeader.vue'
+import { onMounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { useModelsStore } from '@/store/models';
+import { useTheme } from '@/composables/useTheme';
+import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts';
+import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal.vue';
+import ToastContainer from '@/components/ToastContainer.vue';
+import SkeletonLoader from '@/components/SkeletonLoader.vue';
+import MobileHeader from '@/components/MobileHeader.vue';
 
-const route = useRoute()
-const store = useModelsStore()
-const { theme, toggle: toggleTheme } = useTheme()
-const { shortcutsModalOpen } = useKeyboardShortcuts()
+const route = useRoute();
+const store = useModelsStore();
+const { theme, toggle: toggleTheme } = useTheme();
+const { shortcutsModalOpen } = useKeyboardShortcuts();
 
-const mobileDrawerOpen = ref(false)
+const mobileDrawerOpen = ref(false);
 
 // Close drawer on route change
-watch(() => route.path, () => { mobileDrawerOpen.value = false })
+watch(
+  () => route.path,
+  () => {
+    mobileDrawerOpen.value = false;
+  },
+);
 
 // Close drawer on Escape key
 function onKey(e: KeyboardEvent) {
   if (e.key === 'Escape' && mobileDrawerOpen.value) {
-    mobileDrawerOpen.value = false
+    mobileDrawerOpen.value = false;
   }
 }
 onMounted(() => {
-  document.addEventListener('keydown', onKey)
-})
+  document.addEventListener('keydown', onKey);
+});
 
-onMounted(() => store.loadData())
+onMounted(() => store.loadData());
 
 function timeAgo(date: Date): string {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
-  if (seconds < 60) return 'just now'
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  return `${days}d ago`
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
 }
-
-
 </script>
 
 <style scoped>
@@ -217,7 +365,7 @@ function timeAgo(date: Date): string {
 .btn-spinner {
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;

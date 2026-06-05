@@ -14,7 +14,7 @@ const { chromium } = require('playwright');
           const body = await response.text();
           apiCalls.push({ url, body: body.slice(0, 10000) });
         }
-      } catch(e) {}
+      } catch {}
     }
   });
 

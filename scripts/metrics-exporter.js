@@ -44,7 +44,7 @@ async function getMetrics() {
   lines.push('# HELP model_provider_broken Number of broken free models per provider');
   lines.push('# TYPE model_provider_broken gauge');
 
-  const free = json.models.filter(m => m.is_free);
+  const free = json.models.filter((m) => m.is_free);
   const providers = {};
   for (const m of free) {
     if (!providers[m.provider]) providers[m.provider] = [];
@@ -52,9 +52,9 @@ async function getMetrics() {
   }
 
   for (const [provider, models] of Object.entries(providers)) {
-    const working = models.filter(m => m.status.result === 'working').length;
-    const rl = models.filter(m => m.status.result === 'rate_limited').length;
-    const broken = models.filter(m => m.status.result === 'broken').length;
+    const working = models.filter((m) => m.status.result === 'working').length;
+    const rl = models.filter((m) => m.status.result === 'rate_limited').length;
+    const broken = models.filter((m) => m.status.result === 'broken').length;
     const total = models.length;
 
     lines.push(`model_provider_working{provider="${provider}"} ${working}`);
@@ -63,11 +63,13 @@ async function getMetrics() {
     lines.push(`model_provider_broken{provider="${provider}"} ${broken}`);
   }
 
-  const totalWorking = free.filter(m => m.status.result === 'working').length;
+  const totalWorking = free.filter((m) => m.status.result === 'working').length;
   const totalFree = free.length;
   const ratio = totalFree > 0 ? totalWorking / totalFree : 0;
 
-  lines.push('# HELP model_overall_working_ratio Ratio of working free models to total free models');
+  lines.push(
+    '# HELP model_overall_working_ratio Ratio of working free models to total free models',
+  );
   lines.push('# TYPE model_overall_working_ratio gauge');
   lines.push(`model_overall_working_ratio ${ratio}`);
 

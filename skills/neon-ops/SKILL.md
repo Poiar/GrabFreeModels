@@ -28,12 +28,12 @@ SELECT key, value FROM metadata WHERE key LIKE '%ranking%' OR key LIKE '%issue%'
 
 ## Maintenance Scripts
 
-| Script | Purpose |
-|--------|---------|
-| `sync-models.js` | Fetch from providers, diff vs DB. `--apply` to write |
-| `validate-free-models.js` | Test APIs, auto re-rank on `--apply` |
-| `rank-models.js` | Rebuild `_role_rankings` |
-| `nightly-maintenance.js` | Full pipeline: validate → rank → commit |
+| Script                    | Purpose                                              |
+| ------------------------- | ---------------------------------------------------- |
+| `sync-models.js`          | Fetch from providers, diff vs DB. `--apply` to write |
+| `validate-free-models.js` | Test APIs, auto re-rank on `--apply`                 |
+| `rank-models.js`          | Rebuild `_role_rankings`                             |
+| `nightly-maintenance.js`  | Full pipeline: validate → rank → commit              |
 
 ## Gotchas
 

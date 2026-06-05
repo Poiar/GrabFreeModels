@@ -15,7 +15,10 @@ const path = require('path');
 
 const APPLY = process.argv.includes('--apply');
 const INPUT = path.join(__dirname, '..', 'data', 'openrouter-categories.json');
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
 (async () => {
   if (!fs.existsSync(INPUT)) {
@@ -37,20 +40,18 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejec
     for (const sm of scrapedModels) {
       // Scraped IDs have ":free" suffix; DB stores with "openrouter/" prefix
       const baseId = sm.modelId.replace(/:free$/, '');
-      const candidates = [
-        sm.modelId,
-        'openrouter/' + baseId,
-        'openrouter/' + sm.modelId,
-        baseId
-      ];
+      const candidates = [sm.modelId, 'openrouter/' + baseId, 'openrouter/' + sm.modelId, baseId];
 
       let dpId = null;
       for (const cid of candidates) {
         const { rows: dps } = await client.query(
           'SELECT id FROM datapoint_models WHERE full_id = $1 AND is_removed = false',
-          [cid]
+          [cid],
         );
-        if (dps.length > 0) { dpId = dps[0].id; break; }
+        if (dps.length > 0) {
+          dpId = dps[0].id;
+          break;
+        }
       }
 
       if (!dpId) {
@@ -62,9 +63,9 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejec
       // Get existing best_for entries for this model
       const { rows: existing } = await client.query(
         "SELECT value FROM datapoint_model_features WHERE datapoint_model_id = $1 AND feature_type = 'best_for'",
-        [dpId]
+        [dpId],
       );
-      const existingValues = new Set(existing.map(r => r.value));
+      const existingValues = new Set(existing.map((r) => r.value));
 
       // Strip ranking number: "Programming (#9)" -> "Programming"
       for (const cat of sm.categories) {
@@ -75,7 +76,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejec
         if (APPLY) {
           await client.query(
             "INSERT INTO datapoint_model_features (datapoint_model_id, feature_type, value) VALUES ($1, 'best_for', $2)",
-            [dpId, cleanName]
+            [dpId, cleanName],
           );
         }
         console.log('  + ' + sm.modelId + ' → ' + cleanName);
@@ -83,7 +84,9 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejec
     }
 
     console.log('\nResults:');
-    console.log('  New best_for entries: ' + newEntries + (APPLY ? ' (written)' : ' (would write)'));
+    console.log(
+      '  New best_for entries: ' + newEntries + (APPLY ? ' (written)' : ' (would write)'),
+    );
     console.log('  Skipped (not in DB): ' + skipped);
     console.log('  Total scraped:       ' + scrapedModels.length);
 

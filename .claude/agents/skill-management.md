@@ -1,5 +1,5 @@
 ---
-name: "skill-management"
+name: 'skill-management'
 description: "Use this agent to manage the project's skill ecosystem — create new skills, update existing skills, audit skill quality, ensure skills follow the lean files policy, and keep AGENTS.md skill index accurate. Triggers: 'skill', 'SKILL.md', 'create a skill', 'update skill', 'skill audit', 'skill ecosystem'."
 model: sonnet
 color: white
@@ -34,6 +34,7 @@ description: When to trigger this skill. Be specific about triggers and skip con
 Brief purpose (1-2 sentences).
 
 ## Core workflow / instructions
+
 ...
 ```
 
@@ -49,29 +50,30 @@ Brief purpose (1-2 sentences).
 
 ## Existing Skills (17 skills)
 
-| Skill | Domain | Status |
-|-------|--------|--------|
-| `test-model-auth` | Provider API keys, auth.json | Active |
-| `model-recommendations` | Model recommendation rules | Active |
-| `parallel-todos` | Parallel subagent task management | Active |
-| `validate-free-models` | Test/validate free model statuses | Active |
-| `sync-models` | Fetch latest free models from providers | Active |
-| `import-modelsdev` | Import models.dev → super_models + datapoint_models | Active |
-| `extract-modelsdev` | Scrape models.dev via Playwright | Active |
-| `validate-jsonc` | Validate opencode.jsonc syntax | Active |
-| `secret-scanning` | Gitleaks local scanning | Active |
-| `vue-gotchas` | Vue 3 + Pinia framework gotchas | Active |
-| `playwright-test` | Test/screenshot Vue frontend | Active |
-| `nightly-maintenance` | Full nightly validation pipeline | Active |
-| `metrics-exporter` | Prometheus metrics endpoint/service | Active |
-| `rank-models` | Rebuild _role_rankings scoring | Active |
-| `schema-v2` | DB schema documentation | Active |
-| `deepclaude` | Manage backends in deepclaude.ps1 | Active |
-| `neon-ops` | Neon database operations | Active |
+| Skill                   | Domain                                              | Status |
+| ----------------------- | --------------------------------------------------- | ------ |
+| `test-model-auth`       | Provider API keys, auth.json                        | Active |
+| `model-recommendations` | Model recommendation rules                          | Active |
+| `parallel-todos`        | Parallel subagent task management                   | Active |
+| `validate-free-models`  | Test/validate free model statuses                   | Active |
+| `sync-models`           | Fetch latest free models from providers             | Active |
+| `import-modelsdev`      | Import models.dev → super_models + datapoint_models | Active |
+| `extract-modelsdev`     | Scrape models.dev via Playwright                    | Active |
+| `validate-jsonc`        | Validate opencode.jsonc syntax                      | Active |
+| `secret-scanning`       | Gitleaks local scanning                             | Active |
+| `vue-gotchas`           | Vue 3 + Pinia framework gotchas                     | Active |
+| `playwright-test`       | Test/screenshot Vue frontend                        | Active |
+| `nightly-maintenance`   | Full nightly validation pipeline                    | Active |
+| `metrics-exporter`      | Prometheus metrics endpoint/service                 | Active |
+| `rank-models`           | Rebuild \_role_rankings scoring                     | Active |
+| `schema-v2`             | DB schema documentation                             | Active |
+| `deepclaude`            | Manage backends in deepclaude.ps1                   | Active |
+| `neon-ops`              | Neon database operations                            | Active |
 
 ## Skill Creation Checklist
 
 When creating a new skill:
+
 - [ ] **Clear trigger**: The description must specify exactly when to invoke (and when NOT to)
 - [ ] **Single domain**: One skill = one responsibility area
 - [ ] **No overlap**: Check existing skills for the same domain
@@ -83,6 +85,7 @@ When creating a new skill:
 ## Skill Deprecation Checklist
 
 When deprecating a skill:
+
 - [ ] Remove the `skills/<name>/` directory
 - [ ] Remove from AGENTS.md skill list
 - [ ] Update any skills or agents that reference it
@@ -98,6 +101,7 @@ When deprecating a skill:
 **➕ New Skill Proposal** — Frontmatter + structure for a new skill
 
 ## Self-Verification Checklist
+
 - [ ] All skills listed in AGENTS.md exist on disk
 - [ ] All skill directories on disk are listed in AGENTS.md
 - [ ] No two skills overlap in domain/triggers

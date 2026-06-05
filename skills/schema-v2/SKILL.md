@@ -9,14 +9,14 @@ description: Use when modifying the PostgreSQL schema, writing migrations, or un
 
 ## Tables
 
-| Table | Purpose |
-|---|---|
-| `super_models` | Abstract identity (`id`, `name`, `slug`) |
-| `datapoint_providers` | Sources (`slug`, `name`) |
-| `datapoint_models` | Per-provider instance (`super_model_id`, `datapoint_provider_id`, `remote_id`, `full_id`, status fields) |
-| `datapoint_model_features` | Tags/best_for as key-value rows |
-| `test_results` | Test history |
-| `metadata` | JSONB key-value store (rankings, etc.) |
+| Table                      | Purpose                                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `super_models`             | Abstract identity (`id`, `name`, `slug`)                                                                 |
+| `datapoint_providers`      | Sources (`slug`, `name`)                                                                                 |
+| `datapoint_models`         | Per-provider instance (`super_model_id`, `datapoint_provider_id`, `remote_id`, `full_id`, status fields) |
+| `datapoint_model_features` | Tags/best_for as key-value rows                                                                          |
+| `test_results`             | Test history                                                                                             |
+| `metadata`                 | JSONB key-value store (rankings, etc.)                                                                   |
 
 ## Key Decisions
 

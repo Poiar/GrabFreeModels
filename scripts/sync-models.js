@@ -12,6 +12,7 @@ const https = require('https');
 const http = require('http');
 const { Pool } = require('pg');
 const fs = require('fs');
+const logger = require('./utils/logger');
 const path = require('path');
 
 const APPLY = process.argv.includes('--apply');
@@ -46,7 +47,7 @@ let auth;
 try {
   auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
 } catch (e) {
-  console.error(`Failed to read auth file (${AUTH_FILE}): ${e.message}`);
+  logger.error(`Failed to read auth file (${AUTH_FILE}): ${e.message}`);
   process.exit(1);
 }
 
@@ -160,7 +161,11 @@ async function getNvidiaFreeModels() {
       if (excludePattern.test(m.id)) return false;
       return true;
     })
-    .map((m) => ({ id: `nvidia/${m.id.replace(/^nvidia\//, '')}`, name: m.id, context_length: m.context_length ?? null }));
+    .map((m) => ({
+      id: m.id.replace(/^nvidia\//, ''),
+      name: m.id,
+      context_length: m.context_length ?? null,
+    }));
 }
 
 async function getGoogleModels() {
@@ -195,7 +200,7 @@ async function getDeepSeekModels() {
 async function getGroqModels() {
   const groqJsonPath = path.join(__dirname, '..', 'groq-models.json');
   if (!fs.existsSync(groqJsonPath)) {
-    console.log('  (no groq-models.json found — run scripts/extract-groq.js first)');
+    logger.info('  (no groq-models.json found — run scripts/extract-groq.js first)');
     return [];
   }
   const raw = JSON.parse(fs.readFileSync(groqJsonPath, 'utf8'));
@@ -271,7 +276,7 @@ function normalizeModelSlug(name) {
 (async () => {
   const client = await pool.connect();
   try {
-    console.log('=== Syncing free models ===\n');
+    logger.info('=== Syncing free models ===\n');
 
     // Get existing free model IDs from datapoint_models
     const { rows: existingRows } = await client.query(`
@@ -280,9 +285,9 @@ function normalizeModelSlug(name) {
     const existingIds = new Set(existingRows.map((r) => r.full_id));
 
     // --- OpenRouter ---
-    console.log('[OpenRouter] Fetching...');
+    logger.info('[OpenRouter] Fetching...');
     const orModels = await getOpenRouterFreeModels();
-    console.log(`  Found ${orModels.length} free models`);
+    logger.info(`  Found ${orModels.length} free models`);
 
     const newOr = [];
     for (const m of orModels) {
@@ -297,32 +302,32 @@ function normalizeModelSlug(name) {
         });
       }
     }
-    console.log(`  New: ${newOr.length}`);
-    for (const n of newOr) console.log(`    + ${n.id}`);
+    logger.info(`  New: ${newOr.length}`);
+    for (const n of newOr) logger.info(`    + ${n.id}`);
 
     // --- Cerebras ---
-    console.log('\n[Cerebras] Fetching...');
+    logger.info('\n[Cerebras] Fetching...');
     let newCb = [];
     let cbModels = [];
     try {
       cbModels = await getCerebrasModels();
-      console.log(`  Found ${cbModels.length} models`);
+      logger.info(`  Found ${cbModels.length} models`);
       for (const m of cbModels) {
         if (!existingIds.has(m.id)) newCb.push(m);
       }
-      console.log(`  New: ${newCb.length}`);
-      for (const n of newCb) console.log(`    + ${n.id}`);
+      logger.info(`  New: ${newCb.length}`);
+      for (const n of newCb) logger.info(`    + ${n.id}`);
     } catch (e) {
-      console.log(`  ERROR: ${e.message}`);
+      logger.info(`  ERROR: ${e.message}`);
     }
 
     // --- NVIDIA ---
-    console.log('\n[NVIDIA] Fetching...');
+    logger.info('\n[NVIDIA] Fetching...');
     let newNv = [];
     let nvModels = [];
     try {
       nvModels = await getNvidiaFreeModels();
-      console.log(`  Found ${nvModels.length} free models`);
+      logger.info(`  Found ${nvModels.length} free models`);
       for (const m of nvModels) {
         const storedId = `nvidia/${m.id}`;
         if (!existingIds.has(storedId) && !existingIds.has(m.id)) {
@@ -334,14 +339,14 @@ function normalizeModelSlug(name) {
           });
         }
       }
-      console.log(`  New: ${newNv.length}`);
-      for (const n of newNv) console.log(`    + ${n.id}`);
+      logger.info(`  New: ${newNv.length}`);
+      for (const n of newNv) logger.info(`    + ${n.id}`);
     } catch (e) {
-      console.log(`  ERROR: ${e.message}`);
+      logger.info(`  ERROR: ${e.message}`);
     }
 
     // --- HuggingFace ---
-    console.log('\n[HuggingFace] Fetching...');
+    logger.info('\n[HuggingFace] Fetching...');
     let newHf = [];
     let hfFree = [];
     try {
@@ -365,77 +370,77 @@ function normalizeModelSlug(name) {
           });
         }
       }
-      console.log(`  Found ${hfFree.length} free models`);
+      logger.info(`  Found ${hfFree.length} free models`);
       for (const m of hfFree) {
         if (!existingIds.has(m.id)) newHf.push(m);
       }
-      console.log(`  New: ${newHf.length}`);
-      for (const n of newHf) console.log(`    + ${n.id}`);
+      logger.info(`  New: ${newHf.length}`);
+      for (const n of newHf) logger.info(`    + ${n.id}`);
     } catch (e) {
-      console.log(`  ERROR: ${e.message}`);
+      logger.info(`  ERROR: ${e.message}`);
     }
 
     // --- Google Gemini ---
-    console.log('\n[Google] Fetching...');
+    logger.info('\n[Google] Fetching...');
     let newGoogle = [];
     let googleModels = [];
     try {
       googleModels = await getGoogleModels();
-      console.log(`  Found ${googleModels.length} chat models`);
+      logger.info(`  Found ${googleModels.length} chat models`);
       for (const m of googleModels) {
         if (!existingIds.has(m.id)) newGoogle.push(m);
       }
-      console.log(`  New: ${newGoogle.length}`);
-      for (const n of newGoogle) console.log(`    + ${n.id}`);
+      logger.info(`  New: ${newGoogle.length}`);
+      for (const n of newGoogle) logger.info(`    + ${n.id}`);
     } catch (e) {
-      console.log(`  ERROR: ${e.message}`);
+      logger.info(`  ERROR: ${e.message}`);
     }
 
     // --- DeepSeek ---
-    console.log('\n[DeepSeek] Fetching...');
+    logger.info('\n[DeepSeek] Fetching...');
     let newDs = [];
     let dsModels = [];
     try {
       dsModels = await getDeepSeekModels();
-      console.log(`  Found ${dsModels.length} models`);
+      logger.info(`  Found ${dsModels.length} models`);
       for (const m of dsModels) {
         if (!existingIds.has(m.id)) newDs.push(m);
       }
-      console.log(`  New: ${newDs.length}`);
-      for (const n of newDs) console.log(`    + ${n.id}`);
+      logger.info(`  New: ${newDs.length}`);
+      for (const n of newDs) logger.info(`    + ${n.id}`);
     } catch (e) {
-      console.log(`  ERROR: ${e.message}`);
+      logger.info(`  ERROR: ${e.message}`);
     }
 
     // --- Groq ---
-    console.log('\n[Groq] Fetching...');
+    logger.info('\n[Groq] Fetching...');
     let newGroq = [];
     const groqModels = await getGroqModels();
-    console.log(`  Found ${groqModels.length} free models`);
+    logger.info(`  Found ${groqModels.length} free models`);
     for (const m of groqModels) {
       if (!existingIds.has(m.id)) newGroq.push(m);
     }
-    console.log(`  New: ${newGroq.length}`);
-    for (const n of newGroq) console.log(`    + ${n.id}`);
+    logger.info(`  New: ${newGroq.length}`);
+    for (const n of newGroq) logger.info(`    + ${n.id}`);
 
     // --- OpenCode ---
-    console.log('\n[OpenCode] Fetching...');
+    logger.info('\n[OpenCode] Fetching...');
     let newOc = [];
     let ocModels = [];
     try {
       ocModels = await getOpenCodeModels();
-      console.log(`  Found ${ocModels.length} free models`);
+      logger.info(`  Found ${ocModels.length} free models`);
       for (const m of ocModels) {
         if (!existingIds.has(m.id)) newOc.push(m);
       }
-      console.log(`  New: ${newOc.length}`);
-      for (const n of newOc) console.log(`    + ${n.id}`);
+      logger.info(`  New: ${newOc.length}`);
+      for (const n of newOc) logger.info(`    + ${n.id}`);
     } catch (e) {
-      console.log(`  ERROR: ${e.message}`);
+      logger.info(`  ERROR: ${e.message}`);
     }
 
     // --- Detect removed models ---
-    console.log('\n[Status Check] Models in DB but no longer in provider listings...');
+    logger.info('\n[Status Check] Models in DB but no longer in provider listings...');
     const allCurrentFreeIds = new Set([
       ...orModels.map((m) => `openrouter/${m.id}`),
       ...(cbModels || []).map((m) => m.id),
@@ -462,8 +467,8 @@ function normalizeModelSlug(name) {
         potentiallyRemoved.push(m);
       }
     }
-    console.log(`  Potentially removed: ${potentiallyRemoved.length}`);
-    for (const r of potentiallyRemoved) console.log(`    ? ${r.full_id}`);
+    logger.info(`  Potentially removed: ${potentiallyRemoved.length}`);
+    for (const r of potentiallyRemoved) logger.info(`    ? ${r.full_id}`);
 
     // --- Summary ---
     const totalNew =
@@ -475,36 +480,36 @@ function normalizeModelSlug(name) {
       newDs.length +
       newGroq.length +
       newOc.length;
-    console.log('\n=== Summary ===');
-    console.log(`  New models found:    ${totalNew}`);
-    console.log(`  Potentially removed: ${potentiallyRemoved.length}`);
+    logger.info('\n=== Summary ===');
+    logger.info(`  New models found:    ${totalNew}`);
+    logger.info(`  Potentially removed: ${potentiallyRemoved.length}`);
 
     if (!APPLY) {
-      console.log('\nDry-run mode. Use --apply to update PostgreSQL');
+      logger.info('\nDry-run mode. Use --apply to update PostgreSQL');
     } else {
       // --- Pre-validate: test new OpenRouter models respond before adding to DB ---
       const newOrIds = newOr.map((m) => m.id);
       if (newOrIds.length > 0) {
-        console.log('\n[Pre-validate] Testing', newOrIds.length, 'new OpenRouter models...');
+        logger.info('\n[Pre-validate] Testing', newOrIds.length, 'new OpenRouter models...');
         for (let i = newOr.length - 1; i >= 0; i--) {
           const m = newOr[i];
           const apiModelId = m.id.replace('openrouter/', '');
           try {
             const valid = await testOpenRouterModel(apiModelId, auth.openrouter?.key);
             if (valid) {
-              console.log(`  ✓ ${m.id}`);
+              logger.info(`  ✓ ${m.id}`);
             } else {
-              console.log(`  ✗ ${m.id} — not responding, skipping`);
+              logger.info(`  ✗ ${m.id} — not responding, skipping`);
               newOr.splice(i, 1);
             }
           } catch (e) {
-            console.log(`  ✗ ${m.id} — ${e.message}`);
+            logger.info(`  ✗ ${m.id} — ${e.message}`);
             newOr.splice(i, 1);
           }
         }
       }
 
-      console.log('\nApplying changes...');
+      logger.info('\nApplying changes...');
       await client.query('BEGIN');
 
       try {
@@ -547,7 +552,7 @@ function normalizeModelSlug(name) {
           const providerSlug = m.id.split('/')[0];
           const providerId = providerMap.get(providerSlug);
           if (!providerId) {
-            console.log(`  SKIP ${m.id}: unknown provider "${providerSlug}"`);
+            logger.info(`  SKIP ${m.id}: unknown provider "${providerSlug}"`);
             continue;
           }
 
@@ -589,16 +594,16 @@ function normalizeModelSlug(name) {
         }
 
         await client.query('COMMIT');
-        console.log('  Changes committed to PostgreSQL');
+        logger.info('  Changes committed to PostgreSQL');
 
         // Export to JSON
         const { spawn } = require('child_process');
         const exportScript = path.join(__dirname, 'export-from-pg.js');
         const exportProcess = spawn('node', [exportScript]);
-        exportProcess.stdout.on('data', (d) => console.log(d.toString().trim()));
+        exportProcess.stdout.on('data', (d) => logger.info(d.toString().trim()));
         exportProcess.stderr.on('data', (d) => console.error(d.toString().trim()));
         const exportCode = await new Promise((resolve) => exportProcess.on('close', resolve));
-        console.log(
+        logger.info(
           exportCode === 0
             ? '  JSON export completed'
             : `  JSON export failed with code ${exportCode}`,

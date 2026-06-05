@@ -16,7 +16,7 @@ const loadModels = require('./load-models');
 (async () => {
   const json = await loadModels();
 
-  const modelIds = json.models.map(m => m.id);
+  const modelIds = json.models.map((m) => m.id);
   const modelIdSet = new Set(modelIds);
   let allGood = true;
 
@@ -25,6 +25,7 @@ const loadModels = require('./load-models');
     allGood = false;
   }
 
+  // eslint-disable-next-line no-unused-vars
   function ok(msg) {
     console.log(`  ${msg}`);
   }
@@ -60,8 +61,12 @@ const loadModels = require('./load-models');
         fail(`Missing model ID: ${id}`);
       }
 
-      const model = json.models.find(m => m.id === id);
-      const providerName = model ? model.provider : (id.indexOf('/') === -1 ? id : id.substring(0, id.indexOf('/')));
+      const model = json.models.find((m) => m.id === id);
+      const providerName = model
+        ? model.provider
+        : id.indexOf('/') === -1
+          ? id
+          : id.substring(0, id.indexOf('/'));
       if (usedUpProviders.includes(providerName)) {
         fail(`Model '${id}' is from used-up provider '${providerName}' in ${role}`);
       }
@@ -87,7 +92,7 @@ const loadModels = require('./load-models');
     const seen = new Set();
     for (const id of list) {
       if (seen.has(id)) {
-        const count = list.filter(x => x === id).length;
+        const count = list.filter((x) => x === id).length;
         fail(`Duplicate ID in ${role}: ${id} (appears ${count} times)`);
       }
       seen.add(id);
@@ -99,4 +104,7 @@ const loadModels = require('./load-models');
   } else {
     process.exit(1);
   }
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

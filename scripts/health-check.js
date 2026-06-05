@@ -5,7 +5,10 @@
  */
 require('dotenv').config();
 const { Pool } = require('pg');
-const p = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+const p = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
 (async () => {
   const c = await p.connect();
@@ -18,7 +21,9 @@ const p = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUn
     checks.push(`Total super_models: ${totalSupers}`);
 
     // 1. Slug uniqueness
-    const dups = await c.query('SELECT slug, COUNT(*) as cnt FROM super_models GROUP BY slug HAVING COUNT(*) > 1');
+    const dups = await c.query(
+      'SELECT slug, COUNT(*) as cnt FROM super_models GROUP BY slug HAVING COUNT(*) > 1',
+    );
     checks.push(`Slug duplicates: ${dups.rows.length} (should be 0)`);
 
     // 2. Models with author
@@ -26,11 +31,15 @@ const p = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUn
     checks.push(`Models with author: ${auth.rows[0].count} / ${totalSupers}`);
 
     // 3. modelsdev coverage
-    const md = await c.query("SELECT COUNT(DISTINCT dm.super_model_id) FROM datapoint_models dm JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id WHERE dp.slug = 'modelsdev'");
+    const md = await c.query(
+      "SELECT COUNT(DISTINCT dm.super_model_id) FROM datapoint_models dm JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id WHERE dp.slug = 'modelsdev'",
+    );
     checks.push(`Models with modelsdev: ${md.rows[0].count} / ${totalSupers}`);
 
     // 4. Old tables gone
-    const old = await c.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('models','providers','authors','provider_models','model_features','model_input_types','model_output_types')");
+    const old = await c.query(
+      "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('models','providers','authors','provider_models','model_features','model_input_types','model_output_types')",
+    );
     checks.push(`Old tables remaining: ${old.rows.length} (should be 0)`);
 
     // 5. Row counts
@@ -44,7 +53,9 @@ const p = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUn
     for (const r of counts.rows) checks.push(`  ${r.t}: ${r.n}`);
 
     // 6. Orphan check
-    const orphans = await c.query('SELECT COUNT(*) FROM datapoint_models dm WHERE NOT EXISTS (SELECT 1 FROM super_models sm WHERE sm.id = dm.super_model_id)');
+    const orphans = await c.query(
+      'SELECT COUNT(*) FROM datapoint_models dm WHERE NOT EXISTS (SELECT 1 FROM super_models sm WHERE sm.id = dm.super_model_id)',
+    );
     checks.push(`Orphaned datapoints: ${orphans.rows[0].count} (should be 0)`);
 
     console.log('=== DB Health Check ===');
@@ -54,4 +65,7 @@ const p = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUn
     c.release();
     await p.end();
   }
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

@@ -41,5 +41,7 @@ if (require('fs').existsSync(nssmPath)) {
   const binPath = `cmd.exe /c "${command}"`;
   execSync(`sc.exe create ${serviceName} binPath= "${binPath}" start= auto`);
   execSync(`sc.exe start ${serviceName}`);
-  console.log(`Service ${serviceName} installed and started via sc.exe. Consider installing nssm for better handling.`);
+  console.log(
+    `Service ${serviceName} installed and started via sc.exe. Consider installing nssm for better handling.`,
+  );
 }

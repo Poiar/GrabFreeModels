@@ -20,10 +20,16 @@
 const { chromium } = require('playwright');
 
 const args = process.argv.slice(2);
-const get = (flag) => { const i = args.indexOf(flag); return i >= 0 ? args[i + 1] : null; };
+const get = (flag) => {
+  const i = args.indexOf(flag);
+  return i >= 0 ? args[i + 1] : null;
+};
 
 const url = get('--url');
-if (!url) { console.error('Error: --url is required'); process.exit(1); }
+if (!url) {
+  console.error('Error: --url is required');
+  process.exit(1);
+}
 
 const timeout = parseInt(get('--timeout') || '30000', 10);
 const waitUntil = get('--waitUntil') || 'networkidle';
@@ -35,7 +41,8 @@ const screenshotPath = get('--screenshot') || null;
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    userAgent:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     javaScriptEnabled: !noJs,
   });
   const page = await context.newPage();
@@ -56,13 +63,20 @@ const screenshotPath = get('--screenshot') || null;
       text = await page.evaluate(() => document.body.innerText);
     }
 
-    if (!text) { console.log('(no content found)'); }
-    else if (maxChars > 0 && text.length > maxChars) { console.log(text.slice(0, maxChars) + '\n…(truncated)'); }
-    else { console.log(text); }
+    if (!text) {
+      console.log('(no content found)');
+    } else if (maxChars > 0 && text.length > maxChars) {
+      console.log(text.slice(0, maxChars) + '\n…(truncated)');
+    } else {
+      console.log(text);
+    }
   } catch (err) {
     console.error(`Fetch failed: ${err.message}`);
     process.exitCode = 1;
   } finally {
     await browser.close();
   }
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

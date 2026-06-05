@@ -15,10 +15,10 @@ API keys for all model providers are stored in a single auth file.
 
 API keys exist in two locations — keep them in sync:
 
-| File | Role |
-|------|------|
-| `C:\\Users\\pc\\.local\\share\\opencode\\auth.json` | Managed by Desktop app (source of truth) |
-| `C:\\Users\\pc\\.config\\opencode\\opencode.jsonc` | Inline `apiKey` under each provider (required by CLI) |
+| File                                                | Role                                                  |
+| --------------------------------------------------- | ----------------------------------------------------- |
+| `C:\\Users\\pc\\.local\\share\\opencode\\auth.json` | Managed by Desktop app (source of truth)              |
+| `C:\\Users\\pc\\.config\\opencode\\opencode.jsonc`  | Inline `apiKey` under each provider (required by CLI) |
 
 The CLI reads keys from `opencode.jsonc`, not `auth.json`. When the Desktop app updates `auth.json`, you must also update the matching `apiKey` field in `opencode.jsonc` — the Desktop app does not sync them automatically.
 

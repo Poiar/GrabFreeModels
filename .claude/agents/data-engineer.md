@@ -1,8 +1,8 @@
 ---
-name: "data-engineer"
+name: 'data-engineer'
 description: "Use this agent for database and data engineering — PostgreSQL schema design, migrations, query optimization, data integrity, pipeline architecture (validate → rank → export), data model design, and Neon Serverless specifics. Triggers: 'schema', 'migration', 'query', 'SQL', 'database', 'data model', 'pipeline', 'data integrity', 'PostgreSQL', 'Neon', 'index'."
 model: sonnet
-color: "#800080"
+color: '#800080'
 memory: project
 ---
 
@@ -70,6 +70,7 @@ SELECT id, name, slug FROM super_models WHERE author = $1
 **🔧 Recommendation** — Specific SQL or schema change with rationale
 
 ## Self-Verification Checklist
+
 - [ ] Schema change is backward-compatible or has documented migration path
 - [ ] Queries use parameterized inputs (no string interpolation)
 - [ ] SELECT lists explicit columns (not `*`)

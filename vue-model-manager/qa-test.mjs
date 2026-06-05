@@ -196,7 +196,7 @@ async function safeGoto(page, url) {
         await closeBtn.click()
         await new Promise(r => setTimeout(r, 300))
         pass('Detail', 'Close button works')
-      } catch (e) { log('ux', 'low', 'Detail', 'Close button click failed') }
+      } catch { log('ux', 'low', 'Detail', 'Close button click failed') }
 
       // Reopen and test Escape
       try {
@@ -208,7 +208,7 @@ async function safeGoto(page, url) {
         const gone = !(await page.$('.detail-panel'))
         if (gone) pass('Detail', 'Escape closes panel')
         else log('bugs', 'medium', 'Detail', 'Escape does not close panel')
-      } catch (e) { log('ux', 'low', 'Detail', 'Escape test failed') }
+      } catch { log('ux', 'low', 'Detail', 'Escape test failed') }
     } else log('bugs', 'high', 'Detail', 'Panel did not open')
   }
 

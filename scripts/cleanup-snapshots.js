@@ -23,9 +23,10 @@ if (!fs.existsSync(snapshotDir)) {
   process.exit(0);
 }
 
-const files = fs.readdirSync(snapshotDir)
-  .filter(f => f.match(/^available-models-.*\.json$/))
-  .map(f => ({
+const files = fs
+  .readdirSync(snapshotDir)
+  .filter((f) => f.match(/^available-models-.*\.json$/))
+  .map((f) => ({
     name: f,
     path: path.join(snapshotDir, f),
     mtime: fs.statSync(path.join(snapshotDir, f)).mtime,

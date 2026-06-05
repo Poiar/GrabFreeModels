@@ -18,23 +18,24 @@ node scripts/import-modelsdev-backfill.js --apply  # write synthetic datapoints
 ```
 
 Then validate:
+
 ```bash
 node scripts/export-from-pg.js && node scripts/validate-free-models.js --apply
 ```
 
 ## Field Mapping
 
-| models.dev | DB field | Notes |
-|---|---|---|
-| `providerId` | `datapoint_providers.slug` | e.g. `openrouter` |
-| `modelId` | `datapoint_models.remote_id` | e.g. `openai/gpt-4o-mini` |
-| `modelName` | `super_models.name` | Strip `(free)` suffix |
-| `toolCall` | `supports_tools` | boolean |
-| `reasoning` | `supports_reasoning` | boolean |
-| `inputCost` / `outputCost` | `input_price_per_million` | 0 for free |
-| `contextLimit` | `context_length` | |
-| `input` / `output` | `model_input_types` / `model_output_types` | string[] |
-| `releaseDate` / `lastUpdated` | `release_date` / `last_updated` | YYYY-MM-DD |
+| models.dev                    | DB field                                   | Notes                     |
+| ----------------------------- | ------------------------------------------ | ------------------------- |
+| `providerId`                  | `datapoint_providers.slug`                 | e.g. `openrouter`         |
+| `modelId`                     | `datapoint_models.remote_id`               | e.g. `openai/gpt-4o-mini` |
+| `modelName`                   | `super_models.name`                        | Strip `(free)` suffix     |
+| `toolCall`                    | `supports_tools`                           | boolean                   |
+| `reasoning`                   | `supports_reasoning`                       | boolean                   |
+| `inputCost` / `outputCost`    | `input_price_per_million`                  | 0 for free                |
+| `contextLimit`                | `context_length`                           |                           |
+| `input` / `output`            | `model_input_types` / `model_output_types` | string[]                  |
+| `releaseDate` / `lastUpdated` | `release_date` / `last_updated`            | YYYY-MM-DD                |
 
 ## Gotchas
 

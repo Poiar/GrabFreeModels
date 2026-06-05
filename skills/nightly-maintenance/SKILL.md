@@ -14,7 +14,6 @@ Runs the full validation pipeline. See `scripts/nightly-maintenance.js` for flag
 3. **Prune stale** — removes models non-working for >7 days
 4. **Backfill context** — fetches `context_length` for null entries
 5. **Re-rank** — rebuilds all role rankings
-6. **Populate stable** — free + working + tools + tested ≥30 days
-7. **Check rankings** — sanity-checks all `_role_rankings`
-8. **Commit & push** — auto-rollback if health drops
-9. **Alert** — webhook notifications for recovered models
+6. **Check rankings** — sanity-checks all `_role_rankings`
+7. **Commit & push** — auto-rollback if health drops
+8. **Alert** — webhook notifications for recovered models

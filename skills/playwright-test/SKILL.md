@@ -12,9 +12,11 @@ The Vue SPA at `http://localhost:5173` requires JS — `webfetch` only gets the 
 `playwright` resolves from workspace root. **Always `cd` to workspace root first** — the `bash` tool does this by default.
 
 To skip the ~150MB Chromium auto-download on `npm install`, set the env var before installing:
+
 ```bash
 $env:PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1; npm install
 ```
+
 Then install Chromium on demand: `npx playwright install chromium`
 
 ## Patterns
