@@ -89,5 +89,8 @@ _check-*.js
 # Scratch / ad-hoc scripts (underscore prefix)
 _*.js
 
+# Playwright MCP artifacts
+.playwright-mcp/
+
 # Temp config files with secrets
 scripts/_tmp_cfg.json

@@ -31,6 +31,12 @@ const routes = [
     component: () => import('@/views/Issues.vue'),
     meta: { title: 'Issues' },
   },
+  {
+    path: '/model/:slug',
+    name: 'ModelDetail',
+    component: () => import('@/views/ModelList.vue'),
+    meta: { title: 'Model' },
+  },
   // Redirect old routes
   { path: '/free', redirect: '/' },
   { path: '/paid', redirect: '/' },

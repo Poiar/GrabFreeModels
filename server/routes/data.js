@@ -1,12 +1,29 @@
 const express = require('express');
+const crypto = require('crypto');
 const pool = require('../db');
 const loadModels = require('../../scripts/load-models');
 
 const router = express.Router();
 
+const CACHE_TTL = 60_000; // 60s — limits staleness while caching aggressive repeat visits
+let dataCache = null; // { etag, data, ts }
+
 router.get('/data', async (req, res) => {
   try {
+    const now = Date.now();
+    if (dataCache && (now - dataCache.ts) < CACHE_TTL) {
+      const clientEtag = req.headers['if-none-match'];
+      if (clientEtag && clientEtag === dataCache.etag) {
+        return res.status(304).end();
+      }
+    }
+
     const result = await loadModels(pool);
+    const etag = `W/"${crypto.createHash('md5').update(JSON.stringify(result)).digest('hex')}"`;
+    dataCache = { etag, data: result, ts: Date.now() };
+
+    res.set('ETag', etag);
+    res.set('Cache-Control', 'no-cache');
     res.json(result);
   } catch (err) {
     console.error('Failed to build ModelsData:', err.message);
@@ -45,8 +62,8 @@ router.get('/health/status', async (req, res) => {
              COUNT(*) FILTER (WHERE dm.status_result = 'not_found') AS not_found,
              MAX(dm.status_tested) AS last_tested
       FROM datapoint_models dm
-      JOIN datapoint_providers dp ON dm.provider_id = dp.id
-      WHERE dm.is_free = true
+      JOIN datapoint_providers dp ON dm.datapoint_provider_id = dp.id
+      WHERE dm.is_free = true AND dm.is_removed = false
       GROUP BY dp.name
       ORDER BY dp.name
     `);

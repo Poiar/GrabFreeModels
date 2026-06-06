@@ -1,0 +1,74 @@
+- generic [ref=e3]:
+  - link "Skip to main content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e8]: ⚡
+      - generic [ref=e9]:
+        - heading "GrabFreeModels" [level=1] [ref=e10]
+        - paragraph [ref=e11]: Free LLM Intelligence
+    - navigation "Main navigation" [ref=e12]:
+      - link "Models" [ref=e13] [cursor=pointer]:
+        - /url: "#/"
+        - img [ref=e15]
+        - generic [ref=e17]: Models
+      - link "Dashboard" [ref=e18] [cursor=pointer]:
+        - /url: "#/dashboard"
+        - img [ref=e20]
+        - generic [ref=e25]: Dashboard
+      - link "Creators" [ref=e26] [cursor=pointer]:
+        - /url: "#/creators"
+        - img [ref=e28]
+        - generic [ref=e31]: Creators
+      - link "Issues" [ref=e32] [cursor=pointer]:
+        - /url: "#/issues"
+        - img [ref=e34]
+        - generic [ref=e36]: Issues
+    - generic [ref=e37]:
+      - generic [ref=e57]: Updated just now
+      - generic [ref=e38]:
+        - button "Switch to dark mode" [pressed] [ref=e39] [cursor=pointer]
+        - button "Refresh" [ref=e58] [cursor=pointer]
+      - button "? shortcuts" [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e47]: "? shortcuts"
+  - main [ref=e48]:
+    - generic [ref=e5231]:
+      - generic [ref=e5232]:
+        - heading "Models" [level=2] [ref=e5233]
+        - paragraph [ref=e5234]: 24 models from 26 creators
+      - generic [ref=e5235]:
+        - textbox "Search models" [active] [ref=e5236]:
+          - /placeholder: Search models...
+        - combobox "Filter by creator" [ref=e5237] [cursor=pointer]
+        - combobox "Filter by status" [ref=e5238] [cursor=pointer]
+        - combobox "Filter by price" [ref=e5239] [cursor=pointer]
+        - generic [ref=e5240]
+      - generic [ref=e5243]:
+        - button "Export JSON" [ref=e5244] [cursor=pointer]
+        - button "Export CSV" [ref=e5245] [cursor=pointer]
+      - generic [ref=e5246]:
+        - generic [ref=e6299]
+        - generic [ref=e6322]
+        - generic [ref=e6345]
+        - generic [ref=e6368]
+        - generic [ref=e6391]
+        - generic [ref=e6414]
+        - generic [ref=e6447]
+        - generic [ref=e6470]
+        - generic [ref=e6491]
+        - generic [ref=e6517]
+        - generic [ref=e6550]
+        - generic [ref=e6573]
+        - generic [ref=e6599]
+        - generic [ref=e6622]
+        - generic [ref=e6648]
+        - generic [ref=e6674]
+        - generic [ref=e6697]
+        - generic [ref=e6720]
+        - generic [ref=e6743]
+        - generic [ref=e6769]
+        - generic [ref=e6795]
+        - generic [ref=e6821]
+        - generic [ref=e6844]
+        - generic [ref=e6867]

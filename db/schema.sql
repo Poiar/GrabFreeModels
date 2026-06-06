@@ -7,7 +7,7 @@ CREATE TABLE super_models (
     id              SERIAL PRIMARY KEY,
     name            VARCHAR(256) NOT NULL,
     slug            VARCHAR(256) NOT NULL UNIQUE,  -- normalized lowercase, no spaces
-    author          VARCHAR(128),                  -- organization behind the model
+    creator         VARCHAR(128),                  -- organization behind the model
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -78,6 +78,31 @@ CREATE TABLE metadata (
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- External model source data (community lists, leaderboards, etc.)
+CREATE TABLE external_sources (
+    id              SERIAL PRIMARY KEY,
+    source_name     VARCHAR(128) NOT NULL UNIQUE,
+    source_url      VARCHAR(512),
+    raw_data        JSONB,
+    models_data     JSONB,
+    model_count     INTEGER DEFAULT 0,
+    fetched_at      TIMESTAMPTZ,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- External benchmark scores for models (Artificial Analysis, etc.)
+CREATE TABLE model_scores (
+    id                 SERIAL PRIMARY KEY,
+    datapoint_model_id INTEGER NOT NULL REFERENCES datapoint_models(id) ON DELETE CASCADE,
+    source             VARCHAR(64) NOT NULL,   -- e.g. 'artificial_analysis', 'arena', 'huggingface'
+    score_type         VARCHAR(64) NOT NULL,   -- e.g. 'intelligence', 'elo', 'mmlu', 'humaneval', 'gsm8k', 'price', 'speed', 'latency'
+    score_value        NUMERIC(12,4),
+    raw_data           JSONB,                  -- optional: store the full scraped row
+    fetched_at         TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (datapoint_model_id, source, score_type)
+);
+
 -- Indexes
 CREATE INDEX idx_dp_models_super ON datapoint_models(super_model_id);
 CREATE INDEX idx_dp_models_provider ON datapoint_models(datapoint_provider_id);
@@ -86,6 +111,10 @@ CREATE INDEX idx_dp_models_status ON datapoint_models(status_result);
 CREATE INDEX idx_dp_models_free ON datapoint_models(is_free);
 CREATE INDEX idx_dp_models_removed ON datapoint_models(is_removed);
 CREATE INDEX idx_super_slug ON super_models(slug);
+CREATE INDEX idx_model_scores_dm ON model_scores(datapoint_model_id);
+CREATE INDEX idx_model_scores_source ON model_scores(source);
+CREATE INDEX idx_model_scores_type ON model_scores(score_type);
+CREATE INDEX idx_model_scores_source_type ON model_scores(source, score_type);
 
 -- Helper function: normalize model name to slug
 -- Strips provider prefixes, lowercases, removes special chars

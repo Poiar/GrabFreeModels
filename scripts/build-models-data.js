@@ -24,7 +24,7 @@ async function buildModelsData(client, pool) {
   }
 
   const { rows: dmRows } = await client.query(`
-    SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug, mm.author AS super_author,
+    SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug, mm.creator AS super_creator,
            dp.name AS provider_name, dp.slug AS provider_slug
     FROM datapoint_models dm
     JOIN super_models mm ON mm.id = dm.super_model_id
@@ -51,37 +51,25 @@ async function buildModelsData(client, pool) {
 
   if (dmIds.length > 0) {
     const useClient = pool || client;
-    const [inputResult, outputResult, featResult] = await Promise.all([
-      useClient.query(
-        'SELECT datapoint_model_id, input_type FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1)',
-        [dmIds],
-      ),
-      useClient.query(
-        'SELECT datapoint_model_id, output_type FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1)',
-        [dmIds],
-      ),
-      useClient.query(
-        'SELECT datapoint_model_id, feature_type, value FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)',
-        [dmIds],
-      ),
-    ]);
+    const combinedQuery = `SELECT datapoint_model_id, 'input' AS kind, input_type AS type_val, NULL AS feat_val FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1) UNION ALL SELECT datapoint_model_id, 'output' AS kind, output_type AS type_val, NULL AS feat_val FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1) UNION ALL SELECT datapoint_model_id, 'feature' AS kind, feature_type AS type_val, value AS feat_val FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)`;
+    const { rows: combinedRows } = await useClient.query(combinedQuery, [dmIds]);
 
-    for (const r of inputResult.rows) {
-      if (!inputMap.has(r.datapoint_model_id)) inputMap.set(r.datapoint_model_id, []);
-      inputMap.get(r.datapoint_model_id).push(r.input_type);
-    }
-    for (const r of outputResult.rows) {
-      if (!outputMap.has(r.datapoint_model_id)) outputMap.set(r.datapoint_model_id, []);
-      outputMap.get(r.datapoint_model_id).push(r.output_type);
-    }
-    for (const r of featResult.rows) {
-      if (!featMap.has(r.datapoint_model_id)) {
-        const obj = { tag: [], best_for: [] };
-        for (const f of knownFeatures) obj[f] = [];
-        featMap.set(r.datapoint_model_id, obj);
+    for (const r of combinedRows) {
+      if (r.kind === 'input') {
+        if (!inputMap.has(r.datapoint_model_id)) inputMap.set(r.datapoint_model_id, []);
+        inputMap.get(r.datapoint_model_id).push(r.type_val);
+      } else if (r.kind === 'output') {
+        if (!outputMap.has(r.datapoint_model_id)) outputMap.set(r.datapoint_model_id, []);
+        outputMap.get(r.datapoint_model_id).push(r.type_val);
+      } else if (r.kind === 'feature') {
+        if (!featMap.has(r.datapoint_model_id)) {
+          const obj = { tag: [], best_for: [] };
+          for (const f of knownFeatures) obj[f] = [];
+          featMap.set(r.datapoint_model_id, obj);
+        }
+        const bucket = knownFeatures.includes(r.type_val) ? r.type_val : 'tag';
+        featMap.get(r.datapoint_model_id)[bucket].push(r.feat_val);
       }
-      const bucket = knownFeatures.includes(r.feature_type) ? r.feature_type : 'tag';
-      featMap.get(r.datapoint_model_id)[bucket].push(r.value);
     }
   }
 
@@ -100,7 +88,7 @@ async function buildModelsData(client, pool) {
       super_name: dm.super_name,
       name: dm.super_name,
       provider: dm.provider_name,
-      author: dm.super_author || null,
+      creator: dm.super_creator || null,
       context_length: dm.context_length ?? null,
       input_price_per_million: Number(dm.input_price_per_million) || 0,
       output_price_per_million: Number(dm.output_price_per_million) || 0,
@@ -193,7 +181,7 @@ async function buildModelsData(client, pool) {
 
   const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holdings)\b\.?$/gi;
 
-  function slugifyAuthor(raw) {
+  function slugifyCreator(raw) {
     if (!raw) return { id: 'unknown', name: 'Unknown' };
     const trimmed = raw.trim();
     const lowered = trimmed.toLowerCase();
@@ -210,21 +198,21 @@ async function buildModelsData(client, pool) {
   for (const dp of outputModels) {
     if (dp._removed) continue;
 
-    const authorInfo = slugifyAuthor(dp.author);
-    const creatorId = authorInfo.id;
+    const creatorInfo = slugifyCreator(dp.creator);
+    const creatorId = creatorInfo.id;
 
     if (!creatorMap.has(creatorId)) {
       creatorMap.set(creatorId, {
         id: creatorId,
-        name: authorInfo.name,
+        name: creatorInfo.name,
         modelMap: new Map(),
       });
     }
     const creator = creatorMap.get(creatorId);
 
     // Update creator name if we find a better (longer/more canonical) one
-    if (authorInfo.name.length > creator.name.length) {
-      creator.name = authorInfo.name;
+    if (creatorInfo.name.length > creator.name.length) {
+      creator.name = creatorInfo.name;
     }
 
     if (!creator.modelMap.has(dp.super_id)) {
@@ -317,7 +305,6 @@ async function buildModelsData(client, pool) {
           cheapest_output_price: model.cheapest_output_price,
           role_rankings: roleRankingBySuperId[`${model.super_id}`] || {},
           providers: model.providers,
-        models: outputModels,
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -398,7 +385,7 @@ async function buildModelsData(client, pool) {
   // Provider health
   const health = {};
   for (const m of outputModels) {
-    if (!m.is_free) continue;
+    if (m._removed) continue;
     if (!health[m.provider])
       health[m.provider] = { working: 0, rate_limited: 0, broken: 0, total: 0 };
     health[m.provider].total++;
@@ -410,7 +397,7 @@ async function buildModelsData(client, pool) {
   return {
     creators,
     providers,
-        models: outputModels,
+        models: outputModels.filter((m) => !m._removed),
     _test_summary: {
       date: new Date().toISOString().slice(0, 10),
       results: {

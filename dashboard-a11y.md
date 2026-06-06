@@ -1,0 +1,3645 @@
+- generic [ref=e3]:
+  - link "Skip to main content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e8]: ⚡
+      - generic [ref=e9]:
+        - heading "GrabFreeModels" [level=1] [ref=e10]
+        - paragraph [ref=e11]: Free LLM Intelligence
+    - navigation "Main navigation" [ref=e12]:
+      - link "Models" [ref=e13] [cursor=pointer]:
+        - /url: "#/"
+        - img [ref=e15]
+        - generic [ref=e17]: Models
+      - link "Dashboard" [ref=e18] [cursor=pointer]:
+        - /url: "#/dashboard"
+        - img [ref=e20]
+        - generic [ref=e25]: Dashboard
+      - link "Creators" [ref=e26] [cursor=pointer]:
+        - /url: "#/creators"
+        - img [ref=e28]
+        - generic [ref=e31]: Creators
+      - link "Issues" [ref=e32] [cursor=pointer]:
+        - /url: "#/issues"
+        - img [ref=e34]
+        - generic [ref=e36]: Issues
+    - generic [ref=e37]:
+      - generic [ref=e57]: Updated just now
+      - generic [ref=e38]:
+        - button "Switch to dark mode" [pressed] [ref=e39] [cursor=pointer]:
+          - img [ref=e40]
+        - button "Refresh" [ref=e58] [cursor=pointer]:
+          - img [ref=e59]
+          - text: Refresh
+      - button "? shortcuts" [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e47]: "? shortcuts"
+  - main [ref=e48]:
+    - generic [ref=e64]:
+      - generic [ref=e65]:
+        - heading "Models" [level=2] [ref=e66]
+        - paragraph [ref=e67]: 196 models from 26 creators
+      - generic [ref=e68]:
+        - textbox "Search models" [ref=e69]:
+          - /placeholder: Search models...
+        - combobox "Filter by creator" [ref=e70] [cursor=pointer]:
+          - option "All Creators" [selected]
+          - option "AI21 Labs"
+          - option "Anthropic"
+          - option "Arcee AI"
+          - option "Cognitive Computations"
+          - option "Cohere"
+          - option "DeepSeek"
+          - option "Google"
+          - option "IBM"
+          - option "Liquid AI"
+          - option "Meta"
+          - option "Microsoft"
+          - option "MiniMax"
+          - option "Mistral"
+          - option "Moonshot AI"
+          - option "Nous Research"
+          - option "NVIDIA"
+          - option "OpenAI"
+          - option "opencode"
+          - option "Poolside"
+          - option "Qwen"
+          - option "Umans AI"
+          - option "Unknown"
+          - option "xAI"
+          - option "Xiaomi"
+          - option "Z.AI"
+          - option "Zhipu AI"
+        - combobox "Filter by status" [ref=e71] [cursor=pointer]:
+          - option "All" [selected]
+          - option "Working"
+          - option "Mixed"
+          - option "Untested"
+          - option "Down"
+        - combobox "Filter by price" [ref=e72] [cursor=pointer]:
+          - option "All" [selected]
+          - option "Free only"
+          - option "Paid only"
+        - generic [ref=e73]:
+          - combobox "Sort by" [ref=e74] [cursor=pointer]:
+            - option "Name" [selected]
+            - option "Context"
+            - option "Price"
+            - option "Providers"
+          - button "▲" [ref=e75] [cursor=pointer]
+      - generic [ref=e76]:
+        - button "Export JSON" [ref=e77] [cursor=pointer]
+        - button "Export CSV" [ref=e78] [cursor=pointer]
+      - generic [ref=e79]:
+        - generic [ref=e80]:
+          - generic [ref=e82]:
+            - heading "@cf/aisingapore/gemma-sea-lion-v4-27b-it" [level=3] [ref=e83]
+            - generic [ref=e84]: Google
+          - generic [ref=e85]:
+            - generic [ref=e86]: "Max: — context"
+            - generic [ref=e87]: "|"
+            - generic [ref=e88]: Free
+            - generic [ref=e89]: "|"
+            - generic [ref=e90]: 1 provider
+          - generic [ref=e93] [cursor=pointer]:
+            - generic [ref=e95]: Cloudflare
+            - generic [ref=e97]:
+              - generic [ref=e98]: —
+              - generic "No tools" [ref=e99]: —
+            - generic [ref=e100]: Free
+        - generic [ref=e101]:
+          - generic [ref=e103]:
+            - heading "@cf/google/gemma-4-26b-a4b-it" [level=3] [ref=e104]
+            - generic [ref=e105]: Google
+          - generic [ref=e106]:
+            - generic [ref=e107]: "Max: — context"
+            - generic [ref=e108]: "|"
+            - generic [ref=e109]: Free
+            - generic [ref=e110]: "|"
+            - generic [ref=e111]: 1 provider
+          - generic [ref=e114] [cursor=pointer]:
+            - generic [ref=e116]: Cloudflare
+            - generic [ref=e118]:
+              - generic [ref=e119]: —
+              - generic "No tools" [ref=e120]: —
+            - generic [ref=e121]: Free
+        - generic [ref=e122]:
+          - generic [ref=e124]:
+            - heading "@cf/ibm-granite/granite-4.0-h-micro" [level=3] [ref=e125]
+            - generic [ref=e126]: IBM
+          - generic [ref=e127]:
+            - generic [ref=e128]: "Max: — context"
+            - generic [ref=e129]: "|"
+            - generic [ref=e130]: Free
+            - generic [ref=e131]: "|"
+            - generic [ref=e132]: 1 provider
+          - generic [ref=e135] [cursor=pointer]:
+            - generic [ref=e137]: Cloudflare
+            - generic [ref=e139]:
+              - generic [ref=e140]: —
+              - generic "No tools" [ref=e141]: —
+            - generic [ref=e142]: Free
+        - generic [ref=e143]:
+          - generic [ref=e145]:
+            - heading "@cf/moonshotai/kimi-k2.5" [level=3] [ref=e146]
+            - generic [ref=e147]: Moonshot AI
+          - generic [ref=e148]:
+            - generic [ref=e149]: "Max: — context"
+            - generic [ref=e150]: "|"
+            - generic [ref=e151]: Free
+            - generic [ref=e152]: "|"
+            - generic [ref=e153]: 1 provider
+          - generic [ref=e156] [cursor=pointer]:
+            - generic [ref=e158]: Cloudflare
+            - generic [ref=e160]:
+              - generic [ref=e161]: —
+              - generic "No tools" [ref=e162]: —
+            - generic [ref=e163]: Free
+        - generic [ref=e164]:
+          - generic [ref=e166]:
+            - heading "@cf/moonshotai/kimi-k2.6" [level=3] [ref=e167]
+            - generic [ref=e168]: Moonshot AI
+          - generic [ref=e169]:
+            - generic [ref=e170]: "Max: — context"
+            - generic [ref=e171]: "|"
+            - generic [ref=e172]: Free
+            - generic [ref=e173]: "|"
+            - generic [ref=e174]: 1 provider
+          - generic [ref=e177] [cursor=pointer]:
+            - generic [ref=e179]: Cloudflare
+            - generic [ref=e181]:
+              - generic [ref=e182]: —
+              - generic "No tools" [ref=e183]: —
+            - generic [ref=e184]: Free
+        - generic [ref=e185]:
+          - generic [ref=e187]:
+            - heading "@cf/nvidia/nemotron-3-120b-a12b" [level=3] [ref=e188]
+            - generic [ref=e189]: Unknown
+          - generic [ref=e190]:
+            - generic [ref=e191]: "Max: — context"
+            - generic [ref=e192]: "|"
+            - generic [ref=e193]: Free
+            - generic [ref=e194]: "|"
+            - generic [ref=e195]: 1 provider
+          - generic [ref=e198] [cursor=pointer]:
+            - generic [ref=e200]: Cloudflare
+            - generic [ref=e202]:
+              - generic [ref=e203]: —
+              - generic "No tools" [ref=e204]: —
+            - generic [ref=e205]: Free
+        - generic [ref=e206]:
+          - generic [ref=e208]:
+            - heading "@cf/openai/gpt-oss-120b" [level=3] [ref=e209]
+            - generic [ref=e210]: Unknown
+          - generic [ref=e211]:
+            - generic [ref=e212]: "Max: — context"
+            - generic [ref=e213]: "|"
+            - generic [ref=e214]: Free
+            - generic [ref=e215]: "|"
+            - generic [ref=e216]: 1 provider
+          - generic [ref=e219] [cursor=pointer]:
+            - generic [ref=e221]: Cloudflare
+            - generic [ref=e223]:
+              - generic [ref=e224]: —
+              - generic "No tools" [ref=e225]: —
+            - generic [ref=e226]: Free
+        - generic [ref=e227]:
+          - generic [ref=e229]:
+            - heading "@cf/openai/gpt-oss-20b" [level=3] [ref=e230]
+            - generic [ref=e231]: Unknown
+          - generic [ref=e232]:
+            - generic [ref=e233]: "Max: — context"
+            - generic [ref=e234]: "|"
+            - generic [ref=e235]: Free
+            - generic [ref=e236]: "|"
+            - generic [ref=e237]: 1 provider
+          - generic [ref=e240] [cursor=pointer]:
+            - generic [ref=e242]: Cloudflare
+            - generic [ref=e244]:
+              - generic [ref=e245]: —
+              - generic "No tools" [ref=e246]: —
+            - generic [ref=e247]: Free
+        - generic [ref=e248]:
+          - generic [ref=e250]:
+            - heading "@cf/qwen/qwen3-30b-a3b-fp8" [level=3] [ref=e251]
+            - generic [ref=e252]: Qwen
+          - generic [ref=e253]:
+            - generic [ref=e254]: "Max: — context"
+            - generic [ref=e255]: "|"
+            - generic [ref=e256]: Free
+            - generic [ref=e257]: "|"
+            - generic [ref=e258]: 1 provider
+          - generic [ref=e261] [cursor=pointer]:
+            - generic [ref=e263]: Cloudflare
+            - generic [ref=e265]:
+              - generic [ref=e266]: —
+              - generic "No tools" [ref=e267]: —
+            - generic [ref=e268]: Free
+        - generic [ref=e269]:
+          - generic [ref=e271]:
+            - heading "@cf/zai-org/glm-4.7-flash" [level=3] [ref=e272]
+            - generic [ref=e273]: Zhipu AI
+          - generic [ref=e274]:
+            - generic [ref=e275]: "Max: — context"
+            - generic [ref=e276]: "|"
+            - generic [ref=e277]: Free
+            - generic [ref=e278]: "|"
+            - generic [ref=e279]: 1 provider
+          - generic [ref=e282] [cursor=pointer]:
+            - generic [ref=e284]: Cloudflare
+            - generic [ref=e286]:
+              - generic [ref=e287]: —
+              - generic "No tools" [ref=e288]: —
+            - generic [ref=e289]: Free
+        - generic [ref=e290]:
+          - generic [ref=e292]:
+            - heading "AI21 Jamba 1.5 Large" [level=3] [ref=e293]
+            - generic [ref=e294]: AI21 Labs
+          - generic [ref=e295]:
+            - generic [ref=e296]: "Max: — context"
+            - generic [ref=e297]: "|"
+            - generic [ref=e298]: Free
+            - generic [ref=e299]: "|"
+            - generic [ref=e300]: 1 provider
+          - generic [ref=e303] [cursor=pointer]:
+            - generic [ref=e305]: GitHub Models
+            - generic [ref=e307]:
+              - generic [ref=e308]: —
+              - generic "No tools" [ref=e309]: —
+            - generic [ref=e310]: Free
+        - generic [ref=e311]:
+          - generic [ref=e313]:
+            - heading "Allam 2 7B" [level=3] [ref=e314]
+            - generic [ref=e315]: Unknown
+          - generic [ref=e316]:
+            - generic [ref=e317]: "Max: — context"
+            - generic [ref=e318]: "|"
+            - generic [ref=e319]: Free
+            - generic [ref=e320]: "|"
+            - generic [ref=e321]: 1 provider
+          - generic [ref=e324] [cursor=pointer]:
+            - generic [ref=e326]: Groq
+            - generic [ref=e328]:
+              - generic [ref=e329]: —
+              - generic "No tools" [ref=e330]: —
+            - generic [ref=e331]: Free
+        - generic [ref=e332]:
+          - generic [ref=e334]:
+            - heading "Auto Router" [level=3] [ref=e335]
+            - generic [ref=e336]: Unknown
+          - generic [ref=e337]:
+            - generic [ref=e338]: "Max: 2M context"
+            - generic [ref=e339]: "|"
+            - generic [ref=e340]: Free/Free
+            - generic [ref=e341]: "|"
+            - generic [ref=e342]: 2 providers
+          - generic [ref=e344]:
+            - generic [ref=e345] [cursor=pointer]:
+              - generic [ref=e347]: Kilo Gateway
+              - generic [ref=e349]:
+                - generic [ref=e350]: 2M
+                - generic "Tools supported" [ref=e351]:
+                  - img [ref=e352]
+              - generic [ref=e354]: $0/$0
+            - generic [ref=e355] [cursor=pointer]:
+              - generic [ref=e357]: OpenRouter
+              - generic [ref=e359]:
+                - generic [ref=e360]: 2M
+                - generic "Tools supported" [ref=e361]:
+                  - img [ref=e362]
+              - generic [ref=e364]: $0/$0
+        - generic [ref=e365]:
+          - generic [ref=e367]:
+            - heading "Big Pickle" [level=3] [ref=e368]
+            - generic [ref=e369]: opencode
+          - generic [ref=e370]:
+            - generic [ref=e371]: "Max: 1M context"
+            - generic [ref=e372]: "|"
+            - generic [ref=e373]: Free
+            - generic [ref=e374]: "|"
+            - generic [ref=e375]: 1 provider
+          - generic [ref=e378] [cursor=pointer]:
+            - generic [ref=e380]: OpenCode Zen
+            - generic [ref=e382]:
+              - generic [ref=e383]: 1M
+              - generic "Tools supported" [ref=e384]:
+                - img [ref=e385]
+            - generic [ref=e387]: Free
+        - generic [ref=e388]:
+          - generic [ref=e390]:
+            - heading "c4ai-aya-expanse-32b" [level=3] [ref=e391]
+            - generic [ref=e392]: Cohere
+          - generic [ref=e393]:
+            - generic [ref=e394]: "Max: — context"
+            - generic [ref=e395]: "|"
+            - generic [ref=e396]: Free
+            - generic [ref=e397]: "|"
+            - generic [ref=e398]: 1 provider
+          - generic [ref=e401] [cursor=pointer]:
+            - generic [ref=e403]: Cohere
+            - generic [ref=e405]:
+              - generic [ref=e406]: —
+              - generic "No tools" [ref=e407]: —
+            - generic [ref=e408]: Free
+        - generic [ref=e409]:
+          - generic [ref=e411]:
+            - heading "c4ai-aya-vision-32b" [level=3] [ref=e412]
+            - generic [ref=e413]: Cohere
+          - generic [ref=e414]:
+            - generic [ref=e415]: "Max: — context"
+            - generic [ref=e416]: "|"
+            - generic [ref=e417]: Free
+            - generic [ref=e418]: "|"
+            - generic [ref=e419]: 1 provider
+          - generic [ref=e422] [cursor=pointer]:
+            - generic [ref=e424]: Cohere
+            - generic [ref=e426]:
+              - generic [ref=e427]: —
+              - generic "No tools" [ref=e428]: —
+            - generic [ref=e429]: Free
+        - generic [ref=e430]:
+          - generic [ref=e432]:
+            - heading "Canopy Labs Orpheus Arabic Saudi" [level=3] [ref=e433]
+            - generic [ref=e434]: Unknown
+          - generic [ref=e435]:
+            - generic [ref=e436]: "Max: 4K context"
+            - generic [ref=e437]: "|"
+            - generic [ref=e438]: Free
+            - generic [ref=e439]: "|"
+            - generic [ref=e440]: 1 provider
+          - generic [ref=e443] [cursor=pointer]:
+            - generic [ref=e445]: Groq
+            - generic [ref=e447]:
+              - generic [ref=e448]: 4K
+              - generic "Tools supported" [ref=e449]:
+                - img [ref=e450]
+            - generic [ref=e452]: Free
+        - generic [ref=e453]:
+          - generic [ref=e455]:
+            - heading "Claude Haiku 4.5" [level=3] [ref=e456]
+            - generic [ref=e457]: Anthropic
+          - generic [ref=e458]:
+            - generic [ref=e459]: "Max: 200K context"
+            - generic [ref=e460]: "|"
+            - generic [ref=e461]: $1/$5
+            - generic [ref=e462]: "|"
+            - generic [ref=e463]: 1 provider
+          - generic [ref=e466] [cursor=pointer]:
+            - generic [ref=e468]: OpenRouter
+            - generic [ref=e470]:
+              - generic [ref=e471]: 200K
+              - generic "Tools supported" [ref=e472]:
+                - img [ref=e473]
+            - generic [ref=e475]: $1/$5
+        - generic [ref=e476]:
+          - generic [ref=e478]:
+            - heading "Claude Opus 4.7" [level=3] [ref=e479]
+            - generic [ref=e480]: Anthropic
+          - generic [ref=e481]:
+            - generic [ref=e482]: "Max: 1M context"
+            - generic [ref=e483]: "|"
+            - generic [ref=e484]: $5/$25
+            - generic [ref=e485]: "|"
+            - generic [ref=e486]: 1 provider
+          - generic [ref=e489] [cursor=pointer]:
+            - generic [ref=e491]: OpenRouter
+            - generic [ref=e493]:
+              - generic [ref=e494]: 1M
+              - generic "Tools supported" [ref=e495]:
+                - img [ref=e496]
+            - generic [ref=e498]: $5/$25
+        - generic [ref=e499]:
+          - generic [ref=e501]:
+            - heading "Claude Sonnet 4.6" [level=3] [ref=e502]
+            - generic [ref=e503]: Anthropic
+          - generic [ref=e504]:
+            - generic [ref=e505]: "Max: 1M context"
+            - generic [ref=e506]: "|"
+            - generic [ref=e507]: $3/$15
+            - generic [ref=e508]: "|"
+            - generic [ref=e509]: 1 provider
+          - generic [ref=e512] [cursor=pointer]:
+            - generic [ref=e514]: OpenRouter
+            - generic [ref=e516]:
+              - generic [ref=e517]: 1M
+              - generic "Tools supported" [ref=e518]:
+                - img [ref=e519]
+            - generic [ref=e521]: $3/$15
+        - generic [ref=e522]:
+          - generic [ref=e524]:
+            - heading "Codestral" [level=3] [ref=e525]
+            - generic [ref=e526]: Mistral
+          - generic [ref=e527]:
+            - generic [ref=e528]: "Max: — context"
+            - generic [ref=e529]: "|"
+            - generic [ref=e530]: Free
+            - generic [ref=e531]: "|"
+            - generic [ref=e532]: 1 provider
+          - generic [ref=e535] [cursor=pointer]:
+            - generic [ref=e537]: Mistral
+            - generic [ref=e539]:
+              - generic [ref=e540]: —
+              - generic "No tools" [ref=e541]: —
+            - generic [ref=e542]: Free
+        - generic [ref=e543]:
+          - generic [ref=e545]:
+            - heading "Codestral 25.01" [level=3] [ref=e546]
+            - generic [ref=e547]: Mistral
+          - generic [ref=e548]:
+            - generic [ref=e549]: "Max: — context"
+            - generic [ref=e550]: "|"
+            - generic [ref=e551]: Free
+            - generic [ref=e552]: "|"
+            - generic [ref=e553]: 1 provider
+          - generic [ref=e556] [cursor=pointer]:
+            - generic [ref=e558]: GitHub Models
+            - generic [ref=e560]:
+              - generic [ref=e561]: —
+              - generic "No tools" [ref=e562]: —
+            - generic [ref=e563]: Free
+        - generic [ref=e564]:
+          - generic [ref=e566]:
+            - heading "Cohere Command A" [level=3] [ref=e567]
+            - generic [ref=e568]: Cohere
+          - generic [ref=e569]:
+            - generic [ref=e570]: "Max: — context"
+            - generic [ref=e571]: "|"
+            - generic [ref=e572]: Free
+            - generic [ref=e573]: "|"
+            - generic [ref=e574]: 1 provider
+          - generic [ref=e577] [cursor=pointer]:
+            - generic [ref=e579]: GitHub Models
+            - generic [ref=e581]:
+              - generic [ref=e582]: —
+              - generic "No tools" [ref=e583]: —
+            - generic [ref=e584]: Free
+        - generic [ref=e585]:
+          - generic [ref=e587]:
+            - heading "Cohere Command R+ 08-2024" [level=3] [ref=e588]
+            - generic [ref=e589]: Cohere
+          - generic [ref=e590]:
+            - generic [ref=e591]: "Max: — context"
+            - generic [ref=e592]: "|"
+            - generic [ref=e593]: Free
+            - generic [ref=e594]: "|"
+            - generic [ref=e595]: 2 providers
+          - generic [ref=e597]:
+            - generic [ref=e598] [cursor=pointer]:
+              - generic [ref=e600]: GitHub Models
+              - generic [ref=e602]:
+                - generic [ref=e603]: —
+                - generic "No tools" [ref=e604]: —
+              - generic [ref=e605]: Free
+            - generic [ref=e606] [cursor=pointer]:
+              - generic [ref=e608]: GitHub Models
+              - generic [ref=e610]:
+                - generic [ref=e611]: —
+                - generic "No tools" [ref=e612]: —
+              - generic [ref=e613]: Free
+        - generic [ref=e614]:
+          - generic [ref=e616]:
+            - heading "command-a-03-2025" [level=3] [ref=e617]
+            - generic [ref=e618]: Cohere
+          - generic [ref=e619]:
+            - generic [ref=e620]: "Max: — context"
+            - generic [ref=e621]: "|"
+            - generic [ref=e622]: Free
+            - generic [ref=e623]: "|"
+            - generic [ref=e624]: 1 provider
+          - generic [ref=e627] [cursor=pointer]:
+            - generic [ref=e629]: Cohere
+            - generic [ref=e631]:
+              - generic [ref=e632]: —
+              - generic "No tools" [ref=e633]: —
+            - generic [ref=e634]: Free
+        - generic [ref=e635]:
+          - generic [ref=e637]:
+            - heading "command-a-plus-05-2026" [level=3] [ref=e638]
+            - generic [ref=e639]: Cohere
+          - generic [ref=e640]:
+            - generic [ref=e641]: "Max: — context"
+            - generic [ref=e642]: "|"
+            - generic [ref=e643]: Free
+            - generic [ref=e644]: "|"
+            - generic [ref=e645]: 1 provider
+          - generic [ref=e648] [cursor=pointer]:
+            - generic [ref=e650]: Cohere
+            - generic [ref=e652]:
+              - generic [ref=e653]: —
+              - generic "No tools" [ref=e654]: —
+            - generic [ref=e655]: Free
+        - generic [ref=e656]:
+          - generic [ref=e658]:
+            - heading "command-a-reasoning-08-2025" [level=3] [ref=e659]
+            - generic [ref=e660]: Cohere
+          - generic [ref=e661]:
+            - generic [ref=e662]: "Max: — context"
+            - generic [ref=e663]: "|"
+            - generic [ref=e664]: Free
+            - generic [ref=e665]: "|"
+            - generic [ref=e666]: 1 provider
+          - generic [ref=e669] [cursor=pointer]:
+            - generic [ref=e671]: Cohere
+            - generic [ref=e673]:
+              - generic [ref=e674]: —
+              - generic "No tools" [ref=e675]: —
+            - generic [ref=e676]: Free
+        - generic [ref=e677]:
+          - generic [ref=e679]:
+            - heading "command-a-translate-08-2025" [level=3] [ref=e680]
+            - generic [ref=e681]: Cohere
+          - generic [ref=e682]:
+            - generic [ref=e683]: "Max: — context"
+            - generic [ref=e684]: "|"
+            - generic [ref=e685]: Free
+            - generic [ref=e686]: "|"
+            - generic [ref=e687]: 1 provider
+          - generic [ref=e690] [cursor=pointer]:
+            - generic [ref=e692]: Cohere
+            - generic [ref=e694]:
+              - generic [ref=e695]: —
+              - generic "No tools" [ref=e696]: —
+            - generic [ref=e697]: Free
+        - generic [ref=e698]:
+          - generic [ref=e700]:
+            - heading "command-a-vision-07-2025" [level=3] [ref=e701]
+            - generic [ref=e702]: Cohere
+          - generic [ref=e703]:
+            - generic [ref=e704]: "Max: — context"
+            - generic [ref=e705]: "|"
+            - generic [ref=e706]: Free
+            - generic [ref=e707]: "|"
+            - generic [ref=e708]: 1 provider
+          - generic [ref=e711] [cursor=pointer]:
+            - generic [ref=e713]: Cohere
+            - generic [ref=e715]:
+              - generic [ref=e716]: —
+              - generic "No tools" [ref=e717]: —
+            - generic [ref=e718]: Free
+        - generic [ref=e719]:
+          - generic [ref=e721]:
+            - heading "command-r-08-2024" [level=3] [ref=e722]
+            - generic [ref=e723]: Cohere
+          - generic [ref=e724]:
+            - generic [ref=e725]: "Max: — context"
+            - generic [ref=e726]: "|"
+            - generic [ref=e727]: Free
+            - generic [ref=e728]: "|"
+            - generic [ref=e729]: 1 provider
+          - generic [ref=e732] [cursor=pointer]:
+            - generic [ref=e734]: Cohere
+            - generic [ref=e736]:
+              - generic [ref=e737]: —
+              - generic "No tools" [ref=e738]: —
+            - generic [ref=e739]: Free
+        - generic [ref=e740]:
+          - generic [ref=e742]:
+            - heading "command-r-plus-08-2024" [level=3] [ref=e743]
+            - generic [ref=e744]: Cohere
+          - generic [ref=e745]:
+            - generic [ref=e746]: "Max: — context"
+            - generic [ref=e747]: "|"
+            - generic [ref=e748]: Free
+            - generic [ref=e749]: "|"
+            - generic [ref=e750]: 1 provider
+          - generic [ref=e753] [cursor=pointer]:
+            - generic [ref=e755]: Cohere
+            - generic [ref=e757]:
+              - generic [ref=e758]: —
+              - generic "No tools" [ref=e759]: —
+            - generic [ref=e760]: Free
+        - generic [ref=e761]:
+          - generic [ref=e763]:
+            - heading "command-r7b-12-2024" [level=3] [ref=e764]
+            - generic [ref=e765]: Cohere
+          - generic [ref=e766]:
+            - generic [ref=e767]: "Max: — context"
+            - generic [ref=e768]: "|"
+            - generic [ref=e769]: Free
+            - generic [ref=e770]: "|"
+            - generic [ref=e771]: 1 provider
+          - generic [ref=e774] [cursor=pointer]:
+            - generic [ref=e776]: Cohere
+            - generic [ref=e778]:
+              - generic [ref=e779]: —
+              - generic "No tools" [ref=e780]: —
+            - generic [ref=e781]: Free
+        - generic [ref=e782]:
+          - generic [ref=e784]:
+            - heading "command-r7b-arabic-02-2025" [level=3] [ref=e785]
+            - generic [ref=e786]: Cohere
+          - generic [ref=e787]:
+            - generic [ref=e788]: "Max: — context"
+            - generic [ref=e789]: "|"
+            - generic [ref=e790]: Free
+            - generic [ref=e791]: "|"
+            - generic [ref=e792]: 1 provider
+          - generic [ref=e795] [cursor=pointer]:
+            - generic [ref=e797]: Cohere
+            - generic [ref=e799]:
+              - generic [ref=e800]: —
+              - generic "No tools" [ref=e801]: —
+            - generic [ref=e802]: Free
+        - generic [ref=e803]:
+          - generic [ref=e805]:
+            - heading "Compound" [level=3] [ref=e806]
+            - generic [ref=e807]: Unknown
+          - generic [ref=e808]:
+            - generic [ref=e809]: "Max: 131K context"
+            - generic [ref=e810]: "|"
+            - generic [ref=e811]: Free
+            - generic [ref=e812]: "|"
+            - generic [ref=e813]: 1 provider
+          - generic [ref=e816] [cursor=pointer]:
+            - generic [ref=e818]: Groq
+            - generic [ref=e820]:
+              - generic [ref=e821]: 131K
+              - generic "Tools supported" [ref=e822]:
+                - img [ref=e823]
+            - generic [ref=e825]: Free
+        - generic [ref=e826]:
+          - generic [ref=e828]:
+            - heading "Compound Mini" [level=3] [ref=e829]
+            - generic [ref=e830]: Unknown
+          - generic [ref=e831]:
+            - generic [ref=e832]: "Max: 131K context"
+            - generic [ref=e833]: "|"
+            - generic [ref=e834]: Free
+            - generic [ref=e835]: "|"
+            - generic [ref=e836]: 1 provider
+          - generic [ref=e839] [cursor=pointer]:
+            - generic [ref=e841]: Groq
+            - generic [ref=e843]:
+              - generic [ref=e844]: 131K
+              - generic "Tools supported" [ref=e845]:
+                - img [ref=e846]
+            - generic [ref=e848]: Free
+        - generic [ref=e849]:
+          - generic [ref=e851]:
+            - heading "DeepSeek R1 Distill Qwen 32B" [level=3] [ref=e852]
+            - generic [ref=e853]: Unknown
+          - generic [ref=e854]:
+            - generic [ref=e855]: "Max: — context"
+            - generic [ref=e856]: "|"
+            - generic [ref=e857]: Free
+            - generic [ref=e858]: "|"
+            - generic [ref=e859]: 1 provider
+          - generic [ref=e862] [cursor=pointer]:
+            - generic [ref=e864]: Cloudflare
+            - generic [ref=e866]:
+              - generic [ref=e867]: —
+              - generic "No tools" [ref=e868]: —
+            - generic [ref=e869]: Free
+        - generic [ref=e870]:
+          - generic [ref=e872]:
+            - heading "DeepSeek Reasoner" [level=3] [ref=e873]
+            - generic [ref=e874]: DeepSeek
+          - generic [ref=e875]:
+            - generic [ref=e876]: "Max: 164K context"
+            - generic [ref=e877]: "|"
+            - generic [ref=e878]: $0.70/$3
+            - generic [ref=e879]: "|"
+            - generic [ref=e880]: 1 provider
+          - generic [ref=e883] [cursor=pointer]:
+            - generic [ref=e885]: OpenRouter
+            - generic [ref=e887]:
+              - generic [ref=e888]: 164K
+              - generic "Tools supported" [ref=e889]:
+                - img [ref=e890]
+            - generic [ref=e892]: $0.70/$3
+        - generic [ref=e893]:
+          - generic [ref=e895]:
+            - heading "DeepSeek-R1" [level=3] [ref=e896]
+            - generic [ref=e897]: DeepSeek
+          - generic [ref=e898]:
+            - generic [ref=e899]: "Max: — context"
+            - generic [ref=e900]: "|"
+            - generic [ref=e901]: Free
+            - generic [ref=e902]: "|"
+            - generic [ref=e903]: 1 provider
+          - generic [ref=e906] [cursor=pointer]:
+            - generic [ref=e908]: GitHub Models
+            - generic [ref=e910]:
+              - generic [ref=e911]: —
+              - generic "No tools" [ref=e912]: —
+            - generic [ref=e913]: Free
+        - generic [ref=e914]:
+          - generic [ref=e916]:
+            - heading "DeepSeek-R1-0528" [level=3] [ref=e917]
+            - generic [ref=e918]: DeepSeek
+          - generic [ref=e919]:
+            - generic [ref=e920]: "Max: — context"
+            - generic [ref=e921]: "|"
+            - generic [ref=e922]: Free
+            - generic [ref=e923]: "|"
+            - generic [ref=e924]: 1 provider
+          - generic [ref=e927] [cursor=pointer]:
+            - generic [ref=e929]: GitHub Models
+            - generic [ref=e931]:
+              - generic [ref=e932]: —
+              - generic "No tools" [ref=e933]: —
+            - generic [ref=e934]: Free
+        - generic [ref=e935]:
+          - generic [ref=e937]:
+            - heading "DeepSeek-V3-0324" [level=3] [ref=e938]
+            - generic [ref=e939]: DeepSeek
+          - generic [ref=e940]:
+            - generic [ref=e941]: "Max: — context"
+            - generic [ref=e942]: "|"
+            - generic [ref=e943]: Free
+            - generic [ref=e944]: "|"
+            - generic [ref=e945]: 1 provider
+          - generic [ref=e948] [cursor=pointer]:
+            - generic [ref=e950]: GitHub Models
+            - generic [ref=e952]:
+              - generic [ref=e953]: —
+              - generic "No tools" [ref=e954]: —
+            - generic [ref=e955]: Free
+        - generic [ref=e956]:
+          - generic [ref=e958]:
+            - heading "deepseek-v4-flash" [level=3] [ref=e959]
+            - generic [ref=e960]: DeepSeek
+          - generic [ref=e961]:
+            - generic [ref=e962]: "Max: 1M context"
+            - generic [ref=e963]: "|"
+            - generic [ref=e964]: Free
+            - generic [ref=e965]: "|"
+            - generic [ref=e966]: 4 providers
+          - generic [ref=e968]:
+            - generic [ref=e969] [cursor=pointer]:
+              - generic [ref=e971]: DeepSeek
+              - generic [ref=e973]:
+                - generic [ref=e974]: —
+                - generic "Tools supported" [ref=e975]:
+                  - img [ref=e976]
+              - generic [ref=e978]: $0.10/$0.20
+            - generic [ref=e979] [cursor=pointer]:
+              - generic [ref=e981]: OpenCode Zen
+              - generic [ref=e983]:
+                - generic [ref=e984]: 1M
+                - generic "Tools supported" [ref=e985]:
+                  - img [ref=e986]
+              - generic [ref=e988]: Free
+            - generic [ref=e989] [cursor=pointer]:
+              - generic [ref=e991]: OpenRouter
+              - generic [ref=e993]:
+                - generic [ref=e994]: 1M
+                - generic "Tools supported" [ref=e995]:
+                  - img [ref=e996]
+              - generic [ref=e998]: $0.10/$0.20
+            - generic [ref=e999] [cursor=pointer]:
+              - generic [ref=e1001]: OpenRouter
+              - generic [ref=e1003]:
+                - generic [ref=e1004]: 1M
+                - generic "Tools supported" [ref=e1005]:
+                  - img [ref=e1006]
+              - generic [ref=e1008]: $0.10/$0.20
+        - generic [ref=e1009]:
+          - generic [ref=e1010]:
+            - generic [ref=e1011]:
+              - heading "deepseek-v4-pro" [level=3] [ref=e1012]
+              - generic [ref=e1013]: DeepSeek
+            - generic [ref=e1014]:
+              - generic [ref=e1015]: "#5 Build"
+              - generic [ref=e1016]: "#5 Model"
+          - generic [ref=e1017]:
+            - generic [ref=e1018]: "Max: 1M context"
+            - generic [ref=e1019]: "|"
+            - generic [ref=e1020]: Free
+            - generic [ref=e1021]: "|"
+            - generic [ref=e1022]: 3 providers
+          - generic [ref=e1024]:
+            - generic [ref=e1025] [cursor=pointer]:
+              - generic [ref=e1027]: DeepSeek
+              - generic [ref=e1029]:
+                - generic [ref=e1030]: 1M
+                - generic "Tools supported" [ref=e1031]:
+                  - img [ref=e1032]
+              - generic [ref=e1034]: Free
+            - generic [ref=e1035] [cursor=pointer]:
+              - generic [ref=e1037]: OpenRouter
+              - generic [ref=e1039]:
+                - generic [ref=e1040]: 1M
+                - generic "Tools supported" [ref=e1041]:
+                  - img [ref=e1042]
+              - generic [ref=e1044]: $0.44/$0.87
+            - generic [ref=e1045] [cursor=pointer]:
+              - generic [ref=e1047]: OpenRouter
+              - generic [ref=e1049]:
+                - generic [ref=e1050]: 1M
+                - generic "Tools supported" [ref=e1051]:
+                  - img [ref=e1052]
+              - generic [ref=e1054]: $0.44/$0.87
+        - generic [ref=e1055]:
+          - generic [ref=e1057]:
+            - heading "deepseek/deepseek-v4-flash:free" [level=3] [ref=e1058]
+            - generic [ref=e1059]: DeepSeek
+          - generic [ref=e1060]:
+            - generic [ref=e1061]: "Max: — context"
+            - generic [ref=e1062]: "|"
+            - generic [ref=e1063]: Free
+            - generic [ref=e1064]: "|"
+            - generic [ref=e1065]: 1 provider
+          - generic [ref=e1068] [cursor=pointer]:
+            - generic [ref=e1070]: OpenRouter
+            - generic [ref=e1072]:
+              - generic [ref=e1073]: —
+              - generic "No tools" [ref=e1074]: —
+            - generic [ref=e1075]: Free
+        - generic [ref=e1076]:
+          - generic [ref=e1078]:
+            - heading "Dolphin Mistral 24B Venice" [level=3] [ref=e1079]
+            - generic [ref=e1080]: Cognitive Computations
+          - generic [ref=e1081]:
+            - generic [ref=e1082]: "Max: 33K context"
+            - generic [ref=e1083]: "|"
+            - generic [ref=e1084]: Free
+            - generic [ref=e1085]: "|"
+            - generic [ref=e1086]: 1 provider
+          - generic [ref=e1089] [cursor=pointer]:
+            - generic [ref=e1091]: OpenRouter
+            - generic [ref=e1093]:
+              - generic [ref=e1094]: 33K
+              - generic "Tools supported" [ref=e1095]:
+                - img [ref=e1096]
+            - generic [ref=e1098]: Free
+        - generic [ref=e1099]:
+          - generic [ref=e1101]:
+            - heading "Free Models Router" [level=3] [ref=e1102]
+            - generic [ref=e1103]: Unknown
+          - generic [ref=e1104]:
+            - generic [ref=e1105]: "Max: 200K context"
+            - generic [ref=e1106]: "|"
+            - generic [ref=e1107]: Free/Free
+            - generic [ref=e1108]: "|"
+            - generic [ref=e1109]: 2 providers
+          - generic [ref=e1111]:
+            - generic [ref=e1112] [cursor=pointer]:
+              - generic [ref=e1114]: Kilo Gateway
+              - generic [ref=e1116]:
+                - generic [ref=e1117]: 200K
+                - generic "Tools supported" [ref=e1118]:
+                  - img [ref=e1119]
+              - generic [ref=e1121]: $0/$0
+            - generic [ref=e1122] [cursor=pointer]:
+              - generic [ref=e1124]: OpenRouter
+              - generic [ref=e1126]:
+                - generic [ref=e1127]: 200K
+                - generic "Tools supported" [ref=e1128]:
+                  - img [ref=e1129]
+              - generic [ref=e1131]: $0/$0
+        - generic [ref=e1132]:
+          - generic [ref=e1134]:
+            - heading "Gemini 2.0 Flash" [level=3] [ref=e1135]
+            - generic [ref=e1136]: Google
+          - generic [ref=e1137]:
+            - generic [ref=e1138]: "Max: 1M context"
+            - generic [ref=e1139]: "|"
+            - generic [ref=e1140]: Free
+            - generic [ref=e1141]: "|"
+            - generic [ref=e1142]: 1 provider
+          - generic [ref=e1145] [cursor=pointer]:
+            - generic [ref=e1147]: Google AI
+            - generic [ref=e1149]:
+              - generic [ref=e1150]: 1M
+              - generic "Tools supported" [ref=e1151]:
+                - img [ref=e1152]
+            - generic [ref=e1154]: Free
+        - generic [ref=e1155]:
+          - generic [ref=e1157]:
+            - heading "Gemini 2.0 Flash 001" [level=3] [ref=e1158]
+            - generic [ref=e1159]: Google
+          - generic [ref=e1160]:
+            - generic [ref=e1161]: "Max: 1M context"
+            - generic [ref=e1162]: "|"
+            - generic [ref=e1163]: Free
+            - generic [ref=e1164]: "|"
+            - generic [ref=e1165]: 1 provider
+          - generic [ref=e1168] [cursor=pointer]:
+            - generic [ref=e1170]: Google AI
+            - generic [ref=e1172]:
+              - generic [ref=e1173]: 1M
+              - generic "Tools supported" [ref=e1174]:
+                - img [ref=e1175]
+            - generic [ref=e1177]: Free
+        - generic [ref=e1178]:
+          - generic [ref=e1180]:
+            - heading "Gemini 2.0 Flash-Lite" [level=3] [ref=e1181]
+            - generic [ref=e1182]: Google
+          - generic [ref=e1183]:
+            - generic [ref=e1184]: "Max: 1M context"
+            - generic [ref=e1185]: "|"
+            - generic [ref=e1186]: Free
+            - generic [ref=e1187]: "|"
+            - generic [ref=e1188]: 1 provider
+          - generic [ref=e1191] [cursor=pointer]:
+            - generic [ref=e1193]: Google AI
+            - generic [ref=e1195]:
+              - generic [ref=e1196]: 1M
+              - generic "Tools supported" [ref=e1197]:
+                - img [ref=e1198]
+            - generic [ref=e1200]: Free
+        - generic [ref=e1201]:
+          - generic [ref=e1203]:
+            - heading "Gemini 2.0 Flash-Lite 001" [level=3] [ref=e1204]
+            - generic [ref=e1205]: Google
+          - generic [ref=e1206]:
+            - generic [ref=e1207]: "Max: 1M context"
+            - generic [ref=e1208]: "|"
+            - generic [ref=e1209]: Free
+            - generic [ref=e1210]: "|"
+            - generic [ref=e1211]: 1 provider
+          - generic [ref=e1214] [cursor=pointer]:
+            - generic [ref=e1216]: Google AI
+            - generic [ref=e1218]:
+              - generic [ref=e1219]: 1M
+              - generic "Tools supported" [ref=e1220]:
+                - img [ref=e1221]
+            - generic [ref=e1223]: Free
+        - generic [ref=e1224]:
+          - generic [ref=e1226]:
+            - heading "Gemini 2.5 Computer Use Preview 10-2025" [level=3] [ref=e1227]
+            - generic [ref=e1228]: Google
+          - generic [ref=e1229]:
+            - generic [ref=e1230]: "Max: 131K context"
+            - generic [ref=e1231]: "|"
+            - generic [ref=e1232]: Free
+            - generic [ref=e1233]: "|"
+            - generic [ref=e1234]: 1 provider
+          - generic [ref=e1237] [cursor=pointer]:
+            - generic [ref=e1239]: Google AI
+            - generic [ref=e1241]:
+              - generic [ref=e1242]: 131K
+              - generic "Tools supported" [ref=e1243]:
+                - img [ref=e1244]
+            - generic [ref=e1246]: Free
+        - generic [ref=e1247]:
+          - generic [ref=e1249]:
+            - heading "Gemini 2.5 Flash" [level=3] [ref=e1250]
+            - generic [ref=e1251]: Google
+          - generic [ref=e1252]:
+            - generic [ref=e1253]: "Max: 1M context"
+            - generic [ref=e1254]: "|"
+            - generic [ref=e1255]: $0.30/$3
+            - generic [ref=e1256]: "|"
+            - generic [ref=e1257]: 2 providers
+          - generic [ref=e1259]:
+            - generic [ref=e1260] [cursor=pointer]:
+              - generic [ref=e1262]: Google AI
+              - generic [ref=e1264]:
+                - generic [ref=e1265]: 1M
+                - generic "Tools supported" [ref=e1266]:
+                  - img [ref=e1267]
+              - generic [ref=e1269]: $0.30/$3
+            - generic [ref=e1270] [cursor=pointer]:
+              - generic [ref=e1272]: OpenRouter
+              - generic [ref=e1274]:
+                - generic [ref=e1275]: 1M
+                - generic "Tools supported" [ref=e1276]:
+                  - img [ref=e1277]
+              - generic [ref=e1279]: $0.30/$3
+        - generic [ref=e1280]:
+          - generic [ref=e1282]:
+            - heading "Gemini 2.5 Flash Preview TTS" [level=3] [ref=e1283]
+            - generic [ref=e1284]: Google
+          - generic [ref=e1285]:
+            - generic [ref=e1286]: "Max: 8K context"
+            - generic [ref=e1287]: "|"
+            - generic [ref=e1288]: Free
+            - generic [ref=e1289]: "|"
+            - generic [ref=e1290]: 1 provider
+          - generic [ref=e1293] [cursor=pointer]:
+            - generic [ref=e1295]: Google AI
+            - generic [ref=e1297]:
+              - generic [ref=e1298]: 8K
+              - generic "Tools supported" [ref=e1299]:
+                - img [ref=e1300]
+            - generic [ref=e1302]: Free
+        - generic [ref=e1303]:
+          - generic [ref=e1305]:
+            - heading "Gemini 2.5 Flash TTS" [level=3] [ref=e1306]
+            - generic [ref=e1307]: Google
+          - generic [ref=e1308]:
+            - generic [ref=e1309]: "Max: — context"
+            - generic [ref=e1310]: "|"
+            - generic [ref=e1311]: Free
+            - generic [ref=e1312]: "|"
+            - generic [ref=e1313]: 1 provider
+          - generic [ref=e1316] [cursor=pointer]:
+            - generic [ref=e1318]: Google AI
+            - generic [ref=e1320]:
+              - generic [ref=e1321]: —
+              - generic "No tools" [ref=e1322]: —
+            - generic [ref=e1323]: Free
+        - generic [ref=e1324]:
+          - generic [ref=e1325]:
+            - generic [ref=e1326]:
+              - heading "Gemini 2.5 Flash-Lite" [level=3] [ref=e1327]
+              - generic [ref=e1328]: Google
+            - generic [ref=e1329]:
+              - generic [ref=e1330]: "#6 Build"
+              - generic [ref=e1331]: "#6 Model"
+          - generic [ref=e1332]:
+            - generic [ref=e1333]: "Max: 1M context"
+            - generic [ref=e1334]: "|"
+            - generic [ref=e1335]: Free
+            - generic [ref=e1336]: "|"
+            - generic [ref=e1337]: 1 provider
+          - generic [ref=e1340] [cursor=pointer]:
+            - generic [ref=e1342]: Google AI
+            - generic [ref=e1344]:
+              - generic [ref=e1345]: 1M
+              - generic "Tools supported" [ref=e1346]:
+                - img [ref=e1347]
+            - generic [ref=e1349]: Free
+        - generic [ref=e1350]:
+          - generic [ref=e1352]:
+            - heading "Gemini 2.5 Pro" [level=3] [ref=e1353]
+            - generic [ref=e1354]: Google
+          - generic [ref=e1355]:
+            - generic [ref=e1356]: "Max: 1M context"
+            - generic [ref=e1357]: "|"
+            - generic [ref=e1358]: $1/$10
+            - generic [ref=e1359]: "|"
+            - generic [ref=e1360]: 2 providers
+          - generic [ref=e1362]:
+            - generic [ref=e1363] [cursor=pointer]:
+              - generic [ref=e1365]: Google AI
+              - generic [ref=e1367]:
+                - generic [ref=e1368]: 1M
+                - generic "Tools supported" [ref=e1369]:
+                  - img [ref=e1370]
+              - generic [ref=e1372]: $1/$10
+            - generic [ref=e1373] [cursor=pointer]:
+              - generic [ref=e1375]: OpenRouter
+              - generic [ref=e1377]:
+                - generic [ref=e1378]: 1M
+                - generic "Tools supported" [ref=e1379]:
+                  - img [ref=e1380]
+              - generic [ref=e1382]: $1/$10
+        - generic [ref=e1383]:
+          - generic [ref=e1385]:
+            - heading "Gemini 2.5 Pro Preview TTS" [level=3] [ref=e1386]
+            - generic [ref=e1387]: Google
+          - generic [ref=e1388]:
+            - generic [ref=e1389]: "Max: 8K context"
+            - generic [ref=e1390]: "|"
+            - generic [ref=e1391]: Free
+            - generic [ref=e1392]: "|"
+            - generic [ref=e1393]: 1 provider
+          - generic [ref=e1396] [cursor=pointer]:
+            - generic [ref=e1398]: Google AI
+            - generic [ref=e1400]:
+              - generic [ref=e1401]: 8K
+              - generic "Tools supported" [ref=e1402]:
+                - img [ref=e1403]
+            - generic [ref=e1405]: Free
+        - generic [ref=e1406]:
+          - generic [ref=e1407]:
+            - generic [ref=e1408]:
+              - heading "Gemini 3 Flash Preview" [level=3] [ref=e1409]
+              - generic [ref=e1410]: Google
+            - generic [ref=e1411]:
+              - generic [ref=e1412]: "#7 Build"
+              - generic [ref=e1413]: "#7 Model"
+          - generic [ref=e1414]:
+            - generic [ref=e1415]: "Max: 1M context"
+            - generic [ref=e1416]: "|"
+            - generic [ref=e1417]: Free
+            - generic [ref=e1418]: "|"
+            - generic [ref=e1419]: 1 provider
+          - generic [ref=e1422] [cursor=pointer]:
+            - generic [ref=e1424]: Google AI
+            - generic [ref=e1426]:
+              - generic [ref=e1427]: 1M
+              - generic "Tools supported" [ref=e1428]:
+                - img [ref=e1429]
+            - generic [ref=e1431]: Free
+        - generic [ref=e1432]:
+          - generic [ref=e1434]:
+            - heading "Gemini 3 Pro Preview" [level=3] [ref=e1435]
+            - generic [ref=e1436]: Google
+          - generic [ref=e1437]:
+            - generic [ref=e1438]: "Max: 1M context"
+            - generic [ref=e1439]: "|"
+            - generic [ref=e1440]: Free
+            - generic [ref=e1441]: "|"
+            - generic [ref=e1442]: 1 provider
+          - generic [ref=e1445] [cursor=pointer]:
+            - generic [ref=e1447]: Google AI
+            - generic [ref=e1449]:
+              - generic [ref=e1450]: 1M
+              - generic "Tools supported" [ref=e1451]:
+                - img [ref=e1452]
+            - generic [ref=e1454]: Free
+        - generic [ref=e1455]:
+          - generic [ref=e1456]:
+            - generic [ref=e1457]:
+              - heading "Gemini 3.1 Flash Lite" [level=3] [ref=e1458]
+              - generic [ref=e1459]: Google
+            - generic [ref=e1460]:
+              - generic [ref=e1461]: "#8 Build"
+              - generic [ref=e1462]: "#8 Model"
+          - generic [ref=e1463]:
+            - generic [ref=e1464]: "Max: 1M context"
+            - generic [ref=e1465]: "|"
+            - generic [ref=e1466]: Free
+            - generic [ref=e1467]: "|"
+            - generic [ref=e1468]: 1 provider
+          - generic [ref=e1471] [cursor=pointer]:
+            - generic [ref=e1473]: Google AI
+            - generic [ref=e1475]:
+              - generic [ref=e1476]: 1M
+              - generic "Tools supported" [ref=e1477]:
+                - img [ref=e1478]
+            - generic [ref=e1480]: Free
+        - generic [ref=e1481]:
+          - generic [ref=e1482]:
+            - generic [ref=e1483]:
+              - heading "Gemini 3.1 Flash Lite Preview" [level=3] [ref=e1484]
+              - generic [ref=e1485]: Google
+            - generic [ref=e1486]:
+              - generic [ref=e1487]: "#9 Build"
+              - generic [ref=e1488]: "#9 Model"
+          - generic [ref=e1489]:
+            - generic [ref=e1490]: "Max: 1M context"
+            - generic [ref=e1491]: "|"
+            - generic [ref=e1492]: Free
+            - generic [ref=e1493]: "|"
+            - generic [ref=e1494]: 1 provider
+          - generic [ref=e1497] [cursor=pointer]:
+            - generic [ref=e1499]: Google AI
+            - generic [ref=e1501]:
+              - generic [ref=e1502]: 1M
+              - generic "Tools supported" [ref=e1503]:
+                - img [ref=e1504]
+            - generic [ref=e1506]: Free
+        - generic [ref=e1507]:
+          - generic [ref=e1509]:
+            - heading "Gemini 3.1 Flash TTS Preview" [level=3] [ref=e1510]
+            - generic [ref=e1511]: Google
+          - generic [ref=e1512]:
+            - generic [ref=e1513]: "Max: 8K context"
+            - generic [ref=e1514]: "|"
+            - generic [ref=e1515]: Free
+            - generic [ref=e1516]: "|"
+            - generic [ref=e1517]: 1 provider
+          - generic [ref=e1520] [cursor=pointer]:
+            - generic [ref=e1522]: Google AI
+            - generic [ref=e1524]:
+              - generic [ref=e1525]: 8K
+              - generic "Tools supported" [ref=e1526]:
+                - img [ref=e1527]
+            - generic [ref=e1529]: Free
+        - generic [ref=e1530]:
+          - generic [ref=e1532]:
+            - heading "Gemini 3.1 Pro Preview" [level=3] [ref=e1533]
+            - generic [ref=e1534]: Google
+          - generic [ref=e1535]:
+            - generic [ref=e1536]: "Max: 1M context"
+            - generic [ref=e1537]: "|"
+            - generic [ref=e1538]: Free
+            - generic [ref=e1539]: "|"
+            - generic [ref=e1540]: 1 provider
+          - generic [ref=e1543] [cursor=pointer]:
+            - generic [ref=e1545]: Google AI
+            - generic [ref=e1547]:
+              - generic [ref=e1548]: 1M
+              - generic "Tools supported" [ref=e1549]:
+                - img [ref=e1550]
+            - generic [ref=e1552]: Free
+        - generic [ref=e1553]:
+          - generic [ref=e1555]:
+            - heading "Gemini 3.1 Pro Preview Custom Tools" [level=3] [ref=e1556]
+            - generic [ref=e1557]: Google
+          - generic [ref=e1558]:
+            - generic [ref=e1559]: "Max: 1M context"
+            - generic [ref=e1560]: "|"
+            - generic [ref=e1561]: Free
+            - generic [ref=e1562]: "|"
+            - generic [ref=e1563]: 1 provider
+          - generic [ref=e1566] [cursor=pointer]:
+            - generic [ref=e1568]: Google AI
+            - generic [ref=e1570]:
+              - generic [ref=e1571]: 1M
+              - generic "Tools supported" [ref=e1572]:
+                - img [ref=e1573]
+            - generic [ref=e1575]: Free
+        - generic [ref=e1576]:
+          - generic [ref=e1577]:
+            - generic [ref=e1578]:
+              - heading "Gemini 3.5 Flash" [level=3] [ref=e1579]
+              - generic [ref=e1580]: Google
+            - generic [ref=e1581]:
+              - generic [ref=e1582]: "#10 Build"
+              - generic [ref=e1583]: "#10 Model"
+          - generic [ref=e1584]:
+            - generic [ref=e1585]: "Max: 1M context"
+            - generic [ref=e1586]: "|"
+            - generic [ref=e1587]: Free
+            - generic [ref=e1588]: "|"
+            - generic [ref=e1589]: 1 provider
+          - generic [ref=e1592] [cursor=pointer]:
+            - generic [ref=e1594]: Google AI
+            - generic [ref=e1596]:
+              - generic [ref=e1597]: 1M
+              - generic "Tools supported" [ref=e1598]:
+                - img [ref=e1599]
+            - generic [ref=e1601]: Free
+        - generic [ref=e1602]:
+          - generic [ref=e1603]:
+            - generic [ref=e1604]:
+              - heading "Gemini Flash Latest" [level=3] [ref=e1605]
+              - generic [ref=e1606]: Google
+            - generic [ref=e1607]:
+              - generic [ref=e1608]: "#11 Build"
+              - generic [ref=e1609]: "#11 Model"
+          - generic [ref=e1610]:
+            - generic [ref=e1611]: "Max: 1M context"
+            - generic [ref=e1612]: "|"
+            - generic [ref=e1613]: Free
+            - generic [ref=e1614]: "|"
+            - generic [ref=e1615]: 1 provider
+          - generic [ref=e1618] [cursor=pointer]:
+            - generic [ref=e1620]: Google AI
+            - generic [ref=e1622]:
+              - generic [ref=e1623]: 1M
+              - generic "Tools supported" [ref=e1624]:
+                - img [ref=e1625]
+            - generic [ref=e1627]: Free
+        - generic [ref=e1628]:
+          - generic [ref=e1629]:
+            - generic [ref=e1630]:
+              - heading "Gemini Flash-Lite Latest" [level=3] [ref=e1631]
+              - generic [ref=e1632]: Google
+            - generic [ref=e1633]:
+              - generic [ref=e1634]: "#12 Build"
+              - generic [ref=e1635]: "#12 Model"
+          - generic [ref=e1636]:
+            - generic [ref=e1637]: "Max: 1M context"
+            - generic [ref=e1638]: "|"
+            - generic [ref=e1639]: Free
+            - generic [ref=e1640]: "|"
+            - generic [ref=e1641]: 1 provider
+          - generic [ref=e1644] [cursor=pointer]:
+            - generic [ref=e1646]: Google AI
+            - generic [ref=e1648]:
+              - generic [ref=e1649]: 1M
+              - generic "Tools supported" [ref=e1650]:
+                - img [ref=e1651]
+            - generic [ref=e1653]: Free
+        - generic [ref=e1654]:
+          - generic [ref=e1656]:
+            - heading "Gemini Pro Latest" [level=3] [ref=e1657]
+            - generic [ref=e1658]: Google
+          - generic [ref=e1659]:
+            - generic [ref=e1660]: "Max: 1M context"
+            - generic [ref=e1661]: "|"
+            - generic [ref=e1662]: Free
+            - generic [ref=e1663]: "|"
+            - generic [ref=e1664]: 1 provider
+          - generic [ref=e1667] [cursor=pointer]:
+            - generic [ref=e1669]: Google AI
+            - generic [ref=e1671]:
+              - generic [ref=e1672]: 1M
+              - generic "Tools supported" [ref=e1673]:
+                - img [ref=e1674]
+            - generic [ref=e1676]: Free
+        - generic [ref=e1677]:
+          - generic [ref=e1679]:
+            - heading "Gemini Robotics-ER 1.5 Preview" [level=3] [ref=e1680]
+            - generic [ref=e1681]: Google
+          - generic [ref=e1682]:
+            - generic [ref=e1683]: "Max: 1M context"
+            - generic [ref=e1684]: "|"
+            - generic [ref=e1685]: Free
+            - generic [ref=e1686]: "|"
+            - generic [ref=e1687]: 1 provider
+          - generic [ref=e1690] [cursor=pointer]:
+            - generic [ref=e1692]: Google AI
+            - generic [ref=e1694]:
+              - generic [ref=e1695]: 1M
+              - generic "Tools supported" [ref=e1696]:
+                - img [ref=e1697]
+            - generic [ref=e1699]: Free
+        - generic [ref=e1700]:
+          - generic [ref=e1701]:
+            - generic [ref=e1702]:
+              - heading "Gemini Robotics-ER 1.6 Preview" [level=3] [ref=e1703]
+              - generic [ref=e1704]: Google
+            - generic [ref=e1705]:
+              - generic [ref=e1706]: "#17 Build"
+              - generic [ref=e1707]: "#18 Model"
+          - generic [ref=e1708]:
+            - generic [ref=e1709]: "Max: 131K context"
+            - generic [ref=e1710]: "|"
+            - generic [ref=e1711]: Free
+            - generic [ref=e1712]: "|"
+            - generic [ref=e1713]: 1 provider
+          - generic [ref=e1716] [cursor=pointer]:
+            - generic [ref=e1718]: Google AI
+            - generic [ref=e1720]:
+              - generic [ref=e1721]: 131K
+              - generic "Tools supported" [ref=e1722]:
+                - img [ref=e1723]
+            - generic [ref=e1725]: Free
+        - generic [ref=e1726]:
+          - generic [ref=e1728]:
+            - heading "Gemma 2B Instruct (LoRA)" [level=3] [ref=e1729]
+            - generic [ref=e1730]: Google
+          - generic [ref=e1731]:
+            - generic [ref=e1732]: "Max: — context"
+            - generic [ref=e1733]: "|"
+            - generic [ref=e1734]: Free
+            - generic [ref=e1735]: "|"
+            - generic [ref=e1736]: 1 provider
+          - generic [ref=e1739] [cursor=pointer]:
+            - generic [ref=e1741]: Cloudflare
+            - generic [ref=e1743]:
+              - generic [ref=e1744]: —
+              - generic "No tools" [ref=e1745]: —
+            - generic [ref=e1746]: Free
+        - generic [ref=e1747]:
+          - generic [ref=e1749]:
+            - heading "Gemma 3 12B Instruct" [level=3] [ref=e1750]
+            - generic [ref=e1751]: Google
+          - generic [ref=e1752]:
+            - generic [ref=e1753]: "Max: — context"
+            - generic [ref=e1754]: "|"
+            - generic [ref=e1755]: Free
+            - generic [ref=e1756]: "|"
+            - generic [ref=e1757]: 2 providers
+          - generic [ref=e1759]:
+            - generic [ref=e1760] [cursor=pointer]:
+              - generic [ref=e1762]: Cloudflare
+              - generic [ref=e1764]:
+                - generic [ref=e1765]: —
+                - generic "No tools" [ref=e1766]: —
+              - generic [ref=e1767]: Free
+            - generic [ref=e1768] [cursor=pointer]:
+              - generic [ref=e1770]: Google AI
+              - generic [ref=e1772]:
+                - generic [ref=e1773]: —
+                - generic "No tools" [ref=e1774]: —
+              - generic [ref=e1775]: Free
+        - generic [ref=e1776]:
+          - generic [ref=e1778]:
+            - heading "Gemma 3 1B Instruct" [level=3] [ref=e1779]
+            - generic [ref=e1780]: Google
+          - generic [ref=e1781]:
+            - generic [ref=e1782]: "Max: — context"
+            - generic [ref=e1783]: "|"
+            - generic [ref=e1784]: Free
+            - generic [ref=e1785]: "|"
+            - generic [ref=e1786]: 1 provider
+          - generic [ref=e1789] [cursor=pointer]:
+            - generic [ref=e1791]: Google AI
+            - generic [ref=e1793]:
+              - generic [ref=e1794]: —
+              - generic "No tools" [ref=e1795]: —
+            - generic [ref=e1796]: Free
+        - generic [ref=e1797]:
+          - generic [ref=e1799]:
+            - heading "Gemma 3 27B Instruct" [level=3] [ref=e1800]
+            - generic [ref=e1801]: Google
+          - generic [ref=e1802]:
+            - generic [ref=e1803]: "Max: — context"
+            - generic [ref=e1804]: "|"
+            - generic [ref=e1805]: Free
+            - generic [ref=e1806]: "|"
+            - generic [ref=e1807]: 1 provider
+          - generic [ref=e1810] [cursor=pointer]:
+            - generic [ref=e1812]: Google AI
+            - generic [ref=e1814]:
+              - generic [ref=e1815]: —
+              - generic "No tools" [ref=e1816]: —
+            - generic [ref=e1817]: Free
+        - generic [ref=e1818]:
+          - generic [ref=e1820]:
+            - heading "Gemma 3 4B Instruct" [level=3] [ref=e1821]
+            - generic [ref=e1822]: Google
+          - generic [ref=e1823]:
+            - generic [ref=e1824]: "Max: — context"
+            - generic [ref=e1825]: "|"
+            - generic [ref=e1826]: Free
+            - generic [ref=e1827]: "|"
+            - generic [ref=e1828]: 1 provider
+          - generic [ref=e1831] [cursor=pointer]:
+            - generic [ref=e1833]: Google AI
+            - generic [ref=e1835]:
+              - generic [ref=e1836]: —
+              - generic "No tools" [ref=e1837]: —
+            - generic [ref=e1838]: Free
+        - generic [ref=e1839]:
+          - generic [ref=e1840]:
+            - generic [ref=e1841]:
+              - heading "Gemma 4 26B A4B IT" [level=3] [ref=e1842]
+              - generic [ref=e1843]: Google
+            - generic [ref=e1844]:
+              - generic [ref=e1845]: "#14 Build"
+              - generic [ref=e1846]: "#15 Model"
+          - generic [ref=e1847]:
+            - generic [ref=e1848]: "Max: 262K context"
+            - generic [ref=e1849]: "|"
+            - generic [ref=e1850]: Free
+            - generic [ref=e1851]: "|"
+            - generic [ref=e1852]: 1 provider
+          - generic [ref=e1855] [cursor=pointer]:
+            - generic [ref=e1857]: OpenRouter
+            - generic [ref=e1859]:
+              - generic [ref=e1860]: 262K
+              - generic "Tools supported" [ref=e1861]:
+                - img [ref=e1862]
+            - generic [ref=e1864]: Free
+        - generic [ref=e1865]:
+          - generic [ref=e1866]:
+            - generic [ref=e1867]:
+              - heading "Gemma 4 31B Instruct" [level=3] [ref=e1868]
+              - generic [ref=e1869]: Google
+            - generic [ref=e1870]:
+              - generic [ref=e1871]: "#15 Build"
+              - generic [ref=e1872]: "#16 Model"
+          - generic [ref=e1873]:
+            - generic [ref=e1874]: "Max: 262K context"
+            - generic [ref=e1875]: "|"
+            - generic [ref=e1876]: Free
+            - generic [ref=e1877]: "|"
+            - generic [ref=e1878]: 1 provider
+          - generic [ref=e1881] [cursor=pointer]:
+            - generic [ref=e1883]: OpenRouter
+            - generic [ref=e1885]:
+              - generic [ref=e1886]: 262K
+              - generic "Tools supported" [ref=e1887]:
+                - img [ref=e1888]
+            - generic [ref=e1890]: Free
+        - generic [ref=e1891]:
+          - generic [ref=e1893]:
+            - heading "Gemma 7B Instruct" [level=3] [ref=e1894]
+            - generic [ref=e1895]: Google
+          - generic [ref=e1896]:
+            - generic [ref=e1897]: "Max: — context"
+            - generic [ref=e1898]: "|"
+            - generic [ref=e1899]: Free
+            - generic [ref=e1900]: "|"
+            - generic [ref=e1901]: 1 provider
+          - generic [ref=e1904] [cursor=pointer]:
+            - generic [ref=e1906]: Cloudflare
+            - generic [ref=e1908]:
+              - generic [ref=e1909]: —
+              - generic "No tools" [ref=e1910]: —
+            - generic [ref=e1911]: Free
+        - generic [ref=e1912]:
+          - generic [ref=e1914]:
+            - heading "Gemma 7B Instruct (LoRA)" [level=3] [ref=e1915]
+            - generic [ref=e1916]: Google
+          - generic [ref=e1917]:
+            - generic [ref=e1918]: "Max: — context"
+            - generic [ref=e1919]: "|"
+            - generic [ref=e1920]: Free
+            - generic [ref=e1921]: "|"
+            - generic [ref=e1922]: 1 provider
+          - generic [ref=e1925] [cursor=pointer]:
+            - generic [ref=e1927]: Cloudflare
+            - generic [ref=e1929]:
+              - generic [ref=e1930]: —
+              - generic "No tools" [ref=e1931]: —
+            - generic [ref=e1932]: Free
+        - generic [ref=e1933]:
+          - generic [ref=e1935]:
+            - heading "GLM 5.1" [level=3] [ref=e1936]
+            - generic [ref=e1937]: Z.AI
+          - generic [ref=e1938]:
+            - generic [ref=e1939]: "Max: 131K context"
+            - generic [ref=e1940]: "|"
+            - generic [ref=e1941]: Free/Free
+            - generic [ref=e1942]: "|"
+            - generic [ref=e1943]: 2 providers
+          - generic [ref=e1945]:
+            - generic [ref=e1946] [cursor=pointer]:
+              - generic [ref=e1948]: OpenRouter
+              - generic [ref=e1950]:
+                - generic [ref=e1951]: 131K
+                - generic "Tools supported" [ref=e1952]:
+                  - img [ref=e1953]
+              - generic [ref=e1955]: $0/$0
+            - generic [ref=e1956] [cursor=pointer]:
+              - generic [ref=e1958]: Umans AI Coding Plan
+              - generic [ref=e1960]:
+                - generic [ref=e1961]: 131K
+                - generic "Tools supported" [ref=e1962]:
+                  - img [ref=e1963]
+              - generic [ref=e1965]: $0/$0
+        - generic [ref=e1966]:
+          - generic [ref=e1967]:
+            - generic [ref=e1968]:
+              - heading "GLM-4.5-Air" [level=3] [ref=e1969]
+              - generic [ref=e1970]: Zhipu AI
+            - generic [ref=e1971]:
+              - generic [ref=e1972]: "#18 Build"
+              - generic [ref=e1973]: "#20 Model"
+          - generic [ref=e1974]:
+            - generic [ref=e1975]: "Max: 131K context"
+            - generic [ref=e1976]: "|"
+            - generic [ref=e1977]: Free
+            - generic [ref=e1978]: "|"
+            - generic [ref=e1979]: 1 provider
+          - generic [ref=e1982] [cursor=pointer]:
+            - generic [ref=e1984]: OpenRouter
+            - generic [ref=e1986]:
+              - generic [ref=e1987]: 131K
+              - generic "Tools supported" [ref=e1988]:
+                - img [ref=e1989]
+            - generic [ref=e1991]: Free
+        - generic [ref=e1992]:
+          - generic [ref=e1994]:
+            - heading "GLM-5-Turbo" [level=3] [ref=e1995]
+            - generic [ref=e1996]: Z.AI
+          - generic [ref=e1997]:
+            - generic [ref=e1998]: "Max: 131K context"
+            - generic [ref=e1999]: "|"
+            - generic [ref=e2000]: Free/Free
+            - generic [ref=e2001]: "|"
+            - generic [ref=e2002]: 1 provider
+          - generic [ref=e2005] [cursor=pointer]:
+            - generic [ref=e2007]: OpenRouter
+            - generic [ref=e2009]:
+              - generic [ref=e2010]: 131K
+              - generic "Tools supported" [ref=e2011]:
+                - img [ref=e2012]
+            - generic [ref=e2014]: $0/$0
+        - generic [ref=e2015]:
+          - generic [ref=e2017]:
+            - heading "GLM-5V-Turbo" [level=3] [ref=e2018]
+            - generic [ref=e2019]: Zhipu AI
+          - generic [ref=e2020]:
+            - generic [ref=e2021]: "Max: 131K context"
+            - generic [ref=e2022]: "|"
+            - generic [ref=e2023]: Free/Free
+            - generic [ref=e2024]: "|"
+            - generic [ref=e2025]: 1 provider
+          - generic [ref=e2028] [cursor=pointer]:
+            - generic [ref=e2030]: OpenRouter
+            - generic [ref=e2032]:
+              - generic [ref=e2033]: 131K
+              - generic "Tools supported" [ref=e2034]:
+                - img [ref=e2035]
+            - generic [ref=e2037]: $0/$0
+        - generic [ref=e2038]:
+          - generic [ref=e2040]:
+            - heading "GPT OSS 20B" [level=3] [ref=e2041]
+            - generic [ref=e2042]: OpenAI
+          - generic [ref=e2043]:
+            - generic [ref=e2044]: "Max: 131K context"
+            - generic [ref=e2045]: "|"
+            - generic [ref=e2046]: Free
+            - generic [ref=e2047]: "|"
+            - generic [ref=e2048]: 1 provider
+          - generic [ref=e2051] [cursor=pointer]:
+            - generic [ref=e2053]: OpenRouter
+            - generic [ref=e2055]:
+              - generic [ref=e2056]: 131K
+              - generic "Tools supported" [ref=e2057]:
+                - img [ref=e2058]
+            - generic [ref=e2060]: Free
+        - generic [ref=e2061]:
+          - generic [ref=e2063]:
+            - heading "GPT-5.1" [level=3] [ref=e2064]
+            - generic [ref=e2065]: OpenAI
+          - generic [ref=e2066]:
+            - generic [ref=e2067]: "Max: 400K context"
+            - generic [ref=e2068]: "|"
+            - generic [ref=e2069]: $1/$10
+            - generic [ref=e2070]: "|"
+            - generic [ref=e2071]: 1 provider
+          - generic [ref=e2074] [cursor=pointer]:
+            - generic [ref=e2076]: OpenRouter
+            - generic [ref=e2078]:
+              - generic [ref=e2079]: 400K
+              - generic "Tools supported" [ref=e2080]:
+                - img [ref=e2081]
+            - generic [ref=e2083]: $1/$10
+        - generic [ref=e2084]:
+          - generic [ref=e2086]:
+            - heading "GPT-5.2" [level=3] [ref=e2087]
+            - generic [ref=e2088]: OpenAI
+          - generic [ref=e2089]:
+            - generic [ref=e2090]: "Max: 400K context"
+            - generic [ref=e2091]: "|"
+            - generic [ref=e2092]: $2/$14
+            - generic [ref=e2093]: "|"
+            - generic [ref=e2094]: 1 provider
+          - generic [ref=e2097] [cursor=pointer]:
+            - generic [ref=e2099]: OpenRouter
+            - generic [ref=e2101]:
+              - generic [ref=e2102]: 400K
+              - generic "Tools supported" [ref=e2103]:
+                - img [ref=e2104]
+            - generic [ref=e2106]: $2/$14
+        - generic [ref=e2107]:
+          - generic [ref=e2109]:
+            - heading "GPT-5.4" [level=3] [ref=e2110]
+            - generic [ref=e2111]: OpenAI
+          - generic [ref=e2112]:
+            - generic [ref=e2113]: "Max: 1M context"
+            - generic [ref=e2114]: "|"
+            - generic [ref=e2115]: $3/$15
+            - generic [ref=e2116]: "|"
+            - generic [ref=e2117]: 1 provider
+          - generic [ref=e2120] [cursor=pointer]:
+            - generic [ref=e2122]: OpenRouter
+            - generic [ref=e2124]:
+              - generic [ref=e2125]: 1M
+              - generic "Tools supported" [ref=e2126]:
+                - img [ref=e2127]
+            - generic [ref=e2129]: $3/$15
+        - generic [ref=e2130]:
+          - generic [ref=e2131]:
+            - generic [ref=e2132]:
+              - heading "gpt-oss-120b" [level=3] [ref=e2133]
+              - generic [ref=e2134]: OpenAI
+            - generic [ref=e2135]:
+              - generic [ref=e2136]: "#2 Build"
+              - generic [ref=e2137]: "#1 Model"
+          - generic [ref=e2138]:
+            - generic [ref=e2139]: "Max: 131K context"
+            - generic [ref=e2140]: "|"
+            - generic [ref=e2141]: Free
+            - generic [ref=e2142]: "|"
+            - generic [ref=e2143]: 4 providers
+          - generic [ref=e2145]:
+            - generic [ref=e2146] [cursor=pointer]:
+              - generic [ref=e2148]: Cerebras
+              - generic [ref=e2150]:
+                - generic [ref=e2151]: 131K
+                - generic "Tools supported" [ref=e2152]:
+                  - img [ref=e2153]
+              - generic [ref=e2155]: $0/$0
+            - generic [ref=e2156] [cursor=pointer]:
+              - generic [ref=e2158]: Cortecs
+              - generic [ref=e2160]:
+                - generic [ref=e2161]: 131K
+                - generic "Tools supported" [ref=e2162]:
+                  - img [ref=e2163]
+              - generic [ref=e2165]: $0/$0
+            - generic [ref=e2166] [cursor=pointer]:
+              - generic [ref=e2168]: OpenRouter
+              - generic [ref=e2170]:
+                - generic [ref=e2171]: 131K
+                - generic "Tools supported" [ref=e2172]:
+                  - img [ref=e2173]
+              - generic [ref=e2175]: Free
+            - generic [ref=e2176] [cursor=pointer]:
+              - generic [ref=e2178]: OpenRouter
+              - generic [ref=e2180]:
+                - generic [ref=e2181]: 131K
+                - generic "Tools supported" [ref=e2182]:
+                  - img [ref=e2183]
+              - generic [ref=e2185]: $0/$0
+        - generic [ref=e2186]:
+          - generic [ref=e2188]:
+            - heading "Grok 3" [level=3] [ref=e2189]
+            - generic [ref=e2190]: xAI
+          - generic [ref=e2191]:
+            - generic [ref=e2192]: "Max: — context"
+            - generic [ref=e2193]: "|"
+            - generic [ref=e2194]: Free
+            - generic [ref=e2195]: "|"
+            - generic [ref=e2196]: 1 provider
+          - generic [ref=e2199] [cursor=pointer]:
+            - generic [ref=e2201]: GitHub Models
+            - generic [ref=e2203]:
+              - generic [ref=e2204]: —
+              - generic "No tools" [ref=e2205]: —
+            - generic [ref=e2206]: Free
+        - generic [ref=e2207]:
+          - generic [ref=e2209]:
+            - heading "Grok 3 Mini" [level=3] [ref=e2210]
+            - generic [ref=e2211]: xAI
+          - generic [ref=e2212]:
+            - generic [ref=e2213]: "Max: — context"
+            - generic [ref=e2214]: "|"
+            - generic [ref=e2215]: Free
+            - generic [ref=e2216]: "|"
+            - generic [ref=e2217]: 1 provider
+          - generic [ref=e2220] [cursor=pointer]:
+            - generic [ref=e2222]: GitHub Models
+            - generic [ref=e2224]:
+              - generic [ref=e2225]: —
+              - generic "No tools" [ref=e2226]: —
+            - generic [ref=e2227]: Free
+        - generic [ref=e2228]:
+          - generic [ref=e2230]:
+            - heading "Grok 4.3" [level=3] [ref=e2231]
+            - generic [ref=e2232]: xAI
+          - generic [ref=e2233]:
+            - generic [ref=e2234]: "Max: 1M context"
+            - generic [ref=e2235]: "|"
+            - generic [ref=e2236]: $1/$3
+            - generic [ref=e2237]: "|"
+            - generic [ref=e2238]: 1 provider
+          - generic [ref=e2241] [cursor=pointer]:
+            - generic [ref=e2243]: OpenRouter
+            - generic [ref=e2245]:
+              - generic [ref=e2246]: 1M
+              - generic "Tools supported" [ref=e2247]:
+                - img [ref=e2248]
+            - generic [ref=e2250]: $1/$3
+        - generic [ref=e2251]:
+          - generic [ref=e2253]:
+            - heading "Hermes 2 Pro Mistral 7B" [level=3] [ref=e2254]
+            - generic [ref=e2255]: Nous Research
+          - generic [ref=e2256]:
+            - generic [ref=e2257]: "Max: — context"
+            - generic [ref=e2258]: "|"
+            - generic [ref=e2259]: Free
+            - generic [ref=e2260]: "|"
+            - generic [ref=e2261]: 1 provider
+          - generic [ref=e2264] [cursor=pointer]:
+            - generic [ref=e2266]: Cloudflare
+            - generic [ref=e2268]:
+              - generic [ref=e2269]: —
+              - generic "No tools" [ref=e2270]: —
+            - generic [ref=e2271]: Free
+        - generic [ref=e2272]:
+          - generic [ref=e2274]:
+            - heading "Hermes 3 405B Instruct" [level=3] [ref=e2275]
+            - generic [ref=e2276]: Nous Research
+          - generic [ref=e2277]:
+            - generic [ref=e2278]: "Max: 131K context"
+            - generic [ref=e2279]: "|"
+            - generic [ref=e2280]: Free
+            - generic [ref=e2281]: "|"
+            - generic [ref=e2282]: 1 provider
+          - generic [ref=e2285] [cursor=pointer]:
+            - generic [ref=e2287]: OpenRouter
+            - generic [ref=e2289]:
+              - generic [ref=e2290]: 131K
+              - generic "Tools supported" [ref=e2291]:
+                - img [ref=e2292]
+            - generic [ref=e2294]: Free
+        - generic [ref=e2295]:
+          - generic [ref=e2297]:
+            - heading "Kimi K2.6" [level=3] [ref=e2298]
+            - generic [ref=e2299]: Umans AI
+          - generic [ref=e2300]:
+            - generic [ref=e2301]: "Max: 262K context"
+            - generic [ref=e2302]: "|"
+            - generic [ref=e2303]: $0.73/$3
+            - generic [ref=e2304]: "|"
+            - generic [ref=e2305]: 5 providers
+          - generic [ref=e2307]:
+            - generic [ref=e2308] [cursor=pointer]:
+              - generic [ref=e2310]: Kimi For Coding
+              - generic [ref=e2312]:
+                - generic [ref=e2313]: 262K
+                - generic "Tools supported" [ref=e2314]:
+                  - img [ref=e2315]
+              - generic [ref=e2317]: $0.73/$3
+            - generic [ref=e2318] [cursor=pointer]:
+              - generic [ref=e2320]: NVIDIA
+              - generic [ref=e2322]:
+                - generic [ref=e2323]: —
+                - generic "Tools supported" [ref=e2324]:
+                  - img [ref=e2325]
+              - generic [ref=e2327]: $0.73/$3
+            - generic [ref=e2328] [cursor=pointer]:
+              - generic [ref=e2330]: OpenRouter
+              - generic [ref=e2332]:
+                - generic [ref=e2333]: 262K
+                - generic "Tools supported" [ref=e2334]:
+                  - img [ref=e2335]
+              - generic [ref=e2337]: $0.73/$3
+            - generic [ref=e2338] [cursor=pointer]:
+              - generic [ref=e2340]: OpenRouter
+              - generic [ref=e2342]:
+                - generic [ref=e2343]: 262K
+                - generic "Tools supported" [ref=e2344]:
+                  - img [ref=e2345]
+              - generic [ref=e2347]: $0.73/$3
+            - generic [ref=e2348] [cursor=pointer]:
+              - generic [ref=e2350]: Umans AI Coding Plan
+              - generic [ref=e2352]:
+                - generic [ref=e2353]: 262K
+                - generic "Tools supported" [ref=e2354]:
+                  - img [ref=e2355]
+              - generic [ref=e2357]: $0.73/$3
+        - generic [ref=e2358]:
+          - generic [ref=e2359]:
+            - generic [ref=e2360]:
+              - heading "Laguna M.1" [level=3] [ref=e2361]
+              - generic [ref=e2362]: Poolside
+            - generic [ref=e2363]:
+              - generic [ref=e2364]: "#1 Build"
+              - generic [ref=e2365]: "#13 Model"
+          - generic [ref=e2366]:
+            - generic [ref=e2367]: "Max: 131K context"
+            - generic [ref=e2368]: "|"
+            - generic [ref=e2369]: Free
+            - generic [ref=e2370]: "|"
+            - generic [ref=e2371]: 1 provider
+          - generic [ref=e2374] [cursor=pointer]:
+            - generic [ref=e2376]: OpenRouter
+            - generic [ref=e2378]:
+              - generic [ref=e2379]: 131K
+              - generic "Tools supported" [ref=e2380]:
+                - img [ref=e2381]
+            - generic [ref=e2383]: Free
+        - generic [ref=e2384]:
+          - generic [ref=e2385]:
+            - generic [ref=e2386]:
+              - heading "Laguna XS.2" [level=3] [ref=e2387]
+              - generic [ref=e2388]: Poolside
+            - generic [ref=e2389]:
+              - generic [ref=e2390]: "#4 Build"
+              - generic [ref=e2391]: "#19 Model"
+          - generic [ref=e2392]:
+            - generic [ref=e2393]: "Max: 131K context"
+            - generic [ref=e2394]: "|"
+            - generic [ref=e2395]: Free
+            - generic [ref=e2396]: "|"
+            - generic [ref=e2397]: 1 provider
+          - generic [ref=e2400] [cursor=pointer]:
+            - generic [ref=e2402]: OpenRouter
+            - generic [ref=e2404]:
+              - generic [ref=e2405]: 131K
+              - generic "Tools supported" [ref=e2406]:
+                - img [ref=e2407]
+            - generic [ref=e2409]: Free
+        - generic [ref=e2410]:
+          - generic [ref=e2411]:
+            - generic [ref=e2412]:
+              - heading "LFM2.5-1.2B-Instruct" [level=3] [ref=e2413]
+              - generic [ref=e2414]: Liquid AI
+            - generic [ref=e2415]:
+              - generic [ref=e2416]: "#20 Build"
+              - generic [ref=e2417]: "#21 Model"
+          - generic [ref=e2418]:
+            - generic [ref=e2419]: "Max: 33K context"
+            - generic [ref=e2420]: "|"
+            - generic [ref=e2421]: Free
+            - generic [ref=e2422]: "|"
+            - generic [ref=e2423]: 1 provider
+          - generic [ref=e2426] [cursor=pointer]:
+            - generic [ref=e2428]: OpenRouter
+            - generic [ref=e2430]:
+              - generic [ref=e2431]: 33K
+              - generic "Tools supported" [ref=e2432]:
+                - img [ref=e2433]
+            - generic [ref=e2435]: Free
+        - generic [ref=e2436]:
+          - generic [ref=e2437]:
+            - generic [ref=e2438]:
+              - heading "LFM2.5-1.2B-Thinking" [level=3] [ref=e2439]
+              - generic [ref=e2440]: Liquid AI
+            - generic [ref=e2441]:
+              - generic [ref=e2442]: "#21 Build"
+              - generic [ref=e2443]: "#14 Model"
+          - generic [ref=e2444]:
+            - generic [ref=e2445]: "Max: 33K context"
+            - generic [ref=e2446]: "|"
+            - generic [ref=e2447]: Free
+            - generic [ref=e2448]: "|"
+            - generic [ref=e2449]: 1 provider
+          - generic [ref=e2452] [cursor=pointer]:
+            - generic [ref=e2454]: OpenRouter
+            - generic [ref=e2456]:
+              - generic [ref=e2457]: 33K
+              - generic "Tools supported" [ref=e2458]:
+                - img [ref=e2459]
+            - generic [ref=e2461]: Free
+        - generic [ref=e2462]:
+          - generic [ref=e2464]:
+            - heading "Llama 2 7B Chat (FP16)" [level=3] [ref=e2465]
+            - generic [ref=e2466]: Meta
+          - generic [ref=e2467]:
+            - generic [ref=e2468]: "Max: — context"
+            - generic [ref=e2469]: "|"
+            - generic [ref=e2470]: Free
+            - generic [ref=e2471]: "|"
+            - generic [ref=e2472]: 1 provider
+          - generic [ref=e2475] [cursor=pointer]:
+            - generic [ref=e2477]: Cloudflare
+            - generic [ref=e2479]:
+              - generic [ref=e2480]: —
+              - generic "No tools" [ref=e2481]: —
+            - generic [ref=e2482]: Free
+        - generic [ref=e2483]:
+          - generic [ref=e2485]:
+            - heading "Llama 2 7B Chat (INT8)" [level=3] [ref=e2486]
+            - generic [ref=e2487]: Meta
+          - generic [ref=e2488]:
+            - generic [ref=e2489]: "Max: — context"
+            - generic [ref=e2490]: "|"
+            - generic [ref=e2491]: Free
+            - generic [ref=e2492]: "|"
+            - generic [ref=e2493]: 1 provider
+          - generic [ref=e2496] [cursor=pointer]:
+            - generic [ref=e2498]: Cloudflare
+            - generic [ref=e2500]:
+              - generic [ref=e2501]: —
+              - generic "No tools" [ref=e2502]: —
+            - generic [ref=e2503]: Free
+        - generic [ref=e2504]:
+          - generic [ref=e2506]:
+            - heading "Llama 2 7B Chat (LoRA)" [level=3] [ref=e2507]
+            - generic [ref=e2508]: Meta
+          - generic [ref=e2509]:
+            - generic [ref=e2510]: "Max: — context"
+            - generic [ref=e2511]: "|"
+            - generic [ref=e2512]: Free
+            - generic [ref=e2513]: "|"
+            - generic [ref=e2514]: 1 provider
+          - generic [ref=e2517] [cursor=pointer]:
+            - generic [ref=e2519]: Cloudflare
+            - generic [ref=e2521]:
+              - generic [ref=e2522]: —
+              - generic "No tools" [ref=e2523]: —
+            - generic [ref=e2524]: Free
+        - generic [ref=e2525]:
+          - generic [ref=e2527]:
+            - heading "Llama 3 8B Instruct" [level=3] [ref=e2528]
+            - generic [ref=e2529]: Meta
+          - generic [ref=e2530]:
+            - generic [ref=e2531]: "Max: — context"
+            - generic [ref=e2532]: "|"
+            - generic [ref=e2533]: Free
+            - generic [ref=e2534]: "|"
+            - generic [ref=e2535]: 1 provider
+          - generic [ref=e2538] [cursor=pointer]:
+            - generic [ref=e2540]: Cloudflare
+            - generic [ref=e2542]:
+              - generic [ref=e2543]: —
+              - generic "No tools" [ref=e2544]: —
+            - generic [ref=e2545]: Free
+        - generic [ref=e2546]:
+          - generic [ref=e2548]:
+            - heading "Llama 3 8B Instruct (AWQ)" [level=3] [ref=e2549]
+            - generic [ref=e2550]: Meta
+          - generic [ref=e2551]:
+            - generic [ref=e2552]: "Max: — context"
+            - generic [ref=e2553]: "|"
+            - generic [ref=e2554]: Free
+            - generic [ref=e2555]: "|"
+            - generic [ref=e2556]: 1 provider
+          - generic [ref=e2559] [cursor=pointer]:
+            - generic [ref=e2561]: Cloudflare
+            - generic [ref=e2563]:
+              - generic [ref=e2564]: —
+              - generic "No tools" [ref=e2565]: —
+            - generic [ref=e2566]: Free
+        - generic [ref=e2567]:
+          - generic [ref=e2569]:
+            - heading "Llama 3.1 8B" [level=3] [ref=e2570]
+            - generic [ref=e2571]: Meta
+          - generic [ref=e2572]:
+            - generic [ref=e2573]: "Max: 131K context"
+            - generic [ref=e2574]: "|"
+            - generic [ref=e2575]: Free
+            - generic [ref=e2576]: "|"
+            - generic [ref=e2577]: 2 providers
+          - generic [ref=e2579]:
+            - generic [ref=e2580] [cursor=pointer]:
+              - generic [ref=e2582]: Cerebras
+              - generic [ref=e2584]:
+                - generic [ref=e2585]: —
+                - generic "No tools" [ref=e2586]: —
+              - generic [ref=e2587]: Free
+            - generic [ref=e2588] [cursor=pointer]:
+              - generic [ref=e2590]: Cerebras
+              - generic [ref=e2592]:
+                - generic [ref=e2593]: 131K
+                - generic "Tools supported" [ref=e2594]:
+                  - img [ref=e2595]
+              - generic [ref=e2597]: $0/$0
+        - generic [ref=e2598]:
+          - generic [ref=e2600]:
+            - heading "Llama 3.1 8B Instruct (AWQ)" [level=3] [ref=e2601]
+            - generic [ref=e2602]: Meta
+          - generic [ref=e2603]:
+            - generic [ref=e2604]: "Max: — context"
+            - generic [ref=e2605]: "|"
+            - generic [ref=e2606]: Free
+            - generic [ref=e2607]: "|"
+            - generic [ref=e2608]: 1 provider
+          - generic [ref=e2611] [cursor=pointer]:
+            - generic [ref=e2613]: Cloudflare
+            - generic [ref=e2615]:
+              - generic [ref=e2616]: —
+              - generic "No tools" [ref=e2617]: —
+            - generic [ref=e2618]: Free
+        - generic [ref=e2619]:
+          - generic [ref=e2621]:
+            - heading "Llama 3.1 8B Instruct (FP8)" [level=3] [ref=e2622]
+            - generic [ref=e2623]: Meta
+          - generic [ref=e2624]:
+            - generic [ref=e2625]: "Max: — context"
+            - generic [ref=e2626]: "|"
+            - generic [ref=e2627]: Free
+            - generic [ref=e2628]: "|"
+            - generic [ref=e2629]: 1 provider
+          - generic [ref=e2632] [cursor=pointer]:
+            - generic [ref=e2634]: Cloudflare
+            - generic [ref=e2636]:
+              - generic [ref=e2637]: —
+              - generic "No tools" [ref=e2638]: —
+            - generic [ref=e2639]: Free
+        - generic [ref=e2640]:
+          - generic [ref=e2642]:
+            - heading "Llama 3.2 11B Vision Instruct" [level=3] [ref=e2643]
+            - generic [ref=e2644]: Meta
+          - generic [ref=e2645]:
+            - generic [ref=e2646]: "Max: — context"
+            - generic [ref=e2647]: "|"
+            - generic [ref=e2648]: Free
+            - generic [ref=e2649]: "|"
+            - generic [ref=e2650]: 2 providers
+          - generic [ref=e2652]:
+            - generic [ref=e2653] [cursor=pointer]:
+              - generic [ref=e2655]: Cloudflare
+              - generic [ref=e2657]:
+                - generic [ref=e2658]: —
+                - generic "No tools" [ref=e2659]: —
+              - generic [ref=e2660]: Free
+            - generic [ref=e2661] [cursor=pointer]:
+              - generic [ref=e2663]: GitHub Models
+              - generic [ref=e2665]:
+                - generic [ref=e2666]: —
+                - generic "No tools" [ref=e2667]: —
+              - generic [ref=e2668]: Free
+        - generic [ref=e2669]:
+          - generic [ref=e2671]:
+            - heading "Llama 3.2 1B Instruct" [level=3] [ref=e2672]
+            - generic [ref=e2673]: Meta
+          - generic [ref=e2674]:
+            - generic [ref=e2675]: "Max: — context"
+            - generic [ref=e2676]: "|"
+            - generic [ref=e2677]: Free
+            - generic [ref=e2678]: "|"
+            - generic [ref=e2679]: 1 provider
+          - generic [ref=e2682] [cursor=pointer]:
+            - generic [ref=e2684]: Cloudflare
+            - generic [ref=e2686]:
+              - generic [ref=e2687]: —
+              - generic "No tools" [ref=e2688]: —
+            - generic [ref=e2689]: Free
+        - generic [ref=e2690]:
+          - generic [ref=e2692]:
+            - heading "Llama 3.2 3B Instruct" [level=3] [ref=e2693]
+            - generic [ref=e2694]: Meta
+          - generic [ref=e2695]:
+            - generic [ref=e2696]: "Max: 131K context"
+            - generic [ref=e2697]: "|"
+            - generic [ref=e2698]: Free
+            - generic [ref=e2699]: "|"
+            - generic [ref=e2700]: 2 providers
+          - generic [ref=e2702]:
+            - generic [ref=e2703] [cursor=pointer]:
+              - generic [ref=e2705]: Cloudflare
+              - generic [ref=e2707]:
+                - generic [ref=e2708]: —
+                - generic "No tools" [ref=e2709]: —
+              - generic [ref=e2710]: Free
+            - generic [ref=e2711] [cursor=pointer]:
+              - generic [ref=e2713]: OpenRouter
+              - generic [ref=e2715]:
+                - generic [ref=e2716]: 131K
+                - generic "Tools supported" [ref=e2717]:
+                  - img [ref=e2718]
+              - generic [ref=e2720]: Free
+        - generic [ref=e2721]:
+          - generic [ref=e2723]:
+            - heading "Llama 3.3 70B Instruct (FP8)" [level=3] [ref=e2724]
+            - generic [ref=e2725]: Meta
+          - generic [ref=e2726]:
+            - generic [ref=e2727]: "Max: — context"
+            - generic [ref=e2728]: "|"
+            - generic [ref=e2729]: Free
+            - generic [ref=e2730]: "|"
+            - generic [ref=e2731]: 1 provider
+          - generic [ref=e2734] [cursor=pointer]:
+            - generic [ref=e2736]: Cloudflare
+            - generic [ref=e2738]:
+              - generic [ref=e2739]: —
+              - generic "No tools" [ref=e2740]: —
+            - generic [ref=e2741]: Free
+        - generic [ref=e2742]:
+          - generic [ref=e2744]:
+            - heading "Llama 4 Maverick" [level=3] [ref=e2745]
+            - generic [ref=e2746]: Meta
+          - generic [ref=e2747]:
+            - generic [ref=e2748]: "Max: 1M context"
+            - generic [ref=e2749]: "|"
+            - generic [ref=e2750]: $0.15/$0.60
+            - generic [ref=e2751]: "|"
+            - generic [ref=e2752]: 1 provider
+          - generic [ref=e2755] [cursor=pointer]:
+            - generic [ref=e2757]: OpenRouter
+            - generic [ref=e2759]:
+              - generic [ref=e2760]: 1M
+              - generic "Tools supported" [ref=e2761]:
+                - img [ref=e2762]
+            - generic [ref=e2764]: $0.15/$0.60
+        - generic [ref=e2765]:
+          - generic [ref=e2767]:
+            - heading "Llama 4 Maverick 17B 128E Instruct FP8" [level=3] [ref=e2768]
+            - generic [ref=e2769]: Meta
+          - generic [ref=e2770]:
+            - generic [ref=e2771]: "Max: — context"
+            - generic [ref=e2772]: "|"
+            - generic [ref=e2773]: Free
+            - generic [ref=e2774]: "|"
+            - generic [ref=e2775]: 1 provider
+          - generic [ref=e2778] [cursor=pointer]:
+            - generic [ref=e2780]: GitHub Models
+            - generic [ref=e2782]:
+              - generic [ref=e2783]: —
+              - generic "No tools" [ref=e2784]: —
+            - generic [ref=e2785]: Free
+        - generic [ref=e2786]:
+          - generic [ref=e2788]:
+            - heading "Llama 4 Scout" [level=3] [ref=e2789]
+            - generic [ref=e2790]: Meta
+          - generic [ref=e2791]:
+            - generic [ref=e2792]: "Max: 10M context"
+            - generic [ref=e2793]: "|"
+            - generic [ref=e2794]: $0.08/$0.30
+            - generic [ref=e2795]: "|"
+            - generic [ref=e2796]: 1 provider
+          - generic [ref=e2799] [cursor=pointer]:
+            - generic [ref=e2801]: OpenRouter
+            - generic [ref=e2803]:
+              - generic [ref=e2804]: 10M
+              - generic "Tools supported" [ref=e2805]:
+                - img [ref=e2806]
+            - generic [ref=e2808]: $0.08/$0.30
+        - generic [ref=e2809]:
+          - generic [ref=e2811]:
+            - heading "Llama 4 Scout 17B 16E Instruct" [level=3] [ref=e2812]
+            - generic [ref=e2813]: Meta
+          - generic [ref=e2814]:
+            - generic [ref=e2815]: "Max: — context"
+            - generic [ref=e2816]: "|"
+            - generic [ref=e2817]: Free
+            - generic [ref=e2818]: "|"
+            - generic [ref=e2819]: 1 provider
+          - generic [ref=e2822] [cursor=pointer]:
+            - generic [ref=e2824]: GitHub Models
+            - generic [ref=e2826]:
+              - generic [ref=e2827]: —
+              - generic "No tools" [ref=e2828]: —
+            - generic [ref=e2829]: Free
+        - generic [ref=e2830]:
+          - generic [ref=e2832]:
+            - heading "Llama 4 Scout Instruct" [level=3] [ref=e2833]
+            - generic [ref=e2834]: Meta
+          - generic [ref=e2835]:
+            - generic [ref=e2836]: "Max: — context"
+            - generic [ref=e2837]: "|"
+            - generic [ref=e2838]: Free
+            - generic [ref=e2839]: "|"
+            - generic [ref=e2840]: 2 providers
+          - generic [ref=e2842]:
+            - generic [ref=e2843] [cursor=pointer]:
+              - generic [ref=e2845]: Cloudflare
+              - generic [ref=e2847]:
+                - generic [ref=e2848]: —
+                - generic "No tools" [ref=e2849]: —
+              - generic [ref=e2850]: Free
+            - generic [ref=e2851] [cursor=pointer]:
+              - generic [ref=e2853]: Groq
+              - generic [ref=e2855]:
+                - generic [ref=e2856]: —
+                - generic "No tools" [ref=e2857]: —
+              - generic [ref=e2858]: Free
+        - generic [ref=e2859]:
+          - generic [ref=e2861]:
+            - heading "Llama Guard 3 8B" [level=3] [ref=e2862]
+            - generic [ref=e2863]: Meta
+          - generic [ref=e2864]:
+            - generic [ref=e2865]: "Max: — context"
+            - generic [ref=e2866]: "|"
+            - generic [ref=e2867]: Free
+            - generic [ref=e2868]: "|"
+            - generic [ref=e2869]: 1 provider
+          - generic [ref=e2872] [cursor=pointer]:
+            - generic [ref=e2874]: Cloudflare
+            - generic [ref=e2876]:
+              - generic [ref=e2877]: —
+              - generic "No tools" [ref=e2878]: —
+            - generic [ref=e2879]: Free
+        - generic [ref=e2880]:
+          - generic [ref=e2882]:
+            - heading "llama-3.1-8b-instant" [level=3] [ref=e2883]
+            - generic [ref=e2884]: Meta
+          - generic [ref=e2885]:
+            - generic [ref=e2886]: "Max: 131K context"
+            - generic [ref=e2887]: "|"
+            - generic [ref=e2888]: Free
+            - generic [ref=e2889]: "|"
+            - generic [ref=e2890]: 1 provider
+          - generic [ref=e2893] [cursor=pointer]:
+            - generic [ref=e2895]: Groq
+            - generic [ref=e2897]:
+              - generic [ref=e2898]: 131K
+              - generic "No tools" [ref=e2899]: —
+            - generic [ref=e2900]: Free
+        - generic [ref=e2901]:
+          - generic [ref=e2903]:
+            - heading "Llama-3.2-90B-Vision-Instruct" [level=3] [ref=e2904]
+            - generic [ref=e2905]: NVIDIA
+          - generic [ref=e2906]:
+            - generic [ref=e2907]: "Max: — context"
+            - generic [ref=e2908]: "|"
+            - generic [ref=e2909]: Free
+            - generic [ref=e2910]: "|"
+            - generic [ref=e2911]: 1 provider
+          - generic [ref=e2914] [cursor=pointer]:
+            - generic [ref=e2916]: GitHub Models
+            - generic [ref=e2918]:
+              - generic [ref=e2919]: —
+              - generic "No tools" [ref=e2920]: —
+            - generic [ref=e2921]: Free
+        - generic [ref=e2922]:
+          - generic [ref=e2924]:
+            - heading "Llama-3.3-70B-Instruct" [level=3] [ref=e2925]
+            - generic [ref=e2926]: Meta
+          - generic [ref=e2927]:
+            - generic [ref=e2928]: "Max: 131K context"
+            - generic [ref=e2929]: "|"
+            - generic [ref=e2930]: Free
+            - generic [ref=e2931]: "|"
+            - generic [ref=e2932]: 2 providers
+          - generic [ref=e2934]:
+            - generic [ref=e2935] [cursor=pointer]:
+              - generic [ref=e2937]: GitHub Models
+              - generic [ref=e2939]:
+                - generic [ref=e2940]: —
+                - generic "No tools" [ref=e2941]: —
+              - generic [ref=e2942]: Free
+            - generic [ref=e2943] [cursor=pointer]:
+              - generic [ref=e2945]: OpenRouter
+              - generic [ref=e2947]:
+                - generic [ref=e2948]: 131K
+                - generic "Tools supported" [ref=e2949]:
+                  - img [ref=e2950]
+              - generic [ref=e2952]: Free
+        - generic [ref=e2953]:
+          - generic [ref=e2955]:
+            - heading "llama-3.3-70b-versatile" [level=3] [ref=e2956]
+            - generic [ref=e2957]: Meta
+          - generic [ref=e2958]:
+            - generic [ref=e2959]: "Max: 131K context"
+            - generic [ref=e2960]: "|"
+            - generic [ref=e2961]: Free
+            - generic [ref=e2962]: "|"
+            - generic [ref=e2963]: 1 provider
+          - generic [ref=e2966] [cursor=pointer]:
+            - generic [ref=e2968]: Groq
+            - generic [ref=e2970]:
+              - generic [ref=e2971]: 131K
+              - generic "No tools" [ref=e2972]: —
+            - generic [ref=e2973]: Free
+        - generic [ref=e2974]:
+          - generic [ref=e2976]:
+            - heading "Lyria 3 Clip Preview" [level=3] [ref=e2977]
+            - generic [ref=e2978]: Google
+          - generic [ref=e2979]:
+            - generic [ref=e2980]: "Max: 1M context"
+            - generic [ref=e2981]: "|"
+            - generic [ref=e2982]: Free
+            - generic [ref=e2983]: "|"
+            - generic [ref=e2984]: 1 provider
+          - generic [ref=e2987] [cursor=pointer]:
+            - generic [ref=e2989]: OpenRouter
+            - generic [ref=e2991]:
+              - generic [ref=e2992]: 1M
+              - generic "No tools" [ref=e2993]: —
+            - generic [ref=e2994]: Free
+        - generic [ref=e2995]:
+          - generic [ref=e2997]:
+            - heading "Lyria 3 Pro Preview" [level=3] [ref=e2998]
+            - generic [ref=e2999]: Google
+          - generic [ref=e3000]:
+            - generic [ref=e3001]: "Max: 1M context"
+            - generic [ref=e3002]: "|"
+            - generic [ref=e3003]: Free
+            - generic [ref=e3004]: "|"
+            - generic [ref=e3005]: 1 provider
+          - generic [ref=e3008] [cursor=pointer]:
+            - generic [ref=e3010]: OpenRouter
+            - generic [ref=e3012]:
+              - generic [ref=e3013]: 1M
+              - generic "No tools" [ref=e3014]: —
+            - generic [ref=e3015]: Free
+        - generic [ref=e3016]:
+          - generic [ref=e3018]:
+            - heading "MAI-DS-R1" [level=3] [ref=e3019]
+            - generic [ref=e3020]: Microsoft
+          - generic [ref=e3021]:
+            - generic [ref=e3022]: "Max: — context"
+            - generic [ref=e3023]: "|"
+            - generic [ref=e3024]: Free
+            - generic [ref=e3025]: "|"
+            - generic [ref=e3026]: 1 provider
+          - generic [ref=e3029] [cursor=pointer]:
+            - generic [ref=e3031]: GitHub Models
+            - generic [ref=e3033]:
+              - generic [ref=e3034]: —
+              - generic "No tools" [ref=e3035]: —
+            - generic [ref=e3036]: Free
+        - generic [ref=e3037]:
+          - generic [ref=e3039]:
+            - heading "Meta-Llama-3.1-405B-Instruct" [level=3] [ref=e3040]
+            - generic [ref=e3041]: Meta
+          - generic [ref=e3042]:
+            - generic [ref=e3043]: "Max: — context"
+            - generic [ref=e3044]: "|"
+            - generic [ref=e3045]: Free
+            - generic [ref=e3046]: "|"
+            - generic [ref=e3047]: 1 provider
+          - generic [ref=e3050] [cursor=pointer]:
+            - generic [ref=e3052]: GitHub Models
+            - generic [ref=e3054]:
+              - generic [ref=e3055]: —
+              - generic "No tools" [ref=e3056]: —
+            - generic [ref=e3057]: Free
+        - generic [ref=e3058]:
+          - generic [ref=e3060]:
+            - heading "Meta-Llama-3.1-8B-Instruct" [level=3] [ref=e3061]
+            - generic [ref=e3062]: Meta
+          - generic [ref=e3063]:
+            - generic [ref=e3064]: "Max: — context"
+            - generic [ref=e3065]: "|"
+            - generic [ref=e3066]: Free
+            - generic [ref=e3067]: "|"
+            - generic [ref=e3068]: 1 provider
+          - generic [ref=e3071] [cursor=pointer]:
+            - generic [ref=e3073]: GitHub Models
+            - generic [ref=e3075]:
+              - generic [ref=e3076]: —
+              - generic "No tools" [ref=e3077]: —
+            - generic [ref=e3078]: Free
+        - generic [ref=e3079]:
+          - generic [ref=e3081]:
+            - heading "meta-llama/llama-4-scout-17b-16e-instruct" [level=3] [ref=e3082]
+            - generic [ref=e3083]: Meta
+          - generic [ref=e3084]:
+            - generic [ref=e3085]: "Max: 131K context"
+            - generic [ref=e3086]: "|"
+            - generic [ref=e3087]: Free
+            - generic [ref=e3088]: "|"
+            - generic [ref=e3089]: 1 provider
+          - generic [ref=e3092] [cursor=pointer]:
+            - generic [ref=e3094]: Groq
+            - generic [ref=e3096]:
+              - generic [ref=e3097]: 131K
+              - generic "No tools" [ref=e3098]: —
+            - generic [ref=e3099]: Free
+        - generic [ref=e3100]:
+          - generic [ref=e3102]:
+            - heading "meta-llama/llama-prompt-guard-2-22m" [level=3] [ref=e3103]
+            - generic [ref=e3104]: Meta
+          - generic [ref=e3105]:
+            - generic [ref=e3106]: "Max: — context"
+            - generic [ref=e3107]: "|"
+            - generic [ref=e3108]: Free
+            - generic [ref=e3109]: "|"
+            - generic [ref=e3110]: 1 provider
+          - generic [ref=e3113] [cursor=pointer]:
+            - generic [ref=e3115]: Groq
+            - generic [ref=e3117]:
+              - generic [ref=e3118]: —
+              - generic "No tools" [ref=e3119]: —
+            - generic [ref=e3120]: Free
+        - generic [ref=e3121]:
+          - generic [ref=e3123]:
+            - heading "meta-llama/llama-prompt-guard-2-86m" [level=3] [ref=e3124]
+            - generic [ref=e3125]: Meta
+          - generic [ref=e3126]:
+            - generic [ref=e3127]: "Max: — context"
+            - generic [ref=e3128]: "|"
+            - generic [ref=e3129]: Free
+            - generic [ref=e3130]: "|"
+            - generic [ref=e3131]: 1 provider
+          - generic [ref=e3134] [cursor=pointer]:
+            - generic [ref=e3136]: Groq
+            - generic [ref=e3138]:
+              - generic [ref=e3139]: —
+              - generic "No tools" [ref=e3140]: —
+            - generic [ref=e3141]: Free
+        - generic [ref=e3142]:
+          - generic [ref=e3144]:
+            - heading "MiMo-V2.5" [level=3] [ref=e3145]
+            - generic [ref=e3146]: Xiaomi
+          - generic [ref=e3147]:
+            - generic [ref=e3148]: "Max: 200K context"
+            - generic [ref=e3149]: "|"
+            - generic [ref=e3150]: Free
+            - generic [ref=e3151]: "|"
+            - generic [ref=e3152]: 1 provider
+          - generic [ref=e3155] [cursor=pointer]:
+            - generic [ref=e3157]: OpenCode Zen
+            - generic [ref=e3159]:
+              - generic [ref=e3160]: 200K
+              - generic "Tools supported" [ref=e3161]:
+                - img [ref=e3162]
+            - generic [ref=e3164]: Free
+        - generic [ref=e3165]:
+          - generic [ref=e3167]:
+            - heading "MiniMax-M2.5" [level=3] [ref=e3168]
+            - generic [ref=e3169]: MiniMax
+          - generic [ref=e3170]:
+            - generic [ref=e3171]: "Max: 205K context"
+            - generic [ref=e3172]: "|"
+            - generic [ref=e3173]: $0.15/$1
+            - generic [ref=e3174]: "|"
+            - generic [ref=e3175]: 2 providers
+          - generic [ref=e3177]:
+            - generic [ref=e3178] [cursor=pointer]:
+              - generic [ref=e3180]: OpenRouter
+              - generic [ref=e3182]:
+                - generic [ref=e3183]: 205K
+                - generic "Tools supported" [ref=e3184]:
+                  - img [ref=e3185]
+              - generic [ref=e3187]: $0.15/$1
+            - generic [ref=e3188] [cursor=pointer]:
+              - generic [ref=e3190]: OpenRouter
+              - generic [ref=e3192]:
+                - generic [ref=e3193]: 205K
+                - generic "Tools supported" [ref=e3194]:
+                  - img [ref=e3195]
+              - generic [ref=e3197]: $0.15/$1
+        - generic [ref=e3198]:
+          - generic [ref=e3200]:
+            - heading "MiniMax-M3" [level=3] [ref=e3201]
+            - generic [ref=e3202]: MiniMax
+          - generic [ref=e3203]:
+            - generic [ref=e3204]: "Max: 200K context"
+            - generic [ref=e3205]: "|"
+            - generic [ref=e3206]: Free
+            - generic [ref=e3207]: "|"
+            - generic [ref=e3208]: 1 provider
+          - generic [ref=e3211] [cursor=pointer]:
+            - generic [ref=e3213]: OpenCode Zen
+            - generic [ref=e3215]:
+              - generic [ref=e3216]: 200K
+              - generic "Tools supported" [ref=e3217]:
+                - img [ref=e3218]
+            - generic [ref=e3220]: Free
+        - generic [ref=e3221]:
+          - generic [ref=e3223]:
+            - heading "Ministral 3B" [level=3] [ref=e3224]
+            - generic [ref=e3225]: Mistral
+          - generic [ref=e3226]:
+            - generic [ref=e3227]: "Max: — context"
+            - generic [ref=e3228]: "|"
+            - generic [ref=e3229]: Free
+            - generic [ref=e3230]: "|"
+            - generic [ref=e3231]: 1 provider
+          - generic [ref=e3234] [cursor=pointer]:
+            - generic [ref=e3236]: GitHub Models
+            - generic [ref=e3238]:
+              - generic [ref=e3239]: —
+              - generic "No tools" [ref=e3240]: —
+            - generic [ref=e3241]: Free
+        - generic [ref=e3242]:
+          - generic [ref=e3244]:
+            - heading "Mistral 7B Instruct v0.1" [level=3] [ref=e3245]
+            - generic [ref=e3246]: Mistral
+          - generic [ref=e3247]:
+            - generic [ref=e3248]: "Max: — context"
+            - generic [ref=e3249]: "|"
+            - generic [ref=e3250]: Free
+            - generic [ref=e3251]: "|"
+            - generic [ref=e3252]: 1 provider
+          - generic [ref=e3255] [cursor=pointer]:
+            - generic [ref=e3257]: Cloudflare
+            - generic [ref=e3259]:
+              - generic [ref=e3260]: —
+              - generic "No tools" [ref=e3261]: —
+            - generic [ref=e3262]: Free
+        - generic [ref=e3263]:
+          - generic [ref=e3265]:
+            - heading "Mistral 7B Instruct v0.2" [level=3] [ref=e3266]
+            - generic [ref=e3267]: Mistral
+          - generic [ref=e3268]:
+            - generic [ref=e3269]: "Max: — context"
+            - generic [ref=e3270]: "|"
+            - generic [ref=e3271]: Free
+            - generic [ref=e3272]: "|"
+            - generic [ref=e3273]: 1 provider
+          - generic [ref=e3276] [cursor=pointer]:
+            - generic [ref=e3278]: Cloudflare
+            - generic [ref=e3280]:
+              - generic [ref=e3281]: —
+              - generic "No tools" [ref=e3282]: —
+            - generic [ref=e3283]: Free
+        - generic [ref=e3284]:
+          - generic [ref=e3286]:
+            - heading "Mistral 7B Instruct v0.2 (LoRA)" [level=3] [ref=e3287]
+            - generic [ref=e3288]: Mistral
+          - generic [ref=e3289]:
+            - generic [ref=e3290]: "Max: — context"
+            - generic [ref=e3291]: "|"
+            - generic [ref=e3292]: Free
+            - generic [ref=e3293]: "|"
+            - generic [ref=e3294]: 1 provider
+          - generic [ref=e3297] [cursor=pointer]:
+            - generic [ref=e3299]: Cloudflare
+            - generic [ref=e3301]:
+              - generic [ref=e3302]: —
+              - generic "No tools" [ref=e3303]: —
+            - generic [ref=e3304]: Free
+        - generic [ref=e3305]:
+          - generic [ref=e3307]:
+            - heading "Mistral Large 3" [level=3] [ref=e3308]
+            - generic [ref=e3309]: Mistral
+          - generic [ref=e3310]:
+            - generic [ref=e3311]: "Max: 262K context"
+            - generic [ref=e3312]: "|"
+            - generic [ref=e3313]: $0.50/$2
+            - generic [ref=e3314]: "|"
+            - generic [ref=e3315]: 1 provider
+          - generic [ref=e3318] [cursor=pointer]:
+            - generic [ref=e3320]: OpenRouter
+            - generic [ref=e3322]:
+              - generic [ref=e3323]: 262K
+              - generic "Tools supported" [ref=e3324]:
+                - img [ref=e3325]
+            - generic [ref=e3327]: $0.50/$2
+        - generic [ref=e3328]:
+          - generic [ref=e3330]:
+            - heading "Mistral Medium 3 (25.05)" [level=3] [ref=e3331]
+            - generic [ref=e3332]: Mistral
+          - generic [ref=e3333]:
+            - generic [ref=e3334]: "Max: — context"
+            - generic [ref=e3335]: "|"
+            - generic [ref=e3336]: Free
+            - generic [ref=e3337]: "|"
+            - generic [ref=e3338]: 1 provider
+          - generic [ref=e3341] [cursor=pointer]:
+            - generic [ref=e3343]: GitHub Models
+            - generic [ref=e3345]:
+              - generic [ref=e3346]: —
+              - generic "No tools" [ref=e3347]: —
+            - generic [ref=e3348]: Free
+        - generic [ref=e3349]:
+          - generic [ref=e3351]:
+            - heading "Mistral Small 3.1" [level=3] [ref=e3352]
+            - generic [ref=e3353]: Mistral
+          - generic [ref=e3354]:
+            - generic [ref=e3355]: "Max: — context"
+            - generic [ref=e3356]: "|"
+            - generic [ref=e3357]: Free
+            - generic [ref=e3358]: "|"
+            - generic [ref=e3359]: 1 provider
+          - generic [ref=e3362] [cursor=pointer]:
+            - generic [ref=e3364]: GitHub Models
+            - generic [ref=e3366]:
+              - generic [ref=e3367]: —
+              - generic "No tools" [ref=e3368]: —
+            - generic [ref=e3369]: Free
+        - generic [ref=e3370]:
+          - generic [ref=e3372]:
+            - heading "Mistral Small 3.1 24B Instruct" [level=3] [ref=e3373]
+            - generic [ref=e3374]: Mistral
+          - generic [ref=e3375]:
+            - generic [ref=e3376]: "Max: — context"
+            - generic [ref=e3377]: "|"
+            - generic [ref=e3378]: Free
+            - generic [ref=e3379]: "|"
+            - generic [ref=e3380]: 1 provider
+          - generic [ref=e3383] [cursor=pointer]:
+            - generic [ref=e3385]: Cloudflare
+            - generic [ref=e3387]:
+              - generic [ref=e3388]: —
+              - generic "No tools" [ref=e3389]: —
+            - generic [ref=e3390]: Free
+        - generic [ref=e3391]:
+          - generic [ref=e3393]:
+            - heading "Monthly subscription based" [level=3] [ref=e3394]
+            - generic [ref=e3395]: Mistral
+          - generic [ref=e3396]:
+            - generic [ref=e3397]: "Max: — context"
+            - generic [ref=e3398]: "|"
+            - generic [ref=e3399]: Free
+            - generic [ref=e3400]: "|"
+            - generic [ref=e3401]: 1 provider
+          - generic [ref=e3404] [cursor=pointer]:
+            - generic [ref=e3406]: Mistral
+            - generic [ref=e3408]:
+              - generic [ref=e3409]: —
+              - generic "No tools" [ref=e3410]: —
+            - generic [ref=e3411]: Free
+        - generic [ref=e3412]:
+          - generic [ref=e3414]:
+            - heading "Nano Banana" [level=3] [ref=e3415]
+            - generic [ref=e3416]: Google
+          - generic [ref=e3417]:
+            - generic [ref=e3418]: "Max: 33K context"
+            - generic [ref=e3419]: "|"
+            - generic [ref=e3420]: Free
+            - generic [ref=e3421]: "|"
+            - generic [ref=e3422]: 1 provider
+          - generic [ref=e3425] [cursor=pointer]:
+            - generic [ref=e3427]: Google AI
+            - generic [ref=e3429]:
+              - generic [ref=e3430]: 33K
+              - generic "No tools" [ref=e3431]: —
+            - generic [ref=e3432]: Free
+        - generic [ref=e3433]:
+          - generic [ref=e3435]:
+            - heading "Nano Banana 2" [level=3] [ref=e3436]
+            - generic [ref=e3437]: Google
+          - generic [ref=e3438]:
+            - generic [ref=e3439]: "Max: 66K context"
+            - generic [ref=e3440]: "|"
+            - generic [ref=e3441]: Free
+            - generic [ref=e3442]: "|"
+            - generic [ref=e3443]: 2 providers
+          - generic [ref=e3445]:
+            - generic [ref=e3446] [cursor=pointer]:
+              - generic [ref=e3448]: Google AI
+              - generic [ref=e3450]:
+                - generic [ref=e3451]: 66K
+                - generic "Tools supported" [ref=e3452]:
+                  - img [ref=e3453]
+              - generic [ref=e3455]: Free
+            - generic [ref=e3456] [cursor=pointer]:
+              - generic [ref=e3458]: Google AI
+              - generic [ref=e3460]:
+                - generic [ref=e3461]: 66K
+                - generic "No tools" [ref=e3462]: —
+              - generic [ref=e3463]: Free
+        - generic [ref=e3464]:
+          - generic [ref=e3466]:
+            - heading "Nano Banana Pro" [level=3] [ref=e3467]
+            - generic [ref=e3468]: Google
+          - generic [ref=e3469]:
+            - generic [ref=e3470]: "Max: 131K context"
+            - generic [ref=e3471]: "|"
+            - generic [ref=e3472]: Free
+            - generic [ref=e3473]: "|"
+            - generic [ref=e3474]: 2 providers
+          - generic [ref=e3476]:
+            - generic [ref=e3477] [cursor=pointer]:
+              - generic [ref=e3479]: Google AI
+              - generic [ref=e3481]:
+                - generic [ref=e3482]: 131K
+                - generic "Tools supported" [ref=e3483]:
+                  - img [ref=e3484]
+              - generic [ref=e3486]: Free
+            - generic [ref=e3487] [cursor=pointer]:
+              - generic [ref=e3489]: Google AI
+              - generic [ref=e3491]:
+                - generic [ref=e3492]: 131K
+                - generic "No tools" [ref=e3493]: —
+              - generic [ref=e3494]: Free
+        - generic [ref=e3495]:
+          - generic [ref=e3496]:
+            - generic [ref=e3497]:
+              - heading "Nemotron 3 Nano Omni" [level=3] [ref=e3498]
+              - generic [ref=e3499]: NVIDIA
+            - generic [ref=e3500]:
+              - generic [ref=e3501]: "#16 Build"
+              - generic [ref=e3502]: "#17 Model"
+          - generic [ref=e3503]:
+            - generic [ref=e3504]: "Max: 256K context"
+            - generic [ref=e3505]: "|"
+            - generic [ref=e3506]: Free
+            - generic [ref=e3507]: "|"
+            - generic [ref=e3508]: 1 provider
+          - generic [ref=e3511] [cursor=pointer]:
+            - generic [ref=e3513]: OpenRouter
+            - generic [ref=e3515]:
+              - generic [ref=e3516]: 256K
+              - generic "Tools supported" [ref=e3517]:
+                - img [ref=e3518]
+            - generic [ref=e3520]: Free
+        - generic [ref=e3521]:
+          - generic [ref=e3522]:
+            - generic [ref=e3523]:
+              - heading "Nemotron 3 Super" [level=3] [ref=e3524]
+              - generic [ref=e3525]: opencode
+            - generic [ref=e3526]:
+              - generic [ref=e3527]: "#13 Build"
+              - generic [ref=e3528]: "#3 Model"
+          - generic [ref=e3529]:
+            - generic [ref=e3530]: "Max: 1M context"
+            - generic [ref=e3531]: "|"
+            - generic [ref=e3532]: Free
+            - generic [ref=e3533]: "|"
+            - generic [ref=e3534]: 2 providers
+          - generic [ref=e3536]:
+            - generic [ref=e3537] [cursor=pointer]:
+              - generic [ref=e3539]: OpenCode Zen
+              - generic [ref=e3541]:
+                - generic [ref=e3542]: 131K
+                - generic "Tools supported" [ref=e3543]:
+                  - img [ref=e3544]
+              - generic [ref=e3546]: Free
+            - generic [ref=e3547] [cursor=pointer]:
+              - generic [ref=e3549]: OpenRouter
+              - generic [ref=e3551]:
+                - generic [ref=e3552]: 1M
+                - generic "Tools supported" [ref=e3553]:
+                  - img [ref=e3554]
+              - generic [ref=e3556]: Free
+        - generic [ref=e3557]:
+          - generic [ref=e3558]:
+            - generic [ref=e3559]:
+              - heading "Nemotron Nano 9B V2" [level=3] [ref=e3560]
+              - generic [ref=e3561]: NVIDIA
+            - generic [ref=e3562]:
+              - generic [ref=e3563]: "#19 Build"
+              - generic [ref=e3564]: "#2 Model"
+          - generic [ref=e3565]:
+            - generic [ref=e3566]: "Max: 128K context"
+            - generic [ref=e3567]: "|"
+            - generic [ref=e3568]: Free
+            - generic [ref=e3569]: "|"
+            - generic [ref=e3570]: 1 provider
+          - generic [ref=e3573] [cursor=pointer]:
+            - generic [ref=e3575]: OpenRouter
+            - generic [ref=e3577]:
+              - generic [ref=e3578]: 128K
+              - generic "Tools supported" [ref=e3579]:
+                - img [ref=e3580]
+            - generic [ref=e3582]: Free
+        - generic [ref=e3583]:
+          - generic [ref=e3584]:
+            - generic [ref=e3585]:
+              - heading "nemotron-3-nano-30b-a3b" [level=3] [ref=e3586]
+              - generic [ref=e3587]: NVIDIA
+            - generic [ref=e3588]:
+              - generic [ref=e3589]: "#3 Build"
+              - generic [ref=e3590]: "#4 Model"
+          - generic [ref=e3591]:
+            - generic [ref=e3592]: "Max: 256K context"
+            - generic [ref=e3593]: "|"
+            - generic [ref=e3594]: Free
+            - generic [ref=e3595]: "|"
+            - generic [ref=e3596]: 1 provider
+          - generic [ref=e3599] [cursor=pointer]:
+            - generic [ref=e3601]: OpenRouter
+            - generic [ref=e3603]:
+              - generic [ref=e3604]: 256K
+              - generic "Tools supported" [ref=e3605]:
+                - img [ref=e3606]
+            - generic [ref=e3608]: Free
+        - generic [ref=e3609]:
+          - generic [ref=e3611]:
+            - heading "nemotron-3-ultra-550b-a55b" [level=3] [ref=e3612]
+            - generic [ref=e3613]: NVIDIA
+          - generic [ref=e3614]:
+            - generic [ref=e3615]: "Max: — context"
+            - generic [ref=e3616]: "|"
+            - generic [ref=e3617]: Free
+            - generic [ref=e3618]: "|"
+            - generic [ref=e3619]: 1 provider
+          - generic [ref=e3622] [cursor=pointer]:
+            - generic [ref=e3624]: NVIDIA
+            - generic [ref=e3626]:
+              - generic [ref=e3627]: —
+              - generic "No tools" [ref=e3628]: —
+            - generic [ref=e3629]: Free
+        - generic [ref=e3630]:
+          - generic [ref=e3632]:
+            - heading "NVIDIA Nemotron Nano 12B V2 VL" [level=3] [ref=e3633]
+            - generic [ref=e3634]: NVIDIA
+          - generic [ref=e3635]:
+            - generic [ref=e3636]: "Max: 128K context"
+            - generic [ref=e3637]: "|"
+            - generic [ref=e3638]: Free
+            - generic [ref=e3639]: "|"
+            - generic [ref=e3640]: 1 provider
+          - generic [ref=e3643] [cursor=pointer]:
+            - generic [ref=e3645]: OpenRouter
+            - generic [ref=e3647]:
+              - generic [ref=e3648]: 128K
+              - generic "Tools supported" [ref=e3649]:
+                - img [ref=e3650]
+            - generic [ref=e3652]: Free
+        - generic [ref=e3653]:
+          - generic [ref=e3655]:
+            - heading "nvidia-nemotron-nano-9b-v2" [level=3] [ref=e3656]
+            - generic [ref=e3657]: NVIDIA
+          - generic [ref=e3658]:
+            - generic [ref=e3659]: "Max: — context"
+            - generic [ref=e3660]: "|"
+            - generic [ref=e3661]: Free
+            - generic [ref=e3662]: "|"
+            - generic [ref=e3663]: 1 provider
+          - generic [ref=e3666] [cursor=pointer]:
+            - generic [ref=e3668]: NVIDIA
+            - generic [ref=e3670]:
+              - generic [ref=e3671]: —
+              - generic "No tools" [ref=e3672]: —
+            - generic [ref=e3673]: Free
+        - generic [ref=e3674]:
+          - generic [ref=e3676]:
+            - heading "nvidia/nemotron-3-ultra-550b-a55b:free" [level=3] [ref=e3677]
+            - generic [ref=e3678]: NVIDIA
+          - generic [ref=e3679]:
+            - generic [ref=e3680]: "Max: 1M context"
+            - generic [ref=e3681]: "|"
+            - generic [ref=e3682]: Free
+            - generic [ref=e3683]: "|"
+            - generic [ref=e3684]: 1 provider
+          - generic [ref=e3687] [cursor=pointer]:
+            - generic [ref=e3689]: OpenRouter
+            - generic [ref=e3691]:
+              - generic [ref=e3692]: 1M
+              - generic "No tools" [ref=e3693]: —
+            - generic [ref=e3694]: Free
+        - generic [ref=e3695]:
+          - generic [ref=e3697]:
+            - heading "nvidia/nemotron-3.5-content-safety:free" [level=3] [ref=e3698]
+            - generic [ref=e3699]: NVIDIA
+          - generic [ref=e3700]:
+            - generic [ref=e3701]: "Max: 128K context"
+            - generic [ref=e3702]: "|"
+            - generic [ref=e3703]: Free
+            - generic [ref=e3704]: "|"
+            - generic [ref=e3705]: 1 provider
+          - generic [ref=e3708] [cursor=pointer]:
+            - generic [ref=e3710]: OpenRouter
+            - generic [ref=e3712]:
+              - generic [ref=e3713]: 128K
+              - generic "No tools" [ref=e3714]: —
+            - generic [ref=e3715]: Free
+        - generic [ref=e3716]:
+          - generic [ref=e3718]:
+            - heading "o3" [level=3] [ref=e3719]
+            - generic [ref=e3720]: OpenAI
+          - generic [ref=e3721]:
+            - generic [ref=e3722]: "Max: 200K context"
+            - generic [ref=e3723]: "|"
+            - generic [ref=e3724]: $2/$8
+            - generic [ref=e3725]: "|"
+            - generic [ref=e3726]: 1 provider
+          - generic [ref=e3729] [cursor=pointer]:
+            - generic [ref=e3731]: OpenRouter
+            - generic [ref=e3733]:
+              - generic [ref=e3734]: 200K
+              - generic "Tools supported" [ref=e3735]:
+                - img [ref=e3736]
+            - generic [ref=e3738]: $2/$8
+        - generic [ref=e3739]:
+          - generic [ref=e3741]:
+            - heading "o4-mini" [level=3] [ref=e3742]
+            - generic [ref=e3743]: OpenAI
+          - generic [ref=e3744]:
+            - generic [ref=e3745]: "Max: 200K context"
+            - generic [ref=e3746]: "|"
+            - generic [ref=e3747]: $1/$4
+            - generic [ref=e3748]: "|"
+            - generic [ref=e3749]: 1 provider
+          - generic [ref=e3752] [cursor=pointer]:
+            - generic [ref=e3754]: OpenRouter
+            - generic [ref=e3756]:
+              - generic [ref=e3757]: 200K
+              - generic "Tools supported" [ref=e3758]:
+                - img [ref=e3759]
+            - generic [ref=e3761]: $1/$4
+        - generic [ref=e3762]:
+          - generic [ref=e3764]:
+            - heading "OpenAI GPT-4.1" [level=3] [ref=e3765]
+            - generic [ref=e3766]: OpenAI
+          - generic [ref=e3767]:
+            - generic [ref=e3768]: "Max: — context"
+            - generic [ref=e3769]: "|"
+            - generic [ref=e3770]: Free
+            - generic [ref=e3771]: "|"
+            - generic [ref=e3772]: 1 provider
+          - generic [ref=e3775] [cursor=pointer]:
+            - generic [ref=e3777]: GitHub Models
+            - generic [ref=e3779]:
+              - generic [ref=e3780]: —
+              - generic "No tools" [ref=e3781]: —
+            - generic [ref=e3782]: Free
+        - generic [ref=e3783]:
+          - generic [ref=e3785]:
+            - heading "OpenAI GPT-4.1-mini" [level=3] [ref=e3786]
+            - generic [ref=e3787]: OpenAI
+          - generic [ref=e3788]:
+            - generic [ref=e3789]: "Max: — context"
+            - generic [ref=e3790]: "|"
+            - generic [ref=e3791]: Free
+            - generic [ref=e3792]: "|"
+            - generic [ref=e3793]: 1 provider
+          - generic [ref=e3796] [cursor=pointer]:
+            - generic [ref=e3798]: GitHub Models
+            - generic [ref=e3800]:
+              - generic [ref=e3801]: —
+              - generic "No tools" [ref=e3802]: —
+            - generic [ref=e3803]: Free
+        - generic [ref=e3804]:
+          - generic [ref=e3806]:
+            - heading "OpenAI GPT-4.1-nano" [level=3] [ref=e3807]
+            - generic [ref=e3808]: OpenAI
+          - generic [ref=e3809]:
+            - generic [ref=e3810]: "Max: — context"
+            - generic [ref=e3811]: "|"
+            - generic [ref=e3812]: Free
+            - generic [ref=e3813]: "|"
+            - generic [ref=e3814]: 1 provider
+          - generic [ref=e3817] [cursor=pointer]:
+            - generic [ref=e3819]: GitHub Models
+            - generic [ref=e3821]:
+              - generic [ref=e3822]: —
+              - generic "No tools" [ref=e3823]: —
+            - generic [ref=e3824]: Free
+        - generic [ref=e3825]:
+          - generic [ref=e3827]:
+            - heading "OpenAI GPT-4o" [level=3] [ref=e3828]
+            - generic [ref=e3829]: OpenAI
+          - generic [ref=e3830]:
+            - generic [ref=e3831]: "Max: — context"
+            - generic [ref=e3832]: "|"
+            - generic [ref=e3833]: Free
+            - generic [ref=e3834]: "|"
+            - generic [ref=e3835]: 1 provider
+          - generic [ref=e3838] [cursor=pointer]:
+            - generic [ref=e3840]: GitHub Models
+            - generic [ref=e3842]:
+              - generic [ref=e3843]: —
+              - generic "No tools" [ref=e3844]: —
+            - generic [ref=e3845]: Free
+        - generic [ref=e3846]:
+          - generic [ref=e3848]:
+            - heading "OpenAI GPT-4o mini" [level=3] [ref=e3849]
+            - generic [ref=e3850]: OpenAI
+          - generic [ref=e3851]:
+            - generic [ref=e3852]: "Max: — context"
+            - generic [ref=e3853]: "|"
+            - generic [ref=e3854]: Free
+            - generic [ref=e3855]: "|"
+            - generic [ref=e3856]: 1 provider
+          - generic [ref=e3859] [cursor=pointer]:
+            - generic [ref=e3861]: GitHub Models
+            - generic [ref=e3863]:
+              - generic [ref=e3864]: —
+              - generic "No tools" [ref=e3865]: —
+            - generic [ref=e3866]: Free
+        - generic [ref=e3867]:
+          - generic [ref=e3869]:
+            - heading "OpenAI gpt-5" [level=3] [ref=e3870]
+            - generic [ref=e3871]: OpenAI
+          - generic [ref=e3872]:
+            - generic [ref=e3873]: "Max: — context"
+            - generic [ref=e3874]: "|"
+            - generic [ref=e3875]: Free
+            - generic [ref=e3876]: "|"
+            - generic [ref=e3877]: 1 provider
+          - generic [ref=e3880] [cursor=pointer]:
+            - generic [ref=e3882]: GitHub Models
+            - generic [ref=e3884]:
+              - generic [ref=e3885]: —
+              - generic "No tools" [ref=e3886]: —
+            - generic [ref=e3887]: Free
+        - generic [ref=e3888]:
+          - generic [ref=e3890]:
+            - heading "OpenAI gpt-5-chat (preview)" [level=3] [ref=e3891]
+            - generic [ref=e3892]: OpenAI
+          - generic [ref=e3893]:
+            - generic [ref=e3894]: "Max: — context"
+            - generic [ref=e3895]: "|"
+            - generic [ref=e3896]: Free
+            - generic [ref=e3897]: "|"
+            - generic [ref=e3898]: 1 provider
+          - generic [ref=e3901] [cursor=pointer]:
+            - generic [ref=e3903]: GitHub Models
+            - generic [ref=e3905]:
+              - generic [ref=e3906]: —
+              - generic "No tools" [ref=e3907]: —
+            - generic [ref=e3908]: Free
+        - generic [ref=e3909]:
+          - generic [ref=e3911]:
+            - heading "OpenAI gpt-5-mini" [level=3] [ref=e3912]
+            - generic [ref=e3913]: OpenAI
+          - generic [ref=e3914]:
+            - generic [ref=e3915]: "Max: — context"
+            - generic [ref=e3916]: "|"
+            - generic [ref=e3917]: Free
+            - generic [ref=e3918]: "|"
+            - generic [ref=e3919]: 1 provider
+          - generic [ref=e3922] [cursor=pointer]:
+            - generic [ref=e3924]: GitHub Models
+            - generic [ref=e3926]:
+              - generic [ref=e3927]: —
+              - generic "No tools" [ref=e3928]: —
+            - generic [ref=e3929]: Free
+        - generic [ref=e3930]:
+          - generic [ref=e3932]:
+            - heading "OpenAI gpt-5-nano" [level=3] [ref=e3933]
+            - generic [ref=e3934]: OpenAI
+          - generic [ref=e3935]:
+            - generic [ref=e3936]: "Max: — context"
+            - generic [ref=e3937]: "|"
+            - generic [ref=e3938]: Free
+            - generic [ref=e3939]: "|"
+            - generic [ref=e3940]: 1 provider
+          - generic [ref=e3943] [cursor=pointer]:
+            - generic [ref=e3945]: GitHub Models
+            - generic [ref=e3947]:
+              - generic [ref=e3948]: —
+              - generic "No tools" [ref=e3949]: —
+            - generic [ref=e3950]: Free
+        - generic [ref=e3951]:
+          - generic [ref=e3953]:
+            - heading "OpenAI o1" [level=3] [ref=e3954]
+            - generic [ref=e3955]: OpenAI
+          - generic [ref=e3956]:
+            - generic [ref=e3957]: "Max: — context"
+            - generic [ref=e3958]: "|"
+            - generic [ref=e3959]: Free
+            - generic [ref=e3960]: "|"
+            - generic [ref=e3961]: 1 provider
+          - generic [ref=e3964] [cursor=pointer]:
+            - generic [ref=e3966]: GitHub Models
+            - generic [ref=e3968]:
+              - generic [ref=e3969]: —
+              - generic "No tools" [ref=e3970]: —
+            - generic [ref=e3971]: Free
+        - generic [ref=e3972]:
+          - generic [ref=e3974]:
+            - heading "OpenAI o1-mini" [level=3] [ref=e3975]
+            - generic [ref=e3976]: OpenAI
+          - generic [ref=e3977]:
+            - generic [ref=e3978]: "Max: — context"
+            - generic [ref=e3979]: "|"
+            - generic [ref=e3980]: Free
+            - generic [ref=e3981]: "|"
+            - generic [ref=e3982]: 1 provider
+          - generic [ref=e3985] [cursor=pointer]:
+            - generic [ref=e3987]: GitHub Models
+            - generic [ref=e3989]:
+              - generic [ref=e3990]: —
+              - generic "No tools" [ref=e3991]: —
+            - generic [ref=e3992]: Free
+        - generic [ref=e3993]:
+          - generic [ref=e3995]:
+            - heading "OpenAI o1-preview" [level=3] [ref=e3996]
+            - generic [ref=e3997]: OpenAI
+          - generic [ref=e3998]:
+            - generic [ref=e3999]: "Max: — context"
+            - generic [ref=e4000]: "|"
+            - generic [ref=e4001]: Free
+            - generic [ref=e4002]: "|"
+            - generic [ref=e4003]: 1 provider
+          - generic [ref=e4006] [cursor=pointer]:
+            - generic [ref=e4008]: GitHub Models
+            - generic [ref=e4010]:
+              - generic [ref=e4011]: —
+              - generic "No tools" [ref=e4012]: —
+            - generic [ref=e4013]: Free
+        - generic [ref=e4014]:
+          - generic [ref=e4016]:
+            - heading "OpenAI o3" [level=3] [ref=e4017]
+            - generic [ref=e4018]: OpenAI
+          - generic [ref=e4019]:
+            - generic [ref=e4020]: "Max: — context"
+            - generic [ref=e4021]: "|"
+            - generic [ref=e4022]: Free
+            - generic [ref=e4023]: "|"
+            - generic [ref=e4024]: 1 provider
+          - generic [ref=e4027] [cursor=pointer]:
+            - generic [ref=e4029]: GitHub Models
+            - generic [ref=e4031]:
+              - generic [ref=e4032]: —
+              - generic "No tools" [ref=e4033]: —
+            - generic [ref=e4034]: Free
+        - generic [ref=e4035]:
+          - generic [ref=e4037]:
+            - heading "OpenAI o3-mini" [level=3] [ref=e4038]
+            - generic [ref=e4039]: OpenAI
+          - generic [ref=e4040]:
+            - generic [ref=e4041]: "Max: — context"
+            - generic [ref=e4042]: "|"
+            - generic [ref=e4043]: Free
+            - generic [ref=e4044]: "|"
+            - generic [ref=e4045]: 1 provider
+          - generic [ref=e4048] [cursor=pointer]:
+            - generic [ref=e4050]: GitHub Models
+            - generic [ref=e4052]:
+              - generic [ref=e4053]: —
+              - generic "No tools" [ref=e4054]: —
+            - generic [ref=e4055]: Free
+        - generic [ref=e4056]:
+          - generic [ref=e4058]:
+            - heading "OpenAI o4-mini" [level=3] [ref=e4059]
+            - generic [ref=e4060]: OpenAI
+          - generic [ref=e4061]:
+            - generic [ref=e4062]: "Max: — context"
+            - generic [ref=e4063]: "|"
+            - generic [ref=e4064]: Free
+            - generic [ref=e4065]: "|"
+            - generic [ref=e4066]: 1 provider
+          - generic [ref=e4069] [cursor=pointer]:
+            - generic [ref=e4071]: GitHub Models
+            - generic [ref=e4073]:
+              - generic [ref=e4074]: —
+              - generic "No tools" [ref=e4075]: —
+            - generic [ref=e4076]: Free
+        - generic [ref=e4077]:
+          - generic [ref=e4079]:
+            - heading "OpenAI Text Embedding 3 (large)" [level=3] [ref=e4080]
+            - generic [ref=e4081]: OpenAI
+          - generic [ref=e4082]:
+            - generic [ref=e4083]: "Max: — context"
+            - generic [ref=e4084]: "|"
+            - generic [ref=e4085]: Free
+            - generic [ref=e4086]: "|"
+            - generic [ref=e4087]: 1 provider
+          - generic [ref=e4090] [cursor=pointer]:
+            - generic [ref=e4092]: GitHub Models
+            - generic [ref=e4094]:
+              - generic [ref=e4095]: —
+              - generic "No tools" [ref=e4096]: —
+            - generic [ref=e4097]: Free
+        - generic [ref=e4098]:
+          - generic [ref=e4100]:
+            - heading "OpenAI Text Embedding 3 (small)" [level=3] [ref=e4101]
+            - generic [ref=e4102]: OpenAI
+          - generic [ref=e4103]:
+            - generic [ref=e4104]: "Max: — context"
+            - generic [ref=e4105]: "|"
+            - generic [ref=e4106]: Free
+            - generic [ref=e4107]: "|"
+            - generic [ref=e4108]: 1 provider
+          - generic [ref=e4111] [cursor=pointer]:
+            - generic [ref=e4113]: GitHub Models
+            - generic [ref=e4115]:
+              - generic [ref=e4116]: —
+              - generic "No tools" [ref=e4117]: —
+            - generic [ref=e4118]: Free
+        - generic [ref=e4119]:
+          - generic [ref=e4121]:
+            - heading "openai/gpt-oss-120b" [level=3] [ref=e4122]
+            - generic [ref=e4123]: OpenAI
+          - generic [ref=e4124]:
+            - generic [ref=e4125]: "Max: — context"
+            - generic [ref=e4126]: "|"
+            - generic [ref=e4127]: Free
+            - generic [ref=e4128]: "|"
+            - generic [ref=e4129]: 1 provider
+          - generic [ref=e4132] [cursor=pointer]:
+            - generic [ref=e4134]: Groq
+            - generic [ref=e4136]:
+              - generic [ref=e4137]: —
+              - generic "No tools" [ref=e4138]: —
+            - generic [ref=e4139]: Free
+        - generic [ref=e4140]:
+          - generic [ref=e4142]:
+            - heading "openai/gpt-oss-20b" [level=3] [ref=e4143]
+            - generic [ref=e4144]: OpenAI
+          - generic [ref=e4145]:
+            - generic [ref=e4146]: "Max: — context"
+            - generic [ref=e4147]: "|"
+            - generic [ref=e4148]: Free
+            - generic [ref=e4149]: "|"
+            - generic [ref=e4150]: 1 provider
+          - generic [ref=e4153] [cursor=pointer]:
+            - generic [ref=e4155]: Groq
+            - generic [ref=e4157]:
+              - generic [ref=e4158]: —
+              - generic "No tools" [ref=e4159]: —
+            - generic [ref=e4160]: Free
+        - generic [ref=e4161]:
+          - generic [ref=e4163]:
+            - heading "openai/gpt-oss-safeguard-20b" [level=3] [ref=e4164]
+            - generic [ref=e4165]: OpenAI
+          - generic [ref=e4166]:
+            - generic [ref=e4167]: "Max: — context"
+            - generic [ref=e4168]: "|"
+            - generic [ref=e4169]: Free
+            - generic [ref=e4170]: "|"
+            - generic [ref=e4171]: 1 provider
+          - generic [ref=e4174] [cursor=pointer]:
+            - generic [ref=e4176]: Groq
+            - generic [ref=e4178]:
+              - generic [ref=e4179]: —
+              - generic "No tools" [ref=e4180]: —
+            - generic [ref=e4181]: Free
+        - generic [ref=e4182]:
+          - generic [ref=e4184]:
+            - heading "Orpheus V1 English" [level=3] [ref=e4185]
+            - generic [ref=e4186]: Unknown
+          - generic [ref=e4187]:
+            - generic [ref=e4188]: "Max: 4K context"
+            - generic [ref=e4189]: "|"
+            - generic [ref=e4190]: Free
+            - generic [ref=e4191]: "|"
+            - generic [ref=e4192]: 1 provider
+          - generic [ref=e4195] [cursor=pointer]:
+            - generic [ref=e4197]: Groq
+            - generic [ref=e4199]:
+              - generic [ref=e4200]: 4K
+              - generic "No tools" [ref=e4201]: —
+            - generic [ref=e4202]: Free
+        - generic [ref=e4203]:
+          - generic [ref=e4205]:
+            - heading "OWL Alpha" [level=3] [ref=e4206]
+            - generic [ref=e4207]: Unknown
+          - generic [ref=e4208]:
+            - generic [ref=e4209]: "Max: 1M context"
+            - generic [ref=e4210]: "|"
+            - generic [ref=e4211]: Free
+            - generic [ref=e4212]: "|"
+            - generic [ref=e4213]: 1 provider
+          - generic [ref=e4216] [cursor=pointer]:
+            - generic [ref=e4218]: OpenRouter
+            - generic [ref=e4220]:
+              - generic [ref=e4221]: 1M
+              - generic "Tools supported" [ref=e4222]:
+                - img [ref=e4223]
+            - generic [ref=e4225]: Free
+        - generic [ref=e4226]:
+          - generic [ref=e4228]:
+            - heading "Phi-2" [level=3] [ref=e4229]
+            - generic [ref=e4230]: Microsoft
+          - generic [ref=e4231]:
+            - generic [ref=e4232]: "Max: — context"
+            - generic [ref=e4233]: "|"
+            - generic [ref=e4234]: Free
+            - generic [ref=e4235]: "|"
+            - generic [ref=e4236]: 1 provider
+          - generic [ref=e4239] [cursor=pointer]:
+            - generic [ref=e4241]: Cloudflare
+            - generic [ref=e4243]:
+              - generic [ref=e4244]: —
+              - generic "No tools" [ref=e4245]: —
+            - generic [ref=e4246]: Free
+        - generic [ref=e4247]:
+          - generic [ref=e4249]:
+            - heading "Phi-4" [level=3] [ref=e4250]
+            - generic [ref=e4251]: Microsoft
+          - generic [ref=e4252]:
+            - generic [ref=e4253]: "Max: — context"
+            - generic [ref=e4254]: "|"
+            - generic [ref=e4255]: Free
+            - generic [ref=e4256]: "|"
+            - generic [ref=e4257]: 1 provider
+          - generic [ref=e4260] [cursor=pointer]:
+            - generic [ref=e4262]: GitHub Models
+            - generic [ref=e4264]:
+              - generic [ref=e4265]: —
+              - generic "No tools" [ref=e4266]: —
+            - generic [ref=e4267]: Free
+        - generic [ref=e4268]:
+          - generic [ref=e4270]:
+            - heading "Phi-4-mini-instruct" [level=3] [ref=e4271]
+            - generic [ref=e4272]: Microsoft
+          - generic [ref=e4273]:
+            - generic [ref=e4274]: "Max: — context"
+            - generic [ref=e4275]: "|"
+            - generic [ref=e4276]: Free
+            - generic [ref=e4277]: "|"
+            - generic [ref=e4278]: 1 provider
+          - generic [ref=e4281] [cursor=pointer]:
+            - generic [ref=e4283]: GitHub Models
+            - generic [ref=e4285]:
+              - generic [ref=e4286]: —
+              - generic "No tools" [ref=e4287]: —
+            - generic [ref=e4288]: Free
+        - generic [ref=e4289]:
+          - generic [ref=e4291]:
+            - heading "Phi-4-mini-reasoning" [level=3] [ref=e4292]
+            - generic [ref=e4293]: Microsoft
+          - generic [ref=e4294]:
+            - generic [ref=e4295]: "Max: — context"
+            - generic [ref=e4296]: "|"
+            - generic [ref=e4297]: Free
+            - generic [ref=e4298]: "|"
+            - generic [ref=e4299]: 1 provider
+          - generic [ref=e4302] [cursor=pointer]:
+            - generic [ref=e4304]: GitHub Models
+            - generic [ref=e4306]:
+              - generic [ref=e4307]: —
+              - generic "No tools" [ref=e4308]: —
+            - generic [ref=e4309]: Free
+        - generic [ref=e4310]:
+          - generic [ref=e4312]:
+            - heading "Phi-4-multimodal-instruct" [level=3] [ref=e4313]
+            - generic [ref=e4314]: Microsoft
+          - generic [ref=e4315]:
+            - generic [ref=e4316]: "Max: — context"
+            - generic [ref=e4317]: "|"
+            - generic [ref=e4318]: Free
+            - generic [ref=e4319]: "|"
+            - generic [ref=e4320]: 1 provider
+          - generic [ref=e4323] [cursor=pointer]:
+            - generic [ref=e4325]: GitHub Models
+            - generic [ref=e4327]:
+              - generic [ref=e4328]: —
+              - generic "No tools" [ref=e4329]: —
+            - generic [ref=e4330]: Free
+        - generic [ref=e4331]:
+          - generic [ref=e4333]:
+            - heading "Phi-4-reasoning" [level=3] [ref=e4334]
+            - generic [ref=e4335]: Microsoft
+          - generic [ref=e4336]:
+            - generic [ref=e4337]: "Max: — context"
+            - generic [ref=e4338]: "|"
+            - generic [ref=e4339]: Free
+            - generic [ref=e4340]: "|"
+            - generic [ref=e4341]: 1 provider
+          - generic [ref=e4344] [cursor=pointer]:
+            - generic [ref=e4346]: GitHub Models
+            - generic [ref=e4348]:
+              - generic [ref=e4349]: —
+              - generic "No tools" [ref=e4350]: —
+            - generic [ref=e4351]: Free
+        - generic [ref=e4352]:
+          - generic [ref=e4354]:
+            - heading "Qwen 2.5 Coder 32B Instruct" [level=3] [ref=e4355]
+            - generic [ref=e4356]: Qwen
+          - generic [ref=e4357]:
+            - generic [ref=e4358]: "Max: — context"
+            - generic [ref=e4359]: "|"
+            - generic [ref=e4360]: Free
+            - generic [ref=e4361]: "|"
+            - generic [ref=e4362]: 1 provider
+          - generic [ref=e4365] [cursor=pointer]:
+            - generic [ref=e4367]: Cloudflare
+            - generic [ref=e4369]:
+              - generic [ref=e4370]: —
+              - generic "No tools" [ref=e4371]: —
+            - generic [ref=e4372]: Free
+        - generic [ref=e4373]:
+          - generic [ref=e4375]:
+            - heading "Qwen 3 235B Instruct" [level=3] [ref=e4376]
+            - generic [ref=e4377]: Qwen
+          - generic [ref=e4378]:
+            - generic [ref=e4379]: "Max: 131K context"
+            - generic [ref=e4380]: "|"
+            - generic [ref=e4381]: Free/Free
+            - generic [ref=e4382]: "|"
+            - generic [ref=e4383]: 1 provider
+          - generic [ref=e4386] [cursor=pointer]:
+            - generic [ref=e4388]: Cerebras
+            - generic [ref=e4390]:
+              - generic [ref=e4391]: 131K
+              - generic "Tools supported" [ref=e4392]:
+                - img [ref=e4393]
+            - generic [ref=e4395]: $0/$0
+        - generic [ref=e4396]:
+          - generic [ref=e4398]:
+            - heading "Qwen QwQ 32B" [level=3] [ref=e4399]
+            - generic [ref=e4400]: Qwen
+          - generic [ref=e4401]:
+            - generic [ref=e4402]: "Max: — context"
+            - generic [ref=e4403]: "|"
+            - generic [ref=e4404]: Free
+            - generic [ref=e4405]: "|"
+            - generic [ref=e4406]: 1 provider
+          - generic [ref=e4409] [cursor=pointer]:
+            - generic [ref=e4411]: Cloudflare
+            - generic [ref=e4413]:
+              - generic [ref=e4414]: —
+              - generic "No tools" [ref=e4415]: —
+            - generic [ref=e4416]: Free
+        - generic [ref=e4417]:
+          - generic [ref=e4419]:
+            - heading "qwen/qwen3-32b" [level=3] [ref=e4420]
+            - generic [ref=e4421]: Qwen
+          - generic [ref=e4422]:
+            - generic [ref=e4423]: "Max: — context"
+            - generic [ref=e4424]: "|"
+            - generic [ref=e4425]: Free
+            - generic [ref=e4426]: "|"
+            - generic [ref=e4427]: 1 provider
+          - generic [ref=e4430] [cursor=pointer]:
+            - generic [ref=e4432]: Groq
+            - generic [ref=e4434]:
+              - generic [ref=e4435]: —
+              - generic "No tools" [ref=e4436]: —
+            - generic [ref=e4437]: Free
+        - generic [ref=e4438]:
+          - generic [ref=e4440]:
+            - heading "Qwen3 Coder" [level=3] [ref=e4441]
+            - generic [ref=e4442]: Qwen
+          - generic [ref=e4443]:
+            - generic [ref=e4444]: "Max: 1M context"
+            - generic [ref=e4445]: "|"
+            - generic [ref=e4446]: $0.22/$2
+            - generic [ref=e4447]: "|"
+            - generic [ref=e4448]: 2 providers
+          - generic [ref=e4450]:
+            - generic [ref=e4451] [cursor=pointer]:
+              - generic [ref=e4453]: OpenRouter
+              - generic [ref=e4455]:
+                - generic [ref=e4456]: 1M
+                - generic "Tools supported" [ref=e4457]:
+                  - img [ref=e4458]
+              - generic [ref=e4460]: $0.22/$2
+            - generic [ref=e4461] [cursor=pointer]:
+              - generic [ref=e4463]: OpenRouter
+              - generic [ref=e4465]:
+                - generic [ref=e4466]: 1M
+                - generic "Tools supported" [ref=e4467]:
+                  - img [ref=e4468]
+              - generic [ref=e4470]: $0.22/$2
+        - generic [ref=e4471]:
+          - generic [ref=e4473]:
+            - heading "Qwen3 Coder Flash" [level=3] [ref=e4474]
+            - generic [ref=e4475]: Qwen
+          - generic [ref=e4476]:
+            - generic [ref=e4477]: "Max: 1M context"
+            - generic [ref=e4478]: "|"
+            - generic [ref=e4479]: $0.20/$0.98
+            - generic [ref=e4480]: "|"
+            - generic [ref=e4481]: 1 provider
+          - generic [ref=e4484] [cursor=pointer]:
+            - generic [ref=e4486]: OpenRouter
+            - generic [ref=e4488]:
+              - generic [ref=e4489]: 1M
+              - generic "Tools supported" [ref=e4490]:
+                - img [ref=e4491]
+            - generic [ref=e4493]: $0.20/$0.98
+        - generic [ref=e4494]:
+          - generic [ref=e4496]:
+            - heading "Qwen3 Coder Plus" [level=3] [ref=e4497]
+            - generic [ref=e4498]: Qwen
+          - generic [ref=e4499]:
+            - generic [ref=e4500]: "Max: 1M context"
+            - generic [ref=e4501]: "|"
+            - generic [ref=e4502]: $0.65/$3
+            - generic [ref=e4503]: "|"
+            - generic [ref=e4504]: 3 providers
+          - generic [ref=e4506]:
+            - generic [ref=e4507] [cursor=pointer]:
+              - generic [ref=e4509]: Alibaba Coding Plan
+              - generic [ref=e4511]:
+                - generic [ref=e4512]: 1M
+                - generic "Tools supported" [ref=e4513]:
+                  - img [ref=e4514]
+              - generic [ref=e4516]: $0.65/$3
+            - generic [ref=e4517] [cursor=pointer]:
+              - generic [ref=e4519]: Alibaba Coding Plan (China)
+              - generic [ref=e4521]:
+                - generic [ref=e4522]: 1M
+                - generic "Tools supported" [ref=e4523]:
+                  - img [ref=e4524]
+              - generic [ref=e4526]: $0.65/$3
+            - generic [ref=e4527] [cursor=pointer]:
+              - generic [ref=e4529]: OpenRouter
+              - generic [ref=e4531]:
+                - generic [ref=e4532]: 1M
+                - generic "Tools supported" [ref=e4533]:
+                  - img [ref=e4534]
+              - generic [ref=e4536]: $0.65/$3
+        - generic [ref=e4537]:
+          - generic [ref=e4539]:
+            - heading "Qwen3 Max" [level=3] [ref=e4540]
+            - generic [ref=e4541]: Qwen
+          - generic [ref=e4542]:
+            - generic [ref=e4543]: "Max: 262K context"
+            - generic [ref=e4544]: "|"
+            - generic [ref=e4545]: $0.78/$4
+            - generic [ref=e4546]: "|"
+            - generic [ref=e4547]: 3 providers
+          - generic [ref=e4549]:
+            - generic [ref=e4550] [cursor=pointer]:
+              - generic [ref=e4552]: Alibaba Coding Plan
+              - generic [ref=e4554]:
+                - generic [ref=e4555]: 262K
+                - generic "No tools" [ref=e4556]: —
+              - generic [ref=e4557]: $0.78/$4
+            - generic [ref=e4558] [cursor=pointer]:
+              - generic [ref=e4560]: Alibaba Coding Plan (China)
+              - generic [ref=e4562]:
+                - generic [ref=e4563]: 262K
+                - generic "No tools" [ref=e4564]: —
+              - generic [ref=e4565]: $0.78/$4
+            - generic [ref=e4566] [cursor=pointer]:
+              - generic [ref=e4568]: OpenRouter
+              - generic [ref=e4570]:
+                - generic [ref=e4571]: 262K
+                - generic "No tools" [ref=e4572]: —
+              - generic [ref=e4573]: $0.78/$4
+        - generic [ref=e4574]:
+          - generic [ref=e4576]:
+            - heading "Qwen3-Next-80B-A3B-Instruct" [level=3] [ref=e4577]
+            - generic [ref=e4578]: Qwen
+          - generic [ref=e4579]:
+            - generic [ref=e4580]: "Max: 262K context"
+            - generic [ref=e4581]: "|"
+            - generic [ref=e4582]: Free
+            - generic [ref=e4583]: "|"
+            - generic [ref=e4584]: 1 provider
+          - generic [ref=e4587] [cursor=pointer]:
+            - generic [ref=e4589]: OpenRouter
+            - generic [ref=e4591]:
+              - generic [ref=e4592]: 262K
+              - generic "No tools" [ref=e4593]: —
+            - generic [ref=e4594]: Free
+        - generic [ref=e4595]:
+          - generic [ref=e4597]:
+            - heading "Qwen3.6 Plus" [level=3] [ref=e4598]
+            - generic [ref=e4599]: Qwen
+          - generic [ref=e4600]:
+            - generic [ref=e4601]: "Max: 262K context"
+            - generic [ref=e4602]: "|"
+            - generic [ref=e4603]: Free
+            - generic [ref=e4604]: "|"
+            - generic [ref=e4605]: 1 provider
+          - generic [ref=e4608] [cursor=pointer]:
+            - generic [ref=e4610]: OpenCode Zen
+            - generic [ref=e4612]:
+              - generic [ref=e4613]: 262K
+              - generic "Tools supported" [ref=e4614]:
+                - img [ref=e4615]
+            - generic [ref=e4617]: Free
+        - generic [ref=e4618]:
+          - generic [ref=e4620]:
+            - heading "SQLCoder 7B 2" [level=3] [ref=e4621]
+            - generic [ref=e4622]: Unknown
+          - generic [ref=e4623]:
+            - generic [ref=e4624]: "Max: — context"
+            - generic [ref=e4625]: "|"
+            - generic [ref=e4626]: Free
+            - generic [ref=e4627]: "|"
+            - generic [ref=e4628]: 1 provider
+          - generic [ref=e4631] [cursor=pointer]:
+            - generic [ref=e4633]: Cloudflare
+            - generic [ref=e4635]:
+              - generic [ref=e4636]: —
+              - generic "No tools" [ref=e4637]: —
+            - generic [ref=e4638]: Free
+        - generic [ref=e4639]:
+          - generic [ref=e4641]:
+            - heading "Trinity Large Thinking" [level=3] [ref=e4642]
+            - generic [ref=e4643]: Arcee AI
+          - generic [ref=e4644]:
+            - generic [ref=e4645]: "Max: 262K context"
+            - generic [ref=e4646]: "|"
+            - generic [ref=e4647]: Free/Free
+            - generic [ref=e4648]: "|"
+            - generic [ref=e4649]: 1 provider
+          - generic [ref=e4652] [cursor=pointer]:
+            - generic [ref=e4654]: OpenRouter
+            - generic [ref=e4656]:
+              - generic [ref=e4657]: 262K
+              - generic "Tools supported" [ref=e4658]:
+                - img [ref=e4659]
+            - generic [ref=e4661]: $0/$0
+        - generic [ref=e4662]:
+          - generic [ref=e4664]:
+            - heading "Whisper Large v3" [level=3] [ref=e4665]
+            - generic [ref=e4666]: NVIDIA
+          - generic [ref=e4667]:
+            - generic [ref=e4668]: "Max: — context"
+            - generic [ref=e4669]: "|"
+            - generic [ref=e4670]: Free
+            - generic [ref=e4671]: "|"
+            - generic [ref=e4672]: 1 provider
+          - generic [ref=e4675] [cursor=pointer]:
+            - generic [ref=e4677]: Groq
+            - generic [ref=e4679]:
+              - generic [ref=e4680]: —
+              - generic "No tools" [ref=e4681]: —
+            - generic [ref=e4682]: Free
+        - generic [ref=e4683]:
+          - generic [ref=e4685]:
+            - heading "Whisper Large v3 Turbo" [level=3] [ref=e4686]
+            - generic [ref=e4687]: Unknown
+          - generic [ref=e4688]:
+            - generic [ref=e4689]: "Max: — context"
+            - generic [ref=e4690]: "|"
+            - generic [ref=e4691]: Free
+            - generic [ref=e4692]: "|"
+            - generic [ref=e4693]: 1 provider
+          - generic [ref=e4696] [cursor=pointer]:
+            - generic [ref=e4698]: Groq
+            - generic [ref=e4700]:
+              - generic [ref=e4701]: —
+              - generic "No tools" [ref=e4702]: —
+            - generic [ref=e4703]: Free
+        - generic [ref=e4704]:
+          - generic [ref=e4706]:
+            - heading "Z.AI GLM-4.7" [level=3] [ref=e4707]
+            - generic [ref=e4708]: Z.AI
+          - generic [ref=e4709]:
+            - generic [ref=e4710]: "Max: 131K context"
+            - generic [ref=e4711]: "|"
+            - generic [ref=e4712]: Free/Free
+            - generic [ref=e4713]: "|"
+            - generic [ref=e4714]: 2 providers
+          - generic [ref=e4716]:
+            - generic [ref=e4717] [cursor=pointer]:
+              - generic [ref=e4719]: Cerebras
+              - generic [ref=e4721]:
+                - generic [ref=e4722]: 131K
+                - generic "Tools supported" [ref=e4723]:
+                  - img [ref=e4724]
+              - generic [ref=e4726]: $0/$0
+            - generic [ref=e4727] [cursor=pointer]:
+              - generic [ref=e4729]: OpenRouter
+              - generic [ref=e4731]:
+                - generic [ref=e4732]: 131K
+                - generic "Tools supported" [ref=e4733]:
+                  - img [ref=e4734]
+              - generic [ref=e4736]: $0/$0

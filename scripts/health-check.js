@@ -26,9 +26,9 @@ const p = new Pool({
     );
     checks.push(`Slug duplicates: ${dups.rows.length} (should be 0)`);
 
-    // 2. Models with author
-    const auth = await c.query('SELECT COUNT(*) FROM super_models WHERE author IS NOT NULL');
-    checks.push(`Models with author: ${auth.rows[0].count} / ${totalSupers}`);
+    // 2. Models with creator
+    const auth = await c.query('SELECT COUNT(*) FROM super_models WHERE creator IS NOT NULL');
+    checks.push(`Models with creator: ${auth.rows[0].count} / ${totalSupers}`);
 
     // 3. modelsdev coverage
     const md = await c.query(

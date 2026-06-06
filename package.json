@@ -22,6 +22,8 @@
     "backfill:context:apply": "node scripts/backfill-context.js --apply",
     "backfill:metadata": "node scripts/backfill-metadata.js",
     "backfill:metadata:apply": "node scripts/backfill-metadata.js --apply",
+    "backfill:pricing": "node scripts/backfill-nonfree-pricing.js",
+    "backfill:pricing:apply": "node scripts/backfill-nonfree-pricing.js --apply",
     "rank": "node scripts/rank-models.js",
     "rank:apply": "node scripts/rank-models.js --apply",
     "re-rank": "npm run backfill:context:apply && npm run rank:apply && npm run backfill:metadata:apply && node scripts/check-rankings.js",
@@ -32,6 +34,10 @@
     "nightly:dry": "node scripts/nightly-maintenance.js --dry-run",
     "summary": "node scripts/model-summary.js",
     "api": "node --watch -r dotenv/config server/index.js",
+    "external:sources": "node scripts/fetch-external-sources.js",
+    "external:sources:apply": "node scripts/fetch-external-sources.js --apply",
+    "external:import": "node scripts/import-external-models.js",
+    "external:import:apply": "node scripts/import-external-models.js --apply",
     "db:export": "node scripts/export-from-pg.js",
     "db:ping": "node -r dotenv/config -e \"const db = require('./server/db'); db.query('SELECT now()').then(r => { console.log('Connected:', r.rows[0].now); process.exit(0); }).catch(e => { console.error('Failed:', e.message); process.exit(1); })\"",
     "lint": "eslint scripts/ server/ tests/",
@@ -41,6 +47,7 @@
   },
   "dependencies": {
     "@playwright/mcp": "^0.0.75",
+    "compression": "^1.8.1",
     "cors": "^2.8.6",
     "dotenv": "^16.5.0",
     "express": "^5.2.1",
@@ -50,7 +57,6 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.4.1",
-    "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.8.3"
   }
 }

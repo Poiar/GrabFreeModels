@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const path = require('path');
 const dataRouter = require('./routes/data');
 
@@ -7,6 +8,7 @@ const app = express();
 const PORT = process.env.API_PORT || 3001;
 
 app.use(cors());
+app.use(compression());
 app.use(express.json());
 
 app.use('/api', dataRouter);

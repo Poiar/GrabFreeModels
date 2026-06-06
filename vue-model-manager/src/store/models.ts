@@ -13,6 +13,39 @@ import type {
 const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore'] as const;
 type Role = (typeof ROLE_ORDER)[number];
 
+// ── SessionStorage cache for instant page loads ──
+const CACHE_KEY = 'gf_models_cache';
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+interface ModelsCache {
+  raw: string;
+  cachedAt: number;
+}
+
+function loadFromCache(): { data: ModelsData; cachedAt: number } | null {
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const entry: ModelsCache = JSON.parse(raw);
+    if (Date.now() - entry.cachedAt > CACHE_TTL_MS) {
+      sessionStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    return { data: JSON.parse(entry.raw) as ModelsData, cachedAt: entry.cachedAt };
+  } catch {
+    return null;
+  }
+}
+
+function saveToCache(rawJson: string) {
+  try {
+    const entry: ModelsCache = { raw: rawJson, cachedAt: Date.now() };
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify(entry));
+  } catch {
+    // sessionStorage full or unavailable — skip caching
+  }
+}
+
 export const useModelsStore = defineStore('models', () => {
   const data = ref<ModelsData | null>(null);
   const loading = ref(true);
@@ -241,21 +274,51 @@ export const useModelsStore = defineStore('models', () => {
   async function loadData() {
     abortController?.abort();
     abortController = new AbortController();
-    loading.value = true;
-    error.value = null;
     const signal = abortController.signal;
+    error.value = null;
+
+    // Instant restore from sessionStorage cache (0ms perceived load)
+    const cached = loadFromCache();
+    if (cached) {
+      data.value = cached.data;
+      lastLoaded.value = new Date(cached.cachedAt);
+      isStale.value = false;
+      loading.value = false;
+      startStaleTimer();
+    } else {
+      loading.value = true;
+    }
+
     try {
       let resp = await fetch('/api/data', { signal });
       if (!resp.ok) resp = await fetch('/available-models.json', { signal });
-      data.value = await resp.json();
+      const rawJson = await resp.text();
+      const freshData: ModelsData = JSON.parse(rawJson);
+
+      // Skip UI update if data is byte-identical to cached version
+      const existingRaw = sessionStorage.getItem(CACHE_KEY);
+      if (existingRaw) {
+        try {
+          const existing: ModelsCache = JSON.parse(existingRaw);
+          if (existing.raw === rawJson) return;
+        } catch {}
+      }
+
+      data.value = freshData;
+      saveToCache(rawJson);
       lastLoaded.value = new Date();
       isStale.value = false;
       startStaleTimer();
     } catch (e: unknown) {
       if (e instanceof DOMException && e.name === 'AbortError') return;
+      if (cached) return; // Already showing cached data, no fallback needed
+
       try {
-        const fallback = await fetch('/available-models.json', { signal });
-        data.value = await fallback.json();
+        const fallbackResp = await fetch('/available-models.json', { signal });
+        const fallbackRaw = await fallbackResp.text();
+        const fallbackData: ModelsData = JSON.parse(fallbackRaw);
+        data.value = fallbackData;
+        saveToCache(fallbackRaw);
         lastLoaded.value = new Date();
         isStale.value = false;
         startStaleTimer();

@@ -11,20 +11,8 @@
  */
 
 require('dotenv').config();
-const { Pool } = require('pg');
-
+const pool = require('../server/db');
 const APPLY = process.argv.includes('--apply');
-
-const connectionString = process.env.DATABASE_URL;
-const pool = connectionString
-  ? new Pool({ connectionString, ssl: { rejectUnauthorized: false } })
-  : new Pool({
-      host: process.env.PGHOST || 'localhost',
-      port: parseInt(process.env.PGPORT || '5432'),
-      user: process.env.PGUSER,
-      password: process.env.PGPASSWORD,
-      database: process.env.PGDATABASE,
-    });
 
 async function rankModels() {
   const client = await pool.connect();
@@ -218,7 +206,6 @@ async function rankModels() {
     process.exitCode = 1;
   } finally {
     client.release();
-    await pool.end();
   }
 }
 

@@ -1,0 +1,3645 @@
+- generic [ref=e3] [box=0,0,1249,1277]:
+  - link "Skip to main content" [ref=e4] [cursor=pointer] [box=545,-100,158,35]:
+    - /url: "#main-content"
+  - complementary [ref=e5] [box=0,0,250,1277]:
+    - generic [ref=e6] [box=0,0,249,85]:
+      - generic [ref=e8] [box=25,26,30,35]: ⚡
+      - generic [ref=e9] [box=72,27,113,34]:
+        - heading "GrabFreeModels" [level=1] [ref=e10] [box=72,27,113,17]
+        - paragraph [ref=e11] [box=72,44,113,17]: Free LLM Intelligence
+    - navigation "Main navigation" [ref=e12] [box=0,85,249,1077]:
+      - link "Models" [ref=e13] [cursor=pointer] [box=10,101,229,40]:
+        - /url: "#/"
+        - img [ref=e15] [box=24,112,18,18]
+        - generic [ref=e17] [box=52,111,45,20]: Models
+      - link "Dashboard" [ref=e18] [cursor=pointer] [box=10,143,229,40]:
+        - /url: "#/dashboard"
+        - img [ref=e20] [box=24,155,18,18]
+        - generic [ref=e25] [box=52,153,67,20]: Dashboard
+      - link "Creators" [ref=e26] [cursor=pointer] [box=10,186,229,40]:
+        - /url: "#/creators"
+        - img [ref=e28] [box=24,197,18,18]
+        - generic [ref=e31] [box=52,196,53,20]: Creators
+      - link "Issues" [ref=e32] [cursor=pointer] [box=10,228,229,40]:
+        - /url: "#/issues"
+        - img [ref=e34] [box=24,239,18,18]
+        - generic [ref=e36] [box=52,238,39,20]: Issues
+    - generic [ref=e37] [box=0,1162,249,115]:
+      - generic [ref=e57] [box=31,1179,85,16]: Updated just now
+      - generic [ref=e38] [box=16,1207,217,34]:
+        - button "Switch to dark mode" [pressed] [ref=e39] [cursor=pointer] [box=16,1207,34,34]:
+          - img [ref=e40] [box=25,1216,16,16]
+        - button "Refresh" [ref=e58] [cursor=pointer] [box=58,1211,84,26]:
+          - img [ref=e59] [box=70,1217,14,14]
+          - text: Refresh
+      - button "? shortcuts" [ref=e44] [cursor=pointer] [box=16,1241,68,20]:
+        - img [ref=e45] [box=16,1245,12,12]
+        - generic [ref=e47] [box=33,1246,51,11]: "? shortcuts"
+  - main [ref=e48] [box=250,0,999,1277]:
+    - generic [ref=e64] [box=290,32,913,33453]:
+      - generic [ref=e65] [box=310,52,873,54]:
+        - heading "Models" [level=2] [ref=e66] [box=310,52,873,31]
+        - paragraph [ref=e67] [box=310,87,873,19]: 196 models from 26 creators
+      - generic [ref=e68] [box=310,122,873,34]:
+        - textbox "Search models" [ref=e69] [box=310,122,330,34]:
+          - /placeholder: Search models...
+        - combobox "Filter by creator" [ref=e70] [cursor=pointer] [box=648,122,179,34]:
+          - option "All Creators" [selected] [box=0,0,0,0]
+          - option "AI21 Labs" [box=0,0,0,0]
+          - option "Anthropic" [box=0,0,0,0]
+          - option "Arcee AI" [box=0,0,0,0]
+          - option "Cognitive Computations" [box=0,0,0,0]
+          - option "Cohere" [box=0,0,0,0]
+          - option "DeepSeek" [box=0,0,0,0]
+          - option "Google" [box=0,0,0,0]
+          - option "IBM" [box=0,0,0,0]
+          - option "Liquid AI" [box=0,0,0,0]
+          - option "Meta" [box=0,0,0,0]
+          - option "Microsoft" [box=0,0,0,0]
+          - option "MiniMax" [box=0,0,0,0]
+          - option "Mistral" [box=0,0,0,0]
+          - option "Moonshot AI" [box=0,0,0,0]
+          - option "Nous Research" [box=0,0,0,0]
+          - option "NVIDIA" [box=0,0,0,0]
+          - option "OpenAI" [box=0,0,0,0]
+          - option "opencode" [box=0,0,0,0]
+          - option "Poolside" [box=0,0,0,0]
+          - option "Qwen" [box=0,0,0,0]
+          - option "Umans AI" [box=0,0,0,0]
+          - option "Unknown" [box=0,0,0,0]
+          - option "xAI" [box=0,0,0,0]
+          - option "Xiaomi" [box=0,0,0,0]
+          - option "Z.AI" [box=0,0,0,0]
+          - option "Zhipu AI" [box=0,0,0,0]
+        - combobox "Filter by status" [ref=e71] [cursor=pointer] [box=835,122,97,34]:
+          - option "All" [selected] [box=0,0,0,0]
+          - option "Working" [box=0,0,0,0]
+          - option "Mixed" [box=0,0,0,0]
+          - option "Untested" [box=0,0,0,0]
+          - option "Down" [box=0,0,0,0]
+        - combobox "Filter by price" [ref=e72] [cursor=pointer] [box=940,122,98,34]:
+          - option "All" [selected] [box=0,0,0,0]
+          - option "Free only" [box=0,0,0,0]
+          - option "Paid only" [box=0,0,0,0]
+        - generic [ref=e73] [box=1046,122,137,34]:
+          - combobox "Sort by" [ref=e74] [cursor=pointer] [box=1046,122,99,34]:
+            - option "Name" [selected] [box=0,0,0,0]
+            - option "Context" [box=0,0,0,0]
+            - option "Price" [box=0,0,0,0]
+            - option "Providers" [box=0,0,0,0]
+          - button "▲" [ref=e75] [cursor=pointer] [box=1149,122,34,34]
+      - generic [ref=e76] [box=310,168,873,27]:
+        - button "Export JSON" [ref=e77] [cursor=pointer] [box=310,168,97,27]
+        - button "Export CSV" [ref=e78] [cursor=pointer] [box=415,168,90,27]
+      - generic [ref=e79] [box=310,211,873,33254]:
+        - generic [ref=e80] [box=310,211,873,162]:
+          - generic [ref=e82] [box=327,224,355,22]:
+            - heading "@cf/aisingapore/gemma-sea-lion-v4-27b-it" [level=3] [ref=e83] [box=327,224,296,22]
+            - generic [ref=e84] [box=631,225,51,20]: Google
+          - generic [ref=e85] [box=327,250,839,17]:
+            - generic [ref=e86] [box=327,250,80,17]: "Max: — context"
+            - generic [ref=e87] [box=411,250,4,17]: "|"
+            - generic [ref=e88] [box=418,250,23,17]: Free
+            - generic [ref=e89] [box=445,250,4,17]: "|"
+            - generic [ref=e90] [box=453,250,50,17]: 1 provider
+          - generic [ref=e93] [cursor=pointer] [box=327,279,100,72]:
+            - generic [ref=e95] [box=336,286,54,17]: Cloudflare
+            - generic [ref=e97] [box=336,308,82,16]:
+              - generic [ref=e98] [box=336,308,10,16]: —
+              - generic "No tools" [ref=e99] [box=352,308,10,16]: —
+            - generic [ref=e100] [box=336,328,82,17]: Free
+        - generic [ref=e101] [box=310,381,873,162]:
+          - generic [ref=e103] [box=327,394,287,22]:
+            - heading "@cf/google/gemma-4-26b-a4b-it" [level=3] [ref=e104] [box=327,394,228,22]
+            - generic [ref=e105] [box=563,394,51,20]: Google
+          - generic [ref=e106] [box=327,420,839,17]:
+            - generic [ref=e107] [box=327,420,80,17]: "Max: — context"
+            - generic [ref=e108] [box=411,420,4,17]: "|"
+            - generic [ref=e109] [box=418,420,23,17]: Free
+            - generic [ref=e110] [box=445,420,4,17]: "|"
+            - generic [ref=e111] [box=453,420,50,17]: 1 provider
+          - generic [ref=e114] [cursor=pointer] [box=327,449,100,72]:
+            - generic [ref=e116] [box=336,456,54,17]: Cloudflare
+            - generic [ref=e118] [box=336,477,82,16]:
+              - generic [ref=e119] [box=336,477,10,16]: —
+              - generic "No tools" [ref=e120] [box=352,477,10,16]: —
+            - generic [ref=e121] [box=336,498,82,17]: Free
+        - generic [ref=e122] [box=310,550,873,162]:
+          - generic [ref=e124] [box=327,563,292,22]:
+            - heading "@cf/ibm-granite/granite-4.0-h-micro" [level=3] [ref=e125] [box=327,563,249,22]
+            - generic [ref=e126] [box=584,564,35,20]: IBM
+          - generic [ref=e127] [box=327,589,839,17]:
+            - generic [ref=e128] [box=327,589,80,17]: "Max: — context"
+            - generic [ref=e129] [box=411,589,4,17]: "|"
+            - generic [ref=e130] [box=418,589,23,17]: Free
+            - generic [ref=e131] [box=445,589,4,17]: "|"
+            - generic [ref=e132] [box=453,589,50,17]: 1 provider
+          - generic [ref=e135] [cursor=pointer] [box=327,619,100,72]:
+            - generic [ref=e137] [box=336,626,54,17]: Cloudflare
+            - generic [ref=e139] [box=336,647,82,16]:
+              - generic [ref=e140] [box=336,647,10,16]: —
+              - generic "No tools" [ref=e141] [box=352,647,10,16]: —
+            - generic [ref=e142] [box=336,667,82,17]: Free
+        - generic [ref=e143] [box=310,720,873,162]:
+          - generic [ref=e145] [box=327,733,266,22]:
+            - heading "@cf/moonshotai/kimi-k2.5" [level=3] [ref=e146] [box=327,733,179,22]
+            - generic [ref=e147] [box=514,734,79,20]: Moonshot AI
+          - generic [ref=e148] [box=327,759,839,17]:
+            - generic [ref=e149] [box=327,759,80,17]: "Max: — context"
+            - generic [ref=e150] [box=411,759,4,17]: "|"
+            - generic [ref=e151] [box=418,759,23,17]: Free
+            - generic [ref=e152] [box=445,759,4,17]: "|"
+            - generic [ref=e153] [box=453,759,50,17]: 1 provider
+          - generic [ref=e156] [cursor=pointer] [box=327,788,100,72]:
+            - generic [ref=e158] [box=336,795,54,17]: Cloudflare
+            - generic [ref=e160] [box=336,817,82,16]:
+              - generic [ref=e161] [box=336,817,10,16]: —
+              - generic "No tools" [ref=e162] [box=352,817,10,16]: —
+            - generic [ref=e163] [box=336,837,82,17]: Free
+        - generic [ref=e164] [box=310,890,873,162]:
+          - generic [ref=e166] [box=327,903,266,22]:
+            - heading "@cf/moonshotai/kimi-k2.6" [level=3] [ref=e167] [box=327,903,179,22]
+            - generic [ref=e168] [box=514,904,79,20]: Moonshot AI
+          - generic [ref=e169] [box=327,929,839,17]:
+            - generic [ref=e170] [box=327,929,80,17]: "Max: — context"
+            - generic [ref=e171] [box=411,929,4,17]: "|"
+            - generic [ref=e172] [box=418,929,23,17]: Free
+            - generic [ref=e173] [box=445,929,4,17]: "|"
+            - generic [ref=e174] [box=453,929,50,17]: 1 provider
+          - generic [ref=e177] [cursor=pointer] [box=327,958,100,72]:
+            - generic [ref=e179] [box=336,965,54,17]: Cloudflare
+            - generic [ref=e181] [box=336,986,82,16]:
+              - generic [ref=e182] [box=336,986,10,16]: —
+              - generic "No tools" [ref=e183] [box=352,986,10,16]: —
+            - generic [ref=e184] [box=336,1007,82,17]: Free
+        - generic [ref=e185] [box=310,1059,873,162]:
+          - generic [ref=e187] [box=327,1072,303,22]:
+            - heading "@cf/nvidia/nemotron-3-120b-a12b" [level=3] [ref=e188] [box=327,1072,232,22]
+            - generic [ref=e189] [box=567,1073,63,20]: Unknown
+          - generic [ref=e190] [box=327,1098,839,17]:
+            - generic [ref=e191] [box=327,1098,80,17]: "Max: — context"
+            - generic [ref=e192] [box=411,1098,4,17]: "|"
+            - generic [ref=e193] [box=418,1098,23,17]: Free
+            - generic [ref=e194] [box=445,1098,4,17]: "|"
+            - generic [ref=e195] [box=453,1098,50,17]: 1 provider
+          - generic [ref=e198] [cursor=pointer] [box=327,1128,100,72]:
+            - generic [ref=e200] [box=336,1135,54,17]: Cloudflare
+            - generic [ref=e202] [box=336,1156,82,16]:
+              - generic [ref=e203] [box=336,1156,10,16]: —
+              - generic "No tools" [ref=e204] [box=352,1156,10,16]: —
+            - generic [ref=e205] [box=336,1176,82,17]: Free
+        - generic [ref=e206] [box=310,1229,873,162]:
+          - generic [ref=e208] [box=327,1242,244,22]:
+            - heading "@cf/openai/gpt-oss-120b" [level=3] [ref=e209] [box=327,1242,173,22]
+            - generic [ref=e210] [box=508,1243,63,20]: Unknown
+          - generic [ref=e211] [box=327,1268,839,17]:
+            - generic [ref=e212] [box=327,1268,80,17]: "Max: — context"
+            - generic [ref=e213] [box=411,1268,4,17]: "|"
+            - generic [ref=e214] [box=418,1268,23,17]: Free
+            - generic [ref=e215] [box=445,1268,4,17]: "|"
+            - generic [ref=e216] [box=453,1268,50,17]: 1 provider
+          - generic [ref=e219] [cursor=pointer] [box=327,1297,100,72]:
+            - generic [ref=e221] [box=336,1304,54,17]: Cloudflare
+            - generic [ref=e223] [box=336,1326,82,16]:
+              - generic [ref=e224] [box=336,1326,10,16]: —
+              - generic "No tools" [ref=e225] [box=352,1326,10,16]: —
+            - generic [ref=e226] [box=336,1346,82,17]: Free
+        - generic [ref=e227] [box=310,1399,873,162]:
+          - generic [ref=e229] [box=327,1412,237,22]:
+            - heading "@cf/openai/gpt-oss-20b" [level=3] [ref=e230] [box=327,1412,167,22]
+            - generic [ref=e231] [box=502,1413,63,20]: Unknown
+          - generic [ref=e232] [box=327,1438,839,17]:
+            - generic [ref=e233] [box=327,1438,80,17]: "Max: — context"
+            - generic [ref=e234] [box=411,1438,4,17]: "|"
+            - generic [ref=e235] [box=418,1438,23,17]: Free
+            - generic [ref=e236] [box=445,1438,4,17]: "|"
+            - generic [ref=e237] [box=453,1438,50,17]: 1 provider
+          - generic [ref=e240] [cursor=pointer] [box=327,1467,100,72]:
+            - generic [ref=e242] [box=336,1474,54,17]: Cloudflare
+            - generic [ref=e244] [box=336,1495,82,16]:
+              - generic [ref=e245] [box=336,1495,10,16]: —
+              - generic "No tools" [ref=e246] [box=352,1495,10,16]: —
+            - generic [ref=e247] [box=336,1516,82,17]: Free
+        - generic [ref=e248] [box=310,1569,873,162]:
+          - generic [ref=e250] [box=327,1582,266,22]:
+            - heading "@cf/qwen/qwen3-30b-a3b-fp8" [level=3] [ref=e251] [box=327,1582,213,22]
+            - generic [ref=e252] [box=548,1582,45,20]: Qwen
+          - generic [ref=e253] [box=327,1608,839,17]:
+            - generic [ref=e254] [box=327,1608,80,17]: "Max: — context"
+            - generic [ref=e255] [box=411,1608,4,17]: "|"
+            - generic [ref=e256] [box=418,1608,23,17]: Free
+            - generic [ref=e257] [box=445,1608,4,17]: "|"
+            - generic [ref=e258] [box=453,1608,50,17]: 1 provider
+          - generic [ref=e261] [cursor=pointer] [box=327,1637,100,72]:
+            - generic [ref=e263] [box=336,1644,54,17]: Cloudflare
+            - generic [ref=e265] [box=336,1665,82,16]:
+              - generic [ref=e266] [box=336,1665,10,16]: —
+              - generic "No tools" [ref=e267] [box=352,1665,10,16]: —
+            - generic [ref=e268] [box=336,1685,82,17]: Free
+        - generic [ref=e269] [box=310,1738,873,162]:
+          - generic [ref=e271] [box=327,1751,242,22]:
+            - heading "@cf/zai-org/glm-4.7-flash" [level=3] [ref=e272] [box=327,1751,177,22]
+            - generic [ref=e273] [box=512,1752,57,20]: Zhipu AI
+          - generic [ref=e274] [box=327,1777,839,17]:
+            - generic [ref=e275] [box=327,1777,80,17]: "Max: — context"
+            - generic [ref=e276] [box=411,1777,4,17]: "|"
+            - generic [ref=e277] [box=418,1777,23,17]: Free
+            - generic [ref=e278] [box=445,1777,4,17]: "|"
+            - generic [ref=e279] [box=453,1777,50,17]: 1 provider
+          - generic [ref=e282] [cursor=pointer] [box=327,1807,100,72]:
+            - generic [ref=e284] [box=336,1814,54,17]: Cloudflare
+            - generic [ref=e286] [box=336,1835,82,16]:
+              - generic [ref=e287] [box=336,1835,10,16]: —
+              - generic "No tools" [ref=e288] [box=352,1835,10,16]: —
+            - generic [ref=e289] [box=336,1855,82,17]: Free
+        - generic [ref=e290] [box=310,1908,873,162]:
+          - generic [ref=e292] [box=327,1921,211,22]:
+            - heading "AI21 Jamba 1.5 Large" [level=3] [ref=e293] [box=327,1921,140,22]
+            - generic [ref=e294] [box=475,1922,63,20]: AI21 Labs
+          - generic [ref=e295] [box=327,1947,839,17]:
+            - generic [ref=e296] [box=327,1947,80,17]: "Max: — context"
+            - generic [ref=e297] [box=411,1947,4,17]: "|"
+            - generic [ref=e298] [box=418,1947,23,17]: Free
+            - generic [ref=e299] [box=445,1947,4,17]: "|"
+            - generic [ref=e300] [box=453,1947,50,17]: 1 provider
+          - generic [ref=e303] [cursor=pointer] [box=327,1976,105,72]:
+            - generic [ref=e305] [box=336,1983,77,17]: GitHub Models
+            - generic [ref=e307] [box=336,2005,87,16]:
+              - generic [ref=e308] [box=336,2005,10,16]: —
+              - generic "No tools" [ref=e309] [box=352,2005,10,16]: —
+            - generic [ref=e310] [box=336,2025,87,17]: Free
+        - generic [ref=e311] [box=310,2078,873,162]:
+          - generic [ref=e313] [box=327,2091,141,22]:
+            - heading "Allam 2 7B" [level=3] [ref=e314] [box=327,2091,70,22]
+            - generic [ref=e315] [box=405,2092,63,20]: Unknown
+          - generic [ref=e316] [box=327,2117,839,17]:
+            - generic [ref=e317] [box=327,2117,80,17]: "Max: — context"
+            - generic [ref=e318] [box=411,2117,4,17]: "|"
+            - generic [ref=e319] [box=418,2117,23,17]: Free
+            - generic [ref=e320] [box=445,2117,4,17]: "|"
+            - generic [ref=e321] [box=453,2117,50,17]: 1 provider
+          - generic [ref=e324] [cursor=pointer] [box=327,2146,100,72]:
+            - generic [ref=e326] [box=336,2153,25,17]: Groq
+            - generic [ref=e328] [box=336,2174,82,16]:
+              - generic [ref=e329] [box=336,2174,10,16]: —
+              - generic "No tools" [ref=e330] [box=352,2174,10,16]: —
+            - generic [ref=e331] [box=336,2195,82,17]: Free
+        - generic [ref=e332] [box=310,2247,873,162]:
+          - generic [ref=e334] [box=327,2260,150,22]:
+            - heading "Auto Router" [level=3] [ref=e335] [box=327,2260,79,22]
+            - generic [ref=e336] [box=414,2261,63,20]: Unknown
+          - generic [ref=e337] [box=327,2286,839,17]:
+            - generic [ref=e338] [box=327,2286,85,17]: "Max: 2M context"
+            - generic [ref=e339] [box=416,2286,4,17]: "|"
+            - generic [ref=e340] [box=424,2286,49,17]: Free/Free
+            - generic [ref=e341] [box=477,2286,4,17]: "|"
+            - generic [ref=e342] [box=485,2286,58,17]: 2 providers
+          - generic [ref=e344] [box=327,2308,839,88]:
+            - generic [ref=e345] [cursor=pointer] [box=327,2316,100,72]:
+              - generic [ref=e347] [box=336,2323,68,17]: Kilo Gateway
+              - generic [ref=e349] [box=336,2344,82,16]:
+                - generic [ref=e350] [box=336,2344,15,16]: 2M
+                - generic "Tools supported" [ref=e351] [box=357,2346,12,12]:
+                  - img [ref=e352] [box=357,2346,12,12]
+              - generic [ref=e354] [box=336,2364,82,17]: $0/$0
+            - generic [ref=e355] [cursor=pointer] [box=433,2316,100,72]:
+              - generic [ref=e357] [box=442,2323,63,17]: OpenRouter
+              - generic [ref=e359] [box=442,2344,82,16]:
+                - generic [ref=e360] [box=442,2344,15,16]: 2M
+                - generic "Tools supported" [ref=e361] [box=463,2346,12,12]:
+                  - img [ref=e362] [box=463,2346,12,12]
+              - generic [ref=e364] [box=442,2364,82,17]: $0/$0
+        - generic [ref=e365] [box=310,2417,873,162]:
+          - generic [ref=e367] [box=327,2430,138,22]:
+            - heading "Big Pickle" [level=3] [ref=e368] [box=327,2430,65,22]
+            - generic [ref=e369] [box=400,2431,65,20]: opencode
+          - generic [ref=e370] [box=327,2456,839,17]:
+            - generic [ref=e371] [box=327,2456,83,17]: "Max: 1M context"
+            - generic [ref=e372] [box=414,2456,4,17]: "|"
+            - generic [ref=e373] [box=422,2456,23,17]: Free
+            - generic [ref=e374] [box=448,2456,4,17]: "|"
+            - generic [ref=e375] [box=456,2456,50,17]: 1 provider
+          - generic [ref=e378] [cursor=pointer] [box=327,2485,106,72]:
+            - generic [ref=e380] [box=336,2492,78,17]: OpenCode Zen
+            - generic [ref=e382] [box=336,2514,88,16]:
+              - generic [ref=e383] [box=336,2514,13,16]: 1M
+              - generic "Tools supported" [ref=e384] [box=355,2516,12,12]:
+                - img [ref=e385] [box=355,2516,12,12]
+            - generic [ref=e387] [box=336,2534,88,17]: Free
+        - generic [ref=e388] [box=310,2587,873,162]:
+          - generic [ref=e390] [box=327,2600,214,22]:
+            - heading "c4ai-aya-expanse-32b" [level=3] [ref=e391] [box=327,2600,154,22]
+            - generic [ref=e392] [box=489,2601,52,20]: Cohere
+          - generic [ref=e393] [box=327,2626,839,17]:
+            - generic [ref=e394] [box=327,2626,80,17]: "Max: — context"
+            - generic [ref=e395] [box=411,2626,4,17]: "|"
+            - generic [ref=e396] [box=418,2626,23,17]: Free
+            - generic [ref=e397] [box=445,2626,4,17]: "|"
+            - generic [ref=e398] [box=453,2626,50,17]: 1 provider
+          - generic [ref=e401] [cursor=pointer] [box=327,2655,100,72]:
+            - generic [ref=e403] [box=336,2662,38,17]: Cohere
+            - generic [ref=e405] [box=336,2683,82,16]:
+              - generic [ref=e406] [box=336,2683,10,16]: —
+              - generic "No tools" [ref=e407] [box=352,2683,10,16]: —
+            - generic [ref=e408] [box=336,2704,82,17]: Free
+        - generic [ref=e409] [box=310,2756,873,162]:
+          - generic [ref=e411] [box=327,2769,197,22]:
+            - heading "c4ai-aya-vision-32b" [level=3] [ref=e412] [box=327,2769,137,22]
+            - generic [ref=e413] [box=472,2770,52,20]: Cohere
+          - generic [ref=e414] [box=327,2796,839,17]:
+            - generic [ref=e415] [box=327,2796,80,17]: "Max: — context"
+            - generic [ref=e416] [box=411,2796,4,17]: "|"
+            - generic [ref=e417] [box=418,2796,23,17]: Free
+            - generic [ref=e418] [box=445,2796,4,17]: "|"
+            - generic [ref=e419] [box=453,2796,50,17]: 1 provider
+          - generic [ref=e422] [cursor=pointer] [box=327,2825,100,72]:
+            - generic [ref=e424] [box=336,2832,38,17]: Cohere
+            - generic [ref=e426] [box=336,2853,82,16]:
+              - generic [ref=e427] [box=336,2853,10,16]: —
+              - generic "No tools" [ref=e428] [box=352,2853,10,16]: —
+            - generic [ref=e429] [box=336,2873,82,17]: Free
+        - generic [ref=e430] [box=310,2926,873,162]:
+          - generic [ref=e432] [box=327,2939,307,22]:
+            - heading "Canopy Labs Orpheus Arabic Saudi" [level=3] [ref=e433] [box=327,2939,236,22]
+            - generic [ref=e434] [box=571,2940,63,20]: Unknown
+          - generic [ref=e435] [box=327,2965,839,17]:
+            - generic [ref=e436] [box=327,2965,83,17]: "Max: 4K context"
+            - generic [ref=e437] [box=414,2965,4,17]: "|"
+            - generic [ref=e438] [box=422,2965,23,17]: Free
+            - generic [ref=e439] [box=448,2965,4,17]: "|"
+            - generic [ref=e440] [box=456,2965,50,17]: 1 provider
+          - generic [ref=e443] [cursor=pointer] [box=327,2994,100,72]:
+            - generic [ref=e445] [box=336,3001,25,17]: Groq
+            - generic [ref=e447] [box=336,3023,82,16]:
+              - generic [ref=e448] [box=336,3023,13,16]: 4K
+              - generic "Tools supported" [ref=e449] [box=355,3025,12,12]:
+                - img [ref=e450] [box=355,3025,12,12]
+            - generic [ref=e452] [box=336,3043,82,17]: Free
+        - generic [ref=e453] [box=310,3096,873,162]:
+          - generic [ref=e455] [box=327,3109,186,22]:
+            - heading "Claude Haiku 4.5" [level=3] [ref=e456] [box=327,3109,113,22]
+            - generic [ref=e457] [box=448,3110,65,20]: Anthropic
+          - generic [ref=e458] [box=327,3135,839,17]:
+            - generic [ref=e459] [box=327,3135,97,17]: "Max: 200K context"
+            - generic [ref=e460] [box=428,3135,4,17]: "|"
+            - generic [ref=e461] [box=435,3135,29,17]: $1/$5
+            - generic [ref=e462] [box=468,3135,4,17]: "|"
+            - generic [ref=e463] [box=475,3135,50,17]: 1 provider
+          - generic [ref=e466] [cursor=pointer] [box=327,3164,100,72]:
+            - generic [ref=e468] [box=336,3171,63,17]: OpenRouter
+            - generic [ref=e470] [box=336,3192,82,16]:
+              - generic [ref=e471] [box=336,3192,26,16]: 200K
+              - generic "Tools supported" [ref=e472] [box=368,3195,12,12]:
+                - img [ref=e473] [box=368,3195,12,12]
+            - generic [ref=e475] [box=336,3213,82,17]: $1/$5
+        - generic [ref=e476] [box=310,3266,873,162]:
+          - generic [ref=e478] [box=327,3279,182,22]:
+            - heading "Claude Opus 4.7" [level=3] [ref=e479] [box=327,3279,110,22]
+            - generic [ref=e480] [box=445,3279,65,20]: Anthropic
+          - generic [ref=e481] [box=327,3305,839,17]:
+            - generic [ref=e482] [box=327,3305,83,17]: "Max: 1M context"
+            - generic [ref=e483] [box=414,3305,4,17]: "|"
+            - generic [ref=e484] [box=422,3305,37,17]: $5/$25
+            - generic [ref=e485] [box=463,3305,4,17]: "|"
+            - generic [ref=e486] [box=471,3305,50,17]: 1 provider
+          - generic [ref=e489] [cursor=pointer] [box=327,3334,100,72]:
+            - generic [ref=e491] [box=336,3341,63,17]: OpenRouter
+            - generic [ref=e493] [box=336,3362,82,16]:
+              - generic [ref=e494] [box=336,3362,13,16]: 1M
+              - generic "Tools supported" [ref=e495] [box=355,3364,12,12]:
+                - img [ref=e496] [box=355,3364,12,12]
+            - generic [ref=e498] [box=336,3382,82,17]: $5/$25
+        - generic [ref=e499] [box=310,3435,873,162]:
+          - generic [ref=e501] [box=327,3448,195,22]:
+            - heading "Claude Sonnet 4.6" [level=3] [ref=e502] [box=327,3448,123,22]
+            - generic [ref=e503] [box=458,3449,65,20]: Anthropic
+          - generic [ref=e504] [box=327,3474,839,17]:
+            - generic [ref=e505] [box=327,3474,83,17]: "Max: 1M context"
+            - generic [ref=e506] [box=414,3474,4,17]: "|"
+            - generic [ref=e507] [box=422,3474,35,17]: $3/$15
+            - generic [ref=e508] [box=461,3474,4,17]: "|"
+            - generic [ref=e509] [box=469,3474,50,17]: 1 provider
+          - generic [ref=e512] [cursor=pointer] [box=327,3504,100,72]:
+            - generic [ref=e514] [box=336,3511,63,17]: OpenRouter
+            - generic [ref=e516] [box=336,3532,82,16]:
+              - generic [ref=e517] [box=336,3532,13,16]: 1M
+              - generic "Tools supported" [ref=e518] [box=355,3534,12,12]:
+                - img [ref=e519] [box=355,3534,12,12]
+            - generic [ref=e521] [box=336,3552,82,17]: $3/$15
+        - generic [ref=e522] [box=310,3605,873,162]:
+          - generic [ref=e524] [box=327,3618,122,22]:
+            - heading "Codestral" [level=3] [ref=e525] [box=327,3618,65,22]
+            - generic [ref=e526] [box=400,3619,50,20]: Mistral
+          - generic [ref=e527] [box=327,3644,839,17]:
+            - generic [ref=e528] [box=327,3644,80,17]: "Max: — context"
+            - generic [ref=e529] [box=411,3644,4,17]: "|"
+            - generic [ref=e530] [box=418,3644,23,17]: Free
+            - generic [ref=e531] [box=445,3644,4,17]: "|"
+            - generic [ref=e532] [box=453,3644,50,17]: 1 provider
+          - generic [ref=e535] [cursor=pointer] [box=327,3673,100,72]:
+            - generic [ref=e537] [box=336,3680,36,17]: Mistral
+            - generic [ref=e539] [box=336,3702,82,16]:
+              - generic [ref=e540] [box=336,3702,10,16]: —
+              - generic "No tools" [ref=e541] [box=352,3702,10,16]: —
+            - generic [ref=e542] [box=336,3722,82,17]: Free
+        - generic [ref=e543] [box=310,3775,873,162]:
+          - generic [ref=e545] [box=327,3788,162,22]:
+            - heading "Codestral 25.01" [level=3] [ref=e546] [box=327,3788,104,22]
+            - generic [ref=e547] [box=439,3789,50,20]: Mistral
+          - generic [ref=e548] [box=327,3814,839,17]:
+            - generic [ref=e549] [box=327,3814,80,17]: "Max: — context"
+            - generic [ref=e550] [box=411,3814,4,17]: "|"
+            - generic [ref=e551] [box=418,3814,23,17]: Free
+            - generic [ref=e552] [box=445,3814,4,17]: "|"
+            - generic [ref=e553] [box=453,3814,50,17]: 1 provider
+          - generic [ref=e556] [cursor=pointer] [box=327,3843,105,72]:
+            - generic [ref=e558] [box=336,3850,77,17]: GitHub Models
+            - generic [ref=e560] [box=336,3871,87,16]:
+              - generic [ref=e561] [box=336,3871,10,16]: —
+              - generic "No tools" [ref=e562] [box=352,3871,10,16]: —
+            - generic [ref=e563] [box=336,3892,87,17]: Free
+        - generic [ref=e564] [box=310,3944,873,162]:
+          - generic [ref=e566] [box=327,3957,194,22]:
+            - heading "Cohere Command A" [level=3] [ref=e567] [box=327,3957,134,22]
+            - generic [ref=e568] [box=469,3958,52,20]: Cohere
+          - generic [ref=e569] [box=327,3983,839,17]:
+            - generic [ref=e570] [box=327,3983,80,17]: "Max: — context"
+            - generic [ref=e571] [box=411,3983,4,17]: "|"
+            - generic [ref=e572] [box=418,3983,23,17]: Free
+            - generic [ref=e573] [box=445,3983,4,17]: "|"
+            - generic [ref=e574] [box=453,3983,50,17]: 1 provider
+          - generic [ref=e577] [cursor=pointer] [box=327,4013,105,72]:
+            - generic [ref=e579] [box=336,4020,77,17]: GitHub Models
+            - generic [ref=e581] [box=336,4041,87,16]:
+              - generic [ref=e582] [box=336,4041,10,16]: —
+              - generic "No tools" [ref=e583] [box=352,4041,10,16]: —
+            - generic [ref=e584] [box=336,4061,87,17]: Free
+        - generic [ref=e585] [box=310,4114,873,162]:
+          - generic [ref=e587] [box=327,4127,265,22]:
+            - heading "Cohere Command R+ 08-2024" [level=3] [ref=e588] [box=327,4127,205,22]
+            - generic [ref=e589] [box=540,4128,52,20]: Cohere
+          - generic [ref=e590] [box=327,4153,839,17]:
+            - generic [ref=e591] [box=327,4153,80,17]: "Max: — context"
+            - generic [ref=e592] [box=411,4153,4,17]: "|"
+            - generic [ref=e593] [box=418,4153,23,17]: Free
+            - generic [ref=e594] [box=445,4153,4,17]: "|"
+            - generic [ref=e595] [box=453,4153,58,17]: 2 providers
+          - generic [ref=e597] [box=327,4174,839,88]:
+            - generic [ref=e598] [cursor=pointer] [box=327,4182,105,72]:
+              - generic [ref=e600] [box=336,4189,77,17]: GitHub Models
+              - generic [ref=e602] [box=336,4211,87,16]:
+                - generic [ref=e603] [box=336,4211,10,16]: —
+                - generic "No tools" [ref=e604] [box=352,4211,10,16]: —
+              - generic [ref=e605] [box=336,4231,87,17]: Free
+            - generic [ref=e606] [cursor=pointer] [box=438,4182,105,72]:
+              - generic [ref=e608] [box=447,4189,77,17]: GitHub Models
+              - generic [ref=e610] [box=447,4211,87,16]:
+                - generic [ref=e611] [box=447,4211,10,16]: —
+                - generic "No tools" [ref=e612] [box=464,4211,10,16]: —
+              - generic [ref=e613] [box=447,4231,87,17]: Free
+        - generic [ref=e614] [box=310,4284,873,162]:
+          - generic [ref=e616] [box=327,4297,206,22]:
+            - heading "command-a-03-2025" [level=3] [ref=e617] [box=327,4297,146,22]
+            - generic [ref=e618] [box=481,4298,52,20]: Cohere
+          - generic [ref=e619] [box=327,4323,839,17]:
+            - generic [ref=e620] [box=327,4323,80,17]: "Max: — context"
+            - generic [ref=e621] [box=411,4323,4,17]: "|"
+            - generic [ref=e622] [box=418,4323,23,17]: Free
+            - generic [ref=e623] [box=445,4323,4,17]: "|"
+            - generic [ref=e624] [box=453,4323,50,17]: 1 provider
+          - generic [ref=e627] [cursor=pointer] [box=327,4352,100,72]:
+            - generic [ref=e629] [box=336,4359,38,17]: Cohere
+            - generic [ref=e631] [box=336,4380,82,16]:
+              - generic [ref=e632] [box=336,4380,10,16]: —
+              - generic "No tools" [ref=e633] [box=352,4380,10,16]: —
+            - generic [ref=e634] [box=336,4401,82,17]: Free
+        - generic [ref=e635] [box=310,4453,873,162]:
+          - generic [ref=e637] [box=327,4466,240,22]:
+            - heading "command-a-plus-05-2026" [level=3] [ref=e638] [box=327,4466,180,22]
+            - generic [ref=e639] [box=515,4467,52,20]: Cohere
+          - generic [ref=e640] [box=327,4493,839,17]:
+            - generic [ref=e641] [box=327,4493,80,17]: "Max: — context"
+            - generic [ref=e642] [box=411,4493,4,17]: "|"
+            - generic [ref=e643] [box=418,4493,23,17]: Free
+            - generic [ref=e644] [box=445,4493,4,17]: "|"
+            - generic [ref=e645] [box=453,4493,50,17]: 1 provider
+          - generic [ref=e648] [cursor=pointer] [box=327,4522,100,72]:
+            - generic [ref=e650] [box=336,4529,38,17]: Cohere
+            - generic [ref=e652] [box=336,4550,82,16]:
+              - generic [ref=e653] [box=336,4550,10,16]: —
+              - generic "No tools" [ref=e654] [box=352,4550,10,16]: —
+            - generic [ref=e655] [box=336,4570,82,17]: Free
+        - generic [ref=e656] [box=310,4623,873,162]:
+          - generic [ref=e658] [box=327,4636,279,22]:
+            - heading "command-a-reasoning-08-2025" [level=3] [ref=e659] [box=327,4636,219,22]
+            - generic [ref=e660] [box=554,4637,52,20]: Cohere
+          - generic [ref=e661] [box=327,4662,839,17]:
+            - generic [ref=e662] [box=327,4662,80,17]: "Max: — context"
+            - generic [ref=e663] [box=411,4662,4,17]: "|"
+            - generic [ref=e664] [box=418,4662,23,17]: Free
+            - generic [ref=e665] [box=445,4662,4,17]: "|"
+            - generic [ref=e666] [box=453,4662,50,17]: 1 provider
+          - generic [ref=e669] [cursor=pointer] [box=327,4692,100,72]:
+            - generic [ref=e671] [box=336,4699,38,17]: Cohere
+            - generic [ref=e673] [box=336,4720,82,16]:
+              - generic [ref=e674] [box=336,4720,10,16]: —
+              - generic "No tools" [ref=e675] [box=352,4720,10,16]: —
+            - generic [ref=e676] [box=336,4740,82,17]: Free
+        - generic [ref=e677] [box=310,4793,873,162]:
+          - generic [ref=e679] [box=327,4806,271,22]:
+            - heading "command-a-translate-08-2025" [level=3] [ref=e680] [box=327,4806,211,22]
+            - generic [ref=e681] [box=546,4807,52,20]: Cohere
+          - generic [ref=e682] [box=327,4832,839,17]:
+            - generic [ref=e683] [box=327,4832,80,17]: "Max: — context"
+            - generic [ref=e684] [box=411,4832,4,17]: "|"
+            - generic [ref=e685] [box=418,4832,23,17]: Free
+            - generic [ref=e686] [box=445,4832,4,17]: "|"
+            - generic [ref=e687] [box=453,4832,50,17]: 1 provider
+          - generic [ref=e690] [cursor=pointer] [box=327,4861,100,72]:
+            - generic [ref=e692] [box=336,4868,38,17]: Cohere
+            - generic [ref=e694] [box=336,4889,82,16]:
+              - generic [ref=e695] [box=336,4889,10,16]: —
+              - generic "No tools" [ref=e696] [box=352,4889,10,16]: —
+            - generic [ref=e697] [box=336,4910,82,17]: Free
+        - generic [ref=e698] [box=310,4963,873,162]:
+          - generic [ref=e700] [box=327,4976,251,22]:
+            - heading "command-a-vision-07-2025" [level=3] [ref=e701] [box=327,4976,191,22]
+            - generic [ref=e702] [box=526,4976,52,20]: Cohere
+          - generic [ref=e703] [box=327,5002,839,17]:
+            - generic [ref=e704] [box=327,5002,80,17]: "Max: — context"
+            - generic [ref=e705] [box=411,5002,4,17]: "|"
+            - generic [ref=e706] [box=418,5002,23,17]: Free
+            - generic [ref=e707] [box=445,5002,4,17]: "|"
+            - generic [ref=e708] [box=453,5002,50,17]: 1 provider
+          - generic [ref=e711] [cursor=pointer] [box=327,5031,100,72]:
+            - generic [ref=e713] [box=336,5038,38,17]: Cohere
+            - generic [ref=e715] [box=336,5059,82,16]:
+              - generic [ref=e716] [box=336,5059,10,16]: —
+              - generic "No tools" [ref=e717] [box=352,5059,10,16]: —
+            - generic [ref=e718] [box=336,5080,82,17]: Free
+        - generic [ref=e719] [box=310,5132,873,162]:
+          - generic [ref=e721] [box=327,5145,203,22]:
+            - heading "command-r-08-2024" [level=3] [ref=e722] [box=327,5145,143,22]
+            - generic [ref=e723] [box=478,5146,52,20]: Cohere
+          - generic [ref=e724] [box=327,5171,839,17]:
+            - generic [ref=e725] [box=327,5171,80,17]: "Max: — context"
+            - generic [ref=e726] [box=411,5171,4,17]: "|"
+            - generic [ref=e727] [box=418,5171,23,17]: Free
+            - generic [ref=e728] [box=445,5171,4,17]: "|"
+            - generic [ref=e729] [box=453,5171,50,17]: 1 provider
+          - generic [ref=e732] [cursor=pointer] [box=327,5201,100,72]:
+            - generic [ref=e734] [box=336,5208,38,17]: Cohere
+            - generic [ref=e736] [box=336,5229,82,16]:
+              - generic [ref=e737] [box=336,5229,10,16]: —
+              - generic "No tools" [ref=e738] [box=352,5229,10,16]: —
+            - generic [ref=e739] [box=336,5249,82,17]: Free
+        - generic [ref=e740] [box=310,5302,873,162]:
+          - generic [ref=e742] [box=327,5315,238,22]:
+            - heading "command-r-plus-08-2024" [level=3] [ref=e743] [box=327,5315,178,22]
+            - generic [ref=e744] [box=513,5316,52,20]: Cohere
+          - generic [ref=e745] [box=327,5341,839,17]:
+            - generic [ref=e746] [box=327,5341,80,17]: "Max: — context"
+            - generic [ref=e747] [box=411,5341,4,17]: "|"
+            - generic [ref=e748] [box=418,5341,23,17]: Free
+            - generic [ref=e749] [box=445,5341,4,17]: "|"
+            - generic [ref=e750] [box=453,5341,50,17]: 1 provider
+          - generic [ref=e753] [cursor=pointer] [box=327,5370,100,72]:
+            - generic [ref=e755] [box=336,5377,38,17]: Cohere
+            - generic [ref=e757] [box=336,5399,82,16]:
+              - generic [ref=e758] [box=336,5399,10,16]: —
+              - generic "No tools" [ref=e759] [box=352,5399,10,16]: —
+            - generic [ref=e760] [box=336,5419,82,17]: Free
+        - generic [ref=e761] [box=310,5472,873,162]:
+          - generic [ref=e763] [box=327,5485,217,22]:
+            - heading "command-r7b-12-2024" [level=3] [ref=e764] [box=327,5485,157,22]
+            - generic [ref=e765] [box=492,5486,52,20]: Cohere
+          - generic [ref=e766] [box=327,5511,839,17]:
+            - generic [ref=e767] [box=327,5511,80,17]: "Max: — context"
+            - generic [ref=e768] [box=411,5511,4,17]: "|"
+            - generic [ref=e769] [box=418,5511,23,17]: Free
+            - generic [ref=e770] [box=445,5511,4,17]: "|"
+            - generic [ref=e771] [box=453,5511,50,17]: 1 provider
+          - generic [ref=e774] [cursor=pointer] [box=327,5540,100,72]:
+            - generic [ref=e776] [box=336,5547,38,17]: Cohere
+            - generic [ref=e778] [box=336,5568,82,16]:
+              - generic [ref=e779] [box=336,5568,10,16]: —
+              - generic "No tools" [ref=e780] [box=352,5568,10,16]: —
+            - generic [ref=e781] [box=336,5589,82,17]: Free
+        - generic [ref=e782] [box=310,5641,873,162]:
+          - generic [ref=e784] [box=327,5654,267,22]:
+            - heading "command-r7b-arabic-02-2025" [level=3] [ref=e785] [box=327,5654,208,22]
+            - generic [ref=e786] [box=543,5655,52,20]: Cohere
+          - generic [ref=e787] [box=327,5680,839,17]:
+            - generic [ref=e788] [box=327,5680,80,17]: "Max: — context"
+            - generic [ref=e789] [box=411,5680,4,17]: "|"
+            - generic [ref=e790] [box=418,5680,23,17]: Free
+            - generic [ref=e791] [box=445,5680,4,17]: "|"
+            - generic [ref=e792] [box=453,5680,50,17]: 1 provider
+          - generic [ref=e795] [cursor=pointer] [box=327,5710,100,72]:
+            - generic [ref=e797] [box=336,5717,38,17]: Cohere
+            - generic [ref=e799] [box=336,5738,82,16]:
+              - generic [ref=e800] [box=336,5738,10,16]: —
+              - generic "No tools" [ref=e801] [box=352,5738,10,16]: —
+            - generic [ref=e802] [box=336,5758,82,17]: Free
+        - generic [ref=e803] [box=310,5811,873,162]:
+          - generic [ref=e805] [box=327,5824,144,22]:
+            - heading "Compound" [level=3] [ref=e806] [box=327,5824,74,22]
+            - generic [ref=e807] [box=409,5825,63,20]: Unknown
+          - generic [ref=e808] [box=327,5850,839,17]:
+            - generic [ref=e809] [box=327,5850,92,17]: "Max: 131K context"
+            - generic [ref=e810] [box=423,5850,4,17]: "|"
+            - generic [ref=e811] [box=430,5850,23,17]: Free
+            - generic [ref=e812] [box=457,5850,4,17]: "|"
+            - generic [ref=e813] [box=465,5850,50,17]: 1 provider
+          - generic [ref=e816] [cursor=pointer] [box=327,5879,100,72]:
+            - generic [ref=e818] [box=336,5886,25,17]: Groq
+            - generic [ref=e820] [box=336,5908,82,16]:
+              - generic [ref=e821] [box=336,5908,21,16]: 131K
+              - generic "Tools supported" [ref=e822] [box=363,5910,12,12]:
+                - img [ref=e823] [box=363,5910,12,12]
+            - generic [ref=e825] [box=336,5928,82,17]: Free
+        - generic [ref=e826] [box=310,5981,873,162]:
+          - generic [ref=e828] [box=327,5994,176,22]:
+            - heading "Compound Mini" [level=3] [ref=e829] [box=327,5994,105,22]
+            - generic [ref=e830] [box=440,5995,63,20]: Unknown
+          - generic [ref=e831] [box=327,6020,839,17]:
+            - generic [ref=e832] [box=327,6020,92,17]: "Max: 131K context"
+            - generic [ref=e833] [box=423,6020,4,17]: "|"
+            - generic [ref=e834] [box=430,6020,23,17]: Free
+            - generic [ref=e835] [box=457,6020,4,17]: "|"
+            - generic [ref=e836] [box=465,6020,50,17]: 1 provider
+          - generic [ref=e839] [cursor=pointer] [box=327,6049,100,72]:
+            - generic [ref=e841] [box=336,6056,25,17]: Groq
+            - generic [ref=e843] [box=336,6077,82,16]:
+              - generic [ref=e844] [box=336,6077,21,16]: 131K
+              - generic "Tools supported" [ref=e845] [box=363,6080,12,12]:
+                - img [ref=e846] [box=363,6080,12,12]
+            - generic [ref=e848] [box=336,6098,82,17]: Free
+        - generic [ref=e849] [box=310,6151,873,162]:
+          - generic [ref=e851] [box=327,6164,269,22]:
+            - heading "DeepSeek R1 Distill Qwen 32B" [level=3] [ref=e852] [box=327,6164,199,22]
+            - generic [ref=e853] [box=534,6164,63,20]: Unknown
+          - generic [ref=e854] [box=327,6190,839,17]:
+            - generic [ref=e855] [box=327,6190,80,17]: "Max: — context"
+            - generic [ref=e856] [box=411,6190,4,17]: "|"
+            - generic [ref=e857] [box=418,6190,23,17]: Free
+            - generic [ref=e858] [box=445,6190,4,17]: "|"
+            - generic [ref=e859] [box=453,6190,50,17]: 1 provider
+          - generic [ref=e862] [cursor=pointer] [box=327,6219,100,72]:
+            - generic [ref=e864] [box=336,6226,54,17]: Cloudflare
+            - generic [ref=e866] [box=336,6247,82,16]:
+              - generic [ref=e867] [box=336,6247,10,16]: —
+              - generic "No tools" [ref=e868] [box=352,6247,10,16]: —
+            - generic [ref=e869] [box=336,6267,82,17]: Free
+        - generic [ref=e870] [box=310,6320,873,162]:
+          - generic [ref=e872] [box=327,6333,209,22]:
+            - heading "DeepSeek Reasoner" [level=3] [ref=e873] [box=327,6333,135,22]
+            - generic [ref=e874] [box=470,6334,66,20]: DeepSeek
+          - generic [ref=e875] [box=327,6359,839,17]:
+            - generic [ref=e876] [box=327,6359,94,17]: "Max: 164K context"
+            - generic [ref=e877] [box=425,6359,4,17]: "|"
+            - generic [ref=e878] [box=433,6359,47,17]: $0.70/$3
+            - generic [ref=e879] [box=484,6359,4,17]: "|"
+            - generic [ref=e880] [box=491,6359,50,17]: 1 provider
+          - generic [ref=e883] [cursor=pointer] [box=327,6389,100,72]:
+            - generic [ref=e885] [box=336,6396,63,17]: OpenRouter
+            - generic [ref=e887] [box=336,6417,82,16]:
+              - generic [ref=e888] [box=336,6417,24,16]: 164K
+              - generic "Tools supported" [ref=e889] [box=366,6419,12,12]:
+                - img [ref=e890] [box=366,6419,12,12]
+            - generic [ref=e892] [box=336,6437,82,17]: $0.70/$3
+        - generic [ref=e893] [box=310,6490,873,162]:
+          - generic [ref=e895] [box=327,6503,163,22]:
+            - heading "DeepSeek-R1" [level=3] [ref=e896] [box=327,6503,89,22]
+            - generic [ref=e897] [box=424,6504,66,20]: DeepSeek
+          - generic [ref=e898] [box=327,6529,839,17]:
+            - generic [ref=e899] [box=327,6529,80,17]: "Max: — context"
+            - generic [ref=e900] [box=411,6529,4,17]: "|"
+            - generic [ref=e901] [box=418,6529,23,17]: Free
+            - generic [ref=e902] [box=445,6529,4,17]: "|"
+            - generic [ref=e903] [box=453,6529,50,17]: 1 provider
+          - generic [ref=e906] [cursor=pointer] [box=327,6558,105,72]:
+            - generic [ref=e908] [box=336,6565,77,17]: GitHub Models
+            - generic [ref=e910] [box=336,6587,87,16]:
+              - generic [ref=e911] [box=336,6587,10,16]: —
+              - generic "No tools" [ref=e912] [box=352,6587,10,16]: —
+            - generic [ref=e913] [box=336,6607,87,17]: Free
+        - generic [ref=e914] [box=310,6660,873,162]:
+          - generic [ref=e916] [box=327,6673,204,22]:
+            - heading "DeepSeek-R1-0528" [level=3] [ref=e917] [box=327,6673,130,22]
+            - generic [ref=e918] [box=465,6674,66,20]: DeepSeek
+          - generic [ref=e919] [box=327,6699,839,17]:
+            - generic [ref=e920] [box=327,6699,80,17]: "Max: — context"
+            - generic [ref=e921] [box=411,6699,4,17]: "|"
+            - generic [ref=e922] [box=418,6699,23,17]: Free
+            - generic [ref=e923] [box=445,6699,4,17]: "|"
+            - generic [ref=e924] [box=453,6699,50,17]: 1 provider
+          - generic [ref=e927] [cursor=pointer] [box=327,6728,105,72]:
+            - generic [ref=e929] [box=336,6735,77,17]: GitHub Models
+            - generic [ref=e931] [box=336,6756,87,16]:
+              - generic [ref=e932] [box=336,6756,10,16]: —
+              - generic "No tools" [ref=e933] [box=352,6756,10,16]: —
+            - generic [ref=e934] [box=336,6777,87,17]: Free
+        - generic [ref=e935] [box=310,6829,873,162]:
+          - generic [ref=e937] [box=327,6842,208,22]:
+            - heading "DeepSeek-V3-0324" [level=3] [ref=e938] [box=327,6842,134,22]
+            - generic [ref=e939] [box=469,6843,66,20]: DeepSeek
+          - generic [ref=e940] [box=327,6868,839,17]:
+            - generic [ref=e941] [box=327,6868,80,17]: "Max: — context"
+            - generic [ref=e942] [box=411,6868,4,17]: "|"
+            - generic [ref=e943] [box=418,6868,23,17]: Free
+            - generic [ref=e944] [box=445,6868,4,17]: "|"
+            - generic [ref=e945] [box=453,6868,50,17]: 1 provider
+          - generic [ref=e948] [cursor=pointer] [box=327,6898,105,72]:
+            - generic [ref=e950] [box=336,6905,77,17]: GitHub Models
+            - generic [ref=e952] [box=336,6926,87,16]:
+              - generic [ref=e953] [box=336,6926,10,16]: —
+              - generic "No tools" [ref=e954] [box=352,6926,10,16]: —
+            - generic [ref=e955] [box=336,6946,87,17]: Free
+        - generic [ref=e956] [box=310,6999,873,162]:
+          - generic [ref=e958] [box=327,7012,202,22]:
+            - heading "deepseek-v4-flash" [level=3] [ref=e959] [box=327,7012,128,22]
+            - generic [ref=e960] [box=463,7013,66,20]: DeepSeek
+          - generic [ref=e961] [box=327,7038,839,17]:
+            - generic [ref=e962] [box=327,7038,83,17]: "Max: 1M context"
+            - generic [ref=e963] [box=414,7038,4,17]: "|"
+            - generic [ref=e964] [box=422,7038,23,17]: Free
+            - generic [ref=e965] [box=448,7038,4,17]: "|"
+            - generic [ref=e966] [box=456,7038,58,17]: 4 providers
+          - generic [ref=e968] [box=327,7059,839,88]:
+            - generic [ref=e969] [cursor=pointer] [box=327,7067,100,72]:
+              - generic [ref=e971] [box=337,7074,53,17]: DeepSeek
+              - generic [ref=e973] [box=337,7096,81,16]:
+                - generic [ref=e974] [box=337,7096,10,16]: —
+                - generic "Tools supported" [ref=e975] [box=353,7098,12,12]:
+                  - img [ref=e976] [box=353,7098,12,12]
+              - generic [ref=e978] [box=337,7116,81,17]: $0.10/$0.20
+            - generic [ref=e979] [cursor=pointer] [box=433,7067,106,72]:
+              - generic [ref=e981] [box=442,7074,78,17]: OpenCode Zen
+              - generic [ref=e983] [box=442,7096,88,16]:
+                - generic [ref=e984] [box=442,7096,13,16]: 1M
+                - generic "Tools supported" [ref=e985] [box=461,7098,12,12]:
+                  - img [ref=e986] [box=461,7098,12,12]
+              - generic [ref=e988] [box=442,7116,88,17]: Free
+            - generic [ref=e989] [cursor=pointer] [box=545,7067,100,72]:
+              - generic [ref=e991] [box=554,7074,63,17]: OpenRouter
+              - generic [ref=e993] [box=554,7096,82,16]:
+                - generic [ref=e994] [box=554,7096,13,16]: 1M
+                - generic "Tools supported" [ref=e995] [box=574,7098,12,12]:
+                  - img [ref=e996] [box=574,7098,12,12]
+              - generic [ref=e998] [box=554,7116,82,17]: $0.10/$0.20
+            - generic [ref=e999] [cursor=pointer] [box=651,7067,100,72]:
+              - generic [ref=e1001] [box=660,7074,63,17]: OpenRouter
+              - generic [ref=e1003] [box=660,7096,82,16]:
+                - generic [ref=e1004] [box=660,7096,13,16]: 1M
+                - generic "Tools supported" [ref=e1005] [box=680,7098,12,12]:
+                  - img [ref=e1006] [box=680,7098,12,12]
+              - generic [ref=e1008] [box=660,7116,82,17]: $0.10/$0.20
+        - generic [ref=e1009] [box=310,7169,873,162]:
+          - generic [ref=e1010] [box=327,7182,839,22]:
+            - generic [ref=e1011] [box=327,7182,191,22]:
+              - heading "deepseek-v4-pro" [level=3] [ref=e1012] [box=327,7182,117,22]
+              - generic [ref=e1013] [box=452,7183,66,20]: DeepSeek
+            - generic [ref=e1014] [box=1047,7183,119,20]:
+              - generic [ref=e1015] [box=1047,7183,55,20]: "#5 Build"
+              - generic [ref=e1016] [box=1106,7183,60,20]: "#5 Model"
+          - generic [ref=e1017] [box=327,7208,839,17]:
+            - generic [ref=e1018] [box=327,7208,83,17]: "Max: 1M context"
+            - generic [ref=e1019] [box=414,7208,4,17]: "|"
+            - generic [ref=e1020] [box=422,7208,23,17]: Free
+            - generic [ref=e1021] [box=448,7208,4,17]: "|"
+            - generic [ref=e1022] [box=456,7208,58,17]: 3 providers
+          - generic [ref=e1024] [box=327,7229,839,88]:
+            - generic [ref=e1025] [cursor=pointer] [box=327,7237,100,72]:
+              - generic [ref=e1027] [box=337,7244,53,17]: DeepSeek
+              - generic [ref=e1029] [box=337,7265,81,16]:
+                - generic [ref=e1030] [box=337,7265,13,16]: 1M
+                - generic "Tools supported" [ref=e1031] [box=356,7267,12,12]:
+                  - img [ref=e1032] [box=356,7267,12,12]
+              - generic [ref=e1034] [box=337,7286,81,17]: Free
+            - generic [ref=e1035] [cursor=pointer] [box=433,7237,100,72]:
+              - generic [ref=e1037] [box=442,7244,63,17]: OpenRouter
+              - generic [ref=e1039] [box=442,7265,82,16]:
+                - generic [ref=e1040] [box=442,7265,13,16]: 1M
+                - generic "Tools supported" [ref=e1041] [box=461,7267,12,12]:
+                  - img [ref=e1042] [box=461,7267,12,12]
+              - generic [ref=e1044] [box=442,7286,82,17]: $0.44/$0.87
+            - generic [ref=e1045] [cursor=pointer] [box=539,7237,100,72]:
+              - generic [ref=e1047] [box=548,7244,63,17]: OpenRouter
+              - generic [ref=e1049] [box=548,7265,82,16]:
+                - generic [ref=e1050] [box=548,7265,13,16]: 1M
+                - generic "Tools supported" [ref=e1051] [box=567,7267,12,12]:
+                  - img [ref=e1052] [box=567,7267,12,12]
+              - generic [ref=e1054] [box=548,7286,82,17]: $0.44/$0.87
+        - generic [ref=e1055] [box=310,7338,873,162]:
+          - generic [ref=e1057] [box=327,7351,304,22]:
+            - heading "deepseek/deepseek-v4-flash:free" [level=3] [ref=e1058] [box=327,7351,229,22]
+            - generic [ref=e1059] [box=564,7352,66,20]: DeepSeek
+          - generic [ref=e1060] [box=327,7378,839,17]:
+            - generic [ref=e1061] [box=327,7378,80,17]: "Max: — context"
+            - generic [ref=e1062] [box=411,7378,4,17]: "|"
+            - generic [ref=e1063] [box=418,7378,23,17]: Free
+            - generic [ref=e1064] [box=445,7378,4,17]: "|"
+            - generic [ref=e1065] [box=453,7378,50,17]: 1 provider
+          - generic [ref=e1068] [cursor=pointer] [box=327,7407,100,72]:
+            - generic [ref=e1070] [box=336,7414,63,17]: OpenRouter
+            - generic [ref=e1072] [box=336,7435,82,16]:
+              - generic [ref=e1073] [box=336,7435,10,16]: —
+              - generic "No tools" [ref=e1074] [box=352,7435,10,16]: —
+            - generic [ref=e1075] [box=336,7455,82,17]: Free
+        - generic [ref=e1076] [box=310,7508,873,162]:
+          - generic [ref=e1078] [box=327,7521,323,22]:
+            - heading "Dolphin Mistral 24B Venice" [level=3] [ref=e1079] [box=327,7521,180,22]
+            - generic [ref=e1080] [box=515,7522,135,20]: Cognitive Computations
+          - generic [ref=e1081] [box=327,7547,839,17]:
+            - generic [ref=e1082] [box=327,7547,90,17]: "Max: 33K context"
+            - generic [ref=e1083] [box=421,7547,4,17]: "|"
+            - generic [ref=e1084] [box=428,7547,23,17]: Free
+            - generic [ref=e1085] [box=455,7547,4,17]: "|"
+            - generic [ref=e1086] [box=462,7547,50,17]: 1 provider
+          - generic [ref=e1089] [cursor=pointer] [box=327,7576,100,72]:
+            - generic [ref=e1091] [box=336,7583,63,17]: OpenRouter
+            - generic [ref=e1093] [box=336,7605,82,16]:
+              - generic [ref=e1094] [box=336,7605,19,16]: 33K
+              - generic "Tools supported" [ref=e1095] [box=361,7607,12,12]:
+                - img [ref=e1096] [box=361,7607,12,12]
+            - generic [ref=e1098] [box=336,7625,82,17]: Free
+        - generic [ref=e1099] [box=310,7678,873,162]:
+          - generic [ref=e1101] [box=327,7691,200,22]:
+            - heading "Free Models Router" [level=3] [ref=e1102] [box=327,7691,129,22]
+            - generic [ref=e1103] [box=464,7692,63,20]: Unknown
+          - generic [ref=e1104] [box=327,7717,839,17]:
+            - generic [ref=e1105] [box=327,7717,97,17]: "Max: 200K context"
+            - generic [ref=e1106] [box=428,7717,4,17]: "|"
+            - generic [ref=e1107] [box=435,7717,49,17]: Free/Free
+            - generic [ref=e1108] [box=488,7717,4,17]: "|"
+            - generic [ref=e1109] [box=496,7717,58,17]: 2 providers
+          - generic [ref=e1111] [box=327,7738,839,88]:
+            - generic [ref=e1112] [cursor=pointer] [box=327,7746,100,72]:
+              - generic [ref=e1114] [box=336,7753,68,17]: Kilo Gateway
+              - generic [ref=e1116] [box=336,7774,82,16]:
+                - generic [ref=e1117] [box=336,7774,26,16]: 200K
+                - generic "Tools supported" [ref=e1118] [box=368,7777,12,12]:
+                  - img [ref=e1119] [box=368,7777,12,12]
+              - generic [ref=e1121] [box=336,7795,82,17]: $0/$0
+            - generic [ref=e1122] [cursor=pointer] [box=433,7746,100,72]:
+              - generic [ref=e1124] [box=443,7753,63,17]: OpenRouter
+              - generic [ref=e1126] [box=443,7774,81,16]:
+                - generic [ref=e1127] [box=443,7774,26,16]: 200K
+                - generic "Tools supported" [ref=e1128] [box=475,7777,12,12]:
+                  - img [ref=e1129] [box=475,7777,12,12]
+              - generic [ref=e1131] [box=443,7795,81,17]: $0/$0
+        - generic [ref=e1132] [box=310,7848,873,162]:
+          - generic [ref=e1134] [box=327,7861,170,22]:
+            - heading "Gemini 2.0 Flash" [level=3] [ref=e1135] [box=327,7861,111,22]
+            - generic [ref=e1136] [box=446,7861,51,20]: Google
+          - generic [ref=e1137] [box=327,7887,839,17]:
+            - generic [ref=e1138] [box=327,7887,83,17]: "Max: 1M context"
+            - generic [ref=e1139] [box=414,7887,4,17]: "|"
+            - generic [ref=e1140] [box=422,7887,23,17]: Free
+            - generic [ref=e1141] [box=448,7887,4,17]: "|"
+            - generic [ref=e1142] [box=456,7887,50,17]: 1 provider
+          - generic [ref=e1145] [cursor=pointer] [box=327,7916,100,72]:
+            - generic [ref=e1147] [box=336,7923,51,17]: Google AI
+            - generic [ref=e1149] [box=336,7944,82,16]:
+              - generic [ref=e1150] [box=336,7944,13,16]: 1M
+              - generic "Tools supported" [ref=e1151] [box=355,7946,12,12]:
+                - img [ref=e1152] [box=355,7946,12,12]
+            - generic [ref=e1154] [box=336,7964,82,17]: Free
+        - generic [ref=e1155] [box=310,8017,873,162]:
+          - generic [ref=e1157] [box=327,8030,198,22]:
+            - heading "Gemini 2.0 Flash 001" [level=3] [ref=e1158] [box=327,8030,138,22]
+            - generic [ref=e1159] [box=473,8031,51,20]: Google
+          - generic [ref=e1160] [box=327,8056,839,17]:
+            - generic [ref=e1161] [box=327,8056,83,17]: "Max: 1M context"
+            - generic [ref=e1162] [box=414,8056,4,17]: "|"
+            - generic [ref=e1163] [box=422,8056,23,17]: Free
+            - generic [ref=e1164] [box=448,8056,4,17]: "|"
+            - generic [ref=e1165] [box=456,8056,50,17]: 1 provider
+          - generic [ref=e1168] [cursor=pointer] [box=327,8086,100,72]:
+            - generic [ref=e1170] [box=336,8093,51,17]: Google AI
+            - generic [ref=e1172] [box=336,8114,82,16]:
+              - generic [ref=e1173] [box=336,8114,13,16]: 1M
+              - generic "Tools supported" [ref=e1174] [box=355,8116,12,12]:
+                - img [ref=e1175] [box=355,8116,12,12]
+            - generic [ref=e1177] [box=336,8134,82,17]: Free
+        - generic [ref=e1178] [box=310,8187,873,162]:
+          - generic [ref=e1180] [box=327,8200,201,22]:
+            - heading "Gemini 2.0 Flash-Lite" [level=3] [ref=e1181] [box=327,8200,142,22]
+            - generic [ref=e1182] [box=477,8201,51,20]: Google
+          - generic [ref=e1183] [box=327,8226,839,17]:
+            - generic [ref=e1184] [box=327,8226,83,17]: "Max: 1M context"
+            - generic [ref=e1185] [box=414,8226,4,17]: "|"
+            - generic [ref=e1186] [box=422,8226,23,17]: Free
+            - generic [ref=e1187] [box=448,8226,4,17]: "|"
+            - generic [ref=e1188] [box=456,8226,50,17]: 1 provider
+          - generic [ref=e1191] [cursor=pointer] [box=327,8255,100,72]:
+            - generic [ref=e1193] [box=336,8262,51,17]: Google AI
+            - generic [ref=e1195] [box=336,8284,82,16]:
+              - generic [ref=e1196] [box=336,8284,13,16]: 1M
+              - generic "Tools supported" [ref=e1197] [box=355,8286,12,12]:
+                - img [ref=e1198] [box=355,8286,12,12]
+            - generic [ref=e1200] [box=336,8304,82,17]: Free
+        - generic [ref=e1201] [box=310,8357,873,162]:
+          - generic [ref=e1203] [box=327,8370,228,22]:
+            - heading "Gemini 2.0 Flash-Lite 001" [level=3] [ref=e1204] [box=327,8370,169,22]
+            - generic [ref=e1205] [box=504,8371,51,20]: Google
+          - generic [ref=e1206] [box=327,8396,839,17]:
+            - generic [ref=e1207] [box=327,8396,83,17]: "Max: 1M context"
+            - generic [ref=e1208] [box=414,8396,4,17]: "|"
+            - generic [ref=e1209] [box=422,8396,23,17]: Free
+            - generic [ref=e1210] [box=448,8396,4,17]: "|"
+            - generic [ref=e1211] [box=456,8396,50,17]: 1 provider
+          - generic [ref=e1214] [cursor=pointer] [box=327,8425,100,72]:
+            - generic [ref=e1216] [box=336,8432,51,17]: Google AI
+            - generic [ref=e1218] [box=336,8453,82,16]:
+              - generic [ref=e1219] [box=336,8453,13,16]: 1M
+              - generic "Tools supported" [ref=e1220] [box=355,8455,12,12]:
+                - img [ref=e1221] [box=355,8455,12,12]
+            - generic [ref=e1223] [box=336,8474,82,17]: Free
+        - generic [ref=e1224] [box=310,8526,873,162]:
+          - generic [ref=e1226] [box=327,8539,346,22]:
+            - heading "Gemini 2.5 Computer Use Preview 10-2025" [level=3] [ref=e1227] [box=327,8539,287,22]
+            - generic [ref=e1228] [box=622,8540,51,20]: Google
+          - generic [ref=e1229] [box=327,8565,839,17]:
+            - generic [ref=e1230] [box=327,8565,92,17]: "Max: 131K context"
+            - generic [ref=e1231] [box=423,8565,4,17]: "|"
+            - generic [ref=e1232] [box=430,8565,23,17]: Free
+            - generic [ref=e1233] [box=457,8565,4,17]: "|"
+            - generic [ref=e1234] [box=465,8565,50,17]: 1 provider
+          - generic [ref=e1237] [cursor=pointer] [box=327,8595,100,72]:
+            - generic [ref=e1239] [box=336,8602,51,17]: Google AI
+            - generic [ref=e1241] [box=336,8623,82,16]:
+              - generic [ref=e1242] [box=336,8623,21,16]: 131K
+              - generic "Tools supported" [ref=e1243] [box=363,8625,12,12]:
+                - img [ref=e1244] [box=363,8625,12,12]
+            - generic [ref=e1246] [box=336,8643,82,17]: Free
+        - generic [ref=e1247] [box=310,8696,873,162]:
+          - generic [ref=e1249] [box=327,8709,170,22]:
+            - heading "Gemini 2.5 Flash" [level=3] [ref=e1250] [box=327,8709,111,22]
+            - generic [ref=e1251] [box=446,8710,51,20]: Google
+          - generic [ref=e1252] [box=327,8735,839,17]:
+            - generic [ref=e1253] [box=327,8735,83,17]: "Max: 1M context"
+            - generic [ref=e1254] [box=414,8735,4,17]: "|"
+            - generic [ref=e1255] [box=422,8735,47,17]: $0.30/$3
+            - generic [ref=e1256] [box=473,8735,4,17]: "|"
+            - generic [ref=e1257] [box=481,8735,58,17]: 2 providers
+          - generic [ref=e1259] [box=327,8756,839,88]:
+            - generic [ref=e1260] [cursor=pointer] [box=327,8764,100,72]:
+              - generic [ref=e1262] [box=337,8771,51,17]: Google AI
+              - generic [ref=e1264] [box=337,8793,81,16]:
+                - generic [ref=e1265] [box=337,8793,13,16]: 1M
+                - generic "Tools supported" [ref=e1266] [box=356,8795,12,12]:
+                  - img [ref=e1267] [box=356,8795,12,12]
+              - generic [ref=e1269] [box=337,8813,81,17]: $0.30/$3
+            - generic [ref=e1270] [cursor=pointer] [box=433,8764,100,72]:
+              - generic [ref=e1272] [box=442,8771,63,17]: OpenRouter
+              - generic [ref=e1274] [box=442,8793,82,16]:
+                - generic [ref=e1275] [box=442,8793,13,16]: 1M
+                - generic "Tools supported" [ref=e1276] [box=461,8795,12,12]:
+                  - img [ref=e1277] [box=461,8795,12,12]
+              - generic [ref=e1279] [box=442,8813,82,17]: $0.30/$3
+        - generic [ref=e1280] [box=310,8866,873,162]:
+          - generic [ref=e1282] [box=327,8879,257,22]:
+            - heading "Gemini 2.5 Flash Preview TTS" [level=3] [ref=e1283] [box=327,8879,198,22]
+            - generic [ref=e1284] [box=533,8880,51,20]: Google
+          - generic [ref=e1285] [box=327,8905,839,17]:
+            - generic [ref=e1286] [box=327,8905,83,17]: "Max: 8K context"
+            - generic [ref=e1287] [box=414,8905,4,17]: "|"
+            - generic [ref=e1288] [box=422,8905,23,17]: Free
+            - generic [ref=e1289] [box=448,8905,4,17]: "|"
+            - generic [ref=e1290] [box=456,8905,50,17]: 1 provider
+          - generic [ref=e1293] [cursor=pointer] [box=327,8934,100,72]:
+            - generic [ref=e1295] [box=337,8941,51,17]: Google AI
+            - generic [ref=e1297] [box=337,8962,81,16]:
+              - generic [ref=e1298] [box=337,8962,13,16]: 8K
+              - generic "Tools supported" [ref=e1299] [box=356,8965,12,12]:
+                - img [ref=e1300] [box=356,8965,12,12]
+            - generic [ref=e1302] [box=337,8983,81,17]: Free
+        - generic [ref=e1303] [box=310,9035,873,162]:
+          - generic [ref=e1305] [box=327,9048,200,22]:
+            - heading "Gemini 2.5 Flash TTS" [level=3] [ref=e1306] [box=327,9048,141,22]
+            - generic [ref=e1307] [box=476,9049,51,20]: Google
+          - generic [ref=e1308] [box=327,9075,839,17]:
+            - generic [ref=e1309] [box=327,9075,80,17]: "Max: — context"
+            - generic [ref=e1310] [box=411,9075,4,17]: "|"
+            - generic [ref=e1311] [box=418,9075,23,17]: Free
+            - generic [ref=e1312] [box=445,9075,4,17]: "|"
+            - generic [ref=e1313] [box=453,9075,50,17]: 1 provider
+          - generic [ref=e1316] [cursor=pointer] [box=327,9104,100,72]:
+            - generic [ref=e1318] [box=336,9111,51,17]: Google AI
+            - generic [ref=e1320] [box=336,9132,82,16]:
+              - generic [ref=e1321] [box=336,9132,10,16]: —
+              - generic "No tools" [ref=e1322] [box=352,9132,10,16]: —
+            - generic [ref=e1323] [box=336,9152,82,17]: Free
+        - generic [ref=e1324] [box=310,9205,873,162]:
+          - generic [ref=e1325] [box=327,9218,839,22]:
+            - generic [ref=e1326] [box=327,9218,200,22]:
+              - heading "Gemini 2.5 Flash-Lite" [level=3] [ref=e1327] [box=327,9218,141,22]
+              - generic [ref=e1328] [box=476,9219,51,20]: Google
+            - generic [ref=e1329] [box=1046,9219,120,20]:
+              - generic [ref=e1330] [box=1046,9219,55,20]: "#6 Build"
+              - generic [ref=e1331] [box=1105,9219,61,20]: "#6 Model"
+          - generic [ref=e1332] [box=327,9244,839,17]:
+            - generic [ref=e1333] [box=327,9244,83,17]: "Max: 1M context"
+            - generic [ref=e1334] [box=414,9244,4,17]: "|"
+            - generic [ref=e1335] [box=422,9244,23,17]: Free
+            - generic [ref=e1336] [box=448,9244,4,17]: "|"
+            - generic [ref=e1337] [box=456,9244,50,17]: 1 provider
+          - generic [ref=e1340] [cursor=pointer] [box=327,9274,100,72]:
+            - generic [ref=e1342] [box=337,9281,51,17]: Google AI
+            - generic [ref=e1344] [box=337,9302,81,16]:
+              - generic [ref=e1345] [box=337,9302,13,16]: 1M
+              - generic "Tools supported" [ref=e1346] [box=356,9304,12,12]:
+                - img [ref=e1347] [box=356,9304,12,12]
+            - generic [ref=e1349] [box=337,9322,81,17]: Free
+        - generic [ref=e1350] [box=310,9375,873,162]:
+          - generic [ref=e1352] [box=327,9388,157,22]:
+            - heading "Gemini 2.5 Pro" [level=3] [ref=e1353] [box=327,9388,97,22]
+            - generic [ref=e1354] [box=432,9389,51,20]: Google
+          - generic [ref=e1355] [box=327,9414,839,17]:
+            - generic [ref=e1356] [box=327,9414,83,17]: "Max: 1M context"
+            - generic [ref=e1357] [box=414,9414,4,17]: "|"
+            - generic [ref=e1358] [box=422,9414,33,17]: $1/$10
+            - generic [ref=e1359] [box=459,9414,4,17]: "|"
+            - generic [ref=e1360] [box=467,9414,58,17]: 2 providers
+          - generic [ref=e1362] [box=327,9435,839,88]:
+            - generic [ref=e1363] [cursor=pointer] [box=327,9443,100,72]:
+              - generic [ref=e1365] [box=336,9450,51,17]: Google AI
+              - generic [ref=e1367] [box=336,9471,82,16]:
+                - generic [ref=e1368] [box=336,9471,13,16]: 1M
+                - generic "Tools supported" [ref=e1369] [box=355,9474,12,12]:
+                  - img [ref=e1370] [box=355,9474,12,12]
+              - generic [ref=e1372] [box=336,9492,82,17]: $1/$10
+            - generic [ref=e1373] [cursor=pointer] [box=433,9443,100,72]:
+              - generic [ref=e1375] [box=442,9450,63,17]: OpenRouter
+              - generic [ref=e1377] [box=442,9471,82,16]:
+                - generic [ref=e1378] [box=442,9471,13,16]: 1M
+                - generic "Tools supported" [ref=e1379] [box=461,9474,12,12]:
+                  - img [ref=e1380] [box=461,9474,12,12]
+              - generic [ref=e1382] [box=442,9492,82,17]: $1/$10
+        - generic [ref=e1383] [box=310,9545,873,162]:
+          - generic [ref=e1385] [box=327,9558,244,22]:
+            - heading "Gemini 2.5 Pro Preview TTS" [level=3] [ref=e1386] [box=327,9558,185,22]
+            - generic [ref=e1387] [box=520,9558,51,20]: Google
+          - generic [ref=e1388] [box=327,9584,839,17]:
+            - generic [ref=e1389] [box=327,9584,83,17]: "Max: 8K context"
+            - generic [ref=e1390] [box=414,9584,4,17]: "|"
+            - generic [ref=e1391] [box=422,9584,23,17]: Free
+            - generic [ref=e1392] [box=448,9584,4,17]: "|"
+            - generic [ref=e1393] [box=456,9584,50,17]: 1 provider
+          - generic [ref=e1396] [cursor=pointer] [box=327,9613,100,72]:
+            - generic [ref=e1398] [box=336,9620,51,17]: Google AI
+            - generic [ref=e1400] [box=336,9641,82,16]:
+              - generic [ref=e1401] [box=336,9641,13,16]: 8K
+              - generic "Tools supported" [ref=e1402] [box=355,9643,12,12]:
+                - img [ref=e1403] [box=355,9643,12,12]
+            - generic [ref=e1405] [box=336,9661,82,17]: Free
+        - generic [ref=e1406] [box=310,9714,873,162]:
+          - generic [ref=e1407] [box=327,9727,839,22]:
+            - generic [ref=e1408] [box=327,9727,214,22]:
+              - heading "Gemini 3 Flash Preview" [level=3] [ref=e1409] [box=327,9727,155,22]
+              - generic [ref=e1410] [box=490,9728,51,20]: Google
+            - generic [ref=e1411] [box=1048,9729,118,20]:
+              - generic [ref=e1412] [box=1048,9729,54,20]: "#7 Build"
+              - generic [ref=e1413] [box=1106,9729,60,20]: "#7 Model"
+          - generic [ref=e1414] [box=327,9753,839,17]:
+            - generic [ref=e1415] [box=327,9753,83,17]: "Max: 1M context"
+            - generic [ref=e1416] [box=414,9753,4,17]: "|"
+            - generic [ref=e1417] [box=422,9753,23,17]: Free
+            - generic [ref=e1418] [box=448,9753,4,17]: "|"
+            - generic [ref=e1419] [box=456,9753,50,17]: 1 provider
+          - generic [ref=e1422] [cursor=pointer] [box=327,9783,100,72]:
+            - generic [ref=e1424] [box=337,9790,51,17]: Google AI
+            - generic [ref=e1426] [box=337,9811,81,16]:
+              - generic [ref=e1427] [box=337,9811,13,16]: 1M
+              - generic "Tools supported" [ref=e1428] [box=356,9813,12,12]:
+                - img [ref=e1429] [box=356,9813,12,12]
+            - generic [ref=e1431] [box=337,9831,81,17]: Free
+        - generic [ref=e1432] [box=310,9884,873,162]:
+          - generic [ref=e1434] [box=327,9897,201,22]:
+            - heading "Gemini 3 Pro Preview" [level=3] [ref=e1435] [box=327,9897,142,22]
+            - generic [ref=e1436] [box=477,9898,51,20]: Google
+          - generic [ref=e1437] [box=327,9923,839,17]:
+            - generic [ref=e1438] [box=327,9923,83,17]: "Max: 1M context"
+            - generic [ref=e1439] [box=414,9923,4,17]: "|"
+            - generic [ref=e1440] [box=422,9923,23,17]: Free
+            - generic [ref=e1441] [box=448,9923,4,17]: "|"
+            - generic [ref=e1442] [box=456,9923,50,17]: 1 provider
+          - generic [ref=e1445] [cursor=pointer] [box=327,9952,100,72]:
+            - generic [ref=e1447] [box=336,9959,51,17]: Google AI
+            - generic [ref=e1449] [box=336,9981,82,16]:
+              - generic [ref=e1450] [box=336,9981,13,16]: 1M
+              - generic "Tools supported" [ref=e1451] [box=355,9983,12,12]:
+                - img [ref=e1452] [box=355,9983,12,12]
+            - generic [ref=e1454] [box=336,10001,82,17]: Free
+        - generic [ref=e1455] [box=310,10054,873,162]:
+          - generic [ref=e1456] [box=327,10067,839,22]:
+            - generic [ref=e1457] [box=327,10067,194,22]:
+              - heading "Gemini 3.1 Flash Lite" [level=3] [ref=e1458] [box=327,10067,135,22]
+              - generic [ref=e1459] [box=470,10068,51,20]: Google
+            - generic [ref=e1460] [box=1046,10068,120,20]:
+              - generic [ref=e1461] [box=1046,10068,55,20]: "#8 Build"
+              - generic [ref=e1462] [box=1105,10068,61,20]: "#8 Model"
+          - generic [ref=e1463] [box=327,10093,839,17]:
+            - generic [ref=e1464] [box=327,10093,83,17]: "Max: 1M context"
+            - generic [ref=e1465] [box=414,10093,4,17]: "|"
+            - generic [ref=e1466] [box=422,10093,23,17]: Free
+            - generic [ref=e1467] [box=448,10093,4,17]: "|"
+            - generic [ref=e1468] [box=456,10093,50,17]: 1 provider
+          - generic [ref=e1471] [cursor=pointer] [box=327,10122,100,72]:
+            - generic [ref=e1473] [box=337,10129,51,17]: Google AI
+            - generic [ref=e1475] [box=337,10150,81,16]:
+              - generic [ref=e1476] [box=337,10150,13,16]: 1M
+              - generic "Tools supported" [ref=e1477] [box=356,10152,12,12]:
+                - img [ref=e1478] [box=356,10152,12,12]
+            - generic [ref=e1480] [box=337,10171,81,17]: Free
+        - generic [ref=e1481] [box=310,10223,873,162]:
+          - generic [ref=e1482] [box=327,10236,839,22]:
+            - generic [ref=e1483] [box=327,10236,250,22]:
+              - heading "Gemini 3.1 Flash Lite Preview" [level=3] [ref=e1484] [box=327,10236,191,22]
+              - generic [ref=e1485] [box=526,10237,51,20]: Google
+            - generic [ref=e1486] [box=1046,10238,120,20]:
+              - generic [ref=e1487] [box=1046,10238,55,20]: "#9 Build"
+              - generic [ref=e1488] [box=1105,10238,61,20]: "#9 Model"
+          - generic [ref=e1489] [box=327,10262,839,17]:
+            - generic [ref=e1490] [box=327,10262,83,17]: "Max: 1M context"
+            - generic [ref=e1491] [box=414,10262,4,17]: "|"
+            - generic [ref=e1492] [box=422,10262,23,17]: Free
+            - generic [ref=e1493] [box=448,10262,4,17]: "|"
+            - generic [ref=e1494] [box=456,10262,50,17]: 1 provider
+          - generic [ref=e1497] [cursor=pointer] [box=327,10292,100,72]:
+            - generic [ref=e1499] [box=337,10299,51,17]: Google AI
+            - generic [ref=e1501] [box=337,10320,81,16]:
+              - generic [ref=e1502] [box=337,10320,13,16]: 1M
+              - generic "Tools supported" [ref=e1503] [box=356,10322,12,12]:
+                - img [ref=e1504] [box=356,10322,12,12]
+            - generic [ref=e1506] [box=337,10340,81,17]: Free
+        - generic [ref=e1507] [box=310,10393,873,162]:
+          - generic [ref=e1509] [box=327,10406,253,22]:
+            - heading "Gemini 3.1 Flash TTS Preview" [level=3] [ref=e1510] [box=327,10406,194,22]
+            - generic [ref=e1511] [box=529,10407,51,20]: Google
+          - generic [ref=e1512] [box=327,10432,839,17]:
+            - generic [ref=e1513] [box=327,10432,83,17]: "Max: 8K context"
+            - generic [ref=e1514] [box=414,10432,4,17]: "|"
+            - generic [ref=e1515] [box=422,10432,23,17]: Free
+            - generic [ref=e1516] [box=448,10432,4,17]: "|"
+            - generic [ref=e1517] [box=456,10432,50,17]: 1 provider
+          - generic [ref=e1520] [cursor=pointer] [box=327,10461,100,72]:
+            - generic [ref=e1522] [box=337,10468,51,17]: Google AI
+            - generic [ref=e1524] [box=337,10490,81,16]:
+              - generic [ref=e1525] [box=337,10490,13,16]: 8K
+              - generic "Tools supported" [ref=e1526] [box=356,10492,12,12]:
+                - img [ref=e1527] [box=356,10492,12,12]
+            - generic [ref=e1529] [box=337,10510,81,17]: Free
+        - generic [ref=e1530] [box=310,10563,873,162]:
+          - generic [ref=e1532] [box=327,10576,209,22]:
+            - heading "Gemini 3.1 Pro Preview" [level=3] [ref=e1533] [box=327,10576,150,22]
+            - generic [ref=e1534] [box=485,10577,51,20]: Google
+          - generic [ref=e1535] [box=327,10602,839,17]:
+            - generic [ref=e1536] [box=327,10602,83,17]: "Max: 1M context"
+            - generic [ref=e1537] [box=414,10602,4,17]: "|"
+            - generic [ref=e1538] [box=422,10602,23,17]: Free
+            - generic [ref=e1539] [box=448,10602,4,17]: "|"
+            - generic [ref=e1540] [box=456,10602,50,17]: 1 provider
+          - generic [ref=e1543] [cursor=pointer] [box=327,10631,100,72]:
+            - generic [ref=e1545] [box=336,10638,51,17]: Google AI
+            - generic [ref=e1547] [box=336,10659,82,16]:
+              - generic [ref=e1548] [box=336,10659,13,16]: 1M
+              - generic "Tools supported" [ref=e1549] [box=355,10662,12,12]:
+                - img [ref=e1550] [box=355,10662,12,12]
+            - generic [ref=e1552] [box=336,10680,82,17]: Free
+        - generic [ref=e1553] [box=310,10733,873,162]:
+          - generic [ref=e1555] [box=327,10746,304,22]:
+            - heading "Gemini 3.1 Pro Preview Custom Tools" [level=3] [ref=e1556] [box=327,10746,245,22]
+            - generic [ref=e1557] [box=580,10746,51,20]: Google
+          - generic [ref=e1558] [box=327,10772,839,17]:
+            - generic [ref=e1559] [box=327,10772,83,17]: "Max: 1M context"
+            - generic [ref=e1560] [box=414,10772,4,17]: "|"
+            - generic [ref=e1561] [box=422,10772,23,17]: Free
+            - generic [ref=e1562] [box=448,10772,4,17]: "|"
+            - generic [ref=e1563] [box=456,10772,50,17]: 1 provider
+          - generic [ref=e1566] [cursor=pointer] [box=327,10801,100,72]:
+            - generic [ref=e1568] [box=336,10808,51,17]: Google AI
+            - generic [ref=e1570] [box=336,10829,82,16]:
+              - generic [ref=e1571] [box=336,10829,13,16]: 1M
+              - generic "Tools supported" [ref=e1572] [box=355,10831,12,12]:
+                - img [ref=e1573] [box=355,10831,12,12]
+            - generic [ref=e1575] [box=336,10849,82,17]: Free
+        - generic [ref=e1576] [box=310,10902,873,162]:
+          - generic [ref=e1577] [box=327,10915,839,22]:
+            - generic [ref=e1578] [box=327,10915,170,22]:
+              - heading "Gemini 3.5 Flash" [level=3] [ref=e1579] [box=327,10915,110,22]
+              - generic [ref=e1580] [box=445,10916,51,20]: Google
+            - generic [ref=e1581] [box=1038,10916,128,20]:
+              - generic [ref=e1582] [box=1038,10916,59,20]: "#10 Build"
+              - generic [ref=e1583] [box=1101,10916,65,20]: "#10 Model"
+          - generic [ref=e1584] [box=327,10941,839,17]:
+            - generic [ref=e1585] [box=327,10941,83,17]: "Max: 1M context"
+            - generic [ref=e1586] [box=414,10941,4,17]: "|"
+            - generic [ref=e1587] [box=422,10941,23,17]: Free
+            - generic [ref=e1588] [box=448,10941,4,17]: "|"
+            - generic [ref=e1589] [box=456,10941,50,17]: 1 provider
+          - generic [ref=e1592] [cursor=pointer] [box=327,10971,100,72]:
+            - generic [ref=e1594] [box=337,10978,51,17]: Google AI
+            - generic [ref=e1596] [box=337,10999,81,16]:
+              - generic [ref=e1597] [box=337,10999,13,16]: 1M
+              - generic "Tools supported" [ref=e1598] [box=356,11001,12,12]:
+                - img [ref=e1599] [box=356,11001,12,12]
+            - generic [ref=e1601] [box=337,11019,81,17]: Free
+        - generic [ref=e1602] [box=310,11072,873,162]:
+          - generic [ref=e1603] [box=327,11085,839,22]:
+            - generic [ref=e1604] [box=327,11085,189,22]:
+              - heading "Gemini Flash Latest" [level=3] [ref=e1605] [box=327,11085,130,22]
+              - generic [ref=e1606] [box=465,11086,51,20]: Google
+            - generic [ref=e1607] [box=1042,11086,124,20]:
+              - generic [ref=e1608] [box=1042,11086,57,20]: "#11 Build"
+              - generic [ref=e1609] [box=1103,11086,63,20]: "#11 Model"
+          - generic [ref=e1610] [box=327,11111,839,17]:
+            - generic [ref=e1611] [box=327,11111,83,17]: "Max: 1M context"
+            - generic [ref=e1612] [box=414,11111,4,17]: "|"
+            - generic [ref=e1613] [box=422,11111,23,17]: Free
+            - generic [ref=e1614] [box=448,11111,4,17]: "|"
+            - generic [ref=e1615] [box=456,11111,50,17]: 1 provider
+          - generic [ref=e1618] [cursor=pointer] [box=327,11140,100,72]:
+            - generic [ref=e1620] [box=337,11147,51,17]: Google AI
+            - generic [ref=e1622] [box=337,11169,81,16]:
+              - generic [ref=e1623] [box=337,11169,13,16]: 1M
+              - generic "Tools supported" [ref=e1624] [box=356,11171,12,12]:
+                - img [ref=e1625] [box=356,11171,12,12]
+            - generic [ref=e1627] [box=337,11189,81,17]: Free
+        - generic [ref=e1628] [box=310,11242,873,162]:
+          - generic [ref=e1629] [box=327,11255,839,22]:
+            - generic [ref=e1630] [box=327,11255,220,22]:
+              - heading "Gemini Flash-Lite Latest" [level=3] [ref=e1631] [box=327,11255,161,22]
+              - generic [ref=e1632] [box=496,11255,51,20]: Google
+            - generic [ref=e1633] [box=1038,11256,128,20]:
+              - generic [ref=e1634] [box=1038,11256,59,20]: "#12 Build"
+              - generic [ref=e1635] [box=1101,11256,65,20]: "#12 Model"
+          - generic [ref=e1636] [box=327,11281,839,17]:
+            - generic [ref=e1637] [box=327,11281,83,17]: "Max: 1M context"
+            - generic [ref=e1638] [box=414,11281,4,17]: "|"
+            - generic [ref=e1639] [box=422,11281,23,17]: Free
+            - generic [ref=e1640] [box=448,11281,4,17]: "|"
+            - generic [ref=e1641] [box=456,11281,50,17]: 1 provider
+          - generic [ref=e1644] [cursor=pointer] [box=327,11310,100,72]:
+            - generic [ref=e1646] [box=337,11317,51,17]: Google AI
+            - generic [ref=e1648] [box=337,11338,81,16]:
+              - generic [ref=e1649] [box=337,11338,13,16]: 1M
+              - generic "Tools supported" [ref=e1650] [box=356,11340,12,12]:
+                - img [ref=e1651] [box=356,11340,12,12]
+            - generic [ref=e1653] [box=337,11359,81,17]: Free
+        - generic [ref=e1654] [box=310,11411,873,162]:
+          - generic [ref=e1656] [box=327,11424,176,22]:
+            - heading "Gemini Pro Latest" [level=3] [ref=e1657] [box=327,11424,117,22]
+            - generic [ref=e1658] [box=452,11425,51,20]: Google
+          - generic [ref=e1659] [box=327,11450,839,17]:
+            - generic [ref=e1660] [box=327,11450,83,17]: "Max: 1M context"
+            - generic [ref=e1661] [box=414,11450,4,17]: "|"
+            - generic [ref=e1662] [box=422,11450,23,17]: Free
+            - generic [ref=e1663] [box=448,11450,4,17]: "|"
+            - generic [ref=e1664] [box=456,11450,50,17]: 1 provider
+          - generic [ref=e1667] [cursor=pointer] [box=327,11480,100,72]:
+            - generic [ref=e1669] [box=336,11487,51,17]: Google AI
+            - generic [ref=e1671] [box=336,11508,82,16]:
+              - generic [ref=e1672] [box=336,11508,13,16]: 1M
+              - generic "Tools supported" [ref=e1673] [box=355,11510,12,12]:
+                - img [ref=e1674] [box=355,11510,12,12]
+            - generic [ref=e1676] [box=336,11528,82,17]: Free
+        - generic [ref=e1677] [box=310,11581,873,162]:
+          - generic [ref=e1679] [box=327,11594,270,22]:
+            - heading "Gemini Robotics-ER 1.5 Preview" [level=3] [ref=e1680] [box=327,11594,211,22]
+            - generic [ref=e1681] [box=546,11595,51,20]: Google
+          - generic [ref=e1682] [box=327,11620,839,17]:
+            - generic [ref=e1683] [box=327,11620,83,17]: "Max: 1M context"
+            - generic [ref=e1684] [box=414,11620,4,17]: "|"
+            - generic [ref=e1685] [box=422,11620,23,17]: Free
+            - generic [ref=e1686] [box=448,11620,4,17]: "|"
+            - generic [ref=e1687] [box=456,11620,50,17]: 1 provider
+          - generic [ref=e1690] [cursor=pointer] [box=327,11649,100,72]:
+            - generic [ref=e1692] [box=337,11656,51,17]: Google AI
+            - generic [ref=e1694] [box=337,11678,81,16]:
+              - generic [ref=e1695] [box=337,11678,13,16]: 1M
+              - generic "Tools supported" [ref=e1696] [box=356,11680,12,12]:
+                - img [ref=e1697] [box=356,11680,12,12]
+            - generic [ref=e1699] [box=337,11698,81,17]: Free
+        - generic [ref=e1700] [box=310,11751,873,162]:
+          - generic [ref=e1701] [box=327,11764,839,22]:
+            - generic [ref=e1702] [box=327,11764,270,22]:
+              - heading "Gemini Robotics-ER 1.6 Preview" [level=3] [ref=e1703] [box=327,11764,211,22]
+              - generic [ref=e1704] [box=546,11765,51,20]: Google
+            - generic [ref=e1705] [box=1039,11765,127,20]:
+              - generic [ref=e1706] [box=1039,11765,58,20]: "#17 Build"
+              - generic [ref=e1707] [box=1101,11765,65,20]: "#18 Model"
+          - generic [ref=e1708] [box=327,11790,839,17]:
+            - generic [ref=e1709] [box=327,11790,92,17]: "Max: 131K context"
+            - generic [ref=e1710] [box=423,11790,4,17]: "|"
+            - generic [ref=e1711] [box=430,11790,23,17]: Free
+            - generic [ref=e1712] [box=457,11790,4,17]: "|"
+            - generic [ref=e1713] [box=465,11790,50,17]: 1 provider
+          - generic [ref=e1716] [cursor=pointer] [box=327,11819,100,72]:
+            - generic [ref=e1718] [box=337,11826,51,17]: Google AI
+            - generic [ref=e1720] [box=337,11847,81,16]:
+              - generic [ref=e1721] [box=337,11847,21,16]: 131K
+              - generic "Tools supported" [ref=e1722] [box=364,11849,12,12]:
+                - img [ref=e1723] [box=364,11849,12,12]
+            - generic [ref=e1725] [box=337,11868,81,17]: Free
+        - generic [ref=e1726] [box=310,11920,873,162]:
+          - generic [ref=e1728] [box=327,11933,236,22]:
+            - heading "Gemma 2B Instruct (LoRA)" [level=3] [ref=e1729] [box=327,11933,177,22]
+            - generic [ref=e1730] [box=512,11934,51,20]: Google
+          - generic [ref=e1731] [box=327,11959,839,17]:
+            - generic [ref=e1732] [box=327,11959,80,17]: "Max: — context"
+            - generic [ref=e1733] [box=411,11959,4,17]: "|"
+            - generic [ref=e1734] [box=418,11959,23,17]: Free
+            - generic [ref=e1735] [box=445,11959,4,17]: "|"
+            - generic [ref=e1736] [box=453,11959,50,17]: 1 provider
+          - generic [ref=e1739] [cursor=pointer] [box=327,11989,100,72]:
+            - generic [ref=e1741] [box=336,11996,54,17]: Cloudflare
+            - generic [ref=e1743] [box=336,12017,82,16]:
+              - generic [ref=e1744] [box=336,12017,10,16]: —
+              - generic "No tools" [ref=e1745] [box=352,12017,10,16]: —
+            - generic [ref=e1746] [box=336,12037,82,17]: Free
+        - generic [ref=e1747] [box=310,12090,873,162]:
+          - generic [ref=e1749] [box=327,12103,205,22]:
+            - heading "Gemma 3 12B Instruct" [level=3] [ref=e1750] [box=327,12103,146,22]
+            - generic [ref=e1751] [box=481,12104,51,20]: Google
+          - generic [ref=e1752] [box=327,12129,839,17]:
+            - generic [ref=e1753] [box=327,12129,80,17]: "Max: — context"
+            - generic [ref=e1754] [box=411,12129,4,17]: "|"
+            - generic [ref=e1755] [box=418,12129,23,17]: Free
+            - generic [ref=e1756] [box=445,12129,4,17]: "|"
+            - generic [ref=e1757] [box=453,12129,58,17]: 2 providers
+          - generic [ref=e1759] [box=327,12150,839,88]:
+            - generic [ref=e1760] [cursor=pointer] [box=327,12158,100,72]:
+              - generic [ref=e1762] [box=336,12165,54,17]: Cloudflare
+              - generic [ref=e1764] [box=336,12187,82,16]:
+                - generic [ref=e1765] [box=336,12187,10,16]: —
+                - generic "No tools" [ref=e1766] [box=352,12187,10,16]: —
+              - generic [ref=e1767] [box=336,12207,82,17]: Free
+            - generic [ref=e1768] [cursor=pointer] [box=433,12158,100,72]:
+              - generic [ref=e1770] [box=442,12165,51,17]: Google AI
+              - generic [ref=e1772] [box=442,12187,82,16]:
+                - generic [ref=e1773] [box=442,12187,10,16]: —
+                - generic "No tools" [ref=e1774] [box=458,12187,10,16]: —
+              - generic [ref=e1775] [box=442,12207,82,17]: Free
+        - generic [ref=e1776] [box=310,12260,873,162]:
+          - generic [ref=e1778] [box=327,12273,196,22]:
+            - heading "Gemma 3 1B Instruct" [level=3] [ref=e1779] [box=327,12273,137,22]
+            - generic [ref=e1780] [box=472,12274,51,20]: Google
+          - generic [ref=e1781] [box=327,12299,839,17]:
+            - generic [ref=e1782] [box=327,12299,80,17]: "Max: — context"
+            - generic [ref=e1783] [box=411,12299,4,17]: "|"
+            - generic [ref=e1784] [box=418,12299,23,17]: Free
+            - generic [ref=e1785] [box=445,12299,4,17]: "|"
+            - generic [ref=e1786] [box=453,12299,50,17]: 1 provider
+          - generic [ref=e1789] [cursor=pointer] [box=327,12328,100,72]:
+            - generic [ref=e1791] [box=336,12335,51,17]: Google AI
+            - generic [ref=e1793] [box=336,12356,82,16]:
+              - generic [ref=e1794] [box=336,12356,10,16]: —
+              - generic "No tools" [ref=e1795] [box=352,12356,10,16]: —
+            - generic [ref=e1796] [box=336,12377,82,17]: Free
+        - generic [ref=e1797] [box=310,12430,873,162]:
+          - generic [ref=e1799] [box=327,12443,207,22]:
+            - heading "Gemma 3 27B Instruct" [level=3] [ref=e1800] [box=327,12443,148,22]
+            - generic [ref=e1801] [box=483,12443,51,20]: Google
+          - generic [ref=e1802] [box=327,12469,839,17]:
+            - generic [ref=e1803] [box=327,12469,80,17]: "Max: — context"
+            - generic [ref=e1804] [box=411,12469,4,17]: "|"
+            - generic [ref=e1805] [box=418,12469,23,17]: Free
+            - generic [ref=e1806] [box=445,12469,4,17]: "|"
+            - generic [ref=e1807] [box=453,12469,50,17]: 1 provider
+          - generic [ref=e1810] [cursor=pointer] [box=327,12498,100,72]:
+            - generic [ref=e1812] [box=336,12505,51,17]: Google AI
+            - generic [ref=e1814] [box=336,12526,82,16]:
+              - generic [ref=e1815] [box=336,12526,10,16]: —
+              - generic "No tools" [ref=e1816] [box=352,12526,10,16]: —
+            - generic [ref=e1817] [box=336,12546,82,17]: Free
+        - generic [ref=e1818] [box=310,12599,873,162]:
+          - generic [ref=e1820] [box=327,12612,199,22]:
+            - heading "Gemma 3 4B Instruct" [level=3] [ref=e1821] [box=327,12612,140,22]
+            - generic [ref=e1822] [box=475,12613,51,20]: Google
+          - generic [ref=e1823] [box=327,12638,839,17]:
+            - generic [ref=e1824] [box=327,12638,80,17]: "Max: — context"
+            - generic [ref=e1825] [box=411,12638,4,17]: "|"
+            - generic [ref=e1826] [box=418,12638,23,17]: Free
+            - generic [ref=e1827] [box=445,12638,4,17]: "|"
+            - generic [ref=e1828] [box=453,12638,50,17]: 1 provider
+          - generic [ref=e1831] [cursor=pointer] [box=327,12668,100,72]:
+            - generic [ref=e1833] [box=336,12675,51,17]: Google AI
+            - generic [ref=e1835] [box=336,12696,82,16]:
+              - generic [ref=e1836] [box=336,12696,10,16]: —
+              - generic "No tools" [ref=e1837] [box=352,12696,10,16]: —
+            - generic [ref=e1838] [box=336,12716,82,17]: Free
+        - generic [ref=e1839] [box=310,12769,873,162]:
+          - generic [ref=e1840] [box=327,12782,839,22]:
+            - generic [ref=e1841] [box=327,12782,201,22]:
+              - heading "Gemma 4 26B A4B IT" [level=3] [ref=e1842] [box=327,12782,142,22]
+              - generic [ref=e1843] [box=477,12783,51,20]: Google
+            - generic [ref=e1844] [box=1038,12783,128,20]:
+              - generic [ref=e1845] [box=1038,12783,59,20]: "#14 Build"
+              - generic [ref=e1846] [box=1101,12783,65,20]: "#15 Model"
+          - generic [ref=e1847] [box=327,12808,839,17]:
+            - generic [ref=e1848] [box=327,12808,96,17]: "Max: 262K context"
+            - generic [ref=e1849] [box=427,12808,4,17]: "|"
+            - generic [ref=e1850] [box=435,12808,23,17]: Free
+            - generic [ref=e1851] [box=461,12808,4,17]: "|"
+            - generic [ref=e1852] [box=469,12808,50,17]: 1 provider
+          - generic [ref=e1855] [cursor=pointer] [box=327,12837,100,72]:
+            - generic [ref=e1857] [box=337,12844,63,17]: OpenRouter
+            - generic [ref=e1859] [box=337,12866,81,16]:
+              - generic [ref=e1860] [box=337,12866,26,16]: 262K
+              - generic "Tools supported" [ref=e1861] [box=369,12868,12,12]:
+                - img [ref=e1862] [box=369,12868,12,12]
+            - generic [ref=e1864] [box=337,12886,81,17]: Free
+        - generic [ref=e1865] [box=310,12939,873,162]:
+          - generic [ref=e1866] [box=327,12952,839,22]:
+            - generic [ref=e1867] [box=327,12952,205,22]:
+              - heading "Gemma 4 31B Instruct" [level=3] [ref=e1868] [box=327,12952,146,22]
+              - generic [ref=e1869] [box=481,12953,51,20]: Google
+            - generic [ref=e1870] [box=1038,12953,128,20]:
+              - generic [ref=e1871] [box=1038,12953,59,20]: "#15 Build"
+              - generic [ref=e1872] [box=1101,12953,65,20]: "#16 Model"
+          - generic [ref=e1873] [box=327,12978,839,17]:
+            - generic [ref=e1874] [box=327,12978,96,17]: "Max: 262K context"
+            - generic [ref=e1875] [box=427,12978,4,17]: "|"
+            - generic [ref=e1876] [box=435,12978,23,17]: Free
+            - generic [ref=e1877] [box=461,12978,4,17]: "|"
+            - generic [ref=e1878] [box=469,12978,50,17]: 1 provider
+          - generic [ref=e1881] [cursor=pointer] [box=327,13007,100,72]:
+            - generic [ref=e1883] [box=337,13014,63,17]: OpenRouter
+            - generic [ref=e1885] [box=337,13035,81,16]:
+              - generic [ref=e1886] [box=337,13035,26,16]: 262K
+              - generic "Tools supported" [ref=e1887] [box=369,13037,12,12]:
+                - img [ref=e1888] [box=369,13037,12,12]
+            - generic [ref=e1890] [box=337,13056,81,17]: Free
+        - generic [ref=e1891] [box=310,13108,873,162]:
+          - generic [ref=e1893] [box=327,13121,186,22]:
+            - heading "Gemma 7B Instruct" [level=3] [ref=e1894] [box=327,13121,127,22]
+            - generic [ref=e1895] [box=462,13122,51,20]: Google
+          - generic [ref=e1896] [box=327,13147,839,17]:
+            - generic [ref=e1897] [box=327,13147,80,17]: "Max: — context"
+            - generic [ref=e1898] [box=411,13147,4,17]: "|"
+            - generic [ref=e1899] [box=418,13147,23,17]: Free
+            - generic [ref=e1900] [box=445,13147,4,17]: "|"
+            - generic [ref=e1901] [box=453,13147,50,17]: 1 provider
+          - generic [ref=e1904] [cursor=pointer] [box=327,13177,100,72]:
+            - generic [ref=e1906] [box=336,13184,54,17]: Cloudflare
+            - generic [ref=e1908] [box=336,13205,82,16]:
+              - generic [ref=e1909] [box=336,13205,10,16]: —
+              - generic "No tools" [ref=e1910] [box=352,13205,10,16]: —
+            - generic [ref=e1911] [box=336,13225,82,17]: Free
+        - generic [ref=e1912] [box=310,13278,873,162]:
+          - generic [ref=e1914] [box=327,13291,235,22]:
+            - heading "Gemma 7B Instruct (LoRA)" [level=3] [ref=e1915] [box=327,13291,176,22]
+            - generic [ref=e1916] [box=511,13292,51,20]: Google
+          - generic [ref=e1917] [box=327,13317,839,17]:
+            - generic [ref=e1918] [box=327,13317,80,17]: "Max: — context"
+            - generic [ref=e1919] [box=411,13317,4,17]: "|"
+            - generic [ref=e1920] [box=418,13317,23,17]: Free
+            - generic [ref=e1921] [box=445,13317,4,17]: "|"
+            - generic [ref=e1922] [box=453,13317,50,17]: 1 provider
+          - generic [ref=e1925] [cursor=pointer] [box=327,13346,100,72]:
+            - generic [ref=e1927] [box=336,13353,54,17]: Cloudflare
+            - generic [ref=e1929] [box=336,13375,82,16]:
+              - generic [ref=e1930] [box=336,13375,10,16]: —
+              - generic "No tools" [ref=e1931] [box=352,13375,10,16]: —
+            - generic [ref=e1932] [box=336,13395,82,17]: Free
+        - generic [ref=e1933] [box=310,13448,873,162]:
+          - generic [ref=e1935] [box=327,13461,96,22]:
+            - heading "GLM 5.1" [level=3] [ref=e1936] [box=327,13461,51,22]
+            - generic [ref=e1937] [box=386,13462,36,20]: Z.AI
+          - generic [ref=e1938] [box=327,13487,839,17]:
+            - generic [ref=e1939] [box=327,13487,92,17]: "Max: 131K context"
+            - generic [ref=e1940] [box=423,13487,4,17]: "|"
+            - generic [ref=e1941] [box=430,13487,49,17]: Free/Free
+            - generic [ref=e1942] [box=483,13487,4,17]: "|"
+            - generic [ref=e1943] [box=491,13487,58,17]: 2 providers
+          - generic [ref=e1945] [box=327,13508,839,88]:
+            - generic [ref=e1946] [cursor=pointer] [box=327,13516,100,72]:
+              - generic [ref=e1948] [box=337,13523,63,17]: OpenRouter
+              - generic [ref=e1950] [box=337,13544,81,16]:
+                - generic [ref=e1951] [box=337,13544,21,16]: 131K
+                - generic "Tools supported" [ref=e1952] [box=364,13547,12,12]:
+                  - img [ref=e1953] [box=364,13547,12,12]
+              - generic [ref=e1955] [box=337,13565,81,17]: $0/$0
+            - generic [ref=e1956] [cursor=pointer] [box=433,13516,144,72]:
+              - generic [ref=e1958] [box=442,13523,116,17]: Umans AI Coding Plan
+              - generic [ref=e1960] [box=442,13544,126,16]:
+                - generic [ref=e1961] [box=442,13544,21,16]: 131K
+                - generic "Tools supported" [ref=e1962] [box=469,13547,12,12]:
+                  - img [ref=e1963] [box=469,13547,12,12]
+              - generic [ref=e1965] [box=442,13565,126,17]: $0/$0
+        - generic [ref=e1966] [box=310,13617,873,162]:
+          - generic [ref=e1967] [box=327,13630,839,22]:
+            - generic [ref=e1968] [box=327,13630,149,22]:
+              - heading "GLM-4.5-Air" [level=3] [ref=e1969] [box=327,13630,84,22]
+              - generic [ref=e1970] [box=419,13631,57,20]: Zhipu AI
+            - generic [ref=e1971] [box=1036,13632,130,20]:
+              - generic [ref=e1972] [box=1036,13632,59,20]: "#18 Build"
+              - generic [ref=e1973] [box=1099,13632,67,20]: "#20 Model"
+          - generic [ref=e1974] [box=327,13657,839,17]:
+            - generic [ref=e1975] [box=327,13657,92,17]: "Max: 131K context"
+            - generic [ref=e1976] [box=423,13657,4,17]: "|"
+            - generic [ref=e1977] [box=430,13657,23,17]: Free
+            - generic [ref=e1978] [box=457,13657,4,17]: "|"
+            - generic [ref=e1979] [box=465,13657,50,17]: 1 provider
+          - generic [ref=e1982] [cursor=pointer] [box=327,13686,100,72]:
+            - generic [ref=e1984] [box=337,13693,63,17]: OpenRouter
+            - generic [ref=e1986] [box=337,13714,81,16]:
+              - generic [ref=e1987] [box=337,13714,21,16]: 131K
+              - generic "Tools supported" [ref=e1988] [box=364,13716,12,12]:
+                - img [ref=e1989] [box=364,13716,12,12]
+            - generic [ref=e1991] [box=337,13734,81,17]: Free
+        - generic [ref=e1992] [box=310,13787,873,162]:
+          - generic [ref=e1994] [box=327,13800,135,22]:
+            - heading "GLM-5-Turbo" [level=3] [ref=e1995] [box=327,13800,90,22]
+            - generic [ref=e1996] [box=425,13801,36,20]: Z.AI
+          - generic [ref=e1997] [box=327,13826,839,17]:
+            - generic [ref=e1998] [box=327,13826,92,17]: "Max: 131K context"
+            - generic [ref=e1999] [box=423,13826,4,17]: "|"
+            - generic [ref=e2000] [box=430,13826,49,17]: Free/Free
+            - generic [ref=e2001] [box=483,13826,4,17]: "|"
+            - generic [ref=e2002] [box=491,13826,50,17]: 1 provider
+          - generic [ref=e2005] [cursor=pointer] [box=327,13855,100,72]:
+            - generic [ref=e2007] [box=337,13862,63,17]: OpenRouter
+            - generic [ref=e2009] [box=337,13884,81,16]:
+              - generic [ref=e2010] [box=337,13884,21,16]: 131K
+              - generic "Tools supported" [ref=e2011] [box=364,13886,12,12]:
+                - img [ref=e2012] [box=364,13886,12,12]
+            - generic [ref=e2014] [box=337,13904,81,17]: $0/$0
+        - generic [ref=e2015] [box=310,13957,873,162]:
+          - generic [ref=e2017] [box=327,13970,165,22]:
+            - heading "GLM-5V-Turbo" [level=3] [ref=e2018] [box=327,13970,100,22]
+            - generic [ref=e2019] [box=435,13971,57,20]: Zhipu AI
+          - generic [ref=e2020] [box=327,13996,839,17]:
+            - generic [ref=e2021] [box=327,13996,92,17]: "Max: 131K context"
+            - generic [ref=e2022] [box=423,13996,4,17]: "|"
+            - generic [ref=e2023] [box=430,13996,49,17]: Free/Free
+            - generic [ref=e2024] [box=483,13996,4,17]: "|"
+            - generic [ref=e2025] [box=491,13996,50,17]: 1 provider
+          - generic [ref=e2028] [cursor=pointer] [box=327,14025,100,72]:
+            - generic [ref=e2030] [box=337,14032,63,17]: OpenRouter
+            - generic [ref=e2032] [box=337,14053,81,16]:
+              - generic [ref=e2033] [box=337,14053,21,16]: 131K
+              - generic "Tools supported" [ref=e2034] [box=364,14056,12,12]:
+                - img [ref=e2035] [box=364,14056,12,12]
+            - generic [ref=e2037] [box=337,14074,81,17]: $0/$0
+        - generic [ref=e2038] [box=310,14127,873,162]:
+          - generic [ref=e2040] [box=327,14140,151,22]:
+            - heading "GPT OSS 20B" [level=3] [ref=e2041] [box=327,14140,91,22]
+            - generic [ref=e2042] [box=426,14140,53,20]: OpenAI
+          - generic [ref=e2043] [box=327,14166,839,17]:
+            - generic [ref=e2044] [box=327,14166,92,17]: "Max: 131K context"
+            - generic [ref=e2045] [box=423,14166,4,17]: "|"
+            - generic [ref=e2046] [box=430,14166,23,17]: Free
+            - generic [ref=e2047] [box=457,14166,4,17]: "|"
+            - generic [ref=e2048] [box=465,14166,50,17]: 1 provider
+          - generic [ref=e2051] [cursor=pointer] [box=327,14195,100,72]:
+            - generic [ref=e2053] [box=336,14202,63,17]: OpenRouter
+            - generic [ref=e2055] [box=336,14223,82,16]:
+              - generic [ref=e2056] [box=336,14223,21,16]: 131K
+              - generic "Tools supported" [ref=e2057] [box=363,14225,12,12]:
+                - img [ref=e2058] [box=363,14225,12,12]
+            - generic [ref=e2060] [box=336,14243,82,17]: Free
+        - generic [ref=e2061] [box=310,14296,873,162]:
+          - generic [ref=e2063] [box=327,14309,112,22]:
+            - heading "GPT-5.1" [level=3] [ref=e2064] [box=327,14309,51,22]
+            - generic [ref=e2065] [box=386,14310,53,20]: OpenAI
+          - generic [ref=e2066] [box=327,14335,839,17]:
+            - generic [ref=e2067] [box=327,14335,97,17]: "Max: 400K context"
+            - generic [ref=e2068] [box=428,14335,4,17]: "|"
+            - generic [ref=e2069] [box=436,14335,33,17]: $1/$10
+            - generic [ref=e2070] [box=473,14335,4,17]: "|"
+            - generic [ref=e2071] [box=480,14335,50,17]: 1 provider
+          - generic [ref=e2074] [cursor=pointer] [box=327,14365,100,72]:
+            - generic [ref=e2076] [box=336,14372,63,17]: OpenRouter
+            - generic [ref=e2078] [box=336,14393,82,16]:
+              - generic [ref=e2079] [box=336,14393,26,16]: 400K
+              - generic "Tools supported" [ref=e2080] [box=368,14395,12,12]:
+                - img [ref=e2081] [box=368,14395,12,12]
+            - generic [ref=e2083] [box=336,14413,82,17]: $1/$10
+        - generic [ref=e2084] [box=310,14466,873,162]:
+          - generic [ref=e2086] [box=327,14479,116,22]:
+            - heading "GPT-5.2" [level=3] [ref=e2087] [box=327,14479,55,22]
+            - generic [ref=e2088] [box=390,14480,53,20]: OpenAI
+          - generic [ref=e2089] [box=327,14505,839,17]:
+            - generic [ref=e2090] [box=327,14505,97,17]: "Max: 400K context"
+            - generic [ref=e2091] [box=428,14505,4,17]: "|"
+            - generic [ref=e2092] [box=436,14505,36,17]: $2/$14
+            - generic [ref=e2093] [box=475,14505,4,17]: "|"
+            - generic [ref=e2094] [box=483,14505,50,17]: 1 provider
+          - generic [ref=e2097] [cursor=pointer] [box=327,14534,100,72]:
+            - generic [ref=e2099] [box=336,14541,63,17]: OpenRouter
+            - generic [ref=e2101] [box=336,14563,82,16]:
+              - generic [ref=e2102] [box=336,14563,26,16]: 400K
+              - generic "Tools supported" [ref=e2103] [box=368,14565,12,12]:
+                - img [ref=e2104] [box=368,14565,12,12]
+            - generic [ref=e2106] [box=336,14583,82,17]: $2/$14
+        - generic [ref=e2107] [box=310,14636,873,162]:
+          - generic [ref=e2109] [box=327,14649,116,22]:
+            - heading "GPT-5.4" [level=3] [ref=e2110] [box=327,14649,56,22]
+            - generic [ref=e2111] [box=391,14650,53,20]: OpenAI
+          - generic [ref=e2112] [box=327,14675,839,17]:
+            - generic [ref=e2113] [box=327,14675,83,17]: "Max: 1M context"
+            - generic [ref=e2114] [box=414,14675,4,17]: "|"
+            - generic [ref=e2115] [box=422,14675,35,17]: $3/$15
+            - generic [ref=e2116] [box=461,14675,4,17]: "|"
+            - generic [ref=e2117] [box=469,14675,50,17]: 1 provider
+          - generic [ref=e2120] [cursor=pointer] [box=327,14704,100,72]:
+            - generic [ref=e2122] [box=336,14711,63,17]: OpenRouter
+            - generic [ref=e2124] [box=336,14732,82,16]:
+              - generic [ref=e2125] [box=336,14732,13,16]: 1M
+              - generic "Tools supported" [ref=e2126] [box=355,14734,12,12]:
+                - img [ref=e2127] [box=355,14734,12,12]
+            - generic [ref=e2129] [box=336,14753,82,17]: $3/$15
+        - generic [ref=e2130] [box=310,14805,873,162]:
+          - generic [ref=e2131] [box=327,14818,839,22]:
+            - generic [ref=e2132] [box=327,14818,151,22]:
+              - heading "gpt-oss-120b" [level=3] [ref=e2133] [box=327,14818,90,22]
+              - generic [ref=e2134] [box=425,14819,53,20]: OpenAI
+            - generic [ref=e2135] [box=1049,14820,117,20]:
+              - generic [ref=e2136] [box=1049,14820,55,20]: "#2 Build"
+              - generic [ref=e2137] [box=1108,14820,59,20]: "#1 Model"
+          - generic [ref=e2138] [box=327,14844,839,17]:
+            - generic [ref=e2139] [box=327,14844,92,17]: "Max: 131K context"
+            - generic [ref=e2140] [box=423,14844,4,17]: "|"
+            - generic [ref=e2141] [box=430,14844,23,17]: Free
+            - generic [ref=e2142] [box=457,14844,4,17]: "|"
+            - generic [ref=e2143] [box=465,14844,58,17]: 4 providers
+          - generic [ref=e2145] [box=327,14866,839,88]:
+            - generic [ref=e2146] [cursor=pointer] [box=327,14874,100,72]:
+              - generic [ref=e2148] [box=337,14881,48,17]: Cerebras
+              - generic [ref=e2150] [box=337,14902,81,16]:
+                - generic [ref=e2151] [box=337,14902,21,16]: 131K
+                - generic "Tools supported" [ref=e2152] [box=364,14904,12,12]:
+                  - img [ref=e2153] [box=364,14904,12,12]
+              - generic [ref=e2155] [box=337,14922,81,17]: $0/$0
+            - generic [ref=e2156] [cursor=pointer] [box=433,14874,100,72]:
+              - generic [ref=e2158] [box=442,14881,41,17]: Cortecs
+              - generic [ref=e2160] [box=442,14902,82,16]:
+                - generic [ref=e2161] [box=442,14902,21,16]: 131K
+                - generic "Tools supported" [ref=e2162] [box=469,14904,12,12]:
+                  - img [ref=e2163] [box=469,14904,12,12]
+              - generic [ref=e2165] [box=442,14922,82,17]: $0/$0
+            - generic [ref=e2166] [cursor=pointer] [box=539,14874,100,72]:
+              - generic [ref=e2168] [box=549,14881,63,17]: OpenRouter
+              - generic [ref=e2170] [box=549,14902,81,16]:
+                - generic [ref=e2171] [box=549,14902,21,16]: 131K
+                - generic "Tools supported" [ref=e2172] [box=576,14904,12,12]:
+                  - img [ref=e2173] [box=576,14904,12,12]
+              - generic [ref=e2175] [box=549,14922,81,17]: Free
+            - generic [ref=e2176] [cursor=pointer] [box=645,14874,100,72]:
+              - generic [ref=e2178] [box=655,14881,63,17]: OpenRouter
+              - generic [ref=e2180] [box=655,14902,81,16]:
+                - generic [ref=e2181] [box=655,14902,21,16]: 131K
+                - generic "Tools supported" [ref=e2182] [box=682,14904,12,12]:
+                  - img [ref=e2183] [box=682,14904,12,12]
+              - generic [ref=e2185] [box=655,14922,81,17]: $0/$0
+        - generic [ref=e2186] [box=310,14975,873,162]:
+          - generic [ref=e2188] [box=327,14988,84,22]:
+            - heading "Grok 3" [level=3] [ref=e2189] [box=327,14988,44,22]
+            - generic [ref=e2190] [box=379,14989,32,20]: xAI
+          - generic [ref=e2191] [box=327,15014,839,17]:
+            - generic [ref=e2192] [box=327,15014,80,17]: "Max: — context"
+            - generic [ref=e2193] [box=411,15014,4,17]: "|"
+            - generic [ref=e2194] [box=418,15014,23,17]: Free
+            - generic [ref=e2195] [box=445,15014,4,17]: "|"
+            - generic [ref=e2196] [box=453,15014,50,17]: 1 provider
+          - generic [ref=e2199] [cursor=pointer] [box=327,15043,105,72]:
+            - generic [ref=e2201] [box=336,15050,77,17]: GitHub Models
+            - generic [ref=e2203] [box=336,15072,87,16]:
+              - generic [ref=e2204] [box=336,15072,10,16]: —
+              - generic "No tools" [ref=e2205] [box=352,15072,10,16]: —
+            - generic [ref=e2206] [box=336,15092,87,17]: Free
+        - generic [ref=e2207] [box=310,15145,873,162]:
+          - generic [ref=e2209] [box=327,15158,116,22]:
+            - heading "Grok 3 Mini" [level=3] [ref=e2210] [box=327,15158,76,22]
+            - generic [ref=e2211] [box=411,15159,32,20]: xAI
+          - generic [ref=e2212] [box=327,15184,839,17]:
+            - generic [ref=e2213] [box=327,15184,80,17]: "Max: — context"
+            - generic [ref=e2214] [box=411,15184,4,17]: "|"
+            - generic [ref=e2215] [box=418,15184,23,17]: Free
+            - generic [ref=e2216] [box=445,15184,4,17]: "|"
+            - generic [ref=e2217] [box=453,15184,50,17]: 1 provider
+          - generic [ref=e2220] [cursor=pointer] [box=327,15213,105,72]:
+            - generic [ref=e2222] [box=336,15220,77,17]: GitHub Models
+            - generic [ref=e2224] [box=336,15241,87,16]:
+              - generic [ref=e2225] [box=336,15241,10,16]: —
+              - generic "No tools" [ref=e2226] [box=352,15241,10,16]: —
+            - generic [ref=e2227] [box=336,15262,87,17]: Free
+        - generic [ref=e2228] [box=310,15314,873,162]:
+          - generic [ref=e2230] [box=327,15327,97,22]:
+            - heading "Grok 4.3" [level=3] [ref=e2231] [box=327,15327,57,22]
+            - generic [ref=e2232] [box=392,15328,32,20]: xAI
+          - generic [ref=e2233] [box=327,15354,839,17]:
+            - generic [ref=e2234] [box=327,15354,83,17]: "Max: 1M context"
+            - generic [ref=e2235] [box=414,15354,4,17]: "|"
+            - generic [ref=e2236] [box=422,15354,29,17]: $1/$3
+            - generic [ref=e2237] [box=455,15354,4,17]: "|"
+            - generic [ref=e2238] [box=462,15354,50,17]: 1 provider
+          - generic [ref=e2241] [cursor=pointer] [box=327,15383,100,72]:
+            - generic [ref=e2243] [box=336,15390,63,17]: OpenRouter
+            - generic [ref=e2245] [box=336,15411,82,16]:
+              - generic [ref=e2246] [box=336,15411,13,16]: 1M
+              - generic "Tools supported" [ref=e2247] [box=355,15413,12,12]:
+                - img [ref=e2248] [box=355,15413,12,12]
+            - generic [ref=e2250] [box=336,15431,82,17]: $1/$3
+        - generic [ref=e2251] [box=310,15484,873,162]:
+          - generic [ref=e2253] [box=327,15497,259,22]:
+            - heading "Hermes 2 Pro Mistral 7B" [level=3] [ref=e2254] [box=327,15497,160,22]
+            - generic [ref=e2255] [box=495,15498,91,20]: Nous Research
+          - generic [ref=e2256] [box=327,15523,839,17]:
+            - generic [ref=e2257] [box=327,15523,80,17]: "Max: — context"
+            - generic [ref=e2258] [box=411,15523,4,17]: "|"
+            - generic [ref=e2259] [box=418,15523,23,17]: Free
+            - generic [ref=e2260] [box=445,15523,4,17]: "|"
+            - generic [ref=e2261] [box=453,15523,50,17]: 1 provider
+          - generic [ref=e2264] [cursor=pointer] [box=327,15553,100,72]:
+            - generic [ref=e2266] [box=336,15560,54,17]: Cloudflare
+            - generic [ref=e2268] [box=336,15581,82,16]:
+              - generic [ref=e2269] [box=336,15581,10,16]: —
+              - generic "No tools" [ref=e2270] [box=352,15581,10,16]: —
+            - generic [ref=e2271] [box=336,15601,82,17]: Free
+        - generic [ref=e2272] [box=310,15654,873,162]:
+          - generic [ref=e2274] [box=327,15667,257,22]:
+            - heading "Hermes 3 405B Instruct" [level=3] [ref=e2275] [box=327,15667,159,22]
+            - generic [ref=e2276] [box=494,15668,91,20]: Nous Research
+          - generic [ref=e2277] [box=327,15693,839,17]:
+            - generic [ref=e2278] [box=327,15693,92,17]: "Max: 131K context"
+            - generic [ref=e2279] [box=423,15693,4,17]: "|"
+            - generic [ref=e2280] [box=430,15693,23,17]: Free
+            - generic [ref=e2281] [box=457,15693,4,17]: "|"
+            - generic [ref=e2282] [box=465,15693,50,17]: 1 provider
+          - generic [ref=e2285] [cursor=pointer] [box=327,15722,100,72]:
+            - generic [ref=e2287] [box=336,15729,63,17]: OpenRouter
+            - generic [ref=e2289] [box=336,15750,82,16]:
+              - generic [ref=e2290] [box=336,15750,21,16]: 131K
+              - generic "Tools supported" [ref=e2291] [box=363,15753,12,12]:
+                - img [ref=e2292] [box=363,15753,12,12]
+            - generic [ref=e2294] [box=336,15771,82,17]: Free
+        - generic [ref=e2295] [box=310,15824,873,162]:
+          - generic [ref=e2297] [box=327,15837,135,22]:
+            - heading "Kimi K2.6" [level=3] [ref=e2298] [box=327,15837,64,22]
+            - generic [ref=e2299] [box=399,15837,63,20]: Umans AI
+          - generic [ref=e2300] [box=327,15863,839,17]:
+            - generic [ref=e2301] [box=327,15863,96,17]: "Max: 262K context"
+            - generic [ref=e2302] [box=427,15863,4,17]: "|"
+            - generic [ref=e2303] [box=435,15863,47,17]: $0.73/$3
+            - generic [ref=e2304] [box=485,15863,4,17]: "|"
+            - generic [ref=e2305] [box=493,15863,58,17]: 5 providers
+          - generic [ref=e2307] [box=327,15884,839,88]:
+            - generic [ref=e2308] [cursor=pointer] [box=327,15892,111,72]:
+              - generic [ref=e2310] [box=336,15899,83,17]: Kimi For Coding
+              - generic [ref=e2312] [box=336,15920,93,16]:
+                - generic [ref=e2313] [box=336,15920,26,16]: 262K
+                - generic "Tools supported" [ref=e2314] [box=368,15922,12,12]:
+                  - img [ref=e2315] [box=368,15922,12,12]
+              - generic [ref=e2317] [box=336,15941,93,17]: $0.73/$3
+            - generic [ref=e2318] [cursor=pointer] [box=444,15892,100,72]:
+              - generic [ref=e2320] [box=454,15899,38,17]: NVIDIA
+              - generic [ref=e2322] [box=454,15920,81,16]:
+                - generic [ref=e2323] [box=454,15920,10,16]: —
+                - generic "Tools supported" [ref=e2324] [box=470,15922,12,12]:
+                  - img [ref=e2325] [box=470,15922,12,12]
+              - generic [ref=e2327] [box=454,15941,81,17]: $0.73/$3
+            - generic [ref=e2328] [cursor=pointer] [box=550,15892,100,72]:
+              - generic [ref=e2330] [box=559,15899,63,17]: OpenRouter
+              - generic [ref=e2332] [box=559,15920,82,16]:
+                - generic [ref=e2333] [box=559,15920,26,16]: 262K
+                - generic "Tools supported" [ref=e2334] [box=590,15922,12,12]:
+                  - img [ref=e2335] [box=590,15922,12,12]
+              - generic [ref=e2337] [box=559,15941,82,17]: $0.73/$3
+            - generic [ref=e2338] [cursor=pointer] [box=656,15892,100,72]:
+              - generic [ref=e2340] [box=665,15899,63,17]: OpenRouter
+              - generic [ref=e2342] [box=665,15920,82,16]:
+                - generic [ref=e2343] [box=665,15920,26,16]: 262K
+                - generic "Tools supported" [ref=e2344] [box=696,15922,12,12]:
+                  - img [ref=e2345] [box=696,15922,12,12]
+              - generic [ref=e2347] [box=665,15941,82,17]: $0.73/$3
+            - generic [ref=e2348] [cursor=pointer] [box=762,15892,144,72]:
+              - generic [ref=e2350] [box=771,15899,116,17]: Umans AI Coding Plan
+              - generic [ref=e2352] [box=771,15920,126,16]:
+                - generic [ref=e2353] [box=771,15920,26,16]: 262K
+                - generic "Tools supported" [ref=e2354] [box=802,15922,12,12]:
+                  - img [ref=e2355] [box=802,15922,12,12]
+              - generic [ref=e2357] [box=771,15941,126,17]: $0.73/$3
+        - generic [ref=e2358] [box=310,15993,873,162]:
+          - generic [ref=e2359] [box=327,16006,839,22]:
+            - generic [ref=e2360] [box=327,16006,141,22]:
+              - heading "Laguna M.1" [level=3] [ref=e2361] [box=327,16006,74,22]
+              - generic [ref=e2362] [box=409,16007,58,20]: Poolside
+            - generic [ref=e2363] [box=1044,16008,122,20]:
+              - generic [ref=e2364] [box=1044,16008,53,20]: "#1 Build"
+              - generic [ref=e2365] [box=1101,16008,65,20]: "#13 Model"
+          - generic [ref=e2366] [box=327,16032,839,17]:
+            - generic [ref=e2367] [box=327,16032,92,17]: "Max: 131K context"
+            - generic [ref=e2368] [box=423,16032,4,17]: "|"
+            - generic [ref=e2369] [box=430,16032,23,17]: Free
+            - generic [ref=e2370] [box=457,16032,4,17]: "|"
+            - generic [ref=e2371] [box=465,16032,50,17]: 1 provider
+          - generic [ref=e2374] [cursor=pointer] [box=327,16062,100,72]:
+            - generic [ref=e2376] [box=337,16069,63,17]: OpenRouter
+            - generic [ref=e2378] [box=337,16090,81,16]:
+              - generic [ref=e2379] [box=337,16090,21,16]: 131K
+              - generic "Tools supported" [ref=e2380] [box=364,16092,12,12]:
+                - img [ref=e2381] [box=364,16092,12,12]
+            - generic [ref=e2383] [box=337,16110,81,17]: Free
+        - generic [ref=e2384] [box=310,16163,873,162]:
+          - generic [ref=e2385] [box=327,16176,839,22]:
+            - generic [ref=e2386] [box=327,16176,151,22]:
+              - heading "Laguna XS.2" [level=3] [ref=e2387] [box=327,16176,84,22]
+              - generic [ref=e2388] [box=419,16177,58,20]: Poolside
+            - generic [ref=e2389] [box=1042,16177,124,20]:
+              - generic [ref=e2390] [box=1042,16177,55,20]: "#4 Build"
+              - generic [ref=e2391] [box=1101,16177,65,20]: "#19 Model"
+          - generic [ref=e2392] [box=327,16202,839,17]:
+            - generic [ref=e2393] [box=327,16202,92,17]: "Max: 131K context"
+            - generic [ref=e2394] [box=423,16202,4,17]: "|"
+            - generic [ref=e2395] [box=430,16202,23,17]: Free
+            - generic [ref=e2396] [box=457,16202,4,17]: "|"
+            - generic [ref=e2397] [box=465,16202,50,17]: 1 provider
+          - generic [ref=e2400] [cursor=pointer] [box=327,16231,100,72]:
+            - generic [ref=e2402] [box=337,16238,63,17]: OpenRouter
+            - generic [ref=e2404] [box=337,16260,81,16]:
+              - generic [ref=e2405] [box=337,16260,21,16]: 131K
+              - generic "Tools supported" [ref=e2406] [box=364,16262,12,12]:
+                - img [ref=e2407] [box=364,16262,12,12]
+            - generic [ref=e2409] [box=337,16280,81,17]: Free
+        - generic [ref=e2410] [box=310,16333,873,162]:
+          - generic [ref=e2411] [box=327,16346,839,22]:
+            - generic [ref=e2412] [box=327,16346,209,22]:
+              - heading "LFM2.5-1.2B-Instruct" [level=3] [ref=e2413] [box=327,16346,142,22]
+              - generic [ref=e2414] [box=477,16347,59,20]: Liquid AI
+            - generic [ref=e2415] [box=1036,16347,130,20]:
+              - generic [ref=e2416] [box=1036,16347,61,20]: "#20 Build"
+              - generic [ref=e2417] [box=1101,16347,65,20]: "#21 Model"
+          - generic [ref=e2418] [box=327,16372,839,17]:
+            - generic [ref=e2419] [box=327,16372,90,17]: "Max: 33K context"
+            - generic [ref=e2420] [box=421,16372,4,17]: "|"
+            - generic [ref=e2421] [box=428,16372,23,17]: Free
+            - generic [ref=e2422] [box=455,16372,4,17]: "|"
+            - generic [ref=e2423] [box=462,16372,50,17]: 1 provider
+          - generic [ref=e2426] [cursor=pointer] [box=327,16401,100,72]:
+            - generic [ref=e2428] [box=337,16408,63,17]: OpenRouter
+            - generic [ref=e2430] [box=337,16429,81,16]:
+              - generic [ref=e2431] [box=337,16429,19,16]: 33K
+              - generic "Tools supported" [ref=e2432] [box=362,16431,12,12]:
+                - img [ref=e2433] [box=362,16431,12,12]
+            - generic [ref=e2435] [box=337,16450,81,17]: Free
+        - generic [ref=e2436] [box=310,16502,873,162]:
+          - generic [ref=e2437] [box=327,16515,839,22]:
+            - generic [ref=e2438] [box=327,16515,215,22]:
+              - heading "LFM2.5-1.2B-Thinking" [level=3] [ref=e2439] [box=327,16515,148,22]
+              - generic [ref=e2440] [box=483,16516,59,20]: Liquid AI
+            - generic [ref=e2441] [box=1038,16517,128,20]:
+              - generic [ref=e2442] [box=1038,16517,59,20]: "#21 Build"
+              - generic [ref=e2443] [box=1101,16517,65,20]: "#14 Model"
+          - generic [ref=e2444] [box=327,16541,839,17]:
+            - generic [ref=e2445] [box=327,16541,90,17]: "Max: 33K context"
+            - generic [ref=e2446] [box=421,16541,4,17]: "|"
+            - generic [ref=e2447] [box=428,16541,23,17]: Free
+            - generic [ref=e2448] [box=455,16541,4,17]: "|"
+            - generic [ref=e2449] [box=462,16541,50,17]: 1 provider
+          - generic [ref=e2452] [cursor=pointer] [box=327,16571,100,72]:
+            - generic [ref=e2454] [box=337,16578,63,17]: OpenRouter
+            - generic [ref=e2456] [box=337,16599,81,16]:
+              - generic [ref=e2457] [box=337,16599,19,16]: 33K
+              - generic "Tools supported" [ref=e2458] [box=362,16601,12,12]:
+                - img [ref=e2459] [box=362,16601,12,12]
+            - generic [ref=e2461] [box=337,16619,81,17]: Free
+        - generic [ref=e2462] [box=310,16672,873,162]:
+          - generic [ref=e2464] [box=327,16685,202,22]:
+            - heading "Llama 2 7B Chat (FP16)" [level=3] [ref=e2465] [box=327,16685,153,22]
+            - generic [ref=e2466] [box=488,16686,41,20]: Meta
+          - generic [ref=e2467] [box=327,16711,839,17]:
+            - generic [ref=e2468] [box=327,16711,80,17]: "Max: — context"
+            - generic [ref=e2469] [box=411,16711,4,17]: "|"
+            - generic [ref=e2470] [box=418,16711,23,17]: Free
+            - generic [ref=e2471] [box=445,16711,4,17]: "|"
+            - generic [ref=e2472] [box=453,16711,50,17]: 1 provider
+          - generic [ref=e2475] [cursor=pointer] [box=327,16740,100,72]:
+            - generic [ref=e2477] [box=336,16747,54,17]: Cloudflare
+            - generic [ref=e2479] [box=336,16769,82,16]:
+              - generic [ref=e2480] [box=336,16769,10,16]: —
+              - generic "No tools" [ref=e2481] [box=352,16769,10,16]: —
+            - generic [ref=e2482] [box=336,16789,82,17]: Free
+        - generic [ref=e2483] [box=310,16842,873,162]:
+          - generic [ref=e2485] [box=327,16855,202,22]:
+            - heading "Llama 2 7B Chat (INT8)" [level=3] [ref=e2486] [box=327,16855,153,22]
+            - generic [ref=e2487] [box=488,16856,41,20]: Meta
+          - generic [ref=e2488] [box=327,16881,839,17]:
+            - generic [ref=e2489] [box=327,16881,80,17]: "Max: — context"
+            - generic [ref=e2490] [box=411,16881,4,17]: "|"
+            - generic [ref=e2491] [box=418,16881,23,17]: Free
+            - generic [ref=e2492] [box=445,16881,4,17]: "|"
+            - generic [ref=e2493] [box=453,16881,50,17]: 1 provider
+          - generic [ref=e2496] [cursor=pointer] [box=327,16910,100,72]:
+            - generic [ref=e2498] [box=336,16917,54,17]: Cloudflare
+            - generic [ref=e2500] [box=336,16938,82,16]:
+              - generic [ref=e2501] [box=336,16938,10,16]: —
+              - generic "No tools" [ref=e2502] [box=352,16938,10,16]: —
+            - generic [ref=e2503] [box=336,16959,82,17]: Free
+        - generic [ref=e2504] [box=310,17012,873,162]:
+          - generic [ref=e2506] [box=327,17025,205,22]:
+            - heading "Llama 2 7B Chat (LoRA)" [level=3] [ref=e2507] [box=327,17025,156,22]
+            - generic [ref=e2508] [box=491,17025,41,20]: Meta
+          - generic [ref=e2509] [box=327,17051,839,17]:
+            - generic [ref=e2510] [box=327,17051,80,17]: "Max: — context"
+            - generic [ref=e2511] [box=411,17051,4,17]: "|"
+            - generic [ref=e2512] [box=418,17051,23,17]: Free
+            - generic [ref=e2513] [box=445,17051,4,17]: "|"
+            - generic [ref=e2514] [box=453,17051,50,17]: 1 provider
+          - generic [ref=e2517] [cursor=pointer] [box=327,17080,100,72]:
+            - generic [ref=e2519] [box=336,17087,54,17]: Cloudflare
+            - generic [ref=e2521] [box=336,17108,82,16]:
+              - generic [ref=e2522] [box=336,17108,10,16]: —
+              - generic "No tools" [ref=e2523] [box=352,17108,10,16]: —
+            - generic [ref=e2524] [box=336,17128,82,17]: Free
+        - generic [ref=e2525] [box=310,17181,873,162]:
+          - generic [ref=e2527] [box=327,17194,177,22]:
+            - heading "Llama 3 8B Instruct" [level=3] [ref=e2528] [box=327,17194,128,22]
+            - generic [ref=e2529] [box=463,17195,41,20]: Meta
+          - generic [ref=e2530] [box=327,17220,839,17]:
+            - generic [ref=e2531] [box=327,17220,80,17]: "Max: — context"
+            - generic [ref=e2532] [box=411,17220,4,17]: "|"
+            - generic [ref=e2533] [box=418,17220,23,17]: Free
+            - generic [ref=e2534] [box=445,17220,4,17]: "|"
+            - generic [ref=e2535] [box=453,17220,50,17]: 1 provider
+          - generic [ref=e2538] [cursor=pointer] [box=327,17250,100,72]:
+            - generic [ref=e2540] [box=336,17257,54,17]: Cloudflare
+            - generic [ref=e2542] [box=336,17278,82,16]:
+              - generic [ref=e2543] [box=336,17278,10,16]: —
+              - generic "No tools" [ref=e2544] [box=352,17278,10,16]: —
+            - generic [ref=e2545] [box=336,17298,82,17]: Free
+        - generic [ref=e2546] [box=310,17351,873,162]:
+          - generic [ref=e2548] [box=327,17364,225,22]:
+            - heading "Llama 3 8B Instruct (AWQ)" [level=3] [ref=e2549] [box=327,17364,176,22]
+            - generic [ref=e2550] [box=511,17365,41,20]: Meta
+          - generic [ref=e2551] [box=327,17390,839,17]:
+            - generic [ref=e2552] [box=327,17390,80,17]: "Max: — context"
+            - generic [ref=e2553] [box=411,17390,4,17]: "|"
+            - generic [ref=e2554] [box=418,17390,23,17]: Free
+            - generic [ref=e2555] [box=445,17390,4,17]: "|"
+            - generic [ref=e2556] [box=453,17390,50,17]: 1 provider
+          - generic [ref=e2559] [cursor=pointer] [box=327,17419,100,72]:
+            - generic [ref=e2561] [box=336,17426,54,17]: Cloudflare
+            - generic [ref=e2563] [box=336,17448,82,16]:
+              - generic [ref=e2564] [box=336,17448,10,16]: —
+              - generic "No tools" [ref=e2565] [box=352,17448,10,16]: —
+            - generic [ref=e2566] [box=336,17468,82,17]: Free
+        - generic [ref=e2567] [box=310,17521,873,162]:
+          - generic [ref=e2569] [box=327,17534,131,22]:
+            - heading "Llama 3.1 8B" [level=3] [ref=e2570] [box=327,17534,82,22]
+            - generic [ref=e2571] [box=417,17535,41,20]: Meta
+          - generic [ref=e2572] [box=327,17560,839,17]:
+            - generic [ref=e2573] [box=327,17560,92,17]: "Max: 131K context"
+            - generic [ref=e2574] [box=423,17560,4,17]: "|"
+            - generic [ref=e2575] [box=430,17560,23,17]: Free
+            - generic [ref=e2576] [box=457,17560,4,17]: "|"
+            - generic [ref=e2577] [box=465,17560,58,17]: 2 providers
+          - generic [ref=e2579] [box=327,17581,839,88]:
+            - generic [ref=e2580] [cursor=pointer] [box=327,17589,100,72]:
+              - generic [ref=e2582] [box=336,17596,48,17]: Cerebras
+              - generic [ref=e2584] [box=336,17617,82,16]:
+                - generic [ref=e2585] [box=336,17617,10,16]: —
+                - generic "No tools" [ref=e2586] [box=352,17617,10,16]: —
+              - generic [ref=e2587] [box=336,17638,82,17]: Free
+            - generic [ref=e2588] [cursor=pointer] [box=433,17589,100,72]:
+              - generic [ref=e2590] [box=443,17596,48,17]: Cerebras
+              - generic [ref=e2592] [box=443,17617,81,16]:
+                - generic [ref=e2593] [box=443,17617,21,16]: 131K
+                - generic "Tools supported" [ref=e2594] [box=470,17619,12,12]:
+                  - img [ref=e2595] [box=470,17619,12,12]
+              - generic [ref=e2597] [box=443,17638,81,17]: $0/$0
+        - generic [ref=e2598] [box=310,17690,873,162]:
+          - generic [ref=e2600] [box=327,17703,233,22]:
+            - heading "Llama 3.1 8B Instruct (AWQ)" [level=3] [ref=e2601] [box=327,17703,185,22]
+            - generic [ref=e2602] [box=520,17704,41,20]: Meta
+          - generic [ref=e2603] [box=327,17729,839,17]:
+            - generic [ref=e2604] [box=327,17729,80,17]: "Max: — context"
+            - generic [ref=e2605] [box=411,17729,4,17]: "|"
+            - generic [ref=e2606] [box=418,17729,23,17]: Free
+            - generic [ref=e2607] [box=445,17729,4,17]: "|"
+            - generic [ref=e2608] [box=453,17729,50,17]: 1 provider
+          - generic [ref=e2611] [cursor=pointer] [box=327,17759,100,72]:
+            - generic [ref=e2613] [box=336,17766,54,17]: Cloudflare
+            - generic [ref=e2615] [box=336,17787,82,16]:
+              - generic [ref=e2616] [box=336,17787,10,16]: —
+              - generic "No tools" [ref=e2617] [box=352,17787,10,16]: —
+            - generic [ref=e2618] [box=336,17807,82,17]: Free
+        - generic [ref=e2619] [box=310,17860,873,162]:
+          - generic [ref=e2621] [box=327,17873,226,22]:
+            - heading "Llama 3.1 8B Instruct (FP8)" [level=3] [ref=e2622] [box=327,17873,177,22]
+            - generic [ref=e2623] [box=512,17874,41,20]: Meta
+          - generic [ref=e2624] [box=327,17899,839,17]:
+            - generic [ref=e2625] [box=327,17899,80,17]: "Max: — context"
+            - generic [ref=e2626] [box=411,17899,4,17]: "|"
+            - generic [ref=e2627] [box=418,17899,23,17]: Free
+            - generic [ref=e2628] [box=445,17899,4,17]: "|"
+            - generic [ref=e2629] [box=453,17899,50,17]: 1 provider
+          - generic [ref=e2632] [cursor=pointer] [box=327,17928,100,72]:
+            - generic [ref=e2634] [box=336,17935,54,17]: Cloudflare
+            - generic [ref=e2636] [box=336,17957,82,16]:
+              - generic [ref=e2637] [box=336,17957,10,16]: —
+              - generic "No tools" [ref=e2638] [box=352,17957,10,16]: —
+            - generic [ref=e2639] [box=336,17977,82,17]: Free
+        - generic [ref=e2640] [box=310,18030,873,162]:
+          - generic [ref=e2642] [box=327,18043,238,22]:
+            - heading "Llama 3.2 11B Vision Instruct" [level=3] [ref=e2643] [box=327,18043,189,22]
+            - generic [ref=e2644] [box=524,18044,41,20]: Meta
+          - generic [ref=e2645] [box=327,18069,839,17]:
+            - generic [ref=e2646] [box=327,18069,80,17]: "Max: — context"
+            - generic [ref=e2647] [box=411,18069,4,17]: "|"
+            - generic [ref=e2648] [box=418,18069,23,17]: Free
+            - generic [ref=e2649] [box=445,18069,4,17]: "|"
+            - generic [ref=e2650] [box=453,18069,58,17]: 2 providers
+          - generic [ref=e2652] [box=327,18090,839,88]:
+            - generic [ref=e2653] [cursor=pointer] [box=327,18098,100,72]:
+              - generic [ref=e2655] [box=336,18105,54,17]: Cloudflare
+              - generic [ref=e2657] [box=336,18126,82,16]:
+                - generic [ref=e2658] [box=336,18126,10,16]: —
+                - generic "No tools" [ref=e2659] [box=352,18126,10,16]: —
+              - generic [ref=e2660] [box=336,18147,82,17]: Free
+            - generic [ref=e2661] [cursor=pointer] [box=433,18098,105,72]:
+              - generic [ref=e2663] [box=442,18105,77,17]: GitHub Models
+              - generic [ref=e2665] [box=442,18126,87,16]:
+                - generic [ref=e2666] [box=442,18126,10,16]: —
+                - generic "No tools" [ref=e2667] [box=458,18126,10,16]: —
+              - generic [ref=e2668] [box=442,18147,87,17]: Free
+        - generic [ref=e2669] [box=310,18199,873,162]:
+          - generic [ref=e2671] [box=327,18212,187,22]:
+            - heading "Llama 3.2 1B Instruct" [level=3] [ref=e2672] [box=327,18212,138,22]
+            - generic [ref=e2673] [box=473,18213,41,20]: Meta
+          - generic [ref=e2674] [box=327,18239,839,17]:
+            - generic [ref=e2675] [box=327,18239,80,17]: "Max: — context"
+            - generic [ref=e2676] [box=411,18239,4,17]: "|"
+            - generic [ref=e2677] [box=418,18239,23,17]: Free
+            - generic [ref=e2678] [box=445,18239,4,17]: "|"
+            - generic [ref=e2679] [box=453,18239,50,17]: 1 provider
+          - generic [ref=e2682] [cursor=pointer] [box=327,18268,100,72]:
+            - generic [ref=e2684] [box=336,18275,54,17]: Cloudflare
+            - generic [ref=e2686] [box=336,18296,82,16]:
+              - generic [ref=e2687] [box=336,18296,10,16]: —
+              - generic "No tools" [ref=e2688] [box=352,18296,10,16]: —
+            - generic [ref=e2689] [box=336,18316,82,17]: Free
+        - generic [ref=e2690] [box=310,18369,873,162]:
+          - generic [ref=e2692] [box=327,18382,190,22]:
+            - heading "Llama 3.2 3B Instruct" [level=3] [ref=e2693] [box=327,18382,141,22]
+            - generic [ref=e2694] [box=476,18383,41,20]: Meta
+          - generic [ref=e2695] [box=327,18408,839,17]:
+            - generic [ref=e2696] [box=327,18408,92,17]: "Max: 131K context"
+            - generic [ref=e2697] [box=423,18408,4,17]: "|"
+            - generic [ref=e2698] [box=430,18408,23,17]: Free
+            - generic [ref=e2699] [box=457,18408,4,17]: "|"
+            - generic [ref=e2700] [box=465,18408,58,17]: 2 providers
+          - generic [ref=e2702] [box=327,18429,839,88]:
+            - generic [ref=e2703] [cursor=pointer] [box=327,18437,100,72]:
+              - generic [ref=e2705] [box=336,18444,54,17]: Cloudflare
+              - generic [ref=e2707] [box=336,18466,82,16]:
+                - generic [ref=e2708] [box=336,18466,10,16]: —
+                - generic "No tools" [ref=e2709] [box=352,18466,10,16]: —
+              - generic [ref=e2710] [box=336,18486,82,17]: Free
+            - generic [ref=e2711] [cursor=pointer] [box=433,18437,100,72]:
+              - generic [ref=e2713] [box=442,18444,63,17]: OpenRouter
+              - generic [ref=e2715] [box=442,18466,82,16]:
+                - generic [ref=e2716] [box=442,18466,21,16]: 131K
+                - generic "Tools supported" [ref=e2717] [box=469,18468,12,12]:
+                  - img [ref=e2718] [box=469,18468,12,12]
+              - generic [ref=e2720] [box=442,18486,82,17]: Free
+        - generic [ref=e2721] [box=310,18539,873,162]:
+          - generic [ref=e2723] [box=327,18552,238,22]:
+            - heading "Llama 3.3 70B Instruct (FP8)" [level=3] [ref=e2724] [box=327,18552,189,22]
+            - generic [ref=e2725] [box=524,18553,41,20]: Meta
+          - generic [ref=e2726] [box=327,18578,839,17]:
+            - generic [ref=e2727] [box=327,18578,80,17]: "Max: — context"
+            - generic [ref=e2728] [box=411,18578,4,17]: "|"
+            - generic [ref=e2729] [box=418,18578,23,17]: Free
+            - generic [ref=e2730] [box=445,18578,4,17]: "|"
+            - generic [ref=e2731] [box=453,18578,50,17]: 1 provider
+          - generic [ref=e2734] [cursor=pointer] [box=327,18607,100,72]:
+            - generic [ref=e2736] [box=336,18614,54,17]: Cloudflare
+            - generic [ref=e2738] [box=336,18635,82,16]:
+              - generic [ref=e2739] [box=336,18635,10,16]: —
+              - generic "No tools" [ref=e2740] [box=352,18635,10,16]: —
+            - generic [ref=e2741] [box=336,18656,82,17]: Free
+        - generic [ref=e2742] [box=310,18709,873,162]:
+          - generic [ref=e2744] [box=327,18722,166,22]:
+            - heading "Llama 4 Maverick" [level=3] [ref=e2745] [box=327,18722,117,22]
+            - generic [ref=e2746] [box=452,18722,41,20]: Meta
+          - generic [ref=e2747] [box=327,18748,839,17]:
+            - generic [ref=e2748] [box=327,18748,83,17]: "Max: 1M context"
+            - generic [ref=e2749] [box=414,18748,4,17]: "|"
+            - generic [ref=e2750] [box=422,18748,60,17]: $0.15/$0.60
+            - generic [ref=e2751] [box=486,18748,4,17]: "|"
+            - generic [ref=e2752] [box=494,18748,50,17]: 1 provider
+          - generic [ref=e2755] [cursor=pointer] [box=327,18777,100,72]:
+            - generic [ref=e2757] [box=336,18784,63,17]: OpenRouter
+            - generic [ref=e2759] [box=336,18805,82,16]:
+              - generic [ref=e2760] [box=336,18805,13,16]: 1M
+              - generic "Tools supported" [ref=e2761] [box=355,18807,12,12]:
+                - img [ref=e2762] [box=355,18807,12,12]
+            - generic [ref=e2764] [box=336,18825,82,17]: $0.15/$0.60
+        - generic [ref=e2765] [box=310,18878,873,162]:
+          - generic [ref=e2767] [box=327,18891,312,22]:
+            - heading "Llama 4 Maverick 17B 128E Instruct FP8" [level=3] [ref=e2768] [box=327,18891,263,22]
+            - generic [ref=e2769] [box=598,18892,41,20]: Meta
+          - generic [ref=e2770] [box=327,18917,839,17]:
+            - generic [ref=e2771] [box=327,18917,80,17]: "Max: — context"
+            - generic [ref=e2772] [box=411,18917,4,17]: "|"
+            - generic [ref=e2773] [box=418,18917,23,17]: Free
+            - generic [ref=e2774] [box=445,18917,4,17]: "|"
+            - generic [ref=e2775] [box=453,18917,50,17]: 1 provider
+          - generic [ref=e2778] [cursor=pointer] [box=327,18947,105,72]:
+            - generic [ref=e2780] [box=336,18954,77,17]: GitHub Models
+            - generic [ref=e2782] [box=336,18975,87,16]:
+              - generic [ref=e2783] [box=336,18975,10,16]: —
+              - generic "No tools" [ref=e2784] [box=352,18975,10,16]: —
+            - generic [ref=e2785] [box=336,18995,87,17]: Free
+        - generic [ref=e2786] [box=310,19048,873,162]:
+          - generic [ref=e2788] [box=327,19061,144,22]:
+            - heading "Llama 4 Scout" [level=3] [ref=e2789] [box=327,19061,95,22]
+            - generic [ref=e2790] [box=430,19062,41,20]: Meta
+          - generic [ref=e2791] [box=327,19087,839,17]:
+            - generic [ref=e2792] [box=327,19087,90,17]: "Max: 10M context"
+            - generic [ref=e2793] [box=421,19087,4,17]: "|"
+            - generic [ref=e2794] [box=429,19087,63,17]: $0.08/$0.30
+            - generic [ref=e2795] [box=496,19087,4,17]: "|"
+            - generic [ref=e2796] [box=504,19087,50,17]: 1 provider
+          - generic [ref=e2799] [cursor=pointer] [box=327,19116,100,72]:
+            - generic [ref=e2801] [box=336,19123,63,17]: OpenRouter
+            - generic [ref=e2803] [box=336,19145,82,16]:
+              - generic [ref=e2804] [box=336,19145,20,16]: 10M
+              - generic "Tools supported" [ref=e2805] [box=362,19147,12,12]:
+                - img [ref=e2806] [box=362,19147,12,12]
+            - generic [ref=e2808] [box=336,19165,82,17]: $0.08/$0.30
+        - generic [ref=e2809] [box=310,19218,873,162]:
+          - generic [ref=e2811] [box=327,19231,251,22]:
+            - heading "Llama 4 Scout 17B 16E Instruct" [level=3] [ref=e2812] [box=327,19231,202,22]
+            - generic [ref=e2813] [box=537,19232,41,20]: Meta
+          - generic [ref=e2814] [box=327,19257,839,17]:
+            - generic [ref=e2815] [box=327,19257,80,17]: "Max: — context"
+            - generic [ref=e2816] [box=411,19257,4,17]: "|"
+            - generic [ref=e2817] [box=418,19257,23,17]: Free
+            - generic [ref=e2818] [box=445,19257,4,17]: "|"
+            - generic [ref=e2819] [box=453,19257,50,17]: 1 provider
+          - generic [ref=e2822] [cursor=pointer] [box=327,19286,105,72]:
+            - generic [ref=e2824] [box=336,19293,77,17]: GitHub Models
+            - generic [ref=e2826] [box=336,19314,87,16]:
+              - generic [ref=e2827] [box=336,19314,10,16]: —
+              - generic "No tools" [ref=e2828] [box=352,19314,10,16]: —
+            - generic [ref=e2829] [box=336,19335,87,17]: Free
+        - generic [ref=e2830] [box=310,19387,873,162]:
+          - generic [ref=e2832] [box=327,19400,199,22]:
+            - heading "Llama 4 Scout Instruct" [level=3] [ref=e2833] [box=327,19400,150,22]
+            - generic [ref=e2834] [box=485,19401,41,20]: Meta
+          - generic [ref=e2835] [box=327,19426,839,17]:
+            - generic [ref=e2836] [box=327,19426,80,17]: "Max: — context"
+            - generic [ref=e2837] [box=411,19426,4,17]: "|"
+            - generic [ref=e2838] [box=418,19426,23,17]: Free
+            - generic [ref=e2839] [box=445,19426,4,17]: "|"
+            - generic [ref=e2840] [box=453,19426,58,17]: 2 providers
+          - generic [ref=e2842] [box=327,19448,839,88]:
+            - generic [ref=e2843] [cursor=pointer] [box=327,19456,100,72]:
+              - generic [ref=e2845] [box=336,19463,54,17]: Cloudflare
+              - generic [ref=e2847] [box=336,19484,82,16]:
+                - generic [ref=e2848] [box=336,19484,10,16]: —
+                - generic "No tools" [ref=e2849] [box=352,19484,10,16]: —
+              - generic [ref=e2850] [box=336,19504,82,17]: Free
+            - generic [ref=e2851] [cursor=pointer] [box=433,19456,100,72]:
+              - generic [ref=e2853] [box=442,19463,25,17]: Groq
+              - generic [ref=e2855] [box=442,19484,82,16]:
+                - generic [ref=e2856] [box=442,19484,10,16]: —
+                - generic "No tools" [ref=e2857] [box=458,19484,10,16]: —
+              - generic [ref=e2858] [box=442,19504,82,17]: Free
+        - generic [ref=e2859] [box=310,19557,873,162]:
+          - generic [ref=e2861] [box=327,19570,166,22]:
+            - heading "Llama Guard 3 8B" [level=3] [ref=e2862] [box=327,19570,117,22]
+            - generic [ref=e2863] [box=452,19571,41,20]: Meta
+          - generic [ref=e2864] [box=327,19596,839,17]:
+            - generic [ref=e2865] [box=327,19596,80,17]: "Max: — context"
+            - generic [ref=e2866] [box=411,19596,4,17]: "|"
+            - generic [ref=e2867] [box=418,19596,23,17]: Free
+            - generic [ref=e2868] [box=445,19596,4,17]: "|"
+            - generic [ref=e2869] [box=453,19596,50,17]: 1 provider
+          - generic [ref=e2872] [cursor=pointer] [box=327,19625,100,72]:
+            - generic [ref=e2874] [box=336,19632,54,17]: Cloudflare
+            - generic [ref=e2876] [box=336,19654,82,16]:
+              - generic [ref=e2877] [box=336,19654,10,16]: —
+              - generic "No tools" [ref=e2878] [box=352,19654,10,16]: —
+            - generic [ref=e2879] [box=336,19674,82,17]: Free
+        - generic [ref=e2880] [box=310,19727,873,162]:
+          - generic [ref=e2882] [box=327,19740,184,22]:
+            - heading "llama-3.1-8b-instant" [level=3] [ref=e2883] [box=327,19740,135,22]
+            - generic [ref=e2884] [box=470,19741,41,20]: Meta
+          - generic [ref=e2885] [box=327,19766,839,17]:
+            - generic [ref=e2886] [box=327,19766,92,17]: "Max: 131K context"
+            - generic [ref=e2887] [box=423,19766,4,17]: "|"
+            - generic [ref=e2888] [box=430,19766,23,17]: Free
+            - generic [ref=e2889] [box=457,19766,4,17]: "|"
+            - generic [ref=e2890] [box=465,19766,50,17]: 1 provider
+          - generic [ref=e2893] [cursor=pointer] [box=327,19795,100,72]:
+            - generic [ref=e2895] [box=336,19802,25,17]: Groq
+            - generic [ref=e2897] [box=336,19823,82,16]:
+              - generic [ref=e2898] [box=336,19823,21,16]: 131K
+              - generic "No tools" [ref=e2899] [box=363,19823,10,16]: —
+            - generic [ref=e2900] [box=336,19844,82,17]: Free
+        - generic [ref=e2901] [box=310,19896,873,162]:
+          - generic [ref=e2903] [box=327,19909,266,22]:
+            - heading "Llama-3.2-90B-Vision-Instruct" [level=3] [ref=e2904] [box=327,19909,206,22]
+            - generic [ref=e2905] [box=541,19910,52,20]: NVIDIA
+          - generic [ref=e2906] [box=327,19936,839,17]:
+            - generic [ref=e2907] [box=327,19936,80,17]: "Max: — context"
+            - generic [ref=e2908] [box=411,19936,4,17]: "|"
+            - generic [ref=e2909] [box=418,19936,23,17]: Free
+            - generic [ref=e2910] [box=445,19936,4,17]: "|"
+            - generic [ref=e2911] [box=453,19936,50,17]: 1 provider
+          - generic [ref=e2914] [cursor=pointer] [box=327,19965,105,72]:
+            - generic [ref=e2916] [box=336,19972,77,17]: GitHub Models
+            - generic [ref=e2918] [box=336,19993,87,16]:
+              - generic [ref=e2919] [box=336,19993,10,16]: —
+              - generic "No tools" [ref=e2920] [box=352,19993,10,16]: —
+            - generic [ref=e2921] [box=336,20013,87,17]: Free
+        - generic [ref=e2922] [box=310,20066,873,162]:
+          - generic [ref=e2924] [box=327,20079,206,22]:
+            - heading "Llama-3.3-70B-Instruct" [level=3] [ref=e2925] [box=327,20079,157,22]
+            - generic [ref=e2926] [box=492,20080,41,20]: Meta
+          - generic [ref=e2927] [box=327,20105,839,17]:
+            - generic [ref=e2928] [box=327,20105,92,17]: "Max: 131K context"
+            - generic [ref=e2929] [box=423,20105,4,17]: "|"
+            - generic [ref=e2930] [box=430,20105,23,17]: Free
+            - generic [ref=e2931] [box=457,20105,4,17]: "|"
+            - generic [ref=e2932] [box=465,20105,58,17]: 2 providers
+          - generic [ref=e2934] [box=327,20127,839,88]:
+            - generic [ref=e2935] [cursor=pointer] [box=327,20135,105,72]:
+              - generic [ref=e2937] [box=336,20142,77,17]: GitHub Models
+              - generic [ref=e2939] [box=336,20163,87,16]:
+                - generic [ref=e2940] [box=336,20163,10,16]: —
+                - generic "No tools" [ref=e2941] [box=352,20163,10,16]: —
+              - generic [ref=e2942] [box=336,20183,87,17]: Free
+            - generic [ref=e2943] [cursor=pointer] [box=438,20135,100,72]:
+              - generic [ref=e2945] [box=447,20142,63,17]: OpenRouter
+              - generic [ref=e2947] [box=447,20163,82,16]:
+                - generic [ref=e2948] [box=447,20163,21,16]: 131K
+                - generic "Tools supported" [ref=e2949] [box=475,20165,12,12]:
+                  - img [ref=e2950] [box=475,20165,12,12]
+              - generic [ref=e2952] [box=447,20183,82,17]: Free
+        - generic [ref=e2953] [box=310,20236,873,162]:
+          - generic [ref=e2955] [box=327,20249,207,22]:
+            - heading "llama-3.3-70b-versatile" [level=3] [ref=e2956] [box=327,20249,158,22]
+            - generic [ref=e2957] [box=493,20250,41,20]: Meta
+          - generic [ref=e2958] [box=327,20275,839,17]:
+            - generic [ref=e2959] [box=327,20275,92,17]: "Max: 131K context"
+            - generic [ref=e2960] [box=423,20275,4,17]: "|"
+            - generic [ref=e2961] [box=430,20275,23,17]: Free
+            - generic [ref=e2962] [box=457,20275,4,17]: "|"
+            - generic [ref=e2963] [box=465,20275,50,17]: 1 provider
+          - generic [ref=e2966] [cursor=pointer] [box=327,20304,100,72]:
+            - generic [ref=e2968] [box=336,20311,25,17]: Groq
+            - generic [ref=e2970] [box=336,20332,82,16]:
+              - generic [ref=e2971] [box=336,20332,21,16]: 131K
+              - generic "No tools" [ref=e2972] [box=363,20332,10,16]: —
+            - generic [ref=e2973] [box=336,20353,82,17]: Free
+        - generic [ref=e2974] [box=310,20406,873,162]:
+          - generic [ref=e2976] [box=327,20419,190,22]:
+            - heading "Lyria 3 Clip Preview" [level=3] [ref=e2977] [box=327,20419,131,22]
+            - generic [ref=e2978] [box=466,20419,51,20]: Google
+          - generic [ref=e2979] [box=327,20445,839,17]:
+            - generic [ref=e2980] [box=327,20445,83,17]: "Max: 1M context"
+            - generic [ref=e2981] [box=414,20445,4,17]: "|"
+            - generic [ref=e2982] [box=422,20445,23,17]: Free
+            - generic [ref=e2983] [box=448,20445,4,17]: "|"
+            - generic [ref=e2984] [box=456,20445,50,17]: 1 provider
+          - generic [ref=e2987] [cursor=pointer] [box=327,20474,100,72]:
+            - generic [ref=e2989] [box=337,20481,63,17]: OpenRouter
+            - generic [ref=e2991] [box=337,20502,81,16]:
+              - generic [ref=e2992] [box=337,20502,13,16]: 1M
+              - generic "No tools" [ref=e2993] [box=356,20502,10,16]: —
+            - generic [ref=e2994] [box=337,20522,81,17]: Free
+        - generic [ref=e2995] [box=310,20575,873,162]:
+          - generic [ref=e2997] [box=327,20588,186,22]:
+            - heading "Lyria 3 Pro Preview" [level=3] [ref=e2998] [box=327,20588,127,22]
+            - generic [ref=e2999] [box=462,20589,51,20]: Google
+          - generic [ref=e3000] [box=327,20614,839,17]:
+            - generic [ref=e3001] [box=327,20614,83,17]: "Max: 1M context"
+            - generic [ref=e3002] [box=414,20614,4,17]: "|"
+            - generic [ref=e3003] [box=422,20614,23,17]: Free
+            - generic [ref=e3004] [box=448,20614,4,17]: "|"
+            - generic [ref=e3005] [box=456,20614,50,17]: 1 provider
+          - generic [ref=e3008] [cursor=pointer] [box=327,20644,100,72]:
+            - generic [ref=e3010] [box=337,20651,63,17]: OpenRouter
+            - generic [ref=e3012] [box=337,20672,81,16]:
+              - generic [ref=e3013] [box=337,20672,13,16]: 1M
+              - generic "No tools" [ref=e3014] [box=356,20672,10,16]: —
+            - generic [ref=e3015] [box=337,20692,81,17]: Free
+        - generic [ref=e3016] [box=310,20745,873,162]:
+          - generic [ref=e3018] [box=327,20758,144,22]:
+            - heading "MAI-DS-R1" [level=3] [ref=e3019] [box=327,20758,73,22]
+            - generic [ref=e3020] [box=408,20759,63,20]: Microsoft
+          - generic [ref=e3021] [box=327,20784,839,17]:
+            - generic [ref=e3022] [box=327,20784,80,17]: "Max: — context"
+            - generic [ref=e3023] [box=411,20784,4,17]: "|"
+            - generic [ref=e3024] [box=418,20784,23,17]: Free
+            - generic [ref=e3025] [box=445,20784,4,17]: "|"
+            - generic [ref=e3026] [box=453,20784,50,17]: 1 provider
+          - generic [ref=e3029] [cursor=pointer] [box=327,20813,105,72]:
+            - generic [ref=e3031] [box=336,20820,77,17]: GitHub Models
+            - generic [ref=e3033] [box=336,20842,87,16]:
+              - generic [ref=e3034] [box=336,20842,10,16]: —
+              - generic "No tools" [ref=e3035] [box=352,20842,10,16]: —
+            - generic [ref=e3036] [box=336,20862,87,17]: Free
+        - generic [ref=e3037] [box=310,20915,873,162]:
+          - generic [ref=e3039] [box=327,20928,253,22]:
+            - heading "Meta-Llama-3.1-405B-Instruct" [level=3] [ref=e3040] [box=327,20928,204,22]
+            - generic [ref=e3041] [box=539,20929,41,20]: Meta
+          - generic [ref=e3042] [box=327,20954,839,17]:
+            - generic [ref=e3043] [box=327,20954,80,17]: "Max: — context"
+            - generic [ref=e3044] [box=411,20954,4,17]: "|"
+            - generic [ref=e3045] [box=418,20954,23,17]: Free
+            - generic [ref=e3046] [box=445,20954,4,17]: "|"
+            - generic [ref=e3047] [box=453,20954,50,17]: 1 provider
+          - generic [ref=e3050] [cursor=pointer] [box=327,20983,105,72]:
+            - generic [ref=e3052] [box=336,20990,77,17]: GitHub Models
+            - generic [ref=e3054] [box=336,21011,87,16]:
+              - generic [ref=e3055] [box=336,21011,10,16]: —
+              - generic "No tools" [ref=e3056] [box=352,21011,10,16]: —
+            - generic [ref=e3057] [box=336,21032,87,17]: Free
+        - generic [ref=e3058] [box=310,21084,873,162]:
+          - generic [ref=e3060] [box=327,21097,235,22]:
+            - heading "Meta-Llama-3.1-8B-Instruct" [level=3] [ref=e3061] [box=327,21097,186,22]
+            - generic [ref=e3062] [box=521,21098,41,20]: Meta
+          - generic [ref=e3063] [box=327,21123,839,17]:
+            - generic [ref=e3064] [box=327,21123,80,17]: "Max: — context"
+            - generic [ref=e3065] [box=411,21123,4,17]: "|"
+            - generic [ref=e3066] [box=418,21123,23,17]: Free
+            - generic [ref=e3067] [box=445,21123,4,17]: "|"
+            - generic [ref=e3068] [box=453,21123,50,17]: 1 provider
+          - generic [ref=e3071] [cursor=pointer] [box=327,21153,105,72]:
+            - generic [ref=e3073] [box=336,21160,77,17]: GitHub Models
+            - generic [ref=e3075] [box=336,21181,87,16]:
+              - generic [ref=e3076] [box=336,21181,10,16]: —
+              - generic "No tools" [ref=e3077] [box=352,21181,10,16]: —
+            - generic [ref=e3078] [box=336,21201,87,17]: Free
+        - generic [ref=e3079] [box=310,21254,873,162]:
+          - generic [ref=e3081] [box=327,21267,340,22]:
+            - heading "meta-llama/llama-4-scout-17b-16e-instruct" [level=3] [ref=e3082] [box=327,21267,291,22]
+            - generic [ref=e3083] [box=626,21268,41,20]: Meta
+          - generic [ref=e3084] [box=327,21293,839,17]:
+            - generic [ref=e3085] [box=327,21293,92,17]: "Max: 131K context"
+            - generic [ref=e3086] [box=423,21293,4,17]: "|"
+            - generic [ref=e3087] [box=430,21293,23,17]: Free
+            - generic [ref=e3088] [box=457,21293,4,17]: "|"
+            - generic [ref=e3089] [box=465,21293,50,17]: 1 provider
+          - generic [ref=e3092] [cursor=pointer] [box=327,21322,100,72]:
+            - generic [ref=e3094] [box=336,21329,25,17]: Groq
+            - generic [ref=e3096] [box=336,21351,82,16]:
+              - generic [ref=e3097] [box=336,21351,21,16]: 131K
+              - generic "No tools" [ref=e3098] [box=363,21351,10,16]: —
+            - generic [ref=e3099] [box=336,21371,82,17]: Free
+        - generic [ref=e3100] [box=310,21424,873,162]:
+          - generic [ref=e3102] [box=327,21437,315,22]:
+            - heading "meta-llama/llama-prompt-guard-2-22m" [level=3] [ref=e3103] [box=327,21437,266,22]
+            - generic [ref=e3104] [box=601,21438,41,20]: Meta
+          - generic [ref=e3105] [box=327,21463,839,17]:
+            - generic [ref=e3106] [box=327,21463,80,17]: "Max: — context"
+            - generic [ref=e3107] [box=411,21463,4,17]: "|"
+            - generic [ref=e3108] [box=418,21463,23,17]: Free
+            - generic [ref=e3109] [box=445,21463,4,17]: "|"
+            - generic [ref=e3110] [box=453,21463,50,17]: 1 provider
+          - generic [ref=e3113] [cursor=pointer] [box=327,21492,100,72]:
+            - generic [ref=e3115] [box=336,21499,25,17]: Groq
+            - generic [ref=e3117] [box=336,21520,82,16]:
+              - generic [ref=e3118] [box=336,21520,10,16]: —
+              - generic "No tools" [ref=e3119] [box=352,21520,10,16]: —
+            - generic [ref=e3120] [box=336,21541,82,17]: Free
+        - generic [ref=e3121] [box=310,21594,873,162]:
+          - generic [ref=e3123] [box=327,21607,316,22]:
+            - heading "meta-llama/llama-prompt-guard-2-86m" [level=3] [ref=e3124] [box=327,21607,267,22]
+            - generic [ref=e3125] [box=602,21607,41,20]: Meta
+          - generic [ref=e3126] [box=327,21633,839,17]:
+            - generic [ref=e3127] [box=327,21633,80,17]: "Max: — context"
+            - generic [ref=e3128] [box=411,21633,4,17]: "|"
+            - generic [ref=e3129] [box=418,21633,23,17]: Free
+            - generic [ref=e3130] [box=445,21633,4,17]: "|"
+            - generic [ref=e3131] [box=453,21633,50,17]: 1 provider
+          - generic [ref=e3134] [cursor=pointer] [box=327,21662,100,72]:
+            - generic [ref=e3136] [box=336,21669,25,17]: Groq
+            - generic [ref=e3138] [box=336,21690,82,16]:
+              - generic [ref=e3139] [box=336,21690,10,16]: —
+              - generic "No tools" [ref=e3140] [box=352,21690,10,16]: —
+            - generic [ref=e3141] [box=336,21710,82,17]: Free
+        - generic [ref=e3142] [box=310,21763,873,162]:
+          - generic [ref=e3144] [box=327,21776,133,22]:
+            - heading "MiMo-V2.5" [level=3] [ref=e3145] [box=327,21776,75,22]
+            - generic [ref=e3146] [box=410,21777,50,20]: Xiaomi
+          - generic [ref=e3147] [box=327,21802,839,17]:
+            - generic [ref=e3148] [box=327,21802,97,17]: "Max: 200K context"
+            - generic [ref=e3149] [box=428,21802,4,17]: "|"
+            - generic [ref=e3150] [box=435,21802,23,17]: Free
+            - generic [ref=e3151] [box=462,21802,4,17]: "|"
+            - generic [ref=e3152] [box=469,21802,50,17]: 1 provider
+          - generic [ref=e3155] [cursor=pointer] [box=327,21832,106,72]:
+            - generic [ref=e3157] [box=336,21839,78,17]: OpenCode Zen
+            - generic [ref=e3159] [box=336,21860,88,16]:
+              - generic [ref=e3160] [box=336,21860,26,16]: 200K
+              - generic "Tools supported" [ref=e3161] [box=368,21862,12,12]:
+                - img [ref=e3162] [box=368,21862,12,12]
+            - generic [ref=e3164] [box=336,21880,88,17]: Free
+        - generic [ref=e3165] [box=310,21933,873,162]:
+          - generic [ref=e3167] [box=327,21946,163,22]:
+            - heading "MiniMax-M2.5" [level=3] [ref=e3168] [box=327,21946,97,22]
+            - generic [ref=e3169] [box=432,21947,58,20]: MiniMax
+          - generic [ref=e3170] [box=327,21972,839,17]:
+            - generic [ref=e3171] [box=327,21972,96,17]: "Max: 205K context"
+            - generic [ref=e3172] [box=427,21972,4,17]: "|"
+            - generic [ref=e3173] [box=435,21972,42,17]: $0.15/$1
+            - generic [ref=e3174] [box=480,21972,4,17]: "|"
+            - generic [ref=e3175] [box=488,21972,58,17]: 2 providers
+          - generic [ref=e3177] [box=327,21993,839,88]:
+            - generic [ref=e3178] [cursor=pointer] [box=327,22001,100,72]:
+              - generic [ref=e3180] [box=336,22008,63,17]: OpenRouter
+              - generic [ref=e3182] [box=336,22030,82,16]:
+                - generic [ref=e3183] [box=336,22030,26,16]: 205K
+                - generic "Tools supported" [ref=e3184] [box=368,22032,12,12]:
+                  - img [ref=e3185] [box=368,22032,12,12]
+              - generic [ref=e3187] [box=336,22050,82,17]: $0.15/$1
+            - generic [ref=e3188] [cursor=pointer] [box=433,22001,100,72]:
+              - generic [ref=e3190] [box=443,22008,63,17]: OpenRouter
+              - generic [ref=e3192] [box=443,22030,81,16]:
+                - generic [ref=e3193] [box=443,22030,26,16]: 205K
+                - generic "Tools supported" [ref=e3194] [box=475,22032,12,12]:
+                  - img [ref=e3195] [box=475,22032,12,12]
+              - generic [ref=e3197] [box=443,22050,81,17]: $0.15/$1
+        - generic [ref=e3198] [box=310,22103,873,162]:
+          - generic [ref=e3200] [box=327,22116,151,22]:
+            - heading "MiniMax-M3" [level=3] [ref=e3201] [box=327,22116,85,22]
+            - generic [ref=e3202] [box=420,22116,58,20]: MiniMax
+          - generic [ref=e3203] [box=327,22142,839,17]:
+            - generic [ref=e3204] [box=327,22142,97,17]: "Max: 200K context"
+            - generic [ref=e3205] [box=428,22142,4,17]: "|"
+            - generic [ref=e3206] [box=435,22142,23,17]: Free
+            - generic [ref=e3207] [box=462,22142,4,17]: "|"
+            - generic [ref=e3208] [box=469,22142,50,17]: 1 provider
+          - generic [ref=e3211] [cursor=pointer] [box=327,22171,106,72]:
+            - generic [ref=e3213] [box=336,22178,78,17]: OpenCode Zen
+            - generic [ref=e3215] [box=336,22199,88,16]:
+              - generic [ref=e3216] [box=336,22199,26,16]: 200K
+              - generic "Tools supported" [ref=e3217] [box=368,22201,12,12]:
+                - img [ref=e3218] [box=368,22201,12,12]
+            - generic [ref=e3220] [box=336,22220,88,17]: Free
+        - generic [ref=e3221] [box=310,22272,873,162]:
+          - generic [ref=e3223] [box=327,22285,137,22]:
+            - heading "Ministral 3B" [level=3] [ref=e3224] [box=327,22285,79,22]
+            - generic [ref=e3225] [box=414,22286,50,20]: Mistral
+          - generic [ref=e3226] [box=327,22311,839,17]:
+            - generic [ref=e3227] [box=327,22311,80,17]: "Max: — context"
+            - generic [ref=e3228] [box=411,22311,4,17]: "|"
+            - generic [ref=e3229] [box=418,22311,23,17]: Free
+            - generic [ref=e3230] [box=445,22311,4,17]: "|"
+            - generic [ref=e3231] [box=453,22311,50,17]: 1 provider
+          - generic [ref=e3234] [cursor=pointer] [box=327,22341,105,72]:
+            - generic [ref=e3236] [box=336,22348,77,17]: GitHub Models
+            - generic [ref=e3238] [box=336,22369,87,16]:
+              - generic [ref=e3239] [box=336,22369,10,16]: —
+              - generic "No tools" [ref=e3240] [box=352,22369,10,16]: —
+            - generic [ref=e3241] [box=336,22389,87,17]: Free
+        - generic [ref=e3242] [box=310,22442,873,162]:
+          - generic [ref=e3244] [box=327,22455,208,22]:
+            - heading "Mistral 7B Instruct v0.1" [level=3] [ref=e3245] [box=327,22455,151,22]
+            - generic [ref=e3246] [box=486,22456,50,20]: Mistral
+          - generic [ref=e3247] [box=327,22481,839,17]:
+            - generic [ref=e3248] [box=327,22481,80,17]: "Max: — context"
+            - generic [ref=e3249] [box=411,22481,4,17]: "|"
+            - generic [ref=e3250] [box=418,22481,23,17]: Free
+            - generic [ref=e3251] [box=445,22481,4,17]: "|"
+            - generic [ref=e3252] [box=453,22481,50,17]: 1 provider
+          - generic [ref=e3255] [cursor=pointer] [box=327,22510,100,72]:
+            - generic [ref=e3257] [box=336,22517,54,17]: Cloudflare
+            - generic [ref=e3259] [box=336,22539,82,16]:
+              - generic [ref=e3260] [box=336,22539,10,16]: —
+              - generic "No tools" [ref=e3261] [box=352,22539,10,16]: —
+            - generic [ref=e3262] [box=336,22559,82,17]: Free
+        - generic [ref=e3263] [box=310,22612,873,162]:
+          - generic [ref=e3265] [box=327,22625,212,22]:
+            - heading "Mistral 7B Instruct v0.2" [level=3] [ref=e3266] [box=327,22625,155,22]
+            - generic [ref=e3267] [box=490,22626,50,20]: Mistral
+          - generic [ref=e3268] [box=327,22651,839,17]:
+            - generic [ref=e3269] [box=327,22651,80,17]: "Max: — context"
+            - generic [ref=e3270] [box=411,22651,4,17]: "|"
+            - generic [ref=e3271] [box=418,22651,23,17]: Free
+            - generic [ref=e3272] [box=445,22651,4,17]: "|"
+            - generic [ref=e3273] [box=453,22651,50,17]: 1 provider
+          - generic [ref=e3276] [cursor=pointer] [box=327,22680,100,72]:
+            - generic [ref=e3278] [box=336,22687,54,17]: Cloudflare
+            - generic [ref=e3280] [box=336,22708,82,16]:
+              - generic [ref=e3281] [box=336,22708,10,16]: —
+              - generic "No tools" [ref=e3282] [box=352,22708,10,16]: —
+            - generic [ref=e3283] [box=336,22729,82,17]: Free
+        - generic [ref=e3284] [box=310,22781,873,162]:
+          - generic [ref=e3286] [box=327,22794,261,22]:
+            - heading "Mistral 7B Instruct v0.2 (LoRA)" [level=3] [ref=e3287] [box=327,22794,204,22]
+            - generic [ref=e3288] [box=539,22795,50,20]: Mistral
+          - generic [ref=e3289] [box=327,22820,839,17]:
+            - generic [ref=e3290] [box=327,22820,80,17]: "Max: — context"
+            - generic [ref=e3291] [box=411,22820,4,17]: "|"
+            - generic [ref=e3292] [box=418,22820,23,17]: Free
+            - generic [ref=e3293] [box=445,22820,4,17]: "|"
+            - generic [ref=e3294] [box=453,22820,50,17]: 1 provider
+          - generic [ref=e3297] [cursor=pointer] [box=327,22850,100,72]:
+            - generic [ref=e3299] [box=336,22857,54,17]: Cloudflare
+            - generic [ref=e3301] [box=336,22878,82,16]:
+              - generic [ref=e3302] [box=336,22878,10,16]: —
+              - generic "No tools" [ref=e3303] [box=352,22878,10,16]: —
+            - generic [ref=e3304] [box=336,22898,82,17]: Free
+        - generic [ref=e3305] [box=310,22951,873,162]:
+          - generic [ref=e3307] [box=327,22964,157,22]:
+            - heading "Mistral Large 3" [level=3] [ref=e3308] [box=327,22964,99,22]
+            - generic [ref=e3309] [box=434,22965,50,20]: Mistral
+          - generic [ref=e3310] [box=327,22990,839,17]:
+            - generic [ref=e3311] [box=327,22990,96,17]: "Max: 262K context"
+            - generic [ref=e3312] [box=427,22990,4,17]: "|"
+            - generic [ref=e3313] [box=435,22990,47,17]: $0.50/$2
+            - generic [ref=e3314] [box=486,22990,4,17]: "|"
+            - generic [ref=e3315] [box=493,22990,50,17]: 1 provider
+          - generic [ref=e3318] [cursor=pointer] [box=327,23019,100,72]:
+            - generic [ref=e3320] [box=336,23026,63,17]: OpenRouter
+            - generic [ref=e3322] [box=336,23048,82,16]:
+              - generic [ref=e3323] [box=336,23048,26,16]: 262K
+              - generic "Tools supported" [ref=e3324] [box=368,23050,12,12]:
+                - img [ref=e3325] [box=368,23050,12,12]
+            - generic [ref=e3327] [box=336,23068,82,17]: $0.50/$2
+        - generic [ref=e3328] [box=310,23121,873,162]:
+          - generic [ref=e3330] [box=327,23134,225,22]:
+            - heading "Mistral Medium 3 (25.05)" [level=3] [ref=e3331] [box=327,23134,167,22]
+            - generic [ref=e3332] [box=502,23135,50,20]: Mistral
+          - generic [ref=e3333] [box=327,23160,839,17]:
+            - generic [ref=e3334] [box=327,23160,80,17]: "Max: — context"
+            - generic [ref=e3335] [box=411,23160,4,17]: "|"
+            - generic [ref=e3336] [box=418,23160,23,17]: Free
+            - generic [ref=e3337] [box=445,23160,4,17]: "|"
+            - generic [ref=e3338] [box=453,23160,50,17]: 1 provider
+          - generic [ref=e3341] [cursor=pointer] [box=327,23189,105,72]:
+            - generic [ref=e3343] [box=336,23196,77,17]: GitHub Models
+            - generic [ref=e3345] [box=336,23217,87,16]:
+              - generic [ref=e3346] [box=336,23217,10,16]: —
+              - generic "No tools" [ref=e3347] [box=352,23217,10,16]: —
+            - generic [ref=e3348] [box=336,23238,87,17]: Free
+        - generic [ref=e3349] [box=310,23291,873,162]:
+          - generic [ref=e3351] [box=327,23304,164,22]:
+            - heading "Mistral Small 3.1" [level=3] [ref=e3352] [box=327,23304,107,22]
+            - generic [ref=e3353] [box=442,23304,50,20]: Mistral
+          - generic [ref=e3354] [box=327,23330,839,17]:
+            - generic [ref=e3355] [box=327,23330,80,17]: "Max: — context"
+            - generic [ref=e3356] [box=411,23330,4,17]: "|"
+            - generic [ref=e3357] [box=418,23330,23,17]: Free
+            - generic [ref=e3358] [box=445,23330,4,17]: "|"
+            - generic [ref=e3359] [box=453,23330,50,17]: 1 provider
+          - generic [ref=e3362] [cursor=pointer] [box=327,23359,105,72]:
+            - generic [ref=e3364] [box=336,23366,77,17]: GitHub Models
+            - generic [ref=e3366] [box=336,23387,87,16]:
+              - generic [ref=e3367] [box=336,23387,10,16]: —
+              - generic "No tools" [ref=e3368] [box=352,23387,10,16]: —
+            - generic [ref=e3369] [box=336,23407,87,17]: Free
+        - generic [ref=e3370] [box=310,23460,873,162]:
+          - generic [ref=e3372] [box=327,23473,250,22]:
+            - heading "Mistral Small 3.1 24B Instruct" [level=3] [ref=e3373] [box=327,23473,192,22]
+            - generic [ref=e3374] [box=527,23474,50,20]: Mistral
+          - generic [ref=e3375] [box=327,23499,839,17]:
+            - generic [ref=e3376] [box=327,23499,80,17]: "Max: — context"
+            - generic [ref=e3377] [box=411,23499,4,17]: "|"
+            - generic [ref=e3378] [box=418,23499,23,17]: Free
+            - generic [ref=e3379] [box=445,23499,4,17]: "|"
+            - generic [ref=e3380] [box=453,23499,50,17]: 1 provider
+          - generic [ref=e3383] [cursor=pointer] [box=327,23529,100,72]:
+            - generic [ref=e3385] [box=336,23536,54,17]: Cloudflare
+            - generic [ref=e3387] [box=336,23557,82,16]:
+              - generic [ref=e3388] [box=336,23557,10,16]: —
+              - generic "No tools" [ref=e3389] [box=352,23557,10,16]: —
+            - generic [ref=e3390] [box=336,23577,82,17]: Free
+        - generic [ref=e3391] [box=310,23630,873,162]:
+          - generic [ref=e3393] [box=327,23643,244,22]:
+            - heading "Monthly subscription based" [level=3] [ref=e3394] [box=327,23643,186,22]
+            - generic [ref=e3395] [box=521,23644,50,20]: Mistral
+          - generic [ref=e3396] [box=327,23669,839,17]:
+            - generic [ref=e3397] [box=327,23669,80,17]: "Max: — context"
+            - generic [ref=e3398] [box=411,23669,4,17]: "|"
+            - generic [ref=e3399] [box=418,23669,23,17]: Free
+            - generic [ref=e3400] [box=445,23669,4,17]: "|"
+            - generic [ref=e3401] [box=453,23669,50,17]: 1 provider
+          - generic [ref=e3404] [cursor=pointer] [box=327,23698,100,72]:
+            - generic [ref=e3406] [box=336,23705,36,17]: Mistral
+            - generic [ref=e3408] [box=336,23727,82,16]:
+              - generic [ref=e3409] [box=336,23727,10,16]: —
+              - generic "No tools" [ref=e3410] [box=352,23727,10,16]: —
+            - generic [ref=e3411] [box=336,23747,82,17]: Free
+        - generic [ref=e3412] [box=310,23800,873,162]:
+          - generic [ref=e3414] [box=327,23813,148,22]:
+            - heading "Nano Banana" [level=3] [ref=e3415] [box=327,23813,88,22]
+            - generic [ref=e3416] [box=423,23814,51,20]: Google
+          - generic [ref=e3417] [box=327,23839,839,17]:
+            - generic [ref=e3418] [box=327,23839,90,17]: "Max: 33K context"
+            - generic [ref=e3419] [box=421,23839,4,17]: "|"
+            - generic [ref=e3420] [box=428,23839,23,17]: Free
+            - generic [ref=e3421] [box=455,23839,4,17]: "|"
+            - generic [ref=e3422] [box=462,23839,50,17]: 1 provider
+          - generic [ref=e3425] [cursor=pointer] [box=327,23868,100,72]:
+            - generic [ref=e3427] [box=336,23875,51,17]: Google AI
+            - generic [ref=e3429] [box=336,23896,82,16]:
+              - generic [ref=e3430] [box=336,23896,19,16]: 33K
+              - generic "No tools" [ref=e3431] [box=361,23896,10,16]: —
+            - generic [ref=e3432] [box=336,23917,82,17]: Free
+        - generic [ref=e3433] [box=310,23969,873,162]:
+          - generic [ref=e3435] [box=327,23982,160,22]:
+            - heading "Nano Banana 2" [level=3] [ref=e3436] [box=327,23982,101,22]
+            - generic [ref=e3437] [box=436,23983,51,20]: Google
+          - generic [ref=e3438] [box=327,24008,839,17]:
+            - generic [ref=e3439] [box=327,24008,90,17]: "Max: 66K context"
+            - generic [ref=e3440] [box=421,24008,4,17]: "|"
+            - generic [ref=e3441] [box=428,24008,23,17]: Free
+            - generic [ref=e3442] [box=455,24008,4,17]: "|"
+            - generic [ref=e3443] [box=462,24008,58,17]: 2 providers
+          - generic [ref=e3445] [box=327,24030,839,88]:
+            - generic [ref=e3446] [cursor=pointer] [box=327,24038,100,72]:
+              - generic [ref=e3448] [box=336,24045,51,17]: Google AI
+              - generic [ref=e3450] [box=336,24066,82,16]:
+                - generic [ref=e3451] [box=336,24066,20,16]: 66K
+                - generic "Tools supported" [ref=e3452] [box=362,24068,12,12]:
+                  - img [ref=e3453] [box=362,24068,12,12]
+              - generic [ref=e3455] [box=336,24086,82,17]: Free
+            - generic [ref=e3456] [cursor=pointer] [box=433,24038,100,72]:
+              - generic [ref=e3458] [box=442,24045,51,17]: Google AI
+              - generic [ref=e3460] [box=442,24066,82,16]:
+                - generic [ref=e3461] [box=442,24066,20,16]: 66K
+                - generic "No tools" [ref=e3462] [box=468,24066,10,16]: —
+              - generic [ref=e3463] [box=442,24086,82,17]: Free
+        - generic [ref=e3464] [box=310,24139,873,162]:
+          - generic [ref=e3466] [box=327,24152,174,22]:
+            - heading "Nano Banana Pro" [level=3] [ref=e3467] [box=327,24152,114,22]
+            - generic [ref=e3468] [box=449,24153,51,20]: Google
+          - generic [ref=e3469] [box=327,24178,839,17]:
+            - generic [ref=e3470] [box=327,24178,92,17]: "Max: 131K context"
+            - generic [ref=e3471] [box=423,24178,4,17]: "|"
+            - generic [ref=e3472] [box=430,24178,23,17]: Free
+            - generic [ref=e3473] [box=457,24178,4,17]: "|"
+            - generic [ref=e3474] [box=465,24178,58,17]: 2 providers
+          - generic [ref=e3476] [box=327,24199,839,88]:
+            - generic [ref=e3477] [cursor=pointer] [box=327,24207,100,72]:
+              - generic [ref=e3479] [box=336,24214,51,17]: Google AI
+              - generic [ref=e3481] [box=336,24236,82,16]:
+                - generic [ref=e3482] [box=336,24236,21,16]: 131K
+                - generic "Tools supported" [ref=e3483] [box=363,24238,12,12]:
+                  - img [ref=e3484] [box=363,24238,12,12]
+              - generic [ref=e3486] [box=336,24256,82,17]: Free
+            - generic [ref=e3487] [cursor=pointer] [box=433,24207,100,72]:
+              - generic [ref=e3489] [box=442,24214,51,17]: Google AI
+              - generic [ref=e3491] [box=442,24236,82,16]:
+                - generic [ref=e3492] [box=442,24236,21,16]: 131K
+                - generic "No tools" [ref=e3493] [box=469,24236,10,16]: —
+              - generic [ref=e3494] [box=442,24256,82,17]: Free
+        - generic [ref=e3495] [box=310,24309,873,162]:
+          - generic [ref=e3496] [box=327,24322,839,22]:
+            - generic [ref=e3497] [box=327,24322,216,22]:
+              - heading "Nemotron 3 Nano Omni" [level=3] [ref=e3498] [box=327,24322,156,22]
+              - generic [ref=e3499] [box=491,24323,52,20]: NVIDIA
+            - generic [ref=e3500] [box=1039,24323,127,20]:
+              - generic [ref=e3501] [box=1039,24323,59,20]: "#16 Build"
+              - generic [ref=e3502] [box=1102,24323,64,20]: "#17 Model"
+          - generic [ref=e3503] [box=327,24348,839,17]:
+            - generic [ref=e3504] [box=327,24348,96,17]: "Max: 256K context"
+            - generic [ref=e3505] [box=427,24348,4,17]: "|"
+            - generic [ref=e3506] [box=435,24348,23,17]: Free
+            - generic [ref=e3507] [box=461,24348,4,17]: "|"
+            - generic [ref=e3508] [box=469,24348,50,17]: 1 provider
+          - generic [ref=e3511] [cursor=pointer] [box=327,24377,100,72]:
+            - generic [ref=e3513] [box=337,24384,63,17]: OpenRouter
+            - generic [ref=e3515] [box=337,24405,81,16]:
+              - generic [ref=e3516] [box=337,24405,25,16]: 256K
+              - generic "Tools supported" [ref=e3517] [box=368,24408,12,12]:
+                - img [ref=e3518] [box=368,24408,12,12]
+            - generic [ref=e3520] [box=337,24426,81,17]: Free
+        - generic [ref=e3521] [box=310,24478,873,162]:
+          - generic [ref=e3522] [box=327,24491,839,22]:
+            - generic [ref=e3523] [box=327,24491,195,22]:
+              - heading "Nemotron 3 Super" [level=3] [ref=e3524] [box=327,24491,122,22]
+              - generic [ref=e3525] [box=457,24492,65,20]: opencode
+            - generic [ref=e3526] [box=1042,24493,124,20]:
+              - generic [ref=e3527] [box=1042,24493,59,20]: "#13 Build"
+              - generic [ref=e3528] [box=1105,24493,61,20]: "#3 Model"
+          - generic [ref=e3529] [box=327,24518,839,17]:
+            - generic [ref=e3530] [box=327,24518,83,17]: "Max: 1M context"
+            - generic [ref=e3531] [box=414,24518,4,17]: "|"
+            - generic [ref=e3532] [box=422,24518,23,17]: Free
+            - generic [ref=e3533] [box=448,24518,4,17]: "|"
+            - generic [ref=e3534] [box=456,24518,58,17]: 2 providers
+          - generic [ref=e3536] [box=327,24539,839,88]:
+            - generic [ref=e3537] [cursor=pointer] [box=327,24547,106,72]:
+              - generic [ref=e3539] [box=336,24554,78,17]: OpenCode Zen
+              - generic [ref=e3541] [box=336,24575,88,16]:
+                - generic [ref=e3542] [box=336,24575,21,16]: 131K
+                - generic "Tools supported" [ref=e3543] [box=363,24577,12,12]:
+                  - img [ref=e3544] [box=363,24577,12,12]
+              - generic [ref=e3546] [box=336,24595,88,17]: Free
+            - generic [ref=e3547] [cursor=pointer] [box=439,24547,100,72]:
+              - generic [ref=e3549] [box=449,24554,63,17]: OpenRouter
+              - generic [ref=e3551] [box=449,24575,81,16]:
+                - generic [ref=e3552] [box=449,24575,13,16]: 1M
+                - generic "Tools supported" [ref=e3553] [box=469,24577,12,12]:
+                  - img [ref=e3554] [box=469,24577,12,12]
+              - generic [ref=e3556] [box=449,24595,81,17]: Free
+        - generic [ref=e3557] [box=310,24648,873,162]:
+          - generic [ref=e3558] [box=327,24661,839,22]:
+            - generic [ref=e3559] [box=327,24661,208,22]:
+              - heading "Nemotron Nano 9B V2" [level=3] [ref=e3560] [box=327,24661,149,22]
+              - generic [ref=e3561] [box=484,24662,52,20]: NVIDIA
+            - generic [ref=e3562] [box=1042,24662,124,20]:
+              - generic [ref=e3563] [box=1042,24662,59,20]: "#19 Build"
+              - generic [ref=e3564] [box=1106,24662,60,20]: "#2 Model"
+          - generic [ref=e3565] [box=327,24687,839,17]:
+            - generic [ref=e3566] [box=327,24687,94,17]: "Max: 128K context"
+            - generic [ref=e3567] [box=425,24687,4,17]: "|"
+            - generic [ref=e3568] [box=433,24687,23,17]: Free
+            - generic [ref=e3569] [box=459,24687,4,17]: "|"
+            - generic [ref=e3570] [box=467,24687,50,17]: 1 provider
+          - generic [ref=e3573] [cursor=pointer] [box=327,24716,100,72]:
+            - generic [ref=e3575] [box=337,24723,63,17]: OpenRouter
+            - generic [ref=e3577] [box=337,24745,81,16]:
+              - generic [ref=e3578] [box=337,24745,24,16]: 128K
+              - generic "Tools supported" [ref=e3579] [box=367,24747,12,12]:
+                - img [ref=e3580] [box=367,24747,12,12]
+            - generic [ref=e3582] [box=337,24765,81,17]: Free
+        - generic [ref=e3583] [box=310,24818,873,162]:
+          - generic [ref=e3584] [box=327,24831,839,22]:
+            - generic [ref=e3585] [box=327,24831,243,22]:
+              - heading "nemotron-3-nano-30b-a3b" [level=3] [ref=e3586] [box=327,24831,184,22]
+              - generic [ref=e3587] [box=519,24832,52,20]: NVIDIA
+            - generic [ref=e3588] [box=1046,24832,120,20]:
+              - generic [ref=e3589] [box=1046,24832,55,20]: "#3 Build"
+              - generic [ref=e3590] [box=1105,24832,61,20]: "#4 Model"
+          - generic [ref=e3591] [box=327,24857,839,17]:
+            - generic [ref=e3592] [box=327,24857,96,17]: "Max: 256K context"
+            - generic [ref=e3593] [box=427,24857,4,17]: "|"
+            - generic [ref=e3594] [box=435,24857,23,17]: Free
+            - generic [ref=e3595] [box=461,24857,4,17]: "|"
+            - generic [ref=e3596] [box=469,24857,50,17]: 1 provider
+          - generic [ref=e3599] [cursor=pointer] [box=327,24886,100,72]:
+            - generic [ref=e3601] [box=337,24893,63,17]: OpenRouter
+            - generic [ref=e3603] [box=337,24914,81,16]:
+              - generic [ref=e3604] [box=337,24914,25,16]: 256K
+              - generic "Tools supported" [ref=e3605] [box=368,24917,12,12]:
+                - img [ref=e3606] [box=368,24917,12,12]
+            - generic [ref=e3608] [box=337,24935,81,17]: Free
+        - generic [ref=e3609] [box=310,24988,873,162]:
+          - generic [ref=e3611] [box=327,25001,257,22]:
+            - heading "nemotron-3-ultra-550b-a55b" [level=3] [ref=e3612] [box=327,25001,197,22]
+            - generic [ref=e3613] [box=532,25001,52,20]: NVIDIA
+          - generic [ref=e3614] [box=327,25027,839,17]:
+            - generic [ref=e3615] [box=327,25027,80,17]: "Max: — context"
+            - generic [ref=e3616] [box=411,25027,4,17]: "|"
+            - generic [ref=e3617] [box=418,25027,23,17]: Free
+            - generic [ref=e3618] [box=445,25027,4,17]: "|"
+            - generic [ref=e3619] [box=453,25027,50,17]: 1 provider
+          - generic [ref=e3622] [cursor=pointer] [box=327,25056,100,72]:
+            - generic [ref=e3624] [box=336,25063,38,17]: NVIDIA
+            - generic [ref=e3626] [box=336,25084,82,16]:
+              - generic [ref=e3627] [box=336,25084,10,16]: —
+              - generic "No tools" [ref=e3628] [box=352,25084,10,16]: —
+            - generic [ref=e3629] [box=336,25104,82,17]: Free
+        - generic [ref=e3630] [box=310,25157,873,162]:
+          - generic [ref=e3632] [box=327,25170,287,22]:
+            - heading "NVIDIA Nemotron Nano 12B V2 VL" [level=3] [ref=e3633] [box=327,25170,227,22]
+            - generic [ref=e3634] [box=562,25171,52,20]: NVIDIA
+          - generic [ref=e3635] [box=327,25196,839,17]:
+            - generic [ref=e3636] [box=327,25196,94,17]: "Max: 128K context"
+            - generic [ref=e3637] [box=425,25196,4,17]: "|"
+            - generic [ref=e3638] [box=433,25196,23,17]: Free
+            - generic [ref=e3639] [box=459,25196,4,17]: "|"
+            - generic [ref=e3640] [box=467,25196,50,17]: 1 provider
+          - generic [ref=e3643] [cursor=pointer] [box=327,25226,100,72]:
+            - generic [ref=e3645] [box=336,25233,63,17]: OpenRouter
+            - generic [ref=e3647] [box=336,25254,82,16]:
+              - generic [ref=e3648] [box=336,25254,24,16]: 128K
+              - generic "Tools supported" [ref=e3649] [box=366,25256,12,12]:
+                - img [ref=e3650] [box=366,25256,12,12]
+            - generic [ref=e3652] [box=336,25274,82,17]: Free
+        - generic [ref=e3653] [box=310,25327,873,162]:
+          - generic [ref=e3655] [box=327,25340,257,22]:
+            - heading "nvidia-nemotron-nano-9b-v2" [level=3] [ref=e3656] [box=327,25340,197,22]
+            - generic [ref=e3657] [box=532,25341,52,20]: NVIDIA
+          - generic [ref=e3658] [box=327,25366,839,17]:
+            - generic [ref=e3659] [box=327,25366,80,17]: "Max: — context"
+            - generic [ref=e3660] [box=411,25366,4,17]: "|"
+            - generic [ref=e3661] [box=418,25366,23,17]: Free
+            - generic [ref=e3662] [box=445,25366,4,17]: "|"
+            - generic [ref=e3663] [box=453,25366,50,17]: 1 provider
+          - generic [ref=e3666] [cursor=pointer] [box=327,25395,100,72]:
+            - generic [ref=e3668] [box=336,25402,38,17]: NVIDIA
+            - generic [ref=e3670] [box=336,25424,82,16]:
+              - generic [ref=e3671] [box=336,25424,10,16]: —
+              - generic "No tools" [ref=e3672] [box=352,25424,10,16]: —
+            - generic [ref=e3673] [box=336,25444,82,17]: Free
+        - generic [ref=e3674] [box=310,25497,873,162]:
+          - generic [ref=e3676] [box=327,25510,333,22]:
+            - heading "nvidia/nemotron-3-ultra-550b-a55b:free" [level=3] [ref=e3677] [box=327,25510,274,22]
+            - generic [ref=e3678] [box=609,25511,52,20]: NVIDIA
+          - generic [ref=e3679] [box=327,25536,839,17]:
+            - generic [ref=e3680] [box=327,25536,83,17]: "Max: 1M context"
+            - generic [ref=e3681] [box=414,25536,4,17]: "|"
+            - generic [ref=e3682] [box=422,25536,23,17]: Free
+            - generic [ref=e3683] [box=448,25536,4,17]: "|"
+            - generic [ref=e3684] [box=456,25536,50,17]: 1 provider
+          - generic [ref=e3687] [cursor=pointer] [box=327,25565,100,72]:
+            - generic [ref=e3689] [box=336,25572,63,17]: OpenRouter
+            - generic [ref=e3691] [box=336,25593,82,16]:
+              - generic [ref=e3692] [box=336,25593,13,16]: 1M
+              - generic "No tools" [ref=e3693] [box=355,25593,10,16]: —
+            - generic [ref=e3694] [box=336,25614,82,17]: Free
+        - generic [ref=e3695] [box=310,25666,873,162]:
+          - generic [ref=e3697] [box=327,25679,334,22]:
+            - heading "nvidia/nemotron-3.5-content-safety:free" [level=3] [ref=e3698] [box=327,25679,274,22]
+            - generic [ref=e3699] [box=609,25680,52,20]: NVIDIA
+          - generic [ref=e3700] [box=327,25705,839,17]:
+            - generic [ref=e3701] [box=327,25705,94,17]: "Max: 128K context"
+            - generic [ref=e3702] [box=425,25705,4,17]: "|"
+            - generic [ref=e3703] [box=433,25705,23,17]: Free
+            - generic [ref=e3704] [box=459,25705,4,17]: "|"
+            - generic [ref=e3705] [box=467,25705,50,17]: 1 provider
+          - generic [ref=e3708] [cursor=pointer] [box=327,25735,100,72]:
+            - generic [ref=e3710] [box=336,25742,63,17]: OpenRouter
+            - generic [ref=e3712] [box=336,25763,82,16]:
+              - generic [ref=e3713] [box=336,25763,24,16]: 128K
+              - generic "No tools" [ref=e3714] [box=366,25763,10,16]: —
+            - generic [ref=e3715] [box=336,25783,82,17]: Free
+        - generic [ref=e3716] [box=310,25836,873,162]:
+          - generic [ref=e3718] [box=327,25849,78,22]:
+            - heading "o3" [level=3] [ref=e3719] [box=327,25849,17,22]
+            - generic [ref=e3720] [box=352,25850,53,20]: OpenAI
+          - generic [ref=e3721] [box=327,25875,839,17]:
+            - generic [ref=e3722] [box=327,25875,97,17]: "Max: 200K context"
+            - generic [ref=e3723] [box=428,25875,4,17]: "|"
+            - generic [ref=e3724] [box=435,25875,31,17]: $2/$8
+            - generic [ref=e3725] [box=470,25875,4,17]: "|"
+            - generic [ref=e3726] [box=478,25875,50,17]: 1 provider
+          - generic [ref=e3729] [cursor=pointer] [box=327,25904,100,72]:
+            - generic [ref=e3731] [box=336,25911,63,17]: OpenRouter
+            - generic [ref=e3733] [box=336,25933,82,16]:
+              - generic [ref=e3734] [box=336,25933,26,16]: 200K
+              - generic "Tools supported" [ref=e3735] [box=368,25935,12,12]:
+                - img [ref=e3736] [box=368,25935,12,12]
+            - generic [ref=e3738] [box=336,25953,82,17]: $2/$8
+        - generic [ref=e3739] [box=310,26006,873,162]:
+          - generic [ref=e3741] [box=327,26019,113,22]:
+            - heading "o4-mini" [level=3] [ref=e3742] [box=327,26019,52,22]
+            - generic [ref=e3743] [box=387,26020,53,20]: OpenAI
+          - generic [ref=e3744] [box=327,26045,839,17]:
+            - generic [ref=e3745] [box=327,26045,97,17]: "Max: 200K context"
+            - generic [ref=e3746] [box=428,26045,4,17]: "|"
+            - generic [ref=e3747] [box=435,26045,29,17]: $1/$4
+            - generic [ref=e3748] [box=468,26045,4,17]: "|"
+            - generic [ref=e3749] [box=476,26045,50,17]: 1 provider
+          - generic [ref=e3752] [cursor=pointer] [box=327,26074,100,72]:
+            - generic [ref=e3754] [box=336,26081,63,17]: OpenRouter
+            - generic [ref=e3756] [box=336,26102,82,16]:
+              - generic [ref=e3757] [box=336,26102,26,16]: 200K
+              - generic "Tools supported" [ref=e3758] [box=368,26105,12,12]:
+                - img [ref=e3759] [box=368,26105,12,12]
+            - generic [ref=e3761] [box=336,26123,82,17]: $1/$4
+        - generic [ref=e3762] [box=310,26175,873,162]:
+          - generic [ref=e3764] [box=327,26188,166,22]:
+            - heading "OpenAI GPT-4.1" [level=3] [ref=e3765] [box=327,26188,105,22]
+            - generic [ref=e3766] [box=440,26189,53,20]: OpenAI
+          - generic [ref=e3767] [box=327,26215,839,17]:
+            - generic [ref=e3768] [box=327,26215,80,17]: "Max: — context"
+            - generic [ref=e3769] [box=411,26215,4,17]: "|"
+            - generic [ref=e3770] [box=418,26215,23,17]: Free
+            - generic [ref=e3771] [box=445,26215,4,17]: "|"
+            - generic [ref=e3772] [box=453,26215,50,17]: 1 provider
+          - generic [ref=e3775] [cursor=pointer] [box=327,26244,105,72]:
+            - generic [ref=e3777] [box=336,26251,77,17]: GitHub Models
+            - generic [ref=e3779] [box=336,26272,87,16]:
+              - generic [ref=e3780] [box=336,26272,10,16]: —
+              - generic "No tools" [ref=e3781] [box=352,26272,10,16]: —
+            - generic [ref=e3782] [box=336,26292,87,17]: Free
+        - generic [ref=e3783] [box=310,26345,873,162]:
+          - generic [ref=e3785] [box=327,26358,200,22]:
+            - heading "OpenAI GPT-4.1-mini" [level=3] [ref=e3786] [box=327,26358,139,22]
+            - generic [ref=e3787] [box=474,26359,53,20]: OpenAI
+          - generic [ref=e3788] [box=327,26384,839,17]:
+            - generic [ref=e3789] [box=327,26384,80,17]: "Max: — context"
+            - generic [ref=e3790] [box=411,26384,4,17]: "|"
+            - generic [ref=e3791] [box=418,26384,23,17]: Free
+            - generic [ref=e3792] [box=445,26384,4,17]: "|"
+            - generic [ref=e3793] [box=453,26384,50,17]: 1 provider
+          - generic [ref=e3796] [cursor=pointer] [box=327,26414,105,72]:
+            - generic [ref=e3798] [box=336,26421,77,17]: GitHub Models
+            - generic [ref=e3800] [box=336,26442,87,16]:
+              - generic [ref=e3801] [box=336,26442,10,16]: —
+              - generic "No tools" [ref=e3802] [box=352,26442,10,16]: —
+            - generic [ref=e3803] [box=336,26462,87,17]: Free
+        - generic [ref=e3804] [box=310,26515,873,162]:
+          - generic [ref=e3806] [box=327,26528,205,22]:
+            - heading "OpenAI GPT-4.1-nano" [level=3] [ref=e3807] [box=327,26528,144,22]
+            - generic [ref=e3808] [box=479,26529,53,20]: OpenAI
+          - generic [ref=e3809] [box=327,26554,839,17]:
+            - generic [ref=e3810] [box=327,26554,80,17]: "Max: — context"
+            - generic [ref=e3811] [box=411,26554,4,17]: "|"
+            - generic [ref=e3812] [box=418,26554,23,17]: Free
+            - generic [ref=e3813] [box=445,26554,4,17]: "|"
+            - generic [ref=e3814] [box=453,26554,50,17]: 1 provider
+          - generic [ref=e3817] [cursor=pointer] [box=327,26583,105,72]:
+            - generic [ref=e3819] [box=336,26590,77,17]: GitHub Models
+            - generic [ref=e3821] [box=336,26611,87,16]:
+              - generic [ref=e3822] [box=336,26611,10,16]: —
+              - generic "No tools" [ref=e3823] [box=352,26611,10,16]: —
+            - generic [ref=e3824] [box=336,26632,87,17]: Free
+        - generic [ref=e3825] [box=310,26685,873,162]:
+          - generic [ref=e3827] [box=327,26698,165,22]:
+            - heading "OpenAI GPT-4o" [level=3] [ref=e3828] [box=327,26698,105,22]
+            - generic [ref=e3829] [box=440,26698,53,20]: OpenAI
+          - generic [ref=e3830] [box=327,26724,839,17]:
+            - generic [ref=e3831] [box=327,26724,80,17]: "Max: — context"
+            - generic [ref=e3832] [box=411,26724,4,17]: "|"
+            - generic [ref=e3833] [box=418,26724,23,17]: Free
+            - generic [ref=e3834] [box=445,26724,4,17]: "|"
+            - generic [ref=e3835] [box=453,26724,50,17]: 1 provider
+          - generic [ref=e3838] [cursor=pointer] [box=327,26753,105,72]:
+            - generic [ref=e3840] [box=336,26760,77,17]: GitHub Models
+            - generic [ref=e3842] [box=336,26781,87,16]:
+              - generic [ref=e3843] [box=336,26781,10,16]: —
+              - generic "No tools" [ref=e3844] [box=352,26781,10,16]: —
+            - generic [ref=e3845] [box=336,26802,87,17]: Free
+        - generic [ref=e3846] [box=310,26854,873,162]:
+          - generic [ref=e3848] [box=327,26867,197,22]:
+            - heading "OpenAI GPT-4o mini" [level=3] [ref=e3849] [box=327,26867,136,22]
+            - generic [ref=e3850] [box=471,26868,53,20]: OpenAI
+          - generic [ref=e3851] [box=327,26893,839,17]:
+            - generic [ref=e3852] [box=327,26893,80,17]: "Max: — context"
+            - generic [ref=e3853] [box=411,26893,4,17]: "|"
+            - generic [ref=e3854] [box=418,26893,23,17]: Free
+            - generic [ref=e3855] [box=445,26893,4,17]: "|"
+            - generic [ref=e3856] [box=453,26893,50,17]: 1 provider
+          - generic [ref=e3859] [cursor=pointer] [box=327,26923,105,72]:
+            - generic [ref=e3861] [box=336,26930,77,17]: GitHub Models
+            - generic [ref=e3863] [box=336,26951,87,16]:
+              - generic [ref=e3864] [box=336,26951,10,16]: —
+              - generic "No tools" [ref=e3865] [box=352,26951,10,16]: —
+            - generic [ref=e3866] [box=336,26971,87,17]: Free
+        - generic [ref=e3867] [box=310,27024,873,162]:
+          - generic [ref=e3869] [box=327,27037,151,22]:
+            - heading "OpenAI gpt-5" [level=3] [ref=e3870] [box=327,27037,90,22]
+            - generic [ref=e3871] [box=425,27038,53,20]: OpenAI
+          - generic [ref=e3872] [box=327,27063,839,17]:
+            - generic [ref=e3873] [box=327,27063,80,17]: "Max: — context"
+            - generic [ref=e3874] [box=411,27063,4,17]: "|"
+            - generic [ref=e3875] [box=418,27063,23,17]: Free
+            - generic [ref=e3876] [box=445,27063,4,17]: "|"
+            - generic [ref=e3877] [box=453,27063,50,17]: 1 provider
+          - generic [ref=e3880] [cursor=pointer] [box=327,27092,105,72]:
+            - generic [ref=e3882] [box=336,27099,77,17]: GitHub Models
+            - generic [ref=e3884] [box=336,27121,87,16]:
+              - generic [ref=e3885] [box=336,27121,10,16]: —
+              - generic "No tools" [ref=e3886] [box=352,27121,10,16]: —
+            - generic [ref=e3887] [box=336,27141,87,17]: Free
+        - generic [ref=e3888] [box=310,27194,873,162]:
+          - generic [ref=e3890] [box=327,27207,253,22]:
+            - heading "OpenAI gpt-5-chat (preview)" [level=3] [ref=e3891] [box=327,27207,193,22]
+            - generic [ref=e3892] [box=528,27208,53,20]: OpenAI
+          - generic [ref=e3893] [box=327,27233,839,17]:
+            - generic [ref=e3894] [box=327,27233,80,17]: "Max: — context"
+            - generic [ref=e3895] [box=411,27233,4,17]: "|"
+            - generic [ref=e3896] [box=418,27233,23,17]: Free
+            - generic [ref=e3897] [box=445,27233,4,17]: "|"
+            - generic [ref=e3898] [box=453,27233,50,17]: 1 provider
+          - generic [ref=e3901] [cursor=pointer] [box=327,27262,105,72]:
+            - generic [ref=e3903] [box=336,27269,77,17]: GitHub Models
+            - generic [ref=e3905] [box=336,27290,87,16]:
+              - generic [ref=e3906] [box=336,27290,10,16]: —
+              - generic "No tools" [ref=e3907] [box=352,27290,10,16]: —
+            - generic [ref=e3908] [box=336,27311,87,17]: Free
+        - generic [ref=e3909] [box=310,27363,873,162]:
+          - generic [ref=e3911] [box=327,27376,185,22]:
+            - heading "OpenAI gpt-5-mini" [level=3] [ref=e3912] [box=327,27376,124,22]
+            - generic [ref=e3913] [box=459,27377,53,20]: OpenAI
+          - generic [ref=e3914] [box=327,27402,839,17]:
+            - generic [ref=e3915] [box=327,27402,80,17]: "Max: — context"
+            - generic [ref=e3916] [box=411,27402,4,17]: "|"
+            - generic [ref=e3917] [box=418,27402,23,17]: Free
+            - generic [ref=e3918] [box=445,27402,4,17]: "|"
+            - generic [ref=e3919] [box=453,27402,50,17]: 1 provider
+          - generic [ref=e3922] [cursor=pointer] [box=327,27432,105,72]:
+            - generic [ref=e3924] [box=336,27439,77,17]: GitHub Models
+            - generic [ref=e3926] [box=336,27460,87,16]:
+              - generic [ref=e3927] [box=336,27460,10,16]: —
+              - generic "No tools" [ref=e3928] [box=352,27460,10,16]: —
+            - generic [ref=e3929] [box=336,27480,87,17]: Free
+        - generic [ref=e3930] [box=310,27533,873,162]:
+          - generic [ref=e3932] [box=327,27546,190,22]:
+            - heading "OpenAI gpt-5-nano" [level=3] [ref=e3933] [box=327,27546,130,22]
+            - generic [ref=e3934] [box=465,27547,53,20]: OpenAI
+          - generic [ref=e3935] [box=327,27572,839,17]:
+            - generic [ref=e3936] [box=327,27572,80,17]: "Max: — context"
+            - generic [ref=e3937] [box=411,27572,4,17]: "|"
+            - generic [ref=e3938] [box=418,27572,23,17]: Free
+            - generic [ref=e3939] [box=445,27572,4,17]: "|"
+            - generic [ref=e3940] [box=453,27572,50,17]: 1 provider
+          - generic [ref=e3943] [cursor=pointer] [box=327,27601,105,72]:
+            - generic [ref=e3945] [box=336,27608,77,17]: GitHub Models
+            - generic [ref=e3947] [box=336,27630,87,16]:
+              - generic [ref=e3948] [box=336,27630,10,16]: —
+              - generic "No tools" [ref=e3949] [box=352,27630,10,16]: —
+            - generic [ref=e3950] [box=336,27650,87,17]: Free
+        - generic [ref=e3951] [box=310,27703,873,162]:
+          - generic [ref=e3953] [box=327,27716,128,22]:
+            - heading "OpenAI o1" [level=3] [ref=e3954] [box=327,27716,67,22]
+            - generic [ref=e3955] [box=402,27717,53,20]: OpenAI
+          - generic [ref=e3956] [box=327,27742,839,17]:
+            - generic [ref=e3957] [box=327,27742,80,17]: "Max: — context"
+            - generic [ref=e3958] [box=411,27742,4,17]: "|"
+            - generic [ref=e3959] [box=418,27742,23,17]: Free
+            - generic [ref=e3960] [box=445,27742,4,17]: "|"
+            - generic [ref=e3961] [box=453,27742,50,17]: 1 provider
+          - generic [ref=e3964] [cursor=pointer] [box=327,27771,105,72]:
+            - generic [ref=e3966] [box=336,27778,77,17]: GitHub Models
+            - generic [ref=e3968] [box=336,27799,87,16]:
+              - generic [ref=e3969] [box=336,27799,10,16]: —
+              - generic "No tools" [ref=e3970] [box=352,27799,10,16]: —
+            - generic [ref=e3971] [box=336,27820,87,17]: Free
+        - generic [ref=e3972] [box=310,27873,873,162]:
+          - generic [ref=e3974] [box=327,27886,162,22]:
+            - heading "OpenAI o1-mini" [level=3] [ref=e3975] [box=327,27886,101,22]
+            - generic [ref=e3976] [box=436,27886,53,20]: OpenAI
+          - generic [ref=e3977] [box=327,27912,839,17]:
+            - generic [ref=e3978] [box=327,27912,80,17]: "Max: — context"
+            - generic [ref=e3979] [box=411,27912,4,17]: "|"
+            - generic [ref=e3980] [box=418,27912,23,17]: Free
+            - generic [ref=e3981] [box=445,27912,4,17]: "|"
+            - generic [ref=e3982] [box=453,27912,50,17]: 1 provider
+          - generic [ref=e3985] [cursor=pointer] [box=327,27941,105,72]:
+            - generic [ref=e3987] [box=336,27948,77,17]: GitHub Models
+            - generic [ref=e3989] [box=336,27969,87,16]:
+              - generic [ref=e3990] [box=336,27969,10,16]: —
+              - generic "No tools" [ref=e3991] [box=352,27969,10,16]: —
+            - generic [ref=e3992] [box=336,27989,87,17]: Free
+        - generic [ref=e3993] [box=310,28042,873,162]:
+          - generic [ref=e3995] [box=327,28055,187,22]:
+            - heading "OpenAI o1-preview" [level=3] [ref=e3996] [box=327,28055,126,22]
+            - generic [ref=e3997] [box=461,28056,53,20]: OpenAI
+          - generic [ref=e3998] [box=327,28081,839,17]:
+            - generic [ref=e3999] [box=327,28081,80,17]: "Max: — context"
+            - generic [ref=e4000] [box=411,28081,4,17]: "|"
+            - generic [ref=e4001] [box=418,28081,23,17]: Free
+            - generic [ref=e4002] [box=445,28081,4,17]: "|"
+            - generic [ref=e4003] [box=453,28081,50,17]: 1 provider
+          - generic [ref=e4006] [cursor=pointer] [box=327,28111,105,72]:
+            - generic [ref=e4008] [box=336,28118,77,17]: GitHub Models
+            - generic [ref=e4010] [box=336,28139,87,16]:
+              - generic [ref=e4011] [box=336,28139,10,16]: —
+              - generic "No tools" [ref=e4012] [box=352,28139,10,16]: —
+            - generic [ref=e4013] [box=336,28159,87,17]: Free
+        - generic [ref=e4014] [box=310,28212,873,162]:
+          - generic [ref=e4016] [box=327,28225,131,22]:
+            - heading "OpenAI o3" [level=3] [ref=e4017] [box=327,28225,70,22]
+            - generic [ref=e4018] [box=405,28226,53,20]: OpenAI
+          - generic [ref=e4019] [box=327,28251,839,17]:
+            - generic [ref=e4020] [box=327,28251,80,17]: "Max: — context"
+            - generic [ref=e4021] [box=411,28251,4,17]: "|"
+            - generic [ref=e4022] [box=418,28251,23,17]: Free
+            - generic [ref=e4023] [box=445,28251,4,17]: "|"
+            - generic [ref=e4024] [box=453,28251,50,17]: 1 provider
+          - generic [ref=e4027] [cursor=pointer] [box=327,28280,105,72]:
+            - generic [ref=e4029] [box=336,28287,77,17]: GitHub Models
+            - generic [ref=e4031] [box=336,28309,87,16]:
+              - generic [ref=e4032] [box=336,28309,10,16]: —
+              - generic "No tools" [ref=e4033] [box=352,28309,10,16]: —
+            - generic [ref=e4034] [box=336,28329,87,17]: Free
+        - generic [ref=e4035] [box=310,28382,873,162]:
+          - generic [ref=e4037] [box=327,28395,166,22]:
+            - heading "OpenAI o3-mini" [level=3] [ref=e4038] [box=327,28395,105,22]
+            - generic [ref=e4039] [box=440,28396,53,20]: OpenAI
+          - generic [ref=e4040] [box=327,28421,839,17]:
+            - generic [ref=e4041] [box=327,28421,80,17]: "Max: — context"
+            - generic [ref=e4042] [box=411,28421,4,17]: "|"
+            - generic [ref=e4043] [box=418,28421,23,17]: Free
+            - generic [ref=e4044] [box=445,28421,4,17]: "|"
+            - generic [ref=e4045] [box=453,28421,50,17]: 1 provider
+          - generic [ref=e4048] [cursor=pointer] [box=327,28450,105,72]:
+            - generic [ref=e4050] [box=336,28457,77,17]: GitHub Models
+            - generic [ref=e4052] [box=336,28478,87,16]:
+              - generic [ref=e4053] [box=336,28478,10,16]: —
+              - generic "No tools" [ref=e4054] [box=352,28478,10,16]: —
+            - generic [ref=e4055] [box=336,28499,87,17]: Free
+        - generic [ref=e4056] [box=310,28551,873,162]:
+          - generic [ref=e4058] [box=327,28564,166,22]:
+            - heading "OpenAI o4-mini" [level=3] [ref=e4059] [box=327,28564,105,22]
+            - generic [ref=e4060] [box=440,28565,53,20]: OpenAI
+          - generic [ref=e4061] [box=327,28590,839,17]:
+            - generic [ref=e4062] [box=327,28590,80,17]: "Max: — context"
+            - generic [ref=e4063] [box=411,28590,4,17]: "|"
+            - generic [ref=e4064] [box=418,28590,23,17]: Free
+            - generic [ref=e4065] [box=445,28590,4,17]: "|"
+            - generic [ref=e4066] [box=453,28590,50,17]: 1 provider
+          - generic [ref=e4069] [cursor=pointer] [box=327,28620,105,72]:
+            - generic [ref=e4071] [box=336,28627,77,17]: GitHub Models
+            - generic [ref=e4073] [box=336,28648,87,16]:
+              - generic [ref=e4074] [box=336,28648,10,16]: —
+              - generic "No tools" [ref=e4075] [box=352,28648,10,16]: —
+            - generic [ref=e4076] [box=336,28668,87,17]: Free
+        - generic [ref=e4077] [box=310,28721,873,162]:
+          - generic [ref=e4079] [box=327,28734,281,22]:
+            - heading "OpenAI Text Embedding 3 (large)" [level=3] [ref=e4080] [box=327,28734,220,22]
+            - generic [ref=e4081] [box=555,28735,53,20]: OpenAI
+          - generic [ref=e4082] [box=327,28760,839,17]:
+            - generic [ref=e4083] [box=327,28760,80,17]: "Max: — context"
+            - generic [ref=e4084] [box=411,28760,4,17]: "|"
+            - generic [ref=e4085] [box=418,28760,23,17]: Free
+            - generic [ref=e4086] [box=445,28760,4,17]: "|"
+            - generic [ref=e4087] [box=453,28760,50,17]: 1 provider
+          - generic [ref=e4090] [cursor=pointer] [box=327,28789,105,72]:
+            - generic [ref=e4092] [box=336,28796,77,17]: GitHub Models
+            - generic [ref=e4094] [box=336,28818,87,16]:
+              - generic [ref=e4095] [box=336,28818,10,16]: —
+              - generic "No tools" [ref=e4096] [box=352,28818,10,16]: —
+            - generic [ref=e4097] [box=336,28838,87,17]: Free
+        - generic [ref=e4098] [box=310,28891,873,162]:
+          - generic [ref=e4100] [box=327,28904,283,22]:
+            - heading "OpenAI Text Embedding 3 (small)" [level=3] [ref=e4101] [box=327,28904,222,22]
+            - generic [ref=e4102] [box=557,28905,53,20]: OpenAI
+          - generic [ref=e4103] [box=327,28930,839,17]:
+            - generic [ref=e4104] [box=327,28930,80,17]: "Max: — context"
+            - generic [ref=e4105] [box=411,28930,4,17]: "|"
+            - generic [ref=e4106] [box=418,28930,23,17]: Free
+            - generic [ref=e4107] [box=445,28930,4,17]: "|"
+            - generic [ref=e4108] [box=453,28930,50,17]: 1 provider
+          - generic [ref=e4111] [cursor=pointer] [box=327,28959,105,72]:
+            - generic [ref=e4113] [box=336,28966,77,17]: GitHub Models
+            - generic [ref=e4115] [box=336,28987,87,16]:
+              - generic [ref=e4116] [box=336,28987,10,16]: —
+              - generic "No tools" [ref=e4117] [box=352,28987,10,16]: —
+            - generic [ref=e4118] [box=336,29008,87,17]: Free
+        - generic [ref=e4119] [box=310,29060,873,162]:
+          - generic [ref=e4121] [box=327,29073,202,22]:
+            - heading "openai/gpt-oss-120b" [level=3] [ref=e4122] [box=327,29073,141,22]
+            - generic [ref=e4123] [box=476,29074,53,20]: OpenAI
+          - generic [ref=e4124] [box=327,29100,839,17]:
+            - generic [ref=e4125] [box=327,29100,80,17]: "Max: — context"
+            - generic [ref=e4126] [box=411,29100,4,17]: "|"
+            - generic [ref=e4127] [box=418,29100,23,17]: Free
+            - generic [ref=e4128] [box=445,29100,4,17]: "|"
+            - generic [ref=e4129] [box=453,29100,50,17]: 1 provider
+          - generic [ref=e4132] [cursor=pointer] [box=327,29129,100,72]:
+            - generic [ref=e4134] [box=336,29136,25,17]: Groq
+            - generic [ref=e4136] [box=336,29157,82,16]:
+              - generic [ref=e4137] [box=336,29157,10,16]: —
+              - generic "No tools" [ref=e4138] [box=352,29157,10,16]: —
+            - generic [ref=e4139] [box=336,29177,82,17]: Free
+        - generic [ref=e4140] [box=310,29230,873,162]:
+          - generic [ref=e4142] [box=327,29243,195,22]:
+            - heading "openai/gpt-oss-20b" [level=3] [ref=e4143] [box=327,29243,135,22]
+            - generic [ref=e4144] [box=470,29244,53,20]: OpenAI
+          - generic [ref=e4145] [box=327,29269,839,17]:
+            - generic [ref=e4146] [box=327,29269,80,17]: "Max: — context"
+            - generic [ref=e4147] [box=411,29269,4,17]: "|"
+            - generic [ref=e4148] [box=418,29269,23,17]: Free
+            - generic [ref=e4149] [box=445,29269,4,17]: "|"
+            - generic [ref=e4150] [box=453,29269,50,17]: 1 provider
+          - generic [ref=e4153] [cursor=pointer] [box=327,29298,100,72]:
+            - generic [ref=e4155] [box=336,29305,25,17]: Groq
+            - generic [ref=e4157] [box=336,29327,82,16]:
+              - generic [ref=e4158] [box=336,29327,10,16]: —
+              - generic "No tools" [ref=e4159] [box=352,29327,10,16]: —
+            - generic [ref=e4160] [box=336,29347,82,17]: Free
+        - generic [ref=e4161] [box=310,29400,873,162]:
+          - generic [ref=e4163] [box=327,29413,269,22]:
+            - heading "openai/gpt-oss-safeguard-20b" [level=3] [ref=e4164] [box=327,29413,209,22]
+            - generic [ref=e4165] [box=544,29414,53,20]: OpenAI
+          - generic [ref=e4166] [box=327,29439,839,17]:
+            - generic [ref=e4167] [box=327,29439,80,17]: "Max: — context"
+            - generic [ref=e4168] [box=411,29439,4,17]: "|"
+            - generic [ref=e4169] [box=418,29439,23,17]: Free
+            - generic [ref=e4170] [box=445,29439,4,17]: "|"
+            - generic [ref=e4171] [box=453,29439,50,17]: 1 provider
+          - generic [ref=e4174] [cursor=pointer] [box=327,29468,100,72]:
+            - generic [ref=e4176] [box=336,29475,25,17]: Groq
+            - generic [ref=e4178] [box=336,29496,82,16]:
+              - generic [ref=e4179] [box=336,29496,10,16]: —
+              - generic "No tools" [ref=e4180] [box=352,29496,10,16]: —
+            - generic [ref=e4181] [box=336,29517,82,17]: Free
+        - generic [ref=e4182] [box=310,29570,873,162]:
+          - generic [ref=e4184] [box=327,29583,200,22]:
+            - heading "Orpheus V1 English" [level=3] [ref=e4185] [box=327,29583,129,22]
+            - generic [ref=e4186] [box=464,29583,63,20]: Unknown
+          - generic [ref=e4187] [box=327,29609,839,17]:
+            - generic [ref=e4188] [box=327,29609,83,17]: "Max: 4K context"
+            - generic [ref=e4189] [box=414,29609,4,17]: "|"
+            - generic [ref=e4190] [box=422,29609,23,17]: Free
+            - generic [ref=e4191] [box=448,29609,4,17]: "|"
+            - generic [ref=e4192] [box=456,29609,50,17]: 1 provider
+          - generic [ref=e4195] [cursor=pointer] [box=327,29638,100,72]:
+            - generic [ref=e4197] [box=336,29645,25,17]: Groq
+            - generic [ref=e4199] [box=336,29666,82,16]:
+              - generic [ref=e4200] [box=336,29666,13,16]: 4K
+              - generic "No tools" [ref=e4201] [box=355,29666,10,16]: —
+            - generic [ref=e4202] [box=336,29686,82,17]: Free
+        - generic [ref=e4203] [box=310,29739,873,162]:
+          - generic [ref=e4205] [box=327,29752,145,22]:
+            - heading "OWL Alpha" [level=3] [ref=e4206] [box=327,29752,74,22]
+            - generic [ref=e4207] [box=409,29753,63,20]: Unknown
+          - generic [ref=e4208] [box=327,29778,839,17]:
+            - generic [ref=e4209] [box=327,29778,83,17]: "Max: 1M context"
+            - generic [ref=e4210] [box=414,29778,4,17]: "|"
+            - generic [ref=e4211] [box=422,29778,23,17]: Free
+            - generic [ref=e4212] [box=448,29778,4,17]: "|"
+            - generic [ref=e4213] [box=456,29778,50,17]: 1 provider
+          - generic [ref=e4216] [cursor=pointer] [box=327,29808,100,72]:
+            - generic [ref=e4218] [box=337,29815,63,17]: OpenRouter
+            - generic [ref=e4220] [box=337,29836,81,16]:
+              - generic [ref=e4221] [box=337,29836,13,16]: 1M
+              - generic "Tools supported" [ref=e4222] [box=356,29838,12,12]:
+                - img [ref=e4223] [box=356,29838,12,12]
+            - generic [ref=e4225] [box=337,29856,81,17]: Free
+        - generic [ref=e4226] [box=310,29909,873,162]:
+          - generic [ref=e4228] [box=327,29922,107,22]:
+            - heading "Phi-2" [level=3] [ref=e4229] [box=327,29922,36,22]
+            - generic [ref=e4230] [box=371,29923,63,20]: Microsoft
+          - generic [ref=e4231] [box=327,29948,839,17]:
+            - generic [ref=e4232] [box=327,29948,80,17]: "Max: — context"
+            - generic [ref=e4233] [box=411,29948,4,17]: "|"
+            - generic [ref=e4234] [box=418,29948,23,17]: Free
+            - generic [ref=e4235] [box=445,29948,4,17]: "|"
+            - generic [ref=e4236] [box=453,29948,50,17]: 1 provider
+          - generic [ref=e4239] [cursor=pointer] [box=327,29977,100,72]:
+            - generic [ref=e4241] [box=336,29984,54,17]: Cloudflare
+            - generic [ref=e4243] [box=336,30006,82,16]:
+              - generic [ref=e4244] [box=336,30006,10,16]: —
+              - generic "No tools" [ref=e4245] [box=352,30006,10,16]: —
+            - generic [ref=e4246] [box=336,30026,82,17]: Free
+        - generic [ref=e4247] [box=310,30079,873,162]:
+          - generic [ref=e4249] [box=327,30092,108,22]:
+            - heading "Phi-4" [level=3] [ref=e4250] [box=327,30092,37,22]
+            - generic [ref=e4251] [box=372,30093,63,20]: Microsoft
+          - generic [ref=e4252] [box=327,30118,839,17]:
+            - generic [ref=e4253] [box=327,30118,80,17]: "Max: — context"
+            - generic [ref=e4254] [box=411,30118,4,17]: "|"
+            - generic [ref=e4255] [box=418,30118,23,17]: Free
+            - generic [ref=e4256] [box=445,30118,4,17]: "|"
+            - generic [ref=e4257] [box=453,30118,50,17]: 1 provider
+          - generic [ref=e4260] [cursor=pointer] [box=327,30147,105,72]:
+            - generic [ref=e4262] [box=336,30154,77,17]: GitHub Models
+            - generic [ref=e4264] [box=336,30175,87,16]:
+              - generic [ref=e4265] [box=336,30175,10,16]: —
+              - generic "No tools" [ref=e4266] [box=352,30175,10,16]: —
+            - generic [ref=e4267] [box=336,30196,87,17]: Free
+        - generic [ref=e4268] [box=310,30248,873,162]:
+          - generic [ref=e4270] [box=327,30261,200,22]:
+            - heading "Phi-4-mini-instruct" [level=3] [ref=e4271] [box=327,30261,129,22]
+            - generic [ref=e4272] [box=464,30262,63,20]: Microsoft
+          - generic [ref=e4273] [box=327,30287,839,17]:
+            - generic [ref=e4274] [box=327,30287,80,17]: "Max: — context"
+            - generic [ref=e4275] [box=411,30287,4,17]: "|"
+            - generic [ref=e4276] [box=418,30287,23,17]: Free
+            - generic [ref=e4277] [box=445,30287,4,17]: "|"
+            - generic [ref=e4278] [box=453,30287,50,17]: 1 provider
+          - generic [ref=e4281] [cursor=pointer] [box=327,30317,105,72]:
+            - generic [ref=e4283] [box=336,30324,77,17]: GitHub Models
+            - generic [ref=e4285] [box=336,30345,87,16]:
+              - generic [ref=e4286] [box=336,30345,10,16]: —
+              - generic "No tools" [ref=e4287] [box=352,30345,10,16]: —
+            - generic [ref=e4288] [box=336,30365,87,17]: Free
+        - generic [ref=e4289] [box=310,30418,873,162]:
+          - generic [ref=e4291] [box=327,30431,215,22]:
+            - heading "Phi-4-mini-reasoning" [level=3] [ref=e4292] [box=327,30431,144,22]
+            - generic [ref=e4293] [box=479,30432,63,20]: Microsoft
+          - generic [ref=e4294] [box=327,30457,839,17]:
+            - generic [ref=e4295] [box=327,30457,80,17]: "Max: — context"
+            - generic [ref=e4296] [box=411,30457,4,17]: "|"
+            - generic [ref=e4297] [box=418,30457,23,17]: Free
+            - generic [ref=e4298] [box=445,30457,4,17]: "|"
+            - generic [ref=e4299] [box=453,30457,50,17]: 1 provider
+          - generic [ref=e4302] [cursor=pointer] [box=327,30486,105,72]:
+            - generic [ref=e4304] [box=336,30493,77,17]: GitHub Models
+            - generic [ref=e4306] [box=336,30515,87,16]:
+              - generic [ref=e4307] [box=336,30515,10,16]: —
+              - generic "No tools" [ref=e4308] [box=352,30515,10,16]: —
+            - generic [ref=e4309] [box=336,30535,87,17]: Free
+        - generic [ref=e4310] [box=310,30588,873,162]:
+          - generic [ref=e4312] [box=327,30601,246,22]:
+            - heading "Phi-4-multimodal-instruct" [level=3] [ref=e4313] [box=327,30601,175,22]
+            - generic [ref=e4314] [box=510,30602,63,20]: Microsoft
+          - generic [ref=e4315] [box=327,30627,839,17]:
+            - generic [ref=e4316] [box=327,30627,80,17]: "Max: — context"
+            - generic [ref=e4317] [box=411,30627,4,17]: "|"
+            - generic [ref=e4318] [box=418,30627,23,17]: Free
+            - generic [ref=e4319] [box=445,30627,4,17]: "|"
+            - generic [ref=e4320] [box=453,30627,50,17]: 1 provider
+          - generic [ref=e4323] [cursor=pointer] [box=327,30656,105,72]:
+            - generic [ref=e4325] [box=336,30663,77,17]: GitHub Models
+            - generic [ref=e4327] [box=336,30684,87,16]:
+              - generic [ref=e4328] [box=336,30684,10,16]: —
+              - generic "No tools" [ref=e4329] [box=352,30684,10,16]: —
+            - generic [ref=e4330] [box=336,30705,87,17]: Free
+        - generic [ref=e4331] [box=310,30757,873,162]:
+          - generic [ref=e4333] [box=327,30770,181,22]:
+            - heading "Phi-4-reasoning" [level=3] [ref=e4334] [box=327,30770,110,22]
+            - generic [ref=e4335] [box=445,30771,63,20]: Microsoft
+          - generic [ref=e4336] [box=327,30797,839,17]:
+            - generic [ref=e4337] [box=327,30797,80,17]: "Max: — context"
+            - generic [ref=e4338] [box=411,30797,4,17]: "|"
+            - generic [ref=e4339] [box=418,30797,23,17]: Free
+            - generic [ref=e4340] [box=445,30797,4,17]: "|"
+            - generic [ref=e4341] [box=453,30797,50,17]: 1 provider
+          - generic [ref=e4344] [cursor=pointer] [box=327,30826,105,72]:
+            - generic [ref=e4346] [box=336,30833,77,17]: GitHub Models
+            - generic [ref=e4348] [box=336,30854,87,16]:
+              - generic [ref=e4349] [box=336,30854,10,16]: —
+              - generic "No tools" [ref=e4350] [box=352,30854,10,16]: —
+            - generic [ref=e4351] [box=336,30874,87,17]: Free
+        - generic [ref=e4352] [box=310,30927,873,162]:
+          - generic [ref=e4354] [box=327,30940,245,22]:
+            - heading "Qwen 2.5 Coder 32B Instruct" [level=3] [ref=e4355] [box=327,30940,193,22]
+            - generic [ref=e4356] [box=528,30941,45,20]: Qwen
+          - generic [ref=e4357] [box=327,30966,839,17]:
+            - generic [ref=e4358] [box=327,30966,80,17]: "Max: — context"
+            - generic [ref=e4359] [box=411,30966,4,17]: "|"
+            - generic [ref=e4360] [box=418,30966,23,17]: Free
+            - generic [ref=e4361] [box=445,30966,4,17]: "|"
+            - generic [ref=e4362] [box=453,30966,50,17]: 1 provider
+          - generic [ref=e4365] [cursor=pointer] [box=327,30996,100,72]:
+            - generic [ref=e4367] [box=336,31003,54,17]: Cloudflare
+            - generic [ref=e4369] [box=336,31024,82,16]:
+              - generic [ref=e4370] [box=336,31024,10,16]: —
+              - generic "No tools" [ref=e4371] [box=352,31024,10,16]: —
+            - generic [ref=e4372] [box=336,31044,82,17]: Free
+        - generic [ref=e4373] [box=310,31097,873,162]:
+          - generic [ref=e4375] [box=327,31110,197,22]:
+            - heading "Qwen 3 235B Instruct" [level=3] [ref=e4376] [box=327,31110,144,22]
+            - generic [ref=e4377] [box=479,31111,45,20]: Qwen
+          - generic [ref=e4378] [box=327,31136,839,17]:
+            - generic [ref=e4379] [box=327,31136,92,17]: "Max: 131K context"
+            - generic [ref=e4380] [box=423,31136,4,17]: "|"
+            - generic [ref=e4381] [box=430,31136,49,17]: Free/Free
+            - generic [ref=e4382] [box=483,31136,4,17]: "|"
+            - generic [ref=e4383] [box=491,31136,50,17]: 1 provider
+          - generic [ref=e4386] [cursor=pointer] [box=327,31165,100,72]:
+            - generic [ref=e4388] [box=337,31172,48,17]: Cerebras
+            - generic [ref=e4390] [box=337,31193,81,16]:
+              - generic [ref=e4391] [box=337,31193,21,16]: 131K
+              - generic "Tools supported" [ref=e4392] [box=364,31196,12,12]:
+                - img [ref=e4393] [box=364,31196,12,12]
+            - generic [ref=e4395] [box=337,31214,81,17]: $0/$0
+        - generic [ref=e4396] [box=310,31267,873,162]:
+          - generic [ref=e4398] [box=327,31280,158,22]:
+            - heading "Qwen QwQ 32B" [level=3] [ref=e4399] [box=327,31280,105,22]
+            - generic [ref=e4400] [box=440,31280,45,20]: Qwen
+          - generic [ref=e4401] [box=327,31306,839,17]:
+            - generic [ref=e4402] [box=327,31306,80,17]: "Max: — context"
+            - generic [ref=e4403] [box=411,31306,4,17]: "|"
+            - generic [ref=e4404] [box=418,31306,23,17]: Free
+            - generic [ref=e4405] [box=445,31306,4,17]: "|"
+            - generic [ref=e4406] [box=453,31306,50,17]: 1 provider
+          - generic [ref=e4409] [cursor=pointer] [box=327,31335,100,72]:
+            - generic [ref=e4411] [box=336,31342,54,17]: Cloudflare
+            - generic [ref=e4413] [box=336,31363,82,16]:
+              - generic [ref=e4414] [box=336,31363,10,16]: —
+              - generic "No tools" [ref=e4415] [box=352,31363,10,16]: —
+            - generic [ref=e4416] [box=336,31383,82,17]: Free
+        - generic [ref=e4417] [box=310,31436,873,162]:
+          - generic [ref=e4419] [box=327,31449,172,22]:
+            - heading "qwen/qwen3-32b" [level=3] [ref=e4420] [box=327,31449,120,22]
+            - generic [ref=e4421] [box=455,31450,45,20]: Qwen
+          - generic [ref=e4422] [box=327,31475,839,17]:
+            - generic [ref=e4423] [box=327,31475,80,17]: "Max: — context"
+            - generic [ref=e4424] [box=411,31475,4,17]: "|"
+            - generic [ref=e4425] [box=418,31475,23,17]: Free
+            - generic [ref=e4426] [box=445,31475,4,17]: "|"
+            - generic [ref=e4427] [box=453,31475,50,17]: 1 provider
+          - generic [ref=e4430] [cursor=pointer] [box=327,31505,100,72]:
+            - generic [ref=e4432] [box=336,31512,25,17]: Groq
+            - generic [ref=e4434] [box=336,31533,82,16]:
+              - generic [ref=e4435] [box=336,31533,10,16]: —
+              - generic "No tools" [ref=e4436] [box=352,31533,10,16]: —
+            - generic [ref=e4437] [box=336,31553,82,17]: Free
+        - generic [ref=e4438] [box=310,31606,873,162]:
+          - generic [ref=e4440] [box=327,31619,144,22]:
+            - heading "Qwen3 Coder" [level=3] [ref=e4441] [box=327,31619,92,22]
+            - generic [ref=e4442] [box=427,31620,45,20]: Qwen
+          - generic [ref=e4443] [box=327,31645,839,17]:
+            - generic [ref=e4444] [box=327,31645,83,17]: "Max: 1M context"
+            - generic [ref=e4445] [box=414,31645,4,17]: "|"
+            - generic [ref=e4446] [box=422,31645,47,17]: $0.22/$2
+            - generic [ref=e4447] [box=473,31645,4,17]: "|"
+            - generic [ref=e4448] [box=481,31645,58,17]: 2 providers
+          - generic [ref=e4450] [box=327,31666,839,88]:
+            - generic [ref=e4451] [cursor=pointer] [box=327,31674,100,72]:
+              - generic [ref=e4453] [box=336,31681,63,17]: OpenRouter
+              - generic [ref=e4455] [box=336,31703,82,16]:
+                - generic [ref=e4456] [box=336,31703,13,16]: 1M
+                - generic "Tools supported" [ref=e4457] [box=355,31705,12,12]:
+                  - img [ref=e4458] [box=355,31705,12,12]
+              - generic [ref=e4460] [box=336,31723,82,17]: $0.22/$2
+            - generic [ref=e4461] [cursor=pointer] [box=433,31674,100,72]:
+              - generic [ref=e4463] [box=442,31681,63,17]: OpenRouter
+              - generic [ref=e4465] [box=442,31703,82,16]:
+                - generic [ref=e4466] [box=442,31703,13,16]: 1M
+                - generic "Tools supported" [ref=e4467] [box=461,31705,12,12]:
+                  - img [ref=e4468] [box=461,31705,12,12]
+              - generic [ref=e4470] [box=442,31723,82,17]: $0.22/$2
+        - generic [ref=e4471] [box=310,31776,873,162]:
+          - generic [ref=e4473] [box=327,31789,183,22]:
+            - heading "Qwen3 Coder Flash" [level=3] [ref=e4474] [box=327,31789,131,22]
+            - generic [ref=e4475] [box=466,31790,45,20]: Qwen
+          - generic [ref=e4476] [box=327,31815,839,17]:
+            - generic [ref=e4477] [box=327,31815,83,17]: "Max: 1M context"
+            - generic [ref=e4478] [box=414,31815,4,17]: "|"
+            - generic [ref=e4479] [box=422,31815,64,17]: $0.20/$0.98
+            - generic [ref=e4480] [box=490,31815,4,17]: "|"
+            - generic [ref=e4481] [box=497,31815,50,17]: 1 provider
+          - generic [ref=e4484] [cursor=pointer] [box=327,31844,100,72]:
+            - generic [ref=e4486] [box=336,31851,63,17]: OpenRouter
+            - generic [ref=e4488] [box=336,31872,82,16]:
+              - generic [ref=e4489] [box=336,31872,13,16]: 1M
+              - generic "Tools supported" [ref=e4490] [box=355,31874,12,12]:
+                - img [ref=e4491] [box=355,31874,12,12]
+            - generic [ref=e4493] [box=336,31893,82,17]: $0.20/$0.98
+        - generic [ref=e4494] [box=310,31945,873,162]:
+          - generic [ref=e4496] [box=327,31958,176,22]:
+            - heading "Qwen3 Coder Plus" [level=3] [ref=e4497] [box=327,31958,124,22]
+            - generic [ref=e4498] [box=459,31959,45,20]: Qwen
+          - generic [ref=e4499] [box=327,31984,839,17]:
+            - generic [ref=e4500] [box=327,31984,83,17]: "Max: 1M context"
+            - generic [ref=e4501] [box=414,31984,4,17]: "|"
+            - generic [ref=e4502] [box=422,31984,47,17]: $0.65/$3
+            - generic [ref=e4503] [box=473,31984,4,17]: "|"
+            - generic [ref=e4504] [box=480,31984,58,17]: 3 providers
+          - generic [ref=e4506] [box=327,32006,839,88]:
+            - generic [ref=e4507] [cursor=pointer] [box=327,32014,133,72]:
+              - generic [ref=e4509] [box=336,32021,105,17]: Alibaba Coding Plan
+              - generic [ref=e4511] [box=336,32042,115,16]:
+                - generic [ref=e4512] [box=336,32042,13,16]: 1M
+                - generic "Tools supported" [ref=e4513] [box=355,32044,12,12]:
+                  - img [ref=e4514] [box=355,32044,12,12]
+              - generic [ref=e4516] [box=336,32062,115,17]: $0.65/$3
+            - generic [ref=e4517] [cursor=pointer] [box=466,32014,174,72]:
+              - generic [ref=e4519] [box=475,32021,146,17]: Alibaba Coding Plan (China)
+              - generic [ref=e4521] [box=475,32042,156,16]:
+                - generic [ref=e4522] [box=475,32042,13,16]: 1M
+                - generic "Tools supported" [ref=e4523] [box=495,32044,12,12]:
+                  - img [ref=e4524] [box=495,32044,12,12]
+              - generic [ref=e4526] [box=475,32062,156,17]: $0.65/$3
+            - generic [ref=e4527] [cursor=pointer] [box=646,32014,100,72]:
+              - generic [ref=e4529] [box=655,32021,63,17]: OpenRouter
+              - generic [ref=e4531] [box=655,32042,82,16]:
+                - generic [ref=e4532] [box=655,32042,13,16]: 1M
+                - generic "Tools supported" [ref=e4533] [box=675,32044,12,12]:
+                  - img [ref=e4534] [box=675,32044,12,12]
+              - generic [ref=e4536] [box=655,32062,82,17]: $0.65/$3
+        - generic [ref=e4537] [box=310,32115,873,162]:
+          - generic [ref=e4539] [box=327,32128,132,22]:
+            - heading "Qwen3 Max" [level=3] [ref=e4540] [box=327,32128,79,22]
+            - generic [ref=e4541] [box=414,32129,45,20]: Qwen
+          - generic [ref=e4542] [box=327,32154,839,17]:
+            - generic [ref=e4543] [box=327,32154,96,17]: "Max: 262K context"
+            - generic [ref=e4544] [box=427,32154,4,17]: "|"
+            - generic [ref=e4545] [box=435,32154,47,17]: $0.78/$4
+            - generic [ref=e4546] [box=486,32154,4,17]: "|"
+            - generic [ref=e4547] [box=493,32154,58,17]: 3 providers
+          - generic [ref=e4549] [box=327,32175,839,88]:
+            - generic [ref=e4550] [cursor=pointer] [box=327,32183,133,72]:
+              - generic [ref=e4552] [box=336,32190,105,17]: Alibaba Coding Plan
+              - generic [ref=e4554] [box=336,32212,115,16]:
+                - generic [ref=e4555] [box=336,32212,26,16]: 262K
+                - generic "No tools" [ref=e4556] [box=368,32212,10,16]: —
+              - generic [ref=e4557] [box=336,32232,115,17]: $0.78/$4
+            - generic [ref=e4558] [cursor=pointer] [box=466,32183,174,72]:
+              - generic [ref=e4560] [box=475,32190,146,17]: Alibaba Coding Plan (China)
+              - generic [ref=e4562] [box=475,32212,156,16]:
+                - generic [ref=e4563] [box=475,32212,26,16]: 262K
+                - generic "No tools" [ref=e4564] [box=507,32212,10,16]: —
+              - generic [ref=e4565] [box=475,32232,156,17]: $0.78/$4
+            - generic [ref=e4566] [cursor=pointer] [box=646,32183,100,72]:
+              - generic [ref=e4568] [box=655,32190,63,17]: OpenRouter
+              - generic [ref=e4570] [box=655,32212,82,16]:
+                - generic [ref=e4571] [box=655,32212,26,16]: 262K
+                - generic "No tools" [ref=e4572] [box=687,32212,10,16]: —
+              - generic [ref=e4573] [box=655,32232,82,17]: $0.78/$4
+        - generic [ref=e4574] [box=310,32285,873,162]:
+          - generic [ref=e4576] [box=327,32298,263,22]:
+            - heading "Qwen3-Next-80B-A3B-Instruct" [level=3] [ref=e4577] [box=327,32298,210,22]
+            - generic [ref=e4578] [box=545,32299,45,20]: Qwen
+          - generic [ref=e4579] [box=327,32324,839,17]:
+            - generic [ref=e4580] [box=327,32324,96,17]: "Max: 262K context"
+            - generic [ref=e4581] [box=427,32324,4,17]: "|"
+            - generic [ref=e4582] [box=435,32324,23,17]: Free
+            - generic [ref=e4583] [box=461,32324,4,17]: "|"
+            - generic [ref=e4584] [box=469,32324,50,17]: 1 provider
+          - generic [ref=e4587] [cursor=pointer] [box=327,32353,100,72]:
+            - generic [ref=e4589] [box=336,32360,63,17]: OpenRouter
+            - generic [ref=e4591] [box=336,32381,82,16]:
+              - generic [ref=e4592] [box=336,32381,26,16]: 262K
+              - generic "No tools" [ref=e4593] [box=368,32381,10,16]: —
+            - generic [ref=e4594] [box=336,32402,82,17]: Free
+        - generic [ref=e4595] [box=310,32455,873,162]:
+          - generic [ref=e4597] [box=327,32468,145,22]:
+            - heading "Qwen3.6 Plus" [level=3] [ref=e4598] [box=327,32468,92,22]
+            - generic [ref=e4599] [box=427,32468,45,20]: Qwen
+          - generic [ref=e4600] [box=327,32494,839,17]:
+            - generic [ref=e4601] [box=327,32494,96,17]: "Max: 262K context"
+            - generic [ref=e4602] [box=427,32494,4,17]: "|"
+            - generic [ref=e4603] [box=435,32494,23,17]: Free
+            - generic [ref=e4604] [box=461,32494,4,17]: "|"
+            - generic [ref=e4605] [box=469,32494,50,17]: 1 provider
+          - generic [ref=e4608] [cursor=pointer] [box=327,32523,106,72]:
+            - generic [ref=e4610] [box=336,32530,78,17]: OpenCode Zen
+            - generic [ref=e4612] [box=336,32551,88,16]:
+              - generic [ref=e4613] [box=336,32551,26,16]: 262K
+              - generic "Tools supported" [ref=e4614] [box=368,32553,12,12]:
+                - img [ref=e4615] [box=368,32553,12,12]
+            - generic [ref=e4617] [box=336,32571,88,17]: Free
+        - generic [ref=e4618] [box=310,32624,873,162]:
+          - generic [ref=e4620] [box=327,32637,171,22]:
+            - heading "SQLCoder 7B 2" [level=3] [ref=e4621] [box=327,32637,100,22]
+            - generic [ref=e4622] [box=435,32638,63,20]: Unknown
+          - generic [ref=e4623] [box=327,32663,839,17]:
+            - generic [ref=e4624] [box=327,32663,80,17]: "Max: — context"
+            - generic [ref=e4625] [box=411,32663,4,17]: "|"
+            - generic [ref=e4626] [box=418,32663,23,17]: Free
+            - generic [ref=e4627] [box=445,32663,4,17]: "|"
+            - generic [ref=e4628] [box=453,32663,50,17]: 1 provider
+          - generic [ref=e4631] [cursor=pointer] [box=327,32693,100,72]:
+            - generic [ref=e4633] [box=336,32700,54,17]: Cloudflare
+            - generic [ref=e4635] [box=336,32721,82,16]:
+              - generic [ref=e4636] [box=336,32721,10,16]: —
+              - generic "No tools" [ref=e4637] [box=352,32721,10,16]: —
+            - generic [ref=e4638] [box=336,32741,82,17]: Free
+        - generic [ref=e4639] [box=310,32794,873,162]:
+          - generic [ref=e4641] [box=327,32807,212,22]:
+            - heading "Trinity Large Thinking" [level=3] [ref=e4642] [box=327,32807,146,22]
+            - generic [ref=e4643] [box=481,32808,58,20]: Arcee AI
+          - generic [ref=e4644] [box=327,32833,839,17]:
+            - generic [ref=e4645] [box=327,32833,96,17]: "Max: 262K context"
+            - generic [ref=e4646] [box=427,32833,4,17]: "|"
+            - generic [ref=e4647] [box=435,32833,49,17]: Free/Free
+            - generic [ref=e4648] [box=488,32833,4,17]: "|"
+            - generic [ref=e4649] [box=495,32833,50,17]: 1 provider
+          - generic [ref=e4652] [cursor=pointer] [box=327,32862,100,72]:
+            - generic [ref=e4654] [box=337,32869,63,17]: OpenRouter
+            - generic [ref=e4656] [box=337,32891,81,16]:
+              - generic [ref=e4657] [box=337,32891,26,16]: 262K
+              - generic "Tools supported" [ref=e4658] [box=369,32893,12,12]:
+                - img [ref=e4659] [box=369,32893,12,12]
+            - generic [ref=e4661] [box=337,32911,81,17]: $0/$0
+        - generic [ref=e4662] [box=310,32964,873,162]:
+          - generic [ref=e4664] [box=327,32977,177,22]:
+            - heading "Whisper Large v3" [level=3] [ref=e4665] [box=327,32977,118,22]
+            - generic [ref=e4666] [box=453,32977,52,20]: NVIDIA
+          - generic [ref=e4667] [box=327,33003,839,17]:
+            - generic [ref=e4668] [box=327,33003,80,17]: "Max: — context"
+            - generic [ref=e4669] [box=411,33003,4,17]: "|"
+            - generic [ref=e4670] [box=418,33003,23,17]: Free
+            - generic [ref=e4671] [box=445,33003,4,17]: "|"
+            - generic [ref=e4672] [box=453,33003,50,17]: 1 provider
+          - generic [ref=e4675] [cursor=pointer] [box=327,33032,100,72]:
+            - generic [ref=e4677] [box=336,33039,25,17]: Groq
+            - generic [ref=e4679] [box=336,33060,82,16]:
+              - generic [ref=e4680] [box=336,33060,10,16]: —
+              - generic "No tools" [ref=e4681] [box=352,33060,10,16]: —
+            - generic [ref=e4682] [box=336,33081,82,17]: Free
+        - generic [ref=e4683] [box=310,33133,873,162]:
+          - generic [ref=e4685] [box=327,33146,231,22]:
+            - heading "Whisper Large v3 Turbo" [level=3] [ref=e4686] [box=327,33146,160,22]
+            - generic [ref=e4687] [box=495,33147,63,20]: Unknown
+          - generic [ref=e4688] [box=327,33172,839,17]:
+            - generic [ref=e4689] [box=327,33172,80,17]: "Max: — context"
+            - generic [ref=e4690] [box=411,33172,4,17]: "|"
+            - generic [ref=e4691] [box=418,33172,23,17]: Free
+            - generic [ref=e4692] [box=445,33172,4,17]: "|"
+            - generic [ref=e4693] [box=453,33172,50,17]: 1 provider
+          - generic [ref=e4696] [cursor=pointer] [box=327,33202,100,72]:
+            - generic [ref=e4698] [box=336,33209,25,17]: Groq
+            - generic [ref=e4700] [box=336,33230,82,16]:
+              - generic [ref=e4701] [box=336,33230,10,16]: —
+              - generic "No tools" [ref=e4702] [box=352,33230,10,16]: —
+            - generic [ref=e4703] [box=336,33250,82,17]: Free
+        - generic [ref=e4704] [box=310,33303,873,162]:
+          - generic [ref=e4706] [box=327,33316,133,22]:
+            - heading "Z.AI GLM-4.7" [level=3] [ref=e4707] [box=327,33316,89,22]
+            - generic [ref=e4708] [box=424,33317,36,20]: Z.AI
+          - generic [ref=e4709] [box=327,33342,839,17]:
+            - generic [ref=e4710] [box=327,33342,92,17]: "Max: 131K context"
+            - generic [ref=e4711] [box=423,33342,4,17]: "|"
+            - generic [ref=e4712] [box=430,33342,49,17]: Free/Free
+            - generic [ref=e4713] [box=483,33342,4,17]: "|"
+            - generic [ref=e4714] [box=491,33342,58,17]: 2 providers
+          - generic [ref=e4716] [box=327,33363,839,88]:
+            - generic [ref=e4717] [cursor=pointer] [box=327,33371,100,72]:
+              - generic [ref=e4719] [box=337,33378,48,17]: Cerebras
+              - generic [ref=e4721] [box=337,33400,81,16]:
+                - generic [ref=e4722] [box=337,33400,21,16]: 131K
+                - generic "Tools supported" [ref=e4723] [box=364,33402,12,12]:
+                  - img [ref=e4724] [box=364,33402,12,12]
+              - generic [ref=e4726] [box=337,33420,81,17]: $0/$0
+            - generic [ref=e4727] [cursor=pointer] [box=433,33371,100,72]:
+              - generic [ref=e4729] [box=442,33378,63,17]: OpenRouter
+              - generic [ref=e4731] [box=442,33400,82,16]:
+                - generic [ref=e4732] [box=442,33400,21,16]: 131K
+                - generic "Tools supported" [ref=e4733] [box=469,33402,12,12]:
+                  - img [ref=e4734] [box=469,33402,12,12]
+              - generic [ref=e4736] [box=442,33420,82,17]: $0/$0

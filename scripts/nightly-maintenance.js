@@ -17,25 +17,13 @@ require('dotenv').config();
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { Pool } = require('pg');
+const pool = require('../server/db');
 
 const REPO_ROOT = path.join(__dirname, '..');
 const SNAPSHOT_DIR = path.join(REPO_ROOT, 'snapshots');
 const SUMMARY_LOG = path.join(REPO_ROOT, 'nightly-summary.log');
 const EXPORT_SCRIPT = path.join(__dirname, 'export-from-pg.js');
 const LOAD_SCRIPT = path.join(__dirname, 'load-models.js');
-
-const connectionString = process.env.DATABASE_URL;
-const pool = connectionString
-  ? new Pool({ connectionString, ssl: { rejectUnauthorized: false }, max: 2 })
-  : new Pool({
-      host: process.env.PGHOST || 'localhost',
-      port: parseInt(process.env.PGPORT || '5432', 10),
-      user: process.env.PGUSER,
-      password: process.env.PGPASSWORD,
-      database: process.env.PGDATABASE,
-      max: 2,
-    });
 
 if (!fs.existsSync(SNAPSHOT_DIR)) fs.mkdirSync(SNAPSHOT_DIR, { recursive: true });
 
@@ -204,8 +192,7 @@ function printStepTable(totalDuration) {
 let pipelineStart = Date.now();
 
 (async () => {
-  try {
-    pipelineStart = Date.now();
+  pipelineStart = Date.now();
 
     // 0. Save previous state for rollback and recovery detection
     await runStep('snapshot-prev-state', async () => {
@@ -411,6 +398,13 @@ let pipelineStart = Date.now();
         }
 
         if (shouldRollback) {
+          // WARNING: This rollback only restores available-models.json (the git-committed
+          // JSON export). It does NOT restore the PostgreSQL database. Since the next
+          // export immediately overwrites the restored JSON with the current DB state,
+          // the rollback provides no actual protection against bad DB data. A proper
+          // rollback would need to restore DB state from a pg_dump snapshot.
+          console.log('  NOTE: Rollback only restores JSON export file, NOT the PostgreSQL database.');
+          console.log('  The next export will overwrite the restored JSON with current DB state.');
           if (fs.existsSync(PREV_COPY)) {
             fs.copyFileSync(PREV_COPY, 'available-models.json');
             execSync('git add available-models.json');
@@ -476,9 +470,6 @@ let pipelineStart = Date.now();
     });
 
     printStepTable(Date.now() - pipelineStart);
-  } finally {
-    await pool.end();
-  }
 })().catch((e) => {
   console.error(`Pipeline aborted: ${e.message}`);
   printStepTable(Date.now() - pipelineStart);

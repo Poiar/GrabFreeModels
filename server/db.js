@@ -7,7 +7,7 @@ const isNeon = connectionString?.includes('neon.tech');
 const pool = connectionString
   ? new Pool({
       connectionString,
-      max: isNeon ? 3 : 10,
+      max: isNeon ? 2 : 10,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
     })

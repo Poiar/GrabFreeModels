@@ -49,3 +49,16 @@ snapshots/                  # timestamped model snapshots (from export-from-pg.j
 
 - `docs/provider-details.md` — Provider API endpoints and filtering rules
 - `docs/test-interpretation-reference.md` — Test result patterns and status mapping
+
+## Related Open‑Source Projects
+
+A few community projects that also track free LLM models:
+
+- **Open LLM Leaderboard** – Public table of free models with pricing, context length, and basic benchmarks. (Python + FastAPI)
+- **Free‑LLM‑Models** – Curated list of free endpoints (OpenRouter, HuggingFace, etc.) with JSON data files. (Markdown + Static site)
+- **Awesome‑LLM** – Awesome‑list section linking free/open‑source models and providers. (Markdown)
+- **HuggingFace Model Hub** – Filtered view for models with free hosted inference API. (JavaScript/React front‑end)
+- **Open‑Model Zoo** – Index of open‑source checkpoints and free inference providers. (Go + SQL)
+- **LM‑Studio Catalog** – Shows both locally runnable and hosted free models; integrates with the LM‑Studio desktop client. (Electron + TypeScript)
+
+These links can help users discover additional free model sources beyond what GrabFreeModels aggregates.

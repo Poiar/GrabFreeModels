@@ -1,0 +1,225 @@
+- generic [ref=e3]:
+  - link "Skip to main content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e8]: ⚡
+      - generic [ref=e9]:
+        - heading "GrabFreeModels" [level=1] [ref=e10]
+        - paragraph [ref=e11]: Free LLM Intelligence
+    - navigation "Main navigation" [ref=e12]:
+      - link "Models" [ref=e13] [cursor=pointer]:
+        - /url: "#/"
+        - img [ref=e15]
+        - generic [ref=e17]: Models
+      - link "Dashboard" [ref=e18] [cursor=pointer]:
+        - /url: "#/dashboard"
+        - img [ref=e20]
+        - generic [ref=e25]: Dashboard
+      - link "Creators" [ref=e26] [cursor=pointer]:
+        - /url: "#/creators"
+        - img [ref=e28]
+        - generic [ref=e31]: Creators
+      - link "Issues" [ref=e32] [cursor=pointer]:
+        - /url: "#/issues"
+        - img [ref=e34]
+        - generic [ref=e36]: Issues
+    - generic [ref=e37]:
+      - generic [ref=e57]: Updated just now
+      - generic [ref=e38]:
+        - button "Switch to dark mode" [pressed] [ref=e39] [cursor=pointer]:
+          - img [ref=e40]
+        - button "Refresh" [ref=e58] [cursor=pointer]:
+          - img [ref=e59]
+          - text: Refresh
+      - button "? shortcuts" [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e47]: "? shortcuts"
+  - main [ref=e48]:
+    - generic [ref=e4896]:
+      - generic [ref=e4897]:
+        - heading "Creators" [level=2] [ref=e4898]
+        - paragraph [ref=e4899]: 26 model creators tracked
+      - generic [ref=e4900]:
+        - 'link "AI21 Labs 1 model 1 provider Top: AI21 Jamba 1.5 Large" [ref=e4901] [cursor=pointer]':
+          - /url: "#/creator/ai21-labs"
+          - heading "AI21 Labs" [level=3] [ref=e4902]
+          - generic [ref=e4903]:
+            - generic [ref=e4904]: 1 model
+            - generic [ref=e4905]: 1 provider
+          - generic [ref=e4906]: "Top: AI21 Jamba 1.5 Large"
+        - 'link "Anthropic 3 models 1 provider Top: Claude Haiku 4.5" [ref=e4907] [cursor=pointer]':
+          - /url: "#/creator/anthropic"
+          - heading "Anthropic" [level=3] [ref=e4908]
+          - generic [ref=e4909]:
+            - generic [ref=e4910]: 3 models
+            - generic [ref=e4911]: 1 provider
+          - generic [ref=e4912]: "Top: Claude Haiku 4.5"
+        - 'link "Arcee AI 1 model 1 provider Top: Trinity Large Thinking" [ref=e4913] [cursor=pointer]':
+          - /url: "#/creator/arcee-ai"
+          - heading "Arcee AI" [level=3] [ref=e4914]
+          - generic [ref=e4915]:
+            - generic [ref=e4916]: 1 model
+            - generic [ref=e4917]: 1 provider
+          - generic [ref=e4918]: "Top: Trinity Large Thinking"
+        - 'link "Cognitive Computations 1 model 1 provider Top: Dolphin Mistral 24B Venice" [ref=e4919] [cursor=pointer]':
+          - /url: "#/creator/cognitive-computations"
+          - heading "Cognitive Computations" [level=3] [ref=e4920]
+          - generic [ref=e4921]:
+            - generic [ref=e4922]: 1 model
+            - generic [ref=e4923]: 1 provider
+          - generic [ref=e4924]: "Top: Dolphin Mistral 24B Venice"
+        - 'link "Cohere 13 models 2 providers Top: c4ai-aya-expanse-32b" [ref=e4925] [cursor=pointer]':
+          - /url: "#/creator/cohere"
+          - heading "Cohere" [level=3] [ref=e4926]
+          - generic [ref=e4927]:
+            - generic [ref=e4928]: 13 models
+            - generic [ref=e4929]: 2 providers
+          - generic [ref=e4930]: "Top: c4ai-aya-expanse-32b"
+        - 'link "DeepSeek 7 models 4 providers Top: DeepSeek Reasoner" [ref=e4931] [cursor=pointer]':
+          - /url: "#/creator/deepseek"
+          - heading "DeepSeek" [level=3] [ref=e4932]
+          - generic [ref=e4933]:
+            - generic [ref=e4934]: 7 models
+            - generic [ref=e4935]: 4 providers
+          - generic [ref=e4936]: "Top: DeepSeek Reasoner"
+        - 'link "Google 40 models 3 providers Top: @cf/aisingapore/gemma-sea-lion-v4-27b-it" [ref=e4937] [cursor=pointer]':
+          - /url: "#/creator/google"
+          - heading "Google" [level=3] [ref=e4938]
+          - generic [ref=e4939]:
+            - generic [ref=e4940]: 40 models
+            - generic [ref=e4941]: 3 providers
+          - generic [ref=e4942]: "Top: @cf/aisingapore/gemma-sea-lion-v4-27b-it"
+        - 'link "IBM 1 model 1 provider Top: @cf/ibm-granite/granite-4.0-h-micro" [ref=e4943] [cursor=pointer]':
+          - /url: "#/creator/ibm"
+          - heading "IBM" [level=3] [ref=e4944]
+          - generic [ref=e4945]:
+            - generic [ref=e4946]: 1 model
+            - generic [ref=e4947]: 1 provider
+          - generic [ref=e4948]: "Top: @cf/ibm-granite/granite-4.0-h-micro"
+        - 'link "Liquid AI 2 models 1 provider Top: LFM2.5-1.2B-Instruct" [ref=e4949] [cursor=pointer]':
+          - /url: "#/creator/liquid-ai"
+          - heading "Liquid AI" [level=3] [ref=e4950]
+          - generic [ref=e4951]:
+            - generic [ref=e4952]: 2 models
+            - generic [ref=e4953]: 1 provider
+          - generic [ref=e4954]: "Top: LFM2.5-1.2B-Instruct"
+        - 'link "Meta 26 models 5 providers Top: Llama 2 7B Chat (FP16)" [ref=e4955] [cursor=pointer]':
+          - /url: "#/creator/meta"
+          - heading "Meta" [level=3] [ref=e4956]
+          - generic [ref=e4957]:
+            - generic [ref=e4958]: 26 models
+            - generic [ref=e4959]: 5 providers
+          - generic [ref=e4960]: "Top: Llama 2 7B Chat (FP16)"
+        - 'link "Microsoft 7 models 2 providers Top: MAI-DS-R1" [ref=e4961] [cursor=pointer]':
+          - /url: "#/creator/microsoft"
+          - heading "Microsoft" [level=3] [ref=e4962]
+          - generic [ref=e4963]:
+            - generic [ref=e4964]: 7 models
+            - generic [ref=e4965]: 2 providers
+          - generic [ref=e4966]: "Top: MAI-DS-R1"
+        - 'link "MiniMax 2 models 2 providers Top: MiniMax-M2.5" [ref=e4967] [cursor=pointer]':
+          - /url: "#/creator/minimax"
+          - heading "MiniMax" [level=3] [ref=e4968]
+          - generic [ref=e4969]:
+            - generic [ref=e4970]: 2 models
+            - generic [ref=e4971]: 2 providers
+          - generic [ref=e4972]: "Top: MiniMax-M2.5"
+        - 'link "Mistral 11 models 4 providers Top: Codestral" [ref=e4973] [cursor=pointer]':
+          - /url: "#/creator/mistral"
+          - heading "Mistral" [level=3] [ref=e4974]
+          - generic [ref=e4975]:
+            - generic [ref=e4976]: 11 models
+            - generic [ref=e4977]: 4 providers
+          - generic [ref=e4978]: "Top: Codestral"
+        - 'link "Moonshot AI 2 models 1 provider Top: @cf/moonshotai/kimi-k2.5" [ref=e4979] [cursor=pointer]':
+          - /url: "#/creator/moonshot"
+          - heading "Moonshot AI" [level=3] [ref=e4980]
+          - generic [ref=e4981]:
+            - generic [ref=e4982]: 2 models
+            - generic [ref=e4983]: 1 provider
+          - generic [ref=e4984]: "Top: @cf/moonshotai/kimi-k2.5"
+        - 'link "Nous Research 2 models 2 providers Top: Hermes 2 Pro Mistral 7B" [ref=e4985] [cursor=pointer]':
+          - /url: "#/creator/nous-research"
+          - heading "Nous Research" [level=3] [ref=e4986]
+          - generic [ref=e4987]:
+            - generic [ref=e4988]: 2 models
+            - generic [ref=e4989]: 2 providers
+          - generic [ref=e4990]: "Top: Hermes 2 Pro Mistral 7B"
+        - 'link "NVIDIA 10 models 4 providers Top: Llama-3.2-90B-Vision-Instruct" [ref=e4991] [cursor=pointer]':
+          - /url: "#/creator/nvidia"
+          - heading "NVIDIA" [level=3] [ref=e4992]
+          - generic [ref=e4993]:
+            - generic [ref=e4994]: 10 models
+            - generic [ref=e4995]: 4 providers
+          - generic [ref=e4996]: "Top: Llama-3.2-90B-Vision-Instruct"
+        - 'link "OpenAI 27 models 5 providers Top: GPT OSS 20B" [ref=e4997] [cursor=pointer]':
+          - /url: "#/creator/openai"
+          - heading "OpenAI" [level=3] [ref=e4998]
+          - generic [ref=e4999]:
+            - generic [ref=e5000]: 27 models
+            - generic [ref=e5001]: 5 providers
+          - generic [ref=e5002]: "Top: GPT OSS 20B"
+        - 'link "opencode 2 models 2 providers Top: Big Pickle" [ref=e5003] [cursor=pointer]':
+          - /url: "#/creator/opencode"
+          - heading "opencode" [level=3] [ref=e5004]
+          - generic [ref=e5005]:
+            - generic [ref=e5006]: 2 models
+            - generic [ref=e5007]: 2 providers
+          - generic [ref=e5008]: "Top: Big Pickle"
+        - 'link "Poolside 2 models 1 provider Top: Laguna M.1" [ref=e5009] [cursor=pointer]':
+          - /url: "#/creator/poolside"
+          - heading "Poolside" [level=3] [ref=e5010]
+          - generic [ref=e5011]:
+            - generic [ref=e5012]: 2 models
+            - generic [ref=e5013]: 1 provider
+          - generic [ref=e5014]: "Top: Laguna M.1"
+        - 'link "Qwen 11 models 7 providers Top: @cf/qwen/qwen3-30b-a3b-fp8" [ref=e5015] [cursor=pointer]':
+          - /url: "#/creator/qwen"
+          - heading "Qwen" [level=3] [ref=e5016]
+          - generic [ref=e5017]:
+            - generic [ref=e5018]: 11 models
+            - generic [ref=e5019]: 7 providers
+          - generic [ref=e5020]: "Top: @cf/qwen/qwen3-30b-a3b-fp8"
+        - 'link "Umans AI 1 model 4 providers Top: Kimi K2.6" [ref=e5021] [cursor=pointer]':
+          - /url: "#/creator/umans-ai"
+          - heading "Umans AI" [level=3] [ref=e5022]
+          - generic [ref=e5023]:
+            - generic [ref=e5024]: 1 model
+            - generic [ref=e5025]: 4 providers
+          - generic [ref=e5026]: "Top: Kimi K2.6"
+        - 'link "Unknown 14 models 4 providers Top: @cf/nvidia/nemotron-3-120b-a12b" [ref=e5027] [cursor=pointer]':
+          - /url: "#/creator/unknown"
+          - heading "Unknown" [level=3] [ref=e5028]
+          - generic [ref=e5029]:
+            - generic [ref=e5030]: 14 models
+            - generic [ref=e5031]: 4 providers
+          - generic [ref=e5032]: "Top: @cf/nvidia/nemotron-3-120b-a12b"
+        - 'link "xAI 3 models 2 providers Top: Grok 3" [ref=e5033] [cursor=pointer]':
+          - /url: "#/creator/xai"
+          - heading "xAI" [level=3] [ref=e5034]
+          - generic [ref=e5035]:
+            - generic [ref=e5036]: 3 models
+            - generic [ref=e5037]: 2 providers
+          - generic [ref=e5038]: "Top: Grok 3"
+        - 'link "Xiaomi 1 model 1 provider Top: MiMo-V2.5" [ref=e5039] [cursor=pointer]':
+          - /url: "#/creator/xiaomi"
+          - heading "Xiaomi" [level=3] [ref=e5040]
+          - generic [ref=e5041]:
+            - generic [ref=e5042]: 1 model
+            - generic [ref=e5043]: 1 provider
+          - generic [ref=e5044]: "Top: MiMo-V2.5"
+        - 'link "Z.AI 3 models 3 providers Top: GLM 5.1" [ref=e5045] [cursor=pointer]':
+          - /url: "#/creator/z-ai"
+          - heading "Z.AI" [level=3] [ref=e5046]
+          - generic [ref=e5047]:
+            - generic [ref=e5048]: 3 models
+            - generic [ref=e5049]: 3 providers
+          - generic [ref=e5050]: "Top: GLM 5.1"
+        - 'link "Zhipu AI 3 models 2 providers Top: @cf/zai-org/glm-4.7-flash" [ref=e5051] [cursor=pointer]':
+          - /url: "#/creator/zhipu"
+          - heading "Zhipu AI" [level=3] [ref=e5052]
+          - generic [ref=e5053]:
+            - generic [ref=e5054]: 3 models
+            - generic [ref=e5055]: 2 providers
+          - generic [ref=e5056]: "Top: @cf/zai-org/glm-4.7-flash"

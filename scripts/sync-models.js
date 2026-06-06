@@ -198,24 +198,26 @@ async function getDeepSeekModels() {
 }
 
 async function getGroqModels() {
-  const groqJsonPath = path.join(__dirname, '..', 'groq-models.json');
-  if (!fs.existsSync(groqJsonPath)) {
-    logger.info('  (no groq-models.json found — run scripts/extract-groq.js first)');
+  const key = auth.groq?.key;
+  if (!key) {
+    logger.info('  (no Groq key — set auth.groq.key)');
     return [];
   }
-  const raw = JSON.parse(fs.readFileSync(groqJsonPath, 'utf8'));
-  const models = raw.models || [];
-  return models
+  const { data } = await httpGet('https://api.groq.com/openai/v1/models', {
+    Authorization: `Bearer ${key}`,
+  });
+  const excludePattern =
+    /whisper|guard|safeguard|orpheus/i;
+  return (data.data || [])
     .filter((m) => {
-      if (m.is_free) return true;
-      if (m.input_price_per_million === null && m.output_price_per_million === null) return true;
-      if (m.input_price_per_million === 0 || m.output_price_per_million === 0) return true;
-      return false;
+      if (!m.active) return false;
+      if (excludePattern.test(m.id)) return false;
+      return true;
     })
     .map((m) => ({
-      id: `groq/${m.model_id}`,
-      name: m.display_name || m.model_id,
-      context_length: m.context_length ?? null,
+      id: `groq/${m.id}`,
+      name: m.id,
+      context_length: m.context_window ?? null,
     }));
 }
 
@@ -284,160 +286,127 @@ function normalizeModelSlug(name) {
     `);
     const existingIds = new Set(existingRows.map((r) => r.full_id));
 
-    // --- OpenRouter ---
-    logger.info('[OpenRouter] Fetching...');
-    const orModels = await getOpenRouterFreeModels();
-    logger.info(`  Found ${orModels.length} free models`);
+    let newOr, orModels, newCb, cbModels, newNv, nvModels, newHf, hfFree, newGoogle, googleModels, newDs, dsModels, newGroq, groqModels, newOc, ocModels;
 
-    const newOr = [];
-    for (const m of orModels) {
-      const id = `openrouter/${m.id}`;
-      if (!existingIds.has(id)) {
-        newOr.push({
-          id,
-          name: m.id,
-          provider: 'openrouter',
-          context_length: m.context_length,
-          pricing: m.pricing,
-        });
-      }
-    }
-    logger.info(`  New: ${newOr.length}`);
-    for (const n of newOr) logger.info(`    + ${n.id}`);
-
-    // --- Cerebras ---
-    logger.info('\n[Cerebras] Fetching...');
-    let newCb = [];
-    let cbModels = [];
-    try {
-      cbModels = await getCerebrasModels();
-      logger.info(`  Found ${cbModels.length} models`);
-      for (const m of cbModels) {
-        if (!existingIds.has(m.id)) newCb.push(m);
-      }
-      logger.info(`  New: ${newCb.length}`);
-      for (const n of newCb) logger.info(`    + ${n.id}`);
-    } catch (e) {
-      logger.info(`  ERROR: ${e.message}`);
-    }
-
-    // --- NVIDIA ---
-    logger.info('\n[NVIDIA] Fetching...');
-    let newNv = [];
-    let nvModels = [];
-    try {
-      nvModels = await getNvidiaFreeModels();
-      logger.info(`  Found ${nvModels.length} free models`);
-      for (const m of nvModels) {
-        const storedId = `nvidia/${m.id}`;
-        if (!existingIds.has(storedId) && !existingIds.has(m.id)) {
-          newNv.push({
-            id: storedId,
-            name: m.id,
-            provider: 'nvidia',
-            context_length: m.context_length,
-          });
+    // --- Batch 1: OpenRouter, Cerebras, NVIDIA ---
+    async function fetchOpenRouter() {
+      logger.info('[OpenRouter] Fetching...');
+      newOr = []; orModels = [];
+      try {
+        orModels = await getOpenRouterFreeModels();
+        logger.info(`  Found ${orModels.length} free models`);
+        for (const m of orModels) {
+          const id = `openrouter/${m.id}`;
+          if (!existingIds.has(id)) {
+            newOr.push({ id, name: m.id, provider: 'openrouter', context_length: m.context_length, pricing: m.pricing });
+          }
         }
-      }
-      logger.info(`  New: ${newNv.length}`);
-      for (const n of newNv) logger.info(`    + ${n.id}`);
-    } catch (e) {
-      logger.info(`  ERROR: ${e.message}`);
+        logger.info(`  New: ${newOr.length}`);
+        for (const n of newOr) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
     }
-
-    // --- HuggingFace ---
-    logger.info('\n[HuggingFace] Fetching...');
-    let newHf = [];
-    let hfFree = [];
-    try {
-      const hfModelsData = await httpGet(
-        'https://huggingface.co/api/models?inference_provider=huggingface&tags=text-generation&limit=200',
-        { Authorization: `Bearer ${auth.huggingface.key}` },
-      );
-      const hfModelList = Array.isArray(hfModelsData.data)
-        ? hfModelsData.data
-        : hfModelsData.data?.models || hfModelsData.data?.data || [];
-      for (const m of hfModelList) {
-        const id = m.id || m.modelId;
-        if (!id) continue;
-        const isInferenceFree = m.inference === 'free' || m.inference === 'feather';
-        const isFreeByConfig = m.tags && m.tags.includes('free');
-        if (isInferenceFree || isFreeByConfig) {
-          hfFree.push({
-            id: `huggingface/${id}`,
-            name: id,
-            context_length: m.generation_parameters?.max_new_tokens || null,
-          });
+    async function fetchCerebras() {
+      logger.info('\n[Cerebras] Fetching...');
+      newCb = []; cbModels = [];
+      try {
+        cbModels = await getCerebrasModels();
+        logger.info(`  Found ${cbModels.length} models`);
+        for (const m of cbModels) { if (!existingIds.has(m.id)) newCb.push(m); }
+        logger.info(`  New: ${newCb.length}`);
+        for (const n of newCb) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+    }
+    async function fetchNvidia() {
+      logger.info('\n[NVIDIA] Fetching...');
+      newNv = []; nvModels = [];
+      try {
+        nvModels = await getNvidiaFreeModels();
+        logger.info(`  Found ${nvModels.length} free models`);
+        for (const m of nvModels) {
+          const storedId = `nvidia/${m.id}`;
+          if (!existingIds.has(storedId) && !existingIds.has(m.id)) {
+            newNv.push({ id: storedId, name: m.id, provider: 'nvidia', context_length: m.context_length });
+          }
         }
-      }
-      logger.info(`  Found ${hfFree.length} free models`);
-      for (const m of hfFree) {
-        if (!existingIds.has(m.id)) newHf.push(m);
-      }
-      logger.info(`  New: ${newHf.length}`);
-      for (const n of newHf) logger.info(`    + ${n.id}`);
-    } catch (e) {
-      logger.info(`  ERROR: ${e.message}`);
+        logger.info(`  New: ${newNv.length}`);
+        for (const n of newNv) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
     }
+    await Promise.allSettled([fetchOpenRouter(), fetchCerebras(), fetchNvidia()]);
 
-    // --- Google Gemini ---
-    logger.info('\n[Google] Fetching...');
-    let newGoogle = [];
-    let googleModels = [];
-    try {
-      googleModels = await getGoogleModels();
-      logger.info(`  Found ${googleModels.length} chat models`);
-      for (const m of googleModels) {
-        if (!existingIds.has(m.id)) newGoogle.push(m);
-      }
-      logger.info(`  New: ${newGoogle.length}`);
-      for (const n of newGoogle) logger.info(`    + ${n.id}`);
-    } catch (e) {
-      logger.info(`  ERROR: ${e.message}`);
+    // --- Batch 2: HuggingFace, Google, DeepSeek ---
+    async function fetchHuggingFace() {
+      logger.info('\n[HuggingFace] Fetching...');
+      newHf = []; hfFree = [];
+      try {
+        const hfModelsData = await httpGet(
+          'https://huggingface.co/api/models?inference_provider=huggingface&tags=text-generation&limit=200',
+          { Authorization: `Bearer ${auth.huggingface.key}` },
+        );
+        const hfModelList = Array.isArray(hfModelsData.data) ? hfModelsData.data : hfModelsData.data?.models || hfModelsData.data?.data || [];
+        for (const m of hfModelList) {
+          const id = m.id || m.modelId;
+          if (!id) continue;
+          const isInferenceFree = m.inference === 'free' || m.inference === 'feather';
+          const isFreeByConfig = m.tags && m.tags.includes('free');
+          if (isInferenceFree || isFreeByConfig) {
+            hfFree.push({ id: `huggingface/${id}`, name: id, context_length: m.generation_parameters?.max_new_tokens || null });
+          }
+        }
+        logger.info(`  Found ${hfFree.length} free models`);
+        for (const m of hfFree) { if (!existingIds.has(m.id)) newHf.push(m); }
+        logger.info(`  New: ${newHf.length}`);
+        for (const n of newHf) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
     }
+    async function fetchGoogle() {
+      logger.info('\n[Google] Fetching...');
+      newGoogle = []; googleModels = [];
+      try {
+        googleModels = await getGoogleModels();
+        logger.info(`  Found ${googleModels.length} chat models`);
+        for (const m of googleModels) { if (!existingIds.has(m.id)) newGoogle.push(m); }
+        logger.info(`  New: ${newGoogle.length}`);
+        for (const n of newGoogle) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+    }
+    async function fetchDeepSeek() {
+      logger.info('\n[DeepSeek] Fetching...');
+      newDs = []; dsModels = [];
+      try {
+        dsModels = await getDeepSeekModels();
+        logger.info(`  Found ${dsModels.length} models`);
+        for (const m of dsModels) { if (!existingIds.has(m.id)) newDs.push(m); }
+        logger.info(`  New: ${newDs.length}`);
+        for (const n of newDs) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+    }
+    await Promise.allSettled([fetchHuggingFace(), fetchGoogle(), fetchDeepSeek()]);
 
-    // --- DeepSeek ---
-    logger.info('\n[DeepSeek] Fetching...');
-    let newDs = [];
-    let dsModels = [];
-    try {
-      dsModels = await getDeepSeekModels();
-      logger.info(`  Found ${dsModels.length} models`);
-      for (const m of dsModels) {
-        if (!existingIds.has(m.id)) newDs.push(m);
-      }
-      logger.info(`  New: ${newDs.length}`);
-      for (const n of newDs) logger.info(`    + ${n.id}`);
-    } catch (e) {
-      logger.info(`  ERROR: ${e.message}`);
+    // --- Batch 3: Groq, OpenCode ---
+    async function fetchGroq() {
+      logger.info('\n[Groq] Fetching...');
+      newGroq = []; groqModels = [];
+      try {
+        groqModels = await getGroqModels();
+        logger.info(`  Found ${groqModels.length} free models`);
+        for (const m of groqModels) { if (!existingIds.has(m.id)) newGroq.push(m); }
+        logger.info(`  New: ${newGroq.length}`);
+        for (const n of newGroq) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
     }
-
-    // --- Groq ---
-    logger.info('\n[Groq] Fetching...');
-    let newGroq = [];
-    const groqModels = await getGroqModels();
-    logger.info(`  Found ${groqModels.length} free models`);
-    for (const m of groqModels) {
-      if (!existingIds.has(m.id)) newGroq.push(m);
+    async function fetchOpenCode() {
+      logger.info('\n[OpenCode] Fetching...');
+      newOc = []; ocModels = [];
+      try {
+        ocModels = await getOpenCodeModels();
+        logger.info(`  Found ${ocModels.length} free models`);
+        for (const m of ocModels) { if (!existingIds.has(m.id)) newOc.push(m); }
+        logger.info(`  New: ${newOc.length}`);
+        for (const n of newOc) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
     }
-    logger.info(`  New: ${newGroq.length}`);
-    for (const n of newGroq) logger.info(`    + ${n.id}`);
-
-    // --- OpenCode ---
-    logger.info('\n[OpenCode] Fetching...');
-    let newOc = [];
-    let ocModels = [];
-    try {
-      ocModels = await getOpenCodeModels();
-      logger.info(`  Found ${ocModels.length} free models`);
-      for (const m of ocModels) {
-        if (!existingIds.has(m.id)) newOc.push(m);
-      }
-      logger.info(`  New: ${newOc.length}`);
-      for (const n of newOc) logger.info(`    + ${n.id}`);
-    } catch (e) {
-      logger.info(`  ERROR: ${e.message}`);
-    }
+    await Promise.allSettled([fetchGroq(), fetchOpenCode()]);
 
     // --- Detect removed models ---
     logger.info('\n[Status Check] Models in DB but no longer in provider listings...');
@@ -455,14 +424,21 @@ function normalizeModelSlug(name) {
     const skipRemovalCheck = await getSkipRemovalCheck(client);
     const potentiallyRemoved = [];
 
+    // Only check removal for providers with direct API sync (not community imports)
+    const syncedSlugs = new Set([
+      'openrouter', 'cerebras', 'nvidia', 'huggingface', 'google',
+      'deepseek', 'groq', 'opencode-zen', 'opencode',
+    ]);
+
     const { rows: dbModels } = await client.query(`
-      SELECT dm.full_id, dp.name AS provider_name
+      SELECT dm.full_id, dp.name AS provider_name, dp.slug AS provider_slug
       FROM datapoint_models dm
       JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
       WHERE dm.is_free = true AND dm.is_removed = false
     `);
 
     for (const m of dbModels) {
+      if (!syncedSlugs.has(m.provider_slug)) continue; // skip community-imported providers
       if (!allCurrentFreeIds.has(m.full_id) && !skipRemovalCheck.has(m.full_id)) {
         potentiallyRemoved.push(m);
       }
@@ -523,6 +499,9 @@ function normalizeModelSlug(name) {
           'deepseek',
           'groq',
           'opencode',
+          'github-models',
+          'cloudflare',
+          'cohere',
         ];
         for (const slug of providerSlugs) {
           await client.query(
@@ -607,6 +586,32 @@ function normalizeModelSlug(name) {
           exportCode === 0
             ? '  JSON export completed'
             : `  JSON export failed with code ${exportCode}`,
+        );
+
+        // Fetch external community sources
+        logger.info('\n[External Sources] Fetching community model lists...');
+        const externalScript = path.join(__dirname, 'fetch-external-sources.js');
+        const externalProcess = spawn('node', [externalScript, '--apply']);
+        externalProcess.stdout.on('data', (d) => logger.info(d.toString().trim()));
+        externalProcess.stderr.on('data', (d) => console.error(d.toString().trim()));
+        const externalCode = await new Promise((resolve) => externalProcess.on('close', resolve));
+        logger.info(
+          externalCode === 0
+            ? '  External sources updated'
+            : `  External sources fetch failed with code ${externalCode}`,
+        );
+
+        // Import missing models from external sources into datapoint_models
+        logger.info('\n[Import] Cross-referencing external models against DB...');
+        const importScript = path.join(__dirname, 'import-external-models.js');
+        const importProcess = spawn('node', [importScript, '--apply']);
+        importProcess.stdout.on('data', (d) => logger.info(d.toString().trim()));
+        importProcess.stderr.on('data', (d) => console.error(d.toString().trim()));
+        const importCode = await new Promise((resolve) => importProcess.on('close', resolve));
+        logger.info(
+          importCode === 0
+            ? '  External model import completed'
+            : `  External model import failed with code ${importCode}`,
         );
       } catch (err) {
         await client.query('ROLLBACK');

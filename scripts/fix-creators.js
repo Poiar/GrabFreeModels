@@ -47,8 +47,6 @@ const CREATORS = {
   adept: 'Adept',
   perplexity: 'Perplexity',
   together: 'Together AI',
-  cerebras: 'Cerebras',
-  groq: 'Groq',
 
   // Additional creator aliases
   'meta-llama': 'Meta',
@@ -169,7 +167,9 @@ const ROUTER_PREFIXES = new Set([
   'alibaba-coding-plan-cn',
   'atomic-chat',
   'cloudflare-ai-gateway',
+  'cerebras',
   'cortecs',
+  'groq',
   'firepass',
   'github-models',
   'gitlab',
@@ -226,7 +226,7 @@ function normalizeCreator(name) {
   });
   try {
     // Clear all first
-    await pool.query('UPDATE super_models SET author = NULL');
+    await pool.query('UPDATE super_models SET creator = NULL');
 
     // Get all unique datapoint full_ids grouped by super_model
     const { rows } = await pool.query(`
@@ -244,68 +244,68 @@ function normalizeCreator(name) {
 
     let assigned = 0;
     for (const [id, fullIds] of bySuper) {
-      let author = null;
+      let creator = null;
 
       for (const fullId of fullIds) {
         const parts = fullId.split('/').filter(Boolean);
 
         // Case 1: First segment is a known creator directly
         // E.g., deepseek/deepseek-chat, google/gemini-pro
-        author = normalizeCreator(parts[0]);
-        if (author) break;
+        creator = normalizeCreator(parts[0]);
+        if (creator) break;
 
         // Case 2: First segment is a router, second is the creator
         // E.g., openrouter/openai/gpt-5.1, github-models/meta/llama-4
         if (ROUTER_PREFIXES.has(parts[0]) && parts.length >= 3) {
-          author = normalizeCreator(parts[1]);
-          if (author) break;
+          creator = normalizeCreator(parts[1]);
+          if (creator) break;
         }
 
         // Case 3: First segment is a router, only 2 parts total (name is in second part)
         // E.g., modelsdev/claude-3.5-sonnet, modelsdev/kimi-k2.5
         if (ROUTER_PREFIXES.has(parts[0]) && parts.length === 2) {
-          author = normalizeCreator(parts[1]);
-          if (author) break;
-          author = NAME_PREFIXES[firstWord(parts[1])];
-          if (author) break;
+          creator = normalizeCreator(parts[1]);
+          if (creator) break;
+          creator = NAME_PREFIXES[firstWord(parts[1])];
+          if (creator) break;
         }
 
         // Case 4: Name prefix matching on the last segment
         // E.g., modelsdev/mistral-ai/mistral-nemo → 'mistral' prefix
-        if (!author) {
+        if (!creator) {
           const last = parts[parts.length - 1];
-          author = NAME_PREFIXES[firstWord(last)];
-          if (author) break;
+          creator = NAME_PREFIXES[firstWord(last)];
+          if (creator) break;
         }
 
         // Case 5: GitLab Duo Chat rebranded models
         // duo-chat-gpt* → OpenAI, duo-chat-(haiku|opus|sonnet|claude) → Anthropic
-        if (!author) {
+        if (!creator) {
           const last = parts[parts.length - 1].toLowerCase();
           const duoMatch = last.match(/duo[._-]chat[._-](gpt|claude|haiku|opus|sonnet)/);
           if (duoMatch) {
-            author = duoMatch[1] === 'gpt' ? 'OpenAI' : 'Anthropic';
+            creator = duoMatch[1] === 'gpt' ? 'OpenAI' : 'Anthropic';
             break;
           }
         }
       }
 
-      if (author) {
-        await pool.query('UPDATE super_models SET author = $1 WHERE id = $2', [author, id]);
+      if (creator) {
+        await pool.query('UPDATE super_models SET creator = $1 WHERE id = $2', [creator, id]);
         assigned++;
       }
     }
 
     const { rows: count } = await pool.query(
-      'SELECT COUNT(*) AS c FROM super_models WHERE author IS NOT NULL',
+      'SELECT COUNT(*) AS c FROM super_models WHERE creator IS NOT NULL',
     );
-    const { rows: authors } = await pool.query(
-      'SELECT DISTINCT author FROM super_models WHERE author IS NOT NULL ORDER BY author',
+    const { rows: creators } = await pool.query(
+      'SELECT DISTINCT creator FROM super_models WHERE creator IS NOT NULL ORDER BY creator',
     );
 
-    console.log(`Assigned ${assigned} confident authors`);
-    console.log(`Total with author: ${count[0].c}`);
-    console.log('Authors:', authors.map((r) => r.author).join(', '));
+    console.log(`Assigned ${assigned} confident creators`);
+    console.log(`Total with creator: ${count[0].c}`);
+    console.log('Creators:', creators.map((r) => r.creator).join(', '));
   } catch (err) {
     console.error('Failed:', err.message);
     process.exitCode = 1;

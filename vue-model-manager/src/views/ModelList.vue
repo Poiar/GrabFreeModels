@@ -88,8 +88,15 @@
       />
     </div>
 
+    <!-- Error state -->
+    <div v-if="store.error && !store.loading" class="ml-error">
+      <p>Could not load model data. The server may be unavailable.</p>
+      <p class="ml-error-detail">{{ store.error }}</p>
+      <button class="refresh-btn" @click="store.loadData()">Retry</button>
+    </div>
+
     <!-- Empty state -->
-    <div v-if="filteredAndSortedModels.length === 0 && !store.loading" class="ml-empty">
+    <div v-if="!store.error && filteredAndSortedModels.length === 0 && !store.loading" class="ml-empty">
       <p>No models match your filters.</p>
       <button class="refresh-btn" @click="clearFilters">Clear filters</button>
     </div>
@@ -100,33 +107,83 @@
       :open="!!detailModel"
       :model="detailModel.model"
       :creator="detailModel.creator"
-      @close="detailModel = null"
-      @navigate-to="detailModel = $event"
+      @close="closeDetail"
+      @navigate-to="openDetail($event.model, $event.creator)"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import ModelCard from '@/components/ModelCard.vue';
 import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
 import { useModelsStore } from '@/store/models';
 import type { ModelData, CreatorData } from '@/types';
 
 const store = useModelsStore();
+const route = useRoute();
+const router = useRouter();
 
-const searchQuery = ref('');
-const creatorFilter = ref('');
-const statusFilter = ref('');
-const priceFilter = ref('');
-const sortKey = ref('name');
-const sortAsc = ref(true);
+function getQueryParam(key: string, fallback: string): string {
+  const v = route.query[key];
+  return typeof v === 'string' ? v : fallback;
+}
+
+const searchQuery = ref(getQueryParam('q', ''));
+const creatorFilter = ref(getQueryParam('creator', ''));
+const statusFilter = ref(getQueryParam('status', ''));
+const priceFilter = ref(getQueryParam('price', ''));
+const sortKey = ref(getQueryParam('sort', 'name'));
+const sortAsc = ref(getQueryParam('asc', 'true') !== 'false');
+
+// Sync filter state → URL query params
+watch(
+  [searchQuery, creatorFilter, statusFilter, priceFilter, sortKey, sortAsc],
+  () => {
+    const q: Record<string, string> = {};
+    if (searchQuery.value) q.q = searchQuery.value;
+    if (creatorFilter.value) q.creator = creatorFilter.value;
+    if (statusFilter.value) q.status = statusFilter.value;
+    if (priceFilter.value) q.price = priceFilter.value;
+    if (sortKey.value !== 'name') q.sort = sortKey.value;
+    if (!sortAsc.value) q.asc = 'false';
+    router.replace({ query: Object.keys(q).length ? q : {} });
+  },
+);
 
 const detailModel = ref<{ model: ModelData; creator: CreatorData } | null>(null);
 
 function openDetail(model: ModelData, creator: CreatorData) {
   detailModel.value = { model, creator };
+  router.push({ name: 'ModelDetail', params: { slug: model.slug } });
 }
+
+function closeDetail() {
+  detailModel.value = null;
+  router.push({ name: 'Models' });
+}
+
+// Watch route slug param — open detail on direct navigation
+watch(
+  [() => route.params.slug, () => store.creators],
+  ([slug]) => {
+    if (!slug || Array.isArray(slug)) {
+      if (!detailModel.value) return;
+      detailModel.value = null;
+      return;
+    }
+    for (const creator of store.creators) {
+      for (const model of creator.models) {
+        if (model.slug === slug) {
+          detailModel.value = { model, creator };
+          return;
+        }
+      }
+    }
+  },
+  { immediate: true },
+);
 
 function getModelStatus(model: ModelData): string {
   const active = model.providers.filter((p) => !p._removed);
@@ -399,6 +456,17 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   text-align: center;
   padding: 40px 20px;
   color: var(--text-muted);
+}
+
+.ml-error {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--red, #ef4444);
+}
+.ml-error-detail {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 8px 0 16px;
 }
 
 .refresh-btn {

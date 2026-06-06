@@ -18,18 +18,7 @@ const https = require('https');
 const logger = require('./utils/logger');
 const fs = require('fs');
 const path = require('path');
-const { Pool } = require('pg');
-
-const connectionString = process.env.DATABASE_URL;
-const DB_POOL = connectionString
-  ? new Pool({ connectionString, ssl: { rejectUnauthorized: false } })
-  : new Pool({
-      host: process.env.PGHOST || 'localhost',
-      port: parseInt(process.env.PGPORT || '5432'),
-      user: process.env.PGUSER,
-      password: process.env.PGPASSWORD,
-      database: process.env.PGDATABASE,
-    });
+const DB_POOL = require('../server/db');
 
 const args = process.argv.slice(2);
 const APPLY = args.includes('--apply');
@@ -52,7 +41,7 @@ const AUTH_FILE = path.join(
   'opencode',
   'auth.json',
 );
-const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
+let auth;
 
 // Load data from PostgreSQL
 let json = null;
@@ -69,21 +58,31 @@ async function loadFromDb() {
 }
 
 async function saveToDbAndExport() {
-  for (const m of json.models) {
-    await DB_POOL.query(
-      `UPDATE datapoint_models SET
-         status_result = $1, status_tested = $2, status_detail = $3, last_success = $4
-       WHERE full_id = $5`,
-      [m.status.result, m.status.tested, m.status.detail, m.last_success || null, m.id],
+  const client = await DB_POOL.connect();
+  try {
+    await client.query('BEGIN');
+    for (const m of json.models) {
+      await client.query(
+        `UPDATE datapoint_models SET
+           status_result = $1, status_tested = $2, status_detail = $3, last_success = $4
+         WHERE full_id = $5`,
+        [m.status.result, m.status.tested, m.status.detail, m.last_success || null, m.id],
+      );
+    }
+    await client.query(
+      `INSERT INTO metadata (key, value) VALUES ('_test_summary', $1)
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+      [JSON.stringify(json._test_summary)],
     );
+    await client.query('COMMIT');
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
   }
-  await DB_POOL.query(
-    `INSERT INTO metadata (key, value) VALUES ('_test_summary', $1)
-     ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
-    [JSON.stringify(json._test_summary)],
-  );
   const exporter = require('./export-from-pg');
-  await exporter();
+  await exporter(DB_POOL);
   logger.info(`Exported to ${MODELS_FILE}`);
 }
 
@@ -192,11 +191,18 @@ function getEndpoint(modelId) {
   if (modelId.startsWith('llmgateway/')) return 'llmgateway';
   if (modelId.startsWith('deepseek/')) return 'deepseek';
   if (modelId.startsWith('opencode/')) return 'opencode';
+  if (modelId.startsWith('alibaba/')) return 'alibaba';
   if (modelId.startsWith('google/')) return 'google';
   return 'openrouter';
 }
 
 const ENDPOINT_CONFIG = {
+  alibaba: {
+    url: 'https://dashscope.aliyuncs.com/api/v1/chat/completions',
+    key: () => auth.alibaba?.DASHSCOPE_API_KEY,
+    modelsUrl: 'https://dashscope.aliyuncs.com/api/v1/models',
+    fetchIds: async (k) => parseSimpleModels(k, 'https://dashscope.aliyuncs.com/api/v1/models'),
+  },
   openrouter: {
     url: 'https://openrouter.ai/api/v1/chat/completions',
     key: () => auth.openrouter.key,
@@ -363,6 +369,7 @@ async function testModel(apiModelId, phase, apiKey, apiUrl) {
 // --- Load from DB ---
 (async () => {
   try {
+  auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
   await loadFromDb();
 } catch (e) {
   logger.error(`Failed to load from DB: ${e.message}\n${e.stack}`);

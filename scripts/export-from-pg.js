@@ -20,10 +20,11 @@ async function exportData(pool) {
   if (!pool) {
     const connectionString = process.env.DATABASE_URL;
     pool = connectionString
-      ? new Pool({ connectionString, ssl: { rejectUnauthorized: false } })
+      ? new Pool({ connectionString, ssl: { rejectUnauthorized: false }, max: 1 })
       : new Pool({
           host: process.env.PGHOST || 'localhost',
           port: parseInt(process.env.PGPORT || '5432'),
+          max: 1,
           user: process.env.PGUSER,
           password: process.env.PGPASSWORD,
           database: process.env.PGDATABASE,

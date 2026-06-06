@@ -65,6 +65,8 @@ export interface ProviderReference {
 export interface ModelsData {
   creators: CreatorData[];
   providers: ProviderReference[];
+  models: DatapointModel[];
+  provider_health: Record<string, ProviderHealth>;
   _test_summary: TestSummary;
   _role_rankings: {
     description: string;
@@ -93,7 +95,7 @@ export interface DatapointModel {
   super_name: string;
   name: string; // alias for super_name (backward compat)
   provider: string;
-  author: string | null;
+  creator: string | null;
   source: string; // provider slug
   context_length: number | null;
   input_price_per_million: number;
