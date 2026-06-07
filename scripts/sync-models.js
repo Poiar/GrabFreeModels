@@ -113,10 +113,6 @@ const PROVIDER_LIMITATIONS = {
     rate_limit: 'Varies by model',
     notes: 'Free tier models via OpenCode Zen. Requires OpenCode account.',
   },
-  'opencode-zen': {
-    rate_limit: 'Varies by model',
-    notes: 'Free tier models via OpenCode Zen. Requires OpenCode account.',
-  },
   'github-models': {
     rate_limit: 'Varies by model',
     notes: 'Free tier via GitHub Models. Requires GitHub account. Rate limits vary by model.',
@@ -152,6 +148,18 @@ const PROVIDER_LIMITATIONS = {
   modelsdev: {
     rate_limit: 'Varies by model',
     notes: 'Free inference via Hugging Face community providers. Cold starts and rate limits apply.',
+  },
+  deepinfra: {
+    rate_limit: 'Varies by model',
+    notes: 'Free tier via Deep Infra. Rate limited, pay-as-you-go for higher limits.',
+  },
+  novitaai: {
+    rate_limit: 'Varies by model',
+    notes: 'Free tier via NovitaAI. Requires account. Rate limited.',
+  },
+  siliconflow: {
+    rate_limit: 'Varies by model',
+    notes: 'Free tier via SiliconFlow. Requires account. Rate limited.',
   },
   'alibaba-coding-plan': {
     rate_limit: 'Varies by model',
@@ -224,10 +232,6 @@ const PROVIDER_LIMITATIONS = {
   aihubmix: {
     rate_limit: 'Varies by model',
     notes: 'Free tier via AI Hub Mix. Rate limited.',
-  },
-  siliconflow: {
-    rate_limit: 'Varies by model',
-    notes: 'Free tier via SiliconFlow. Requires account.',
   },
   'siliconflow-cn': {
     rate_limit: 'Varies by model',
@@ -476,6 +480,118 @@ async function getOpenCodeModels() {
     }));
 }
 
+async function getDeepInfraModels() {
+  const key = auth.deepinfra?.key;
+  const headers = key ? { Authorization: `Bearer ${key}` } : {};
+  const { data: resp } = await httpGet('https://api.deepinfra.com/v1/openai/models', headers);
+  const modelList = Array.isArray(resp) ? resp : resp.data || [];
+  return modelList
+    .filter((m) => m.owned_by !== 'openai')
+    .map((m) => ({
+      id: `deepinfra/${m.id}`,
+      name: m.id,
+      context_length: m.context_window ?? m.max_input_tokens ?? null,
+    }));
+}
+
+async function getCloudflareModels() {
+  const key = auth.cloudflare?.key;
+  const accountId = auth.cloudflare?.accountId;
+  if (!key || !accountId) throw new Error('No Cloudflare API credentials found');
+  const { data: resp } = await httpGet(
+    `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/models/search?task=Text Generation`,
+    { Authorization: `Bearer ${key}` },
+  );
+  const modelList = Array.isArray(resp) ? resp : resp.result || [];
+  return modelList
+    .filter((m) => m.properties?.free === true || m.name.toLowerCase().includes('free'))
+    .map((m) => ({
+      id: `cloudflare/${m.name}`,
+      name: m.name,
+      context_length: m.properties?.context_window || null,
+    }));
+}
+
+async function getNovitaModels() {
+  const key = auth.novitaai?.key;
+  if (!key) throw new Error('No NovitaAI API key found');
+  const { data: resp } = await httpGet('https://api.novita.ai/v3/openai/models', {
+    Authorization: `Bearer ${key}`,
+  });
+  const modelList = Array.isArray(resp) ? resp : resp.data || [];
+  return modelList.map((m) => ({
+    id: `novitaai/${m.id}`,
+    name: m.id,
+    context_length: m.context_window ?? m.max_input_tokens ?? null,
+  }));
+}
+
+async function getSiliconFlowModels() {
+  const key = auth.siliconflow?.key;
+  if (!key) throw new Error('No SiliconFlow API key found');
+  const { data: resp } = await httpGet('https://api.siliconflow.com/v1/models', {
+    Authorization: `Bearer ${key}`,
+  });
+  const modelList = Array.isArray(resp) ? resp : resp.data || [];
+  return modelList.map((m) => ({
+    id: `siliconflow/${m.id}`,
+    name: m.id,
+    context_length: m.context_window ?? m.max_input_tokens ?? null,
+  }));
+}
+
+async function getXaiModels() {
+  const key = auth.xai?.key;
+  if (!key) throw new Error('No xAI API key found');
+  const { data: resp } = await httpGet('https://api.x.ai/v1/models', {
+    Authorization: `Bearer ${key}`,
+  });
+  const modelList = Array.isArray(resp) ? resp : resp.data || [];
+  return modelList.map((m) => ({
+    id: `xai/${m.id}`,
+    name: m.id,
+    context_length: m.context_window ?? m.max_input_tokens ?? null,
+  }));
+}
+
+async function getZhipuaiModels() {
+  const key = auth.zhipuai?.key;
+  if (!key) throw new Error('No ZhipuAI API key found');
+  const { data: resp } = await httpGet('https://open.bigmodel.cn/api/paas/v4/models', {
+    Authorization: `Bearer ${key}`,
+  });
+  const modelList = Array.isArray(resp) ? resp : resp.data || [];
+  return modelList.map((m) => ({
+    id: `zhipuai/${m.id}`,
+    name: m.id,
+    context_length: m.context_window ?? m.max_input_tokens ?? null,
+  }));
+}
+
+async function getGithubModels() {
+  const key = auth.github_models?.key;
+  if (!key) throw new Error('No GitHub Models token found');
+  const { data: resp } = await httpGet('https://models.inference.ai.azure.com/models', {
+    Authorization: `Bearer ${key}`,
+  });
+  const modelList = Array.isArray(resp) ? resp : resp.data || [];
+
+  const KNOWN_CTX = {
+    'gpt-4o': 128000,
+    'gpt-4o-mini': 128000,
+    'Meta-Llama-3.1-405B-Instruct': 131072,
+    'Meta-Llama-3.1-8B-Instruct': 131072,
+  };
+
+  return modelList
+    .filter((m) => m.task === 'chat-completion')
+    .map((m) => ({
+      id: `github-models/${m.name}`,
+      name: m.name,
+      context_length: KNOWN_CTX[m.name] ?? null,
+    }));
+}
+
 async function getSkipRemovalCheck(client) {
   const { rows } = await client.query(
     "SELECT value FROM metadata WHERE key = '_skip_removal_check'",
@@ -517,7 +633,7 @@ function normalizeModelSlug(name) {
     `);
     const existingIds = new Set(existingRows.map((r) => r.full_id));
 
-    let newOr, orModels, newCb, cbModels, newNv, nvModels, newHf, hfFree, newGoogle, googleModels, newDs, dsModels, newGroq, groqModels, newOc, ocModels;
+    let newOr, orModels, newCb, cbModels, newNv, nvModels, newHf, hfFree, newGoogle, googleModels, newDs, dsModels, newGroq, groqModels, newOc, ocModels, newGh, ghModels, newDi, diModels, newCf, cfModels, newNvt, nvtModels, newSf, sfModels, newXai, xaiModels, newZhipu, zhipuModels;
 
     // --- Batch 1: OpenRouter, Cerebras, NVIDIA ---
     async function fetchOpenRouter() {
@@ -639,6 +755,86 @@ function normalizeModelSlug(name) {
     }
     await Promise.allSettled([fetchGroq(), fetchOpenCode()]);
 
+    // --- Batch 4: Deep Infra, Cloudflare, NovitaAI, SiliconFlow, GitHub, xAI, Zhipu ---
+    async function fetchDeepInfra() {
+      logger.info('\n[DeepInfra] Fetching...');
+      newDi = []; diModels = [];
+      try {
+        diModels = await getDeepInfraModels();
+        logger.info(`  Found ${diModels.length} models`);
+        for (const m of diModels) { if (!existingIds.has(m.id)) newDi.push(m); }
+        logger.info(`  New: ${newDi.length}`);
+        for (const n of newDi) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+    }
+    async function fetchCloudflare() {
+      logger.info('\n[Cloudflare] Fetching...');
+      newCf = []; cfModels = [];
+      try {
+        cfModels = await getCloudflareModels();
+        logger.info(`  Found ${cfModels.length} free models`);
+        for (const m of cfModels) { if (!existingIds.has(m.id)) newCf.push(m); }
+        logger.info(`  New: ${newCf.length}`);
+        for (const n of newCf) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+    }
+    async function fetchNovita() {
+      logger.info('\n[NovitaAI] Fetching...');
+      newNvt = []; nvtModels = [];
+      try {
+        nvtModels = await getNovitaModels();
+        logger.info(`  Found ${nvtModels.length} models`);
+        for (const m of nvtModels) { if (!existingIds.has(m.id)) newNvt.push(m); }
+        logger.info(`  New: ${newNvt.length}`);
+        for (const n of newNvt) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+    }
+    async function fetchSiliconFlow() {
+      logger.info('\n[SiliconFlow] Fetching...');
+      newSf = []; sfModels = [];
+      try {
+        sfModels = await getSiliconFlowModels();
+        logger.info(`  Found ${sfModels.length} models`);
+        for (const m of sfModels) { if (!existingIds.has(m.id)) newSf.push(m); }
+        logger.info(`  New: ${newSf.length}`);
+        for (const n of newSf) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+    }
+    async function fetchGithub() {
+      logger.info('\n[GitHub Models] Fetching...');
+      newGh = []; ghModels = [];
+      try {
+        ghModels = await getGithubModels();
+        logger.info(`  Found ${ghModels.length} models`);
+        for (const m of ghModels) { if (!existingIds.has(m.id)) newGh.push(m); }
+        logger.info(`  New: ${newGh.length}`);
+        for (const n of newGh) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+    }
+    async function fetchXai() {
+      logger.info('\n[xAI] Fetching...');
+      newXai = []; xaiModels = [];
+      try {
+        xaiModels = await getXaiModels();
+        logger.info(`  Found ${xaiModels.length} models`);
+        for (const m of xaiModels) { if (!existingIds.has(m.id)) newXai.push(m); }
+        logger.info(`  New: ${newXai.length}`);
+        for (const n of newXai) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+    }
+    async function fetchZhipuai() {
+      logger.info('\n[ZhipuAI] Fetching...');
+      newZhipu = []; zhipuModels = [];
+      try {
+        zhipuModels = await getZhipuaiModels();
+        logger.info(`  Found ${zhipuModels.length} models`);
+        for (const m of zhipuModels) { if (!existingIds.has(m.id)) newZhipu.push(m); }
+        logger.info(`  New: ${newZhipu.length}`);
+        for (const n of newZhipu) logger.info(`    + ${n.id}`);
+      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+    }
+    await Promise.allSettled([fetchDeepInfra(), fetchCloudflare(), fetchNovita(), fetchSiliconFlow(), fetchGithub(), fetchXai(), fetchZhipuai()]);
+
     // --- Detect removed models ---
     logger.info('\n[Status Check] Models in DB but no longer in provider listings...');
     const allCurrentFreeIds = new Set([
@@ -650,6 +846,13 @@ function normalizeModelSlug(name) {
       ...(dsModels || []).map((m) => m.id),
       ...groqModels.map((m) => m.id),
       ...(ocModels || []).map((m) => m.id),
+      ...(diModels || []).map((m) => m.id),
+      ...(cfModels || []).map((m) => m.id),
+      ...(nvtModels || []).map((m) => m.id),
+      ...(sfModels || []).map((m) => m.id),
+      ...(ghModels || []).map((m) => m.id),
+      ...(xaiModels || []).map((m) => m.id),
+      ...(zhipuModels || []).map((m) => m.id),
     ]);
 
     const skipRemovalCheck = await getSkipRemovalCheck(client);
@@ -658,7 +861,7 @@ function normalizeModelSlug(name) {
     // Only check removal for providers with direct API sync (not community imports)
     const syncedSlugs = new Set([
       'openrouter', 'cerebras', 'nvidia', 'huggingface', 'google',
-      'deepseek', 'groq', 'opencode-zen', 'opencode',
+      'deepseek', 'groq', 'opencode', 'github-models', 'deepinfra', 'cloudflare', 'novitaai', 'siliconflow', 'xai', 'zhipuai',
     ]);
 
     const { rows: dbModels } = await client.query(`
@@ -686,7 +889,14 @@ function normalizeModelSlug(name) {
       newGoogle.length +
       newDs.length +
       newGroq.length +
-      newOc.length;
+      newOc.length +
+      newDi.length +
+      newCf.length +
+      newNvt.length +
+      newGh.length +
+      newSf.length +
+      newXai.length +
+      newZhipu.length;
     logger.info('\n=== Summary ===');
     logger.info(`  New models found:    ${totalNew}`);
     logger.info(`  Potentially removed: ${potentiallyRemoved.length}`);
@@ -733,6 +943,12 @@ function normalizeModelSlug(name) {
           'github-models',
           'cloudflare',
           'cohere',
+          'llmgateway',
+          'deepinfra',
+          'novitaai',
+          'siliconflow',
+          'xai',
+          'zhipuai',
         ];
         for (const slug of providerSlugs) {
           await client.query(
@@ -747,6 +963,26 @@ function normalizeModelSlug(name) {
         );
         const providerMap = new Map(providerRows.map((r) => [r.slug, r.id]));
 
+        // Ensure sources rows exist for all synced API providers (provenance tracking)
+        for (const slug of providerSlugs) {
+          const providerId = providerMap.get(slug);
+          if (!providerId) continue;
+          const sourceSlug = `${slug}-api`;
+          const displayName = slug.charAt(0).toUpperCase() + slug.slice(1);
+          await client.query(
+            `INSERT INTO sources (slug, name, source_type, datapoint_provider_id)
+             VALUES ($1, $2, 'api_provider', $3)
+             ON CONFLICT (slug) DO UPDATE SET datapoint_provider_id = EXCLUDED.datapoint_provider_id`,
+            [sourceSlug, `${displayName} API`, providerId],
+          );
+        }
+
+        // Fetch source IDs for provenance tracking
+        const { rows: sourceRows } = await client.query(
+          "SELECT id, slug FROM sources WHERE source_type = 'api_provider'",
+        );
+        const sourceMap = new Map(sourceRows.map((r) => [r.slug, r.id]));
+
         const allNew = [
           ...newOr,
           ...newCb,
@@ -756,6 +992,13 @@ function normalizeModelSlug(name) {
           ...newDs,
           ...newGroq,
           ...newOc,
+          ...newDi,
+          ...newCf,
+          ...newNvt,
+          ...newGh,
+          ...newSf,
+          ...newXai,
+          ...newZhipu,
         ];
 
         for (const m of allNew) {
@@ -780,16 +1023,28 @@ function normalizeModelSlug(name) {
 
           // Upsert datapoint model
           const limitations = m.limitations || PROVIDER_LIMITATIONS[providerSlug] || null;
-          await client.query(
+          const { rows: dmRows } = await client.query(
             `INSERT INTO datapoint_models (super_model_id, datapoint_provider_id, remote_id, full_id, context_length, is_free, status_result, status_detail, limitations)
              VALUES ($1, $2, $3, $4, $5, true, 'untested', 'Auto-discovered by sync script', $6)
              ON CONFLICT (datapoint_provider_id, remote_id) DO UPDATE SET
                context_length = EXCLUDED.context_length,
                limitations = EXCLUDED.limitations,
                is_removed = false,
-               updated_at = now()`,
+               updated_at = now()
+             RETURNING id`,
             [superId, providerId, remoteId, m.id, m.context_length, limitations ? JSON.stringify(limitations) : null],
           );
+          const dmId = dmRows[0].id;
+
+          // Record provenance
+          const sourceSlug = `${providerSlug}-api`;
+          const srcId = sourceMap.get(sourceSlug);
+          if (srcId) {
+            await client.query(
+              `INSERT INTO datapoint_model_sources (datapoint_model_id, source_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+              [dmId, srcId],
+            );
+          }
         }
 
         // Refresh limitations for all existing models from synced providers
@@ -864,6 +1119,24 @@ function normalizeModelSlug(name) {
             ? '  External model import completed'
             : `  External model import failed with code ${importCode}`,
         );
+
+        // Backfill provenance for existing models
+        logger.info('\n[Provenance] Backfilling provenance links for existing models...');
+        const backfillResult = await client.query(`
+          INSERT INTO datapoint_model_sources (datapoint_model_id, source_id)
+          SELECT dm.id, s.id
+          FROM datapoint_models dm
+          JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
+          JOIN sources s ON s.datapoint_provider_id = dp.id
+          WHERE s.source_type = 'api_provider'
+            AND dm.is_removed = false
+            AND NOT EXISTS (
+              SELECT 1 FROM datapoint_model_sources dms
+              WHERE dms.datapoint_model_id = dm.id AND dms.source_id = s.id
+            )
+          ON CONFLICT DO NOTHING
+        `);
+        logger.info(`  Backfilled ${backfillResult.rowCount} provenance links`);
       } catch (err) {
         await client.query('ROLLBACK');
         console.error('Error applying changes:', err.message);

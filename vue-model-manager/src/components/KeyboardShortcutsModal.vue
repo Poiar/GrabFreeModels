@@ -32,28 +32,32 @@
             <div class="shortcut-group">
               <h3>Navigation</h3>
               <div class="shortcut-row">
-                <kbd>g</kbd><kbd>d</kbd>
-                <span>Go to Dashboard</span>
+                <kbd>m</kbd>
+                <span>Models</span>
               </div>
               <div class="shortcut-row">
-                <kbd>g</kbd><kbd>a</kbd>
-                <span>Go to All Models</span>
+                <kbd>d</kbd>
+                <span>Dashboard</span>
               </div>
               <div class="shortcut-row">
-                <kbd>g</kbd><kbd>f</kbd>
-                <span>Go to Free Models</span>
+                <kbd>c</kbd>
+                <span>Creators</span>
               </div>
               <div class="shortcut-row">
-                <kbd>g</kbd><kbd>p</kbd>
-                <span>Go to Paid Models</span>
+                <kbd>i</kbd>
+                <span>Issues</span>
               </div>
               <div class="shortcut-row">
-                <kbd>g</kbd><kbd>s</kbd>
-                <span>Go to Super Models</span>
+                <kbd>o</kbd>
+                <span>Compare</span>
               </div>
               <div class="shortcut-row">
-                <kbd>g</kbd><kbd>i</kbd>
-                <span>Go to Issues</span>
+                <kbd>r</kbd>
+                <span>Rankings (Free)</span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>s</kbd>
+                <span>Super Models</span>
               </div>
             </div>
             <div class="shortcut-group">

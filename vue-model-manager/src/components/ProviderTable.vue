@@ -18,6 +18,11 @@
       <tbody>
         <tr v-for="dp in sortedProviders" :key="dp.full_id" class="pt-row">
           <td class="pt-cell pt-name">{{ dp.provider }}</td>
+          <td class="pt-cell pt-source">
+            <span v-if="getSourceBadges(dp).api" class="pt-source-badge source-api">API</span>
+            <span v-if="getSourceBadges(dp).community" class="pt-source-badge source-community">community</span>
+            <span v-if="!getSourceBadges(dp).api && !getSourceBadges(dp).community" class="dash">—</span>
+          </td>
           <td class="pt-cell">{{ formatContext(dp.context_length) }}</td>
           <td class="pt-cell pt-icon">
             <svg
@@ -89,16 +94,20 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import type { ProviderDatapoint } from '@/types';
+import { useModelsStore } from '@/store/models';
 
 const props = defineProps<{
   providers: ProviderDatapoint[];
 }>();
+
+const store = useModelsStore();
 
 const sortKey = ref<string>('');
 const sortAsc = ref(true);
 
 const columns = [
   { key: 'provider', label: 'Provider', sortable: true },
+  { key: 'source', label: 'Source', sortable: false },
   { key: 'context', label: 'Context', sortable: true },
   { key: 'tools', label: 'Tools', sortable: false },
   { key: 'reasoning', label: 'Reasoning', sortable: false },
@@ -107,6 +116,20 @@ const columns = [
   { key: 'status', label: 'Status', sortable: false },
   { key: 'last_success', label: 'Last Success', sortable: true },
 ];
+
+function getSourceBadges(dp: ProviderDatapoint): { api: boolean; community: boolean } {
+  const ids = dp.source_ids || [];
+  if (ids.length === 0) return { api: false, community: false };
+  const typeById: Record<number, string> = {};
+  for (const s of store.sources) {
+    typeById[s.id] = s.source_type;
+  }
+  const types = new Set(ids.map((id) => typeById[id]).filter(Boolean));
+  return {
+    api: types.has('api_provider'),
+    community: types.has('community_list'),
+  };
+}
 
 function sortBy(key: string) {
   if (sortKey.value === key) {
@@ -231,6 +254,29 @@ function formatTime(dateStr: string | null): string {
 
 .pt-name {
   font-weight: 600;
+}
+
+.pt-source {
+  white-space: nowrap;
+}
+
+.pt-source-badge {
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pt-source-badge.source-api {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.pt-source-badge.source-community {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
 }
 
 .pt-icon {

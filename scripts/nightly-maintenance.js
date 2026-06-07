@@ -85,6 +85,9 @@ const STEP_NAMES = [
   're-rank',
   'detect-ranking-drift',
   'ranking-sanity-check',
+  'sync-paid-models',
+  'rank-paid-models',
+  'check-paid-rankings',
   'regenerate-test-summary',
   'generate-summary-log',
   'export-final-json',
@@ -316,7 +319,36 @@ let pipelineStart = Date.now();
       execSync('node scripts/check-rankings.js', { stdio: 'inherit' });
     });
 
-    // 8. Regenerate _test_summary and persist to PG
+    // 8. Sync paid models from OpenRouter
+    console.log('\nSyncing paid models...');
+    await runStep('sync-paid-models', async () => {
+      execSync('node scripts/sync-paid-models.js --apply', { stdio: 'inherit' });
+    });
+
+    // 9. Rank paid models
+    console.log('Ranking paid models...');
+    await runStep('rank-paid-models', async () => {
+      execSync('node scripts/rank-paid-models.js --apply', { stdio: 'inherit' });
+    });
+
+    // 10. Check paid rankings
+    console.log('Checking paid rankings...');
+    await runStep('check-paid-rankings', async () => {
+      delete require.cache[require.resolve(LOAD_SCRIPT)];
+      const load = require(LOAD_SCRIPT);
+      const paidData = await load(pool, { isFree: false });
+      const r = paidData._role_rankings || {};
+      let total = 0;
+      for (const [role, ids] of Object.entries(r)) {
+        if (Array.isArray(ids)) {
+          console.log(`  Paid ${role}: ${ids.length} models`);
+          total += ids.length;
+        }
+      }
+      console.log(`  Total paid ranking entries: ${total}`);
+    });
+
+    // 11. Regenerate _test_summary and persist to PG
     console.log('Regenerating _test_summary...');
     await runStep('regenerate-test-summary', async () => {
       const summaryData = await loadFromDb();

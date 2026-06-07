@@ -92,6 +92,54 @@ CREATE TABLE external_sources (
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Source registry for provenance tracking (API providers + community lists)
+CREATE TYPE source_type AS ENUM ('api_provider', 'community_list');
+
+CREATE TABLE sources (
+    id                SERIAL PRIMARY KEY,
+    slug              VARCHAR(64) NOT NULL UNIQUE,
+    name              VARCHAR(128) NOT NULL,
+    source_type       source_type NOT NULL,
+    datapoint_provider_id INTEGER REFERENCES datapoint_providers(id) ON DELETE SET NULL,
+    source_url        VARCHAR(512),
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Provenance junction: which sources contribute to which model instances
+CREATE TABLE datapoint_model_sources (
+    id                  SERIAL PRIMARY KEY,
+    datapoint_model_id  INTEGER NOT NULL REFERENCES datapoint_models(id) ON DELETE CASCADE,
+    source_id           INTEGER NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (datapoint_model_id, source_id)
+);
+
+-- Normalized community-source provider entries
+CREATE TABLE external_source_providers (
+    id              SERIAL PRIMARY KEY,
+    source_id       INTEGER NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
+    external_name   VARCHAR(256) NOT NULL,
+    mapped_slug     VARCHAR(64),
+    trial_credits   TEXT,
+    UNIQUE (source_id, external_name)
+);
+
+-- Normalized community-source model entries
+CREATE TABLE external_source_models (
+    id                          SERIAL PRIMARY KEY,
+    source_id                   INTEGER NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
+    external_source_provider_id INTEGER NOT NULL REFERENCES external_source_providers(id) ON DELETE CASCADE,
+    model_name                  VARCHAR(256) NOT NULL,
+    model_limits                TEXT,
+    UNIQUE (source_id, external_source_provider_id, model_name)
+);
+
+CREATE INDEX idx_dm_sources_dm ON datapoint_model_sources(datapoint_model_id);
+CREATE INDEX idx_dm_sources_src ON datapoint_model_sources(source_id);
+CREATE INDEX idx_ext_src_prov_source ON external_source_providers(source_id);
+CREATE INDEX idx_ext_src_models_provider ON external_source_models(external_source_provider_id);
+CREATE INDEX idx_ext_src_models_source ON external_source_models(source_id);
+
 -- External benchmark scores for models (Artificial Analysis, etc.)
 CREATE TABLE model_scores (
     id                 SERIAL PRIMARY KEY,
@@ -150,8 +198,8 @@ INSERT INTO datapoint_providers (slug, name, base_url) VALUES
     ('huggingface', 'Hugging Face', 'https://huggingface.co'),
     ('deepseek', 'DeepSeek', 'https://api.deepseek.com'),
     ('google', 'Google AI', 'https://generativelanguage.googleapis.com'),
-    ('opencode-zen', 'OpenCode Zen', 'https://opencode.ai/zen'),
-    ('llm-gateway', 'LLM Gateway', 'https://llm-gateway.com'),
+    ('opencode', 'OpenCode Zen', 'https://opencode.ai/zen'),
+    ('llmgateway', 'LLM Gateway', 'https://llm-gateway.com'),
     ('github-models', 'GitHub Models', 'https://models.inference.ai.azure.com'),
     ('vercel', 'Vercel AI Gateway', 'https://ai-gateway.vercel.sh'),
     ('groq', 'Groq', 'https://api.groq.com'),
@@ -161,4 +209,15 @@ INSERT INTO datapoint_providers (slug, name, base_url) VALUES
     ('cloudflare', 'Cloudflare AI', 'https://api.cloudflare.com'),
     ('anthropic', 'Anthropic', 'https://api.anthropic.com'),
     ('openai', 'OpenAI', 'https://api.openai.com')
+ON CONFLICT (slug) DO NOTHING;
+
+-- Seed sources for provenance tracking (one per API provider, plus community sources)
+INSERT INTO sources (slug, name, source_type, datapoint_provider_id)
+SELECT dp.slug || '-api', dp.name || ' API', 'api_provider', dp.id
+FROM datapoint_providers dp
+ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO sources (slug, name, source_type, source_url)
+VALUES ('free-llm-api-resources', 'Free LLM API Resources (community list)', 'community_list',
+        'https://raw.githubusercontent.com/cheahjs/free-llm-api-resources/main/README.md')
 ON CONFLICT (slug) DO NOTHING;

@@ -10,28 +10,13 @@
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const { Pool } = require('pg');
+const dbPool = require('../server/db');
 const buildModelsData = require('./build-models-data');
 
 const DATA_FILE = path.join(__dirname, '..', 'available-models.json');
 
-async function exportData(pool) {
-  let ownPool = false;
-  if (!pool) {
-    const connectionString = process.env.DATABASE_URL;
-    pool = connectionString
-      ? new Pool({ connectionString, ssl: { rejectUnauthorized: false }, max: 1 })
-      : new Pool({
-          host: process.env.PGHOST || 'localhost',
-          port: parseInt(process.env.PGPORT || '5432'),
-          max: 1,
-          user: process.env.PGUSER,
-          password: process.env.PGPASSWORD,
-          database: process.env.PGDATABASE,
-        });
-    ownPool = true;
-  }
-
+async function exportData(passedPool) {
+  const pool = passedPool || dbPool;
   const client = await pool.connect();
   try {
     const result = await buildModelsData(client, pool);
@@ -44,7 +29,7 @@ async function exportData(pool) {
     process.exitCode = 1;
   } finally {
     client.release();
-    if (ownPool) await pool.end();
+    if (!passedPool) await dbPool.end();
   }
 }
 

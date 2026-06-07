@@ -3,9 +3,9 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 const routes = [
   {
     path: '/',
-    name: 'Models',
+    name: 'Instances',
     component: () => import('@/views/ModelList.vue'),
-    meta: { title: 'Models' },
+    meta: { title: 'Model Instances' },
   },
   {
     path: '/dashboard',
@@ -32,12 +32,6 @@ const routes = [
     meta: { title: 'Issues' },
   },
   {
-    path: '/issues-timeline',
-    name: 'IssuesTimeline',
-    component: () => import('@/views/IssuesTimelineView.vue'),
-    meta: { title: 'Issues' },
-  },
-  {
     path: '/compare',
     name: 'Compare',
     component: () => import('@/views/CompareView.vue'),
@@ -47,7 +41,13 @@ const routes = [
     path: '/rankings',
     name: 'Rankings',
     component: () => import('@/views/RankingsView.vue'),
-    meta: { title: 'Rankings' },
+    meta: { title: 'Rankings (Free)' },
+  },
+  {
+    path: '/rankings-paid',
+    name: 'RankingsPaid',
+    component: () => import('@/views/RankingsPaidView.vue'),
+    meta: { title: 'Rankings (Paid)' },
   },
   {
     path: '/model/:slug',
@@ -55,7 +55,20 @@ const routes = [
     component: () => import('@/views/ModelList.vue'),
     meta: { title: 'Model' },
   },
+  {
+    path: '/supermodels',
+    name: 'Models',
+    component: () => import('@/views/SuperModels.vue'),
+    meta: { title: 'Models' },
+  },
+  {
+    path: '/providers',
+    name: 'Providers',
+    component: () => import('@/views/Providers.vue'),
+    meta: { title: 'Providers' },
+  },
   // Redirect old routes
+  { path: '/issues-timeline', redirect: '/issues' },
   { path: '/free', redirect: '/' },
   { path: '/paid', redirect: '/' },
   { path: '/all', redirect: '/' },

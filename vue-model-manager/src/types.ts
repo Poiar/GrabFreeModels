@@ -38,6 +38,7 @@ export interface ProviderDatapoint {
   notes?: string;
   priority_score: number | null;
   limitations?: ModelLimitations | null;
+  source_ids: number[];
 }
 
 export interface ModelData {
@@ -217,4 +218,15 @@ export interface ModelScoresData {
   description: string;
   sources: string[];
   scores: Record<string, ModelScore[]>;
+}
+
+export interface SourceInfo {
+  id: number;
+  slug: string;
+  name: string;
+  source_type: 'api_provider' | 'community_list';
+}
+
+export interface SourceToggleState {
+  [sourceId: number]: boolean;
 }

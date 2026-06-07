@@ -31,6 +31,47 @@ router.get('/data', async (req, res) => {
   }
 });
 
+// ── Paid data endpoint ──
+let paidDataCache = null; // { etag, data, ts }
+
+router.get('/data/paid', async (req, res) => {
+  try {
+    const now = Date.now();
+    if (paidDataCache && (now - paidDataCache.ts) < CACHE_TTL) {
+      const clientEtag = req.headers['if-none-match'];
+      if (clientEtag && clientEtag === paidDataCache.etag) {
+        return res.status(304).end();
+      }
+    }
+
+    const result = await loadModels(pool, { isFree: false });
+    const etag = `W/"${crypto.createHash('md5').update(JSON.stringify(result)).digest('hex')}"`;
+    paidDataCache = { etag, data: result, ts: Date.now() };
+
+    res.set('ETag', etag);
+    res.set('Cache-Control', 'no-cache');
+    res.json(result);
+  } catch (err) {
+    console.error('Failed to build paid ModelsData:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/sources — return all registered data sources
+router.get('/sources', async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT s.id, s.slug, s.name, s.source_type
+      FROM sources s
+      ORDER BY s.source_type, s.name
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error('Failed to load sources:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.get('/health', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT now()');

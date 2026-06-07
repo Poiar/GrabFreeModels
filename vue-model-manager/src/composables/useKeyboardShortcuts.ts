@@ -19,49 +19,17 @@ export function useKeyboardShortcuts() {
       return;
     }
 
-    // Navigation shortcuts (vim-style g + key)
-    if (e.key === 'g' && !e.ctrlKey && !e.metaKey) {
-      const G_TIMEOUT = 500;
-      let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-      const handler = (nextE: KeyboardEvent) => {
-        cleanup();
-        switch (nextE.key) {
-          case 'd':
-            router.push('/');
-            break;
-          case 'a':
-            router.push('/all');
-            break;
-          case 'f':
-            router.push('/free');
-            break;
-          case 'p':
-            router.push('/');
-            break;
-          case 's':
-            router.push('/models');
-            break;
-          case 'i':
-            router.push('/issues');
-            break;
-          case 'u':
-            router.push('/author');
-            break;
-          case 'm':
-            router.push('/family');
-            break;
-        }
-      };
-
-      function cleanup() {
-        window.removeEventListener('keydown', handler);
-        if (timeoutId !== null) clearTimeout(timeoutId);
+    // Single-letter navigation shortcuts
+    if (!e.ctrlKey && !e.metaKey) {
+      switch (e.key) {
+        case 'm': router.push('/'); break;
+        case 'd': router.push('/dashboard'); break;
+        case 'c': router.push('/creators'); break;
+        case 'i': router.push('/issues'); break;
+        case 'o': router.push('/compare'); break;
+        case 'r': router.push('/rankings'); break;
+        case 's': router.push('/supermodels'); break;
       }
-
-      timeoutId = setTimeout(cleanup, G_TIMEOUT);
-      window.addEventListener('keydown', handler);
-      return;
     }
 
     // / focuses search

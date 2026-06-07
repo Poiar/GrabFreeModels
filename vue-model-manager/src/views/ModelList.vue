@@ -24,7 +24,7 @@
     <div class="ml-header">
       <h2>Models</h2>
       <p class="ml-subtitle">
-        {{ filteredModels.length }} models from {{ store.creators.length }} creators
+        {{ filteredModels.length }} model{{ filteredModels.length !== 1 ? 's' : '' }} from {{ store.visibleCreators.length }} creator{{ store.visibleCreators.length !== 1 ? 's' : '' }}<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template>
       </p>
     </div>
 
@@ -39,7 +39,7 @@
       />
       <select v-model="creatorFilter" class="ml-select" aria-label="Filter by creator">
         <option value="">All Creators</option>
-        <option v-for="c in store.creators" :key="c.id" :value="c.id">{{ c.name }}</option>
+        <option v-for="c in store.visibleCreators" :key="c.id" :value="c.id">{{ c.name }}</option>
       </select>
       <select v-model="statusFilter" class="ml-select" aria-label="Filter by status">
         <option value="">All</option>
@@ -164,14 +164,14 @@ function closeDetail() {
 
 // Watch route slug param — open detail on direct navigation
 watch(
-  [() => route.params.slug, () => store.creators],
+  [() => route.params.slug, () => store.visibleCreators],
   ([slug]) => {
     if (!slug || Array.isArray(slug)) {
       if (!detailModel.value) return;
       detailModel.value = null;
       return;
     }
-    for (const creator of store.creators) {
+    for (const creator of store.visibleCreators) {
       for (const model of creator.models) {
         if (model.slug === slug) {
           detailModel.value = { model, creator };
@@ -193,7 +193,7 @@ function getModelStatus(model: ModelData): string {
 }
 
 const filteredModels = computed(() => {
-  let models = store.allModels;
+  let models = store.visibleModels;
 
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase();
@@ -202,7 +202,7 @@ const filteredModels = computed(() => {
 
   if (creatorFilter.value) {
     models = models.filter((m) => {
-      const creator = store.creators.find((c) =>
+      const creator = store.visibleCreators.find((c) =>
         c.models.some((mod) => mod.super_id === m.super_id),
       );
       return creator?.id === creatorFilter.value;
@@ -224,7 +224,7 @@ const filteredModels = computed(() => {
 
 const filteredAndSortedModels = computed(() => {
   const list = filteredModels.value.map((model) => {
-    const creator = store.creators.find((c) =>
+    const creator = store.visibleCreators.find((c) =>
       c.models.some((m) => m.super_id === model.super_id),
     )!;
     return { model, creator };
@@ -345,6 +345,11 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   font-size: 0.78rem;
   color: var(--text-muted);
   margin: 0;
+}
+
+.filtered-note {
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .ml-controls {

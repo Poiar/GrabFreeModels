@@ -6,6 +6,8 @@ import type {
   ModelData,
   ProviderDatapoint,
   ProviderReference,
+  SourceInfo,
+  SourceToggleState,
   RoleScore,
   RoleMeta,
 } from '@/types';
@@ -15,6 +17,7 @@ type Role = (typeof ROLE_ORDER)[number];
 
 // ── SessionStorage cache for instant page loads ──
 const CACHE_KEY = 'gf_models_cache';
+const PAID_CACHE_KEY = 'gf_models_cache_paid';
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 interface ModelsCache {
@@ -22,13 +25,13 @@ interface ModelsCache {
   cachedAt: number;
 }
 
-function loadFromCache(): { data: ModelsData; cachedAt: number } | null {
+function loadFromCache(key: string = CACHE_KEY): { data: ModelsData; cachedAt: number } | null {
   try {
-    const raw = sessionStorage.getItem(CACHE_KEY);
+    const raw = sessionStorage.getItem(key);
     if (!raw) return null;
     const entry: ModelsCache = JSON.parse(raw);
     if (Date.now() - entry.cachedAt > CACHE_TTL_MS) {
-      sessionStorage.removeItem(CACHE_KEY);
+      sessionStorage.removeItem(key);
       return null;
     }
     return { data: JSON.parse(entry.raw) as ModelsData, cachedAt: entry.cachedAt };
@@ -37,10 +40,10 @@ function loadFromCache(): { data: ModelsData; cachedAt: number } | null {
   }
 }
 
-function saveToCache(rawJson: string) {
+function saveToCache(rawJson: string, key: string = CACHE_KEY) {
   try {
     const entry: ModelsCache = { raw: rawJson, cachedAt: Date.now() };
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify(entry));
+    sessionStorage.setItem(key, JSON.stringify(entry));
   } catch {
     // sessionStorage full or unavailable — skip caching
   }
@@ -52,6 +55,12 @@ export const useModelsStore = defineStore('models', () => {
   const error = ref<string | null>(null);
   const lastLoaded = ref<Date | null>(null);
   const isStale = ref(false);
+
+  // ── Paid model data ──
+  const paidData = ref<ModelsData | null>(null);
+  const paidLoading = ref(false);
+  const paidError = ref<string | null>(null);
+  const paidLastLoaded = ref<Date | null>(null);
 
   let staleTimer: ReturnType<typeof setTimeout> | null = null;
   function startStaleTimer() {
@@ -65,6 +74,25 @@ export const useModelsStore = defineStore('models', () => {
       clearTimeout(staleTimer);
       staleTimer = null;
     }
+  }
+
+  // ── Source provenance state ──
+  const sources = ref<SourceInfo[]>([]);
+  const sourcesLoading = ref(false);
+  const toggleState = ref<SourceToggleState>({});
+
+  function loadToggleState() {
+    try {
+      const raw = localStorage.getItem('gf_source_toggles');
+      if (raw) toggleState.value = JSON.parse(raw);
+    } catch { /* ignore */ }
+  }
+  loadToggleState();
+
+  function saveToggleState() {
+    try {
+      localStorage.setItem('gf_source_toggles', JSON.stringify(toggleState.value));
+    } catch { /* ignore */ }
   }
 
   // ── Hierarchical data access ──
@@ -212,6 +240,38 @@ export const useModelsStore = defineStore('models', () => {
     () => data.value?._role_rankings?._meta ?? ({} as Record<string, RoleMeta>),
   );
 
+  // ── Paid metadata ──
+  const paidRoleRankings = computed(() => {
+    const r = paidData.value?._role_rankings;
+    if (!r) return {} as Record<Role, string[]>;
+    const result = {} as Record<Role, string[]>;
+    for (const role of ROLE_ORDER) result[role] = r[role] ?? [];
+    return result;
+  });
+
+  const paidRoleScores = computed(
+    () => paidData.value?._role_rankings?._scores ?? ({} as Record<string, RoleScore[]>),
+  );
+  const paidRoleMeta = computed(
+    () => paidData.value?._role_rankings?._meta ?? ({} as Record<string, RoleMeta>),
+  );
+
+  const paidCreators = computed((): CreatorData[] => paidData.value?.creators ?? []);
+  const paidProviderRefs = computed((): ProviderReference[] => paidData.value?.providers ?? []);
+  const paidDatapointById = computed(
+    (): Map<string, { dp: ProviderDatapoint; model: ModelData; creator: CreatorData }> => {
+      const map = new Map();
+      for (const creator of paidCreators.value) {
+        for (const model of creator.models) {
+          for (const dp of model.providers) {
+            map.set(dp.full_id, { dp, model, creator });
+          }
+        }
+      }
+      return map;
+    },
+  );
+
   const knownIssues = computed(() => data.value?._known_issues?.issues ?? []);
 
   const testSummary = computed(() => data.value?._test_summary ?? null);
@@ -242,6 +302,111 @@ export const useModelsStore = defineStore('models', () => {
       .map(([p]) => p);
   });
 
+  // ── Source provenance computed ──
+  const enabledSourceIds = computed((): Set<number> => {
+    const result = new Set<number>();
+    for (const s of sources.value) {
+      if (toggleState.value[s.id] !== false) result.add(s.id);
+    }
+    return result;
+  });
+
+  const isSourceFilterActive = computed((): boolean => {
+    return sources.value.some(s => toggleState.value[s.id] === false);
+  });
+
+  const superApiEnabled = computed({
+    get: (): boolean => {
+      const apiSources = sources.value.filter(s => s.source_type === 'api_provider');
+      return apiSources.every(s => toggleState.value[s.id] !== false);
+    },
+    set: (val: boolean) => {
+      for (const s of sources.value) {
+        if (s.source_type === 'api_provider') {
+          toggleState.value[s.id] = val;
+        }
+      }
+      saveToggleState();
+    },
+  });
+
+  const visibleCreators = computed((): CreatorData[] => {
+    if (!isSourceFilterActive.value) return creators.value;
+
+    const filtered: CreatorData[] = [];
+    for (const creator of creators.value) {
+      const filteredModels: ModelData[] = [];
+      for (const model of creator.models) {
+        const filteredProviders = model.providers.filter(dp =>
+          dp.source_ids.length === 0 ||
+          dp.source_ids.some(id => enabledSourceIds.value.has(id))
+        );
+        if (filteredProviders.length > 0) {
+          filteredModels.push({ ...model, providers: filteredProviders });
+        }
+      }
+      if (filteredModels.length > 0) {
+        filtered.push({
+          ...creator,
+          models: filteredModels,
+          model_count: filteredModels.length,
+          provider_count: new Set(filteredModels.flatMap(m => m.providers.map(p => p.provider_slug))).size,
+        });
+      }
+    }
+    return filtered;
+  });
+
+  const visibleModels = computed((): ModelData[] => {
+    const result: ModelData[] = [];
+    for (const creator of visibleCreators.value) {
+      result.push(...creator.models);
+    }
+    return result;
+  });
+
+  const visibleProviderRefs = computed((): ProviderReference[] => {
+    if (!isSourceFilterActive.value) return providerRefs.value;
+    // Pre-index base URLs from the full provider list
+    const baseUrlMap = new Map(providerRefs.value.map(p => [p.slug, p.base_url]));
+    const map = new Map<string, { working: number; total: number; name: string; slug: string; base_url: string }>();
+    for (const model of visibleModels.value) {
+      for (const dp of model.providers) {
+        const slug = dp.provider_slug;
+        if (!map.has(slug)) {
+          map.set(slug, { working: 0, total: 0, name: dp.provider, slug, base_url: baseUrlMap.get(slug) || '' });
+        }
+        const entry = map.get(slug)!;
+        entry.total++;
+        if (dp.status.result === 'working') entry.working++;
+      }
+    }
+    return [...map.entries()].map(([slug, e]) => ({
+      id: slug,
+      slug,
+      name: e.name,
+      base_url: e.base_url,
+      model_count: e.total,
+      working_count: e.working,
+      health_status: e.total === 0 ? 'down' : e.working === e.total ? 'healthy' : 'degraded',
+    }));
+  });
+
+  const visibleStats = computed(() => {
+    const models = visibleModels.value;
+    const datapoints = models.flatMap(m => m.providers);
+    const working = datapoints.filter(d => d.status.result === 'working').length;
+    return {
+      creators: visibleCreators.value.length,
+      models: models.length,
+      datapoints: datapoints.length,
+      providers: visibleProviderRefs.value.length,
+      working,
+      broken: datapoints.filter(d => d.status.result === 'broken').length,
+      workingRatio: datapoints.length > 0 ? Math.round((working / datapoints.length) * 100) : 0,
+    };
+  });
+
   // ── Stats ──
   const stats = computed(() => {
     const totalModels = allModels.value.length;
@@ -270,7 +435,7 @@ export const useModelsStore = defineStore('models', () => {
     error.value = null;
 
     // Instant restore from sessionStorage cache (0ms perceived load)
-    const cached = loadFromCache();
+    const cached = loadFromCache(CACHE_KEY);
     if (cached) {
       data.value = cached.data;
       lastLoaded.value = new Date(cached.cachedAt);
@@ -297,10 +462,11 @@ export const useModelsStore = defineStore('models', () => {
       }
 
       data.value = freshData;
-      saveToCache(rawJson);
+      saveToCache(rawJson, CACHE_KEY);
       lastLoaded.value = new Date();
       isStale.value = false;
       startStaleTimer();
+      loadSources();
     } catch (e: unknown) {
       if (e instanceof DOMException && e.name === 'AbortError') return;
       if (cached) return; // Already showing cached data, no fallback needed
@@ -310,10 +476,11 @@ export const useModelsStore = defineStore('models', () => {
         const fallbackRaw = await fallbackResp.text();
         const fallbackData: ModelsData = JSON.parse(fallbackRaw);
         data.value = fallbackData;
-        saveToCache(fallbackRaw);
+        saveToCache(fallbackRaw, CACHE_KEY);
         lastLoaded.value = new Date();
         isStale.value = false;
         startStaleTimer();
+        loadSources();
       } catch (fe: unknown) {
         if (fe instanceof DOMException && (fe as DOMException).name === 'AbortError') return;
         error.value = e instanceof Error ? e.message : String(e);
@@ -323,11 +490,98 @@ export const useModelsStore = defineStore('models', () => {
     }
   }
 
+  async function loadSources() {
+    sourcesLoading.value = true;
+    try {
+      const resp = await fetch('/api/sources');
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      sources.value = await resp.json();
+    } catch {
+      sources.value = [];
+    } finally {
+      sourcesLoading.value = false;
+    }
+  }
+
+  function toggleSource(sourceId: number, enabled: boolean) {
+    toggleState.value[sourceId] = enabled;
+    saveToggleState();
+  }
+
+  function toggleAllSources(enabled: boolean) {
+    for (const s of sources.value) {
+      toggleState.value[s.id] = enabled;
+    }
+    saveToggleState();
+  }
+
+  // ── Paid data loading ──
+  async function loadPaidData() {
+    // Don't reload if already loaded recently
+    if (paidData.value && paidLastLoaded.value) {
+      const age = Date.now() - paidLastLoaded.value.getTime();
+      if (age < CACHE_TTL_MS) return;
+    }
+
+    paidLoading.value = true;
+    paidError.value = null;
+
+    // Try sessionStorage cache first
+    const cached = loadFromCache(PAID_CACHE_KEY);
+    if (cached) {
+      paidData.value = cached.data;
+      paidLastLoaded.value = new Date(cached.cachedAt);
+      paidLoading.value = false;
+    }
+
+    try {
+      const resp = await fetch('/api/data/paid');
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const rawJson = await resp.text();
+      const freshData: ModelsData = JSON.parse(rawJson);
+
+      // Skip update if byte-identical
+      const existingRaw = sessionStorage.getItem(PAID_CACHE_KEY);
+      if (existingRaw) {
+        try {
+          const existing: ModelsCache = JSON.parse(existingRaw);
+          if (existing.raw === rawJson) return;
+        } catch {}
+      }
+
+      paidData.value = freshData;
+      saveToCache(rawJson, PAID_CACHE_KEY);
+      paidLastLoaded.value = new Date();
+    } catch (e: unknown) {
+      if (cached) return; // Already showing cached data
+      paidError.value = e instanceof Error ? e.message : String(e);
+    } finally {
+      paidLoading.value = false;
+    }
+  }
+
+  const sourcesPanelOpen = ref(false);
+
+  function requestSourcesPanel() {
+    sourcesPanelOpen.value = true;
+  }
+
   return {
     loading,
     error,
     lastLoaded,
     isStale,
+    // Source provenance
+    sources,
+    sourcesLoading,
+    toggleState,
+    enabledSourceIds,
+    isSourceFilterActive,
+    superApiEnabled,
+    visibleCreators,
+    visibleModels,
+    visibleProviderRefs,
+    visibleStats,
     // Hierarchical access
     creators,
     providerRefs,
@@ -361,7 +615,24 @@ export const useModelsStore = defineStore('models', () => {
     usedUpProviders,
     // Stats
     stats,
+    // Paid data
+    paidData,
+    paidLoading,
+    paidError,
+    paidLastLoaded,
+    paidRoleRankings,
+    paidRoleScores,
+    paidRoleMeta,
+    paidCreators,
+    paidProviderRefs,
+    paidDatapointById,
     // Actions
     loadData,
+    loadPaidData,
+    loadSources,
+    toggleSource,
+    toggleAllSources,
+    sourcesPanelOpen,
+    requestSourcesPanel,
   };
 });

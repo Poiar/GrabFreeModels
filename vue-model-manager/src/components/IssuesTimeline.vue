@@ -41,7 +41,7 @@
             :transform="`translate(${getX(idx)}, ${baseY})`"
             class="tl-spike-group"
             :class="{ 'tl-selected': selectedIssue === issue }"
-            @mouseenter="hoveredIssue = issue; mouseX = getX(idx)"
+            @mouseenter="hoveredIssue = issue"
             @mouseleave="hoveredIssue = null"
             @click="selectedIssue = issue"
             role="button"
@@ -51,7 +51,7 @@
             @keydown.space.prevent="selectedIssue = issue"
           >
             <!-- Ripple rings for critical -->
-            <circle v-if="issue.severity === 'critical'" cx="0" cy="0" r="4"
+            <circle v-if="issue.severity === 'critical'" cx="0" cy="0" :r="spikeW * 0.75"
               class="tl-ripple" />
             <!-- Spike -->
             <rect :x="-spikeW / 2" :y="-getSpikeHeight(issue)"
@@ -60,7 +60,7 @@
               :class="`tl-spike-${issue.severity}`"
             />
             <!-- Glow under spike -->
-            <ellipse :cx="0" :cy="0" :rx="spikeW * 3" :ry="5"
+            <ellipse :cx="0" :cy="0" :rx="spikeW * 3" :ry="spikeW * 0.6"
               :class="`tl-glow-${issue.severity}`" />
           </g>
         </svg>
@@ -73,6 +73,7 @@
         <span class="tl-tt-severity" :class="`tl-tt-${hoveredIssue.severity}`">{{ hoveredIssue.severity }}</span>
         <p class="tl-tt-summary">{{ hoveredIssue.issue }}</p>
         <span class="tl-tt-date">Reported: {{ hoveredIssue.reported }}</span>
+        <span class="tl-tt-date">Last verified: {{ hoveredIssue.last_verified || 'N/A' }}</span>
       </div>
     </div>
 
@@ -91,7 +92,7 @@
             <p v-if="selectedIssue.workaround"><strong>Workaround:</strong> {{ selectedIssue.workaround }}</p>
           </div>
           <p class="tl-card-footer">
-            Reported: {{ selectedIssue.reported }} | Last verified: {{ selectedIssue.last_verified }}
+            Reported: {{ selectedIssue.reported }} | Last verified: {{ selectedIssue.last_verified || 'N/A' }}
           </p>
         </div>
       </div>
@@ -109,10 +110,13 @@ const store = useModelsStore();
 const hideLowModerate = ref(false);
 const hoveredIssue = ref<KnownIssue | null>(null);
 const selectedIssue = ref<KnownIssue | null>(null);
-const mouseX = ref(0);
 const tooltipX = ref(0);
 const tooltipY = ref(0);
 const containerRef = ref<HTMLElement | null>(null);
+const containerHeight = ref(600);
+const containerWidth = ref(800);
+
+let resizeObserver: ResizeObserver | null = null;
 
 const severityRank: Record<string, number> = {
   critical: 4,
@@ -121,10 +125,11 @@ const severityRank: Record<string, number> = {
   low: 1,
 };
 
-const spikeW = 4;
-const padding = 40;
-const baseY = 190;
-const svgHeight = 220;
+const padding = computed(() => Math.max(40, containerHeight.value * 0.06));
+const spikeW = computed(() => Math.max(6, containerHeight.value * 0.018));
+const spikeUnit = computed(() => Math.max(14, containerHeight.value * 0.07));
+const svgHeight = computed(() => containerHeight.value);
+const baseY = computed(() => svgHeight.value - padding.value);
 
 const visibleIssues = computed(() => {
   const all = store.knownIssues;
@@ -132,33 +137,32 @@ const visibleIssues = computed(() => {
   return all.filter((i) => i.severity === 'critical' || i.severity === 'high');
 });
 
-const svgWidth = computed(() => {
-  const count = visibleIssues.value.length;
-  const spacing = Math.max(20, Math.min(36, 800 / Math.max(count, 1)));
-  return Math.max(400, count * spacing + padding * 2);
-});
+const svgWidth = computed(() => containerWidth.value);
 
 const gridLines = computed(() => [
-  { y: baseY - 48, label: 'critical' },
-  { y: baseY - 36, label: 'high' },
-  { y: baseY - 24, label: 'moderate' },
-  { y: baseY - 12, label: 'low' },
+  { y: baseY.value - spikeUnit.value * 4, label: 'critical' },
+  { y: baseY.value - spikeUnit.value * 3, label: 'high' },
+  { y: baseY.value - spikeUnit.value * 2, label: 'moderate' },
+  { y: baseY.value - spikeUnit.value, label: 'low' },
 ]);
 
 function getSpikeHeight(issue: KnownIssue): number {
-  return (severityRank[issue.severity] ?? 1) * 12;
+  return (severityRank[issue.severity] ?? 1) * spikeUnit.value;
 }
 
 function getX(idx: number): number {
-  const spacing = Math.max(20, Math.min(36, 800 / Math.max(visibleIssues.value.length, 1)));
-  return padding + idx * spacing;
+  const count = visibleIssues.value.length;
+  if (count <= 1) return svgWidth.value / 2;
+  const usable = svgWidth.value - padding.value * 2;
+  return padding.value + (idx / (count - 1)) * usable;
 }
 
 function onMouseMove(e: MouseEvent) {
   if (!hoveredIssue.value || !containerRef.value) return;
   const rect = containerRef.value.getBoundingClientRect();
   tooltipX.value = e.clientX - rect.left + 12;
-  tooltipY.value = e.clientY - rect.top - 10;
+  // Position tooltip above cursor so it stays in frame
+  tooltipY.value = Math.max(8, e.clientY - rect.top - 60);
 }
 
 function onKeydown(e: KeyboardEvent) {
@@ -169,6 +173,13 @@ onMounted(() => {
   document.addEventListener('keydown', onKeydown);
   if (containerRef.value) {
     containerRef.value.addEventListener('mousemove', onMouseMove);
+    resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        containerWidth.value = entry.contentRect.width;
+        containerHeight.value = entry.contentRect.height;
+      }
+    });
+    resizeObserver.observe(containerRef.value);
   }
 });
 
@@ -177,14 +188,18 @@ onUnmounted(() => {
   if (containerRef.value) {
     containerRef.value.removeEventListener('mousemove', onMouseMove);
   }
+  resizeObserver?.disconnect();
 });
 </script>
 
 <style scoped>
 .issues-timeline {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 16px 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .timeline-header {
@@ -238,7 +253,8 @@ onUnmounted(() => {
   background: var(--depth-1, #0b0e14);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  overflow: hidden;
+  flex: 1;
+  min-height: 200px;
 }
 
 .timeline-scroll {
@@ -248,7 +264,7 @@ onUnmounted(() => {
 
 .timeline-svg {
   display: block;
-  min-width: 400px;
+  width: 100%;
 }
 
 .tl-gridline {
@@ -259,7 +275,7 @@ onUnmounted(() => {
 
 .tl-gridlabel {
   fill: var(--text-muted);
-  font-size: 7px;
+  font-size: 9px;
   font-family: Inter, sans-serif;
   opacity: 0.5;
 }
@@ -305,8 +321,8 @@ onUnmounted(() => {
 }
 
 @keyframes ripple-expand {
-  0% { r: 4; opacity: 0.35; }
-  100% { r: 26; opacity: 0; }
+  0% { transform: scale(1); opacity: 0.35; }
+  100% { transform: scale(5); opacity: 0; }
 }
 
 .tl-ripple {
@@ -314,6 +330,7 @@ onUnmounted(() => {
   fill: none;
   stroke: var(--red, #f87171);
   stroke-width: 1;
+  transform-origin: center;
 }
 
 /* Tooltip */
@@ -458,6 +475,7 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .issues-timeline {
     padding: 12px;
+    height: 100%;
   }
   .timeline-header {
     flex-direction: column;

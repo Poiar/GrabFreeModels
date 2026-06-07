@@ -15,52 +15,18 @@
 
 require('dotenv').config();
 const buildModelsData = require('./build-models-data');
+const dbPool = require('../server/db');
 
-async function loadModels(existingPool) {
-  let pool = existingPool;
-  let ownPool = false;
-
-  if (!pool) {
-    const rawConnectionString = process.env.DATABASE_URL;
-    let connectionString = rawConnectionString;
-    if (
-      connectionString &&
-      connectionString.includes('sslmode=require') &&
-      !connectionString.includes('uselibpqcompat')
-    ) {
-      connectionString = connectionString.replace(
-        'sslmode=require',
-        'uselibpqcompat=true&sslmode=require',
-      );
-    }
-    const { Pool } = require('pg');
-    if (connectionString) {
-      const isNeon = (rawConnectionString || '').includes('neon.tech');
-      pool = new Pool({
-        connectionString,
-        max: isNeon ? 3 : 10,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 10000,
-        ...(isNeon ? { ssl: { rejectUnauthorized: false } } : {}),
-      });
-    } else {
-      pool = new Pool({
-        host: process.env.PGHOST || 'localhost',
-        port: parseInt(process.env.PGPORT || '5432', 10),
-        user: process.env.PGUSER,
-        password: process.env.PGPASSWORD,
-        database: process.env.PGDATABASE,
-      });
-    }
-    ownPool = true;
-  }
+async function loadModels(existingPool, options = {}) {
+  const pool = existingPool || dbPool;
+  const ownPool = !existingPool;
 
   const client = await pool.connect();
   try {
-    return await buildModelsData(client, pool);
+    return await buildModelsData(client, pool, options);
   } finally {
     client.release();
-    if (ownPool) await pool.end();
+    if (ownPool) await dbPool.end();
   }
 }
 

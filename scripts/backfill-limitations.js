@@ -16,8 +16,6 @@ const LIMITS = {
   deepseek: { rate_limit: 'Varies; throttled during peak', notes: 'Free tier access. May be throttled during peak hours. Requires DeepSeek account.' },
   groq: { rate_limit: '30 RPM / 7,000 TPM', notes: 'Free tier. Rate limits may decrease during high demand.' },
   opencode: { rate_limit: 'Varies by model', notes: 'Free tier models via OpenCode Zen. Requires OpenCode account.' },
-  'opencode-zen': { rate_limit: 'Varies by model', notes: 'Free tier models via OpenCode Zen. Requires OpenCode account.' },
-
   // GitHub / Cloudflare / Cohere / Mistral
   'github-models': { rate_limit: 'Varies by model', notes: 'Free tier via GitHub Models. Requires GitHub account. Rate limits vary by model.' },
   cloudflare: { rate_limit: 'Varies by model', notes: 'Free tier via Cloudflare Workers AI. Limited daily requests.' },

@@ -13,8 +13,9 @@
 require('dotenv').config();
 const https = require('https');
 const http = require('http');
-const { Pool } = require('pg');
+const pool = require('../server/db');
 const logger = require('./utils/logger');
+const { PROVIDER_MAP } = require('./utils/provider-map');
 
 const APPLY = process.argv.includes('--apply');
 
@@ -192,24 +193,6 @@ async function fetchSource(source) {
 }
 
 (async () => {
-  let connectionString = process.env.DATABASE_URL;
-  if (
-    connectionString &&
-    connectionString.includes('sslmode=require') &&
-    !connectionString.includes('uselibpqcompat')
-  ) {
-    connectionString = connectionString.replace(
-      'sslmode=require',
-      'uselibpqcompat=true&sslmode=require',
-    );
-  }
-
-  const pool = new Pool({
-    connectionString,
-    ssl: { rejectUnauthorized: false },
-    max: 3,
-  });
-
   const results = [];
 
   for (const source of SOURCES) {
@@ -262,9 +245,47 @@ async function fetchSource(source) {
           ],
         );
         logger.info(`  Stored ${r.source.name}: ${r.totalModels} models`);
-      }
-      logger.info('Changes committed to PostgreSQL');
-    } catch (err) {
+
+        // Ensure sources row exists for this community source
+        const { rows: srcRows } = await client.query(
+          `INSERT INTO sources (slug, name, source_type, source_url)
+           VALUES ($1, $2, 'community_list', $3)
+           ON CONFLICT (slug) DO UPDATE SET
+             source_url = EXCLUDED.source_url,
+             name = EXCLUDED.name
+           RETURNING id`,
+          [r.source.name, r.source.name, r.source.url],
+        );
+        const sourceId = srcRows[0].id;
+
+        // Populate normalized tables from parsed data
+        for (const provider of r.parsed) {
+          const mappedSlug = PROVIDER_MAP[provider.provider.toLowerCase()] || null;
+          const trialCredits = provider.credits || null;
+          const { rows: espRows } = await client.query(
+            `INSERT INTO external_source_providers (source_id, external_name, mapped_slug, trial_credits)
+             VALUES ($1, $2, $3, $4)
+             ON CONFLICT (source_id, external_name) DO UPDATE SET
+               mapped_slug = EXCLUDED.mapped_slug,
+               trial_credits = EXCLUDED.trial_credits
+             RETURNING id`,
+            [sourceId, provider.provider, mappedSlug, trialCredits],
+          );
+          const espId = espRows[0].id;
+
+          for (const model of provider.models) {
+            await client.query(
+              `INSERT INTO external_source_models (source_id, external_source_provider_id, model_name, model_limits)
+               VALUES ($1, $2, $3, $4)
+               ON CONFLICT (source_id, external_source_provider_id, model_name) DO UPDATE SET
+                 model_limits = EXCLUDED.model_limits`,
+              [sourceId, espId, model.name, model.limits || ''],
+            );
+          }
+        }
+        logger.info(`  Normalized ${r.parsed.length} providers into external_source_providers/models`);
+        }
+      } catch (err) {
       logger.error(`DB error: ${err.message}`);
       process.exitCode = 1;
     } finally {

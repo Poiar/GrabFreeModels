@@ -1,38 +1,21 @@
 #!/usr/bin/env node
 /**
  * import-external-models.js
- * Cross-references external_sources.models_data against datapoint_models
+ * Cross-references external_source_models against datapoint_models
  * and imports missing models from community-curated lists.
+ *
+ * Reads from normalized tables (external_source_providers, external_source_models)
+ * instead of the old JSONB models_data blob.
  *
  * Usage: node scripts/import-external-models.js [--apply]
  *   --apply  : Create super_models + datapoint_models entries (default: dry-run)
  */
 
 require('dotenv').config();
-const { Pool } = require('pg');
+const pool = require('../server/db');
 const logger = require('./utils/logger');
 
 const APPLY = process.argv.includes('--apply');
-
-// Map external provider names to our datapoint_provider slugs
-const PROVIDER_MAP = {
-  'openrouter': 'openrouter',
-  'google ai studio': 'google',
-  'cerebras': 'cerebras',
-  'nvidia nim': 'nvidia',
-  'deepseek': 'deepseek',
-  'groq': 'groq',
-  'huggingface inference providers': 'huggingface',
-  'opencode zen': 'opencode-zen',
-  'mistral (la plateforme)': 'mistral',
-  'mistral (codestral)': 'mistral',
-  'cohere': 'cohere',
-  'github models': 'github-models',
-  'cloudflare workers ai': 'cloudflare',
-  'together': 'together',
-  'fireworks': 'fireworks',
-  'vercel ai gateway': 'vercel',
-};
 
 function normalizeModelSlug(name) {
   let slug = name
@@ -62,37 +45,28 @@ function fuzzyMatch(name, existingNames) {
 }
 
 (async () => {
-  let connectionString = process.env.DATABASE_URL;
-  if (
-    connectionString &&
-    connectionString.includes('sslmode=require') &&
-    !connectionString.includes('uselibpqcompat')
-  ) {
-    connectionString = connectionString.replace(
-      'sslmode=require',
-      'uselibpqcompat=true&sslmode=require',
-    );
-  }
-
-  const pool = new Pool({
-    connectionString,
-    ssl: { rejectUnauthorized: false },
-    max: 3,
-  });
-
   const client = await pool.connect();
   try {
-    // Load external source data
-    const { rows: extRows } = await client.query(
-      'SELECT source_name, models_data FROM external_sources ORDER BY fetched_at DESC LIMIT 1',
-    );
-    if (extRows.length === 0) {
-      logger.info('No external source data found. Run fetch-external-sources.js --apply first.');
+    // Load external model data from normalized tables
+    const { rows: extModels } = await client.query(`
+      SELECT s.id AS source_id, esp.mapped_slug, esp.external_name, esm.model_name, esm.model_limits
+      FROM external_source_models esm
+      JOIN external_source_providers esp ON esp.id = esm.external_source_provider_id
+      JOIN sources s ON s.id = esm.source_id
+      WHERE esp.mapped_slug IS NOT NULL
+    `);
+    if (extModels.length === 0) {
+      logger.info('No normalized external source data found. Run fetch-external-sources.js --apply first.');
       return;
     }
+    logger.info(`Loaded ${extModels.length} external model entries from normalized tables`);
 
-    const extProviders = extRows[0].models_data;
-    logger.info(`Loaded external data from "${extRows[0].source_name}"`);
+    // Group by mapped_slug (provider slug)
+    const extBySlug = {};
+    for (const m of extModels) {
+      if (!extBySlug[m.mapped_slug]) extBySlug[m.mapped_slug] = [];
+      extBySlug[m.mapped_slug].push(m);
+    }
 
     // Load existing datapoint_models
     const { rows: existing } = await client.query(`
@@ -113,22 +87,20 @@ function fuzzyMatch(name, existingNames) {
 
     // Cross-reference and find missing
     const missing = [];
-    for (const p of extProviders) {
-      const slug = PROVIDER_MAP[p.provider.toLowerCase()];
-      if (!slug) continue; // skip providers we don't have in DB
+    for (const [slug, models] of Object.entries(extBySlug)) {
       if (!providerIdMap.has(slug)) continue; // skip if not in datapoint_providers
 
       const existingSet = existingByProvider[slug] || new Set();
-      for (const m of p.models) {
+      for (const m of models) {
         // Skip generic/placeholder entries
-        if (/^various|^free tier|^currently free|requires phone|open and proprietary/i.test(m.name)) continue;
-        if (!fuzzyMatch(m.name, existingSet)) {
-          missing.push({ provider: slug, name: m.name, limits: m.limits });
+        if (/^various|^free tier|^currently free|requires phone|open and proprietary/i.test(m.model_name)) continue;
+        if (!fuzzyMatch(m.model_name, existingSet)) {
+          missing.push({ provider: slug, externalName: m.external_name, name: m.model_name, limits: m.model_limits, source_id: m.source_id });
         }
       }
     }
 
-    // Group by provider
+    // Group by provider for reporting
     const byProvider = {};
     for (const m of missing) {
       if (!byProvider[m.provider]) byProvider[m.provider] = [];
@@ -157,7 +129,7 @@ function fuzzyMatch(name, existingNames) {
       return;
     }
 
-    // Apply: insert missing models
+    // Apply: insert missing models and record provenance
     logger.info('\nImporting...');
     let imported = 0;
     let skipped = 0;
@@ -169,9 +141,18 @@ function fuzzyMatch(name, existingNames) {
         continue;
       }
 
-      const superSlug = normalizeModelSlug(m.name);
-      const remoteId = m.name;
-      const fullId = `${m.provider}/${m.name}`;
+      // Strip external provider prefix from model name if present.
+      // External sources use their own naming conventions (e.g. models.dev uses
+      // "x-ai/grok-4.3" while our provider slug is "xai").
+      let modelName = m.name;
+      if (m.externalName && modelName.startsWith(`${m.externalName}/`)) {
+        modelName = modelName.slice(m.externalName.length + 1);
+      } else if (modelName.startsWith(`${m.provider}/`)) {
+        modelName = modelName.slice(m.provider.length + 1);
+      }
+      const superSlug = normalizeModelSlug(modelName);
+      const remoteId = modelName;
+      const fullId = `${m.provider}/${modelName}`;
 
       try {
         const { rows: smRows } = await client.query(
@@ -182,16 +163,26 @@ function fuzzyMatch(name, existingNames) {
         );
         const superId = smRows[0].id;
 
-        await client.query(
+        const { rows: newDmRows } = await client.query(
           `INSERT INTO datapoint_models
            (super_model_id, datapoint_provider_id, remote_id, full_id, is_free, status_result, status_detail)
            VALUES ($1, $2, $3, $4, true, 'untested', $5)
            ON CONFLICT (datapoint_provider_id, remote_id) DO UPDATE SET
              full_id = EXCLUDED.full_id,
              is_removed = false,
-             updated_at = now()`,
+             updated_at = now()
+           RETURNING id`,
           [superId, providerId, remoteId, fullId, 'Imported from community list (free-llm-api-resources)'],
         );
+        const newDmId = newDmRows[0].id;
+
+        // Record provenance for newly inserted model
+        await client.query(
+          `INSERT INTO datapoint_model_sources (datapoint_model_id, source_id)
+           VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+          [newDmId, m.source_id],
+        );
+
         imported++;
       } catch (err) {
         logger.info(`  SKIP ${fullId}: ${err.message}`);
@@ -199,7 +190,31 @@ function fuzzyMatch(name, existingNames) {
       }
     }
 
-    logger.info(`  Imported: ${imported}`);
+    // Batch backfill: ensure provenance links for all community-imported models
+    logger.info('\n[Provenance] Ensuring provenance links for existing external models...');
+    const { rows: provCount } = await client.query(`
+      INSERT INTO datapoint_model_sources (datapoint_model_id, source_id)
+      SELECT dm.id, esp_source.source_id
+      FROM datapoint_models dm
+      JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
+      JOIN (
+        SELECT DISTINCT esp.mapped_slug, esm.source_id
+        FROM external_source_providers esp
+        JOIN external_source_models esm ON esm.external_source_provider_id = esp.id
+        WHERE esp.mapped_slug IS NOT NULL
+      ) esp_source ON esp_source.mapped_slug = dp.slug
+      WHERE dm.status_detail LIKE '%Imported from community list%'
+        AND dm.is_removed = false
+        AND NOT EXISTS (
+          SELECT 1 FROM datapoint_model_sources dms
+          WHERE dms.datapoint_model_id = dm.id AND dms.source_id = esp_source.source_id
+        )
+      ON CONFLICT DO NOTHING
+    `);
+    const provLinked = provCount.rowCount;
+    logger.info(`  Linked ${provLinked} existing community-imported models to source`);
+
+    logger.info(`\n  Imported: ${imported}`);
     logger.info(`  Skipped:  ${skipped}`);
     logger.info('Done.');
   } finally {

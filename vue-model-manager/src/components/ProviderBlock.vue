@@ -9,7 +9,11 @@
     }"
   >
     <div class="pb-header">
-      <span class="pb-name">{{ dp.provider }}</span>
+      <span class="pb-header-left">
+        <span class="pb-name">{{ dp.provider }}</span>
+        <span v-if="sourceBadges.api" class="pb-source source-api" title="Click to open Sources panel" @click.stop="openSources">API</span>
+        <span v-if="sourceBadges.community" class="pb-source source-community" title="Click to open Sources panel" @click.stop="openSources">community</span>
+      </span>
       <span class="pb-status-dot" :class="`dot-${dp.status.result}`"></span>
     </div>
     <div class="pb-stats">
@@ -49,12 +53,34 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { ProviderDatapoint } from '@/types';
+import { useModelsStore } from '@/store/models';
 
-defineProps<{
+const props = defineProps<{
   dp: ProviderDatapoint;
   expanded?: boolean;
 }>();
+
+const store = useModelsStore();
+
+const sourceBadges = computed(() => {
+  const ids = props.dp.source_ids || [];
+  if (ids.length === 0) return { api: false, community: false };
+  const typeById: Record<number, string> = {};
+  for (const s of store.sources) {
+    typeById[s.id] = s.source_type;
+  }
+  const types = new Set(ids.map((id) => typeById[id]).filter(Boolean));
+  return {
+    api: types.has('api_provider'),
+    community: types.has('community_list'),
+  };
+});
+
+function openSources() {
+  store.requestSourcesPanel();
+}
 
 function formatContext(ctx: number | null): string {
   if (!ctx) return '—';
@@ -104,6 +130,13 @@ function formatContext(ctx: number | null): string {
   align-items: center;
   justify-content: space-between;
   gap: 4px;
+}
+
+.pb-header-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
 }
 
 .pb-name {
@@ -166,6 +199,27 @@ function formatContext(ctx: number | null): string {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.pb-source {
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.source-api {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.source-community {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
 }
 
 .pb-free-badge {

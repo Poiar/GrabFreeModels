@@ -10,7 +10,9 @@
  *   const data = await buildModelsData(client);
  */
 
-async function buildModelsData(client, pool) {
+async function buildModelsData(client, pool, options = {}) {
+  const { isFree = true } = options;
+
   const { rows: metadataRows } = await client.query(
     'SELECT key, value::text FROM metadata ORDER BY key',
   );
@@ -29,10 +31,25 @@ async function buildModelsData(client, pool) {
     FROM datapoint_models dm
     JOIN super_models mm ON mm.id = dm.super_model_id
     JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
+    WHERE dm.is_free = $1 AND dm.is_removed = false
     ORDER BY mm.name, dp.name
-  `);
+  `, [isFree]);
 
   const dmIds = dmRows.map((r) => r.id);
+
+  // Batch-fetch provenance (source_ids per datapoint_model)
+  const sourceIdsByDm = new Map();
+  if (dmIds.length > 0) {
+    const { rows: provRows } = await client.query(`
+      SELECT datapoint_model_id, source_id
+      FROM datapoint_model_sources
+      WHERE datapoint_model_id = ANY($1)
+    `, [dmIds]);
+    for (const r of provRows) {
+      if (!sourceIdsByDm.has(r.datapoint_model_id)) sourceIdsByDm.set(r.datapoint_model_id, []);
+      sourceIdsByDm.get(r.datapoint_model_id).push(r.source_id);
+    }
+  }
   const inputMap = new Map();
   const outputMap = new Map();
   const featMap = new Map();
@@ -113,6 +130,7 @@ async function buildModelsData(client, pool) {
       },
       last_success: dm.last_success || null,
       source: dm.provider_slug,
+      source_ids: sourceIdsByDm.get(dm.id) || [],
       _removed: dm.is_removed || false,
       _removedDate: null,
       notes: null,
@@ -192,7 +210,8 @@ async function buildModelsData(client, pool) {
 
   // Group by creator → super_model → providers
   const creatorMap = new Map();
-  const roleRankingsRaw = meta._role_rankings || {};
+  const roleRankingsKey = isFree ? '_role_rankings' : '_role_rankings_paid';
+  const roleRankingsRaw = meta[roleRankingsKey] || {};
 
   for (const dp of outputModels) {
     if (dp._removed) continue;
@@ -234,6 +253,7 @@ async function buildModelsData(client, pool) {
       full_id: dp.id,
       provider: dp.provider,
       provider_slug: dp.source,
+      source_ids: dp.source_ids || [],
       context_length: dp.context_length,
       is_free: dp.is_free,
       supports_tools: dp.supports_tools,
@@ -395,7 +415,7 @@ async function buildModelsData(client, pool) {
         untested: untestedIds,
       },
     },
-    _role_rankings: meta._role_rankings || {
+    _role_rankings: meta[roleRankingsKey] || {
       description: '',
       model: [],
       build: [],

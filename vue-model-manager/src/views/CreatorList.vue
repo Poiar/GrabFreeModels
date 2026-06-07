@@ -2,17 +2,20 @@
   <div class="creator-list-page">
     <div class="page-header">
       <h2>Creators</h2>
-      <p>{{ store.creators.length }} model creators tracked</p>
+      <p>{{ store.visibleCreators.length }} model creators tracked<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template></p>
     </div>
 
     <div class="creator-grid">
       <router-link
-        v-for="creator in store.creators"
+        v-for="creator in store.visibleCreators"
         :key="creator.id"
         :to="`/creator/${creator.id}`"
         class="creator-card"
       >
-        <h3 class="cc-name">{{ creator.name }}</h3>
+        <div class="cc-icon-row">
+          <svg class="cc-icon" :viewBox="getProviderIcon(creator.id).viewBox" v-html="getProviderIcon(creator.id).body"></svg>
+          <h3 class="cc-name">{{ creator.name }}</h3>
+        </div>
         <div class="cc-stats">
           <span class="cc-stat"
             >{{ creator.model_count }} model{{ creator.model_count !== 1 ? 's' : '' }}</span
@@ -31,6 +34,7 @@
 
 <script setup lang="ts">
 import { useModelsStore } from '@/store/models';
+import { getProviderIcon } from '@/data/provider-icons';
 const store = useModelsStore();
 </script>
 
@@ -49,6 +53,11 @@ const store = useModelsStore();
   font-size: 0.78rem;
   color: var(--text-muted);
   margin: 0;
+}
+
+.filtered-note {
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .creator-grid {
@@ -75,10 +84,22 @@ const store = useModelsStore();
   box-shadow: 0 0 0 1px var(--accent);
 }
 
+.cc-icon-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.cc-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
 .cc-name {
   font-size: 1rem;
   font-weight: 700;
-  margin: 0 0 8px;
+  margin: 0;
 }
 .cc-stats {
   display: flex;

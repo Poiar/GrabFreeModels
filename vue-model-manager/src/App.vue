@@ -22,7 +22,21 @@
     <aside class="sidebar" :class="{ 'drawer-open': mobileDrawerOpen }">
       <div class="brand">
         <div class="brand-icon-wrap">
-          <span class="brand-icon">⚡</span>
+          <svg class="brand-icon-svg" aria-hidden="true" width="28" height="28" viewBox="0 0 64 64">
+            <defs>
+              <linearGradient id="brand-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#059669"/>
+              </linearGradient>
+            </defs>
+            <rect width="64" height="64" rx="14" fill="url(#brand-grad)"/>
+            <rect x="14" y="26" width="36" height="24" rx="3" fill="white" opacity="0.95"/>
+            <rect x="14" y="26" width="36" height="6" rx="2" fill="white"/>
+            <rect x="29" y="26" width="6" height="24" fill="url(#brand-grad)"/>
+            <path d="M22 18 Q18 10 14 18 Q18 22 22 18Z" fill="white" opacity="0.9"/>
+            <path d="M42 18 Q46 10 50 18 Q46 22 42 18Z" fill="white" opacity="0.9"/>
+            <circle cx="32" cy="18" r="4" fill="white"/>
+          </svg>
         </div>
         <div>
           <h1>GrabFreeModels</h1>
@@ -46,6 +60,27 @@
               <path
                 d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
               />
+            </svg>
+          </span>
+          <span>Model Instances</span>
+        </router-link>
+        <router-link to="/supermodels" active-class="active">
+          <span class="nav-icon">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="3" y1="15" x2="21" y2="15" />
+              <line x1="9" y1="3" x2="9" y2="21" />
             </svg>
           </span>
           <span>Models</span>
@@ -90,6 +125,25 @@
           </span>
           <span>Creators</span>
         </router-link>
+        <router-link to="/providers" active-class="active">
+          <span class="nav-icon">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+          </span>
+          <span>Providers</span>
+        </router-link>
         <router-link to="/issues" active-class="active">
           <span class="nav-icon">
             <svg
@@ -109,14 +163,6 @@
             </svg>
           </span>
           <span>Issues</span>
-        </router-link>
-        <router-link to="/issues-timeline" active-class="active">
-          <span class="nav-icon">
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-            </svg>
-          </span>
-          <span>Seismograph</span>
         </router-link>
         <router-link to="/compare" active-class="active">
           <span class="nav-icon">
@@ -159,14 +205,39 @@
               <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
             </svg>
           </span>
-          <span>Rankings</span>
+          <span>Rankings (Free)</span>
+        </router-link>
+        <router-link to="/rankings-paid" active-class="active">
+          <span class="nav-icon">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7" />
+              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7" />
+              <path d="M4 22h16" />
+              <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+            </svg>
+          </span>
+          <span>Rankings (Paid)</span>
         </router-link>
       </nav>
+
+      <SourceTogglePanel />
 
       <div class="sidebar-footer">
         <div v-if="store.lastLoaded" class="footer-status">
           <span class="status-dot" :class="{ 'is-stale': store.isStale }"></span>
-          <span>Updated {{ timeAgo(store.lastLoaded) }}</span>
+          <span>Updated {{ timeAgo(store.lastLoaded, now) }}</span>
         </div>
         <div class="footer-actions">
           <button
@@ -273,7 +344,7 @@
         <h2>Failed to load data</h2>
         <p class="error-message">{{ store.error }}</p>
         <p v-if="store.lastLoaded" class="error-last-loaded">
-          Last successful load: {{ timeAgo(store.lastLoaded) }}
+          Last successful load: {{ timeAgo(store.lastLoaded, now) }}
         </p>
         <button class="refresh-btn" @click="store.loadData()">Retry</button>
       </div>
@@ -293,7 +364,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useModelsStore } from '@/store/models';
 import { useTheme } from '@/composables/useTheme';
@@ -302,6 +373,7 @@ import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal.vue';
 import ToastContainer from '@/components/ToastContainer.vue';
 import SkeletonLoader from '@/components/SkeletonLoader.vue';
 import MobileHeader from '@/components/MobileHeader.vue';
+import SourceTogglePanel from '@/components/SourceTogglePanel.vue';
 
 const route = useRoute();
 const store = useModelsStore();
@@ -309,6 +381,14 @@ const { theme, toggle: toggleTheme } = useTheme();
 const { shortcutsModalOpen } = useKeyboardShortcuts();
 
 const mobileDrawerOpen = ref(false);
+
+// Reactive timestamp so timeAgo updates as time passes
+const now = ref(Date.now());
+let tickTimer: ReturnType<typeof setInterval>;
+onMounted(() => {
+  tickTimer = setInterval(() => { now.value = Date.now(); }, 30_000);
+});
+onUnmounted(() => clearInterval(tickTimer));
 
 // Close drawer on route change
 watch(
@@ -330,7 +410,7 @@ onMounted(() => {
 
 onMounted(() => store.loadData());
 
-function timeAgo(date: Date): string {
+function timeAgo(date: Date, _now: number): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
   if (seconds < 60) return 'just now';
   const minutes = Math.floor(seconds / 60);

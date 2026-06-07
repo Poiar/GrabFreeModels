@@ -6,8 +6,8 @@
       <div class="page-header">
         <h2>Dashboard</h2>
         <p>
-          {{ store.stats.creators }} creators, {{ store.stats.providers }} providers,
-          {{ store.stats.models }} models tracked
+          {{ store.visibleStats.creators }} creators, {{ store.visibleStats.providers }} providers,
+          {{ store.visibleStats.models }} models tracked<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template>
         </p>
       </div>
     </div>
@@ -27,7 +27,7 @@
     <div class="hero-stats">
       <div class="hero-stat-card stat-accent">
         <div class="hsc-top-bar"></div>
-        <div class="hsc-value stat-number">{{ store.stats.working }}</div>
+        <div class="hsc-value stat-number">{{ store.visibleStats.working }}</div>
         <div class="hsc-label">Working Models</div>
         <div class="hsc-spark">
           <svg viewBox="0 0 60 20" class="sparkline">
@@ -37,7 +37,7 @@
       </div>
       <div class="hero-stat-card stat-green">
         <div class="hsc-top-bar"></div>
-        <div class="hsc-value stat-number">{{ store.stats.models }}</div>
+        <div class="hsc-value stat-number">{{ store.visibleStats.models }}</div>
         <div class="hsc-label">Super Models</div>
         <div class="hsc-spark">
           <svg viewBox="0 0 60 20" class="sparkline">
@@ -47,7 +47,7 @@
       </div>
       <div class="hero-stat-card stat-purple">
         <div class="hsc-top-bar"></div>
-        <div class="hsc-value stat-number">{{ store.stats.datapoints }}</div>
+        <div class="hsc-value stat-number">{{ store.visibleStats.datapoints }}</div>
         <div class="hsc-label">Total Datapoints</div>
         <div class="hsc-spark">
           <svg viewBox="0 0 60 20" class="sparkline">
@@ -57,7 +57,7 @@
       </div>
       <div class="hero-stat-card stat-creators">
         <div class="hsc-top-bar"></div>
-        <div class="hsc-value stat-number">{{ store.stats.creators }}</div>
+        <div class="hsc-value stat-number">{{ store.visibleStats.creators }}</div>
         <div class="hsc-label">Creators</div>
         <div class="hsc-spark">
           <svg viewBox="0 0 60 20" class="sparkline">
@@ -67,7 +67,7 @@
       </div>
       <div class="hero-stat-card stat-success glass-card">
         <div class="hsc-top-bar"></div>
-        <div class="hsc-value stat-number green-val">{{ Math.round(store.stats.workingRatio * 100) }}<span class="hsc-unit">%</span></div>
+        <div class="hsc-value stat-number green-val">{{ Math.round(store.visibleStats.workingRatio * 100) }}<span class="hsc-unit">%</span></div>
         <div class="hsc-label">Success Rate</div>
         <!-- SVG Donut -->
         <div class="hsc-donut">
@@ -79,7 +79,7 @@
               stroke="var(--green)"
               stroke-width="4"
               stroke-linecap="round"
-              :stroke-dasharray="`${Math.round(store.stats.workingRatio * 125.66)} 125.66`"
+              :stroke-dasharray="`${Math.round(store.visibleStats.workingRatio * 125.66)} 125.66`"
               transform="rotate(-90 24 24)"
             />
           </svg>
@@ -87,7 +87,7 @@
       </div>
       <div class="hero-stat-card stat-broken">
         <div class="hsc-top-bar"></div>
-        <div class="hsc-value stat-number orange-val">{{ store.stats.broken }}</div>
+        <div class="hsc-value stat-number orange-val">{{ store.visibleStats.broken }}</div>
         <div class="hsc-label">Broken</div>
         <div class="hsc-spark">
           <svg viewBox="0 0 60 20" class="sparkline">
@@ -103,12 +103,12 @@
     <!-- Ecosystem monitor section -->
     <div class="section-header">
       <h3>Provider Ecosystem</h3>
-      <span class="section-badge">{{ store.providerRefs.length }} live</span>
+      <span class="section-badge">{{ store.visibleProviderRefs.length }} live</span>
     </div>
 
     <div class="ecosystem-grid">
       <div
-        v-for="prov in store.providerRefs"
+        v-for="prov in store.visibleProviderRefs"
         :key="prov.id"
         class="eco-provider-card gradient-border-card"
         :class="{ 'prov-dimmed': prov.health_status === 'down' }"
@@ -193,7 +193,7 @@ const store = useModelsStore();
 
 // Generate synthetic sparkline points from stats ratios (deterministic decorative patterns)
 const sparkPoints = computed(() => {
-  const w = store.stats.workingRatio;
+  const w = store.visibleStats.workingRatio;
   return {
     working: generateSparkPath(0.6 + w * 0.3, 5),
     models: generateSparkPath(0.55, 1),
@@ -262,6 +262,11 @@ function generateSparkPath(base: number, seed: number): string {
   font-size: 0.78rem;
   color: var(--text-muted);
   margin: 0;
+}
+
+.filtered-note {
+  color: var(--accent);
+  font-weight: 600;
 }
 
 /* Stale banner */

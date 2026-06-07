@@ -193,6 +193,13 @@ function getEndpoint(modelId) {
   if (modelId.startsWith('opencode/')) return 'opencode';
   if (modelId.startsWith('alibaba/')) return 'alibaba';
   if (modelId.startsWith('google/')) return 'google';
+  if (modelId.startsWith('groq/')) return 'groq';
+  if (modelId.startsWith('deepinfra/')) return 'deepinfra';
+  if (modelId.startsWith('novitaai/')) return 'novitaai';
+  if (modelId.startsWith('siliconflow/')) return 'siliconflow';
+  if (modelId.startsWith('cloudflare/')) return 'cloudflare';
+  if (modelId.startsWith('xai/')) return 'xai';
+  if (modelId.startsWith('zhipuai/')) return 'zhipuai';
   return 'openrouter';
 }
 
@@ -245,6 +252,34 @@ const ENDPOINT_CONFIG = {
     url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
     key: () => auth.google.key,
     fetchIds: async () => parseGoogleModels(auth.google.key),
+  },
+  groq: {
+    url: 'https://api.groq.com/openai/v1/chat/completions',
+    key: () => auth.groq?.key,
+  },
+  deepinfra: {
+    url: 'https://api.deepinfra.com/v1/openai/chat/completions',
+    key: () => auth.deepinfra?.key,
+  },
+  novitaai: {
+    url: 'https://api.novita.ai/v3/openai/chat/completions',
+    key: () => auth.novitaai?.key,
+  },
+  siliconflow: {
+    url: 'https://api.siliconflow.cn/v1/chat/completions',
+    key: () => auth.siliconflow?.key,
+  },
+  xai: {
+    url: 'https://api.x.ai/v1/chat/completions',
+    key: () => auth.xai?.key,
+    modelsUrl: 'https://api.x.ai/v1/models',
+    fetchIds: async (k) => parseSimpleModels(k, 'https://api.x.ai/v1/models'),
+  },
+  zhipuai: {
+    url: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+    key: () => auth.zhipuai?.key,
+    modelsUrl: 'https://open.bigmodel.cn/api/paas/v4/models',
+    fetchIds: async (k) => parseSimpleModels(k, 'https://open.bigmodel.cn/api/paas/v4/models'),
   },
 };
 
@@ -410,6 +445,8 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
   } else {
     toTest = json.models.filter((m) => {
       if (!m.is_free) return false;
+      // Cloudflare Workers AI uses a non-OpenAI-compatible REST API — skip validation
+      if (m.id.startsWith('cloudflare/')) return false;
       const result = m.status.result;
       if (result === 'broken' || result === 'untested') return true;
       if (result === 'rate_limited') {
@@ -725,7 +762,8 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
         id.startsWith('deepseek/') ||
         id.startsWith('llmgateway/') ||
         id.startsWith('google/') ||
-        id.startsWith('opencode/')
+        id.startsWith('opencode/') ||
+        id.startsWith('cloudflare/')
       ) {
         missing.push({ id, was: prevStatus });
       }

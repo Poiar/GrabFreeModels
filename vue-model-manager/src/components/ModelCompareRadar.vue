@@ -33,12 +33,15 @@
         placeholder="Search models by name..."
         class="cp-search-input"
         @keydown.escape="activeSlot = null"
+        @focus="isSearchFocused = true"
+        @blur="onSearchBlur"
       />
-      <div v-if="searchQuery.length >= 2" class="cp-search-results">
+      <div v-if="isSearchFocused" class="cp-search-results">
         <div
           v-for="m in searchResults"
           :key="m.super_id"
           class="cp-search-item"
+          @mousedown.prevent
           @click="selectModel(m)"
         >
           <span class="cpsi-name">{{ m.name }}</span>
@@ -152,6 +155,7 @@ const slots = ref<{ model: ModelData | null }[]>(Array.from({ length: MAX_SLOTS 
 const activeSlot = ref<number | null>(null);
 const searchQuery = ref('');
 const searchInput = ref<HTMLInputElement | null>(null);
+const isSearchFocused = ref(false);
 const hoveredModel = ref<number | null>(null);
 
 const modelColors = ['#6380f7', '#34d399', '#fbbf24', '#f87171', '#a78bfa'];
@@ -165,7 +169,7 @@ const searchResults = computed(() => {
   const alreadySelected = new Set(selectedModels.value.map((m) => m.super_id));
   return allModelsList.value
     .filter((m) => !alreadySelected.has(m.super_id) && m.name.toLowerCase().includes(q))
-    .slice(0, 8);
+    .slice(0, 50);
 });
 
 interface Axis {
@@ -261,6 +265,13 @@ function formatAxisValue(key: string, val: number): string {
     default:
       return String(val);
   }
+}
+
+function onSearchBlur() {
+  // Delay so mousedown on a result item fires before we hide the dropdown
+  setTimeout(() => {
+    isSearchFocused.value = false;
+  }, 150);
 }
 
 function selectModel(model: ModelData) {

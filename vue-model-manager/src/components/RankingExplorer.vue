@@ -1,53 +1,73 @@
 <template>
   <div class="rankings-page">
     <div class="page-header">
-      <h2>Role Rankings Explorer</h2>
-      <p>See how models rank for each role and explore their score breakdowns</p>
+      <h2>{{ title }}</h2>
+      <p v-if="subtitle">{{ subtitle }}</p>
     </div>
 
     <div v-if="roles.length === 0" class="rankings-empty">
       <p>No ranking data available yet. Run the ranking pipeline to populate data.</p>
     </div>
 
-    <div v-for="role in roles" :key="role.key" class="role-section">
-      <div class="role-header" @click="toggleRole(role.key)">
+    <div v-else class="rankings-grid">
+    <div v-for="role in roles" :key="role.key" class="role-section" :style="{ borderColor: roleColors[role.key]?.border ?? 'var(--border)' }">
+      <div class="role-header" :style="{ background: roleColors[role.key]?.soft ?? 'transparent' }">
         <div class="role-header-left">
+          <span class="role-dot" :style="{ background: roleColors[role.key]?.accent }"></span>
           <h3 class="role-title">{{ role.label }}</h3>
-          <span class="role-badge">{{ role.models.length }} models</span>
-          <span v-if="role.meta" class="role-meta">{{ role.meta.description }}</span>
+          <span class="role-badge" :style="{ background: roleColors[role.key]?.soft, color: roleColors[role.key]?.accent }">{{ role.models.length }} models</span>
         </div>
-        <svg
-          class="role-chevron"
-          :class="{ open: expandedRoles.has(role.key) }"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
       </div>
 
-      <div v-if="expandedRoles.has(role.key)" class="role-body">
+      <div class="role-body">
+        <div class="role-desc" v-if="role.meta">
+          <p class="role-desc-text">{{ role.meta.description }}</p>
+          <div class="role-desc-factors">
+            <span class="role-desc-factor" v-if="role.meta.ctxWeight > 0">
+              <span class="factor-icon">&#9702;</span> Context weight: {{ (role.meta.ctxWeight * 100).toFixed(0) }}%
+            </span>
+            <span class="role-desc-factor" v-if="role.meta.needsTools">
+              <span class="factor-icon">&#9702;</span> Requires tool calling
+            </span>
+            <span class="role-desc-factor" v-if="role.meta.tagKeywords?.length">
+              <span class="factor-icon positive">+</span> Boosts: {{ role.meta.tagKeywords.slice(0, 4).join(', ') }}
+            </span>
+            <span class="role-desc-factor" v-if="role.meta.tagPenaltyKeywords?.length">
+              <span class="factor-icon negative">&#8722;</span> Penalizes: {{ role.meta.tagPenaltyKeywords.slice(0, 4).join(', ') }}
+            </span>
+            <span class="role-desc-factor" v-if="role.meta.nameSizePenalty">
+              <span class="factor-icon negative">&#8722;</span> Name length penalty applied
+            </span>
+            <span class="role-desc-factor" v-if="role.meta.maxCtx">
+              <span class="factor-icon">&#9702;</span> Context cap: {{ (role.meta.maxCtx / 1000).toFixed(0) }}K tokens
+            </span>
+          </div>
+        </div>
         <div
           v-for="(modelEntry, idx) in role.models"
           :key="modelEntry.id"
           class="ranking-row"
         >
-          <div class="rr-main" @click="toggleModel(role.key, modelEntry.id)">
-            <div class="rr-rank">#{{ idx + 1 }}</div>
+          <div class="rr-main" :class="{ 'rr-podium': idx < 3 }" :style="idx < 3 ? { background: medalBg(idx), borderLeftColor: medalBorder(idx) } : {}" @click="toggleModel(role.key, modelEntry.id)">
+            <div class="rr-rank" :class="{ 'rr-medal': idx < 3 }">{{ idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '#' + (idx + 1) }}</div>
             <div class="rr-info">
-              <span class="rr-name">{{ modelEntry.name }}</span>
+              <div class="rr-name-row">
+                <svg class="rr-provider-icon" :viewBox="getProviderIcon(modelEntry.providerSlug).viewBox" v-html="getProviderIcon(modelEntry.providerSlug).body"></svg>
+                <span class="rr-name">{{ modelEntry.displayName }}</span>
+                <span class="rr-creator">{{ modelEntry.creatorName }}</span>
+              </div>
+              <div class="rr-key-row">
+                <span class="rr-key">{{ modelEntry.id }}</span>
+                <span class="rr-provider-tag">{{ modelEntry.providerName }}</span>
+              </div>
               <div class="rr-bar-track">
                 <div
                   class="rr-bar-fill"
-                  :style="{ width: `${Math.max(2, modelEntry.scorePct)}%`, background: barColor(idx) }"
+                  :style="{ width: `${Math.max(2, modelEntry.scorePct)}%`, background: roleColors[role.key]?.accent }"
                 ></div>
               </div>
             </div>
-            <div class="rr-score stat-number">{{ modelEntry.score?.toFixed(0) ?? '—' }}</div>
+            <div class="rr-score stat-number">{{ modelEntry.score ? modelEntry.scorePct + '%' : '—' }}</div>
             <svg
               class="rr-chevron"
               :class="{ open: expandedModels.has(`${role.key}/${modelEntry.id}`) }"
@@ -179,18 +199,42 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useModelsStore } from '@/store/models';
+import type { RoleScore, RoleMeta, ProviderDatapoint, ModelData, CreatorData } from '@/types';
+import { resolveCreatorSlug, getProviderIcon } from '@/data/provider-icons';
+
+const props = defineProps<{
+  rankings?: Record<string, string[]>;
+  scores?: Record<string, RoleScore[]>;
+  meta?: Record<string, RoleMeta>;
+  title?: string;
+  subtitle?: string;
+  datapointByIdFn?: (id: string) => { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined;
+}>();
 
 const store = useModelsStore();
+
+const title = computed(() => props.title ?? 'Role Rankings (Free)');
+const subtitle = computed(() => props.subtitle ?? 'See how models rank for each role and explore their score breakdowns');
+
+function resolveDatapoint(id: string): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
+  if (props.datapointByIdFn) return props.datapointByIdFn(id);
+  return store.datapointById.get(id);
+}
 
 interface ModelEntry {
   id: string;
   name: string;
+  displayName: string;
+  creatorName: string;
+  providerSlug: string;
+  providerName: string;
   score: number | null;
   scorePct: number;
   scoreDetail?: {
@@ -212,7 +256,7 @@ interface RoleSection {
   key: string;
   label: string;
   models: ModelEntry[];
-  meta?: { description: string; needsTools: boolean; ctxWeight: number };
+  meta?: { description: string; needsTools: boolean; ctxWeight: number; tagKeywords: string[]; tagPenaltyKeywords: string[]; nameSizePenalty: boolean; maxCtx: number | null };
 }
 
 const roleLabels: Record<string, string> = {
@@ -223,13 +267,46 @@ const roleLabels: Record<string, string> = {
   explore: 'Explore Role',
 };
 
-const expandedRoles = ref(new Set<string>(['model']));
+const ROLE_KEYS = ['model', 'build', 'general', 'small_model', 'explore'] as const;
+
+const roleColors: Record<string, { accent: string; soft: string; border: string }> = {
+  model:    { accent: '#6380f7', soft: 'rgba(99,128,247,0.08)',  border: 'rgba(99,128,247,0.25)' },
+  build:    { accent: '#f59e0b', soft: 'rgba(245,158,11,0.08)',  border: 'rgba(245,158,11,0.25)' },
+  general:  { accent: '#34d399', soft: 'rgba(52,211,153,0.08)',  border: 'rgba(52,211,153,0.25)' },
+  small_model: { accent: '#22d3ee', soft: 'rgba(34,211,238,0.08)',  border: 'rgba(34,211,238,0.25)' },
+  explore:  { accent: '#a78bfa', soft: 'rgba(167,139,250,0.08)',  border: 'rgba(167,139,250,0.25)' },
+};
+
+const roleFallbackMeta: Record<string, { description: string; ctxWeight: number; tagKeywords: string[]; tagPenaltyKeywords: string[]; needsTools: boolean; nameSizePenalty: boolean; maxCtx: number | null }> = {
+  model: {
+    description: 'Best all-round models for general assistant and chat use. Favors large context windows, tool calling, and broad capability tags.',
+    ctxWeight: 0.4, tagKeywords: ['chat', 'assistant', 'general-purpose'], tagPenaltyKeywords: [], needsTools: true, nameSizePenalty: false, maxCtx: null,
+  },
+  build: {
+    description: 'Models optimized for coding, reasoning, and structured output. Prioritizes tool calling, reasoning capabilities, and code-related tags.',
+    ctxWeight: 0.3, tagKeywords: ['coding', 'reasoning', 'tools', 'structured'], tagPenaltyKeywords: ['chat'], needsTools: true, nameSizePenalty: false, maxCtx: null,
+  },
+  general: {
+    description: 'Balanced ranking for everyday tasks. Rewards general-purpose models with solid context and reliable output across diverse use cases.',
+    ctxWeight: 0.35, tagKeywords: ['general-purpose', 'multimodal', 'chat'], tagPenaltyKeywords: [], needsTools: false, nameSizePenalty: false, maxCtx: null,
+  },
+  small_model: {
+    description: 'Efficient, compact models ideal for edge devices, fast inference, and cost-sensitive deployments. Name length penalized to favor concise model IDs.',
+    ctxWeight: 0.2, tagKeywords: ['small', 'efficient', 'edge', 'fast'], tagPenaltyKeywords: [], needsTools: false, nameSizePenalty: true, maxCtx: 32000,
+  },
+  explore: {
+    description: 'Discovery-oriented ranking for experimental and niche models. Rewards novelty, unique capabilities, and research-oriented tags.',
+    ctxWeight: 0.25, tagKeywords: ['research', 'experimental', 'creative', 'reasoning'], tagPenaltyKeywords: [], needsTools: false, nameSizePenalty: false, maxCtx: null,
+  },
+};
+
+const expandedRoles = ref(new Set<string>(ROLE_KEYS));
 const expandedModels = ref(new Set<string>());
 
 const roles = computed((): RoleSection[] => {
-  const rankings = store.roleRankings;
-  const scores = store.roleScores;
-  const meta = store.roleMeta;
+  const rankings = props.rankings ?? store.roleRankings;
+  const scores = props.scores ?? store.roleScores;
+  const meta = props.meta ?? store.roleMeta;
 
   return Object.entries(rankings).map(([key, modelIds]) => {
     const roleScores = scores[key] ?? [];
@@ -238,9 +315,18 @@ const roles = computed((): RoleSection[] => {
     const models: ModelEntry[] = modelIds.slice(0, 30).map((id) => {
       const detail = roleScores.find((s) => s.id === id);
       const score = detail?.score ?? null;
+      const resolved = resolveDatapoint(id);
+      const providerSlug = resolveCreatorSlug(id);
+      const displayName = resolved?.model.name ?? humanizeId(id);
+      const creatorName = resolved?.creator.name ?? '';
+      const providerName = resolved?.dp.provider ?? providerSlug;
       return {
         id,
         name: id,
+        displayName,
+        creatorName,
+        providerSlug,
+        providerName,
         score,
         scorePct: score ? Math.round((score / maxScore) * 100) : 0,
         scoreDetail: detail
@@ -265,14 +351,44 @@ const roles = computed((): RoleSection[] => {
       key,
       label: roleLabels[key] ?? key,
       models,
-      meta: meta[key],
+      meta: { ...roleFallbackMeta[key], ...meta[key] } as RoleSection['meta'],
     };
   });
 });
 
-function barColor(idx: number): string {
-  const colors = ['#6380f7', '#a78bfa', '#34d399', '#22d3ee', '#fbbf24', '#f87171'];
-  return colors[idx % colors.length];
+function humanizeId(fullId: string): string {
+  // Take the last meaningful segment, strip provider prefixes and :free suffix
+  const parts = fullId.split('/');
+  // Use last segment that looks like a model name (skip short segments like :free)
+  let name = parts[parts.length - 1];
+  // Remove :free suffix
+  name = name.replace(/:free$/i, '');
+  // If it's just a version tag, use the second-to-last
+  if (name.length < 4 && parts.length > 1) {
+    name = parts[parts.length - 2] + '-' + name;
+  }
+  // Convert kebab/snake to Title Case
+  return name
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function medalBg(idx: number): string {
+  const colors = [
+    'rgba(255,215,0,0.13)',   // gold
+    'rgba(192,192,192,0.11)', // silver
+    'rgba(205,133,63,0.10)',  // bronze
+  ];
+  return colors[idx] ?? 'transparent';
+}
+
+function medalBorder(idx: number): string {
+  const colors = [
+    'rgba(255,215,0,0.45)',
+    'rgba(192,192,192,0.35)',
+    'rgba(205,133,63,0.35)',
+  ];
+  return colors[idx] ?? 'transparent';
 }
 
 function toggleRole(key: string) {
@@ -318,9 +434,16 @@ function wfFinalPct(entry: ModelEntry): number {
 
 <style scoped>
 .rankings-page {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 20px;
+  max-width: none;
+  margin: 0;
+  padding: 20px 16px;
+}
+
+.rankings-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  align-items: start;
 }
 
 .page-header h2 {
@@ -343,71 +466,94 @@ function wfFinalPct(entry: ModelEntry): number {
 
 /* Role sections */
 .role-section {
-  margin-bottom: 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--depth-3, var(--bg-card));
   overflow: hidden;
+  min-width: 0;
 }
 
 .role-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
-  cursor: pointer;
-  transition: background 0.15s;
+  padding: 8px 10px;
   user-select: none;
-}
-
-.role-header:hover {
-  background: var(--bg-hover);
 }
 
 .role-header-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   flex-wrap: wrap;
   flex: 1;
   min-width: 0;
 }
 
+.role-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 .role-title {
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   margin: 0;
+  white-space: nowrap;
+  color: var(--text);
 }
 
 .role-badge {
-  font-size: 0.62rem;
+  font-size: 0.6rem;
   font-weight: 700;
   text-transform: uppercase;
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: var(--radius-full);
-  background: var(--accent-subtle);
-  color: var(--accent);
+  color: var(--text-dim);
 }
 
-.role-meta {
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* Role description panel */
+.role-desc {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border-light);
+  height: 130px;
+  overflow-y: auto;
 }
 
-.role-chevron {
-  flex-shrink: 0;
-  color: var(--text-muted);
-  transition: transform 0.2s;
+.role-desc-text {
+  font-size: 0.67rem;
+  color: var(--text-dim);
+  margin: 0 0 5px;
+  line-height: 1.45;
 }
 
-.role-chevron.open {
-  transform: rotate(180deg);
+.role-desc-factors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
+
+.role-desc-factor {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,0.08);
+}
+
+.factor-icon {
+  font-weight: 700;
+  font-size: 0.58rem;
+}
+
+.factor-icon.positive { color: var(--green); }
+.factor-icon.negative { color: var(--red); }
 
 /* Ranking rows */
 .role-body {
@@ -425,8 +571,8 @@ function wfFinalPct(entry: ModelEntry): number {
 .rr-main {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 18px;
+  gap: 5px;
+  padding: 6px 8px;
   cursor: pointer;
   transition: background 0.1s;
 }
@@ -435,13 +581,26 @@ function wfFinalPct(entry: ModelEntry): number {
   background: var(--bg-hover);
 }
 
+.rr-podium {
+  border-left: 3px solid;
+}
+
 .rr-rank {
-  width: 36px;
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 800;
-  color: var(--text-muted);
+  color: var(--text-dim);
   font-family: 'JetBrains Mono', monospace;
   flex-shrink: 0;
+  width: 22px;
+  text-align: right;
+}
+
+.rr-medal {
+  font-size: 1rem;
+  font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  font-weight: 400;
+  width: 26px;
+  text-align: center;
 }
 
 .rr-info {
@@ -449,20 +608,68 @@ function wfFinalPct(entry: ModelEntry): number {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .rr-name {
-  font-size: 0.82rem;
+  font-size: 0.75rem;
   font-weight: 600;
+  color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.rr-name-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.rr-provider-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--text-dim);
+}
+
+.rr-creator {
+  display: none;
+}
+
+.rr-key-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.rr-key {
+  font-size: 0.58rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.6;
+}
+
+.rr-provider-tag {
+  font-size: 0.55rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,0.1);
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
 .rr-bar-track {
   height: 4px;
-  background: var(--depth-1, var(--bg-elevated));
+  background: rgba(255,255,255,0.08);
   border-radius: 2px;
   overflow: hidden;
 }
@@ -474,18 +681,21 @@ function wfFinalPct(entry: ModelEntry): number {
 }
 
 .rr-score {
-  font-size: 0.85rem;
+  font-size: 0.7rem;
   font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
   color: var(--text-dim);
   flex-shrink: 0;
-  width: 48px;
+  width: 32px;
   text-align: right;
 }
 
 .rr-chevron {
   flex-shrink: 0;
-  color: var(--text-muted);
+  color: var(--text-dim);
   transition: transform 0.2s;
+  width: 10px;
+  height: 10px;
 }
 
 .rr-chevron.open {
@@ -494,56 +704,56 @@ function wfFinalPct(entry: ModelEntry): number {
 
 /* Breakdown */
 .rr-breakdown {
-  padding: 0 18px 14px 66px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.rrb-section {
+  padding: 6px 8px 8px 30px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.rrb-label {
-  font-size: 0.62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-}
-
-.rrb-bars {
+.rrb-section {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
+.rrb-label {
+  font-size: 0.56rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.rrb-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
 .rrb-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
 }
 
 .rrb-tag {
-  width: 90px;
-  font-size: 0.68rem;
+  width: 64px;
+  font-size: 0.6rem;
   color: var(--text-dim);
   flex-shrink: 0;
 }
 
 .rrb-track {
   flex: 1;
-  height: 6px;
-  background: var(--depth-1, var(--bg-elevated));
-  border-radius: 3px;
+  height: 5px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
   overflow: hidden;
 }
 
 .rrb-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 2px;
   transition: width 0.5s var(--ease-emphasis);
 }
 
@@ -553,8 +763,8 @@ function wfFinalPct(entry: ModelEntry): number {
 .rrb-fill.penalty { background: var(--red); }
 
 .rrb-val {
-  width: 44px;
-  font-size: 0.68rem;
+  width: 34px;
+  font-size: 0.6rem;
   font-weight: 600;
   font-family: 'JetBrains Mono', monospace;
   color: var(--text-dim);
@@ -569,13 +779,13 @@ function wfFinalPct(entry: ModelEntry): number {
 .rrb-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 2px;
 }
 
 .rrb-tag-pill {
-  padding: 2px 8px;
+  padding: 1px 6px;
   border-radius: var(--radius-full);
-  font-size: 0.62rem;
+  font-size: 0.53rem;
   font-weight: 600;
 }
 
@@ -593,19 +803,19 @@ function wfFinalPct(entry: ModelEntry): number {
 .waterfall-chart {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 3px;
 }
 
 .wf-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 20px;
+  gap: 4px;
+  height: 14px;
 }
 
 .wf-label {
-  width: 80px;
-  font-size: 0.62rem;
+  width: 55px;
+  font-size: 0.5rem;
   color: var(--text-muted);
   flex-shrink: 0;
   text-align: right;
@@ -613,19 +823,19 @@ function wfFinalPct(entry: ModelEntry): number {
 
 .wf-track {
   flex: 1;
-  height: 14px;
+  height: 10px;
   position: relative;
   background: var(--depth-2, rgba(17, 21, 32, 0.6));
-  border-radius: 3px;
+  border-radius: 2px;
   overflow: visible;
 }
 
 .wf-bar {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 2px;
   position: relative;
   transition: width 0.4s var(--ease-emphasis, ease);
-  min-width: 24px;
+  min-width: 16px;
 }
 
 .wf-positive {
@@ -638,10 +848,10 @@ function wfFinalPct(entry: ModelEntry): number {
 
 .wf-val {
   position: absolute;
-  right: 4px;
+  right: 2px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.55rem;
+  font-size: 0.45rem;
   font-weight: 700;
   font-family: 'JetBrains Mono', monospace;
   color: var(--depth-0, #080a10);
@@ -656,57 +866,57 @@ function wfFinalPct(entry: ModelEntry): number {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%) rotate(45deg);
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
   background: var(--accent-gradient, linear-gradient(135deg, #6b8aff, #a78bfa));
   border-radius: 1.5px;
-  box-shadow: 0 0 6px var(--accent-glow, rgba(99,128,247,0.4));
+  box-shadow: 0 0 4px var(--accent-glow, rgba(99,128,247,0.4));
 }
 
 .wf-final-row {
   border-top: 1px solid var(--border-light);
-  padding-top: 6px;
-  margin-top: 2px;
+  padding-top: 4px;
+  margin-top: 1px;
 }
 
 .wf-final-val {
-  font-size: 0.72rem;
+  font-size: 0.58rem;
   font-weight: 800;
   font-family: 'JetBrains Mono', monospace;
   color: var(--accent);
-  width: 48px;
+  width: 36px;
   text-align: right;
   flex-shrink: 0;
 }
 
 /* Tag Heatmap Grid */
 .tag-heatmap {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .thm-column {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .thm-col-label {
-  font-size: 0.58rem;
+  font-size: 0.5rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .thm-col-label.positive { color: var(--green); }
 .thm-col-label.negative { color: var(--red); }
 
 .thm-pill {
-  padding: 3px 8px;
+  padding: 1px 5px;
   border-radius: var(--radius-full);
-  font-size: 0.62rem;
+  font-size: 0.5rem;
   font-weight: 600;
   display: inline-block;
   width: fit-content;
@@ -722,24 +932,30 @@ function wfFinalPct(entry: ModelEntry): number {
   color: var(--red);
 }
 
-@media (max-width: 768px) {
-  .wf-label { width: 60px; font-size: 0.55rem; }
-  .tag-heatmap { grid-template-columns: 1fr; }
+@media (max-width: 1600px) {
+  .rankings-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .rankings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .rankings-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
   .rankings-page {
-    padding: 12px;
+    padding: 8px;
   }
   .rr-breakdown {
-    padding: 0 12px 12px 40px;
-  }
-  .rrb-tag {
-    width: 65px;
-    font-size: 0.62rem;
-  }
-  .role-meta {
-    display: none;
+    padding: 0 6px 6px 24px;
   }
 }
 </style>

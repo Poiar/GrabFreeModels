@@ -22,6 +22,8 @@
       <span class="mc-stat"
         >{{ activeProviderCount }} provider{{ activeProviderCount !== 1 ? 's' : '' }}</span
       >
+      <span v-if="sourceSummaryText" class="mc-stat-divider">|</span>
+      <span v-if="sourceSummaryText" class="mc-stat mc-source-line">{{ sourceSummaryText }}</span>
       <span v-if="limitBadges.card" class="mc-limit-warn" title="Credit card required by some providers">Card</span>
       <span v-if="limitBadges.sub" class="mc-limit-warn" :title="limitBadges.sub">Sub</span>
       <span v-if="limitBadges.daily" class="mc-limit-info" :title="limitBadges.daily">~{{ limitBadges.daily }}/day</span>
@@ -45,6 +47,7 @@
 import { ref, computed } from 'vue';
 import ProviderStrip from '@/components/ProviderStrip.vue';
 import type { ModelData, CreatorData, ProviderDatapoint } from '@/types';
+import { useModelsStore } from '@/store/models';
 
 const props = defineProps<{
   model: ModelData;
@@ -57,6 +60,34 @@ const emit = defineEmits<{
 }>();
 
 const expanded = ref(false);
+
+const store = useModelsStore();
+
+const sourceSummary = computed(() => {
+  let api = 0;
+  let community = 0;
+  for (const p of props.model.providers) {
+    if (p._removed) continue;
+    const ids = p.source_ids || [];
+    const hasApi = ids.some((id) =>
+      store.sources.some((s) => s.id === id && s.source_type === 'api_provider'),
+    );
+    const hasCommunity = ids.some((id) =>
+      store.sources.some((s) => s.id === id && s.source_type === 'community_list'),
+    );
+    if (hasApi) api++;
+    if (hasCommunity) community++;
+  }
+  return { api, community };
+});
+
+const sourceSummaryText = computed(() => {
+  const s = sourceSummary.value;
+  const parts: string[] = [];
+  if (s.api > 0) parts.push(`${s.api} API`);
+  if (s.community > 0) parts.push(`${s.community} community`);
+  return parts.join(' · ');
+});
 
 const status = computed(() => {
   const active = props.model.providers.filter((p) => !p._removed);
