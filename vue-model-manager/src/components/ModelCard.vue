@@ -1,5 +1,5 @@
 <template>
-  <div class="model-card" :class="{ 'card-expanded': expanded }" @click="handleCardClick">
+  <div class="model-card" :class="[`card-${status}`, { 'card-expanded': expanded }]" @click="handleCardClick">
     <!-- Header -->
     <div class="mc-header">
       <div class="mc-header-left">
@@ -28,7 +28,7 @@
       <span v-if="limitBadges.tokenDay" class="mc-limit-info" :title="limitBadges.tokenDay">~{{ limitBadges.tokenDay }}/day</span>
       <span v-if="limitBadges.expires" class="mc-limit-info" :title="'Expires: ' + limitBadges.expires">Exp.</span>
       <span v-if="limitBadges.rate" class="mc-limit-info" :title="limitBadges.rate">Rate</span>
-      <span class="mc-status-indicator" :class="`status-${status}`"></span>
+      <span class="mc-status-pulse" :class="`pulse-${status}`"></span>
     </div>
 
     <!-- Provider strip -->
@@ -133,19 +133,39 @@ function roleLabel(role: string): string {
 .model-card {
   padding: 12px 16px;
   border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
   border-radius: 8px;
   background: var(--bg-card);
   transition:
     border-color 0.15s,
+    border-left-color 0.3s,
     box-shadow 0.15s;
 }
 
+.model-card.card-working {
+  border-left-color: var(--green);
+}
+
+.model-card.card-mixed {
+  border-left-color: var(--orange);
+}
+
+.model-card.card-down {
+  border-left-color: var(--red);
+}
+
+.model-card.card-untested {
+  border-left-color: var(--text-muted);
+}
+
 .model-card:hover {
-  border-color: var(--border);
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-md);
 }
 
 .model-card.card-expanded {
   border-color: var(--accent);
+  box-shadow: var(--shadow-glow);
 }
 
 .mc-header {
@@ -230,27 +250,33 @@ function roleLabel(role: string): string {
   flex-shrink: 0;
 }
 
-.mc-status-indicator {
-  width: 6px;
-  height: 6px;
+.mc-status-pulse {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   margin-left: auto;
   flex-shrink: 0;
 }
 
-.mc-status-indicator.status-working {
+.mc-status-pulse.pulse-working {
   background: var(--green);
-  box-shadow: 0 0 4px var(--green-glow);
+  box-shadow: 0 0 6px var(--green-glow);
+  animation: pulse-dot 2s var(--ease-smooth, ease-in-out) infinite;
 }
-.mc-status-indicator.status-mixed {
+
+.mc-status-pulse.pulse-mixed {
   background: var(--orange);
-  box-shadow: 0 0 4px var(--orange-glow);
+  box-shadow: 0 0 6px var(--orange-glow);
+  animation: pulse-dot 1.5s var(--ease-smooth, ease-in-out) infinite;
 }
-.mc-status-indicator.status-down {
+
+.mc-status-pulse.pulse-down {
   background: var(--red);
-  box-shadow: 0 0 4px var(--red-glow);
+  box-shadow: 0 0 6px var(--red-glow);
+  animation: pulse-dot-error 1.5s var(--ease-smooth, ease-in-out) infinite;
 }
-.mc-status-indicator.status-untested {
+
+.mc-status-pulse.pulse-untested {
   background: var(--text-muted);
 }
 

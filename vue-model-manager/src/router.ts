@@ -32,6 +32,24 @@ const routes = [
     meta: { title: 'Issues' },
   },
   {
+    path: '/issues-timeline',
+    name: 'IssuesTimeline',
+    component: () => import('@/views/IssuesTimelineView.vue'),
+    meta: { title: 'Issues' },
+  },
+  {
+    path: '/compare',
+    name: 'Compare',
+    component: () => import('@/views/CompareView.vue'),
+    meta: { title: 'Compare' },
+  },
+  {
+    path: '/rankings',
+    name: 'Rankings',
+    component: () => import('@/views/RankingsView.vue'),
+    meta: { title: 'Rankings' },
+  },
+  {
     path: '/model/:slug',
     name: 'ModelDetail',
     component: () => import('@/views/ModelList.vue'),
