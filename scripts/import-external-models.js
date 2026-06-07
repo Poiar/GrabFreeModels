@@ -85,6 +85,10 @@ function fuzzyMatch(name, existingNames) {
     const { rows: providerRows } = await client.query('SELECT id, slug FROM datapoint_providers');
     const providerIdMap = new Map(providerRows.map((r) => [r.slug, r.id]));
 
+    // Get source names for status_detail
+    const { rows: sourceRows } = await client.query('SELECT id, name FROM sources');
+    const sourceNameMap = new Map(sourceRows.map((r) => [r.id, r.name]));
+
     // Cross-reference and find missing
     const missing = [];
     for (const [slug, models] of Object.entries(extBySlug)) {
@@ -134,88 +138,94 @@ function fuzzyMatch(name, existingNames) {
     let imported = 0;
     let skipped = 0;
 
-    for (const m of missing) {
-      const providerId = providerIdMap.get(m.provider);
-      if (!providerId) {
-        skipped++;
-        continue;
+    try {
+      await client.query('BEGIN');
+
+      for (const m of missing) {
+        const providerId = providerIdMap.get(m.provider);
+        if (!providerId) {
+          skipped++;
+          continue;
+        }
+
+        // Strip external provider prefix from model name if present.
+        // External sources use their own naming conventions (e.g. models.dev uses
+        // "x-ai/grok-4.3" while our provider slug is "xai").
+        let modelName = m.name;
+        if (m.externalName && modelName.startsWith(`${m.externalName}/`)) {
+          modelName = modelName.slice(m.externalName.length + 1);
+        } else if (modelName.startsWith(`${m.provider}/`)) {
+          modelName = modelName.slice(m.provider.length + 1);
+        }
+        const superSlug = normalizeModelSlug(modelName);
+        const remoteId = modelName;
+        const fullId = `${m.provider}/${modelName}`;
+
+        // Parse context_length and limits from model_limits JSON
+        let contextLength = null;
+        let limitations = null;
+        if (m.limits) {
+          try {
+            const parsed = JSON.parse(m.limits);
+            if (parsed.contextWindow != null) contextLength = parsed.contextWindow;
+            limitations = m.limits;
+          } catch {
+            limitations = m.limits;
+          }
+        }
+
+        const sourceName = sourceNameMap.get(m.source_id) || 'community list';
+        const statusDetail = `Imported from community list (${sourceName})`;
+
+        try {
+          const { rows: smRows } = await client.query(
+            `INSERT INTO super_models (name, slug) VALUES ($1, $2)
+             ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+             RETURNING id`,
+            [modelName, superSlug],
+          );
+          const superId = smRows[0].id;
+
+          const { rows: newDmRows } = await client.query(
+            `INSERT INTO datapoint_models
+             (super_model_id, datapoint_provider_id, remote_id, full_id,
+              is_free, context_length, limitations, status_result, status_detail)
+             VALUES ($1, $2, $3, $4, true, $5, $6, 'untested', $7)
+             ON CONFLICT (datapoint_provider_id, remote_id) DO UPDATE SET
+               full_id = EXCLUDED.full_id,
+               context_length = COALESCE(EXCLUDED.context_length, datapoint_models.context_length),
+               limitations = COALESCE(EXCLUDED.limitations, datapoint_models.limitations),
+               is_removed = false,
+               updated_at = now()
+             RETURNING id`,
+            [superId, providerId, remoteId, fullId, contextLength, limitations, statusDetail],
+          );
+          const newDmId = newDmRows[0].id;
+
+          // Record provenance for newly imported model
+          await client.query(
+            `INSERT INTO datapoint_model_sources (datapoint_model_id, source_id)
+             VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+            [newDmId, m.source_id],
+          );
+
+          imported++;
+        } catch (err) {
+          logger.info(`  SKIP ${fullId}: ${err.message}`);
+          skipped++;
+        }
       }
 
-      // Strip external provider prefix from model name if present.
-      // External sources use their own naming conventions (e.g. models.dev uses
-      // "x-ai/grok-4.3" while our provider slug is "xai").
-      let modelName = m.name;
-      if (m.externalName && modelName.startsWith(`${m.externalName}/`)) {
-        modelName = modelName.slice(m.externalName.length + 1);
-      } else if (modelName.startsWith(`${m.provider}/`)) {
-        modelName = modelName.slice(m.provider.length + 1);
-      }
-      const superSlug = normalizeModelSlug(modelName);
-      const remoteId = modelName;
-      const fullId = `${m.provider}/${modelName}`;
-
-      try {
-        const { rows: smRows } = await client.query(
-          `INSERT INTO super_models (name, slug) VALUES ($1, $2)
-           ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
-           RETURNING id`,
-          [m.name, superSlug],
-        );
-        const superId = smRows[0].id;
-
-        const { rows: newDmRows } = await client.query(
-          `INSERT INTO datapoint_models
-           (super_model_id, datapoint_provider_id, remote_id, full_id, is_free, status_result, status_detail)
-           VALUES ($1, $2, $3, $4, true, 'untested', $5)
-           ON CONFLICT (datapoint_provider_id, remote_id) DO UPDATE SET
-             full_id = EXCLUDED.full_id,
-             is_removed = false,
-             updated_at = now()
-           RETURNING id`,
-          [superId, providerId, remoteId, fullId, 'Imported from community list (free-llm-api-resources)'],
-        );
-        const newDmId = newDmRows[0].id;
-
-        // Record provenance for newly inserted model
-        await client.query(
-          `INSERT INTO datapoint_model_sources (datapoint_model_id, source_id)
-           VALUES ($1, $2) ON CONFLICT DO NOTHING`,
-          [newDmId, m.source_id],
-        );
-
-        imported++;
-      } catch (err) {
-        logger.info(`  SKIP ${fullId}: ${err.message}`);
-        skipped++;
-      }
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      logger.info(`  ROLLBACK: ${err.message}`);
+      throw err;
     }
-
-    // Batch backfill: ensure provenance links for all community-imported models
-    logger.info('\n[Provenance] Ensuring provenance links for existing external models...');
-    const { rows: provCount } = await client.query(`
-      INSERT INTO datapoint_model_sources (datapoint_model_id, source_id)
-      SELECT dm.id, esp_source.source_id
-      FROM datapoint_models dm
-      JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
-      JOIN (
-        SELECT DISTINCT esp.mapped_slug, esm.source_id
-        FROM external_source_providers esp
-        JOIN external_source_models esm ON esm.external_source_provider_id = esp.id
-        WHERE esp.mapped_slug IS NOT NULL
-      ) esp_source ON esp_source.mapped_slug = dp.slug
-      WHERE dm.status_detail LIKE '%Imported from community list%'
-        AND dm.is_removed = false
-        AND NOT EXISTS (
-          SELECT 1 FROM datapoint_model_sources dms
-          WHERE dms.datapoint_model_id = dm.id AND dms.source_id = esp_source.source_id
-        )
-      ON CONFLICT DO NOTHING
-    `);
-    const provLinked = provCount.rowCount;
-    logger.info(`  Linked ${provLinked} existing community-imported models to source`);
 
     logger.info(`\n  Imported: ${imported}`);
     logger.info(`  Skipped:  ${skipped}`);
+    logger.info('  Run backfill-provenance.js --apply to link all community-imported models to their sources.');
     logger.info('Done.');
   } finally {
     client.release();
