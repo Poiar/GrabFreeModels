@@ -11,13 +11,37 @@ node scripts/validate-free-models.js --apply
 node scripts/nightly-maintenance.js  # full pipeline
 ```
 
+## Frontend
+
+Vue 3 + Vite + Pinia SPA with a premium dark theme and advanced data visualizations — all built with zero additional npm dependencies (CSS/SVG/Canvas only).
+
+```bash
+cd vue-model-manager
+npm run dev           # Vite dev server with HMR (port 5173, proxies /api → 3001)
+npm run build         # Type-check + production build → dist/
+```
+
+### Views
+
+| Route               | Description                                                       |
+| ------------------- | ----------------------------------------------------------------- |
+| `#/`                | Super models grid with search, filter, and status indicators      |
+| `#/dashboard`       | Hero stats, provider ecosystem grid, pulse waveform, constellation |
+| `#/creators`        | Models grouped by creator/author                                  |
+| `#/issues`          | Known issues per model                                            |
+| `#/issues-timeline` | Issues seismograph — SVG timeline with severity spikes            |
+| `#/compare`         | Multi-model radar comparison across 6 dimensions                  |
+| `#/rankings`        | Per-role model ranking with waterfall score breakdown             |
+
 ## Project Structure
 
 ```
 scripts/                    # Node.js scripts (one per operation)
+server/                     # Express API (port 3001)
+db/                         # PostgreSQL schema v2
 skills/                     # opencode skill definitions
 docs/                       # reference documentation
-vue-model-manager/           # Vue 3 + Pinia frontend
+vue-model-manager/          # Vue 3 + Pinia frontend
 snapshots/                  # timestamped model snapshots (from export-from-pg.js)
 ```
 
