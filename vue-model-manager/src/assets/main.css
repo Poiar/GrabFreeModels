@@ -441,9 +441,6 @@ body {
 .badge-broken { background: var(--red-subtle); color: var(--red); }
 .badge-rate_limited { background: var(--orange-subtle); color: var(--orange); }
 .badge-untested { background: var(--accent-subtle); color: var(--accent); }
-.badge-paid { background: var(--purple-subtle); color: var(--purple); }
-.badge-free-type { background: var(--green-subtle); color: var(--green); }
-.badge-paid-type { background: var(--purple-subtle); color: var(--purple); }
 .badge-removed { background: var(--orange-subtle); color: var(--orange); }
 .badge-not_found { background: var(--border); color: var(--text-dim); }
 
@@ -1723,14 +1720,11 @@ th.sortable.active .sort-indicator { opacity: 1; }
 .col-tools    { width: 6%;  min-width: 60px; }
 .col-tags     { width: 14%; min-width: 140px; }
 
-.badge-free-type { background: var(--green-subtle); color: var(--green); }
-.badge-paid-type { background: var(--purple-subtle); color: var(--purple); }
 .badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius-full, 999px); font-size: 0.65rem; font-weight: 600; white-space: nowrap; }
 .badge-working      { background: rgba(63,185,80,0.12);  color: var(--green); }
 .badge-untested     { background: rgba(210,153,34,0.12); color: var(--orange); }
 .badge-rate_limited { background: rgba(248,81,73,0.12);  color: var(--red, #f85149); }
 .badge-broken       { background: rgba(248,81,73,0.12);  color: var(--red, #f85149); }
-.badge-paid         { background: var(--orange-subtle); color: var(--orange); }
 .badge-removed      { background: rgba(248,81,73,0.12);  color: var(--red, #f85149); }
 .badge-not_found    { background: rgba(150,150,160,0.10); color: var(--text-muted); }
 

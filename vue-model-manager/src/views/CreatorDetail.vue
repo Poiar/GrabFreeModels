@@ -15,10 +15,8 @@
         <span class="cd-stat-label">Best context</span>
       </div>
       <div class="cd-stat">
-        <span class="cd-stat-value"
-          >{{ formatPrice(cheapestInput) }}/{{ formatPrice(cheapestOutput) }}</span
-        >
-        <span class="cd-stat-label">Cheapest</span>
+        <span class="cd-stat-value">{{ workingCount }} / {{ creator.model_count }}</span>
+        <span class="cd-stat-label">Working models</span>
       </div>
       <div class="cd-stat">
         <span class="cd-stat-value">{{ topProvider }}</span>
@@ -80,26 +78,19 @@ function formatContext(ctx: number | null): string {
   return `${Math.round(ctx / 1000)}K`;
 }
 
-function formatPrice(price: number): string {
-  if (price === 0) return 'Free';
-  if (price < 1) return `$${price.toFixed(2)}`;
-  return `$${price.toFixed(0)}`;
-}
+const workingCount = computed(() => {
+  if (!creator.value) return 0;
+  let count = 0;
+  for (const model of creator.value.models) {
+    if (model.providers.some((p) => !p._removed && p.status.result === 'working')) count++;
+  }
+  return count;
+});
 
 const bestContext = computed(() => {
   if (!creator.value) return 0;
   const contexts = creator.value.models.map((m) => m.best_context).filter((ctx) => ctx !== null);
   return contexts.length > 0 ? Math.max(...contexts, 0) : 0;
-});
-
-const cheapestInput = computed(() => {
-  if (!creator.value) return 0;
-  return Math.min(...creator.value.models.map((m) => m.cheapest_input_price), Infinity);
-});
-
-const cheapestOutput = computed(() => {
-  if (!creator.value) return 0;
-  return Math.min(...creator.value.models.map((m) => m.cheapest_output_price), Infinity);
 });
 
 const topProvider = computed(() => {

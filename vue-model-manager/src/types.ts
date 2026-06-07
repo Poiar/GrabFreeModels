@@ -1,7 +1,17 @@
 export interface ModelStatus {
   tested: string | null;
-  result: 'working' | 'broken' | 'rate_limited' | 'untested' | 'not_found' | 'paid';
+  result: 'working' | 'broken' | 'rate_limited' | 'untested' | 'not_found';
   detail: string;
+}
+
+export interface ModelLimitations {
+  daily_tokens?: number;
+  daily_requests?: number;
+  rate_limit?: string;
+  requires_card?: boolean;
+  subscription_required?: string;
+  expires?: string;
+  notes?: string;
 }
 
 // NEW hierarchical types
@@ -11,8 +21,6 @@ export interface ProviderDatapoint {
   provider: string;
   provider_slug: string;
   context_length: number | null;
-  input_price_per_million: number;
-  output_price_per_million: number;
   is_free: boolean;
   supports_tools: boolean | null;
   supports_reasoning: boolean | null;
@@ -29,6 +37,7 @@ export interface ProviderDatapoint {
   _removedDate?: string;
   notes?: string;
   priority_score: number | null;
+  limitations?: ModelLimitations | null;
 }
 
 export interface ModelData {
@@ -38,8 +47,6 @@ export interface ModelData {
   family: string | null;
   best_for: string[];
   best_context: number | null;
-  cheapest_input_price: number;
-  cheapest_output_price: number;
   role_rankings: Record<string, number>;
   providers: ProviderDatapoint[];
 }
@@ -98,8 +105,6 @@ export interface DatapointModel {
   creator: string | null;
   source: string; // provider slug
   context_length: number | null;
-  input_price_per_million: number;
-  output_price_per_million: number;
   is_free: boolean;
   supports_tools: boolean | null;
   supports_reasoning: boolean | null;
@@ -120,6 +125,7 @@ export interface DatapointModel {
   _removedDate?: string;
   notes?: string;
   priority_score: number | null;
+  limitations?: ModelLimitations | null;
 }
 
 export interface SuperModel {
@@ -131,7 +137,6 @@ export interface SuperModel {
   any_working: boolean;
   any_tools: boolean;
   providers: string[];
-  all_free: boolean;
   sources: string[];
 }
 

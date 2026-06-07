@@ -30,16 +30,20 @@
       </span>
       <span v-else class="pb-tools pb-tools-none" title="No tools">—</span>
     </div>
-    <div class="pb-price">
-      <template
-        v-if="dp.is_free && dp.input_price_per_million === 0 && dp.output_price_per_million === 0"
-        >Free</template
-      >
-      <template v-else
-        >${{ formatPrice(dp.input_price_per_million) }}/${{
-          formatPrice(dp.output_price_per_million)
-        }}</template
-      >
+    <div class="pb-limits">
+      <span class="pb-free-badge">Free</span>
+      <span v-if="dp.limitations?.requires_card" class="pb-limit-icon" title="Requires credit card">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
+      </span>
+      <span v-if="dp.limitations?.daily_requests || dp.limitations?.daily_tokens" class="pb-limit-icon" title="Daily limit applies">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+      </span>
+      <span v-if="dp.limitations?.rate_limit" class="pb-limit-icon" title="Rate limited">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><path d="M16 21h5v-5" /></svg>
+      </span>
+      <span v-if="dp.limitations?.expires" class="pb-limit-icon" title="Expires: {{ dp.limitations.expires }}">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+      </span>
     </div>
   </div>
 </template>
@@ -58,11 +62,6 @@ function formatContext(ctx: number | null): string {
   return `${Math.round(ctx / 1000)}K`;
 }
 
-function formatPrice(price: number): string {
-  if (price === 0) return '0';
-  if (price < 1) return price.toFixed(2);
-  return price.toFixed(0);
-}
 </script>
 
 <style scoped>
@@ -136,7 +135,6 @@ function formatPrice(price: number): string {
   box-shadow: 0 0 4px var(--red-glow);
 }
 .dot-untested,
-.dot-paid,
 .dot-not_found {
   background: var(--text-muted);
 }
@@ -164,9 +162,21 @@ function formatPrice(price: number): string {
   opacity: 0.5;
 }
 
-.pb-price {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--accent);
+.pb-limits {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pb-free-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.pb-limit-icon {
+  color: var(--orange);
+  display: flex;
+  align-items: center;
 }
 </style>

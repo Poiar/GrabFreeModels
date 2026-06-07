@@ -17,15 +17,17 @@
     <div class="mc-stats">
       <span class="mc-stat">Max: {{ formatContext(model.best_context) }} context</span>
       <span class="mc-stat-divider">|</span>
-      <span class="mc-stat">{{
-        hasFreeProvider
-          ? 'Free'
-          : formatPrice(model.cheapest_input_price) + '/' + formatPrice(model.cheapest_output_price)
-      }}</span>
+      <span class="mc-stat">Free</span>
       <span class="mc-stat-divider">|</span>
       <span class="mc-stat"
         >{{ activeProviderCount }} provider{{ activeProviderCount !== 1 ? 's' : '' }}</span
       >
+      <span v-if="limitBadges.card" class="mc-limit-warn" title="Credit card required by some providers">Card</span>
+      <span v-if="limitBadges.sub" class="mc-limit-warn" :title="limitBadges.sub">Sub</span>
+      <span v-if="limitBadges.daily" class="mc-limit-info" :title="limitBadges.daily">~{{ limitBadges.daily }}/day</span>
+      <span v-if="limitBadges.tokenDay" class="mc-limit-info" :title="limitBadges.tokenDay">~{{ limitBadges.tokenDay }}/day</span>
+      <span v-if="limitBadges.expires" class="mc-limit-info" :title="'Expires: ' + limitBadges.expires">Exp.</span>
+      <span v-if="limitBadges.rate" class="mc-limit-info" :title="limitBadges.rate">Rate</span>
       <span class="mc-status-indicator" :class="`status-${status}`"></span>
     </div>
 
@@ -67,11 +69,24 @@ const status = computed(() => {
 
 const activeProviderCount = computed(() => props.model.providers.filter((p) => !p._removed).length);
 
-const hasFreeProvider = computed(() =>
-  props.model.providers.some(
-    (p) => p.is_free && p.input_price_per_million === 0 && p.output_price_per_million === 0,
-  ),
-);
+const limitBadges = computed(() => {
+  const badges: Record<string, string> = {};
+  for (const p of props.model.providers) {
+    if (p._removed || !p.limitations) continue;
+    const l = p.limitations;
+    if (l.requires_card && !badges.card) badges.card = 'Card req.';
+    if (l.subscription_required && !badges.sub) badges.sub = l.subscription_required;
+    if (l.expires && !badges.expires) badges.expires = l.expires;
+    if (l.rate_limit && !badges.rate) badges.rate = l.rate_limit;
+    if (l.daily_requests !== undefined && (!badges.daily || l.daily_requests < parseInt(badges.daily))) {
+      badges.daily = String(l.daily_requests >= 1000 ? `${(l.daily_requests / 1000).toFixed(1).replace(/\.0$/, '')}K` : l.daily_requests);
+    }
+    if (l.daily_tokens !== undefined && (!badges.tokenDay || l.daily_tokens < parseInt(badges.tokenDay))) {
+      badges.tokenDay = String(l.daily_tokens >= 1000 ? `${(l.daily_tokens / 1000).toFixed(1).replace(/\.0$/, '')}K` : l.daily_tokens);
+    }
+  }
+  return badges;
+});
 
 const topRankings = computed(() => {
   const rankings = props.model.role_rankings;
@@ -99,12 +114,6 @@ function formatContext(ctx: number | null): string {
   if (!ctx) return '—';
   if (ctx >= 1_000_000) return `${(ctx / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
   return `${Math.round(ctx / 1000)}K`;
-}
-
-function formatPrice(price: number): string {
-  if (price === 0) return 'Free';
-  if (price < 1) return `$${price.toFixed(2)}`;
-  return `$${price.toFixed(0)}`;
 }
 
 function roleLabel(role: string): string {
@@ -199,6 +208,26 @@ function roleLabel(role: string): string {
 
 .mc-stat-divider {
   color: var(--border);
+}
+
+.mc-limit-warn {
+  padding: 1px 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--red);
+  flex-shrink: 0;
+}
+
+.mc-limit-info {
+  padding: 1px 6px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--orange);
+  flex-shrink: 0;
 }
 
 .mc-status-indicator {

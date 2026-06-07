@@ -38,6 +38,7 @@ CREATE TABLE datapoint_models (
     output_price_per_million NUMERIC(12,4) NOT NULL DEFAULT 0,
     is_free                 BOOLEAN NOT NULL DEFAULT true,
     supports_tools          BOOLEAN,
+    limitations             JSONB,                      -- free tier limits: {daily_tokens, daily_requests, rate_limit, requires_card, subscription_required, expires, notes}
     -- tracking
     is_removed              BOOLEAN NOT NULL DEFAULT false,
     status_result           model_status,

@@ -48,8 +48,7 @@
             >
             <span class="dp-meta-item">Context: up to {{ formatContext(model.best_context) }}</span>
             <span class="dp-meta-item"
-              >From {{ formatPrice(model.cheapest_input_price) }} input /
-              {{ formatPrice(model.cheapest_output_price) }} output</span
+              >{{ activeCount }} working / {{ totalCount }} providers</span
             >
           </div>
 
@@ -143,11 +142,10 @@ function formatContext(ctx: number | null): string {
   return `${Math.round(ctx / 1000)}K`;
 }
 
-function formatPrice(price: number): string {
-  if (price === 0) return 'Free';
-  if (price < 1) return `$${price.toFixed(2)}`;
-  return `$${price.toFixed(0)}`;
-}
+const activeCount = computed(() =>
+  props.model.providers.filter((p) => !p._removed && p.status.result === 'working').length,
+);
+const totalCount = computed(() => props.model.providers.filter((p) => !p._removed).length);
 
 function roleLabel(role: string): string {
   const labels: Record<string, string> = {

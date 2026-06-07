@@ -48,10 +48,6 @@
         <div class="stat-label">Providers</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value accent">{{ store.stats.free }}</div>
-        <div class="stat-label">Free</div>
-      </div>
-      <div class="stat-card">
         <div class="stat-value orange">{{ store.stats.broken }}</div>
         <div class="stat-label">Broken</div>
       </div>

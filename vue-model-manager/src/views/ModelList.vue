@@ -48,16 +48,14 @@
         <option value="untested">Untested</option>
         <option value="down">Down</option>
       </select>
-      <select v-model="priceFilter" class="ml-select" aria-label="Filter by price">
-        <option value="">All</option>
-        <option value="free">Free only</option>
-        <option value="paid">Paid only</option>
-      </select>
+      <label class="ml-checkbox" title="Show only models requiring a credit card">
+        <input v-model="cardRequiredFilter" type="checkbox" />
+        <span>Card req.</span>
+      </label>
       <div class="ml-sort">
         <select v-model="sortKey" class="ml-select" aria-label="Sort by">
           <option value="name">Name</option>
           <option value="context">Context</option>
-          <option value="price">Price</option>
           <option value="providers">Providers</option>
         </select>
         <button
@@ -133,19 +131,19 @@ function getQueryParam(key: string, fallback: string): string {
 const searchQuery = ref(getQueryParam('q', ''));
 const creatorFilter = ref(getQueryParam('creator', ''));
 const statusFilter = ref(getQueryParam('status', ''));
-const priceFilter = ref(getQueryParam('price', ''));
+const cardRequiredFilter = ref(getQueryParam('card', '') === '1');
 const sortKey = ref(getQueryParam('sort', 'name'));
 const sortAsc = ref(getQueryParam('asc', 'true') !== 'false');
 
 // Sync filter state → URL query params
 watch(
-  [searchQuery, creatorFilter, statusFilter, priceFilter, sortKey, sortAsc],
+  [searchQuery, creatorFilter, statusFilter, cardRequiredFilter, sortKey, sortAsc],
   () => {
     const q: Record<string, string> = {};
     if (searchQuery.value) q.q = searchQuery.value;
     if (creatorFilter.value) q.creator = creatorFilter.value;
     if (statusFilter.value) q.status = statusFilter.value;
-    if (priceFilter.value) q.price = priceFilter.value;
+    if (cardRequiredFilter.value) q.card = '1';
     if (sortKey.value !== 'name') q.sort = sortKey.value;
     if (!sortAsc.value) q.asc = 'false';
     router.replace({ query: Object.keys(q).length ? q : {} });
@@ -215,18 +213,9 @@ const filteredModels = computed(() => {
     models = models.filter((m) => getModelStatus(m) === statusFilter.value);
   }
 
-  if (priceFilter.value === 'free') {
+  if (cardRequiredFilter.value) {
     models = models.filter((m) =>
-      m.providers.some(
-        (p) => p.is_free && p.input_price_per_million === 0 && p.output_price_per_million === 0,
-      ),
-    );
-  } else if (priceFilter.value === 'paid') {
-    models = models.filter(
-      (m) =>
-        !m.providers.some(
-          (p) => p.is_free && p.input_price_per_million === 0 && p.output_price_per_million === 0,
-        ),
+      m.providers.some((p) => !p._removed && p.limitations?.requires_card),
     );
   }
 
@@ -252,10 +241,6 @@ const filteredAndSortedModels = computed(() => {
         aVal = a.model.best_context;
         bVal = b.model.best_context;
         break;
-      case 'price':
-        aVal = a.model.cheapest_input_price + a.model.cheapest_output_price;
-        bVal = b.model.cheapest_input_price + b.model.cheapest_output_price;
-        break;
       case 'providers':
         aVal = a.model.providers.length;
         bVal = b.model.providers.length;
@@ -276,7 +261,7 @@ function clearFilters() {
   searchQuery.value = '';
   creatorFilter.value = '';
   statusFilter.value = '';
-  priceFilter.value = '';
+  cardRequiredFilter.value = false;
 }
 
 function exportJSON() {
@@ -286,11 +271,9 @@ function exportJSON() {
     providers: model.providers.map((p) => ({
       provider: p.provider,
       context: p.context_length,
-      input_price: p.input_price_per_million,
-      output_price: p.output_price_per_million,
-      free: p.is_free,
       tools: p.supports_tools,
       status: p.status.result,
+      limitations: p.limitations,
     })),
   }));
   downloadFile(JSON.stringify(data, null, 2), 'models.json', 'application/json');
@@ -298,30 +281,20 @@ function exportJSON() {
 
 function exportCSV() {
   const rows = [
-    [
-      'Model',
-      'Creator',
-      'Provider',
-      'Context',
-      'Input Price',
-      'Output Price',
-      'Free',
-      'Tools',
-      'Status',
-    ],
+    ['Model', 'Creator', 'Provider', 'Context', 'Tools', 'Status', 'Limitations'],
   ];
   for (const { model, creator } of filteredAndSortedModels.value) {
     for (const p of model.providers) {
+      const l = p.limitations;
+      const limitStr = l ? [l.rate_limit, l.daily_requests ? `${l.daily_requests}/day` : '', l.requires_card ? 'Card req.' : ''].filter(Boolean).join('; ') : '';
       rows.push([
         model.name,
         creator.name,
         p.provider,
         String(p.context_length || ''),
-        String(p.input_price_per_million),
-        String(p.output_price_per_million),
-        String(p.is_free),
         String(!!p.supports_tools),
         p.status.result,
+        limitStr,
       ]);
     }
   }
@@ -407,6 +380,25 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   font-size: 0.78rem;
   font-family: inherit;
   cursor: pointer;
+}
+
+.ml-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.ml-checkbox input {
+  cursor: pointer;
+  accent-color: var(--accent);
 }
 
 .ml-sort {

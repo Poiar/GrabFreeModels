@@ -37,7 +37,7 @@ export function useKeyboardShortcuts() {
             router.push('/free');
             break;
           case 'p':
-            router.push('/paid');
+            router.push('/');
             break;
           case 's':
             router.push('/models');

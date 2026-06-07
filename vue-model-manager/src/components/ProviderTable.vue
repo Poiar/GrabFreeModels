@@ -69,8 +69,10 @@
             </svg>
             <span v-else class="dash">—</span>
           </td>
-          <td class="pt-cell pt-price">{{ formatPrice(dp.input_price_per_million) }}</td>
-          <td class="pt-cell pt-price">{{ formatPrice(dp.output_price_per_million) }}</td>
+          <td class="pt-cell pt-limits">
+            <span v-if="!dp.limitations" class="dash">—</span>
+            <span v-else class="pt-limit-text" :title="dp.limitations.notes">{{ limitSummary(dp) }}</span>
+          </td>
           <td class="pt-cell pt-status">
             <span class="status-badge" :class="`badge-${dp.status.result}`">{{
               statusLabel(dp.status.result)
@@ -101,8 +103,7 @@ const columns = [
   { key: 'tools', label: 'Tools', sortable: false },
   { key: 'reasoning', label: 'Reasoning', sortable: false },
   { key: 'image', label: 'Image', sortable: false },
-  { key: 'input_price', label: 'Input $/1M', sortable: true },
-  { key: 'output_price', label: 'Output $/1M', sortable: true },
+  { key: 'limits', label: 'Limits', sortable: false },
   { key: 'status', label: 'Status', sortable: false },
   { key: 'last_success', label: 'Last Success', sortable: true },
 ];
@@ -129,14 +130,6 @@ const sortedProviders = computed(() => {
         aVal = a.context_length || 0;
         bVal = b.context_length || 0;
         break;
-      case 'input_price':
-        aVal = a.input_price_per_million;
-        bVal = b.input_price_per_million;
-        break;
-      case 'output_price':
-        aVal = a.output_price_per_million;
-        bVal = b.output_price_per_million;
-        break;
       case 'last_success':
         aVal = a.last_success || '';
         bVal = b.last_success || '';
@@ -156,10 +149,16 @@ function formatContext(ctx: number | null): string {
   return `${Math.round(ctx / 1000)}K`;
 }
 
-function formatPrice(price: number): string {
-  if (price === 0) return 'Free';
-  if (price < 1) return `$${price.toFixed(2)}`;
-  return `$${price.toFixed(0)}`;
+function limitSummary(dp: ProviderDatapoint): string {
+  const l = dp.limitations;
+  if (!l) return '—';
+  const parts: string[] = [];
+  if (l.requires_card) parts.push('Card req.');
+  if (l.daily_requests) parts.push(`${l.daily_requests.toLocaleString()}/day`);
+  else if (l.daily_tokens) parts.push(`${(l.daily_tokens / 1000).toFixed(0)}K tok/day`);
+  if (l.rate_limit && parts.length === 0) parts.push(l.rate_limit);
+  if (l.expires) parts.push(`Exp. ${l.expires}`);
+  return parts.length > 0 ? parts.join(' · ') : l.notes?.slice(0, 60) || 'Limited';
 }
 
 function hasInputType(dp: ProviderDatapoint, type: string): boolean {
@@ -243,9 +242,17 @@ function formatTime(dateStr: string | null): string {
   opacity: 0.5;
 }
 
-.pt-price {
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
+.pt-limits {
+  max-width: 200px;
+}
+
+.pt-limit-text {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 
 .badge-working {
@@ -262,10 +269,6 @@ function formatTime(dateStr: string | null): string {
 }
 .badge-untested {
   color: var(--text-muted);
-}
-.badge-paid {
-  color: var(--purple, #a78bfa);
-  font-weight: 600;
 }
 .badge-not_found {
   color: var(--text-muted);

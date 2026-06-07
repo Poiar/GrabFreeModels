@@ -90,10 +90,9 @@ async function buildModelsData(client, pool) {
       provider: dm.provider_name,
       creator: dm.super_creator || null,
       context_length: dm.context_length ?? null,
-      input_price_per_million: Number(dm.input_price_per_million) || 0,
-      output_price_per_million: Number(dm.output_price_per_million) || 0,
       is_free: dm.is_free,
       supports_tools: dm.supports_tools,
+      limitations: dm.limitations || null,
       supports_reasoning:
         feat?.supports_reasoning?.[0] === undefined ? null : feat.supports_reasoning[0] === 'true',
       output_limit: feat?.output_limit?.[0] ? parseInt(feat.output_limit[0], 10) : null,
@@ -226,8 +225,6 @@ async function buildModelsData(client, pool) {
         family: dp.family,
         best_for: [...(dp.best_for || [])],
         best_context: dp.context_length || 0,
-        cheapest_input_price: dp.input_price_per_million,
-        cheapest_output_price: dp.output_price_per_million,
         role_rankings: {},
         providers: [],
       });
@@ -238,8 +235,6 @@ async function buildModelsData(client, pool) {
       provider: dp.provider,
       provider_slug: dp.source,
       context_length: dp.context_length,
-      input_price_per_million: dp.input_price_per_million,
-      output_price_per_million: dp.output_price_per_million,
       is_free: dp.is_free,
       supports_tools: dp.supports_tools,
       supports_reasoning: dp.supports_reasoning,
@@ -256,17 +251,12 @@ async function buildModelsData(client, pool) {
       _removedDate: dp._removedDate,
       notes: dp.notes,
       priority_score: dp.priority_score,
+      limitations: dp.limitations,
     });
 
     // Update model-level aggregates
     if (dp.context_length && dp.context_length > model.best_context) {
       model.best_context = dp.context_length;
-    }
-    if (dp.input_price_per_million < model.cheapest_input_price) {
-      model.cheapest_input_price = dp.input_price_per_million;
-    }
-    if (dp.output_price_per_million < model.cheapest_output_price) {
-      model.cheapest_output_price = dp.output_price_per_million;
     }
     for (const tag of dp.best_for || []) {
       if (!model.best_for.includes(tag)) model.best_for.push(tag);
@@ -301,8 +291,6 @@ async function buildModelsData(client, pool) {
           family: model.family || null,
           best_for: model.best_for,
           best_context: model.best_context,
-          cheapest_input_price: model.cheapest_input_price,
-          cheapest_output_price: model.cheapest_output_price,
           role_rankings: roleRankingBySuperId[`${model.super_id}`] || {},
           providers: model.providers,
         }))

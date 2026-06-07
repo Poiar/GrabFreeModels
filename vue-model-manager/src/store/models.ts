@@ -158,13 +158,7 @@ export const useModelsStore = defineStore('models', () => {
   );
 
   // ── Filtered model lists ──
-  const freeModels = computed(() =>
-    allModels.value.filter((m) => m.providers.some((p) => p.is_free && !p._removed)),
-  );
-
-  const paidModels = computed(() =>
-    allModels.value.filter((m) => m.providers.some((p) => !p.is_free && !p._removed)),
-  );
+  const freeModels = computed(() => allModels.value);
 
   const workingModels = computed(() =>
     allModels.value.filter((m) =>
@@ -252,7 +246,6 @@ export const useModelsStore = defineStore('models', () => {
   const stats = computed(() => {
     const totalModels = allModels.value.length;
     const totalDatapoints = allDatapoints.value.length;
-    const freeCount = allDatapoints.value.filter((d) => d.is_free).length;
     const workingCount = allDatapoints.value.filter((d) => d.status.result === 'working').length;
     const brokenCount = allDatapoints.value.filter((d) => d.status.result === 'broken').length;
 
@@ -261,10 +254,9 @@ export const useModelsStore = defineStore('models', () => {
       models: totalModels,
       datapoints: totalDatapoints,
       providers: providerRefs.value.length,
-      free: freeCount,
       working: workingCount,
       broken: brokenCount,
-      workingRatio: freeCount > 0 ? workingCount / freeCount : 0,
+      workingRatio: totalDatapoints > 0 ? workingCount / totalDatapoints : 0,
     };
   });
 
@@ -349,7 +341,6 @@ export const useModelsStore = defineStore('models', () => {
     getModelWithSupportTools,
     // Filtered lists
     freeModels,
-    paidModels,
     workingModels,
     brokenModels,
     rateLimitedModels,
