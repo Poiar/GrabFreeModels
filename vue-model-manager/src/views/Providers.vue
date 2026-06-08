@@ -7,9 +7,12 @@
 
     <div class="providers-grid">
       <div
-        v-for="provider in sortedProviders"
+        v-for="(provider, idx) in sortedProviders"
         :key="provider.slug"
         class="provider-card glass-card"
+        role="button"
+        tabindex="0"
+        @click="openProviderPanel(idx)"
       >
         <div class="pc-header">
           <svg
@@ -18,7 +21,7 @@
             v-html="getIcon(provider.slug).body"
           ></svg>
           <div class="pc-name-group">
-            <h3 class="pc-name">{{ provider.name }}</h3>
+            <h3 class="pc-name">{{ provider.name }}<button class="copy-btn-sm" title="Copy name" @click.stop="copyText(provider.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></h3>
             <span class="pc-slug">{{ provider.slug }}</span>
           </div>
           <span class="pc-status" :class="provider.health_status">
@@ -65,13 +68,26 @@
         </div>
       </div>
     </div>
+
+    <!-- Provider detail panel -->
+    <ProviderPanel
+      v-if="panelProvider"
+      :open="!!panelProvider"
+      :provider="panelProvider"
+      :provider-index="providerIndex"
+      :provider-list="sortedProviders"
+      @close="panelProvider = null"
+      @navigate-to="navigateProviderPanel"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useModelsStore } from '@/store/models';
 import { getProviderIcon } from '@/data/provider-icons';
+import ProviderPanel from '@/components/ProviderPanel.vue';
+import type { ProviderReference } from '@/types';
 
 const store = useModelsStore();
 
@@ -100,6 +116,26 @@ const providerModels = computed(() => {
 function getIcon(slug: string) {
   return getProviderIcon(slug);
 }
+
+async function copyText(text: string) {
+  try { await navigator.clipboard.writeText(text); } catch { /* noop */ }
+}
+
+// ── Provider detail panel ──
+const panelProvider = ref<ProviderReference | null>(null);
+const providerIndex = ref(0);
+
+function openProviderPanel(index: number) {
+  providerIndex.value = index;
+  panelProvider.value = sortedProviders.value[index];
+}
+
+function navigateProviderPanel(index: number) {
+  const provider = sortedProviders.value[index];
+  if (!provider) return;
+  providerIndex.value = index;
+  panelProvider.value = provider;
+}
 </script>
 
 <style scoped>
@@ -115,6 +151,7 @@ function getIcon(slug: string) {
 
 .provider-card {
   padding: 16px;
+  cursor: pointer;
 }
 
 .pc-header {
@@ -143,6 +180,33 @@ function getIcon(slug: string) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.copy-btn-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 1px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+}
+
+.pc-name:hover .copy-btn-sm,
+.copy-btn-sm:focus-visible {
+  opacity: 1;
+}
+
+.copy-btn-sm:hover {
+  color: var(--accent);
 }
 
 .pc-slug {

@@ -99,10 +99,10 @@
               :title="'View ' + item.name"
             >
               <div class="sm-cell col-creator">
-                <span class="sm-creator">{{ item.creator || '—' }}</span>
+                <span class="sm-creator" :class="{ 'is-link': item.creator }" @click.stop="item.creator ? openCreatorPanel(item.creator) : null">{{ item.creator || '—' }}<button v-if="item.creator" class="copy-btn-sm" title="Copy creator" @click.stop="copyText(item.creator!)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
               </div>
               <div class="sm-cell col-name">
-                <span class="sm-name">{{ item.name }}</span>
+                <span class="sm-name">{{ item.name }}<button class="copy-btn-sm" title="Copy name" @click.stop="copyText(item.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
                 <span v-if="item.family" class="sm-family">{{ item.family }}</span>
               </div>
               <div class="sm-cell col-status">
@@ -162,6 +162,17 @@
       @close="panelModel = null"
       @navigate-to="navigatePanel"
     />
+
+    <!-- Creator detail panel -->
+    <CreatorPanel
+      v-if="panelCreator"
+      :open="!!panelCreator"
+      :creator="panelCreator"
+      :creator-index="creatorIndex"
+      :creator-list="creatorList"
+      @close="panelCreator = null"
+      @navigate-to="navigateCreatorPanel"
+    />
   </div>
 </template>
 
@@ -170,7 +181,8 @@ import { computed, ref } from 'vue';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import { useModelsStore } from '@/store/models';
 import SuperModelPanel from '@/components/SuperModelPanel.vue';
-import type { ModelData } from '@/types';
+import CreatorPanel from '@/components/CreatorPanel.vue';
+import type { ModelData, CreatorData } from '@/types';
 
 const ROLES = ['model', 'build', 'general', 'small_model', 'explore'] as const;
 const ROLE_SHORT: Record<string, string> = { model: 'Mod', build: 'Bld', general: 'Gen', small_model: 'Sml', explore: 'Exp' };
@@ -339,6 +351,10 @@ const panelModelList = computed((): ModelData[] => {
   return result;
 });
 
+async function copyText(text: string) {
+  try { await navigator.clipboard.writeText(text); } catch { /* noop */ }
+}
+
 function openPanel(item: SuperItem) {
   const idx = panelModelList.value.findIndex(m => m.slug === item.slug);
   if (idx === -1) return;
@@ -353,6 +369,42 @@ function navigatePanel(index: number) {
   if (!model) return;
   panelIndex.value = index;
   panelModel.value = model;
+}
+
+// ── Creator detail panel ──
+const panelCreator = ref<CreatorData | null>(null);
+const creatorIndex = ref(0);
+
+const creatorList = computed((): CreatorData[] => {
+  // Dedupe by name, match creators visible in the current filtered items
+  const seen = new Set<string>();
+  const result: CreatorData[] = [];
+  const visibleCreators = new Set<string>();
+  for (const item of filteredItems.value) {
+    if (item.creator) visibleCreators.add(item.creator);
+  }
+  for (const c of store.visibleCreators) {
+    if (visibleCreators.has(c.name) && !seen.has(c.name)) {
+      seen.add(c.name);
+      result.push(c);
+    }
+  }
+  result.sort((a, b) => a.name.localeCompare(b.name));
+  return result;
+});
+
+function openCreatorPanel(creatorName: string) {
+  const idx = creatorList.value.findIndex(c => c.name === creatorName);
+  if (idx === -1) return;
+  creatorIndex.value = idx;
+  panelCreator.value = creatorList.value[idx];
+}
+
+function navigateCreatorPanel(index: number) {
+  const creator = creatorList.value[index];
+  if (!creator) return;
+  creatorIndex.value = index;
+  panelCreator.value = creator;
 }
 </script>
 
@@ -447,8 +499,41 @@ function navigatePanel(index: number) {
 .col-tools     { width: 5%;  min-width: 45px; }
 .col-roles     { width: 24%; min-width: 140px; }
 
-.sm-creator { font-size: 0.75rem; font-weight: 500; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-.sm-name { font-weight: 600; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.sm-creator { font-size: 0.75rem; font-weight: 500; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 3px; }
+.sm-name { font-weight: 600; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 3px; }
+
+.copy-btn-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 1px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+}
+
+.sm-creator:hover .copy-btn-sm,
+.sm-name:hover .copy-btn-sm,
+.copy-btn-sm:focus-visible {
+  opacity: 1;
+}
+
+.copy-btn-sm:hover {
+  color: var(--accent);
+}
+
+.sm-creator.is-link {
+  cursor: pointer;
+}
+
+.sm-creator.is-link:hover {
+  color: var(--accent);
+}
 .sm-family { display: inline-block; font-size: 0.6rem; color: var(--text-muted); background: var(--accent-subtle); padding: 1px 6px; border-radius: 999px; margin-top: 2px; }
 
 /* Badges */

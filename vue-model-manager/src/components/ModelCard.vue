@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="mc-header">
       <div class="mc-header-left">
-        <h3 class="mc-name">{{ model.name }}</h3>
+        <h3 class="mc-name">{{ model.name }}<button class="copy-btn" title="Copy name" @click.stop="copyName(model.name)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></h3>
         <span class="mc-creator-badge">{{ creator.name }}</span>
       </div>
       <div class="mc-header-right">
@@ -133,8 +133,12 @@ const topRankings = computed(() => {
 
 function handleCardClick(e: MouseEvent) {
   const target = e.target as HTMLElement;
-  if (target.closest('.provider-block') || target.closest('.provider-strip-more')) return;
+  if (target.closest('.provider-block') || target.closest('.provider-strip-more') || target.closest('.copy-btn')) return;
   emit('model-click');
+}
+
+async function copyName(text: string) {
+  try { await navigator.clipboard.writeText(text); } catch { /* noop */ }
 }
 
 function handleProviderClick(dp: ProviderDatapoint) {
@@ -221,6 +225,33 @@ function roleLabel(role: string): string {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+}
+
+.mc-name:hover .copy-btn,
+.copy-btn:focus-visible {
+  opacity: 1;
+}
+
+.copy-btn:hover {
+  color: var(--accent);
 }
 
 .mc-creator-badge {
