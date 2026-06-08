@@ -9,24 +9,13 @@
     <div class="sm-controls">
       <div class="sm-search">
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search by name, provider, or tag…"
-          spellcheck="false"
-        />
+        <input v-model="searchQuery" type="text" placeholder="Search by name, provider, or tag…" spellcheck="false" />
         <button v-if="searchQuery" class="search-clear" @click="searchQuery = ''">&times;</button>
       </div>
       <div class="sm-filters">
         <div class="filter-pills">
-          <button
-            v-for="f in statusPills"
-            :key="f.key"
-            :class="['filter-pill', { active: statusFilter === f.key }]"
-            @click="statusFilter = f.key"
-          >
-            {{ f.label }}
-            <span class="pill-count">{{ f.count }}</span>
+          <button v-for="f in statusPills" :key="f.key" :class="['filter-pill', { active: statusFilter === f.key }]" @click="statusFilter = f.key">
+            {{ f.label }} <span class="pill-count">{{ f.count }}</span>
           </button>
         </div>
         <div class="sm-sort">
@@ -39,9 +28,7 @@
             <option value="status">Sort: Status</option>
             <option value="tools">Sort: Tools</option>
           </select>
-          <button class="sort-dir-btn" @click="sortDesc = !sortDesc" :title="sortDesc ? 'Descending' : 'Ascending'">
-            {{ sortDesc ? '↓' : '↑' }}
-          </button>
+          <button class="sort-dir-btn" @click="sortDesc = !sortDesc" :title="sortDesc ? 'Descending' : 'Ascending'">{{ sortDesc ? '↓' : '↑' }}</button>
         </div>
       </div>
       <div class="sm-count">{{ filteredItems.length }} of {{ superItems.length }} super models</div>
@@ -61,66 +48,48 @@
         v-for="item in sortedItems"
         :key="item.id"
         class="sm-card"
-        :class="{ 'card-has-removed': item.hasRemoved }"
+        :class="[`card-${item.status}`, { 'card-has-removed': item.hasRemoved }]"
         @click="openPanel(item)"
         role="button"
         tabindex="0"
       >
-        <!-- Top row: creator on left, model name on right -->
-        <div class="sm-card-top">
-          <div class="sm-card-creator">
+        <!-- Header -->
+        <div class="sm-header">
+          <div class="sm-header-left">
+            <h3 class="sm-name">{{ item.name }}<button class="copy-btn" title="Copy name" @click.stop="copyText(item.name)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></h3>
             <span
-              class="sm-creator-name"
+              class="sm-creator-badge"
               :class="{ 'is-link': item.creator }"
               @click.stop="item.creator ? openCreatorPanel(item.creator) : null"
             >{{ item.creator || '—' }}</span>
-            <button v-if="item.creator" class="copy-btn-sm" title="Copy creator" @click.stop="copyText(item.creator!)">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            </button>
-          </div>
-          <div class="sm-card-name">
-            <span class="sm-model-name">{{ item.name }}</span>
-            <button class="copy-btn-sm" title="Copy name" @click.stop="copyText(item.name)">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            </button>
             <span v-if="item.family" class="sm-family-badge">{{ item.family }}</span>
+          </div>
+          <div class="sm-header-right">
+            <span v-for="r in item.topRoles" :key="r.role" class="sm-ranking-badge" :title="r.role + ' rank #' + r.rank">
+              #{{ r.rank }} {{ r.label }}
+            </span>
           </div>
         </div>
 
-        <!-- Stats row -->
-        <div class="sm-card-stats">
-          <span v-if="item.workingCount > 0" class="badge badge-working">Working ({{ item.workingCount }})</span>
-          <span v-else-if="item.untestedCount > 0" class="badge badge-untested">{{ item.untestedCount }} untested</span>
-          <span v-else-if="item.rateLimitedCount > 0" class="badge badge-rate_limited">{{ item.rateLimitedCount }} rate ltd</span>
-          <span v-else-if="item.brokenCount > 0" class="badge badge-broken">{{ item.brokenCount }} broken</span>
-          <span v-else class="badge badge-not_found">—</span>
-
-          <span class="sm-stat-divider">·</span>
-          <span class="sm-stat">{{ item.datapointsCount }} instance{{ item.datapointsCount !== 1 ? 's' : '' }}</span>
-
-          <span class="sm-stat-divider">·</span>
-          <span class="sm-stat">{{ item.best_context_length ? formatContext(item.best_context_length) : '—' }} ctx</span>
-
-          <span class="sm-stat-divider">·</span>
+        <!-- Stats -->
+        <div class="sm-stats">
+          <span class="sm-stat">{{ item.datapointsCount }} provider{{ item.datapointsCount !== 1 ? 's' : '' }}</span>
+          <span class="sm-stat-divider">|</span>
+          <span v-if="item.workingCount > 0" class="sm-stat sm-stat-working">{{ item.workingCount }} working</span>
+          <span v-else-if="item.untestedCount > 0" class="sm-stat sm-stat-untested">{{ item.untestedCount }} untested</span>
+          <span v-else-if="item.brokenCount > 0" class="sm-stat sm-stat-broken">{{ item.brokenCount }} broken</span>
+          <span v-else class="sm-stat sm-stat-none">—</span>
+          <span class="sm-stat-divider">|</span>
+          <span class="sm-stat">Max: {{ item.best_context_length ? formatContext(item.best_context_length) : '—' }} ctx</span>
+          <span v-if="item.any_tools" class="sm-stat-divider">|</span>
           <span v-if="item.any_tools" class="sm-stat sm-stat-tools">Tools</span>
-          <span v-else class="sm-stat sm-stat-dim">No tools</span>
+          <span class="sm-status-pulse" :class="`pulse-${item.status}`"></span>
         </div>
 
         <!-- Provider tags -->
-        <div class="sm-card-providers">
+        <div class="sm-providers">
           <span v-for="p in item.providers.slice(0, 6)" :key="p" class="provider-tag">{{ p }}</span>
           <span v-if="item.providers.length > 6" class="provider-tag more">+{{ item.providers.length - 6 }}</span>
-        </div>
-
-        <!-- Role badges -->
-        <div v-if="item.topRoles.length" class="sm-card-roles">
-          <span
-            v-for="r in item.topRoles"
-            :key="r.role"
-            class="role-badge"
-            :class="{ 'role-top': r.rank <= 3 }"
-            :title="r.role + ' rank #' + r.rank"
-          >#{{ r.rank }} {{ r.label }}</span>
         </div>
       </div>
     </div>
@@ -186,6 +155,7 @@ interface SuperItem {
   best_context_length: number | null;
   any_tools: boolean;
   hasRemoved: boolean;
+  status: string;
   topRoles: { role: string; label: string; rank: number }[];
 }
 
@@ -199,6 +169,12 @@ const superItems = computed<SuperItem[]>(() => {
     const untested = dps.filter((d) => d.status.result === 'untested');
     const families = [...new Set(dps.map((d) => d.family).filter((f): f is string => !!f))];
     const allTags = [...new Set(dps.flatMap((d) => [...d.tags, ...d.best_for]))];
+
+    let status = 'down';
+    if (!dps.length) status = 'down';
+    else if (working.length === dps.length) status = 'working';
+    else if (working.length > 0) status = 'mixed';
+    else status = 'down';
 
     const topRanked: { role: string; label: string; rank: number }[] = [];
     for (const role of ROLES) {
@@ -229,6 +205,7 @@ const superItems = computed<SuperItem[]>(() => {
       best_context_length: m.best_context,
       any_tools: dps.some((d) => d.supports_tools),
       hasRemoved: m.providers.some((d) => d._removed),
+      status,
       topRoles: topRanked.slice(0, 3),
     };
   });
@@ -457,8 +434,12 @@ function navigateCreatorPanel(index: number) {
   border-radius: 8px;
   background: var(--bg-card);
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, border-left-color 0.3s, box-shadow 0.15s;
 }
+
+.sm-card.card-working { border-left-color: var(--green); }
+.sm-card.card-mixed { border-left-color: var(--orange); }
+.sm-card.card-down { border-left-color: var(--red); }
 
 .sm-card:hover {
   border-color: var(--border-focus);
@@ -469,67 +450,79 @@ function navigateCreatorPanel(index: number) {
   border-left-color: var(--orange);
 }
 
-/* Top row */
-.sm-card-top {
+/* Header — mirrors ModelCard */
+.sm-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 6px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
-.sm-card-creator {
+.sm-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sm-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   display: flex;
   align-items: center;
   gap: 4px;
-  min-width: 0;
+  color: var(--accent);
+}
+
+.sm-header-right {
+  display: flex;
+  gap: 4px;
   flex-shrink: 0;
 }
 
-.sm-creator-name {
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--text-dim);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.sm-creator-badge {
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  border-radius: 999px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  flex-shrink: 0;
 }
 
-.sm-creator-name.is-link {
+.sm-creator-badge.is-link {
   cursor: pointer;
 }
 
-.sm-creator-name.is-link:hover {
-  color: var(--accent);
-}
-
-.sm-card-name {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-}
-
-.sm-model-name {
-  font-weight: 600;
-  color: var(--accent);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.sm-creator-badge.is-link:hover {
+  filter: brightness(1.15);
 }
 
 .sm-family-badge {
-  display: inline-block;
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   color: var(--text-muted);
-  background: var(--accent-subtle);
+  background: var(--bg-hover);
   padding: 1px 6px;
   border-radius: 999px;
   flex-shrink: 0;
 }
 
-/* Copy button */
-.copy-btn-sm {
+.sm-ranking-badge {
+  padding: 2px 8px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 999px;
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--green);
+}
+
+/* Copy button — mirrors ModelCard */
+.copy-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -537,64 +530,73 @@ function navigateCreatorPanel(index: number) {
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 1px;
-  border-radius: 2px;
+  padding: 2px;
+  border-radius: 3px;
   flex-shrink: 0;
   opacity: 0;
   transition: opacity 0.12s, color 0.12s;
 }
 
-.sm-card:hover .copy-btn-sm,
-.copy-btn-sm:focus-visible {
+.sm-name:hover .copy-btn,
+.copy-btn:focus-visible {
   opacity: 1;
 }
 
-.copy-btn-sm:hover {
+.copy-btn:hover {
   color: var(--accent);
 }
 
-/* Stats row */
-.sm-card-stats {
+/* Stats row — mirrors ModelCard */
+.sm-stats {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 6px;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
 }
 
 .sm-stat-divider {
   color: var(--border);
-  font-size: 0.7rem;
 }
 
-.sm-stat {
-  font-size: 0.7rem;
-  color: var(--text-muted);
+.sm-stat-working { color: var(--green); font-weight: 600; }
+.sm-stat-untested { color: var(--accent); }
+.sm-stat-broken { color: var(--red); }
+.sm-stat-none { color: var(--text-muted); }
+.sm-stat-tools { color: var(--green); font-weight: 600; }
+
+.sm-status-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
-.sm-stat-tools {
-  color: var(--green);
-  font-weight: 600;
+.sm-status-pulse.pulse-working {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green-glow);
+  animation: pulse-dot 2s var(--ease-smooth, ease-in-out) infinite;
 }
 
-.sm-stat-dim {
-  opacity: 0.5;
+.sm-status-pulse.pulse-mixed {
+  background: var(--orange);
+  box-shadow: 0 0 6px var(--orange-glow);
+  animation: pulse-dot 1.5s var(--ease-smooth, ease-in-out) infinite;
 }
 
-/* Badges */
-.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.65rem; font-weight: 600; }
-.badge-working { background: rgba(63,185,80,0.12); color: var(--green); }
-.badge-untested { background: var(--accent-subtle); color: var(--accent); }
-.badge-rate_limited { background: rgba(251,191,36,0.12); color: var(--orange); }
-.badge-broken { background: rgba(248,113,113,0.12); color: var(--red); }
-.badge-not_found { color: var(--text-muted); }
+.sm-status-pulse.pulse-down {
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red-glow);
+  animation: pulse-dot-error 1.5s var(--ease-smooth, ease-in-out) infinite;
+}
 
 /* Provider tags */
-.sm-card-providers {
+.sm-providers {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
-  margin-bottom: 4px;
 }
 
 .provider-tag {
@@ -613,28 +615,6 @@ function navigateCreatorPanel(index: number) {
   color: var(--text-muted);
 }
 
-/* Role badges */
-.sm-card-roles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.role-badge {
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 999px;
-  background: var(--accent-subtle);
-  font-size: 0.6rem;
-  white-space: nowrap;
-  color: var(--text-dim);
-}
-
-.role-badge.role-top {
-  background: rgba(63,185,80,0.12);
-  color: var(--green);
-}
-
 /* Empty */
 .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
 .empty-state h3 { font-size: 1rem; margin: 12px 0 4px; color: var(--text); }
@@ -647,6 +627,9 @@ function navigateCreatorPanel(index: number) {
 
 @media (max-width: 768px) {
   .sm-page { padding: 12px; }
+  .sm-card { padding: 10px 12px; }
+  .sm-name { font-size: 0.85rem; }
+  .sm-header-right { display: none; }
   .sm-search { padding: 10px 12px; }
   .sm-search input { font-size: 0.85rem; min-height: 44px; }
   .sm-filters { flex-direction: column; align-items: stretch; gap: 8px; }
@@ -654,6 +637,5 @@ function navigateCreatorPanel(index: number) {
   .sort-select { min-height: 44px; width: 100%; }
   .sort-dir-btn { min-height: 44px; padding: 8px 16px; }
   .sm-count { text-align: right; }
-  .sm-card-top { flex-direction: column; gap: 2px; }
 }
 </style>
