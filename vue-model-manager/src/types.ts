@@ -45,6 +45,8 @@ export interface ModelData {
   super_id: number;
   name: string;
   slug: string;
+  creator: string | null;
+  base_creator: string | null;
   family: string | null;
   best_for: string[];
   best_context: number | null;

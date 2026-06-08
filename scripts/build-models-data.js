@@ -243,6 +243,8 @@ async function buildModelsData(client, pool, options = {}) {
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/^-|-$/g, ''),
+        creator: dp.creator || null,
+        base_creator: dp.base_creator || null,
         family: dp.family,
         best_for: [...(dp.best_for || [])],
         best_context: dp.context_length || 0,
@@ -251,6 +253,13 @@ async function buildModelsData(client, pool, options = {}) {
       });
     }
     const model = creator.modelMap.get(dp.super_id);
+    // Keep the best (longest) creator name across datapoints of the same model
+    if (dp.creator && dp.creator.length > (model.creator || '').length) {
+      model.creator = dp.creator;
+    }
+    if (dp.base_creator && (!model.base_creator || dp.base_creator.length > model.base_creator.length)) {
+      model.base_creator = dp.base_creator;
+    }
     model.providers.push({
       full_id: dp.id,
       provider: dp.provider,
@@ -310,6 +319,8 @@ async function buildModelsData(client, pool, options = {}) {
           super_id: model.super_id,
           name: model.name,
           slug: model.slug,
+          creator: model.creator || null,
+          base_creator: model.base_creator || null,
           family: model.family || null,
           best_for: model.best_for,
           best_context: model.best_context,

@@ -31,6 +31,7 @@
         </div>
         <div class="sm-sort">
           <select v-model="sortBy" class="sort-select">
+            <option value="creator">Sort: Creator</option>
             <option value="name">Sort: Name</option>
             <option value="providers">Sort: Providers</option>
             <option value="instances">Sort: Instances</option>
@@ -57,6 +58,9 @@
     <!-- Table -->
     <div class="sm-table">
       <div class="sm-header-row">
+        <div class="sm-h-cell col-creator sortable" :class="{ sortActive: sortBy === 'creator' }" @click="setSort('creator')">
+          Creator <span class="sort-arrow">{{ sortBy === 'creator' ? (sortDesc ? ' ↓' : ' ↑') : ' ⇅' }}</span>
+        </div>
         <div class="sm-h-cell col-name sortable" :class="{ sortActive: sortBy === 'name' }" @click="setSort('name')">
           Model <span class="sort-arrow">{{ sortBy === 'name' ? (sortDesc ? ' ↓' : ' ↑') : ' ⇅' }}</span>
         </div>
@@ -94,6 +98,9 @@
               tabindex="0"
               :title="'View ' + item.name"
             >
+              <div class="sm-cell col-creator">
+                <span class="sm-creator">{{ item.creator || '—' }}</span>
+              </div>
               <div class="sm-cell col-name">
                 <span class="sm-name">{{ item.name }}</span>
                 <span v-if="item.family" class="sm-family">{{ item.family }}</span>
@@ -174,6 +181,8 @@ interface SuperItem {
   id: number;
   name: string;
   slug: string;
+  creator: string | null;
+  base_creator: string | null;
   family: string | null;
   providers: string[];
   datapointsCount: number;
@@ -215,6 +224,8 @@ const superItems = computed<SuperItem[]>(() => {
       id: m.super_id,
       name: m.name,
       slug: m.slug,
+      creator: m.creator ?? null,
+      base_creator: m.base_creator ?? null,
       family: families.length === 1 ? families[0] : null,
       providers,
       datapointsCount: dps.length,
@@ -233,7 +244,7 @@ const superItems = computed<SuperItem[]>(() => {
 
 const searchQuery = ref('');
 const statusFilter = ref('all');
-const sortBy = ref('name');
+const sortBy = ref('creator');
 const sortDesc = ref(false);
 
 const searchedItems = computed(() => {
@@ -283,6 +294,7 @@ const sortedItems = computed(() => {
   arr.sort((a, b) => {
     let cmp = 0;
     switch (sortBy.value) {
+      case 'creator': cmp = (a.creator || '').localeCompare(b.creator || ''); break;
       case 'name': cmp = a.name.localeCompare(b.name); break;
       case 'providers': cmp = b.providers.length - a.providers.length; break;
       case 'instances': cmp = b.datapointsCount - a.datapointsCount; break;
@@ -402,14 +414,14 @@ function navigatePanel(index: number) {
 .status-segment.broken { background: var(--red); }
 
 /* Table */
-.sm-table { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.sm-table { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; display: flex; flex-direction: column; }
 .sm-header-row {
   display: flex; align-items: center; padding: 8px 16px;
   background: var(--bg-elevated, var(--bg-card)); border-bottom: 1px solid var(--border);
   font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.04em; color: var(--text-dim);
 }
-.sm-scroller { height: calc(100vh - 400px); }
+.sm-scroller { height: calc(100vh - 400px); overflow: auto; }
 
 .sm-row {
   display: flex; align-items: center; padding: 8px 16px;
@@ -426,14 +438,16 @@ function navigatePanel(index: number) {
 .sortActive { color: var(--accent) !important; }
 .sort-arrow { font-family: monospace; font-size: 0.5rem; }
 
-.col-name      { width: 22%; min-width: 140px; }
-.col-status    { width: 13%; min-width: 110px; }
-.col-providers { width: 14%; min-width: 100px; }
-.col-instances { width: 8%;  min-width: 70px; }
-.col-context   { width: 10%; min-width: 75px; }
-.col-tools     { width: 6%;  min-width: 50px; }
-.col-roles     { width: 27%; min-width: 150px; }
+.col-creator   { width: 12%; min-width: 90px; }
+.col-name      { width: 20%; min-width: 130px; }
+.col-status    { width: 11%; min-width: 100px; }
+.col-providers { width: 12%; min-width: 90px; }
+.col-instances { width: 7%;  min-width: 65px; }
+.col-context   { width: 9%;  min-width: 70px; }
+.col-tools     { width: 5%;  min-width: 45px; }
+.col-roles     { width: 24%; min-width: 140px; }
 
+.sm-creator { font-size: 0.75rem; font-weight: 500; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
 .sm-name { font-weight: 600; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
 .sm-family { display: inline-block; font-size: 0.6rem; color: var(--text-muted); background: var(--accent-subtle); padding: 1px 6px; border-radius: 999px; margin-top: 2px; }
 
