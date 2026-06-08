@@ -5,9 +5,17 @@
       <p>{{ store.visibleFamilies.length }} model families tracked<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template></p>
     </div>
 
+    <div class="fc-controls">
+      <select v-model="sortBy" class="sort-select">
+        <option value="creator">Sort: Creator</option>
+        <option value="family">Sort: Family</option>
+      </select>
+      <button class="sort-dir-btn" @click="sortAsc = !sortAsc" :title="sortAsc ? 'Ascending' : 'Descending'">{{ sortAsc ? '↑' : '↓' }}</button>
+    </div>
+
     <div class="family-grid">
       <router-link
-        v-for="family in store.visibleFamilies"
+        v-for="family in sortedFamilies"
         :key="family.name"
         :to="`/family/${encodeURIComponent(family.name)}`"
         class="family-card"
@@ -35,11 +43,32 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import { useModelsStore } from '@/store/models';
 import { getProviderIcon } from '@/data/provider-icons';
 import type { FamilyData } from '@/types';
 
 const store = useModelsStore();
+
+const sortBy = ref<'creator' | 'family'>('creator');
+const sortAsc = ref(true);
+
+const sortedFamilies = computed(() => {
+  const list = [...store.visibleFamilies];
+  list.sort((a, b) => {
+    let ca = creatorName(a);
+    let cb = creatorName(b);
+    let cmp: number;
+    if (sortBy.value === 'family') {
+      cmp = a.name.localeCompare(b.name);
+      if (cmp !== 0) return sortAsc.value ? cmp : -cmp;
+    }
+    cmp = ca.localeCompare(cb);
+    if (cmp !== 0) return sortAsc.value ? cmp : -cmp;
+    return a.name.localeCompare(b.name);
+  });
+  return list;
+});
 
 function findCreator(family: FamilyData) {
   if (family.models.length === 0) return null;
@@ -78,6 +107,41 @@ function creatorName(family: FamilyData): string {
 .filtered-note {
   color: var(--accent);
   font-weight: 600;
+}
+
+.fc-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.sort-select {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-family: inherit;
+  cursor: pointer;
+}
+.sort-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.sort-dir-btn {
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: monospace;
+  line-height: 1;
+}
+.sort-dir-btn:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
 }
 
 .family-grid {
