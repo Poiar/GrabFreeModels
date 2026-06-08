@@ -68,6 +68,7 @@ async function buildModelsData(client, pool, options = {}) {
     'last_updated',
     'supports_attachment',
     'supports_structured_output',
+    'base_model',
   ];
 
   if (dmIds.length > 0) {
@@ -125,6 +126,7 @@ async function buildModelsData(client, pool, options = {}) {
       temperature: feat?.temperature?.[0] === undefined ? null : feat.temperature[0] === 'true',
       open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
       family: feat?.family?.[0] || null,
+      base_model: feat?.base_model?.[0] || null,
       knowledge_cutoff: feat?.knowledge_cutoff?.[0] || null,
       releaseDate: feat?.release_date?.[0] || null,
       lastUpdated: feat?.last_updated?.[0] || null,
@@ -332,6 +334,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
         creator: dp.creator || null,
         base_creator: dp.base_creator || null,
         family: dp.family,
+        base_model: dp.base_model,
         best_for: [...(dp.best_for || [])],
         best_context: dp.context_length || 0,
         role_rankings: {},
@@ -361,6 +364,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
       temperature: dp.temperature,
       open_weights: dp.open_weights,
       family: dp.family,
+      base_model: dp.base_model,
       tags: dp.tags,
       best_for: dp.best_for,
       input_types: dp.input_types,
@@ -414,6 +418,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
           creator: model.creator || null,
           base_creator: model.base_creator || null,
           family: model.family || null,
+          base_model: model.base_model || null,
           best_for: model.best_for,
           best_context: model.best_context,
           role_rankings: roleRankingBySuperId[`${model.super_id}`] || {},

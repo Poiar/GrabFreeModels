@@ -42,6 +42,7 @@ export interface ProviderDatapoint {
   limitations?: ModelLimitations | null;
   source_ids: number[];
   family: string | null;
+  base_model: string | null;
   knowledge_cutoff: string | null;
   last_updated: string | null;
   release_date: string | null;
@@ -54,6 +55,7 @@ export interface ModelData {
   creator: string | null;
   base_creator: string | null;
   family: string | null;
+  base_model: string | null;
   best_for: string[];
   best_context: number | null;
   role_rankings: Record<string, number>;
@@ -132,6 +134,7 @@ export interface DatapointModel {
   temperature: boolean | null;
   open_weights: boolean | null;
   family: string | null;
+  base_model: string | null;
   knowledge_cutoff: string | null;
   releaseDate: string | null;
   lastUpdated: string | null;

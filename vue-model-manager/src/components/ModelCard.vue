@@ -34,6 +34,9 @@
       >
       <span v-if="sourceSummaryText" class="mc-stat-divider">|</span>
       <span v-if="sourceSummaryText" class="mc-stat mc-source-line">{{ sourceSummaryText }}</span>
+      <router-link v-if="model.base_model" :to="`/model/${model.base_model}`" class="mc-finetune-badge" title="Fine-tune — click to see base model" @click.stop>
+        FT: {{ baseModelName }}
+      </router-link>
       <span v-if="limitBadges.card" class="mc-limit-warn" title="Credit card required by some providers">Card</span>
       <span v-if="limitBadges.sub" class="mc-limit-warn" :title="limitBadges.sub">Sub</span>
       <span v-if="limitBadges.daily" class="mc-limit-info" :title="limitBadges.daily">~{{ limitBadges.daily }}/day</span>
@@ -74,6 +77,12 @@ const emit = defineEmits<{
 const expanded = ref(false);
 
 const store = useModelsStore();
+
+const baseModelName = computed(() => {
+  if (!props.model.base_model) return '';
+  const parent = store.modelBySlug.get(props.model.base_model);
+  return parent ? parent.name : props.model.base_model;
+});
 
 const sourceSummary = computed(() => {
   let api = 0;
@@ -342,6 +351,22 @@ function roleLabel(role: string): string {
 
 .mc-stat-divider {
   color: var(--border);
+}
+
+.mc-finetune-badge {
+  padding: 1px 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+  flex-shrink: 0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.mc-finetune-badge:hover {
+  background: rgba(99, 102, 241, 0.22);
 }
 
 .mc-limit-warn {

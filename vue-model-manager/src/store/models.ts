@@ -172,6 +172,27 @@ export const useModelsStore = defineStore('models', () => {
     return result;
   });
 
+  // ── Model lookup by slug ──
+  const modelBySlug = computed((): Map<string, ModelData> => {
+    const map = new Map<string, ModelData>();
+    for (const model of allModels.value) {
+      map.set(model.slug, model);
+    }
+    return map;
+  });
+
+  // ── Base model lookup (fine-tune parent) ──
+  const baseModelParent = computed((): Map<number, ModelData> => {
+    const map = new Map<number, ModelData>();
+    for (const model of allModels.value) {
+      if (model.base_model) {
+        const parent = modelBySlug.value.get(model.base_model);
+        if (parent) map.set(model.super_id, parent);
+      }
+    }
+    return map;
+  });
+
   // ── Model lookup by super_id ──
   const modelBySuperId = computed((): Map<number, { model: ModelData; creator: CreatorData }> => {
     const map = new Map();
@@ -664,6 +685,8 @@ export const useModelsStore = defineStore('models', () => {
     allModels,
     allDatapoints,
     // Lookups
+    modelBySlug,
+    baseModelParent,
     modelBySuperId,
     datapointById,
     getModelById,
