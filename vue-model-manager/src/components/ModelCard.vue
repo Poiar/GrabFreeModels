@@ -3,8 +3,18 @@
     <!-- Header -->
     <div class="mc-header">
       <div class="mc-header-left">
-        <h3 class="mc-name">{{ model.name }}<button class="copy-btn" title="Copy name" @click.stop="copyName(model.name)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></h3>
-        <span class="mc-creator-badge">{{ creator.name }}</span>
+        <span class="mc-badge mc-badge-creator">
+          <svg v-if="creatorIconSvg" class="mc-creator-icon" :viewBox="creatorIconSvg.viewBox" v-html="creatorIconSvg.body"></svg>
+          <span v-else class="mc-creator-icon-fb">{{ (creator.name || '?')[0] }}</span>
+          {{ creator.name }}
+          <button class="copy-btn-badge" title="Copy creator" @click.stop="copyText(creator.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        </span>
+        <span class="mc-badge-sep">/</span>
+        <span class="mc-badge mc-badge-model">
+          <span class="mc-model-icon-fb">{{ model.name[0] }}</span>
+          {{ model.name }}
+          <button class="copy-btn-badge" title="Copy name" @click.stop="copyText(model.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        </span>
       </div>
       <div class="mc-header-right">
         <span v-for="(rank, role) in topRankings" :key="role" class="mc-ranking-badge">
@@ -49,6 +59,7 @@ import ProviderStrip from '@/components/ProviderStrip.vue';
 import type { ModelData, CreatorData, ProviderDatapoint } from '@/types';
 import { useModelsStore } from '@/store/models';
 import { useToast } from '@/composables/useToast';
+import { getProviderIcon } from '@/data/provider-icons';
 
 const props = defineProps<{
   model: ModelData;
@@ -134,13 +145,15 @@ const topRankings = computed(() => {
 
 function handleCardClick(e: MouseEvent) {
   const target = e.target as HTMLElement;
-  if (target.closest('.provider-block') || target.closest('.provider-strip-more') || target.closest('.copy-btn')) return;
+  if (target.closest('.provider-block') || target.closest('.provider-strip-more') || target.closest('.copy-btn-badge')) return;
   emit('model-click');
 }
 
+const creatorIconSvg = computed(() => getProviderIcon(props.creator.id));
+
 const { success: toastSuccess } = useToast();
 
-async function copyName(text: string) {
+async function copyText(text: string) {
   try { await navigator.clipboard.writeText(text); toastSuccess(`"${text}" copied`); } catch { /* noop */ }
 }
 
@@ -221,50 +234,86 @@ function roleLabel(role: string): string {
   min-width: 0;
 }
 
-.mc-name {
-  font-size: 0.92rem;
-  font-weight: 600;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: flex;
+.mc-badge {
+  display: inline-flex;
   align-items: center;
   gap: 4px;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
 }
 
-.copy-btn {
+.mc-badge-creator {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.mc-badge-model {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green);
+}
+
+.mc-badge-sep {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.mc-creator-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.mc-creator-icon-fb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  font-size: 0.52rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.mc-model-icon-fb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  font-size: 0.52rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.copy-btn-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: inherit;
   cursor: pointer;
-  padding: 2px;
+  padding: 0;
+  margin-left: 2px;
   border-radius: 3px;
-  flex-shrink: 0;
   opacity: 0;
-  transition: opacity 0.12s, color 0.12s;
+  transition: opacity 0.12s;
 }
 
-.mc-name:hover .copy-btn,
-.copy-btn:focus-visible {
+.mc-badge:hover .copy-btn-badge,
+.copy-btn-badge:focus-visible {
   opacity: 1;
-}
-
-.copy-btn:hover {
-  color: var(--accent);
-}
-
-.mc-creator-badge {
-  padding: 2px 8px;
-  font-size: 0.68rem;
-  font-weight: 600;
-  border-radius: 999px;
-  background: var(--accent-subtle);
-  color: var(--accent);
-  flex-shrink: 0;
 }
 
 .mc-header-right {
@@ -349,8 +398,9 @@ function roleLabel(role: string): string {
   .model-card {
     padding: 10px 12px;
   }
-  .mc-name {
-    font-size: 0.85rem;
+  .mc-badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
   }
   .mc-header-right {
     display: none;
