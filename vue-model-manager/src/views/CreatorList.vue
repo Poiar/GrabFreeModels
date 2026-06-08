@@ -26,6 +26,10 @@
             }}</span
           >
         </div>
+        <div v-if="getFamilies(creator).length" class="cc-families">
+          <span v-for="f in getFamilies(creator).slice(0, 4)" :key="f" class="cc-family-tag">{{ f }}</span>
+          <span v-if="getFamilies(creator).length > 4" class="cc-family-tag cc-family-more">+{{ getFamilies(creator).length - 4 }}</span>
+        </div>
         <div v-if="creator.models.length" class="cc-top">Top: {{ creator.models[0].name }}</div>
       </router-link>
     </div>
@@ -35,7 +39,16 @@
 <script setup lang="ts">
 import { useModelsStore } from '@/store/models';
 import { getProviderIcon } from '@/data/provider-icons';
+import type { CreatorData } from '@/types';
 const store = useModelsStore();
+
+function getFamilies(creator: CreatorData): string[] {
+  const families = new Set<string>();
+  for (const m of creator.models) {
+    if (m.family) families.add(m.family);
+  }
+  return [...families].sort();
+}
 </script>
 
 <style scoped>
@@ -110,6 +123,26 @@ const store = useModelsStore();
   font-size: 0.78rem;
   color: var(--text-muted);
 }
+.cc-families {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.cc-family-tag {
+  font-size: 0.62rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.cc-family-more {
+  color: var(--accent);
+}
+
 .cc-top {
   font-size: 0.72rem;
   color: var(--accent);
