@@ -554,7 +554,8 @@ export const useModelsStore = defineStore('models', () => {
 
     try {
       let resp = await fetch('/api/data', { signal });
-      if (!resp.ok) resp = await fetch('/available-models.json', { signal });
+      const ct = resp.headers.get('content-type') || '';
+      if (!resp.ok || !ct.includes('application/json')) resp = await fetch('/available-models.json', { signal });
       const rawJson = await resp.text();
       const freshData: ModelsData = JSON.parse(rawJson);
 
