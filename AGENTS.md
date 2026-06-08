@@ -19,6 +19,7 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 ### Available Skills
 
 - `test-model-auth` — manage provider API keys, read from auth.json
+- `agent-teams` — form a team of specialized agents for complex multi-domain tasks
 - `parallel-todos` — use for independent parallel subagent tasks
 - `validate-free-models` — test and validate free model statuses
 - `sync-models` — fetch latest free models from providers, sync to DB
