@@ -19,7 +19,6 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 ### Available Skills
 
 - `test-model-auth` — manage provider API keys, read from auth.json
-- **Model recommendations**: Before suggesting any model, check `supports_tools` in `datapoint_models` (or via `GET /api/data`). If `false`, do NOT recommend. Refer to `best_for` field for role-fit. If unfamiliar, say "I need to verify tool calling support first".
 - `parallel-todos` — use for independent parallel subagent tasks
 - `validate-free-models` — test and validate free model statuses
 - `sync-models` — fetch latest free models from providers, sync to DB
@@ -37,47 +36,6 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `peer-sessions` — discover what other running Claude Code sessions are working on (read-only, no probing)
 - `peer-msg` — send a message to another session in this Tabby window (with return address, non-disruptive)
 - `peer-inbox` — check the shared inter-session message log
-
-## Agent Team
-
-12 specialized senior agents in `.claude/agents/` covering all major engineering disciplines. Each agent runs on Sonnet and has persistent memory in `.claude/agent-memory/<name>/`.
-
-### Engineering Roles
-
-| Agent              | Role                                                                                               | Triggers                                                        |
-| ------------------ | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `architect`        | Staff Engineer — system design, trade-off analysis, task decomposition, cross-cutting architecture | Architecture, design, trade-off, how should we, module boundary |
-| `backend-engineer` | API & server — Express routes, middleware, error handling, script module architecture              | API, Express, server, route, middleware, endpoint, backend      |
-| `data-engineer`    | Database & pipelines — PostgreSQL schema, migrations, query optimization, data integrity           | Schema, migration, SQL, database, data model, pipeline, index   |
-| `devops-engineer`  | DevOps & SRE — CI/CD, deployment, monitoring, Windows Service, infrastructure                      | Deploy, CI/CD, monitoring, Prometheus, service, infrastructure  |
-| `ui-ux-reviewer`   | UI/UX design — accessibility, responsive design, visual consistency, design system                 | UI changes, design feedback, component review                   |
-| `performance`      | Performance — DB queries, API latency, bundle size, Web Vitals, memory                             | Slow, latency, bundle size, optimization, memory leak           |
-| `scraping`         | Web scraping — Playwright, bot bypass, rate limiting, data extraction                              | Scrape, extract, crawl, sync providers                          |
-| `security`         | AppSec — OWASP, secrets detection, dependency audit, SQL injection, auth                           | Security review, vulnerability, secret scanning                 |
-| `qa`               | QA — test planning, edge cases, regression analysis, manual test scripts                           | Test plan, QA, regression, edge cases                           |
-| `code-quality`     | Code quality — structure, DRY, naming, conventions, dead code, refactoring                         | Code review, refactor, code smell, DRY                          |
-
-### System Roles
-
-| Agent               | Role                                                                                   | Triggers                                   |
-| ------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------ |
-| `memory-management` | Memory curator — quality audits, deduplication, staleness detection, index maintenance | Memory, MEMORY.md, stale memory, remember  |
-| `skill-management`  | Skill ecosystem — create/update/audit skills, skill index, lean files policy           | Skill, SKILL.md, create skill, skill audit |
-
-### When to Delegate
-
-- **Cross-cutting architecture / complex design** → `architect` agent
-- **API / server / backend changes** → `backend-engineer` agent
-- **Database / schema / pipeline changes** → `data-engineer` agent
-- **Deployment / CI/CD / monitoring** → `devops-engineer` agent
-- **UI/UX feedback** → `ui-ux-reviewer` agent (proactive on any UI change)
-- **Performance investigation** → `performance` agent
-- **Scraping/playwright tasks** → `scraping` agent
-- **Security-sensitive changes** → `security` agent
-- **Test planning for complex changes** → `qa` agent
-- **Code smell detection / refactoring** → `code-quality` agent
-- **Memory system maintenance** → `memory-management` agent
-- **Skill creation or auditing** → `skill-management` agent
 
 ## Lean Files Policy
 
