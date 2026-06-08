@@ -642,8 +642,9 @@ export const useModelsStore = defineStore('models', () => {
     }
 
     try {
-      const resp = await fetch('/api/data/paid');
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      let resp = await fetch('/api/data/paid');
+      const ct = resp.headers.get('content-type') || '';
+      if (!resp.ok || !ct.includes('application/json')) resp = await fetch('/available-models-paid.json');
       const rawJson = await resp.text();
       const freshData: ModelsData = JSON.parse(rawJson);
 
@@ -661,7 +662,17 @@ export const useModelsStore = defineStore('models', () => {
       paidLastLoaded.value = new Date();
     } catch (e: unknown) {
       if (cached) return; // Already showing cached data
-      paidError.value = e instanceof Error ? e.message : String(e);
+
+      try {
+        const fallbackResp = await fetch('/available-models-paid.json');
+        const fallbackRaw = await fallbackResp.text();
+        const fallbackData: ModelsData = JSON.parse(fallbackRaw);
+        paidData.value = fallbackData;
+        saveToCache(fallbackRaw, PAID_CACHE_KEY);
+        paidLastLoaded.value = new Date();
+      } catch (fe: unknown) {
+        paidError.value = e instanceof Error ? e.message : String(e);
+      }
     } finally {
       paidLoading.value = false;
     }

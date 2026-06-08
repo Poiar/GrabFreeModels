@@ -13,16 +13,19 @@ const path = require('path');
 const dbPool = require('../server/db');
 const buildModelsData = require('./build-models-data');
 
-const DATA_FILE = path.join(__dirname, '..', 'available-models.json');
+const DATA_FILE_FREE = path.join(__dirname, '..', 'available-models.json');
+const DATA_FILE_PAID = path.join(__dirname, '..', 'available-models-paid.json');
 
-async function exportData(passedPool) {
+async function exportData(passedPool, options = {}) {
+  const { isFree = true } = options;
+  const dataFile = isFree ? DATA_FILE_FREE : DATA_FILE_PAID;
   const pool = passedPool || dbPool;
   const client = await pool.connect();
   try {
-    const result = await buildModelsData(client, pool);
-    fs.writeFileSync(DATA_FILE, JSON.stringify(result, null, 2) + '\n');
+    const result = await buildModelsData(client, pool, { isFree });
+    fs.writeFileSync(dataFile, JSON.stringify(result, null, 2) + '\n');
     console.log(
-      `Exported ${result.creators.reduce((sum, c) => sum + c.model_count, 0)} models to ${DATA_FILE}`,
+      `Exported ${result.creators.reduce((sum, c) => sum + c.model_count, 0)} models to ${dataFile}`,
     );
   } catch (err) {
     console.error('Export failed:', err.message);
@@ -34,7 +37,8 @@ async function exportData(passedPool) {
 }
 
 if (require.main === module) {
-  exportData().catch(() => process.exit(1));
+  const isFree = !process.argv.includes('--paid');
+  exportData(null, { isFree }).catch(() => process.exit(1));
 }
 
 module.exports = exportData;
