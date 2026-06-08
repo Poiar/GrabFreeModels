@@ -5,25 +5,33 @@ description: Use when modifying the PostgreSQL schema, writing migrations, or un
 
 # Schema v2
 
-**Concept:** One `super_models` row per abstract model, many `datapoint_models` rows for provider-specific instances.
+**Concept:** One `super_models` row per abstract model identity, many `datapoint_models` rows for provider-specific instances. Joined via `datapoint_providers`.
 
 ## Tables
 
-| Table                      | Purpose                                                                                                  |
-| -------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `super_models`             | Abstract identity (`id`, `name`, `slug`)                                                                 |
-| `datapoint_providers`      | Sources (`slug`, `name`)                                                                                 |
-| `datapoint_models`         | Per-provider instance (`super_model_id`, `datapoint_provider_id`, `model_instance_key`, `full_id`, status fields) |
-| `datapoint_model_features` | Tags/best_for as key-value rows                                                                          |
-| `test_results`             | Test history                                                                                             |
-| `metadata`                 | JSONB key-value store (rankings, etc.)                                                                   |
+**`super_models`** — Canonical identity (`id` SERIAL PK, `name`, `slug` UNIQUE, `author`, `created_at`)
+- Slug normalization: lowercase, strip `(free)`/`coding-`/`xiaomi-` prefixes, collapse hyphens
 
-## Key Decisions
+**`datapoint_providers`** — Data sources (`id` SERIAL PK, `slug` UNIQUE, `name`, `base_url`)
+- 18 providers seeded: modelsdev, openrouter, nvidia, cerebras, huggingface, deepseek, google, opencode-zen, llm-gateway, github-models, vercel, groq, mistral, together, fireworks, cloudflare, anthropic, openai
 
-- **`full_id`** = `providerSlug/modelInstanceKey` (e.g. `openrouter/owl-alpha`). Composite key.
-- **`is_removed`** on datapoint — provider no longer lists this model.
-- Status fields are per-datapoint, not per-super.
-- `super_models` slug normalization: lowercase, strip `(free)`/`coding-`/`xiaomi-` prefixes, collapse hyphens.
+**`datapoint_models`** — Per-provider instance (`super_model_id`, `datapoint_provider_id`, `model_instance_key`, `full_id` UNIQUE, `context_length`, `input/output_price_per_million`, `is_free`, `supports_tools`, `is_removed`, `model_status`, `status_result`, `status_tested`, `status_detail`, `last_success`)
+- `full_id` = `providerSlug/modelInstanceKey` (composite key, e.g. `openrouter/owl-alpha`)
+- `model_status` enum: `working`, `broken`, `rate_limited`, `untested`, `not_found`
+- CASCADE: DELETE on super_model or provider removes datapoints
+
+**`datapoint_model_features`** — EAV for flexible metadata (`feature_type` VARCHAR 32, `value` VARCHAR 256 per datapoint)
+- Known types: `best_for`, `tag`, `supports_reasoning`, `output_limit`, `temperature`, `open_weights`, `family`, `knowledge_cutoff`, `release_date`, `last_updated`
+- Unknown feature_types bucket into `tag`
+
+**`datapoint_model_input_types` / `datapoint_model_output_types`** — Multimodal I/O types per datapoint
+
+**`metadata`** — JSONB key-value store (`key` VARCHAR PK, `value` JSONB, `updated_at`)
+- Stores: `_role_rankings`, `_test_summary`, `_known_issues`, `_provider_usage`, `_validation_method`, `_skip_removal_check`
+
+## Data builder
+
+`scripts/build-models-data.js` is the single source of truth for constructing the full `ModelsData` object. Used by both the API and every script. Joins all tables, applies author normalization (30+ overrides like "google llc" → "google"), computes `priority_score`, builds hierarchical `creators → models → providers` structure.
 
 ## Duplicate Merging
 

@@ -5,7 +5,7 @@ description: Use for starting or installing the Prometheus metrics exporter. Tri
 
 # Metrics Exporter
 
-Serves Prometheus-compatible metrics for provider health on a local HTTP port.
+Lightweight HTTP server (Node.js `http` module, no Express) serving Prometheus-compatible metrics on port 9180. Listens on `0.0.0.0`.
 
 ## Quick Start
 
@@ -19,13 +19,35 @@ node scripts/metrics-exporter.js --port 9180
 node scripts/install-metrics-service.js --port 9180 --name GrabFreeModelsMetrics
 ```
 
-Installs via nssm (if available) or `sc.exe` fallback. Runs automatically on boot.
+Tries nssm first, falls back to `sc.exe`. Starts automatically on boot.
 
 ## Metrics Exposed
 
-- `model_provider_working` — working free models per provider
-- `model_provider_total` — total free models per provider
-- `model_provider_rate_limited` — rate-limited count
-- `model_provider_broken` — broken count
-- `model_overall_working_ratio` — global working ratio
-- `model_test_timestamp` — unix timestamp of last validation
+All gauge type, `text/plain; version=0.0.4`:
+
+| Metric                         | Labels            |
+| ------------------------------ | ----------------- |
+| `model_provider_working`       | `{provider="..."}`|
+| `model_provider_total`         | `{provider="..."}`|
+| `model_provider_rate_limited`  | `{provider="..."}`|
+| `model_provider_broken`        | `{provider="..."}`|
+| `model_overall_working_ratio`  | (none)            |
+| `model_test_timestamp`         | (none)            |
+
+Only `is_free` models counted. Data from `scripts/load-models.js` (same as `GET /api/data`).
+
+## Cache
+
+60-second TTL — repeated scrapes within 60s return cached metrics, avoiding repeated DB queries.
+
+## Alert Thresholds
+
+No built-in alerting — configure in Prometheus/Grafana:
+- `model_overall_working_ratio < 0.7` → warning
+- `model_overall_working_ratio < 0.5` → critical
+- `model_test_timestamp` older than 25h → stale data
+
+## Architecture
+
+- Handles `SIGTERM`/`SIGINT` for clean shutdown
+- On error: returns error text in metrics endpoint (won't crash; Prometheus records scrape error)
