@@ -171,7 +171,13 @@ function buildLayout() {
   // Assign models as moons to their primary provider (deterministic positions)
   moons = [];
   const usedNames = new Set<string>();
-  for (const model of models) {
+  const statusPriority: Record<string, number> = { working: 0, rate_limited: 1, untested: 2, broken: 3, down: 4 };
+  const sortedModels = [...models].sort((a, b) => {
+    const pa = statusPriority[getModelStatus(a)] ?? 99;
+    const pb = statusPriority[getModelStatus(b)] ?? 99;
+    return pa - pb;
+  });
+  for (const model of sortedModels) {
     if (usedNames.has(model.name)) continue;
     usedNames.add(model.name);
     const parentSlug = getPrimaryProvider(model);
@@ -180,7 +186,7 @@ function buildLayout() {
     const ctxLen = model.best_context ?? 8192;
     const moonR = Math.max(2.5, Math.min(8, Math.log2(ctxLen) * 0.8));
     const angle = hashFromId(model.super_id, 0) * Math.PI * 2;
-    const orbitR = star.radius + 14 + hashFromId(model.super_id, 1) * 30;
+    const orbitR = star.radius + 14 + Math.min(50, Math.log2(ctxLen || 8192) * 3);
     moons.push({
       id: String(model.super_id),
       name: model.name,
@@ -443,8 +449,8 @@ function onMouseMove(e: MouseEvent) {
     hovered.value = hit.item;
     hoveredType.value = hit.type;
     tooltipStyle.value = { left: px + 12 + 'px', top: py - 10 + 'px' };
-    // Briefly wake the simulation on hover
-    if (frozen && !reducedMotion) {
+    // Briefly wake the simulation on star hover
+    if (hit.type === 'star' && frozen && !reducedMotion) {
       frozen = false;
       unfreezeUntil = tickCount + HOVER_UNFREEZE_TICKS;
       if (!animId) animId = requestAnimationFrame(tick);
@@ -464,6 +470,11 @@ function onClick(e: MouseEvent) {
   const hit = hitTest(px, py);
   if (hit?.type === 'star') {
     selectedStar.value = selectedStar.value === hit.item.slug ? null : hit.item.slug;
+    if (frozen && !reducedMotion) {
+      frozen = false;
+      unfreezeUntil = tickCount + HOVER_UNFREEZE_TICKS;
+      if (!animId) animId = requestAnimationFrame(tick);
+    }
   } else {
     selectedStar.value = null;
   }
@@ -549,10 +560,16 @@ onUnmounted(() => {
 
 watch(() => store.allModels, () => {
   buildLayout();
+  if (stars.length && !animId && !reducedMotion) {
+    animId = requestAnimationFrame(tick);
+  }
 }, { deep: false });
 
 watch(() => store.providerRefs, () => {
   buildLayout();
+  if (stars.length && !animId && !reducedMotion) {
+    animId = requestAnimationFrame(tick);
+  }
 }, { deep: false });
 </script>
 
