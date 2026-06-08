@@ -350,6 +350,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
       output_limit: dp.output_limit,
       temperature: dp.temperature,
       open_weights: dp.open_weights,
+      family: dp.family,
       tags: dp.tags,
       best_for: dp.best_for,
       input_types: dp.input_types,
@@ -361,6 +362,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
       notes: dp.notes,
       priority_score: dp.priority_score,
       limitations: dp.limitations,
+      release_date: dp.releaseDate || null,
     });
 
     // Update model-level aggregates

@@ -39,6 +39,8 @@ export interface ProviderDatapoint {
   priority_score: number | null;
   limitations?: ModelLimitations | null;
   source_ids: number[];
+  family: string | null;
+  release_date: string | null;
 }
 
 export interface ModelData {

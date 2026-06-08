@@ -225,14 +225,16 @@ function normalizeCreator(name) {
     max: 1,
   });
   try {
-    // Clear all first
-    await pool.query('UPDATE super_models SET creator = NULL');
+    // Only fill NULL creators — never clear existing ones
+    const { rows: nullCount } = await pool.query('SELECT COUNT(*) AS c FROM super_models WHERE creator IS NULL');
+    console.log(`Models with NULL creator before fix: ${nullCount[0].c}`);
 
-    // Get all unique datapoint full_ids grouped by super_model
+    // Get unique datapoint full_ids only for NULL-creator super models
     const { rows } = await pool.query(`
       SELECT sm.id, dm.full_id
       FROM super_models sm
       JOIN datapoint_models dm ON dm.super_model_id = sm.id
+      WHERE sm.creator IS NULL
       ORDER BY sm.id
     `);
 

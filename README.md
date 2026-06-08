@@ -10,12 +10,44 @@ Key data sources: direct provider API scraping, [models.dev](https://github.com/
 Provider APIs ──┐
 models.dev ─────┤
 HF Hub ─────────┼── sync ──→ Postgres ──→ Express API ──→ Vue 3 SPA
-External sources─┘                         :3001           :5173
-                                               │
-                                          validate ──→ rank ──→ export
+Mastra ─────────┤              │  ▲            :3001           :5173
+Leaderboards ───┘              │  │
+                               ▼  │
+                          validate ──→ rank ──→ export ──→ git snapshot
+                               │
+                          import-external-models
+                          (3-pass slug match +
+                           creator extraction +
+                           source provenance links)
 ```
 
 Every free model gets a `super_model` (canonical identity) with per-provider `datapoint_model` rows. The nightly pipeline validates endpoints, re-ranks by role, snapshots the DB, and optionally alerts on changes.
+
+## Data Model
+
+```
+super_models                    datapoint_models
+┌──────────────────────┐       ┌─────────────────────────┐
+│ id                   │◄──────│ super_model_id           │
+│ name (clean, no org) │       │ full_id (provider/remote)│
+│ slug                 │       │ context_length           │
+│ creator              │       │ supports_tools           │
+│ base_creator         │       │ status_result            │
+└──────────────────────┘       │ is_free                  │
+                               └──────────┬──────────────┘
+                                          │
+                               ┌──────────▼──────────────┐
+                               │ datapoint_model_sources  │
+                               │ (provenance: which       │
+                               │  registry/provider       │
+                               │  supplied this instance) │
+                               └─────────────────────────┘
+```
+
+- **Creator**: organization that built the model (e.g., Meta, Google, DeepSeek). Normalized via a 100+ entry alias map in `build-models-data.js`.
+- **Base creator**: original model maker for derived/fine-tuned models, traced from HuggingFace architecture families.
+- **Source provenance**: every datapoint tracks which sources (API providers, community lists, HF Hub, leaderboards) contributed it via `datapoint_model_sources`.
+- **Import pipeline**: 3-pass slug matching (direct → provider-stripped → routing-prefix-stripped) in `import-external-models.js`, with creator extraction and org-prefix stripping.
 
 ## Quick Start
 

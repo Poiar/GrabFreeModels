@@ -300,7 +300,6 @@ const roleFallbackMeta: Record<string, { description: string; ctxWeight: number;
   },
 };
 
-const expandedRoles = ref(new Set<string>(ROLE_KEYS));
 const expandedModels = ref(new Set<string>());
 
 const roles = computed((): RoleSection[] => {
@@ -389,14 +388,6 @@ function medalBorder(idx: number): string {
     'rgba(205,133,63,0.35)',
   ];
   return colors[idx] ?? 'transparent';
-}
-
-function toggleRole(key: string) {
-  if (expandedRoles.value.has(key)) {
-    expandedRoles.value.delete(key);
-  } else {
-    expandedRoles.value.add(key);
-  }
 }
 
 function toggleModel(roleKey: string, modelId: string) {

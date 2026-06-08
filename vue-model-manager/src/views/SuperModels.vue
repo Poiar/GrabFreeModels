@@ -62,6 +62,8 @@
               @click.stop="item.creator ? openCreatorPanel(item.creator) : null"
             >{{ item.creator || '—' }}<button v-if="item.creator" class="copy-btn-badge" title="Copy creator" @click.stop="copyText(item.creator!)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
             <span class="sm-badge-sep">/</span>
+            <span v-if="item.releaseDate" class="sm-badge sm-badge-date">{{ formatDateShort(item.releaseDate) }}</span>
+            <span v-if="item.releaseDate" class="sm-badge-sep">/</span>
             <span class="sm-badge sm-badge-model">{{ item.name }}<button class="copy-btn-badge" title="Copy name" @click.stop="copyText(item.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
             <span v-if="item.family" class="sm-family-badge">{{ item.family }}</span>
           </div>
@@ -77,7 +79,6 @@
           <span class="sm-stat">{{ item.datapointsCount }} provider{{ item.datapointsCount !== 1 ? 's' : '' }}</span>
           <span class="sm-stat-divider">|</span>
           <span v-if="item.workingCount > 0" class="sm-stat sm-stat-working">{{ item.workingCount }} working</span>
-          <span v-else-if="item.untestedCount > 0" class="sm-stat sm-stat-untested">{{ item.untestedCount }} untested</span>
           <span v-else-if="item.brokenCount > 0" class="sm-stat sm-stat-broken">{{ item.brokenCount }} broken</span>
           <span v-else class="sm-stat sm-stat-none">—</span>
           <span class="sm-stat-divider">|</span>
@@ -158,6 +159,7 @@ interface SuperItem {
   any_tools: boolean;
   hasRemoved: boolean;
   status: string;
+  releaseDate: string | null;
   topRoles: { role: string; label: string; rank: number }[];
 }
 
@@ -190,6 +192,13 @@ const superItems = computed<SuperItem[]>(() => {
     }
     topRanked.sort((a, b) => a.rank - b.rank);
 
+    let releaseDate: string | null = null;
+    for (const dp of dps) {
+      if (dp.release_date && (!releaseDate || dp.release_date < releaseDate)) {
+        releaseDate = dp.release_date;
+      }
+    }
+
     return {
       id: m.super_id,
       name: m.name,
@@ -208,6 +217,7 @@ const superItems = computed<SuperItem[]>(() => {
       any_tools: dps.some((d) => d.supports_tools),
       hasRemoved: m.providers.some((d) => d._removed),
       status,
+      releaseDate,
       topRoles: topRanked.slice(0, 3),
     };
   });
@@ -288,6 +298,10 @@ const sortedItems = computed(() => {
 
 function formatContext(n: number): string {
   return new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 }).format(n);
+}
+
+function formatDateShort(date: string): string {
+  return date.slice(2); // "2026-05-31" → "26-05-31"
 }
 
 const { success: toastSuccess } = useToast();
@@ -448,7 +462,7 @@ function navigateCreatorPanel(index: number) {
 
 .sm-card.card-working { border-left-color: var(--green); }
 .sm-card.card-mixed { border-left-color: var(--orange); }
-.sm-card.card-down { border-left-color: var(--red); }
+.sm-card.card-down { border-left-color: var(--border); }
 
 .sm-card:hover {
   border-color: var(--border-focus);
@@ -497,6 +511,11 @@ function navigateCreatorPanel(index: number) {
 
 .sm-badge-creator.is-link:hover {
   filter: brightness(1.2);
+}
+
+.sm-badge-date {
+  background: rgba(250, 204, 21, 0.12);
+  color: var(--yellow, #facb15);
 }
 
 .sm-badge-model {
