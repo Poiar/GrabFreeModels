@@ -1,6 +1,6 @@
 ---
 name: peer-msg
-description: Send a message to another running Claude Code session. Triggers: "send a message to", "tell the other session", "message tab", "notify", "ask the session in tab", "peer msg", "send to tab".
+description: Send a message to another running Claude Code session. Triggers: "send a message to", "tell the other session", "message tab", "notify", "ask the session in tab", "peer msg", "send to tab", "message the", "tell the deepclaude", "ask the grabfreemodels".
 ---
 
 # Peer Messaging
@@ -9,35 +9,29 @@ Send messages to other Claude Code sessions in this Tabby window.
 
 ## Steps
 
-### 1. Find the target tab
+### 1. Resolve target and self
 
-If the user doesn't specify a tab ID, call `list_tabs` and show them the running peer sessions first (see peer-sessions skill). Let them pick.
+Call `list_tabs`. Filter to tabs with `claude.exe`. Then:
 
-### 2. Get your return address
+**Find yourself:** The tab whose Playwright MCP path contains your current project directory (e.g. `C:\OC\GrabFreeModels\node_modules\...\@playwright\mcp\cli.js`). Note that tab ID — it's your return address.
 
-Get your own tab ID from `list_tabs` (the tab with `bash.exe` or `git.exe` in its process tree, or match by your cwd).
+**Find the target:** If the user gave a project name (e.g. "deepclaude"), find the peer tab whose process tree contains that project path (look for `dc.ps1`, node cmdlines, or Playwright MCP paths). If ambiguous (multiple matches), show the matches and ask which one. If the user gave a tab ID directly, use it.
 
-### 3. Send the message
+### 2. Send
 
 ```
-send_to_tab <target-tab-id> "[peer · <project> · <slug> · reply to: <your-tab-id> · answer briefly, then resume your task]: <message>"
+send_to_tab <target-id> "[peer · <your-project> · reply: <your-tab-id>]: <message>"
 ```
 
-Use `submit: true`. Include the return tab ID so they can reply.
+`submit: true`. The `reply:` field lets them respond to you with `/peer-msg <your-tab-id> msg`.
 
-### 4. Log + confirm
+### 3. Log
 
-Log to `C:\Users\pc\.claude\peer-messages.jsonl`:
-```json
-{"direction":"out","from_tab":"<your-id>","from_project":"<cwd>","from_slug":"<slug>","to_tab":"<target>","message":"<msg>","at":"<ISO>"}
+```powershell
+$m = @{dir="out";from_tab="<your-id>";from_proj="<cwd>";to_tab="<target>";msg="<msg>";at=(Get-Date -Format "o")} | ConvertTo-Json -Compress
+Add-Content "$env:USERPROFILE\.claude\peer-messages.jsonl" $m
 ```
 
 ## Reply flow
 
-When someone sends you a message, the `reply to:` field contains their tab ID. Your user can say "reply: yes, I updated the schema" and you run:
-
-```
-send_to_tab <reply-to-id> "[peer · <your project> · <your slug> — reply to: <your-tab-id>]: yes, I updated the schema"
-```
-
-Keep replies concise — they appear as the other session's next user input.
+When you receive a message with `reply: <tab-id>`, the user can say "reply: <msg>" and you send back. No manual ID lookup needed — the return address is in the message.
