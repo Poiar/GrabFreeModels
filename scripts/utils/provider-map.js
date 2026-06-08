@@ -2,7 +2,6 @@
 const PROVIDER_MAP = {
   'google ai studio': 'google',
   'nvidia nim': 'nvidia',
-  'huggingface inference providers': 'huggingface',
   'opencode zen': 'opencode',
   'mistral (la plateforme)': 'mistral',
   'mistral (codestral)': 'mistral',
@@ -22,7 +21,6 @@ const PROVIDER_MAP = {
   'github-models': 'github-models',
   'google': 'google',
   'groq': 'groq',
-  'huggingface': 'huggingface',
   'llmgateway': 'llmgateway',
   'mistral': 'mistral',
   'nvidia': 'nvidia',

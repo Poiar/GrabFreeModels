@@ -92,10 +92,6 @@ const PROVIDER_LIMITATIONS = {
     rate_limit: '5,000 requests/day',
     notes: 'Free tier via NVIDIA NIM API. Requires NVIDIA account login.',
   },
-  huggingface: {
-    rate_limit: 'Varies by model',
-    notes: 'Free inference tier via Hugging Face Serverless API. Cold starts may apply.',
-  },
   google: {
     daily_requests: 1500,
     rate_limit: '15 RPM / 1M TPM (Gemini 2.5 Flash); lower for Pro models',
@@ -633,7 +629,7 @@ function normalizeModelSlug(name) {
     `);
     const existingIds = new Set(existingRows.map((r) => r.full_id));
 
-    let newOr, orModels, newCb, cbModels, newNv, nvModels, newHf, hfFree, newGoogle, googleModels, newDs, dsModels, newGroq, groqModels, newOc, ocModels, newGh, ghModels, newDi, diModels, newCf, cfModels, newNvt, nvtModels, newSf, sfModels, newXai, xaiModels, newZhipu, zhipuModels;
+    let newOr, orModels, newCb, cbModels, newNv, nvModels, newGoogle, googleModels, newDs, dsModels, newGroq, groqModels, newOc, ocModels, newGh, ghModels, newDi, diModels, newCf, cfModels, newNvt, nvtModels, newSf, sfModels, newXai, xaiModels, newZhipu, zhipuModels;
 
     // --- Batch 1: OpenRouter, Cerebras, NVIDIA ---
     async function fetchOpenRouter() {
@@ -681,31 +677,7 @@ function normalizeModelSlug(name) {
     }
     await Promise.allSettled([fetchOpenRouter(), fetchCerebras(), fetchNvidia()]);
 
-    // --- Batch 2: HuggingFace, Google, DeepSeek ---
-    async function fetchHuggingFace() {
-      logger.info('\n[HuggingFace] Fetching...');
-      newHf = []; hfFree = [];
-      try {
-        const hfModelsData = await httpGet(
-          'https://huggingface.co/api/models?inference_provider=huggingface&tags=text-generation&limit=200',
-          { Authorization: `Bearer ${auth.huggingface.key}` },
-        );
-        const hfModelList = Array.isArray(hfModelsData.data) ? hfModelsData.data : hfModelsData.data?.models || hfModelsData.data?.data || [];
-        for (const m of hfModelList) {
-          const id = m.id || m.modelId;
-          if (!id) continue;
-          const isInferenceFree = m.inference === 'free' || m.inference === 'feather';
-          const isFreeByConfig = m.tags && m.tags.includes('free');
-          if (isInferenceFree || isFreeByConfig) {
-            hfFree.push({ id: `huggingface/${id}`, name: id, context_length: m.generation_parameters?.max_new_tokens || null });
-          }
-        }
-        logger.info(`  Found ${hfFree.length} free models`);
-        for (const m of hfFree) { if (!existingIds.has(m.id)) newHf.push(m); }
-        logger.info(`  New: ${newHf.length}`);
-        for (const n of newHf) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
-    }
+    // --- Batch 2: Google, DeepSeek ---
     async function fetchGoogle() {
       logger.info('\n[Google] Fetching...');
       newGoogle = []; googleModels = [];
@@ -728,7 +700,7 @@ function normalizeModelSlug(name) {
         for (const n of newDs) logger.info(`    + ${n.id}`);
       } catch (e) { logger.info(`  ERROR: ${e.message}`); }
     }
-    await Promise.allSettled([fetchHuggingFace(), fetchGoogle(), fetchDeepSeek()]);
+    await Promise.allSettled([fetchGoogle(), fetchDeepSeek()]);
 
     // --- Batch 3: Groq, OpenCode ---
     async function fetchGroq() {
@@ -841,7 +813,6 @@ function normalizeModelSlug(name) {
       ...orModels.map((m) => `openrouter/${m.id}`),
       ...(cbModels || []).map((m) => m.id),
       ...(nvModels || []).map((m) => `nvidia/${m.id}`),
-      ...hfFree.map((m) => m.id),
       ...(googleModels || []).map((m) => m.id),
       ...(dsModels || []).map((m) => m.id),
       ...groqModels.map((m) => m.id),
@@ -860,7 +831,7 @@ function normalizeModelSlug(name) {
 
     // Only check removal for providers with direct API sync (not community imports)
     const syncedSlugs = new Set([
-      'openrouter', 'cerebras', 'nvidia', 'huggingface', 'google',
+      'openrouter', 'cerebras', 'nvidia', 'google',
       'deepseek', 'groq', 'opencode', 'github-models', 'deepinfra', 'cloudflare', 'novitaai', 'siliconflow', 'xai', 'zhipuai',
     ]);
 
@@ -885,7 +856,6 @@ function normalizeModelSlug(name) {
       newOr.length +
       newCb.length +
       newNv.length +
-      newHf.length +
       newGoogle.length +
       newDs.length +
       newGroq.length +
@@ -935,7 +905,6 @@ function normalizeModelSlug(name) {
           'openrouter',
           'cerebras',
           'nvidia',
-          'huggingface',
           'google',
           'deepseek',
           'groq',
@@ -987,7 +956,6 @@ function normalizeModelSlug(name) {
           ...newOr,
           ...newCb,
           ...newNv,
-          ...newHf,
           ...newGoogle,
           ...newDs,
           ...newGroq,
