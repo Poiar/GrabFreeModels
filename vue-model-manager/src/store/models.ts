@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import type {
   ModelsData,
   CreatorData,
+  FamilyData,
   ModelData,
   ProviderDatapoint,
   ProviderReference,
@@ -98,6 +99,56 @@ export const useModelsStore = defineStore('models', () => {
   // ── Hierarchical data access ──
   const creators = computed((): CreatorData[] => data.value?.creators ?? []);
   const providerRefs = computed((): ProviderReference[] => data.value?.providers ?? []);
+
+  // ── Family grouping ──
+  const families = computed((): FamilyData[] => {
+    const familyMap = new Map<string, { models: Map<number, ModelData>; providerSet: Set<string> }>();
+    for (const model of allModels.value) {
+      const familyName = model.family || 'Uncategorized';
+      if (!familyMap.has(familyName)) {
+        familyMap.set(familyName, { models: new Map(), providerSet: new Set() });
+      }
+      const entry = familyMap.get(familyName)!;
+      entry.models.set(model.super_id, model);
+      for (const p of model.providers) entry.providerSet.add(p.provider_slug);
+    }
+    const result: FamilyData[] = [];
+    for (const [name, entry] of familyMap) {
+      const models = Array.from(entry.models.values()).sort((a, b) => a.name.localeCompare(b.name));
+      result.push({ name, model_count: models.length, provider_count: entry.providerSet.size, models });
+    }
+    result.sort((a, b) => {
+      if (a.name === 'Uncategorized') return 1;
+      if (b.name === 'Uncategorized') return -1;
+      return a.name.localeCompare(b.name);
+    });
+    return result;
+  });
+
+  const visibleFamilies = computed((): FamilyData[] => {
+    if (!isSourceFilterActive.value) return families.value;
+    const familyMap = new Map<string, { models: Map<number, ModelData>; providerSet: Set<string> }>();
+    for (const model of visibleModels.value) {
+      const familyName = model.family || 'Uncategorized';
+      if (!familyMap.has(familyName)) {
+        familyMap.set(familyName, { models: new Map(), providerSet: new Set() });
+      }
+      const entry = familyMap.get(familyName)!;
+      entry.models.set(model.super_id, model);
+      for (const p of model.providers) entry.providerSet.add(p.provider_slug);
+    }
+    const result: FamilyData[] = [];
+    for (const [name, entry] of familyMap) {
+      const models = Array.from(entry.models.values()).sort((a, b) => a.name.localeCompare(b.name));
+      result.push({ name, model_count: models.length, provider_count: entry.providerSet.size, models });
+    }
+    result.sort((a, b) => {
+      if (a.name === 'Uncategorized') return 1;
+      if (b.name === 'Uncategorized') return -1;
+      return a.name.localeCompare(b.name);
+    });
+    return result;
+  });
 
   // ── Flatten all models across all creators ──
   const allModels = computed((): ModelData[] => {
@@ -387,14 +438,15 @@ export const useModelsStore = defineStore('models', () => {
 
   const visibleProviderRefs = computed((): ProviderReference[] => {
     if (!isSourceFilterActive.value) return providerRefs.value;
-    // Pre-index base URLs from the full provider list
+    // Pre-index base URLs and npm_package from the full provider list
     const baseUrlMap = new Map(providerRefs.value.map(p => [p.slug, p.base_url]));
-    const map = new Map<string, { working: number; total: number; name: string; slug: string; base_url: string }>();
+    const npmPackageMap = new Map(providerRefs.value.map(p => [p.slug, p.npm_package]));
+    const map = new Map<string, { working: number; total: number; name: string; slug: string; base_url: string; npm_package: string | null }>();
     for (const model of visibleModels.value) {
       for (const dp of model.providers) {
         const slug = dp.provider_slug;
         if (!map.has(slug)) {
-          map.set(slug, { working: 0, total: 0, name: dp.provider, slug, base_url: baseUrlMap.get(slug) || '' });
+          map.set(slug, { working: 0, total: 0, name: dp.provider, slug, base_url: baseUrlMap.get(slug) || '', npm_package: npmPackageMap.get(slug) || null });
         }
         const entry = map.get(slug)!;
         entry.total++;
@@ -406,6 +458,7 @@ export const useModelsStore = defineStore('models', () => {
       slug,
       name: e.name,
       base_url: e.base_url,
+      npm_package: e.npm_package,
       model_count: e.total,
       working_count: e.working,
       health_status: e.total === 0 ? 'down' : e.working === e.total ? 'healthy' : 'degraded',
@@ -605,6 +658,8 @@ export const useModelsStore = defineStore('models', () => {
     // Hierarchical access
     creators,
     providerRefs,
+    families,
+    visibleFamilies,
     // Flat lists
     allModels,
     allDatapoints,

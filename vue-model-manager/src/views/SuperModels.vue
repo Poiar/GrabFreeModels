@@ -60,7 +60,7 @@
               class="sm-badge sm-badge-creator"
               :class="{ 'is-link': item.creator }"
               @click.stop="item.creator ? openCreatorPanel(item.creator) : null"
-            >{{ item.creator || '—' }}<button v-if="item.creator" class="copy-btn-badge" title="Copy creator" @click.stop="copyText(item.creator!)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
+            ><svg v-if="item.creatorSlug" class="sm-creator-icon" :viewBox="getCreatorIcon(item.creatorSlug).viewBox" v-html="getCreatorIcon(item.creatorSlug).body"></svg><span v-else class="sm-creator-icon-fb">{{ (item.creator || '?')[0] }}</span>{{ item.creator || '—' }}<button v-if="item.creator" class="copy-btn-badge" title="Copy creator" @click.stop="copyText(item.creator!)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
             <span class="sm-badge-sep">/</span>
             <span v-if="item.releaseDate" class="sm-badge sm-badge-date">{{ formatDateShort(item.releaseDate) }}</span>
             <span v-if="item.releaseDate" class="sm-badge-sep">/</span>
@@ -90,7 +90,10 @@
 
         <!-- Provider tags -->
         <div class="sm-providers">
-          <span v-for="p in item.providers.slice(0, 6)" :key="p" class="provider-tag">{{ p }}</span>
+          <span v-for="p in item.providers.slice(0, 6)" :key="p.slug" class="provider-tag">
+            <ProviderIcon :slug="p.slug" :size="14" :cls="'sm-provider-logo'" />
+            {{ p.name }}
+          </span>
           <span v-if="item.providers.length > 6" class="provider-tag more">+{{ item.providers.length - 6 }}</span>
         </div>
       </div>
@@ -133,13 +136,28 @@ import { computed, ref } from 'vue';
 import { useModelsStore } from '@/store/models';
 import SuperModelPanel from '@/components/SuperModelPanel.vue';
 import CreatorPanel from '@/components/CreatorPanel.vue';
+import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useToast } from '@/composables/useToast';
+import { getProviderIcon } from '@/data/provider-icons';
 import type { ModelData, CreatorData } from '@/types';
 
 const ROLES = ['model', 'build', 'general', 'small_model', 'explore'] as const;
 const ROLE_SHORT: Record<string, string> = { model: 'Mod', build: 'Bld', general: 'Gen', small_model: 'Sml', explore: 'Exp' };
 
 const store = useModelsStore();
+
+const creatorSlugMap = computed(() => {
+  const map = new Map<string, string>();
+  for (const c of store.visibleCreators) {
+    map.set(c.name, c.id);
+  }
+  return map;
+});
+
+interface ProviderTag {
+  name: string;
+  slug: string;
+}
 
 interface SuperItem {
   id: number;
@@ -148,7 +166,7 @@ interface SuperItem {
   creator: string | null;
   base_creator: string | null;
   family: string | null;
-  providers: string[];
+  providers: ProviderTag[];
   datapointsCount: number;
   allTags: string[];
   workingCount: number;
@@ -160,12 +178,15 @@ interface SuperItem {
   hasRemoved: boolean;
   status: string;
   releaseDate: string | null;
+  creatorSlug: string | null;
   topRoles: { role: string; label: string; rank: number }[];
 }
 
 const superItems = computed<SuperItem[]>(() => {
   return store.visibleModels.map((m) => {
-    const providers = [...new Set(m.providers.map((p) => p.provider))];
+    const providerSet = new Map<string, string>();
+    for (const p of m.providers) providerSet.set(p.provider_slug, p.provider);
+    const providers = [...providerSet.entries()].map(([slug, name]) => ({ slug, name }));
     const dps = m.providers.filter((p) => !p._removed);
     const working = dps.filter((d) => d.status.result === 'working');
     const broken = dps.filter((d) => d.status.result === 'broken');
@@ -218,6 +239,7 @@ const superItems = computed<SuperItem[]>(() => {
       hasRemoved: m.providers.some((d) => d._removed),
       status,
       releaseDate,
+      creatorSlug: m.creator ? (creatorSlugMap.value.get(m.creator) ?? null) : null,
       topRoles: topRanked.slice(0, 3),
     };
   });
@@ -233,7 +255,7 @@ const searchedItems = computed(() => {
   if (!q) return superItems.value;
   return superItems.value.filter((m) =>
     m.name.toLowerCase().includes(q) ||
-    m.providers.some((p) => p.toLowerCase().includes(q)) ||
+    m.providers.some((p) => p.name.toLowerCase().includes(q)) ||
     m.allTags.some((t) => t.toLowerCase().includes(q)),
   );
 });
@@ -295,6 +317,10 @@ const sortedItems = computed(() => {
   });
   return arr;
 });
+
+function getCreatorIcon(slug: string) {
+  return getProviderIcon(slug);
+}
 
 function formatContext(n: number): string {
   return new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 }).format(n);
@@ -500,6 +526,27 @@ function navigateCreatorPanel(index: number) {
   white-space: nowrap;
 }
 
+.sm-creator-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.sm-creator-icon-fb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  font-size: 0.52rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
 .sm-badge-creator {
   background: var(--accent-subtle);
   color: var(--accent);
@@ -628,7 +675,9 @@ function navigateCreatorPanel(index: number) {
 }
 
 .provider-tag {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   padding: 1px 5px;
   border-radius: 4px;
   font-size: 0.6rem;
@@ -636,6 +685,10 @@ function navigateCreatorPanel(index: number) {
   background: var(--accent-subtle);
   color: var(--accent);
   white-space: nowrap;
+}
+
+.sm-provider-logo {
+  border-radius: 2px;
 }
 
 .provider-tag.more {

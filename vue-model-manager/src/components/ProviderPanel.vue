@@ -11,7 +11,7 @@
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
-              <svg class="prp-icon" :viewBox="icon.viewBox" v-html="icon.body"></svg>
+              <ProviderIcon :slug="provider.slug" :size="28" />
               <h2 class="prp-title">{{ provider.name }}</h2>
               <span class="prp-slug">{{ provider.slug }}</span>
               <span class="prp-status" :class="provider.health_status">{{ provider.health_status }}</span>
@@ -52,6 +52,12 @@
           <!-- Base URL -->
           <div v-if="provider.base_url" class="prp-url">{{ provider.base_url }}</div>
 
+          <!-- npm install snippet -->
+          <div v-if="provider.npm_package" class="prp-npm">
+            <code class="prp-npm-code" @click="copyNpm">{{ npmLabel }}</code>
+            <span class="prp-copy-hint">click to copy</span>
+          </div>
+
           <!-- Models list -->
           <h3 class="prp-section-title">Models ({{ providerModels.length }})</h3>
           <div class="prp-models">
@@ -74,7 +80,8 @@
 import { computed, watch } from 'vue';
 import type { ProviderReference } from '@/types';
 import { useModelsStore } from '@/store/models';
-import { getProviderIcon } from '@/data/provider-icons';
+import ProviderIcon from '@/components/ProviderIcon.vue';
+import { useToast } from '@/composables/useToast';
 
 const props = defineProps<{
   open: boolean;
@@ -107,7 +114,13 @@ function goNext() {
   emit('navigate-to', props.providerIndex + 1);
 }
 
-const icon = computed(() => getProviderIcon(props.provider.slug));
+const npmLabel = computed(() => `npm i ${props.provider.npm_package}`);
+
+const { success: toastSuccess } = useToast();
+
+async function copyNpm() {
+  try { await navigator.clipboard.writeText(npmLabel.value); toastSuccess('npm command copied'); } catch { /* noop */ }
+}
 
 const providerModels = computed(() => {
   const models: { super_id: number; name: string }[] = [];
@@ -212,12 +225,7 @@ watch(
   cursor: default;
 }
 
-.prp-icon {
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
-  border-radius: 6px;
-}
+
 
 .prp-title {
   font-size: 1.2rem;
@@ -317,7 +325,37 @@ watch(
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+.prp-npm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 16px;
+}
+
+.prp-npm-code {
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg-elevated);
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  user-select: all;
+  transition: border-color 0.12s;
+}
+
+.prp-npm-code:hover {
+  border-color: var(--accent);
+}
+
+.prp-copy-hint {
+  font-size: 0.6rem;
+  color: var(--text-muted);
   opacity: 0.6;
 }
 

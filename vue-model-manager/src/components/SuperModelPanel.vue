@@ -27,6 +27,7 @@
             <span v-if="model.family" class="smp-meta-item">Family: {{ model.family }}</span>
             <span v-if="model.best_for.length" class="smp-meta-item">Best for: {{ model.best_for.join(', ') }}</span>
             <span class="smp-meta-item">Context: up to {{ formatContext(model.best_context) }}</span>
+            <span v-if="bestKnowledge" class="smp-meta-item">Knowledge: {{ bestKnowledge }}</span>
             <span class="smp-meta-item">{{ activeCount }} working / {{ totalCount }} providers</span>
           </div>
 
@@ -122,6 +123,15 @@ const activeCount = computed(() =>
   props.model.providers.filter(p => !p._removed && p.status.result === 'working').length,
 );
 const totalCount = computed(() => props.model.providers.filter(p => !p._removed).length);
+
+const bestKnowledge = computed(() => {
+  const dates = props.model.providers
+    .map(p => p.knowledge_cutoff)
+    .filter((k): k is string => !!k)
+    .sort()
+    .reverse();
+  return dates.length > 0 ? dates[0].slice(0, 7) : null;
+});
 
 function roleLabel(role: string): string {
   const labels: Record<string, string> = {

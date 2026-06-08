@@ -15,11 +15,7 @@
         @click="openProviderPanel(idx)"
       >
         <div class="pc-header">
-          <svg
-            class="pc-icon"
-            :viewBox="getIcon(provider.slug).viewBox"
-            v-html="getIcon(provider.slug).body"
-          ></svg>
+          <ProviderIcon :slug="provider.slug" :size="32" />
           <div class="pc-name-group">
             <h3 class="pc-name">{{ provider.name }}<button class="copy-btn-sm" title="Copy name" @click.stop="copyText(provider.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></h3>
             <span class="pc-slug">{{ provider.slug }}</span>
@@ -85,7 +81,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useModelsStore } from '@/store/models';
-import { getProviderIcon } from '@/data/provider-icons';
+import ProviderIcon from '@/components/ProviderIcon.vue';
 import ProviderPanel from '@/components/ProviderPanel.vue';
 import { useToast } from '@/composables/useToast';
 import type { ProviderReference } from '@/types';
@@ -113,10 +109,6 @@ const providerModels = computed(() => {
   }
   return map;
 });
-
-function getIcon(slug: string) {
-  return getProviderIcon(slug);
-}
 
 const { success: toastSuccess } = useToast();
 
@@ -162,13 +154,6 @@ function navigateProviderPanel(index: number) {
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
-}
-
-.pc-icon {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  border-radius: 6px;
 }
 
 .pc-name-group {

@@ -125,6 +125,27 @@
           </span>
           <span>Creators</span>
         </router-link>
+        <router-link to="/families" active-class="active">
+          <span class="nav-icon">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+            </svg>
+          </span>
+          <span>Families</span>
+        </router-link>
         <router-link to="/providers" active-class="active">
           <span class="nav-icon">
             <svg

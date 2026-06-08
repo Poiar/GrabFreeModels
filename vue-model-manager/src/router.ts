@@ -67,6 +67,18 @@ const routes = [
     component: () => import('@/views/Providers.vue'),
     meta: { title: 'Providers' },
   },
+  {
+    path: '/families',
+    name: 'Families',
+    component: () => import('@/views/FamilyList.vue'),
+    meta: { title: 'Families' },
+  },
+  {
+    path: '/family/:name',
+    name: 'FamilyDetail',
+    component: () => import('@/views/FamilyDetail.vue'),
+    meta: { title: 'Family' },
+  },
   // Redirect old routes
   { path: '/issues-timeline', redirect: '/issues' },
   { path: '/free', redirect: '/' },
@@ -76,7 +88,6 @@ const routes = [
   { path: '/master/:id', redirect: '/' },
   { path: '/super/:id', redirect: '/' },
   { path: '/author', redirect: '/creators' },
-  { path: '/family', redirect: '/creators' },
 ];
 
 const router = createRouter({

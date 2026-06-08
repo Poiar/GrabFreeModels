@@ -40,6 +40,8 @@ export interface ProviderDatapoint {
   limitations?: ModelLimitations | null;
   source_ids: number[];
   family: string | null;
+  knowledge_cutoff: string | null;
+  last_updated: string | null;
   release_date: string | null;
 }
 
@@ -58,6 +60,13 @@ export interface ModelData {
 
 export interface CreatorData {
   id: string;
+  name: string;
+  model_count: number;
+  provider_count: number;
+  models: ModelData[];
+}
+
+export interface FamilyData {
   name: string;
   model_count: number;
   provider_count: number;

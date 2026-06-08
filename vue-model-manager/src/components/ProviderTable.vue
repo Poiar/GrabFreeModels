@@ -17,7 +17,10 @@
       </thead>
       <tbody>
         <tr v-for="dp in sortedProviders" :key="dp.full_id" class="pt-row">
-          <td class="pt-cell pt-name">{{ dp.provider }}</td>
+          <td class="pt-cell pt-name">
+            <ProviderIcon :slug="dp.provider_slug" :size="16" :cls="'pt-logo'" />
+            {{ dp.provider }}
+          </td>
           <td class="pt-cell pt-source">
             <span
               v-for="b in getSourceBadges(dp)"
@@ -29,6 +32,7 @@
             <span v-if="getSourceBadges(dp).length === 0" class="dash">—</span>
           </td>
           <td class="pt-cell">{{ formatContext(dp.context_length) }}</td>
+          <td class="pt-cell pt-knowledge">{{ formatKnowledge(dp.knowledge_cutoff) }}</td>
           <td class="pt-cell pt-icon">
             <svg
               v-if="dp.supports_tools"
@@ -100,6 +104,7 @@
 import { ref, computed } from 'vue';
 import type { ProviderDatapoint } from '@/types';
 import { useModelsStore } from '@/store/models';
+import ProviderIcon from '@/components/ProviderIcon.vue';
 
 const props = defineProps<{
   providers: ProviderDatapoint[];
@@ -114,6 +119,7 @@ const columns = [
   { key: 'provider', label: 'Provider', sortable: true },
   { key: 'source', label: 'Source', sortable: false },
   { key: 'context', label: 'Context', sortable: true },
+  { key: 'knowledge', label: 'Knowledge', sortable: true },
   { key: 'tools', label: 'Tools', sortable: false },
   { key: 'reasoning', label: 'Reasoning', sortable: false },
   { key: 'image', label: 'Image', sortable: false },
@@ -175,6 +181,10 @@ const sortedProviders = computed(() => {
         aVal = a.context_length || 0;
         bVal = b.context_length || 0;
         break;
+      case 'knowledge':
+        aVal = a.knowledge_cutoff || '';
+        bVal = b.knowledge_cutoff || '';
+        break;
       case 'last_success':
         aVal = a.last_success || '';
         bVal = b.last_success || '';
@@ -187,6 +197,12 @@ const sortedProviders = computed(() => {
     return 0;
   });
 });
+
+function formatKnowledge(k: string | null): string {
+  if (!k) return '—';
+  const m = k.match(/^(\d{4})-(\d{2})/);
+  return m ? `${m[1]}-${m[2]}` : k.slice(0, 7);
+}
 
 function formatContext(ctx: number | null): string {
   if (!ctx) return '—';
@@ -275,7 +291,20 @@ function formatTime(dateStr: string | null): string {
 }
 
 .pt-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 600;
+}
+
+.pt-logo {
+  border-radius: 3px;
+}
+
+.pt-knowledge {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .pt-source {

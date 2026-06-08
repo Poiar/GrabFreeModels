@@ -364,6 +364,8 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
       notes: dp.notes,
       priority_score: dp.priority_score,
       limitations: dp.limitations,
+      knowledge_cutoff: dp.knowledge_cutoff || null,
+      last_updated: dp.lastUpdated || null,
       release_date: dp.releaseDate || null,
     });
 
@@ -521,7 +523,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     },
     _model_scores: {
       description: 'External benchmark scores by source',
-      sources: ['artificial_analysis'],
+      sources: ['artificial_analysis', 'modelsdev'],
       scores: scoreMap,
     },
     _provider_usage: meta._provider_usage || { description: '' },
