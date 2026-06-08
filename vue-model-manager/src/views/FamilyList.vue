@@ -20,7 +20,9 @@
             <rect x="14" y="14" width="7" height="7" />
             <rect x="3" y="14" width="7" height="7" />
           </svg>
-          <h3 class="fc-name">{{ family.name }}</h3>
+          <span class="fc-badge fc-badge-creator">{{ creatorName(family) }}</span>
+          <span class="fc-badge-sep">/</span>
+          <span class="fc-badge fc-badge-family">{{ family.name }}</span>
         </div>
         <div class="fc-stats">
           <span class="fc-stat">{{ family.model_count }} model{{ family.model_count !== 1 ? 's' : '' }}</span>
@@ -39,11 +41,20 @@ import type { FamilyData } from '@/types';
 
 const store = useModelsStore();
 
-function creatorIcon(family: FamilyData): { viewBox: string; body: string } | null {
+function findCreator(family: FamilyData) {
   if (family.models.length === 0) return null;
   const firstModel = family.models[0];
-  const c = store.creators.find((cr) => cr.models.some((m) => m.super_id === firstModel.super_id));
+  return store.creators.find((cr) => cr.models.some((m) => m.super_id === firstModel.super_id)) ?? null;
+}
+
+function creatorIcon(family: FamilyData): { viewBox: string; body: string } | null {
+  const c = findCreator(family);
   return c ? getProviderIcon(c.id) : null;
+}
+
+function creatorName(family: FamilyData): string {
+  const c = findCreator(family);
+  return c ? c.name : 'Unknown';
 }
 </script>
 
@@ -96,8 +107,9 @@ function creatorIcon(family: FamilyData): { viewBox: string; body: string } | nu
 .fc-icon-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 4px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 .fc-icon {
   width: 24px;
@@ -105,10 +117,24 @@ function creatorIcon(family: FamilyData): { viewBox: string; body: string } | nu
   flex-shrink: 0;
   color: var(--accent);
 }
-.fc-name {
-  font-size: 1rem;
+.fc-badge {
+  font-size: 0.72rem;
   font-weight: 700;
-  margin: 0;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.fc-badge-creator {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+.fc-badge-family {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green);
+}
+.fc-badge-sep {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 .fc-stats {
   display: flex;
