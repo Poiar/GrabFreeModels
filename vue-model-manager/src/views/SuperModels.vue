@@ -131,6 +131,7 @@ import { computed, ref } from 'vue';
 import { useModelsStore } from '@/store/models';
 import SuperModelPanel from '@/components/SuperModelPanel.vue';
 import CreatorPanel from '@/components/CreatorPanel.vue';
+import { useToast } from '@/composables/useToast';
 import type { ModelData, CreatorData } from '@/types';
 
 const ROLES = ['model', 'build', 'general', 'small_model', 'explore'] as const;
@@ -283,8 +284,10 @@ function formatContext(n: number): string {
   return new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 }).format(n);
 }
 
+const { success: toastSuccess } = useToast();
+
 async function copyText(text: string) {
-  try { await navigator.clipboard.writeText(text); } catch { /* noop */ }
+  try { await navigator.clipboard.writeText(text); toastSuccess(`"${text}" copied`); } catch { /* noop */ }
 }
 
 // ── Super model detail panel ──

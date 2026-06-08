@@ -48,6 +48,7 @@ import { ref, computed } from 'vue';
 import ProviderStrip from '@/components/ProviderStrip.vue';
 import type { ModelData, CreatorData, ProviderDatapoint } from '@/types';
 import { useModelsStore } from '@/store/models';
+import { useToast } from '@/composables/useToast';
 
 const props = defineProps<{
   model: ModelData;
@@ -137,8 +138,10 @@ function handleCardClick(e: MouseEvent) {
   emit('model-click');
 }
 
+const { success: toastSuccess } = useToast();
+
 async function copyName(text: string) {
-  try { await navigator.clipboard.writeText(text); } catch { /* noop */ }
+  try { await navigator.clipboard.writeText(text); toastSuccess(`"${text}" copied`); } catch { /* noop */ }
 }
 
 function handleProviderClick(dp: ProviderDatapoint) {

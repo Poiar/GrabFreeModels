@@ -87,6 +87,7 @@ import { computed, ref } from 'vue';
 import { useModelsStore } from '@/store/models';
 import { getProviderIcon } from '@/data/provider-icons';
 import ProviderPanel from '@/components/ProviderPanel.vue';
+import { useToast } from '@/composables/useToast';
 import type { ProviderReference } from '@/types';
 
 const store = useModelsStore();
@@ -117,8 +118,10 @@ function getIcon(slug: string) {
   return getProviderIcon(slug);
 }
 
+const { success: toastSuccess } = useToast();
+
 async function copyText(text: string) {
-  try { await navigator.clipboard.writeText(text); } catch { /* noop */ }
+  try { await navigator.clipboard.writeText(text); toastSuccess(`"${text}" copied`); } catch { /* noop */ }
 }
 
 // ── Provider detail panel ──
