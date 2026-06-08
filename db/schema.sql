@@ -9,6 +9,7 @@ CREATE TABLE super_models (
     slug            VARCHAR(256) NOT NULL UNIQUE,  -- normalized lowercase, no spaces
     creator         VARCHAR(128),                  -- organization behind the model
     base_creator    VARCHAR(128),                  -- original model maker (for derived/fine-tuned models)
+    family          VARCHAR(64),                   -- model lineage (Llama, GPT, Qwen, etc.)
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -32,7 +33,7 @@ CREATE TABLE datapoint_models (
     id                      SERIAL PRIMARY KEY,
     super_model_id         INTEGER NOT NULL REFERENCES super_models(id) ON DELETE CASCADE,
     datapoint_provider_id   INTEGER NOT NULL REFERENCES datapoint_providers(id) ON DELETE CASCADE,
-    remote_id               VARCHAR(256) NOT NULL,        -- provider's own ID
+    model_instance_key      VARCHAR(256) NOT NULL,        -- provider's own ID for this model instance
     full_id                 VARCHAR(512) NOT NULL UNIQUE, -- providerSlug/remoteId
     -- raw fields from the provider
     context_length          INTEGER,
@@ -49,7 +50,7 @@ CREATE TABLE datapoint_models (
     last_success            TIMESTAMPTZ,
     created_at              TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at              TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (datapoint_provider_id, remote_id)
+    UNIQUE (datapoint_provider_id, model_instance_key)
 );
 
 CREATE TABLE datapoint_model_input_types (

@@ -109,10 +109,10 @@ function slugify(name) {
             continue;
           }
           const { rows: ins } = await client.query(
-            `INSERT INTO super_models (name, slug) VALUES ($1,$2)
-             ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+            `INSERT INTO super_models (name, slug, family) VALUES ($1,$2,$3)
+             ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, family = COALESCE(EXCLUDED.family, super_models.family)
              RETURNING id`,
-            [cleanName, slug],
+            [cleanName, slug, m.family || null],
           );
           superId = ins[0].id;
           bySlug.set(slug, { id: superId });
@@ -125,11 +125,11 @@ function slugify(name) {
         // Insert datapoint
         const { rows: dpIns } = await client.query(
           `INSERT INTO datapoint_models
-             (super_model_id, datapoint_provider_id, remote_id, full_id,
+             (super_model_id, datapoint_provider_id, model_instance_key, full_id,
               context_length, input_price_per_million, output_price_per_million,
               is_free, supports_tools, status_result, status_detail)
            VALUES ($1,$2,$3,$4,$5,0::numeric,0::numeric,true,$6,'untested','From models.dev')
-           ON CONFLICT (datapoint_provider_id, remote_id) DO NOTHING
+           ON CONFLICT (datapoint_provider_id, model_instance_key) DO NOTHING
            RETURNING id`,
           [superId, provId, m.modelId, fullId, ctxLen, m.toolCall ?? null],
         );

@@ -225,24 +225,24 @@ async function main() {
       );
       const superId = mmRows[0].id;
 
-      const remoteId = m.id.replace('openrouter/', '');
+      const modelInstanceKey = m.id.replace('openrouter/', '');
       const existing = existingMap.get(m.id);
 
       // Upsert datapoint model
       const { rows: dmRows } = await client.query(
         `INSERT INTO datapoint_models
-           (super_model_id, datapoint_provider_id, remote_id, full_id, context_length,
+           (super_model_id, datapoint_provider_id, model_instance_key, full_id, context_length,
             is_free, input_price_per_million, output_price_per_million, status_result, status_detail)
          VALUES ($1, $2, $3, $4, $5, false, $6, $7, 'working',
                  'Paid model — assumed working')
-         ON CONFLICT (datapoint_provider_id, remote_id) DO UPDATE SET
+         ON CONFLICT (datapoint_provider_id, model_instance_key) DO UPDATE SET
            context_length = EXCLUDED.context_length,
            input_price_per_million = EXCLUDED.input_price_per_million,
            output_price_per_million = EXCLUDED.output_price_per_million,
            is_removed = false,
            updated_at = now()
          RETURNING id`,
-        [superId, providerId, remoteId, m.id, m.context_length,
+        [superId, providerId, modelInstanceKey, m.id, m.context_length,
          m.input_price_per_million, m.output_price_per_million],
       );
       const dmId = dmRows[0].id;

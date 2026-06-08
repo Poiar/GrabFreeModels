@@ -31,7 +31,7 @@ const CREATOR_WHITELIST = new Map([
   ['meta-llama', 'Meta'],
   ['mistralai', 'Mistral AI'],
   ['deepseek-ai', 'DeepSeek'],
-  ['qwen', 'Alibaba Qwen'],
+  ['qwen', 'Alibaba'],
   ['google', 'Google'],
   ['nvidia', 'NVIDIA'],
   ['microsoft', 'Microsoft'],
@@ -132,12 +132,12 @@ const ARCH_CREATOR = {
   LlamaMedITForCausalLM: 'Meta',
   MllamaForConditionalGeneration: 'Meta',
   OPTForCausalLM: 'Meta',
-  Qwen2ForCausalLM: 'Alibaba Qwen',
-  Qwen2Model: 'Alibaba Qwen',
-  Qwen2MoeForCausalLM: 'Alibaba Qwen',
-  Qwen2ForSequenceClassification: 'Alibaba Qwen',
-  Qwen2VLForConditionalGeneration: 'Alibaba Qwen',
-  Qwen2ForCausalRM: 'Alibaba Qwen',
+  Qwen2ForCausalLM: 'Alibaba',
+  Qwen2Model: 'Alibaba',
+  Qwen2MoeForCausalLM: 'Alibaba',
+  Qwen2ForSequenceClassification: 'Alibaba',
+  Qwen2VLForConditionalGeneration: 'Alibaba',
+  Qwen2ForCausalRM: 'Alibaba',
   MistralForCausalLM: 'Mistral AI',
   MixtralForCausalLM: 'Mistral AI',
   GemmaForCausalLM: 'Google',
@@ -406,15 +406,15 @@ const ARCH_CREATOR = {
         const providerId = provMap.get(m.dp_slug);
         if (!providerId) continue;
 
-        const remoteId = m.model_name || m.ext_id;
-        const fullId = `${m.dp_slug}/${remoteId}`;
+        const modelInstanceKey = m.model_name || m.ext_id;
+        const fullId = `${m.dp_slug}/${modelInstanceKey}`;
         try {
           await client.query(`
             INSERT INTO datapoint_models
-              (super_model_id, datapoint_provider_id, remote_id, full_id, is_free, is_removed)
+              (super_model_id, datapoint_provider_id, model_instance_key, full_id, is_free, is_removed)
             VALUES ($1, $2, $3, $4, true, false)
-            ON CONFLICT (datapoint_provider_id, remote_id) DO NOTHING
-          `, [m.super_id, providerId, remoteId, fullId]);
+            ON CONFLICT (datapoint_provider_id, model_instance_key) DO NOTHING
+          `, [m.super_id, providerId, modelInstanceKey, fullId]);
           createdDp++;
         } catch (e) {
           logger.error(`  Failed datapoint ${fullId}: ${e.message}`);

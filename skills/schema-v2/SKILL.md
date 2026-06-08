@@ -13,14 +13,14 @@ description: Use when modifying the PostgreSQL schema, writing migrations, or un
 | -------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `super_models`             | Abstract identity (`id`, `name`, `slug`)                                                                 |
 | `datapoint_providers`      | Sources (`slug`, `name`)                                                                                 |
-| `datapoint_models`         | Per-provider instance (`super_model_id`, `datapoint_provider_id`, `remote_id`, `full_id`, status fields) |
+| `datapoint_models`         | Per-provider instance (`super_model_id`, `datapoint_provider_id`, `model_instance_key`, `full_id`, status fields) |
 | `datapoint_model_features` | Tags/best_for as key-value rows                                                                          |
 | `test_results`             | Test history                                                                                             |
 | `metadata`                 | JSONB key-value store (rankings, etc.)                                                                   |
 
 ## Key Decisions
 
-- **`full_id`** = `providerSlug/remoteId` (e.g. `openrouter/owl-alpha`). Composite key.
+- **`full_id`** = `providerSlug/modelInstanceKey` (e.g. `openrouter/owl-alpha`). Composite key.
 - **`is_removed`** on datapoint — provider no longer lists this model.
 - Status fields are per-datapoint, not per-super.
 - `super_models` slug normalization: lowercase, strip `(free)`/`coding-`/`xiaomi-` prefixes, collapse hyphens.

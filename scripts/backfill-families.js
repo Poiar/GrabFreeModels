@@ -42,7 +42,7 @@ const FAMILY_PATTERNS = [
   // DeepSeek
   { pattern: /deepseek/i, family: 'deepseek' },
 
-  // Alibaba Qwen
+  // Alibaba
   { pattern: /qwen/i, family: 'qwen' },
   { pattern: /qwq/i, family: 'qwen' },
 
@@ -206,11 +206,7 @@ async function main() {
       SELECT sm.id, sm.name
       FROM super_models sm
       WHERE EXISTS (SELECT 1 FROM datapoint_models dm WHERE dm.super_model_id = sm.id AND NOT dm.is_removed)
-        AND NOT EXISTS (
-          SELECT 1 FROM datapoint_models dm2
-          JOIN datapoint_model_features df ON df.datapoint_model_id = dm2.id AND df.feature_type = 'family'
-          WHERE dm2.super_model_id = sm.id
-        )
+        AND sm.family IS NULL
       ORDER BY sm.name
     `);
 
@@ -250,26 +246,20 @@ async function main() {
 
     const dryRun = !process.argv.includes('--apply');
     if (dryRun) {
-      console.log(`\nDry run — use --apply to insert ${assignments.length} family features.`);
+      console.log(`\nDry run — use --apply to set family on ${assignments.length} super_models.`);
       return;
     }
 
-    let inserted = 0;
+    let updated = 0;
     for (const a of assignments) {
-      const { rows: dps } = await client.query(
-        'SELECT id FROM datapoint_models WHERE super_model_id = $1 AND NOT is_removed LIMIT 1',
-        [a.id]
-      );
-      if (dps.length === 0) continue;
-
       await client.query(
-        'INSERT INTO datapoint_model_features (datapoint_model_id, feature_type, value) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
-        [dps[0].id, 'family', a.family]
+        'UPDATE super_models SET family = $1 WHERE id = $2 AND family IS NULL',
+        [a.family, a.id]
       );
-      inserted++;
+      updated++;
     }
 
-    console.log(`\nInserted ${inserted} family features.`);
+    console.log(`\nUpdated ${updated} super_models with family.`);
   } finally {
     client.release();
     await pool.end();

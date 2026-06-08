@@ -25,7 +25,7 @@ const CREATOR_WHITELIST = new Map([
   ['meta-llama', 'Meta'],
   ['mistralai', 'Mistral AI'],
   ['deepseek-ai', 'DeepSeek'],
-  ['qwen', 'Alibaba Qwen'],
+  ['qwen', 'Alibaba'],
   ['google', 'Google'],
   ['nvidia', 'NVIDIA'],
   ['microsoft', 'Microsoft'],
@@ -141,7 +141,7 @@ function humanizeCreator(raw) {
 const NAME_BASE_CREATOR = [
   // Pattern: match on slug prefix (lowercased slug)
   { patterns: [/^llama/, /^llama-guard/, /^codellama/], creator: 'Meta' },
-  { patterns: [/^qwen/], creator: 'Alibaba Qwen' },
+  { patterns: [/^qwen/], creator: 'Alibaba' },
   { patterns: [/^phi/, /^phi-/, /^phi3/, /^phi-3/], creator: 'Microsoft' },
   { patterns: [/^mistral/, /^mixtral/, /^ministral/, /^codestral/, /^pixtral/], creator: 'Mistral AI' },
   { patterns: [/^gemma/, /^gemini/, /^palm/, /^t5-/], creator: 'Google' },
@@ -244,7 +244,7 @@ function extractFromName(name) {
         source = 'name';
       }
 
-      // Try 2: from datapoint full_ids (only when remote_id includes org prefix)
+      // Try 2: from datapoint full_ids (only when model_instance_key includes org prefix)
       // full_id = "deepinfra/Qwen/Qwen3-VL-235B" → 3 parts → parts[1] = "Qwen"
       // full_id = "github-models/gpt-4" → 2 parts → skip (model name, not org)
       if (!rawCreator) {
@@ -253,7 +253,7 @@ function extractFromName(name) {
           const orgCounts = new Map();
           for (const fullId of ids) {
             const parts = fullId.split('/');
-            // Only use full_ids where remote_id has its own slash (org/model format)
+            // Only use full_ids where model_instance_key has its own slash (org/model format)
             if (parts.length >= 3) {
               const org = parts[1];
               if (org && org.length >= 2) {

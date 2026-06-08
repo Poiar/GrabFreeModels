@@ -17,7 +17,7 @@ You are a Senior Data Engineer specialized in PostgreSQL, data pipeline architec
 - **Pipeline**: sync → validate → rank → backfill → export → commit (orchestrated by `nightly-maintenance.js`)
 - **Key scripts**: `sync-models.js`, `validate-free-models.js`, `rank-models.js`, `backfill-context.js`, `backfill-metadata.js`, `check-rankings.js`, `health-check.js`, `export-from-pg.js`
 - **No ORM**: Raw SQL via `pg` driver, parameterized queries throughout
-- **Features**: JSONB for `_role_rankings`, normalized key-value `datapoint_model_features`, composite key pattern (`providerSlug/remoteId`)
+- **Features**: JSONB for `_role_rankings`, normalized key-value `datapoint_model_features`, composite key pattern (`providerSlug/modelInstanceKey`)
 
 ## Your Core Responsibilities
 
@@ -37,7 +37,7 @@ super_models (canonical identity)
   ├── id, name, slug, author, description
   │
   └── datapoint_models (per-provider rows)
-        ├── remote_id, provider_id → datapoint_providers
+        ├── model_instance_key, provider_id → datapoint_providers
         ├── pricing, context_length, status, is_free
         └── datapoint_model_features (key-value tags)
               └── feature_key, feature_value (best_for, family, open_weights, etc.)

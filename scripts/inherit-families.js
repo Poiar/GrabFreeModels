@@ -62,15 +62,14 @@ async function main() {
       }
     }
 
-    // Preload ALL existing family assignments
+    // Preload ALL existing family assignments from super_models
     const { rows: familyRows } = await client.query(`
-      SELECT DISTINCT dm.super_model_id, df.value AS family
-      FROM datapoint_model_features df
-      JOIN datapoint_models dm ON dm.id = df.datapoint_model_id
-      WHERE df.feature_type = 'family' AND NOT dm.is_removed
+      SELECT id AS super_model_id, family
+      FROM super_models
+      WHERE family IS NOT NULL
     `);
     const familyMap = new Map(familyRows.map(r => [r.super_model_id, r.family]));
-    console.log(`Loaded ${familyMap.size} super_models with family features.\n`);
+    console.log(`Loaded ${familyMap.size} super_models with family.\n`);
 
     const dryRun = !process.argv.includes('--apply');
 
@@ -171,25 +170,17 @@ async function main() {
         continue;
       }
 
-      // Insert family features
-      let inserted = 0;
+      // Update super_models.family
+      let updated = 0;
       for (const a of inheritAssignments) {
-        const { rows: dps } = await client.query(
-          'SELECT id FROM datapoint_models WHERE super_model_id = $1 AND NOT is_removed',
-          [a.child_id]
+        await client.query(
+          'UPDATE super_models SET family = $1 WHERE id = $2 AND family IS NULL',
+          [a.family, a.child_id]
         );
-        if (dps.length === 0) continue;
-
-        for (const dp of dps) {
-          await client.query(
-            'INSERT INTO datapoint_model_features (datapoint_model_id, feature_type, value) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
-            [dp.id, 'family', a.family]
-          );
-          inserted++;
-        }
+        updated++;
       }
 
-      console.log(`  Inserted ${inserted} family features.`);
+      console.log(`  Updated ${updated} super_models with family.`);
     }
 
     // Final summary
@@ -199,7 +190,7 @@ async function main() {
       const couldStillUse = allModels.filter(m => !currentFamilyMap.has(m.id) && baseModelMap.has(m.id)).length;
       console.log(`\nDry run — total across ${pass} passes: ${totalAssignments} models would inherit family.`);
       console.log(`Models still without family: ${uncovered} (${couldStillUse} of those have base_model links — may resolve once parents get family).`);
-      console.log('Use --apply to insert family features.');
+      console.log('Use --apply to update super_models.family.');
     } else {
       // Verify: how many still don't have family?
       const { rows: stillMissing } = await client.query(`
@@ -207,11 +198,7 @@ async function main() {
         WHERE EXISTS (
           SELECT 1 FROM datapoint_models dm WHERE dm.super_model_id = sm.id AND NOT dm.is_removed
         )
-        AND NOT EXISTS (
-          SELECT 1 FROM datapoint_models dm2
-          JOIN datapoint_model_features df ON df.datapoint_model_id = dm2.id AND df.feature_type = 'family'
-          WHERE dm2.super_model_id = sm.id
-        )
+        AND sm.family IS NULL
       `);
       const uncovered = stillMissing[0].cnt;
 
@@ -221,11 +208,7 @@ async function main() {
         WHERE EXISTS (
           SELECT 1 FROM datapoint_models dm WHERE dm.super_model_id = sm.id AND NOT dm.is_removed
         )
-        AND NOT EXISTS (
-          SELECT 1 FROM datapoint_models dm2
-          JOIN datapoint_model_features df ON df.datapoint_model_id = dm2.id AND df.feature_type = 'family'
-          WHERE dm2.super_model_id = sm.id
-        )
+        AND sm.family IS NULL
         AND EXISTS (
           SELECT 1 FROM datapoint_models dm3
           JOIN datapoint_model_features df2 ON df2.datapoint_model_id = dm3.id AND df2.feature_type = 'base_model'

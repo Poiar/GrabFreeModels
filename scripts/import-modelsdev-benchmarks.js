@@ -4,7 +4,7 @@
  * Reads models.dev catalog.json and imports benchmark scores into model_scores.
  *
  * Matches catalog models to modelsdev datapoint_models by:
- *   1. Exact remote_id match
+ *   1. Exact model_instance_key match
  *   2. Name-only match (catalog ID after the '/')
  *   3. Normalized name match (dots→hyphens, strip date suffixes)
  *   4. Manual override map for edge cases
@@ -20,7 +20,7 @@ const logger = require('./utils/logger');
 
 const APPLY = process.argv.includes('--apply');
 
-// Manual overrides for catalog model IDs that don't auto-match to modelsdev remote_ids
+// Manual overrides for catalog model IDs that don't auto-match to modelsdev model_instance_keys
 const REMOTE_ID_OVERRIDES = {
   // Anthropic: catalog uses hyphens (claude-3-5-sonnet), modelsdev uses dots (claude-3.5-sonnet)
   'anthropic/claude-3-5-haiku-20241022': 'claude-3.5-haiku',
@@ -88,11 +88,11 @@ function httpsGet(url) {
 
 /**
  * Build a lookup map from modelsdev datapoint_models by candidate keys.
- * Returns Map<candidateKey, { id, remote_id, full_id, super_name }>
+ * Returns Map<candidateKey, { id, model_instance_key, full_id, super_name }>
  */
 async function buildModelsdevLookup(client) {
   const { rows } = await client.query(`
-    SELECT dm.id, dm.remote_id, dm.full_id, sm.name AS super_name
+    SELECT dm.id, dm.model_instance_key, dm.full_id, sm.name AS super_name
     FROM datapoint_models dm
     JOIN super_models sm ON sm.id = dm.super_model_id
     WHERE dm.datapoint_provider_id = (SELECT id FROM datapoint_providers WHERE slug = 'modelsdev')
@@ -100,20 +100,20 @@ async function buildModelsdevLookup(client) {
 
   const lookup = new Map();
   for (const r of rows) {
-    // Key by remote_id as-is
-    lookup.set(r.remote_id, r);
+    // Key by model_instance_key as-is
+    lookup.set(r.model_instance_key, r);
     // Key by full_id as-is
     lookup.set(r.full_id, r);
     // Key by just the name part (after last /)
-    const namePart = r.remote_id.split('/').pop();
+    const namePart = r.model_instance_key.split('/').pop();
     if (namePart && !lookup.has(namePart)) {
       lookup.set(namePart, r);
     }
     // Key by normalized name: dots to hyphens, strip master suffix
-    const normalized = r.remote_id
+    const normalized = r.model_instance_key
       .replace(/\./g, '-')
       .replace(/-master$/, '');
-    if (normalized !== r.remote_id && !lookup.has(normalized)) {
+    if (normalized !== r.model_instance_key && !lookup.has(normalized)) {
       lookup.set(normalized, r);
     }
   }
@@ -172,7 +172,7 @@ async function buildModelsdevLookup(client) {
         dm = lookup.get(override) || null;
       }
 
-      // Strategy 2: exact catalog ID as remote_id or full_id
+      // Strategy 2: exact catalog ID as model_instance_key or full_id
       if (!dm) {
         dm = lookup.get(catId) || lookup.get('modelsdev/' + catId) || null;
       }

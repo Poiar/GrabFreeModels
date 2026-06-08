@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * import-modelsdev-backfill.js
- * Match remaining supers to models.dev by normalizing remote_ids and names.
+ * Match remaining supers to models.dev by normalizing model_instance_keys and names.
  * Uses multiple normalization strategies for fuzzy matching.
  *
  * Usage: node scripts/import-modelsdev-backfill.js [--apply]
@@ -60,10 +60,10 @@ function noDots(s) {
     const provId = pr[0].id;
 
     const { rows: existingDps } = await client.query(
-      'SELECT remote_id FROM datapoint_models WHERE datapoint_provider_id = $1',
+      'SELECT model_instance_key FROM datapoint_models WHERE datapoint_provider_id = $1',
       [provId],
     );
-    const insertedIds = new Set(existingDps.map((r) => r.remote_id.toLowerCase()));
+    const insertedIds = new Set(existingDps.map((r) => r.model_instance_key.toLowerCase()));
 
     // Build multi-key index from models.dev
     const mdIndex = new Map(); // key -> { modelId, modelName, ... }
@@ -87,7 +87,7 @@ function noDots(s) {
     const { rows: unmatched } = await client.query(`
       SELECT DISTINCT ON (mm.id)
         mm.id AS super_id, mm.name AS super_name,
-        dm.remote_id, dp.slug AS provider_slug
+        dm.model_instance_key, dp.slug AS provider_slug
       FROM super_models mm
       JOIN datapoint_models dm ON dm.super_model_id = mm.id
       JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
@@ -106,7 +106,7 @@ function noDots(s) {
       inserted = 0;
 
     for (const row of unmatched) {
-      const rid = strip(row.remote_id);
+      const rid = strip(row.model_instance_key);
       const ridNoHyphens = noHyphens(rid);
 
       // Try matching with all normalization variants
@@ -139,7 +139,7 @@ function noDots(s) {
       if (!md) {
         notFound++;
         if (notFound <= 30)
-          console.log(`  SKIP: ${row.super_name} (${row.provider_slug}/${row.remote_id})`);
+          console.log(`  SKIP: ${row.super_name} (${row.provider_slug}/${row.model_instance_key})`);
         continue;
       }
 
@@ -152,11 +152,11 @@ function noDots(s) {
           const ctxLen = md.contextLimit && md.contextLimit > 0 ? md.contextLimit : null;
           const { rows: dpIns } = await client.query(
             `INSERT INTO datapoint_models
-               (super_model_id, datapoint_provider_id, remote_id, full_id,
+               (super_model_id, datapoint_provider_id, model_instance_key, full_id,
                 context_length, input_price_per_million, output_price_per_million,
                 is_free, supports_tools, status_result, status_detail)
              VALUES ($1,$2,$3,$4,$5,0::numeric,0::numeric,true,$6,'untested','From models.dev')
-             ON CONFLICT (datapoint_provider_id, remote_id) DO NOTHING
+             ON CONFLICT (datapoint_provider_id, model_instance_key) DO NOTHING
              RETURNING id`,
             [
               row.super_id,

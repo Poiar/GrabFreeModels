@@ -27,7 +27,7 @@ async function buildModelsData(client, pool, options = {}) {
 
   const { rows: dmRows } = await client.query(`
     SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug, mm.creator AS super_creator,
-           mm.base_creator AS super_base_creator,
+           mm.base_creator AS super_base_creator, mm.family AS super_family,
            dp.name AS provider_name, dp.slug AS provider_slug,
            dp.npm_package
     FROM datapoint_models dm
@@ -139,7 +139,7 @@ async function buildModelsData(client, pool, options = {}) {
       output_limit: feat?.output_limit?.[0] ? parseInt(feat.output_limit[0], 10) : null,
       temperature: feat?.temperature?.[0] === undefined ? null : feat.temperature[0] === 'true',
       open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
-      family: feat?.family?.[0] || null,
+      family: dm.super_family || feat?.family?.[0] || null,
       base_model: feat?.base_model?.[0] || null,
       knowledge_cutoff: feat?.knowledge_cutoff?.[0] || null,
       releaseDate: feat?.release_date?.[0] || null,
@@ -227,9 +227,9 @@ async function buildModelsData(client, pool, options = {}) {
     'stability ai': { id: 'stability', name: 'Stability AI' },
     stabilityai: { id: 'stability', name: 'Stability AI' },
     eleutherai: { id: 'eleutherai', name: 'EleutherAI' },
-    qwq: { id: 'qwen', name: 'Alibaba Qwen' },
-    qwen: { id: 'qwen', name: 'Alibaba Qwen' },
-    'alibaba tongyi lab': { id: 'qwen', name: 'Alibaba Qwen' },
+    qwq: { id: 'qwen', name: 'Alibaba' },
+    qwen: { id: 'qwen', name: 'Alibaba' },
+    'alibaba tongyi lab': { id: 'qwen', name: 'Alibaba' },
     // Additional aliases
     'ai21 labs': { id: 'ai21', name: 'AI21 Labs' },
     ai21labs: { id: 'ai21', name: 'AI21 Labs' },
@@ -292,7 +292,7 @@ async function buildModelsData(client, pool, options = {}) {
     'xiaomi mimo': { id: 'xiaomi', name: 'Xiaomi' },
     'deci ai': { id: 'deci', name: 'Deci AI' },
     kyutai: { id: 'kyutai', name: 'Kyutai' },
-    opencode: { id: 'opencode', name: 'OpenCode' },
+    // opencode is a router/proxy, not a model creator
     'lg ai': { id: 'lg', name: 'LG AI' },
     deepgram: { id: 'deepgram', name: 'Deepgram' },
     viivox: { id: 'viivox', name: 'ViiVox' },

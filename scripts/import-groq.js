@@ -118,7 +118,7 @@ function normalizeModelSlug(name) {
       try {
         for (const m of newModels) {
           const fullId = `groq/${m.model_id}`;
-          const remoteId = m.model_id;
+          const modelInstanceKey = m.model_id;
           const superSlug = normalizeModelSlug(m.display_name || m.model_id);
           const modelName = m.display_name || m.model_id;
 
@@ -133,13 +133,13 @@ function normalizeModelSlug(name) {
 
           // Upsert datapoint model
           await client.query(
-            `INSERT INTO datapoint_models (super_model_id, datapoint_provider_id, remote_id, full_id, context_length, is_free, status_result, status_detail)
+            `INSERT INTO datapoint_models (super_model_id, datapoint_provider_id, model_instance_key, full_id, context_length, is_free, status_result, status_detail)
              VALUES ($1, $2, $3, $4, $5, true, 'untested', 'Discovered via Groq docs scrape')
-             ON CONFLICT (datapoint_provider_id, remote_id) DO UPDATE SET
+             ON CONFLICT (datapoint_provider_id, model_instance_key) DO UPDATE SET
                context_length = EXCLUDED.context_length,
                is_removed = false,
                updated_at = now()`,
-            [superId, providerId, remoteId, fullId, m.context_length],
+            [superId, providerId, modelInstanceKey, fullId, m.context_length],
           );
         }
 

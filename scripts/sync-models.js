@@ -609,8 +609,8 @@ const CREATOR_WHITELIST = new Map([
   ['meta', 'Meta'],
   ['mistralai', 'Mistral AI'],
   ['deepseek-ai', 'DeepSeek'],
-  ['qwen', 'Alibaba Qwen'],
-  ['Qwen', 'Alibaba Qwen'],
+  ['qwen', 'Alibaba'],
+  ['Qwen', 'Alibaba'],
   ['google', 'Google'],
   ['nvidia', 'NVIDIA'],
   ['microsoft', 'Microsoft'],
@@ -1026,11 +1026,11 @@ function normalizeModelSlug(name) {
             continue;
           }
 
-          const remoteId = m.id.includes('/') ? m.id.slice(m.id.indexOf('/') + 1) : m.id;
+          const modelInstanceKey = m.id.includes('/') ? m.id.slice(m.id.indexOf('/') + 1) : m.id;
           const superSlug = normalizeModelSlug(m.name);
 
           // Extract creator from model ID when it contains org prefix (e.g., "org/modelName")
-          const creator = remoteId.includes('/') ? humanizeCreator(remoteId.split('/')[0]) : null;
+          const creator = modelInstanceKey.includes('/') ? humanizeCreator(modelInstanceKey.split('/')[0]) : null;
 
           // Upsert super model
           const { rows: mmRows } = await client.query(
@@ -1044,15 +1044,15 @@ function normalizeModelSlug(name) {
           // Upsert datapoint model
           const limitations = m.limitations || PROVIDER_LIMITATIONS[providerSlug] || null;
           const { rows: dmRows } = await client.query(
-            `INSERT INTO datapoint_models (super_model_id, datapoint_provider_id, remote_id, full_id, context_length, is_free, status_result, status_detail, limitations)
+            `INSERT INTO datapoint_models (super_model_id, datapoint_provider_id, model_instance_key, full_id, context_length, is_free, status_result, status_detail, limitations)
              VALUES ($1, $2, $3, $4, $5, true, 'untested', 'Auto-discovered by sync script', $6)
-             ON CONFLICT (datapoint_provider_id, remote_id) DO UPDATE SET
+             ON CONFLICT (datapoint_provider_id, model_instance_key) DO UPDATE SET
                context_length = EXCLUDED.context_length,
                limitations = EXCLUDED.limitations,
                is_removed = false,
                updated_at = now()
              RETURNING id`,
-            [superId, providerId, remoteId, m.id, m.context_length, limitations ? JSON.stringify(limitations) : null],
+            [superId, providerId, modelInstanceKey, m.id, m.context_length, limitations ? JSON.stringify(limitations) : null],
           );
           const dmId = dmRows[0].id;
 

@@ -67,7 +67,7 @@ npm run summary          # Text overview of model counts and ranking sizes
 └──────────┘   └───────────┘
 ```
 
-**Data model (v2):** `super_models` holds the canonical identity (name, slug, author). Each provider's specific version lives in `datapoint_models` (remote_id, pricing, context_length, status, etc.), joined via `datapoint_providers`. Feature tags (best_for, family, open_weights, etc.) are normalized into `datapoint_model_features` as key-value rows. Role rankings are stored as JSONB in the `metadata` table.
+**Data model (v2):** `super_models` holds the canonical identity (name, slug, author). Each provider's specific version lives in `datapoint_models` (model_instance_key, pricing, context_length, status, etc.), joined via `datapoint_providers`. Feature tags (best_for, family, open_weights, etc.) are normalized into `datapoint_model_features` as key-value rows. Role rankings are stored as JSONB in the `metadata` table.
 
 **Shared data builder:** `scripts/build-models-data.js` is the single source of truth for constructing the full `ModelsData` object from PG. Used by both the API (`server/routes/data.js` → `GET /api/data`) and every script. `scripts/load-models.js` wraps it with pool management for CLI use.
 
@@ -84,7 +84,7 @@ npm run summary          # Text overview of model counts and ranking sizes
 - **Module format:** Root `package.json` uses `"type": "commonjs"` (all scripts use `require`/`module.exports`). The Vue project uses `"type": "module"` (ESM/TypeScript).
 - **Database access:** Always use parameterized queries. Never interpolate user input into SQL. The pool is exported from `server/db.js` — scripts that need DB access can either `require('../server/db')` or create their own pool from `DATABASE_URL`.
 - **Neon connection:** Use the pooler endpoint in `DATABASE_URL`. Set `max: 3` connections for Neon (serverless connection limits). Scripts that create their own pool must append `uselibpqcompat=true` to Neon SSL connection strings.
-- **full_id format:** `providerSlug/remoteId` (e.g., `openrouter/meta-llama/llama-4`). This is the composite key used throughout the codebase for model lookups.
+- **full_id format:** `providerSlug/modelInstanceKey` (e.g., `openrouter/meta-llama/llama-4`). This is the composite key used throughout the codebase for model lookups.
 - **Git hooks:** Pre-commit runs Gitleaks via `.githooks/pre-commit`. The `.gitleaks.toml` config file manages false-positive allowlists.
 - **Never restart the dev server yourself.** If Vite HMR fails to pick up `.vue` changes (known issue with `RecycleScroller`/`DynamicScroller` swaps and structural template changes), ask the user to restart with `cd vue-model-manager && npm run dev`.
 - **Before recommending models:** Check `supports_tools` in the datapoint — if false, don't recommend that model for tasks requiring tool use. Refer to `best_for` field for role-fit guidance.
