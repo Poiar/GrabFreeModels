@@ -174,8 +174,8 @@ DECLARE
     result TEXT;
 BEGIN
     result := lower(name);
-    -- Strip common prefixes like "coding-", "xiaomi-", "01-ai/"
-    result := regexp_replace(result, '^(coding[-_]|xiaomi[-_]|01-ai[-_/])', '');
+    -- Strip common prefixes like "coding-", "xiaomi-", "01-ai/", "Pro/"
+    result := regexp_replace(result, '^(coding[-_]|xiaomi[-_]|01-ai[-_/]|pro[-_/])', '');
     -- Remove (free), (free tier) suffixes
     result := regexp_replace(result, '\s*\(free\s*(tier)?\)\s*$', '');
     -- Remove trailing " free" or "-free" bare word

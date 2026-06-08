@@ -238,18 +238,20 @@ const ARCH_CREATOR = {
     `);
     logger.info(`Pass 2 (stripped provider): ${p2.length} additional matched`);
 
-    // ── Pass 3: Strip routing prefixes (~provider/, @cf/org/) ──
+    // ── Pass 3: Strip routing prefixes (~provider/, @cf/org/, Pro/) ──
     const { rows: p3 } = await client.query(`
       WITH strip_routing AS (
         SELECT esm.id AS ext_id, esm.model_name, esm.source_id, esp.mapped_slug,
                regexp_replace(
-                 regexp_replace(esm.model_name, '^~[^/]+/', ''),
-                 '^@cf/[^/]+/', ''
+                 regexp_replace(
+                   regexp_replace(esm.model_name, '^~[^/]+/', ''),
+                   '^@cf/[^/]+/', ''
+                 ), '^Pro/', ''
                ) AS clean_name
         FROM external_source_models esm
         JOIN external_source_providers esp ON esp.id = esm.external_source_provider_id
         WHERE esp.mapped_slug IS NOT NULL
-          AND (esm.model_name LIKE '~%' OR esm.model_name LIKE '%@cf/%')
+          AND (esm.model_name LIKE '~%' OR esm.model_name LIKE '%@cf/%' OR esm.model_name LIKE 'Pro/%')
           AND NOT EXISTS (
             SELECT 1 FROM super_models sm2
             WHERE sm2.slug = normalize_model_slug(esm.model_name)
