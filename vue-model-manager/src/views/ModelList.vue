@@ -22,9 +22,9 @@
 
     <!-- Page header -->
     <div class="ml-header">
-      <h2>Models</h2>
+      <h2>Instances</h2>
       <p class="ml-subtitle">
-        {{ filteredModels.length }} model{{ filteredModels.length !== 1 ? 's' : '' }} from {{ store.visibleCreators.length }} creator{{ store.visibleCreators.length !== 1 ? 's' : '' }}<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template>
+        {{ filteredDatapoints.length }} instance{{ filteredDatapoints.length !== 1 ? 's' : '' }} across {{ providerCount }} provider{{ providerCount !== 1 ? 's' : '' }}<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template>
       </p>
     </div>
 
@@ -33,10 +33,14 @@
       <input
         v-model="searchQuery"
         type="text"
-        placeholder="Search models..."
+        placeholder="Search instances..."
         class="ml-search"
-        aria-label="Search models"
+        aria-label="Search instances"
       />
+      <select v-model="providerFilter" class="ml-select" aria-label="Filter by provider">
+        <option value="">All Providers</option>
+        <option v-for="p in store.visibleProviderRefs" :key="p.slug" :value="p.slug">{{ p.name }}</option>
+      </select>
       <select v-model="creatorFilter" class="ml-select" aria-label="Filter by creator">
         <option value="">All Creators</option>
         <option v-for="c in store.visibleCreators" :key="c.id" :value="c.id">{{ c.name }}</option>
@@ -54,9 +58,10 @@
       </label>
       <div class="ml-sort">
         <select v-model="sortKey" class="ml-select" aria-label="Sort by">
-          <option value="name">Name</option>
-          <option value="context">Context</option>
-          <option value="providers">Providers</option>
+          <option value="name">Sort: Name</option>
+          <option value="provider">Sort: Provider</option>
+          <option value="context">Sort: Context</option>
+          <option value="status">Sort: Status</option>
         </select>
         <button
           class="ml-sort-dir"
@@ -74,15 +79,17 @@
       <button class="export-btn" @click="exportCSV">Export CSV</button>
     </div>
 
-    <!-- Model list -->
+    <!-- Instance list -->
     <div class="ml-list">
-      <ModelCard
-        v-for="{ model, creator } in filteredAndSortedModels"
-        :key="model.super_id"
-        :model="model"
-        :creator="creator"
-        @model-click="openDetail(model, creator)"
-        @provider-click="openDetail(model, creator)"
+      <InstanceCard
+        v-for="item in filteredAndSortedDatapoints"
+        :key="item.dp.full_id"
+        :dp="item.dp"
+        :model="item.model"
+        :creator="item.creator"
+        :sibling-count="item.siblingCount"
+        @navigate-super="openDetail(item.model, item.creator)"
+        @click="openDetail(item.model, item.creator)"
       />
     </div>
 
@@ -94,8 +101,8 @@
     </div>
 
     <!-- Empty state -->
-    <div v-if="!store.error && filteredAndSortedModels.length === 0 && !store.loading" class="ml-empty">
-      <p>No models match your filters.</p>
+    <div v-if="!store.error && filteredAndSortedDatapoints.length === 0 && !store.loading" class="ml-empty">
+      <p>No instances match your filters.</p>
       <button class="refresh-btn" @click="clearFilters">Clear filters</button>
     </div>
 
@@ -114,10 +121,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import ModelCard from '@/components/ModelCard.vue';
+import InstanceCard from '@/components/InstanceCard.vue';
 import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
 import { useModelsStore } from '@/store/models';
-import type { ModelData, CreatorData } from '@/types';
+import type { ModelData, CreatorData, ProviderDatapoint } from '@/types';
 
 const store = useModelsStore();
 const route = useRoute();
@@ -129,6 +136,7 @@ function getQueryParam(key: string, fallback: string): string {
 }
 
 const searchQuery = ref(getQueryParam('q', ''));
+const providerFilter = ref(getQueryParam('provider', ''));
 const creatorFilter = ref(getQueryParam('creator', ''));
 const statusFilter = ref(getQueryParam('status', ''));
 const cardRequiredFilter = ref(getQueryParam('card', '') === '1');
@@ -137,10 +145,11 @@ const sortAsc = ref(getQueryParam('asc', 'true') !== 'false');
 
 // Sync filter state → URL query params
 watch(
-  [searchQuery, creatorFilter, statusFilter, cardRequiredFilter, sortKey, sortAsc],
+  [searchQuery, providerFilter, creatorFilter, statusFilter, cardRequiredFilter, sortKey, sortAsc],
   () => {
     const q: Record<string, string> = {};
     if (searchQuery.value) q.q = searchQuery.value;
+    if (providerFilter.value) q.provider = providerFilter.value;
     if (creatorFilter.value) q.creator = creatorFilter.value;
     if (statusFilter.value) q.status = statusFilter.value;
     if (cardRequiredFilter.value) q.card = '1';
@@ -183,52 +192,65 @@ watch(
   { immediate: true },
 );
 
-function getModelStatus(model: ModelData): string {
-  const active = model.providers.filter((p) => !p._removed);
-  if (!active.length) return 'down';
-  const working = active.filter((p) => p.status.result === 'working').length;
-  if (working === active.length) return 'working';
-  if (working > 0) return 'mixed';
-  return 'down';
+// Flatten all visible datapoints with parent model + creator context
+interface DatapointItem {
+  dp: ProviderDatapoint;
+  model: ModelData;
+  creator: CreatorData;
+  siblingCount: number;
 }
 
-const filteredModels = computed(() => {
-  let models = store.visibleModels;
-
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase();
-    models = models.filter((m) => m.name.toLowerCase().includes(q));
+const providerCount = computed(() => {
+  const slugs = new Set<string>();
+  for (const m of store.visibleModels) {
+    for (const p of m.providers) {
+      if (!p._removed) slugs.add(p.provider_slug);
+    }
   }
-
-  if (creatorFilter.value) {
-    models = models.filter((m) => {
-      const creator = store.visibleCreators.find((c) =>
-        c.models.some((mod) => mod.super_id === m.super_id),
-      );
-      return creator?.id === creatorFilter.value;
-    });
-  }
-
-  if (statusFilter.value) {
-    models = models.filter((m) => getModelStatus(m) === statusFilter.value);
-  }
-
-  if (cardRequiredFilter.value) {
-    models = models.filter((m) =>
-      m.providers.some((p) => !p._removed && p.limitations?.requires_card),
-    );
-  }
-
-  return models;
+  return slugs.size;
 });
 
-const filteredAndSortedModels = computed(() => {
-  const list = filteredModels.value.map((model) => {
-    const creator = store.visibleCreators.find((c) =>
-      c.models.some((m) => m.super_id === model.super_id),
-    )!;
-    return { model, creator };
-  });
+const filteredDatapoints = computed(() => {
+  const items: DatapointItem[] = [];
+
+  for (const creator of store.visibleCreators) {
+    for (const model of creator.models) {
+      const active = model.providers.filter((p) => !p._removed);
+      const siblingCount = active.length - 1;
+      for (const dp of active) {
+        // Search filter
+        if (searchQuery.value) {
+          const q = searchQuery.value.toLowerCase();
+          if (
+            !dp.provider.toLowerCase().includes(q) &&
+            !model.name.toLowerCase().includes(q) &&
+            !creator.name.toLowerCase().includes(q)
+          )
+            continue;
+        }
+
+        // Provider filter
+        if (providerFilter.value && dp.provider_slug !== providerFilter.value) continue;
+
+        // Creator filter
+        if (creatorFilter.value && creator.id !== creatorFilter.value) continue;
+
+        // Status filter
+        if (statusFilter.value && dp.status.result !== statusFilter.value) continue;
+
+        // Card required filter
+        if (cardRequiredFilter.value && !(dp.limitations?.requires_card)) continue;
+
+        items.push({ dp, model, creator, siblingCount });
+      }
+    }
+  }
+
+  return items;
+});
+
+const filteredAndSortedDatapoints = computed(() => {
+  const list = [...filteredDatapoints.value];
 
   list.sort((a, b) => {
     let aVal: any, bVal: any;
@@ -237,13 +259,17 @@ const filteredAndSortedModels = computed(() => {
         aVal = a.model.name;
         bVal = b.model.name;
         break;
-      case 'context':
-        aVal = a.model.best_context;
-        bVal = b.model.best_context;
+      case 'provider':
+        aVal = a.dp.provider;
+        bVal = b.dp.provider;
         break;
-      case 'providers':
-        aVal = a.model.providers.length;
-        bVal = b.model.providers.length;
+      case 'context':
+        aVal = a.dp.context_length;
+        bVal = b.dp.context_length;
+        break;
+      case 'status':
+        aVal = a.dp.status.result;
+        bVal = b.dp.status.result;
         break;
       default:
         return 0;
@@ -259,47 +285,44 @@ const filteredAndSortedModels = computed(() => {
 
 function clearFilters() {
   searchQuery.value = '';
+  providerFilter.value = '';
   creatorFilter.value = '';
   statusFilter.value = '';
   cardRequiredFilter.value = false;
 }
 
 function exportJSON() {
-  const data = filteredAndSortedModels.value.map(({ model, creator }) => ({
-    name: model.name,
+  const data = filteredAndSortedDatapoints.value.map(({ dp, model, creator }) => ({
+    provider: dp.provider,
+    model: model.name,
     creator: creator.name,
-    providers: model.providers.map((p) => ({
-      provider: p.provider,
-      context: p.context_length,
-      tools: p.supports_tools,
-      status: p.status.result,
-      limitations: p.limitations,
-    })),
+    context: dp.context_length,
+    tools: dp.supports_tools,
+    status: dp.status.result,
+    limitations: dp.limitations,
   }));
-  downloadFile(JSON.stringify(data, null, 2), 'models.json', 'application/json');
+  downloadFile(JSON.stringify(data, null, 2), 'instances.json', 'application/json');
 }
 
 function exportCSV() {
   const rows = [
-    ['Model', 'Creator', 'Provider', 'Context', 'Tools', 'Status', 'Limitations'],
+    ['Provider', 'Model', 'Creator', 'Context', 'Tools', 'Status', 'Limitations'],
   ];
-  for (const { model, creator } of filteredAndSortedModels.value) {
-    for (const p of model.providers) {
-      const l = p.limitations;
-      const limitStr = l ? [l.rate_limit, l.daily_requests ? `${l.daily_requests}/day` : '', l.requires_card ? 'Card req.' : ''].filter(Boolean).join('; ') : '';
-      rows.push([
-        model.name,
-        creator.name,
-        p.provider,
-        String(p.context_length || ''),
-        String(!!p.supports_tools),
-        p.status.result,
-        limitStr,
-      ]);
-    }
+  for (const { dp, model, creator } of filteredAndSortedDatapoints.value) {
+    const l = dp.limitations;
+    const limitStr = l ? [l.rate_limit, l.daily_requests ? `${l.daily_requests}/day` : '', l.requires_card ? 'Card req.' : ''].filter(Boolean).join('; ') : '';
+    rows.push([
+      dp.provider,
+      model.name,
+      creator.name,
+      String(dp.context_length || ''),
+      String(!!dp.supports_tools),
+      dp.status.result,
+      limitStr,
+    ]);
   }
   const csv = rows.map((r) => r.map((c) => `"${c}"`).join(',')).join('\n');
-  downloadFile(csv, 'models.csv', 'text/csv');
+  downloadFile(csv, 'instances.csv', 'text/csv');
 }
 
 function downloadFile(content: string, filename: string, mimeType: string) {
