@@ -29,6 +29,8 @@
             <span class="smp-meta-item">Context: up to {{ formatContext(model.best_context) }}</span>
             <span v-if="bestKnowledge" class="smp-meta-item">Knowledge: {{ bestKnowledge }}</span>
             <span class="smp-meta-item">{{ activeCount }} working / {{ totalCount }} providers</span>
+            <span v-if="anyAttachment" class="smp-cap-badge smp-cap-attach" title="Attachment">Attach</span>
+            <span v-if="anyStructuredOutput" class="smp-cap-badge smp-cap-struct" title="Structured output">Struct</span>
           </div>
 
           <!-- Role rankings -->
@@ -132,6 +134,13 @@ const bestKnowledge = computed(() => {
     .reverse();
   return dates.length > 0 ? dates[0].slice(0, 7) : null;
 });
+
+const anyAttachment = computed(() =>
+  props.model.providers.some(p => p.supports_attachment),
+);
+const anyStructuredOutput = computed(() =>
+  props.model.providers.some(p => p.supports_structured_output),
+);
 
 function roleLabel(role: string): string {
   const labels: Record<string, string> = {
@@ -285,6 +294,25 @@ watch(
 .smp-meta-item {
   font-size: 0.78rem;
   color: var(--text-muted);
+}
+
+.smp-cap-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.smp-cap-attach {
+  background: rgba(96, 165, 250, 0.15);
+  color: var(--blue);
+}
+
+.smp-cap-struct {
+  background: rgba(167, 139, 250, 0.15);
+  color: var(--purple);
 }
 
 .smp-rankings {
