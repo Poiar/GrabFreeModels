@@ -64,17 +64,17 @@ function httpsGetBuffer(url) {
     );
     console.log(`Found ${rows.length} datapoint providers\n`);
 
-    // Fetch a known-nonexistent logo to determine the default placeholder size
-    let defaultSize = null;
+    // Fetch a known-nonexistent logo to get the default placeholder content.
+    // Real logos differ from this placeholder; we compare content, not size,
+    // because some real logos are smaller than the placeholder.
+    let placeholderBuffer = null;
     try {
-      const def = await httpsGetBuffer('https://models.dev/logos/__placeholder__.svg');
-      defaultSize = def.size;
-      console.log(`Default placeholder SVG size: ${defaultSize} bytes\n`);
+      const def = await httpsGetBuffer('https://models.dev/logos/__nonexistent_slug__.svg');
+      placeholderBuffer = def.buffer;
+      console.log(`Default placeholder SVG size: ${placeholderBuffer.length} bytes\n`);
     } catch {
-      console.log('Could not determine default logo size; using 1500 byte threshold\n');
+      console.log('Could not determine default placeholder content; using 1500 byte threshold\n');
     }
-    // Use a threshold: real logos are > placeholder size + margin
-    const sizeThreshold = defaultSize ? defaultSize + 100 : 1500;
 
     let found = 0;
     let skipped = 0;
@@ -105,7 +105,9 @@ function httpsGetBuffer(url) {
         continue;
       }
 
-      const isRealLogo = result.size > sizeThreshold;
+      const isRealLogo = placeholderBuffer
+        ? !result.buffer.equals(placeholderBuffer)
+        : result.size > 1500;
 
       if (isRealLogo) {
         if (!APPLY) {
