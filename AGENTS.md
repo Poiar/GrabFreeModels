@@ -34,6 +34,9 @@ All skills live in `C:\OC\GrabFreeModels\skills\`.
 - `rank-models` — rebuild `_role_rankings` using deterministic scoring algorithm
 - `schema-v2` — DB schema documentation (super_models + datapoint_providers + datapoint_models)
 - `deepclaude` — add/update/manage backends in `C:\Users\pc\.local\bin\deepclaude.ps1`
+- `peer-sessions` — discover what other running Claude Code sessions are working on (read-only, no probing)
+- `peer-msg` — send a message to another session in this Tabby window (with return address, non-disruptive)
+- `peer-inbox` — check the shared inter-session message log
 
 ## Agent Team
 
