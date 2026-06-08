@@ -56,12 +56,13 @@
         <!-- Header -->
         <div class="sm-header">
           <div class="sm-header-left">
-            <h3 class="sm-name">{{ item.name }}<button class="copy-btn" title="Copy name" @click.stop="copyText(item.name)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></h3>
             <span
-              class="sm-creator-badge"
+              class="sm-badge sm-badge-creator"
               :class="{ 'is-link': item.creator }"
               @click.stop="item.creator ? openCreatorPanel(item.creator) : null"
-            >{{ item.creator || '—' }}</span>
+            >{{ item.creator || '—' }}<button v-if="item.creator" class="copy-btn-badge" title="Copy creator" @click.stop="copyText(item.creator!)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
+            <span class="sm-badge-sep">/</span>
+            <span class="sm-badge sm-badge-model">{{ item.name }}<button class="copy-btn-badge" title="Copy name" @click.stop="copyText(item.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
             <span v-if="item.family" class="sm-family-badge">{{ item.family }}</span>
           </div>
           <div class="sm-header-right">
@@ -465,45 +466,49 @@ function navigateCreatorPanel(index: number) {
 .sm-header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   min-width: 0;
 }
 
-.sm-name {
-  font-size: 0.92rem;
-  font-weight: 600;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: flex;
+.sm-badge {
+  display: inline-flex;
   align-items: center;
   gap: 4px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.sm-badge-creator {
+  background: var(--accent-subtle);
   color: var(--accent);
+}
+
+.sm-badge-creator.is-link {
+  cursor: pointer;
+}
+
+.sm-badge-creator.is-link:hover {
+  filter: brightness(1.2);
+}
+
+.sm-badge-model {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green);
+}
+
+.sm-badge-sep {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .sm-header-right {
   display: flex;
   gap: 4px;
   flex-shrink: 0;
-}
-
-.sm-creator-badge {
-  padding: 2px 8px;
-  font-size: 0.68rem;
-  font-weight: 600;
-  border-radius: 999px;
-  background: var(--accent-subtle);
-  color: var(--accent);
-  flex-shrink: 0;
-}
-
-.sm-creator-badge.is-link {
-  cursor: pointer;
-}
-
-.sm-creator-badge.is-link:hover {
-  filter: brightness(1.15);
 }
 
 .sm-family-badge {
@@ -524,29 +529,25 @@ function navigateCreatorPanel(index: number) {
   color: var(--green);
 }
 
-/* Copy button — mirrors ModelCard */
-.copy-btn {
+/* Copy button inside badges */
+.copy-btn-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: inherit;
   cursor: pointer;
-  padding: 2px;
-  border-radius: 3px;
+  padding: 0;
+  border-radius: 2px;
   flex-shrink: 0;
-  opacity: 0;
-  transition: opacity 0.12s, color 0.12s;
+  opacity: 0.5;
+  transition: opacity 0.12s;
 }
 
-.sm-name:hover .copy-btn,
-.copy-btn:focus-visible {
+.sm-badge:hover .copy-btn-badge,
+.copy-btn-badge:focus-visible {
   opacity: 1;
-}
-
-.copy-btn:hover {
-  color: var(--accent);
 }
 
 /* Stats row — mirrors ModelCard */
@@ -631,7 +632,6 @@ function navigateCreatorPanel(index: number) {
 @media (max-width: 768px) {
   .sm-page { padding: 12px; }
   .sm-card { padding: 10px 12px; }
-  .sm-name { font-size: 0.85rem; }
   .sm-header-right { display: none; }
   .sm-search { padding: 10px 12px; }
   .sm-search input { font-size: 0.85rem; min-height: 44px; }
