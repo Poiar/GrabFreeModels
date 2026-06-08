@@ -39,6 +39,17 @@
         </svg>
       </span>
       <span v-else class="pb-tools pb-tools-none" title="No tools">—</span>
+      <span v-if="dp.supports_attachment" class="pb-cap" title="Attachment supported">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+        </svg>
+      </span>
+      <span v-if="dp.supports_structured_output" class="pb-cap" title="Structured output supported">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 18l6-6-6-6" />
+          <path d="M8 6l-6 6 6 6" />
+        </svg>
+      </span>
     </div>
     <div class="pb-limits">
       <span class="pb-free-badge">Free</span>
@@ -217,6 +228,12 @@ function formatContext(ctx: number | null): string {
 .pb-tools-none {
   color: var(--text-muted);
   opacity: 0.5;
+}
+
+.pb-cap {
+  font-size: 0.68rem;
+  display: flex;
+  align-items: center;
 }
 
 .pb-limits {

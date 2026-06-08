@@ -66,6 +66,8 @@ async function buildModelsData(client, pool, options = {}) {
     'knowledge_cutoff',
     'release_date',
     'last_updated',
+    'supports_attachment',
+    'supports_structured_output',
   ];
 
   if (dmIds.length > 0) {
@@ -115,6 +117,10 @@ async function buildModelsData(client, pool, options = {}) {
       limitations: dm.limitations || null,
       supports_reasoning:
         feat?.supports_reasoning?.[0] === undefined ? null : feat.supports_reasoning[0] === 'true',
+      supports_attachment:
+        feat?.supports_attachment?.[0] === undefined ? null : feat.supports_attachment[0] === 'true',
+      supports_structured_output:
+        feat?.supports_structured_output?.[0] === undefined ? null : feat.supports_structured_output[0] === 'true',
       output_limit: feat?.output_limit?.[0] ? parseInt(feat.output_limit[0], 10) : null,
       temperature: feat?.temperature?.[0] === undefined ? null : feat.temperature[0] === 'true',
       open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
@@ -349,6 +355,8 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
       is_free: dp.is_free,
       supports_tools: dp.supports_tools,
       supports_reasoning: dp.supports_reasoning,
+      supports_attachment: dp.supports_attachment,
+      supports_structured_output: dp.supports_structured_output,
       output_limit: dp.output_limit,
       temperature: dp.temperature,
       open_weights: dp.open_weights,

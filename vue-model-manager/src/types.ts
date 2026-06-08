@@ -24,6 +24,8 @@ export interface ProviderDatapoint {
   is_free: boolean;
   supports_tools: boolean | null;
   supports_reasoning: boolean | null;
+  supports_attachment: boolean | null;
+  supports_structured_output: boolean | null;
   output_limit: number | null;
   temperature: boolean | null;
   open_weights: boolean | null;
@@ -124,6 +126,8 @@ export interface DatapointModel {
   is_free: boolean;
   supports_tools: boolean | null;
   supports_reasoning: boolean | null;
+  supports_attachment: boolean | null;
+  supports_structured_output: boolean | null;
   output_limit: number | null;
   temperature: boolean | null;
   open_weights: boolean | null;

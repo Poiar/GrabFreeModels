@@ -150,7 +150,8 @@ function slugify(name) {
         if (m.openWeights) featRows.push(['open_weights', 'true']);
         if (m.outputLimit) featRows.push(['output_limit', String(m.outputLimit)]);
         if (m.knowledge) featRows.push(['knowledge_cutoff', m.knowledge]);
-        if (m.structuredOutput) featRows.push(['structured_output', 'true']);
+        if (m.structuredOutput) featRows.push(['supports_structured_output', 'true']);
+        if (m.attachment) featRows.push(['supports_attachment', 'true']);
         if (Array.isArray(m.weights)) {
           for (const w of m.weights) {
             if (w.label) featRows.push(['weights', w.label]);

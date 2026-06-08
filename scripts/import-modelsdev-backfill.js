@@ -175,7 +175,8 @@ function noDots(s) {
             if (md.releaseDate) feats.push(['release_date', md.releaseDate]);
             if (md.reasoning) feats.push(['supports_reasoning', 'true']);
             if (md.knowledge) feats.push(['knowledge_cutoff', md.knowledge]);
-            if (md.structuredOutput) feats.push(['structured_output', 'true']);
+            if (md.structuredOutput) feats.push(['supports_structured_output', 'true']);
+            if (md.attachment) feats.push(['supports_attachment', 'true']);
             if (md.temperature) feats.push(['temperature', 'true']);
             if (md.openWeights) feats.push(['open_weights', 'true']);
             if (Array.isArray(md.weights)) {
