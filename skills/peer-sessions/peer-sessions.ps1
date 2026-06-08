@@ -1,38 +1,77 @@
 param(
-  [string[]]$ProjectPaths,
-  [hashtable]$MaxPerProject  # e.g. @{"C:\OC\GrabFreeModels"=2; "C:\OC\deepclaude"=1}
+  [string[]]$RepoRoots,       # only scan sessions under these git roots
+  [hashtable]$MaxPerRepo      # e.g. @{"C:\OC\GrabFreeModels"=2; "C:\OC\deepclaude"=1}
 )
 
 $ErrorActionPreference = "Stop"
 $now = Get-Date
 
-# Resolve projects
-$scan = @{}
-if ($ProjectPaths) {
-  foreach ($p in $ProjectPaths) {
-    $slug = ($p -replace '^([A-Z]):\\', '$1--') -replace '[\\/:]', '-'
-    $td = "$env:USERPROFILE\.claude\projects\$slug"
-    if (Test-Path $td) { $scan[$slug] = $p }
+# Discover all transcript dirs → cwd via most recent transcript tail
+$discovered = @{}  # cwd → [transcriptDir, ...]
+$allDirs = Get-ChildItem "$env:USERPROFILE\.claude\projects" -Directory -ErrorAction SilentlyContinue
+
+foreach ($d in $allDirs) {
+  $latest = Get-ChildItem "$($d.FullName)\*.jsonl" -ErrorAction SilentlyContinue |
+    Sort-Object LastWriteTime -Descending | Select-Object -First 1
+  if (-not $latest) { continue }
+  if ($latest.LastWriteTime -lt $now.AddMinutes(-120)) { continue }
+
+  $tail = Get-Content $latest.FullName -Tail 10
+  $cwd = ""
+  foreach ($line in $tail) {
+    if ($line -match '"cwd"\s*:\s*"([^"]+)"') { $cwd = $Matches[1] -replace '\\\\', '\'; break }
   }
-} else {
-  $transcriptDirs = Get-ChildItem "$env:USERPROFILE\.claude\projects" -Directory -ErrorAction SilentlyContinue
-  foreach ($d in $transcriptDirs) {
-    $path = $d.Name -replace '^([A-Z])--', '$1:\' -replace '-', '\'
-    if (Test-Path $path) { $scan[$d.Name] = $path }
+  if (-not $cwd) { continue }
+
+  if (-not $discovered.ContainsKey($cwd)) { $discovered[$cwd] = @() }
+  $discovered[$cwd] += $d.Name
+}
+
+# Resolve git root for each cwd
+function Get-GitRoot($path) {
+  $p = $path
+  while ($p -and $p -ne (Split-Path $p -Parent)) {
+    if (Test-Path (Join-Path $p ".git")) { return $p }
+    $p = Split-Path $p -Parent
+  }
+  return $path  # fallback: no .git found
+}
+
+# Group transcript dirs by git root
+$byRepo = @{}
+foreach ($cwd in $discovered.Keys) {
+  $root = Get-GitRoot $cwd
+  if ($RepoRoots -and $RepoRoots -notcontains $root) { continue }
+  if (-not $byRepo.ContainsKey($root)) { $byRepo[$root] = @{cwds=@(); slugDirs=@{}} }
+  $byRepo[$root].cwds += $cwd
+  foreach ($sd in $discovered[$cwd]) {
+    $byRepo[$root].slugDirs[$sd] = $cwd
   }
 }
 
 $results = @()
-foreach ($entry in $scan.GetEnumerator()) {
-  $projPath = $entry.Value
+foreach ($root in $byRepo.Keys) {
+  $repoName = Split-Path $root -Leaf
+  $max = if ($MaxPerRepo -and $MaxPerRepo.ContainsKey($root)) { $MaxPerRepo[$root] }
+         elseif ($MaxPerRepo -and $MaxPerRepo.ContainsKey($repoName)) { $MaxPerRepo[$repoName] }
+         else { 3 }
   $count = 0
-  $transcripts = Get-ChildItem "$env:USERPROFILE\.claude\projects\$($entry.Key)\*.jsonl" -ErrorAction SilentlyContinue |
-    Sort-Object LastWriteTime -Descending
 
-  foreach ($f in $transcripts) {
-    if ($f.LastWriteTime -lt $now.AddMinutes(-30)) { break }
-    $max = if ($MaxPerProject -and $MaxPerProject.ContainsKey($projPath)) { $MaxPerProject[$projPath] } else { 3 }
+  # Collect all transcripts across all slug dirs in this repo, sorted by time
+  $allTranscripts = @()
+  foreach ($sd in $byRepo[$root].slugDirs.Keys) {
+    $dirTranscripts = Get-ChildItem "$env:USERPROFILE\.claude\projects\$sd\*.jsonl" -ErrorAction SilentlyContinue |
+      Sort-Object LastWriteTime -Descending
+    foreach ($f in $dirTranscripts) {
+      if ($f.LastWriteTime -lt $now.AddMinutes(-30)) { break }
+      $allTranscripts += @{File=$f; SlugDir=$sd}
+    }
+  }
+  $allTranscripts = $allTranscripts | Sort-Object { $_.File.LastWriteTime } -Descending
+
+  foreach ($item in $allTranscripts) {
     if ($count -ge $max) { break }
+    $f = $item.File
 
     $tailLines = Get-Content $f.FullName -Tail 25
     $lastText = ""; $away = ""; $lastPrompt = ""
@@ -67,7 +106,6 @@ foreach ($entry in $scan.GetEnumerator()) {
       }
     }
 
-    # Stale auto-probe → not really active
     if ($lastText -match 'auto-probe from peer-sessions') { $state = "Idle" }
 
     $workingOn = if ($away) { $away }
@@ -75,12 +113,18 @@ foreach ($entry in $scan.GetEnumerator()) {
                  elseif ($lastText) { $lastText.Substring(0, [Math]::Min(120, $lastText.Length)) }
                  else { "(idle at prompt)" }
 
-    # Strip noise
     $workingOn = $workingOn -replace '\s*\(disable recaps in /config\)\s*$', ''
     $workingOn = $workingOn -replace '\n.*', ''
 
+    # Normalize paths (transcripts store cwd with escaped backslashes)
+    $cwdNorm = ($cwd -replace '\\\\', '\').TrimEnd('\')
+    $rootNorm = $root.TrimEnd('\')
+    $displayPath = if ($cwdNorm -eq $rootNorm) { $rootNorm }
+                   else { $rootNorm + ' / ' + ($cwdNorm -replace [regex]::Escape($rootNorm + '\'), '') }
+
     $results += [pscustomobject]@{
-      Project   = $cwd
+      Project   = $displayPath
+      Root      = $root
       Branch    = $branch
       Slug      = $slug
       State     = $state
