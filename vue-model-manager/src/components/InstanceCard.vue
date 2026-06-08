@@ -11,7 +11,7 @@
       <span class="ic-status-badge" :class="`ic-status-${dp.status.result}`">{{ statusLabel }}</span>
     </div>
 
-    <!-- Row 2: Creator / Model -->
+    <!-- Row 2: Creator / Family / Super Model -->
     <div class="ic-meta-row">
       <span class="ic-badge ic-badge-creator">
         <svg v-if="creatorIconSvg" class="ic-icon" :viewBox="creatorIconSvg.viewBox" v-html="creatorIconSvg.body"></svg>
@@ -19,6 +19,11 @@
         {{ creator.name }}
       </span>
       <span class="ic-badge-sep">/</span>
+      <span v-if="model.family" class="ic-badge ic-badge-family">
+        <span class="ic-icon-fb">{{ formatFamily(model.family)[0] }}</span>
+        {{ formatFamily(model.family) }}
+      </span>
+      <span v-if="model.family" class="ic-badge-sep">/</span>
       <span class="ic-badge ic-badge-model" @click.stop="$emit('navigate-super')">
         <span class="ic-icon-fb">{{ model.name[0] }}</span>
         {{ model.name }}
@@ -119,6 +124,12 @@ const hasLimits = computed(() => {
   const l = limits.value;
   return l.rate || l.daily || l.card || l.sub || l.expires;
 });
+
+const FAMILY_OVERRIDES: Record<string, string> = { gpt: 'GPT', glm: 'GLM', llm: 'LLM' };
+
+function formatFamily(raw: string): string {
+  return raw.split('-').map(w => FAMILY_OVERRIDES[w] ?? (w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
+}
 
 function handleClick(e: MouseEvent) {
   const target = e.target as HTMLElement;
@@ -244,6 +255,11 @@ async function copyText(text: string) {
 .ic-badge-creator {
   background: var(--accent-subtle);
   color: var(--accent);
+}
+
+.ic-badge-family {
+  background: rgba(167, 139, 250, 0.12);
+  color: var(--purple);
 }
 
 .ic-badge-model {
