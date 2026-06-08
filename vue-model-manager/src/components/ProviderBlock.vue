@@ -11,8 +11,14 @@
     <div class="pb-header">
       <span class="pb-header-left">
         <span class="pb-name">{{ dp.provider }}</span>
-        <span v-if="sourceBadges.api" class="pb-source source-api" title="Click to open Sources panel" @click.stop="openSources">API</span>
-        <span v-if="sourceBadges.community" class="pb-source source-community" title="Click to open Sources panel" @click.stop="openSources">community</span>
+        <span
+          v-for="b in sourceBadges"
+          :key="b.key"
+          class="pb-source"
+          :class="b.cssClass"
+          :title="b.title"
+          @click.stop="openSources"
+        >{{ b.label }}</span>
       </span>
       <span class="pb-status-dot" :class="`dot-${dp.status.result}`"></span>
     </div>
@@ -64,18 +70,36 @@ const props = defineProps<{
 
 const store = useModelsStore();
 
+const SOURCE_ABBREVIATIONS: Record<string, { label: string; cssClass: string }> = {
+  'huggingface-hub': { label: 'HF', cssClass: 'source-hf' },
+  modelsdev: { label: 'MD', cssClass: 'source-md' },
+  mastra: { label: 'MS', cssClass: 'source-ms' },
+  'openllm-leaderboard': { label: 'LL', cssClass: 'source-ll' },
+  'free-llm-api-resources': { label: 'FR', cssClass: 'source-fr' },
+};
+
 const sourceBadges = computed(() => {
   const ids = props.dp.source_ids || [];
-  if (ids.length === 0) return { api: false, community: false };
-  const typeById: Record<number, string> = {};
+  if (ids.length === 0) return [];
+  const sourceById: Record<number, { slug: string; name: string; source_type: string }> = {};
   for (const s of store.sources) {
-    typeById[s.id] = s.source_type;
+    sourceById[s.id] = { slug: s.slug, name: s.name, source_type: s.source_type };
   }
-  const types = new Set(ids.map((id) => typeById[id]).filter(Boolean));
-  return {
-    api: types.has('api_provider'),
-    community: types.has('community_list'),
-  };
+  return ids
+    .map((id) => sourceById[id])
+    .filter(Boolean)
+    .map((s) => {
+      const abbr = SOURCE_ABBREVIATIONS[s.slug];
+      if (abbr) return { key: s.slug, label: abbr.label, title: s.name, cssClass: abbr.cssClass };
+      // Fallback for unknown sources
+      const isApi = s.source_type === 'api_provider';
+      return {
+        key: s.slug,
+        label: isApi ? 'API' : s.name.slice(0, 12),
+        title: s.name,
+        cssClass: isApi ? 'source-api' : 'source-community',
+      };
+    });
 });
 
 function openSources() {
@@ -220,6 +244,31 @@ function formatContext(ctx: number | null): string {
 .source-community {
   background: var(--bg-elevated);
   color: var(--text-muted);
+}
+
+.source-hf {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.source-md {
+  background: #d4edff;
+  color: #004085;
+}
+
+.source-ms {
+  background: #e2d9f3;
+  color: #563d7c;
+}
+
+.source-ll {
+  background: #d1f2eb;
+  color: #0d5f4e;
+}
+
+.source-fr {
+  background: #ffe0cc;
+  color: #7a3800;
 }
 
 .pb-free-badge {

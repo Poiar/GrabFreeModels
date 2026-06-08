@@ -19,9 +19,14 @@
         <tr v-for="dp in sortedProviders" :key="dp.full_id" class="pt-row">
           <td class="pt-cell pt-name">{{ dp.provider }}</td>
           <td class="pt-cell pt-source">
-            <span v-if="getSourceBadges(dp).api" class="pt-source-badge source-api">API</span>
-            <span v-if="getSourceBadges(dp).community" class="pt-source-badge source-community">community</span>
-            <span v-if="!getSourceBadges(dp).api && !getSourceBadges(dp).community" class="dash">—</span>
+            <span
+              v-for="b in getSourceBadges(dp)"
+              :key="b.key"
+              class="pt-source-badge"
+              :class="b.cssClass"
+              :title="b.title"
+            >{{ b.label }}</span>
+            <span v-if="getSourceBadges(dp).length === 0" class="dash">—</span>
           </td>
           <td class="pt-cell">{{ formatContext(dp.context_length) }}</td>
           <td class="pt-cell pt-icon">
@@ -117,18 +122,35 @@ const columns = [
   { key: 'last_success', label: 'Last Success', sortable: true },
 ];
 
-function getSourceBadges(dp: ProviderDatapoint): { api: boolean; community: boolean } {
+const SOURCE_ABBREVIATIONS: Record<string, { label: string; cssClass: string }> = {
+  'huggingface-hub': { label: 'HF', cssClass: 'source-hf' },
+  modelsdev: { label: 'MD', cssClass: 'source-md' },
+  mastra: { label: 'MS', cssClass: 'source-ms' },
+  'openllm-leaderboard': { label: 'LL', cssClass: 'source-ll' },
+  'free-llm-api-resources': { label: 'FR', cssClass: 'source-fr' },
+};
+
+function getSourceBadges(dp: ProviderDatapoint): { key: string; label: string; title: string; cssClass: string }[] {
   const ids = dp.source_ids || [];
-  if (ids.length === 0) return { api: false, community: false };
-  const typeById: Record<number, string> = {};
+  if (ids.length === 0) return [];
+  const sourceById: Record<number, { slug: string; name: string; source_type: string }> = {};
   for (const s of store.sources) {
-    typeById[s.id] = s.source_type;
+    sourceById[s.id] = { slug: s.slug, name: s.name, source_type: s.source_type };
   }
-  const types = new Set(ids.map((id) => typeById[id]).filter(Boolean));
-  return {
-    api: types.has('api_provider'),
-    community: types.has('community_list'),
-  };
+  return ids
+    .map((id) => sourceById[id])
+    .filter(Boolean)
+    .map((s) => {
+      const abbr = SOURCE_ABBREVIATIONS[s.slug];
+      if (abbr) return { key: s.slug, label: abbr.label, title: s.name, cssClass: abbr.cssClass };
+      const isApi = s.source_type === 'api_provider';
+      return {
+        key: s.slug,
+        label: isApi ? 'API' : s.name.slice(0, 12),
+        title: s.name,
+        cssClass: isApi ? 'source-api' : 'source-community',
+      };
+    });
 }
 
 function sortBy(key: string) {
@@ -277,6 +299,31 @@ function formatTime(dateStr: string | null): string {
 .pt-source-badge.source-community {
   background: var(--bg-elevated);
   color: var(--text-muted);
+}
+
+.pt-source-badge.source-hf {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.pt-source-badge.source-md {
+  background: #d4edff;
+  color: #004085;
+}
+
+.pt-source-badge.source-ms {
+  background: #e2d9f3;
+  color: #563d7c;
+}
+
+.pt-source-badge.source-ll {
+  background: #d1f2eb;
+  color: #0d5f4e;
+}
+
+.pt-source-badge.source-fr {
+  background: #ffe0cc;
+  color: #7a3800;
 }
 
 .pt-icon {
