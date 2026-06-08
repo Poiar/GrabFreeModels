@@ -2,7 +2,7 @@
   <div v-if="family" class="family-detail-page">
     <div class="page-header">
       <router-link to="/families" class="back-link">← Families</router-link>
-      <h2>{{ family.name }}</h2>
+      <h2>{{ formatFamilyName(family.name) }}</h2>
       <p class="fd-subtitle">
         {{ family.model_count }} models · {{ family.provider_count }} providers
       </p>
@@ -70,6 +70,16 @@ const family = computed(() => store.families.find((f) => f.name === familyName.v
 const detailModel = ref<ModelData | null>(null);
 function openDetail(model: ModelData) {
   detailModel.value = model;
+}
+
+const FAMILY_NAME_OVERRIDES: Record<string, string> = {
+  gpt: 'GPT',
+  glm: 'GLM',
+};
+
+function formatFamilyName(raw: string): string {
+  if (raw === 'Uncategorized') return raw;
+  return raw.split('-').map(w => FAMILY_NAME_OVERRIDES[w] ?? (w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
 }
 
 function formatContext(ctx: number | null): string {

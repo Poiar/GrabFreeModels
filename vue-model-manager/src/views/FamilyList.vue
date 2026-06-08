@@ -30,7 +30,7 @@
           </svg>
           <span class="fc-badge fc-badge-creator">{{ creatorName(family) }}</span>
           <span class="fc-badge-sep">/</span>
-          <span class="fc-badge fc-badge-family">{{ family.name }}</span>
+          <span class="fc-badge fc-badge-family">{{ formatFamilyName(family.name) }}</span>
         </div>
         <div class="fc-stats">
           <span class="fc-stat">{{ family.model_count }} model{{ family.model_count !== 1 ? 's' : '' }}</span>
@@ -84,6 +84,16 @@ function creatorIcon(family: FamilyData): { viewBox: string; body: string } | nu
 function creatorName(family: FamilyData): string {
   const c = findCreator(family);
   return c ? c.name : 'Unknown';
+}
+
+const FAMILY_NAME_OVERRIDES: Record<string, string> = {
+  gpt: 'GPT',
+  glm: 'GLM',
+};
+
+function formatFamilyName(raw: string): string {
+  if (raw === 'Uncategorized') return raw;
+  return raw.split('-').map(w => FAMILY_NAME_OVERRIDES[w] ?? (w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
 }
 </script>
 
