@@ -13,7 +13,8 @@
         class="family-card"
       >
         <div class="fc-icon-row">
-          <svg class="fc-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg v-if="creatorIcon(family)" class="fc-icon" :viewBox="creatorIcon(family)!.viewBox" v-html="creatorIcon(family)!.body"></svg>
+          <svg v-else class="fc-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="7" height="7" />
             <rect x="14" y="3" width="7" height="7" />
             <rect x="14" y="14" width="7" height="7" />
@@ -33,7 +34,17 @@
 
 <script setup lang="ts">
 import { useModelsStore } from '@/store/models';
+import { getProviderIcon } from '@/data/provider-icons';
+import type { FamilyData } from '@/types';
+
 const store = useModelsStore();
+
+function creatorIcon(family: FamilyData): { viewBox: string; body: string } | null {
+  if (family.models.length === 0) return null;
+  const firstModel = family.models[0];
+  const c = store.creators.find((cr) => cr.models.some((m) => m.super_id === firstModel.super_id));
+  return c ? getProviderIcon(c.id) : null;
+}
 </script>
 
 <style scoped>
