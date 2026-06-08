@@ -11,15 +11,7 @@
       <span class="ic-status-badge" :class="`ic-status-${dp.status.result}`">{{ statusLabel }}</span>
     </div>
 
-    <!-- Row 2: Instance key (full_id) -->
-    <div class="ic-key-row">
-      <span class="ic-key-pill" :title="dp.full_id">
-        {{ dp.full_id }}
-        <button class="copy-btn-badge" title="Copy full ID" @click.stop="copyText(dp.full_id)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-      </span>
-    </div>
-
-    <!-- Row 3: Creator / Family / Super Model -->
+    <!-- Row 2: Creator / Family / Super Model -->
     <div class="ic-meta-row">
       <span class="ic-badge ic-badge-creator">
         <svg v-if="creatorIconSvg" class="ic-icon" :viewBox="creatorIconSvg.viewBox" v-html="creatorIconSvg.body"></svg>
@@ -35,6 +27,14 @@
       <span class="ic-badge ic-badge-model" @click.stop="$emit('navigate-super')">
         <span class="ic-icon-fb">{{ model.name[0] }}</span>
         {{ model.name }}
+      </span>
+    </div>
+
+    <!-- Row 3: Instance key (full_id) -->
+    <div class="ic-key-row">
+      <span class="ic-key-pill" :title="dp.full_id">
+        {{ dp.full_id }}
+        <button class="copy-btn-badge" title="Copy full ID" @click.stop="copyText(dp.full_id)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
       </span>
     </div>
 
