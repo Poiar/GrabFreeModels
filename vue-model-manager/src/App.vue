@@ -83,7 +83,7 @@
               <line x1="9" y1="3" x2="9" y2="21" />
             </svg>
           </span>
-          <span>Models</span>
+          <span>Super Models</span>
         </router-link>
         <router-link to="/dashboard" active-class="active">
           <span class="nav-icon">

@@ -89,7 +89,7 @@
             <div
               class="sm-row"
               :class="{ 'row-has-removed': item.hasRemoved }"
-              @click="$router.push(`/model/${item.slug}`)"
+              @click="openPanel(item)"
               role="button"
               tabindex="0"
               :title="'View ' + item.name"
@@ -144,13 +144,26 @@
         <button class="clear-btn" @click="searchQuery = ''; statusFilter = 'all'">Clear all filters</button>
       </div>
     </div>
+
+    <!-- Super model detail panel -->
+    <SuperModelPanel
+      v-if="panelModel"
+      :open="!!panelModel"
+      :model="panelModel"
+      :model-index="panelIndex"
+      :model-list="panelModelList"
+      @close="panelModel = null"
+      @navigate-to="navigatePanel"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import { useModelsStore } from '@/store/models';
+import SuperModelPanel from '@/components/SuperModelPanel.vue';
+import type { ModelData } from '@/types';
 
 const ROLES = ['model', 'build', 'general', 'small_model', 'explore'] as const;
 const ROLE_SHORT: Record<string, string> = { model: 'Mod', build: 'Bld', general: 'Gen', small_model: 'Sml', explore: 'Exp' };
@@ -292,6 +305,42 @@ function setSort(field: string) {
 
 function formatContext(n: number): string {
   return new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 }).format(n);
+}
+
+// ── Super model detail panel ──
+const panelModel = ref<ModelData | null>(null);
+const panelIndex = ref(0);
+
+// Build the list of full ModelData objects matching the sorted/filtered super items
+const panelModelList = computed((): ModelData[] => {
+  const sortedSlugs = new Set(sortedItems.value.map(i => i.slug));
+  const result: ModelData[] = [];
+  for (const m of store.visibleModels) {
+    if (sortedSlugs.has(m.slug)) result.push(m);
+  }
+  // Reorder to match sortedItems
+  result.sort((a, b) => {
+    const ai = sortedItems.value.findIndex(i => i.slug === a.slug);
+    const bi = sortedItems.value.findIndex(i => i.slug === b.slug);
+    return ai - bi;
+  });
+  return result;
+});
+
+function openPanel(item: SuperItem) {
+  const idx = panelModelList.value.findIndex(m => m.slug === item.slug);
+  if (idx === -1) return;
+  const model = panelModelList.value[idx];
+  if (!model) return;
+  panelIndex.value = idx;
+  panelModel.value = model;
+}
+
+function navigatePanel(index: number) {
+  const model = panelModelList.value[index];
+  if (!model) return;
+  panelIndex.value = index;
+  panelModel.value = model;
 }
 </script>
 

@@ -104,6 +104,7 @@ export interface DatapointModel {
   name: string; // alias for super_name (backward compat)
   provider: string;
   creator: string | null;
+  base_creator: string | null;
   source: string; // provider slug
   context_length: number | null;
   is_free: boolean;

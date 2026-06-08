@@ -27,6 +27,7 @@ async function buildModelsData(client, pool, options = {}) {
 
   const { rows: dmRows } = await client.query(`
     SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug, mm.creator AS super_creator,
+           mm.base_creator AS super_base_creator,
            dp.name AS provider_name, dp.slug AS provider_slug
     FROM datapoint_models dm
     JOIN super_models mm ON mm.id = dm.super_model_id
@@ -106,6 +107,7 @@ async function buildModelsData(client, pool, options = {}) {
       name: dm.super_name,
       provider: dm.provider_name,
       creator: dm.super_creator || null,
+      base_creator: dm.super_base_creator || null,
       context_length: dm.context_length ?? null,
       is_free: dm.is_free,
       supports_tools: dm.supports_tools,

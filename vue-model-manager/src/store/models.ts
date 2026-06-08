@@ -315,6 +315,20 @@ export const useModelsStore = defineStore('models', () => {
     return sources.value.some(s => toggleState.value[s.id] === false);
   });
 
+  // Derive provider slugs from disabled API provider source slugs.
+  // API provider source slugs follow the pattern `${providerSlug}-api`.
+  const disabledApiProviders = computed((): Set<string> => {
+    const result = new Set<string>();
+    for (const s of sources.value) {
+      if (s.source_type === 'api_provider' && toggleState.value[s.id] === false) {
+        // Strip trailing "-api" to get the provider slug
+        const pslug = s.slug.endsWith('-api') ? s.slug.slice(0, -4) : s.slug;
+        result.add(pslug);
+      }
+    }
+    return result;
+  });
+
   const superApiEnabled = computed({
     get: (): boolean => {
       const apiSources = sources.value.filter(s => s.source_type === 'api_provider');
@@ -333,14 +347,20 @@ export const useModelsStore = defineStore('models', () => {
   const visibleCreators = computed((): CreatorData[] => {
     if (!isSourceFilterActive.value) return creators.value;
 
+    const disabledProviders = disabledApiProviders.value;
+
     const filtered: CreatorData[] = [];
     for (const creator of creators.value) {
       const filteredModels: ModelData[] = [];
       for (const model of creator.models) {
-        const filteredProviders = model.providers.filter(dp =>
-          dp.source_ids.length === 0 ||
-          dp.source_ids.some(id => enabledSourceIds.value.has(id))
-        );
+        const filteredProviders = model.providers.filter(dp => {
+          // No provenance — always visible
+          if (dp.source_ids.length === 0) return true;
+          // API provider explicitly disabled — hide this datapoint
+          if (disabledProviders.has(dp.provider_slug)) return false;
+          // Visible if any source is still enabled
+          return dp.source_ids.some(id => enabledSourceIds.value.has(id));
+        });
         if (filteredProviders.length > 0) {
           filteredModels.push({ ...model, providers: filteredProviders });
         }

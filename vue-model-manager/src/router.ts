@@ -59,7 +59,7 @@ const routes = [
     path: '/supermodels',
     name: 'Models',
     component: () => import('@/views/SuperModels.vue'),
-    meta: { title: 'Models' },
+    meta: { title: 'Super Models' },
   },
   {
     path: '/providers',

@@ -159,7 +159,7 @@ function openDetail(model: ModelData, creator: CreatorData) {
 
 function closeDetail() {
   detailModel.value = null;
-  router.push({ name: 'Models' });
+  router.back();
 }
 
 // Watch route slug param — open detail on direct navigation

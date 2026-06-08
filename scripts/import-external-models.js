@@ -23,6 +23,169 @@ const logger = require('./utils/logger');
 
 const APPLY = process.argv.includes('--apply');
 
+// ── Creator name humanization ──
+// Whitelist: HuggingFace org slug → proper display name
+const CREATOR_WHITELIST = new Map([
+  // Major AI labs
+  ['ai21labs', 'AI21 Labs'],
+  ['meta-llama', 'Meta'],
+  ['mistralai', 'Mistral AI'],
+  ['deepseek-ai', 'DeepSeek'],
+  ['qwen', 'Alibaba Qwen'],
+  ['google', 'Google'],
+  ['nvidia', 'NVIDIA'],
+  ['microsoft', 'Microsoft'],
+  ['openai', 'OpenAI'],
+  ['cohere', 'Cohere'],
+  ['anthropic', 'Anthropic'],
+  ['ibm', 'IBM'],
+  ['intel', 'Intel'],
+  ['amazon', 'Amazon'],
+  ['baidu', 'Baidu'],
+  ['bytedance', 'ByteDance'],
+  ['alibaba', 'Alibaba'],
+  ['tencent', 'Tencent'],
+  ['apple', 'Apple'],
+  ['samsung', 'Samsung'],
+  ['oracle', 'Oracle'],
+  ['salesforce', 'Salesforce'],
+  ['databricks', 'Databricks'],
+  ['stabilityai', 'Stability AI'],
+  ['upstage', 'Upstage'],
+  ['writer', 'Writer'],
+  ['togethercomputer', 'Together AI'],
+  ['xai', 'xAI'],
+  ['x-ai', 'xAI'],
+  ['01-ai', '01.AI'],
+  ['abacusai', 'Abacus AI'],
+  ['yandex', 'Yandex'],
+  ['sberbank', 'Sber'],
+  ['h2o', 'H2O.ai'],
+  ['tii', 'TII'],
+  // Common HuggingFace orgs
+  ['cognitivecomputations', 'Cognitive Computations'],
+  ['princeton-nlp', 'Princeton NLP'],
+  ['siliconflow-cn', 'SiliconFlow'],
+  ['siliconflow', 'SiliconFlow'],
+  ['arcee-ai', 'Arcee AI'],
+  ['ibm-granite', 'IBM'],
+  ['black-forest-labs', 'Black Forest Labs'],
+  ['sentence-transformers', 'Sentence Transformers'],
+  ['github-models', 'GitHub Models'],
+  ['anthracite-org', 'Anthracite'],
+  ['mergekit-community', 'MergeKit Community'],
+  ['allura-org', 'Allura'],
+  ['huihui-ai', 'Huihui AI'],
+  ['zai-org', 'Z.AI'],
+  ['kaist-ai', 'KAIST AI'],
+  ['openai-community', 'OpenAI Community'],
+  ['llm360', 'LLM360'],
+  ['llmgateway', 'LLM Gateway'],
+  ['opencode', 'OpenCode'],
+  ['ontocord', 'Ontocord'],
+  ['inception', 'Inception AI'],
+  ['mbzuai', 'MBZUAI'],
+  ['kaist', 'KAIST'],
+  ['etri', 'ETRI'],
+  ['tsinghua', 'Tsinghua University'],
+  ['pku', 'Peking University'],
+  ['sail', 'SAIL'],
+  ['llama', 'Meta'],
+  // Already-proper names (prevent camelCase splitting)
+  ['OpenAI', 'OpenAI'],
+  ['DeepSeek', 'DeepSeek'],
+  ['xAI', 'xAI'],
+  ['ByteDance', 'ByteDance'],
+  ['MiniMax', 'MiniMax'],
+]);
+
+/** Humanize a HuggingFace org/user slug into a display name */
+function humanizeCreator(raw) {
+  // Whitelist first
+  if (CREATOR_WHITELIST.has(raw)) return CREATOR_WHITELIST.get(raw);
+
+  // Split on hyphens/underscores → capitalize
+  if (/[-_]/.test(raw)) {
+    return raw
+      .split(/[-_]/)
+      .filter(Boolean)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+  }
+
+  // Detect camelCase boundaries in mixed-case names
+  if (/[A-Z]/.test(raw) && /[a-z]/.test(raw)) {
+    return raw.replace(/([a-z])([A-Z])/g, '$1 $2');
+  }
+
+  // All lowercase, no separators — likely a username, return as-is
+  return raw;
+}
+
+// ── Architecture → creator mapping for fine-tuned models ──
+const ARCH_CREATOR = {
+  LlamaForCausalLM: 'Meta',
+  LlamaForRewardModelWithGating: 'Meta',
+  LlamaForSequenceClassification: 'Meta',
+  LlamaMedITForCausalLM: 'Meta',
+  MllamaForConditionalGeneration: 'Meta',
+  OPTForCausalLM: 'Meta',
+  Qwen2ForCausalLM: 'Alibaba Qwen',
+  Qwen2Model: 'Alibaba Qwen',
+  Qwen2MoeForCausalLM: 'Alibaba Qwen',
+  Qwen2ForSequenceClassification: 'Alibaba Qwen',
+  Qwen2VLForConditionalGeneration: 'Alibaba Qwen',
+  Qwen2ForCausalRM: 'Alibaba Qwen',
+  MistralForCausalLM: 'Mistral AI',
+  MixtralForCausalLM: 'Mistral AI',
+  GemmaForCausalLM: 'Google',
+  Gemma2ForCausalLM: 'Google',
+  Gemma2ForSequenceClassification: 'Google',
+  GemmaModel: 'Google',
+  RecurrentGemmaForCausalLM: 'Google',
+  T5ForConditionalGeneration: 'Google',
+  MT5ForConditionalGeneration: 'Google',
+  UMT5ForConditionalGeneration: 'Google',
+  SwitchTransformersForConditionalGeneration: 'Google',
+  PhiForCausalLM: 'Microsoft',
+  Phi3ForCausalLM: 'Microsoft',
+  Phi3SmallForCausalLM: 'Microsoft',
+  NovaForCausalLM: 'Microsoft',
+  GraniteForCausalLM: 'IBM',
+  GraniteMoeForCausalLM: 'IBM',
+  CohereForCausalLM: 'Cohere',
+  Cohere2ForCausalLM: 'Cohere',
+  StableLmForCausalLM: 'Stability AI',
+  InternLM2ForCausalLM: 'InternLM',
+  NemotronForCausalLM: 'NVIDIA',
+  HymbaForCausalLM: 'NVIDIA',
+  BloomForCausalLM: 'BigScience',
+  FalconForCausalLM: 'TII',
+  FalconMambaForCausalLM: 'TII',
+  Starcoder2ForCausalLM: 'BigCode',
+  ExaoneForCausalLM: 'LG AI',
+  DeepseekForCausalLM: 'DeepSeek',
+  OlmoForCausalLM: 'AI2',
+  Olmo2ForCausalLM: 'AI2',
+  OlmoeForCausalLM: 'AI2',
+  GlmForCausalLM: 'Zhipu AI',
+  ChatGLMModel: 'Zhipu AI',
+  ChatGLMModelM: 'Zhipu AI',
+  DbrxForCausalLM: 'Databricks',
+  JambaForCausalLM: 'AI21 Labs',
+  SolarForCausalLM: 'Upstage',
+  RwkvForCausalLM: 'RWKV',
+  HeliumForCausalLM: 'Kyutai',
+  DeciLMForCausalLM: 'Deci AI',
+  MPTForCausalLM: 'MosaicML',
+  OpenLMModel: 'Apple',
+  AriaForConditionalGeneration: 'Rhymes AI',
+  GPTNeoXForCausalLM: 'EleutherAI',
+  GPTJForCausalLM: 'EleutherAI',
+  GPTNeoForCausalLM: 'EleutherAI',
+  GPT2LMHeadModel: 'OpenAI',
+};
+
 (async () => {
   const client = await pool.connect();
   try {
@@ -172,6 +335,40 @@ const APPLY = process.argv.includes('--apply');
       if (needDp.length > 30) logger.info(`    ... and ${needDp.length - 30} more`);
     }
 
+        // ── Backfill creator on super_models from org/model names ──
+    // Load architectures for fallback when the org looks like a username
+    const { rows: archRows } = await client.query(`
+      SELECT id, model_limits::jsonb ->> 'architecture' AS arch
+      FROM external_source_models
+      WHERE id = ANY($1) AND model_limits ~ '^\\\\{'
+    `, [matched.map((m) => m.ext_id)]);
+    const archByExtId = new Map(archRows.map((r) => [r.id, r.arch]));
+
+    const creatorUpdates = [];
+    for (const m of matched) {
+      const slashIdx = m.model_name.indexOf('/');
+      if (slashIdx > 0 && slashIdx < m.model_name.length - 1) {
+        const rawCreator = m.model_name.slice(0, slashIdx);
+        const creator = humanizeCreator(rawCreator);
+        // Determine base creator from architecture
+        let baseCreator = null;
+        if (m.ext_id) {
+          const arch = archByExtId.get(m.ext_id);
+          if (arch && ARCH_CREATOR[arch] && ARCH_CREATOR[arch] !== creator) {
+            baseCreator = ARCH_CREATOR[arch];
+          }
+        }
+        creatorUpdates.push({ super_id: m.super_id, creator, base_creator: baseCreator });
+      }
+    }
+    const seen = new Set();
+    const uniqueCreators = creatorUpdates.filter((c) => {
+      if (seen.has(c.super_id)) return false;
+      seen.add(c.super_id);
+      return true;
+    });
+    logger.info(`  Creator candidates: ${uniqueCreators.length}`);
+
     if (!APPLY) {
       logger.info('\nDry-run mode. Use --apply to apply.');
       return;
@@ -183,6 +380,19 @@ const APPLY = process.argv.includes('--apply');
 
     let createdDp = 0;
     let createdLinks = 0;
+    let creatorsSet = 0;
+
+    // Backfill creator + base_creator on super_models where null
+    for (const c of uniqueCreators) {
+      const { rowCount } = await client.query(
+        `UPDATE super_models
+         SET creator = $2, base_creator = COALESCE(base_creator, $3)
+         WHERE id = $1 AND creator IS NULL`,
+        [c.super_id, c.creator, c.base_creator],
+      );
+      creatorsSet += rowCount;
+    }
+    if (creatorsSet > 0) logger.info(`  Set creator on ${creatorsSet} super_models`);
 
     await client.query('BEGIN');
 

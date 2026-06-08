@@ -8,6 +8,7 @@ CREATE TABLE super_models (
     name            VARCHAR(256) NOT NULL,
     slug            VARCHAR(256) NOT NULL UNIQUE,  -- normalized lowercase, no spaces
     creator         VARCHAR(128),                  -- organization behind the model
+    base_creator    VARCHAR(128),                  -- original model maker (for derived/fine-tuned models)
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -173,8 +174,8 @@ DECLARE
     result TEXT;
 BEGIN
     result := lower(name);
-    -- Strip common prefixes like "coding-", "xiaomi-"
-    result := regexp_replace(result, '^(coding[-_]|xiaomi[-_])', '');
+    -- Strip common prefixes like "coding-", "xiaomi-", "01-ai/"
+    result := regexp_replace(result, '^(coding[-_]|xiaomi[-_]|01-ai[-_/])', '');
     -- Remove (free), (free tier) suffixes
     result := regexp_replace(result, '\s*\(free\s*(tier)?\)\s*$', '');
     -- Remove trailing " free" or "-free" bare word
