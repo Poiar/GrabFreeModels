@@ -11,7 +11,15 @@
       <span class="ic-status-badge" :class="`ic-status-${dp.status.result}`">{{ statusLabel }}</span>
     </div>
 
-    <!-- Row 2: Creator / Family / Super Model -->
+    <!-- Row 2: Instance key (full_id) -->
+    <div class="ic-key-row">
+      <span class="ic-key-pill" :title="dp.full_id">
+        {{ dp.full_id }}
+        <button class="copy-btn-badge" title="Copy full ID" @click.stop="copyText(dp.full_id)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+      </span>
+    </div>
+
+    <!-- Row 3: Creator / Family / Super Model -->
     <div class="ic-meta-row">
       <span class="ic-badge ic-badge-creator">
         <svg v-if="creatorIconSvg" class="ic-icon" :viewBox="creatorIconSvg.viewBox" v-html="creatorIconSvg.body"></svg>
@@ -30,7 +38,7 @@
       </span>
     </div>
 
-    <!-- Row 3: Stats -->
+    <!-- Row 4: Stats -->
     <div class="ic-stats">
       <span class="ic-stat">{{ formatContext(dp.context_length) }}</span>
       <span class="ic-stat-divider">|</span>
@@ -54,7 +62,7 @@
       </template>
     </div>
 
-    <!-- Row 4: Limits & sibling link -->
+    <!-- Row 5: Limits & sibling link -->
     <div class="ic-footer">
       <div class="ic-limits">
         <span v-if="limits.rate" class="ic-limit-tag" :title="limits.rate">Rate: {{ limits.rate }}</span>
@@ -184,7 +192,28 @@ async function copyText(text: string) {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  margin-bottom: 2px;
+}
+
+/* Row 2: Instance key */
+.ic-key-row {
   margin-bottom: 4px;
+}
+
+.ic-key-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  font-size: 0.62rem;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ic-provider-name {
