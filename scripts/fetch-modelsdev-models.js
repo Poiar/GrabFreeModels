@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
  * fetch-modelsdev-models.js
- * Fetches models.dev's models.json (comprehensive model catalog with pricing,
- * context windows, modalities, and supported parameters) and imports into
- * the sources → external_source_providers → external_source_models pipeline.
+ * Fetches models.dev's catalog.json (comprehensive model catalog with pricing,
+ * context windows, modalities, capabilities, and benchmarks) and imports into
+ * the sources -> external_source_providers -> external_source_models pipeline.
  *
  * Usage: node scripts/fetch-modelsdev-models.js [--apply]
  *   --apply  : Persist to PostgreSQL (default: dry-run / print summary)
@@ -17,7 +17,7 @@ const { PROVIDER_MAP } = require('./utils/provider-map');
 
 const APPLY = process.argv.includes('--apply');
 
-const RAW_URL = 'https://raw.githubusercontent.com/sst/models.dev/dev/models.json';
+const CATALOG_URL = 'https://models.dev/catalog.json';
 const SOURCE_SLUG = 'modelsdev';
 const SOURCE_NAME = 'models.dev Catalog';
 const SOURCE_URL = 'https://models.dev';
@@ -43,41 +43,50 @@ function httpsGet(url) {
 }
 
 (async () => {
-  logger.info('Fetching models.dev catalog...');
+  logger.info('Fetching models.dev catalog.json...');
   let catalog;
   try {
-    catalog = await httpsGet(RAW_URL);
+    catalog = await httpsGet(CATALOG_URL);
   } catch (e) {
     logger.error(`Failed to fetch: ${e.message}`);
     process.exit(1);
   }
 
-  const models = catalog.data || [];
-  logger.info(`  ${models.length} models total`);
+  const providers = catalog.providers || {};
 
-  // Check which are free
-  const freeModels = models.filter(
-    (m) => parseFloat(m.pricing?.prompt) === 0 && parseFloat(m.pricing?.completion) === 0,
-  );
-  logger.info(`  ${freeModels.length} free models`);
-
-  // Group by provider prefix from model ID
+  // Count total and free models across all providers
+  let totalModels = 0;
+  let freeModels = 0;
   const byProvider = {};
-  for (const m of models) {
-    const prov = m.id.split('/')[0];
-    if (!byProvider[prov]) byProvider[prov] = [];
-    byProvider[prov].push(m);
+
+  for (const [provId, provData] of Object.entries(providers)) {
+    const providerModels = provData.models || {};
+    const modelEntries = Object.entries(providerModels);
+    totalModels += modelEntries.length;
+
+    for (const [, modelData] of modelEntries) {
+      const cost = modelData.cost || {};
+      if (parseFloat(cost.input ?? 1) === 0 && parseFloat(cost.output ?? 1) === 0) {
+        freeModels++;
+      }
+    }
+
+    byProvider[provId] = { models: providerModels, providerName: provData.name || provId };
   }
+
+  const providerIds = Object.keys(byProvider);
+  logger.info(`  ${totalModels} models total (${freeModels} free) across ${providerIds.length} providers`);
 
   // Map to our datapoint_providers slugs
   const mapped = {};
   const unmapped = {};
-  for (const [slug, modelList] of Object.entries(byProvider)) {
+  for (const [slug, info] of Object.entries(byProvider)) {
+    const modelCount = Object.keys(info.models).length;
     const mappedSlug = PROVIDER_MAP[slug] ?? null;
     if (mappedSlug) {
-      mapped[slug] = { count: modelList.length, mappedSlug };
+      mapped[slug] = { count: modelCount, mappedSlug };
     } else {
-      unmapped[slug] = { count: modelList.length };
+      unmapped[slug] = { count: modelCount };
     }
   }
 
@@ -87,12 +96,12 @@ function httpsGet(url) {
   const unmappedModelCount = unmappedSlugs.reduce((s, k) => s + unmapped[k].count, 0);
 
   logger.info('\n=== Summary ===');
-  logger.info(`  Total providers in catalog:     ${Object.keys(byProvider).length}`);
+  logger.info(`  Total providers in catalog:     ${providerIds.length}`);
   logger.info(`  Mapped to our providers:        ${mappedSlugs.length} (${mappedModelCount} models)`);
   logger.info(`  Unmapped (need PROVIDER_MAP):   ${unmappedSlugs.length} (${unmappedModelCount} models)`);
 
   for (const [slug, info] of Object.entries(mapped)) {
-    logger.info(`  ✓ ${slug} → ${info.mappedSlug} (${info.count} models)`);
+    logger.info(`  ✓ ${slug} -> ${info.mappedSlug} (${info.count} models)`);
   }
   if (unmappedSlugs.length > 0) {
     logger.info('\n  Unmapped providers:');
@@ -142,8 +151,8 @@ function httpsGet(url) {
     logger.info(`  Source ID: ${sourceId} (${SOURCE_SLUG})`);
 
     let totalInserted = 0;
-    for (const [slug, modelList] of Object.entries(byProvider)) {
-      const mappedSlug = PROVIDER_MAP[slug] ?? null;
+    for (const [provId, provData] of Object.entries(byProvider)) {
+      const mappedSlug = PROVIDER_MAP[provId] ?? null;
 
       const { rows: espRows } = await client.query(
         `INSERT INTO external_source_providers (source_id, external_name, mapped_slug)
@@ -151,25 +160,46 @@ function httpsGet(url) {
          ON CONFLICT (source_id, external_name) DO UPDATE SET
            mapped_slug = EXCLUDED.mapped_slug
          RETURNING id`,
-        [sourceId, slug, mappedSlug],
+        [sourceId, provId, mappedSlug],
       );
       const espId = espRows[0].id;
 
-      for (const model of modelList) {
+      for (const [, modelData] of Object.entries(provData.models)) {
+        const cost = modelData.cost || {};
+        const limit = modelData.limit || {};
+        const modalities = modelData.modalities || {};
+
+        const modelName = modelData.id.includes('/')
+          ? modelData.id
+          : `${provId}/${modelData.id}`;
+
+        // Interleaved can be an object { field: '...' } or a boolean
+        let interleavedVal = modelData.interleaved;
+        if (interleavedVal && typeof interleavedVal === 'object') {
+          interleavedVal = true;
+        }
+
         const limits = JSON.stringify({
-          contextWindow: model.context_length,
-          maxCompletionTokens: model.top_provider?.max_completion_tokens,
-          inputModalities: model.architecture?.input_modalities || [],
-          outputModalities: model.architecture?.output_modalities || [],
-          promptPrice: model.pricing?.prompt,
-          completionPrice: model.pricing?.completion,
-          webSearchPrice: model.pricing?.web_search,
-          cacheReadPrice: model.pricing?.input_cache_read,
-          cacheWritePrice: model.pricing?.input_cache_write,
-          isModerated: model.top_provider?.is_moderated,
-          supportedParameters: model.supported_parameters || [],
-          description: model.description,
-          isFree: parseFloat(model.pricing?.prompt) === 0 && parseFloat(model.pricing?.completion) === 0,
+          contextWindow: limit.context,
+          maxCompletionTokens: limit.output,
+          inputModalities: modalities.input || [],
+          outputModalities: modalities.output || [],
+          promptPrice: cost.input,
+          completionPrice: cost.output,
+          cacheReadPrice: cost.cache_read,
+          cacheWritePrice: cost.cache_write,
+          isFree: parseFloat(cost.input ?? 1) === 0 && parseFloat(cost.output ?? 1) === 0,
+          family: modelData.family,
+          attachment: modelData.attachment,
+          reasoning: modelData.reasoning,
+          toolCall: modelData.tool_call,
+          temperature: modelData.temperature,
+          knowledge: modelData.knowledge,
+          releaseDate: modelData.release_date,
+          lastUpdated: modelData.last_updated,
+          openWeights: modelData.open_weights,
+          structuredOutput: modelData.structured_output,
+          interleaved: interleavedVal,
         });
 
         await client.query(
@@ -177,7 +207,7 @@ function httpsGet(url) {
            VALUES ($1, $2, $3, $4)
            ON CONFLICT (source_id, external_source_provider_id, model_name) DO UPDATE SET
              model_limits = EXCLUDED.model_limits`,
-          [sourceId, espId, model.id, limits],
+          [sourceId, espId, modelName, limits],
         );
         totalInserted++;
       }

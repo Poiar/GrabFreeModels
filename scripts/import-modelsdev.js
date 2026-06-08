@@ -149,6 +149,13 @@ function slugify(name) {
         if (m.temperature) featRows.push(['temperature', 'true']);
         if (m.openWeights) featRows.push(['open_weights', 'true']);
         if (m.outputLimit) featRows.push(['output_limit', String(m.outputLimit)]);
+        if (m.knowledge) featRows.push(['knowledge_cutoff', m.knowledge]);
+        if (m.structuredOutput) featRows.push(['structured_output', 'true']);
+        if (Array.isArray(m.weights)) {
+          for (const w of m.weights) {
+            if (w.label) featRows.push(['weights', w.label]);
+          }
+        }
         for (const [ft, fv] of featRows) {
           await client.query(
             'INSERT INTO datapoint_model_features (datapoint_model_id, feature_type, value) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING',

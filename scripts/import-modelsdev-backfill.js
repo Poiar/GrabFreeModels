@@ -174,6 +174,15 @@ function noDots(s) {
             if (md.family) feats.push(['family', md.family]);
             if (md.releaseDate) feats.push(['release_date', md.releaseDate]);
             if (md.reasoning) feats.push(['supports_reasoning', 'true']);
+            if (md.knowledge) feats.push(['knowledge_cutoff', md.knowledge]);
+            if (md.structuredOutput) feats.push(['structured_output', 'true']);
+            if (md.temperature) feats.push(['temperature', 'true']);
+            if (md.openWeights) feats.push(['open_weights', 'true']);
+            if (Array.isArray(md.weights)) {
+              for (const w of md.weights) {
+                if (w.label) feats.push(['weights', w.label]);
+              }
+            }
             for (const [ft, fv] of feats) {
               await client.query(
                 'INSERT INTO datapoint_model_features (datapoint_model_id, feature_type, value) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING',

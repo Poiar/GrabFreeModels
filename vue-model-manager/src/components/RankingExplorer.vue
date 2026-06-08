@@ -267,8 +267,6 @@ const roleLabels: Record<string, string> = {
   explore: 'Explore Role',
 };
 
-const ROLE_KEYS = ['model', 'build', 'general', 'small_model', 'explore'] as const;
-
 const roleColors: Record<string, { accent: string; soft: string; border: string }> = {
   model:    { accent: '#6380f7', soft: 'rgba(99,128,247,0.08)',  border: 'rgba(99,128,247,0.25)' },
   build:    { accent: '#f59e0b', soft: 'rgba(245,158,11,0.08)',  border: 'rgba(245,158,11,0.25)' },

@@ -28,7 +28,8 @@ async function buildModelsData(client, pool, options = {}) {
   const { rows: dmRows } = await client.query(`
     SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug, mm.creator AS super_creator,
            mm.base_creator AS super_base_creator,
-           dp.name AS provider_name, dp.slug AS provider_slug
+           dp.name AS provider_name, dp.slug AS provider_slug,
+           dp.npm_package
     FROM datapoint_models dm
     JOIN super_models mm ON mm.id = dm.super_model_id
     JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
@@ -132,6 +133,7 @@ async function buildModelsData(client, pool, options = {}) {
       },
       last_success: dm.last_success || null,
       source: dm.provider_slug,
+      npm_package: dm.npm_package || null,
       source_ids: sourceIdsByDm.get(dm.id) || [],
       _removed: dm.is_removed || false,
       _removedDate: null,
@@ -433,6 +435,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
         id: dp.source,
         slug: dp.source,
         name: dp.provider,
+        npm_package: dp.npm_package || null,
         model_count: 0,
         working_count: 0,
       });

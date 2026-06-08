@@ -18,6 +18,7 @@ CREATE TABLE datapoint_providers (
     slug            VARCHAR(64) NOT NULL UNIQUE,
     name            VARCHAR(128) NOT NULL,
     base_url        VARCHAR(512),
+    npm_package     VARCHAR(128),
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
