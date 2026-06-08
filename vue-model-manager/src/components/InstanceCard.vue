@@ -8,7 +8,10 @@
         {{ dp.provider }}
         <button class="copy-btn-badge" title="Copy provider" @click.stop="copyText(dp.provider)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
       </span>
-      <span class="ic-status-badge" :class="`ic-status-${dp.status.result}`">{{ statusLabel }}</span>
+      <div class="ic-header-right">
+        <span v-for="r in topRankings" :key="r.role" class="ic-ranking-badge" :title="r.role + ' rank #' + r.rank">#{{ r.rank }} {{ r.label }}</span>
+        <span class="ic-status-badge" :class="`ic-status-${dp.status.result}`">{{ statusLabel }}</span>
+      </div>
     </div>
 
     <!-- Row 2: Creator / Family / Super Model -->
@@ -38,7 +41,7 @@
       </span>
     </div>
 
-    <!-- Row 4: Stats -->
+    <!-- Row 4: Capabilities -->
     <div class="ic-stats">
       <span class="ic-stat">{{ formatContext(dp.context_length) }}</span>
       <span class="ic-stat-divider">|</span>
@@ -47,6 +50,10 @@
       <template v-if="dp.supports_tools">
         <span class="ic-stat-divider">|</span>
         <span class="ic-stat ic-cap" title="Tools supported">Tools</span>
+      </template>
+      <template v-if="hasImageInput">
+        <span class="ic-stat-divider">|</span>
+        <span class="ic-stat ic-cap" title="Image input supported">Image</span>
       </template>
       <template v-if="dp.supports_attachment">
         <span class="ic-stat-divider">|</span>
@@ -62,7 +69,13 @@
       </template>
     </div>
 
-    <!-- Row 5: Limits & sibling link -->
+    <!-- Row 5: Knowledge + last success -->
+    <div class="ic-info-row">
+      <span v-if="dp.knowledge_cutoff" class="ic-info-tag" title="Knowledge cutoff">Cutoff: {{ formatKnowledge(dp.knowledge_cutoff) }}</span>
+      <span v-if="dp.last_success" class="ic-info-tag" title="Last successful test">Last OK: {{ formatTimeAgo(dp.last_success) }}</span>
+    </div>
+
+    <!-- Row 6: Limits + sources + siblings -->
     <div class="ic-footer">
       <div class="ic-limits">
         <span v-if="limits.rate" class="ic-limit-tag" :title="limits.rate">Rate: {{ limits.rate }}</span>
@@ -71,6 +84,9 @@
         <span v-if="limits.sub" class="ic-limit-warn" :title="limits.sub">Sub</span>
         <span v-if="limits.expires" class="ic-limit-tag" :title="'Expires: ' + limits.expires">Exp. {{ limits.expiresShort }}</span>
         <span v-if="!hasLimits" class="ic-no-limits">No limits</span>
+        <span v-if="sourceBadges.length" class="ic-sources">
+          <span v-for="b in sourceBadges" :key="b.key" class="ic-source-badge" :class="b.cssClass" :title="b.title">{{ b.label }}</span>
+        </span>
       </div>
       <span v-if="siblingCount > 0" class="ic-siblings" @click.stop="$emit('navigate-super')">
         +{{ siblingCount }} other{{ siblingCount !== 1 ? 's' : '' }}
@@ -83,6 +99,7 @@
 import { computed } from 'vue';
 import { getProviderIcon } from '@/data/provider-icons';
 import { useToast } from '@/composables/useToast';
+import { useModelsStore } from '@/store/models';
 import type { ProviderDatapoint, ModelData, CreatorData } from '@/types';
 
 const props = defineProps<{
@@ -97,8 +114,47 @@ const emit = defineEmits<{
   'click': [];
 }>();
 
+const store = useModelsStore();
+
 const providerIconSvg = computed(() => getProviderIcon(props.dp.provider_slug));
 const creatorIconSvg = computed(() => getProviderIcon(props.creator.id));
+
+const hasImageInput = computed(() => (props.dp.input_types || []).includes('image'));
+
+const topRankings = computed(() => {
+  const rankings = props.model.role_rankings;
+  const result: { role: string; label: string; rank: number }[] = [];
+  const labels: Record<string, string> = { model: 'Mod', build: 'Bld', general: 'Gen', small_model: 'Sml', explore: 'Exp' };
+  for (const [role, rank] of Object.entries(rankings)) {
+    if (result.length >= 2) break;
+    result.push({ role, label: labels[role] || role, rank });
+  }
+  return result;
+});
+
+const sourceBadges = computed(() => {
+  const ids = props.dp.source_ids || [];
+  if (ids.length === 0) return [];
+  const sourceById: Record<number, { slug: string; name: string; source_type: string }> = {};
+  for (const s of store.sources) {
+    sourceById[s.id] = { slug: s.slug, name: s.name, source_type: s.source_type };
+  }
+  const ABBR: Record<string, { label: string; cssClass: string }> = {
+    'huggingface-hub': { label: 'HF', cssClass: 'src-hf' },
+    modelsdev: { label: 'MD', cssClass: 'src-md' },
+    mastra: { label: 'MS', cssClass: 'src-ms' },
+    'openllm-leaderboard': { label: 'LL', cssClass: 'src-ll' },
+    'free-llm-api-resources': { label: 'FR', cssClass: 'src-fr' },
+  };
+  return ids
+    .map((id) => sourceById[id])
+    .filter(Boolean)
+    .map((s) => {
+      const abbr = ABBR[s.slug];
+      if (abbr) return { key: s.slug, label: abbr.label, title: s.name, cssClass: abbr.cssClass };
+      return { key: s.slug, label: s.source_type === 'api_provider' ? 'API' : s.name.slice(0, 12), title: s.name, cssClass: 'src-api' };
+    });
+});
 
 const statusLabel = computed(() => {
   const labels: Record<string, string> = {
@@ -149,6 +205,22 @@ function formatContext(ctx: number | null): string {
   if (!ctx) return '—';
   if (ctx >= 1_000_000) return `${(ctx / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
   return `${Math.round(ctx / 1000)}K`;
+}
+
+function formatKnowledge(k: string | null): string {
+  if (!k) return '';
+  const m = k.match(/^(\d{4})-(\d{2})/);
+  return m ? `${m[1]}-${m[2]}` : k.slice(0, 7);
+}
+
+function formatTimeAgo(dateStr: string | null): string {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const hours = diff / 3_600_000;
+  if (hours < 1) return '<1h ago';
+  if (hours < 24) return `${Math.round(hours)}h ago`;
+  const days = Math.round(hours / 24);
+  return `${days}d ago`;
 }
 
 const { success: toastSuccess } = useToast();
@@ -328,14 +400,31 @@ async function copyText(text: string) {
   flex-shrink: 0;
 }
 
-/* Row 3: Stats */
+.ic-header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.ic-ranking-badge {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 999px;
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--green);
+  white-space: nowrap;
+}
+
+/* Row 4: Capabilities */
 .ic-stats {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 0.68rem;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .ic-stat-divider {
@@ -347,7 +436,42 @@ async function copyText(text: string) {
 .ic-paid { color: var(--orange); font-weight: 600; }
 .ic-cap { color: var(--blue, #60a5fa); }
 
-/* Row 4: Footer */
+/* Row 5: Knowledge + last success */
+.ic-info-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.ic-info-tag {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Row 6: Footer */
+.ic-sources {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 2px;
+}
+
+.ic-source-badge {
+  padding: 0 4px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  border-radius: 3px;
+  line-height: 1.4;
+}
+
+.ic-source-badge.src-api { background: var(--accent-subtle); color: var(--accent); }
+.ic-source-badge.src-hf { background: #fff3cd; color: #856404; }
+.ic-source-badge.src-md { background: #d4edff; color: #004085; }
+.ic-source-badge.src-ms { background: #e2d9f3; color: #563d7c; }
+.ic-source-badge.src-ll { background: #d1f2eb; color: #0d5f4e; }
+.ic-source-badge.src-fr { background: #ffe0cc; color: #7a3800; }
 .ic-footer {
   display: flex;
   align-items: center;
