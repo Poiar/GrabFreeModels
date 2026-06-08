@@ -233,8 +233,8 @@ async function main() {
         `INSERT INTO datapoint_models
            (super_model_id, datapoint_provider_id, remote_id, full_id, context_length,
             is_free, input_price_per_million, output_price_per_million, status_result, status_detail)
-         VALUES ($1, $2, $3, $4, $5, false, $6, $7, 'untested',
-                 'Auto-discovered by paid sync script')
+         VALUES ($1, $2, $3, $4, $5, false, $6, $7, 'working',
+                 'Paid model — assumed working')
          ON CONFLICT (datapoint_provider_id, remote_id) DO UPDATE SET
            context_length = EXCLUDED.context_length,
            input_price_per_million = EXCLUDED.input_price_per_million,
