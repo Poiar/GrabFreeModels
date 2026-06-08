@@ -62,6 +62,8 @@ const CREATOR_WHITELIST = new Map([
   ['sberbank', 'Sber'],
   ['h2o', 'H2O.ai'],
   ['tii', 'TII'],
+  ['tiiuae', 'TII'],
+  ['rhymes-ai', 'Rhymes AI'],
   // Common HuggingFace orgs
   ['cognitivecomputations', 'Cognitive Computations'],
   ['princeton-nlp', 'Princeton NLP'],
