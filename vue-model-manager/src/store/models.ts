@@ -193,6 +193,18 @@ export const useModelsStore = defineStore('models', () => {
     return map;
   });
 
+  // ── Derived models (fine-tune children) ──
+  const derivedModels = computed((): Map<string, ModelData[]> => {
+    const map = new Map<string, ModelData[]>();
+    for (const model of allModels.value) {
+      if (model.base_model) {
+        if (!map.has(model.base_model)) map.set(model.base_model, []);
+        map.get(model.base_model)!.push(model);
+      }
+    }
+    return map;
+  });
+
   // ── Model lookup by super_id ──
   const modelBySuperId = computed((): Map<number, { model: ModelData; creator: CreatorData }> => {
     const map = new Map();
@@ -687,6 +699,7 @@ export const useModelsStore = defineStore('models', () => {
     // Lookups
     modelBySlug,
     baseModelParent,
+    derivedModels,
     modelBySuperId,
     datapointById,
     getModelById,

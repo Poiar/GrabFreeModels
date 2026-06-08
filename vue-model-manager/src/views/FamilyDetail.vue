@@ -27,13 +27,13 @@
     <!-- Model list -->
     <h3 class="section-title">Models</h3>
     <div class="fd-models">
-      <ModelCard
+      <SuperModelCard
         v-for="model in family.models"
-        :key="model.super_id"
+        :key="model.slug"
         :model="model"
-        :creator="creatorFor(model)"
-        @model-click="openDetail(model)"
-        @provider-click="openDetail(model)"
+        :creator-slug="creatorSlugMap.get(model.creator || '')"
+        @click="openDetail(model)"
+        @creator-click="() => {}"
       />
     </div>
 
@@ -56,7 +56,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import ModelCard from '@/components/ModelCard.vue';
+import SuperModelCard from '@/components/SuperModelCard.vue';
 import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
 import { useModelsStore } from '@/store/models';
 import type { CreatorData, ModelData } from '@/types';
@@ -66,6 +66,14 @@ const route = useRoute();
 
 const familyName = computed(() => decodeURIComponent(route.params.name as string));
 const family = computed(() => store.families.find((f) => f.name === familyName.value));
+
+const creatorSlugMap = computed(() => {
+  const map = new Map<string, string>();
+  for (const c of store.visibleCreators) {
+    map.set(c.name, c.id);
+  }
+  return map;
+});
 
 const detailModel = ref<ModelData | null>(null);
 function openDetail(model: ModelData) {

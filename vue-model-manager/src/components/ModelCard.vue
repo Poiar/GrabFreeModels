@@ -37,6 +37,7 @@
       <router-link v-if="model.base_model" :to="`/model/${model.base_model}`" class="mc-finetune-badge" title="Fine-tune — click to see base model" @click.stop>
         FT: {{ baseModelName }}
       </router-link>
+      <span v-else-if="baseCreatorLabel" class="mc-base-creator-badge">{{ baseCreatorLabel }}</span>
       <span v-if="limitBadges.card" class="mc-limit-warn" title="Credit card required by some providers">Card</span>
       <span v-if="limitBadges.sub" class="mc-limit-warn" :title="limitBadges.sub">Sub</span>
       <span v-if="limitBadges.daily" class="mc-limit-info" :title="limitBadges.daily">~{{ limitBadges.daily }}/day</span>
@@ -82,6 +83,13 @@ const baseModelName = computed(() => {
   if (!props.model.base_model) return '';
   const parent = store.modelBySlug.get(props.model.base_model);
   return parent ? parent.name : props.model.base_model;
+});
+
+const baseCreatorLabel = computed(() => {
+  if (props.model.base_model) return ''; // already showing FT badge
+  if (!props.model.base_creator) return '';
+  if (props.model.base_creator === props.model.creator) return '';
+  return `Based on ${props.model.base_creator}`;
 });
 
 const sourceSummary = computed(() => {
@@ -367,6 +375,16 @@ function roleLabel(role: string): string {
 }
 .mc-finetune-badge:hover {
   background: rgba(99, 102, 241, 0.22);
+}
+
+.mc-base-creator-badge {
+  padding: 1px 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.15);
+  color: #f59e0b;
+  flex-shrink: 0;
 }
 
 .mc-limit-warn {

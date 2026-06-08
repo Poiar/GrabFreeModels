@@ -46,6 +46,17 @@
             <span v-if="model.best_for.length" class="dp-meta-item"
               >Best for: {{ model.best_for.join(', ') }}</span
             >
+            <span v-if="lineageChain.length > 0" class="dp-meta-item">
+              Based on:
+              <template v-for="(ancestor, i) in lineageChain" :key="i">
+                <router-link v-if="ancestor.slug" :to="`/model/${ancestor.slug}`" class="dp-meta-link">{{ ancestor.name }}</router-link>
+                <span v-else>{{ ancestor.name }}</span>
+                <span v-if="i < lineageChain.length - 1"> → </span>
+              </template>
+            </span>
+            <span v-else-if="model.base_creator && model.base_creator !== model.creator" class="dp-meta-item">
+              Based on: {{ model.base_creator }} architecture
+            </span>
             <span class="dp-meta-item">Context: up to {{ formatContext(model.best_context) }}</span>
             <span class="dp-meta-item"
               >{{ activeCount }} working / {{ totalCount }} providers</span
@@ -57,6 +68,16 @@
             <span v-for="(rank, role) in model.role_rankings" :key="role" class="dp-ranking-badge">
               #{{ rank }} {{ roleLabel(role) }}
             </span>
+          </div>
+
+          <!-- Fine-tunes (derived models) -->
+          <div v-if="derivedModels.length" class="dp-finetunes">
+            <h3 class="dp-section-title">Fine-tunes ({{ derivedModels.length }})</h3>
+            <div class="dp-finetune-chips">
+              <router-link v-for="dm in derivedModels" :key="dm.super_id" :to="`/model/${dm.slug}`" class="dp-finetune-chip">
+                {{ dm.name }}
+              </router-link>
+            </div>
           </div>
 
           <!-- Provider comparison table -->
@@ -146,6 +167,26 @@ const activeCount = computed(() =>
   props.model.providers.filter((p) => !p._removed && p.status.result === 'working').length,
 );
 const totalCount = computed(() => props.model.providers.filter((p) => !p._removed).length);
+
+const lineageChain = computed(() => {
+  const chain: { name: string; slug: string | null }[] = [];
+  let slug = props.model.base_model;
+  while (slug) {
+    const parent = store.modelBySlug.get(slug);
+    if (parent) {
+      chain.push({ name: parent.name, slug: parent.slug });
+      slug = parent.base_model;
+    } else {
+      chain.push({ name: slug, slug: null });
+      slug = null;
+    }
+  }
+  return chain;
+});
+
+const derivedModels = computed(() => {
+  return store.derivedModels.get(props.model.slug) ?? [];
+});
 
 function roleLabel(role: string): string {
   const labels: Record<string, string> = {
@@ -292,6 +333,38 @@ watch(
 .dp-meta-item {
   font-size: 0.78rem;
   color: var(--text-muted);
+}
+
+.dp-meta-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+.dp-meta-link:hover {
+  text-decoration: underline;
+}
+
+.dp-finetunes {
+  margin: 0 0 4px;
+}
+
+.dp-finetune-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dp-finetune-chip {
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.dp-finetune-chip:hover {
+  background: rgba(99, 102, 241, 0.25);
 }
 
 .dp-rankings {

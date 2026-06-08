@@ -13,10 +13,23 @@
         <button v-if="searchQuery" class="search-clear" @click="searchQuery = ''">&times;</button>
       </div>
       <div class="sm-filters">
-        <div class="filter-pills">
-          <button v-for="f in statusPills" :key="f.key" :class="['filter-pill', { active: statusFilter === f.key }]" @click="statusFilter = f.key">
-            {{ f.label }} <span class="pill-count">{{ f.count }}</span>
-          </button>
+        <div class="filter-dropdowns">
+          <select v-model="creatorFilter" class="sm-select" aria-label="Filter by creator">
+            <option value="">All Creators</option>
+            <option v-for="c in store.visibleCreators" :key="c.id" :value="c.id">{{ c.name }}</option>
+          </select>
+          <select v-model="familyFilter" class="sm-select" aria-label="Filter by family">
+            <option value="">All Families</option>
+            <option v-for="f in families" :key="f" :value="f">{{ formatFamily(f) }}</option>
+          </select>
+          <label class="sm-checkbox">
+            <input v-model="toolsFilter" type="checkbox" />
+            <span>Tools</span>
+          </label>
+          <label class="sm-checkbox">
+            <input v-model="multiProviderFilter" type="checkbox" />
+            <span>2+ Providers</span>
+          </label>
         </div>
         <div class="sm-sort">
           <select v-model="sortBy" class="sort-select">
@@ -34,69 +47,16 @@
       <div class="sm-count">{{ filteredItems.length }} of {{ superItems.length }} super models</div>
     </div>
 
-    <!-- Status summary bar -->
-    <div class="sm-status-bar">
-      <div class="status-segment working" :style="{ flex: workingSupers }" :title="workingSupers + ' fully working'"></div>
-      <div class="status-segment partial" :style="{ flex: partialSupers }" :title="partialSupers + ' partially working'"></div>
-      <div class="status-segment untested" :style="{ flex: untestedSupers }" :title="untestedSupers + ' untested'"></div>
-      <div class="status-segment broken" :style="{ flex: brokenSupers }" :title="brokenSupers + ' not working'"></div>
-    </div>
-
     <!-- Card list -->
     <div v-if="sortedItems.length > 0" class="sm-list">
-      <div
+      <SuperModelCard
         v-for="item in sortedItems"
-        :key="item.id"
-        class="sm-card"
-        :class="[`card-${item.status}`, { 'card-has-removed': item.hasRemoved }]"
+        :key="item.slug"
+        :model="modelBySlug.get(item.slug)!"
+        :creator-slug="item.creatorSlug ?? undefined"
         @click="openPanel(item)"
-        role="button"
-        tabindex="0"
-      >
-        <!-- Header -->
-        <div class="sm-header">
-          <div class="sm-header-left">
-            <span
-              class="sm-badge sm-badge-creator"
-              :class="{ 'is-link': item.creator }"
-              @click.stop="item.creator ? openCreatorPanel(item.creator) : null"
-            ><svg v-if="item.creatorSlug" class="sm-creator-icon" :viewBox="getCreatorIcon(item.creatorSlug).viewBox" v-html="getCreatorIcon(item.creatorSlug).body"></svg><span v-else class="sm-creator-icon-fb">{{ (item.creator || '?')[0] }}</span>{{ item.creator || '—' }}<button v-if="item.creator" class="copy-btn-badge" title="Copy creator" @click.stop="copyText(item.creator!)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
-            <span class="sm-badge-sep">/</span>
-            <span v-if="item.releaseDate" class="sm-badge sm-badge-date">{{ formatDateShort(item.releaseDate) }}</span>
-            <span v-if="item.releaseDate" class="sm-badge-sep">/</span>
-            <span class="sm-badge sm-badge-model">{{ item.name }}<button class="copy-btn-badge" title="Copy name" @click.stop="copyText(item.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>
-            <span v-if="item.family" class="sm-family-badge">{{ item.family }}</span>
-          </div>
-          <div class="sm-header-right">
-            <span v-for="r in item.topRoles" :key="r.role" class="sm-ranking-badge" :title="r.role + ' rank #' + r.rank">
-              #{{ r.rank }} {{ r.label }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Stats -->
-        <div class="sm-stats">
-          <span class="sm-stat">{{ item.datapointsCount }} provider{{ item.datapointsCount !== 1 ? 's' : '' }}</span>
-          <span class="sm-stat-divider">|</span>
-          <span v-if="item.workingCount > 0" class="sm-stat sm-stat-working">{{ item.workingCount }} working</span>
-          <span v-else-if="item.brokenCount > 0" class="sm-stat sm-stat-broken">{{ item.brokenCount }} broken</span>
-          <span v-else class="sm-stat sm-stat-none">—</span>
-          <span class="sm-stat-divider">|</span>
-          <span class="sm-stat">Max: {{ item.best_context_length ? formatContext(item.best_context_length) : '—' }} ctx</span>
-          <span v-if="item.any_tools" class="sm-stat-divider">|</span>
-          <span v-if="item.any_tools" class="sm-stat sm-stat-tools">Tools</span>
-          <span class="sm-status-pulse" :class="`pulse-${item.status}`"></span>
-        </div>
-
-        <!-- Provider tags -->
-        <div class="sm-providers">
-          <span v-for="p in item.providers.slice(0, 6)" :key="p.slug" class="provider-tag">
-            <ProviderIcon :slug="p.slug" :size="14" :cls="'sm-provider-logo'" />
-            {{ p.name }}
-          </span>
-          <span v-if="item.providers.length > 6" class="provider-tag more">+{{ item.providers.length - 6 }}</span>
-        </div>
-      </div>
+        @creator-click="openCreatorPanel"
+      />
     </div>
 
     <!-- Empty state -->
@@ -104,7 +64,7 @@
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <h3>No super models found</h3>
       <p>No super models match your current search or filters.</p>
-      <button class="clear-btn" @click="searchQuery = ''; statusFilter = 'all'">Clear all filters</button>
+      <button class="clear-btn" @click="clearAllFilters">Clear all filters</button>
     </div>
 
     <!-- Super model detail panel -->
@@ -136,15 +96,12 @@ import { computed, ref } from 'vue';
 import { useModelsStore } from '@/store/models';
 import SuperModelPanel from '@/components/SuperModelPanel.vue';
 import CreatorPanel from '@/components/CreatorPanel.vue';
-import ProviderIcon from '@/components/ProviderIcon.vue';
-import { useToast } from '@/composables/useToast';
-import { getProviderIcon } from '@/data/provider-icons';
+import SuperModelCard from '@/components/SuperModelCard.vue';
 import type { ModelData, CreatorData } from '@/types';
 
-const ROLES = ['model', 'build', 'general', 'small_model', 'explore'] as const;
-const ROLE_SHORT: Record<string, string> = { model: 'Mod', build: 'Bld', general: 'Gen', small_model: 'Sml', explore: 'Exp' };
-
 const store = useModelsStore();
+
+const modelBySlug = computed(() => store.modelBySlug);
 
 const creatorSlugMap = computed(() => {
   const map = new Map<string, string>();
@@ -154,19 +111,13 @@ const creatorSlugMap = computed(() => {
   return map;
 });
 
-interface ProviderTag {
-  name: string;
-  slug: string;
-}
-
 interface SuperItem {
   id: number;
   name: string;
   slug: string;
   creator: string | null;
-  base_creator: string | null;
   family: string | null;
-  providers: ProviderTag[];
+  providers: { name: string; slug: string }[];
   datapointsCount: number;
   allTags: string[];
   workingCount: number;
@@ -175,11 +126,8 @@ interface SuperItem {
   brokenCount: number;
   best_context_length: number | null;
   any_tools: boolean;
-  hasRemoved: boolean;
   status: string;
-  releaseDate: string | null;
   creatorSlug: string | null;
-  topRoles: { role: string; label: string; rank: number }[];
 }
 
 const superItems = computed<SuperItem[]>(() => {
@@ -192,7 +140,6 @@ const superItems = computed<SuperItem[]>(() => {
     const broken = dps.filter((d) => d.status.result === 'broken');
     const rateLimited = dps.filter((d) => d.status.result === 'rate_limited');
     const untested = dps.filter((d) => d.status.result === 'untested');
-    const families = [...new Set(dps.map((d) => d.family).filter((f): f is string => !!f))];
     const allTags = [...new Set(dps.flatMap((d) => [...d.tags, ...d.best_for]))];
 
     let status = 'down';
@@ -201,32 +148,12 @@ const superItems = computed<SuperItem[]>(() => {
     else if (working.length > 0) status = 'mixed';
     else status = 'down';
 
-    const topRanked: { role: string; label: string; rank: number }[] = [];
-    for (const role of ROLES) {
-      const arr = store.roleRankings[role] ?? [];
-      let bestRank = Infinity;
-      for (const dp of dps) {
-        const idx = arr.indexOf(dp.full_id);
-        if (idx !== -1 && idx + 1 < bestRank) bestRank = idx + 1;
-      }
-      if (bestRank < Infinity) topRanked.push({ role, label: ROLE_SHORT[role] ?? role, rank: bestRank });
-    }
-    topRanked.sort((a, b) => a.rank - b.rank);
-
-    let releaseDate: string | null = null;
-    for (const dp of dps) {
-      if (dp.release_date && (!releaseDate || dp.release_date < releaseDate)) {
-        releaseDate = dp.release_date;
-      }
-    }
-
     return {
       id: m.super_id,
       name: m.name,
       slug: m.slug,
       creator: m.creator ?? null,
-      base_creator: m.base_creator ?? null,
-      family: families.length === 1 ? families[0] : null,
+      family: m.family ?? null,
       providers,
       datapointsCount: dps.length,
       allTags,
@@ -236,17 +163,17 @@ const superItems = computed<SuperItem[]>(() => {
       brokenCount: broken.length,
       best_context_length: m.best_context,
       any_tools: dps.some((d) => d.supports_tools),
-      hasRemoved: m.providers.some((d) => d._removed),
       status,
-      releaseDate,
       creatorSlug: m.creator ? (creatorSlugMap.value.get(m.creator) ?? null) : null,
-      topRoles: topRanked.slice(0, 3),
     };
   });
 });
 
 const searchQuery = ref('');
-const statusFilter = ref('all');
+const creatorFilter = ref('');
+const familyFilter = ref('');
+const toolsFilter = ref(false);
+const multiProviderFilter = ref(false);
 const sortBy = ref('creator');
 const sortDesc = ref(false);
 
@@ -260,37 +187,22 @@ const searchedItems = computed(() => {
   );
 });
 
+const families = computed(() => {
+  const set = new Set<string>();
+  for (const m of superItems.value) {
+    if (m.family) set.add(m.family);
+  }
+  return [...set].sort();
+});
+
 const filteredItems = computed(() => {
-  const items = searchedItems.value;
-  if (statusFilter.value === 'all') return items;
-  if (statusFilter.value === 'working') return items.filter((i) => i.workingCount > 0);
-  if (statusFilter.value === 'untested') return items.filter((i) => i.untestedCount > 0 && i.workingCount === 0);
-  if (statusFilter.value === 'partial') return items.filter((i) => i.workingCount > 0 && (i.rateLimitedCount > 0 || i.brokenCount > 0));
-  if (statusFilter.value === 'not_working') return items.filter((i) => i.workingCount === 0);
+  let items = searchedItems.value;
+  if (creatorFilter.value) items = items.filter(i => i.creatorSlug === creatorFilter.value);
+  if (familyFilter.value) items = items.filter(i => i.family === familyFilter.value);
+  if (toolsFilter.value) items = items.filter(i => i.any_tools);
+  if (multiProviderFilter.value) items = items.filter(i => i.datapointsCount >= 2);
   return items;
 });
-
-const statusPills = computed(() => {
-  const items = superItems.value;
-  return [
-    { key: 'all', label: 'All', count: items.length },
-    { key: 'working', label: 'Working', count: items.filter((i) => i.workingCount > 0).length },
-    { key: 'untested', label: 'Untested', count: items.filter((i) => i.untestedCount > 0 && i.workingCount === 0).length },
-    { key: 'partial', label: 'Mixed', count: items.filter((i) => i.workingCount > 0 && (i.rateLimitedCount > 0 || i.brokenCount > 0)).length },
-    { key: 'not_working', label: 'Down', count: items.filter((i) => i.workingCount === 0).length },
-  ];
-});
-
-const statusCounts = computed(() => ({
-  working: superItems.value.filter((i) => i.workingCount > 0).length,
-  partial: superItems.value.filter((i) => i.workingCount > 0 && (i.rateLimitedCount > 0 || i.brokenCount > 0)).length,
-  untested: superItems.value.filter((i) => i.untestedCount > 0 && i.workingCount === 0).length,
-  broken: superItems.value.filter((i) => i.workingCount === 0 && i.untestedCount === 0).length,
-}));
-const workingSupers = computed(() => statusCounts.value.working);
-const partialSupers = computed(() => statusCounts.value.partial);
-const untestedSupers = computed(() => statusCounts.value.untested);
-const brokenSupers = computed(() => statusCounts.value.broken);
 
 const sortedItems = computed(() => {
   const arr = [...filteredItems.value];
@@ -318,22 +230,18 @@ const sortedItems = computed(() => {
   return arr;
 });
 
-function getCreatorIcon(slug: string) {
-  return getProviderIcon(slug);
+const FAMILY_OVERRIDES: Record<string, string> = { gpt: 'GPT', glm: 'GLM', llm: 'LLM' };
+
+function formatFamily(raw: string): string {
+  return raw.split('-').map(w => FAMILY_OVERRIDES[w] ?? (w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
 }
 
-function formatContext(n: number): string {
-  return new Intl.NumberFormat('en', { notation: 'compact', maximumSignificantDigits: 3 }).format(n);
-}
-
-function formatDateShort(date: string): string {
-  return date.slice(2); // "2026-05-31" → "26-05-31"
-}
-
-const { success: toastSuccess } = useToast();
-
-async function copyText(text: string) {
-  try { await navigator.clipboard.writeText(text); toastSuccess(`"${text}" copied`); } catch { /* noop */ }
+function clearAllFilters() {
+  searchQuery.value = '';
+  creatorFilter.value = '';
+  familyFilter.value = '';
+  toolsFilter.value = false;
+  multiProviderFilter.value = false;
 }
 
 // ── Super model detail panel ──
@@ -436,16 +344,20 @@ function navigateCreatorPanel(index: number) {
 .search-clear:hover { color: var(--text); }
 
 .sm-filters { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
-.filter-pills { display: flex; gap: 4px; flex-wrap: wrap; }
-.filter-pill {
-  display: flex; align-items: center; gap: 5px; padding: 5px 10px;
-  border-radius: 999px; border: 1px solid var(--border);
-  background: none; color: var(--text-dim); font-size: 0.72rem;
-  font-weight: 500; cursor: pointer; transition: all 0.12s;
+.filter-dropdowns { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.sm-select {
+  background: var(--bg-elevated, var(--bg-card)); border: 1px solid var(--border);
+  color: var(--text); font-size: 0.72rem; padding: 5px 8px;
+  border-radius: var(--radius-sm); cursor: pointer; outline: none;
+  font-family: inherit;
 }
-.filter-pill:hover { color: var(--text); border-color: var(--text-muted); }
-.filter-pill.active { color: var(--accent); border-color: var(--accent); background: var(--accent-subtle); }
-.pill-count { font-size: 0.6rem; opacity: 0.7; font-weight: 600; }
+.sm-checkbox {
+  display: flex; align-items: center; gap: 4px;
+  padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg-elevated, var(--bg-card)); font-size: 0.68rem;
+  color: var(--text-muted); cursor: pointer; font-family: inherit; white-space: nowrap;
+}
+.sm-checkbox input { cursor: pointer; accent-color: var(--accent); }
 
 .sm-sort { display: flex; align-items: center; gap: 6px; }
 .sort-select {
@@ -461,239 +373,11 @@ function navigateCreatorPanel(index: number) {
 
 .sm-count { font-size: 0.68rem; color: var(--text-muted); }
 
-/* Status bar */
-.sm-status-bar { display: flex; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 14px; gap: 1px; }
-.status-segment { min-width: 2px; transition: flex 0.3s; }
-.status-segment.working { background: var(--green); }
-.status-segment.partial { background: var(--orange); }
-.status-segment.untested { background: var(--accent); }
-.status-segment.broken { background: var(--red); }
-
 /* Card list */
 .sm-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
   gap: 8px;
-}
-
-.sm-card {
-  padding: 12px 16px;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg-card);
-  cursor: pointer;
-  transition: border-color 0.15s, border-left-color 0.3s, box-shadow 0.15s;
-}
-
-.sm-card.card-working { border-left-color: var(--green); }
-.sm-card.card-mixed { border-left-color: var(--orange); }
-.sm-card.card-down { border-left-color: var(--border); }
-
-.sm-card:hover {
-  border-color: var(--border-focus);
-  box-shadow: var(--shadow-md);
-}
-
-.sm-card.card-has-removed {
-  border-left-color: var(--orange);
-}
-
-/* Header — mirrors ModelCard */
-.sm-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.sm-header-left {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-}
-
-.sm-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-.sm-creator-icon {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-
-.sm-creator-icon-fb {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 1px solid currentColor;
-  font-size: 0.52rem;
-  font-weight: 700;
-  flex-shrink: 0;
-  opacity: 0.6;
-}
-
-.sm-badge-creator {
-  background: var(--accent-subtle);
-  color: var(--accent);
-}
-
-.sm-badge-creator.is-link {
-  cursor: pointer;
-}
-
-.sm-badge-creator.is-link:hover {
-  filter: brightness(1.2);
-}
-
-.sm-badge-date {
-  background: rgba(250, 204, 21, 0.12);
-  color: var(--yellow, #facb15);
-}
-
-.sm-badge-model {
-  background: rgba(52, 211, 153, 0.12);
-  color: var(--green);
-}
-
-.sm-badge-sep {
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-
-.sm-header-right {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.sm-family-badge {
-  font-size: 0.62rem;
-  color: var(--text-muted);
-  background: var(--bg-hover);
-  padding: 1px 6px;
-  border-radius: 999px;
-  flex-shrink: 0;
-}
-
-.sm-ranking-badge {
-  padding: 2px 8px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  border-radius: 999px;
-  background: rgba(52, 211, 153, 0.15);
-  color: var(--green);
-}
-
-/* Copy button inside badges */
-.copy-btn-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  padding: 0;
-  border-radius: 2px;
-  flex-shrink: 0;
-  opacity: 0.5;
-  transition: opacity 0.12s;
-}
-
-.sm-badge:hover .copy-btn-badge,
-.copy-btn-badge:focus-visible {
-  opacity: 1;
-}
-
-/* Stats row — mirrors ModelCard */
-.sm-stats {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
-.sm-stat-divider {
-  color: var(--border);
-}
-
-.sm-stat-working { color: var(--green); font-weight: 600; }
-.sm-stat-untested { color: var(--accent); }
-.sm-stat-broken { color: var(--red); }
-.sm-stat-none { color: var(--text-muted); }
-.sm-stat-tools { color: var(--green); font-weight: 600; }
-
-.sm-status-pulse {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-.sm-status-pulse.pulse-working {
-  background: var(--green);
-  box-shadow: 0 0 6px var(--green-glow);
-  animation: pulse-dot 2s var(--ease-smooth, ease-in-out) infinite;
-}
-
-.sm-status-pulse.pulse-mixed {
-  background: var(--orange);
-  box-shadow: 0 0 6px var(--orange-glow);
-  animation: pulse-dot 1.5s var(--ease-smooth, ease-in-out) infinite;
-}
-
-.sm-status-pulse.pulse-down {
-  background: var(--red);
-  box-shadow: 0 0 6px var(--red-glow);
-  animation: pulse-dot-error 1.5s var(--ease-smooth, ease-in-out) infinite;
-}
-
-/* Provider tags */
-.sm-providers {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-}
-
-.provider-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-size: 0.6rem;
-  font-weight: 500;
-  background: var(--accent-subtle);
-  color: var(--accent);
-  white-space: nowrap;
-}
-
-.sm-provider-logo {
-  border-radius: 2px;
-}
-
-.provider-tag.more {
-  background: var(--bg-hover);
-  color: var(--text-muted);
 }
 
 /* Empty */
@@ -708,12 +392,12 @@ function navigateCreatorPanel(index: number) {
 
 @media (max-width: 768px) {
   .sm-page { padding: 12px; }
-  .sm-card { padding: 10px 12px; }
-  .sm-header-right { display: none; }
   .sm-search { padding: 10px 12px; }
   .sm-search input { font-size: 0.85rem; min-height: 44px; }
   .sm-filters { flex-direction: column; align-items: stretch; gap: 8px; }
-  .filter-pill { min-height: 40px; padding: 8px 12px; }
+  .filter-dropdowns { flex-wrap: wrap; gap: 4px; }
+  .sm-select { min-height: 44px; }
+  .sm-checkbox { min-height: 40px; padding: 8px 12px; }
   .sort-select { min-height: 44px; width: 100%; }
   .sort-dir-btn { min-height: 44px; padding: 8px 16px; }
   .sm-count { text-align: right; }
