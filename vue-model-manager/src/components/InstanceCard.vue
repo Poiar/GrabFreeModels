@@ -79,7 +79,7 @@ const props = defineProps<{
   siblingCount: number;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   'navigate-super': [];
   'click': [];
 }>();
@@ -123,6 +123,7 @@ const hasLimits = computed(() => {
 function handleClick(e: MouseEvent) {
   const target = e.target as HTMLElement;
   if (target.closest('.copy-btn-badge')) return;
+  emit('click');
 }
 
 function formatContext(ctx: number | null): string {
