@@ -265,7 +265,12 @@ const sortedItems = computed(() => {
   arr.sort((a, b) => {
     let cmp = 0;
     switch (sortBy.value) {
-      case 'creator': cmp = (a.creator || '').localeCompare(b.creator || ''); break;
+      case 'creator':
+        if (!a.creator && !b.creator) cmp = 0;
+        else if (!a.creator) cmp = 1;
+        else if (!b.creator) cmp = -1;
+        else cmp = a.creator.localeCompare(b.creator);
+        break;
       case 'name': cmp = a.name.localeCompare(b.name); break;
       case 'providers': cmp = b.providers.length - a.providers.length; break;
       case 'instances': cmp = b.datapointsCount - a.datapointsCount; break;
