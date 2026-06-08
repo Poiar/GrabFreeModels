@@ -1,0 +1,57 @@
+# Dependencies — Vercel installs these during build
+node_modules/
+vue-model-manager/node_modules/
+
+# Git snapshots — large, not needed for build
+snapshots/
+
+# Build output
+vue-model-manager/dist/
+vue-model-manager/public/available-models.json
+
+# Scraping output (root only — not vue-model-manager/src/data/)
+/data/
+
+# Generated
+badge/
+dashboard.html
+
+# Logs
+*.log
+nightly-summary.log
+
+# Node
+tmp/
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+
+# Screenshots
+check-*.png
+
+# Test artifacts
+qa-*.mjs
+qa-*.json
+
+# Scratch scripts
+_*.js
+
+# Playwright
+.playwright-mcp/
+
+# Secrets
+.env
+.env.local
+*.pem
+*.key
+scripts/_tmp_cfg.json

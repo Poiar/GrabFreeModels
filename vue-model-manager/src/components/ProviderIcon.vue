@@ -54,4 +54,8 @@ function onError() {
   width: v-bind('`${size}px`');
   height: v-bind('`${size}px`');
 }
+
+.pi-img {
+  filter: invert(1);
+}
 </style>

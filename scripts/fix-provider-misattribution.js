@@ -1,7 +1,7 @@
 // Fix models whose creator field is the hosting provider, not the model maker.
 // Only fixes clear cases: where the creator matches a provider slug (NVIDIA, Together, etc.)
 // and the model name clearly belongs to a different creator.
-// Also fixes non-canonical creator names (Qwen → Alibaba Qwen, Z.AI → Zhipu AI).
+// Also fixes non-canonical creator names (Qwen → Alibaba, Z.AI → Zhipu AI).
 const { Pool } = require('pg');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
@@ -9,7 +9,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 1, ssl:
 
 // Canonical creator name overrides (non-provider-related)
 const CANONICAL_CREATOR = {
-  'qwen': 'Alibaba Qwen',
+  'qwen': 'Alibaba',
   'z.ai': 'Zhipu AI',
   'z-ai': 'Zhipu AI',
 };
@@ -31,8 +31,8 @@ const NAME_TO_CREATOR = [
   { pattern: /paligemma/, creator: 'Google' },
   { pattern: /deepseek/, creator: 'DeepSeek' },
   { pattern: /deepseek-ai/, creator: 'DeepSeek' },
-  { pattern: /qwen/, creator: 'Alibaba Qwen' },
-  { pattern: /qwq/, creator: 'Alibaba Qwen' },
+  { pattern: /qwen/, creator: 'Alibaba' },
+  { pattern: /qwq/, creator: 'Alibaba' },
   { pattern: /\bphi\b/, creator: 'Microsoft' },
   { pattern: /\bphi-/, creator: 'Microsoft' },
   { pattern: /claude/, creator: 'Anthropic' },

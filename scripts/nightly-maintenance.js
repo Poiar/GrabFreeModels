@@ -80,6 +80,7 @@ const STEP_NAMES = [
   'snapshot-prev-state',
   'validate',
   'inherit-families',
+  'backfill-family-by-name',
   'prune-stale-rankings',
   'backfill-context',
   'snapshot-pre-rank-state',
@@ -222,7 +223,13 @@ let pipelineStart = Date.now();
       execSync('node scripts/inherit-families.js --apply', { stdio: 'inherit' });
     });
 
-    // 3. Prune stale non-working models from rankings metadata (7-day burn-in)
+    // 3. Backfill family assignments from model names
+    console.log('Backfilling family assignments from model names...');
+    await runStep('backfill-family-by-name', async () => {
+      execSync('node scripts/backfill-family-by-name.js --apply', { stdio: 'inherit' });
+    });
+
+    // 4. Prune stale non-working models from rankings metadata (7-day burn-in)
     console.log('Pruning stale non-working models from rankings (7-day burn-in)...');
     await runStep('prune-stale-rankings', async () => {
       const BURN_IN_MS = 7 * 24 * 60 * 60 * 1000;
@@ -275,13 +282,13 @@ let pipelineStart = Date.now();
       }
     });
 
-    // 3. Backfill context_length
+    // 5. Backfill context_length
     console.log('\nBackfilling context_length...');
     await runStep('backfill-context', async () => {
       execSync('node scripts/backfill-context.js --apply', { stdio: 'inherit' });
     });
 
-    // 4. Snapshot pre-ranking state for drift detection
+    // 6. Snapshot pre-ranking state for drift detection
     const preRankTop3 = await runStep('snapshot-pre-rank-state', async () => {
       const preRankData = await loadFromDb();
       const top3 = {};
@@ -293,7 +300,7 @@ let pipelineStart = Date.now();
       return top3;
     });
 
-    // 5. Re-rank models
+    // 7. Re-rank models
     console.log('Re-ranking models...');
     await runStep(
       're-rank',
@@ -303,7 +310,7 @@ let pipelineStart = Date.now();
       { critical: true },
     );
 
-    // 6. Detect ranking drift
+    // 8. Detect ranking drift
     await runStep('detect-ranking-drift', async () => {
       if (!preRankTop3) return;
       const postRankData = await loadFromDb();
@@ -320,25 +327,25 @@ let pipelineStart = Date.now();
       }
     });
 
-    // 7. Run ranking sanity check (reads from DB)
+    // 9. Run ranking sanity check (reads from DB)
     console.log('Running ranking sanity check...');
     await runStep('ranking-sanity-check', async () => {
       execSync('node scripts/check-rankings.js', { stdio: 'inherit' });
     });
 
-    // 8. Sync paid models from OpenRouter
+    // 10. Sync paid models from OpenRouter
     console.log('\nSyncing paid models...');
     await runStep('sync-paid-models', async () => {
       execSync('node scripts/sync-paid-models.js --apply', { stdio: 'inherit' });
     });
 
-    // 9. Rank paid models
+    // 11. Rank paid models
     console.log('Ranking paid models...');
     await runStep('rank-paid-models', async () => {
       execSync('node scripts/rank-paid-models.js --apply', { stdio: 'inherit' });
     });
 
-    // 10. Check paid rankings
+    // 12. Check paid rankings
     console.log('Checking paid rankings...');
     await runStep('check-paid-rankings', async () => {
       delete require.cache[require.resolve(LOAD_SCRIPT)];
@@ -355,7 +362,7 @@ let pipelineStart = Date.now();
       console.log(`  Total paid ranking entries: ${total}`);
     });
 
-    // 11. Regenerate _test_summary and persist to PG
+    // 13. Regenerate _test_summary and persist to PG
     console.log('Regenerating _test_summary...');
     await runStep('regenerate-test-summary', async () => {
       const summaryData = await loadFromDb();
@@ -385,19 +392,19 @@ let pipelineStart = Date.now();
       );
     });
 
-    // 10. Generate summary log
+    // 14. Generate summary log
     await runStep('generate-summary-log', async () => {
       const summaryOutput = execSync('node scripts/model-summary.js', { encoding: 'utf8' });
       fs.writeFileSync(SUMMARY_LOG, summaryOutput, 'utf8');
       console.log(`Summary written to ${SUMMARY_LOG}`);
     });
 
-    // 11. Export final JSON for git
+    // 15. Export final JSON for git
     await runStep('export-final-json', async () => {
       exportJson();
     });
 
-    // 12. Detect changes and commit
+    // 16. Detect changes and commit
     await runStep(
       'commit-push',
       async () => {
@@ -464,7 +471,7 @@ let pipelineStart = Date.now();
       { critical: true },
     );
 
-    // 13. Alert via webhook – highlight models that recovered to working status
+    // 17. Alert via webhook – highlight models that recovered to working status
     await runStep('webhook-alerts', async () => {
       if (!fs.existsSync(PREV_COPY)) return;
       const prev = JSON.parse(fs.readFileSync(PREV_COPY, 'utf8'));

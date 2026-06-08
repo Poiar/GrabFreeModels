@@ -6,22 +6,95 @@
       <p class="fd-subtitle">
         {{ family.model_count }} models · {{ family.provider_count }} providers
       </p>
+      <p v-if="familyDescription" class="fd-description">{{ familyDescription }}</p>
     </div>
 
-    <!-- Aggregate stats -->
-    <div class="fd-aggregate">
-      <div class="fd-stat">
-        <span class="fd-stat-value">{{ formatContext(bestContext) }}</span>
-        <span class="fd-stat-label">Best context</span>
+    <!-- Features row: provider icons, capabilities, best-for, input types, ranking highlights -->
+    <div class="fd-features-row">
+      <div class="fd-provider-icons" v-if="familyProviders.length">
+        <ProviderIcon
+          v-for="p in familyProviders"
+          :key="p.slug"
+          :slug="p.slug"
+          :size="18"
+          :alt="p.name"
+          cls="fd-prov-icon"
+        />
       </div>
+      <div class="fd-caps">
+        <span
+          v-for="cap in capabilities"
+          :key="cap.key"
+          class="fd-cap-badge"
+          :class="{ active: cap.has }"
+          :title="cap.label"
+        >{{ cap.label }}</span>
+      </div>
+      <div class="fd-bestfor-tags" v-if="topBestFor.length">
+        <span v-for="tag in topBestFor.slice(0, 6)" :key="tag" class="fd-bestfor">{{ tag }}</span>
+      </div>
+      <div class="fd-input-types" v-if="inputTypes.length">
+        <span v-for="t in inputTypes" :key="t" class="fd-input-type">{{ t }}</span>
+      </div>
+      <div class="fd-rank-highlights" v-if="rankingHighlights.length">
+        <span class="fd-rank-label">Top 3:</span>
+        <span v-for="r in rankingHighlights" :key="r" class="fd-rank-tag">{{ r }}</span>
+      </div>
+    </div>
+
+    <!-- Meta grid -->
+    <div class="fd-meta-grid">
       <div class="fd-stat">
         <span class="fd-stat-value">{{ workingCount }} / {{ family.model_count }}</span>
         <span class="fd-stat-label">Working models</span>
       </div>
       <div class="fd-stat">
+        <span class="fd-stat-value">{{ contextRange }}</span>
+        <span class="fd-stat-label">Context range</span>
+      </div>
+      <div class="fd-stat">
         <span class="fd-stat-value">{{ topProvider }}</span>
         <span class="fd-stat-label">Most providers</span>
       </div>
+      <div class="fd-stat">
+        <span class="fd-stat-value">{{ releaseRange }}</span>
+        <span class="fd-stat-label">Release range</span>
+      </div>
+      <div class="fd-stat">
+        <span class="fd-stat-value">{{ frontierCount }}</span>
+        <span class="fd-stat-label">Frontier models</span>
+      </div>
+      <div class="fd-stat">
+        <span class="fd-stat-value">{{ validationSummary }}</span>
+        <span class="fd-stat-label">Validation</span>
+      </div>
+    </div>
+
+    <!-- Validation bar -->
+    <div class="fd-validation-bar">
+      <div class="val-segment working" :style="{ flex: valFlex.working }" :title="valCounts.working + ' working'"></div>
+      <div class="val-segment rate_limited" :style="{ flex: valFlex.rate_limited }" :title="valCounts.rate_limited + ' rate limited'"></div>
+      <div class="val-segment broken" :style="{ flex: valFlex.broken }" :title="valCounts.broken + ' broken'"></div>
+      <div class="val-segment untested" :style="{ flex: valFlex.untested }" :title="valCounts.untested + ' untested'"></div>
+      <div class="val-segment not_found" :style="{ flex: valFlex.not_found }" :title="valCounts.not_found + ' not found'"></div>
+    </div>
+    <div class="fd-val-legend">
+      <span v-if="valCounts.working" class="val-legend working">{{ valCounts.working }} working</span>
+      <span v-if="valCounts.rate_limited" class="val-legend rate_limited">{{ valCounts.rate_limited }} rate limited</span>
+      <span v-if="valCounts.broken" class="val-legend broken">{{ valCounts.broken }} broken</span>
+      <span v-if="valCounts.untested" class="val-legend untested">{{ valCounts.untested }} untested</span>
+      <span v-if="valCounts.not_found" class="val-legend not_found">{{ valCounts.not_found }} not found</span>
+    </div>
+
+    <!-- Creators -->
+    <div v-if="familyCreators.length" class="fd-creators">
+      <span class="fd-creators-label">Creators:</span>
+      <router-link
+        v-for="c in familyCreators"
+        :key="c.id"
+        :to="`/creator/${c.id}`"
+        class="fd-creator-tag"
+      >{{ c.name }}</router-link>
     </div>
 
     <!-- Model list -->
@@ -58,6 +131,7 @@ import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import SuperModelCard from '@/components/SuperModelCard.vue';
 import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
+import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useModelsStore } from '@/store/models';
 import type { CreatorData, ModelData } from '@/types';
 
@@ -101,27 +175,71 @@ function creatorFor(model: ModelData): CreatorData {
   return c ?? { id: 'unknown', name: model.creator || 'Unknown', model_count: 0, provider_count: 0, models: [] };
 }
 
-const workingCount = computed(() => {
-  if (!family.value) return 0;
-  let count = 0;
+// ── Validation counts ──
+const valCounts = computed(() => {
+  const counts = { working: 0, broken: 0, rate_limited: 0, untested: 0, not_found: 0 };
+  if (!family.value) return counts;
   for (const model of family.value.models) {
-    if (model.providers.some((p) => !p._removed && p.status.result === 'working')) count++;
+    for (const dp of model.providers) {
+      if (dp._removed) continue;
+      const r = dp.status.result;
+      if (r in counts) counts[r as keyof typeof counts]++;
+      else counts.untested++;
+    }
   }
-  return count;
+  return counts;
 });
 
+const valFlex = computed(() => {
+  const c = valCounts.value;
+  const total = c.working + c.broken + c.rate_limited + c.untested + c.not_found || 1;
+  return {
+    working: c.working / total,
+    rate_limited: c.rate_limited / total,
+    broken: c.broken / total,
+    untested: c.untested / total,
+    not_found: c.not_found / total,
+  };
+});
+
+const validationSummary = computed(() => {
+  const c = valCounts.value;
+  const total = c.working + c.broken + c.rate_limited + c.untested + c.not_found;
+  if (!total) return '—';
+  const pct = Math.round((c.working / total) * 100);
+  return `${pct}% pass`;
+});
+
+const workingCount = computed(() => valCounts.value.working);
+
+// ── Context range ──
 const bestContext = computed(() => {
   if (!family.value) return 0;
   const contexts = family.value.models.map((m) => m.best_context).filter((ctx) => ctx !== null);
   return contexts.length > 0 ? Math.max(...contexts, 0) : 0;
 });
 
+const minContext = computed(() => {
+  if (!family.value) return 0;
+  const contexts = family.value.models.map((m) => m.best_context).filter((ctx) => ctx !== null);
+  return contexts.length > 0 ? Math.min(...contexts) : 0;
+});
+
+const contextRange = computed(() => {
+  const min = minContext.value;
+  const max = bestContext.value;
+  if (!min && !max) return '—';
+  if (!min || min === max) return formatContext(max);
+  return `${formatContext(min)} – ${formatContext(max)}`;
+});
+
+// ── Most providers ──
 const topProvider = computed(() => {
   if (!family.value) return '—';
   const counts: Record<string, number> = {};
   for (const model of family.value.models) {
     for (const p of model.providers) {
-      counts[p.provider] = (counts[p.provider] || 0) + 1;
+      if (!p._removed) counts[p.provider] = (counts[p.provider] || 0) + 1;
     }
   }
   let top = '—';
@@ -133,6 +251,149 @@ const topProvider = computed(() => {
     }
   }
   return top;
+});
+
+// ── Release range ──
+const releaseRange = computed(() => {
+  if (!family.value) return '—';
+  let earliest: string | null = null;
+  let latest: string | null = null;
+  for (const model of family.value.models) {
+    for (const dp of model.providers) {
+      if (dp.release_date) {
+        if (!earliest || dp.release_date < earliest) earliest = dp.release_date;
+        if (!latest || dp.release_date > latest) latest = dp.release_date;
+      }
+    }
+  }
+  if (!earliest) return '—';
+  const from = earliest.slice(0, 7);
+  const to = latest!.slice(0, 7);
+  return from === to ? from : `${from} – ${to}`;
+});
+
+// ── Frontier models ──
+const frontierCount = computed(() => {
+  if (!family.value) return 0;
+  let count = 0;
+  for (const model of family.value.models) {
+    for (const rank of Object.values(model.role_rankings)) {
+      if (rank <= 3) {
+        count++;
+        break;
+      }
+    }
+  }
+  return count;
+});
+
+// ── Top best_for ──
+const topBestFor = computed(() => {
+  if (!family.value) return [];
+  const counts: Record<string, number> = {};
+  for (const model of family.value.models) {
+    for (const tag of model.best_for || []) {
+      counts[tag] = (counts[tag] || 0) + 1;
+    }
+  }
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([tag]) => tag);
+});
+
+// ── Provider icons for this family ──
+const familyProviders = computed(() => {
+  if (!family.value) return [];
+  const providers = new Map<string, string>();
+  for (const model of family.value.models) {
+    for (const dp of model.providers) {
+      if (!dp._removed) providers.set(dp.provider_slug, dp.provider);
+    }
+  }
+  return Array.from(providers.entries()).map(([slug, name]) => ({ slug, name }));
+});
+
+// ── Capability badges ──
+const capabilities = computed(() => {
+  if (!family.value) return [];
+  const caps = [
+    { key: 'supports_tools', label: 'tools' },
+    { key: 'supports_reasoning', label: 'reasoning' },
+    { key: 'supports_attachment', label: 'vision' },
+    { key: 'supports_structured_output', label: 'structured JSON' },
+    { key: 'open_weights', label: 'open weights' },
+  ];
+  return caps.map((cap) => {
+    let has = false;
+    for (const model of family.value!.models) {
+      for (const dp of model.providers) {
+        if (dp._removed) continue;
+        if ((dp as any)[cap.key] === true) {
+          has = true;
+          break;
+        }
+      }
+      if (has) break;
+    }
+    return { ...cap, has };
+  });
+});
+
+// ── Input modalities ──
+const inputTypes = computed(() => {
+  if (!family.value) return [];
+  const types = new Set<string>();
+  for (const model of family.value.models) {
+    for (const dp of model.providers) {
+      if (dp._removed) continue;
+      for (const t of dp.input_types || []) {
+        types.add(t);
+      }
+    }
+  }
+  return [...types].sort();
+});
+
+// ── Ranking highlights ──
+const rankingHighlights = computed(() => {
+  if (!family.value) return [];
+  const roles = new Set<string>();
+  for (const model of family.value.models) {
+    for (const [role, rank] of Object.entries(model.role_rankings)) {
+      if (rank <= 3) roles.add(role);
+    }
+  }
+  return [...roles].sort();
+});
+
+// ── Creators contributing to this family ──
+const familyCreators = computed(() => {
+  if (!family.value) return [];
+  const creatorNames = new Set<string>();
+  for (const model of family.value.models) {
+    if (model.creator) creatorNames.add(model.creator);
+  }
+  return store.creators
+    .filter((c) => creatorNames.has(c.name))
+    .sort((a, b) => b.model_count - a.model_count);
+});
+
+// ── Auto-generated description ──
+const familyDescription = computed(() => {
+  const f = family.value;
+  if (!f) return '';
+  const creators = familyCreators.value;
+  let text = `The ${formatFamilyName(f.name)} family includes ${f.model_count} model${f.model_count !== 1 ? 's' : ''} across ${f.provider_count} provider${f.provider_count !== 1 ? 's' : ''}`;
+  if (creators.length === 1) {
+    text += `, created by ${creators[0].name}`;
+  } else if (creators.length > 1) {
+    const names = creators.map(c => c.name);
+    text += `, created by ${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+  }
+  const tags = topBestFor.value.slice(0, 3);
+  if (tags.length) text += `, with strengths in ${tags.join(', ')}`;
+  text += '.';
+  return text;
 });
 </script>
 
@@ -161,27 +422,216 @@ const topProvider = computed(() => {
   margin: 0;
 }
 
-.fd-aggregate {
+.fd-description {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 6px 0 0;
+  max-width: 720px;
+}
+
+/* Features row */
+.fd-features-row {
   display: flex;
-  gap: 24px;
-  padding: 12px 16px;
-  margin: 16px 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 0;
+}
+
+.fd-provider-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.fd-prov-icon {
+  border-radius: 4px;
+  opacity: 0.8;
+  transition: opacity 0.12s;
+}
+.fd-prov-icon:hover {
+  opacity: 1;
+}
+
+.fd-caps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.fd-cap-badge {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border: 1px solid transparent;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+.fd-cap-badge.active {
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+}
+
+.fd-bestfor-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.fd-bestfor {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.fd-input-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.fd-input-type {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg-card);
+}
+
+.fd-rank-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.fd-rank-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+.fd-rank-tag {
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--green) 30%, transparent);
+}
+
+/* Meta grid */
+.fd-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
 }
 .fd-stat {
   display: flex;
   flex-direction: column;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
 }
 .fd-stat-value {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--accent);
 }
 .fd-stat-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Validation bar */
+.fd-validation-bar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+  gap: 1px;
+}
+.val-segment { min-width: 2px; transition: flex 0.3s; }
+.val-segment.working { background: var(--green); }
+.val-segment.rate_limited { background: var(--orange); }
+.val-segment.broken { background: var(--red); }
+.val-segment.untested { background: var(--accent); }
+.val-segment.not_found { background: var(--text-muted); }
+
+.fd-val-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding-top: 6px;
+}
+.val-legend {
+  font-size: 0.62rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.val-legend::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.val-legend.working { color: var(--green); }
+.val-legend.working::before { background: var(--green); }
+.val-legend.rate_limited { color: var(--orange); }
+.val-legend.rate_limited::before { background: var(--orange); }
+.val-legend.broken { color: var(--red); }
+.val-legend.broken::before { background: var(--red); }
+.val-legend.untested { color: var(--accent); }
+.val-legend.untested::before { background: var(--accent); }
+.val-legend.not_found { color: var(--text-muted); }
+.val-legend.not_found::before { background: var(--text-muted); }
+
+/* Creators */
+.fd-creators {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.fd-creators-label {
   font-size: 0.68rem;
   color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.fd-creator-tag {
+  font-size: 0.68rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.12s, background 0.12s;
+}
+.fd-creator-tag:hover {
+  color: var(--accent);
+  background: var(--accent-subtle);
 }
 
 .section-title {
@@ -205,9 +655,8 @@ const topProvider = computed(() => {
   .family-detail-page {
     padding: 12px;
   }
-  .fd-aggregate {
-    flex-direction: column;
-    gap: 12px;
+  .fd-meta-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

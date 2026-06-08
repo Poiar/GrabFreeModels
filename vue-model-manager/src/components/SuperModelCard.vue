@@ -14,12 +14,14 @@
         <button class="copy-btn-badge" title="Copy name" @click.stop="copyText(model.name)">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </button>
+        <router-link v-if="model.base_model" :to="`/model/${model.base_model}`" class="sm-finetune-badge" title="Fine-tune — click to see base model" @click.stop>
+          FT: {{ baseModelName }}
+        </router-link>
       </span>
       <div class="sm-header-right">
         <span v-for="r in topRoles" :key="r.role" class="sm-ranking-badge" :title="r.role + ' rank #' + r.rank">
           #{{ r.rank }} {{ r.label }}
         </span>
-        <span class="sm-status-pulse" :class="`pulse-${status}`"></span>
       </div>
     </div>
 
@@ -49,17 +51,7 @@
       </span>
     </div>
 
-    <!-- Row 3: Slug key pill -->
-    <div class="sm-key-row">
-      <span class="sm-key-pill" :title="model.slug">
-        {{ model.slug }}
-        <button class="copy-btn-badge" title="Copy slug" @click.stop="copyText(model.slug)">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        </button>
-      </span>
-    </div>
-
-    <!-- Row 4: Provider stats -->
+    <!-- Row 3: Provider stats -->
     <div class="sm-stats">
       <span class="sm-stat">{{ datapointsCount }} provider{{ datapointsCount !== 1 ? 's' : '' }}</span>
       <span class="sm-stat-divider">|</span>
@@ -126,6 +118,12 @@ const emit = defineEmits<{
 
 const store = useModelsStore();
 const { success: toastSuccess } = useToast();
+
+const baseModelName = computed(() => {
+  if (!props.model.base_model) return null;
+  const parent = store.modelBySlug.get(props.model.base_model);
+  return parent ? parent.name : props.model.base_model;
+});
 
 const activeDps = computed(() => props.model.providers.filter((p: ProviderDatapoint) => !p._removed));
 const working = computed(() => activeDps.value.filter((d) => d.status.result === 'working'));
@@ -312,30 +310,6 @@ async function copyText(text: string) {
   white-space: nowrap;
 }
 
-.sm-status-pulse {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.sm-status-pulse.pulse-working {
-  background: var(--green);
-  box-shadow: 0 0 6px var(--green-glow);
-  animation: pulse-dot 2s var(--ease-smooth, ease-in-out) infinite;
-}
-
-.sm-status-pulse.pulse-mixed {
-  background: var(--orange);
-  box-shadow: 0 0 6px var(--orange-glow);
-  animation: pulse-dot 1.5s var(--ease-smooth, ease-in-out) infinite;
-}
-
-.sm-status-pulse.pulse-down {
-  background: var(--red);
-  box-shadow: 0 0 6px var(--red-glow);
-  animation: pulse-dot-error 1.5s var(--ease-smooth, ease-in-out) infinite;
-}
 
 /* Row 2: Creator / Family / Base creator badges */
 .sm-meta-row {
@@ -379,6 +353,19 @@ async function copyText(text: string) {
   color: var(--yellow, #facb15);
 }
 
+.sm-finetune-badge {
+  padding: 1px 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+  flex-shrink: 0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
 .sm-badge-sep {
   font-size: 0.6rem;
   color: var(--text-muted);
@@ -406,28 +393,7 @@ async function copyText(text: string) {
   flex-shrink: 0;
 }
 
-/* Row 3: Slug key pill */
-.sm-key-row {
-  margin-bottom: 4px;
-}
-
-.sm-key-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 1px 8px;
-  font-size: 0.62rem;
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-  border-radius: 4px;
-  background: var(--bg-elevated);
-  color: var(--text-muted);
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Row 4: Stats */
+/* Row 3: Stats */
 .sm-stats {
   display: flex;
   align-items: center;
@@ -522,7 +488,6 @@ async function copyText(text: string) {
 }
 
 .sm-model-name:hover .copy-btn-badge,
-.sm-key-pill:hover .copy-btn-badge,
 .sm-badge:hover .copy-btn-badge,
 .copy-btn-badge:focus-visible {
   opacity: 1;

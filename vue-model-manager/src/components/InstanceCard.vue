@@ -5,7 +5,7 @@
       <span class="ic-provider-name">
         <svg v-if="providerIconSvg" class="ic-provider-icon" :viewBox="providerIconSvg.viewBox" v-html="providerIconSvg.body"></svg>
         <span v-else class="ic-provider-icon-fb">{{ dp.provider[0] }}</span>
-        {{ dp.provider }}
+        <router-link :to="`/provider/${dp.provider_slug}`" class="ic-provider-link" @click.stop>{{ dp.provider }}</router-link>
         <button class="copy-btn-badge" title="Copy provider" @click.stop="copyText(dp.provider)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
       </span>
       <div class="ic-header-right">
@@ -537,6 +537,15 @@ async function copyText(text: string) {
   border-radius: 3px;
   opacity: 0;
   transition: opacity 0.12s;
+}
+
+.ic-provider-link {
+  color: inherit;
+  text-decoration: none;
+}
+.ic-provider-link:hover {
+  text-decoration: underline;
+  color: var(--accent);
 }
 
 .ic-provider-name:hover .copy-btn-badge,

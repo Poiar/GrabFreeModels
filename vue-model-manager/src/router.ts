@@ -26,10 +26,34 @@ const routes = [
     meta: { title: 'Creator' },
   },
   {
-    path: '/issues',
-    name: 'Issues',
-    component: () => import('@/views/Issues.vue'),
-    meta: { title: 'Issues' },
+    path: '/fine-tuners',
+    name: 'FineTuners',
+    component: () => import('@/views/FineTunerList.vue'),
+    meta: { title: 'Fine Tuners' },
+  },
+  {
+    path: '/fine-tuner/:id',
+    name: 'FineTunerDetail',
+    component: () => import('@/views/FineTunerDetail.vue'),
+    meta: { title: 'Fine Tuner' },
+  },
+  {
+    path: '/provider/:slug',
+    name: 'ProviderDetail',
+    component: () => import('@/views/ProviderDetail.vue'),
+    meta: { title: 'Provider' },
+  },
+  {
+    path: '/base-models',
+    name: 'BaseModels',
+    component: () => import('@/views/BaseModelList.vue'),
+    meta: { title: 'Base Models' },
+  },
+  {
+    path: '/base-model/:name',
+    name: 'BaseModelDetail',
+    component: () => import('@/views/BaseModelDetail.vue'),
+    meta: { title: 'Base Model' },
   },
   {
     path: '/compare',
@@ -80,8 +104,8 @@ const routes = [
     meta: { title: 'Family' },
   },
   // Redirect old routes
-  { path: '/issues-timeline', redirect: '/issues' },
-  { path: '/free', redirect: '/' },
+
+{ path: '/free', redirect: '/' },
   { path: '/paid', redirect: '/' },
   { path: '/all', redirect: '/' },
   { path: '/models', redirect: '/' },

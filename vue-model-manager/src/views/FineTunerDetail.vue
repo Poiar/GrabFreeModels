@@ -1,7 +1,7 @@
 <template>
-  <div v-if="creator" class="creator-detail-page">
+  <div v-if="creator" class="ftd-page">
     <div class="page-header">
-      <router-link :to="parentRoute" class="back-link">← {{ parentLabel }}</router-link>
+      <router-link to="/fine-tuners" class="back-link">← Fine Tuners</router-link>
       <h2>
         {{ creator.name }}
         <span
@@ -12,14 +12,21 @@
       <p class="cd-subtitle">
         {{ creator.model_count }} models · {{ creator.provider_count }} providers
       </p>
-      <p v-if="creatorDescription" class="cd-description">{{ creatorDescription }}</p>
+      <p v-if="baseCreatorList.length" class="ftd-base-line">
+        Fine-tunes models from
+        <span v-for="(bc, i) in baseCreatorList" :key="bc">
+          <router-link :to="`/creator/${getBaseCreatorSlug(bc)}`" class="ftd-base-link">{{ bc }}</router-link
+          ><template v-if="i < baseCreatorList.length - 1">, </template>
+        </span>
+      </p>
+      <p v-if="ftDescription" class="ftd-description">{{ ftDescription }}</p>
     </div>
 
-    <!-- Features row: provider icons, capabilities, best-for -->
+    <!-- Features row -->
     <div class="cd-features-row">
-      <div class="cd-provider-icons" v-if="creatorProviders.length">
+      <div class="cd-provider-icons" v-if="ftProviders.length">
         <ProviderIcon
-          v-for="p in creatorProviders"
+          v-for="p in ftProviders"
           :key="p.slug"
           :slug="p.slug"
           :size="18"
@@ -48,7 +55,7 @@
       </div>
     </div>
 
-    <!-- Rich metadata -->
+    <!-- Meta grid -->
     <div class="cd-meta-grid">
       <div class="cd-stat">
         <span class="cd-stat-value">{{ workingCount }} / {{ creator.model_count }}</span>
@@ -103,20 +110,22 @@
       >{{ f }}</router-link>
     </div>
 
-    <!-- Model list -->
+    <!-- Models grouped by base creator -->
     <h3 class="section-title">Models</h3>
-    <div class="cd-models">
-      <SuperModelCard
-        v-for="model in creator.models"
-        :key="model.slug"
-        :model="model"
-        :creator-slug="creator.id"
-        @click="openDetail(model)"
-        @creator-click="() => {}"
-      />
+    <div v-for="[base, models] in modelsByBaseCreator" :key="base" class="ftd-group">
+      <h4 class="ftd-group-title">{{ base === 'Original models' ? base : `Builds on ${base}` }}</h4>
+      <div class="cd-models">
+        <SuperModelCard
+          v-for="model in models"
+          :key="model.slug"
+          :model="model"
+          :creator-slug="creator.id"
+          @click="openDetail(model)"
+          @creator-click="() => {}"
+        />
+      </div>
     </div>
 
-    <!-- Detail panel -->
     <ModelDetailPanel
       v-if="detailModel"
       :open="!!detailModel"
@@ -127,8 +136,8 @@
     />
   </div>
   <div v-else class="cd-not-found">
-    <p>Creator not found.</p>
-    <router-link to="/creators" class="back-link">← Back to creators</router-link>
+    <p>Fine-tuner not found.</p>
+    <router-link to="/fine-tuners" class="back-link">← Back to fine-tuners</router-link>
   </div>
 </template>
 
@@ -148,20 +157,46 @@ const route = useRoute();
 const creatorId = computed(() => route.params.id as string);
 const creator = computed(() => store.creators.find((c) => c.id === creatorId.value));
 
-const isFineTunerRoute = computed(() => route.path.startsWith('/fine-tuner'));
-const parentRoute = computed(() => isFineTunerRoute.value ? '/fine-tuners' : '/creators');
-const parentLabel = computed(() => isFineTunerRoute.value ? 'Fine Tuners' : 'Creators');
-
 const detailModel = ref<ModelData | null>(null);
-function openDetail(model: ModelData) {
-  detailModel.value = model;
-}
+function openDetail(model: ModelData) { detailModel.value = model; }
 
 function formatContext(ctx: number | null): string {
   if (!ctx) return '—';
   if (ctx >= 1_000_000) return `${(ctx / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
   return `${Math.round(ctx / 1000)}K`;
 }
+
+const baseCreatorList = computed(() => {
+  if (!creator.value) return [];
+  const bases = new Set<string>();
+  for (const m of creator.value.models) {
+    if (m.base_creator && m.base_creator !== m.creator) bases.add(m.base_creator);
+  }
+  return [...bases].sort();
+});
+
+function getBaseCreatorSlug(name: string): string {
+  const c = store.creators.find((cr) => cr.name === name);
+  return c?.id || name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+}
+
+const modelsByBaseCreator = computed(() => {
+  if (!creator.value) return [];
+  const groups: Record<string, ModelData[]> = {};
+  for (const model of creator.value.models) {
+    const base = model.base_creator && model.base_creator !== model.creator
+      ? model.base_creator
+      : 'Original models';
+    if (!groups[base]) groups[base] = [];
+    groups[base].push(model);
+  }
+  // Sort: base creators with most models first, "Original models" last
+  return Object.entries(groups).sort((a, b) => {
+    if (a[0] === 'Original models') return 1;
+    if (b[0] === 'Original models') return -1;
+    return b[1].length - a[1].length;
+  });
+});
 
 const workingCount = computed(() => {
   if (!creator.value) return 0;
@@ -203,10 +238,7 @@ const topProvider = computed(() => {
   let top = '—';
   let maxCount = 0;
   for (const [name, count] of Object.entries(counts)) {
-    if (count > maxCount) {
-      maxCount = count;
-      top = name;
-    }
+    if (count > maxCount) { maxCount = count; top = name; }
   }
   return top;
 });
@@ -234,10 +266,7 @@ const frontierCount = computed(() => {
   let count = 0;
   for (const model of creator.value.models) {
     for (const rank of Object.values(model.role_rankings)) {
-      if (rank <= 3) {
-        count++;
-        break;
-      }
+      if (rank <= 3) { count++; break; }
     }
   }
   return count;
@@ -273,8 +302,7 @@ const validationSummary = computed(() => {
   const c = valCounts.value;
   const total = c.working + c.broken + c.rate_limited + c.untested + c.not_found;
   if (!total) return '—';
-  const pct = Math.round((c.working / total) * 100);
-  return `${pct}% pass`;
+  return `${Math.round((c.working / total) * 100)}% pass`;
 });
 
 const familyList = computed(() => {
@@ -286,33 +314,15 @@ const familyList = computed(() => {
   return [...families].sort();
 });
 
-// ── Top best_for tags across all models ──
 const topBestFor = computed(() => {
   if (!creator.value) return [];
   const counts: Record<string, number> = {};
   for (const model of creator.value.models) {
-    for (const tag of model.best_for || []) {
-      counts[tag] = (counts[tag] || 0) + 1;
-    }
+    for (const tag of model.best_for || []) counts[tag] = (counts[tag] || 0) + 1;
   }
-  return Object.entries(counts)
-    .sort((a, b) => b[1] - a[1])
-    .map(([tag]) => tag);
+  return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([tag]) => tag);
 });
 
-// ── Provider icons for this creator ──
-const creatorProviders = computed(() => {
-  if (!creator.value) return [];
-  const providers = new Map<string, string>();
-  for (const model of creator.value.models) {
-    for (const dp of model.providers) {
-      if (!dp._removed) providers.set(dp.provider_slug, dp.provider);
-    }
-  }
-  return Array.from(providers.entries()).map(([slug, name]) => ({ slug, name }));
-});
-
-// ── Capability badges ──
 const capabilities = computed(() => {
   if (!creator.value) return [];
   const caps = [
@@ -327,10 +337,7 @@ const capabilities = computed(() => {
     for (const model of creator.value!.models) {
       for (const dp of model.providers) {
         if (dp._removed) continue;
-        if ((dp as any)[cap.key] === true) {
-          has = true;
-          break;
-        }
+        if ((dp as any)[cap.key] === true) { has = true; break; }
       }
       if (has) break;
     }
@@ -338,22 +345,31 @@ const capabilities = computed(() => {
   });
 });
 
-// ── Input modalities ──
 const inputTypes = computed(() => {
   if (!creator.value) return [];
   const types = new Set<string>();
   for (const model of creator.value.models) {
     for (const dp of model.providers) {
       if (dp._removed) continue;
-      for (const t of dp.input_types || []) {
-        types.add(t);
-      }
+      for (const t of dp.input_types || []) types.add(t);
     }
   }
   return [...types].sort();
 });
 
-// ── Ranking highlights (roles where any model is top 3) ──
+// ── Provider icons ──
+const ftProviders = computed(() => {
+  if (!creator.value) return [];
+  const providers = new Map<string, string>();
+  for (const model of creator.value.models) {
+    for (const dp of model.providers) {
+      if (!dp._removed) providers.set(dp.provider_slug, dp.provider);
+    }
+  }
+  return Array.from(providers.entries()).map(([slug, name]) => ({ slug, name }));
+});
+
+// ── Ranking highlights ──
 const rankingHighlights = computed(() => {
   if (!creator.value) return [];
   const roles = new Set<string>();
@@ -366,11 +382,12 @@ const rankingHighlights = computed(() => {
 });
 
 // ── Auto-generated description ──
-const creatorDescription = computed(() => {
+const ftDescription = computed(() => {
   const c = creator.value;
   if (!c) return '';
   const families = familyList.value;
-  let text = `${c.name} creates `;
+  const bases = baseCreatorList.value;
+  let text = `${c.name} fine-tunes `;
   if (families.length === 0) {
     text += 'models';
   } else if (families.length === 1) {
@@ -378,6 +395,11 @@ const creatorDescription = computed(() => {
   } else {
     const last = families[families.length - 1];
     text += `${families.slice(0, -1).join(', ')} and ${last} families`;
+  }
+  if (bases.length === 1) {
+    text += ` from ${bases[0]}`;
+  } else if (bases.length > 1) {
+    text += ` from ${bases.slice(0, -1).join(', ')} and ${bases[bases.length - 1]}`;
   }
   text += ` — ${c.model_count} model${c.model_count !== 1 ? 's' : ''} across ${c.provider_count} provider${c.provider_count !== 1 ? 's' : ''}`;
   const tags = topBestFor.value.slice(0, 3);
@@ -388,7 +410,7 @@ const creatorDescription = computed(() => {
 </script>
 
 <style scoped>
-.creator-detail-page {
+.ftd-page {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -398,9 +420,7 @@ const creatorDescription = computed(() => {
   color: var(--accent);
   text-decoration: none;
 }
-.back-link:hover {
-  text-decoration: underline;
-}
+.back-link:hover { text-decoration: underline; }
 .page-header h2 {
   font-size: 1.3rem;
   font-weight: 700;
@@ -411,7 +431,6 @@ const creatorDescription = computed(() => {
   color: var(--text-muted);
   margin: 0;
 }
-
 .cd-country {
   display: inline-block;
   font-size: 0.6rem;
@@ -422,6 +441,110 @@ const creatorDescription = computed(() => {
   border-radius: 4px;
   margin-left: 8px;
   vertical-align: middle;
+}
+
+.ftd-description {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 6px 0 0;
+  max-width: 720px;
+}
+
+.ftd-base-line {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin: 6px 0 0;
+}
+.ftd-base-link {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+.ftd-base-link:hover { text-decoration: underline; }
+
+.cd-features-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 0;
+}
+.cd-caps { display: flex; flex-wrap: wrap; gap: 5px; }
+.cd-cap-badge {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border: 1px solid transparent;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+.cd-cap-badge.active {
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+}
+.cd-bestfor-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.cd-bestfor {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 500;
+}
+.cd-input-types { display: flex; flex-wrap: wrap; gap: 4px; }
+.cd-input-type {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+}
+
+.cd-provider-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cd-prov-icon {
+  border-radius: 4px;
+  opacity: 0.8;
+  transition: opacity 0.12s;
+}
+.cd-prov-icon:hover {
+  opacity: 1;
+}
+
+.cd-rank-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.cd-rank-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+.cd-rank-tag {
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--green) 30%, transparent);
 }
 
 .cd-meta-grid {
@@ -525,111 +648,16 @@ const creatorDescription = computed(() => {
   background: var(--accent-subtle);
 }
 
-.cd-description {
-  font-size: 0.82rem;
+.ftd-group {
+  margin-bottom: 16px;
+}
+.ftd-group-title {
+  font-size: 0.78rem;
+  font-weight: 600;
   color: var(--text-secondary);
-  line-height: 1.5;
-  margin: 6px 0 0;
-  max-width: 720px;
-}
-
-.cd-features-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin: 14px 0 0;
-}
-
-.cd-provider-icons {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.cd-prov-icon {
-  border-radius: 4px;
-  opacity: 0.8;
-  transition: opacity 0.12s;
-}
-.cd-prov-icon:hover {
-  opacity: 1;
-}
-
-.cd-caps {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-.cd-cap-badge {
-  font-size: 0.62rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  padding: 2px 7px;
-  border-radius: 4px;
-  color: var(--text-muted);
-  background: var(--bg-elevated);
-  border: 1px solid transparent;
-  transition: color 0.12s, background 0.12s, border-color 0.12s;
-}
-.cd-cap-badge.active {
-  color: var(--accent);
-  background: var(--accent-subtle);
-  border-color: var(--accent);
-}
-
-.cd-bestfor-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-.cd-bestfor {
-  font-size: 0.65rem;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--accent-subtle);
-  color: var(--accent);
-  font-weight: 500;
-}
-
-.cd-input-types {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-.cd-input-type {
-  font-size: 0.62rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  padding: 2px 7px;
-  border-radius: 4px;
-  color: var(--text-muted);
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-}
-
-.cd-rank-highlights {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-}
-.cd-rank-label {
-  font-size: 0.62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--text-muted);
-}
-.cd-rank-tag {
-  font-size: 0.62rem;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 4px;
-  color: var(--green);
-  background: color-mix(in srgb, var(--green) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--green) 30%, transparent);
+  margin: 0 0 8px;
+  padding-left: 10px;
+  border-left: 3px solid var(--accent);
 }
 
 .section-title {
@@ -650,11 +678,7 @@ const creatorDescription = computed(() => {
 }
 
 @media (max-width: 768px) {
-  .creator-detail-page {
-    padding: 12px;
-  }
-  .cd-meta-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .ftd-page { padding: 12px; }
+  .cd-meta-grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>

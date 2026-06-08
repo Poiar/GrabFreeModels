@@ -40,6 +40,11 @@
             </span>
           </div>
 
+          <!-- Fine-tune tree -->
+          <div class="smp-finetune-section">
+            <FineTuneTree :root-slug="model.slug" />
+          </div>
+
           <!-- Provider instances -->
           <h3 class="smp-section-title">Instances ({{ model.providers.length }})</h3>
           <ProviderTable :providers="model.providers" />
@@ -74,6 +79,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue';
 import ProviderTable from '@/components/ProviderTable.vue';
+import FineTuneTree from '@/components/FineTuneTree.vue';
 import type { ModelData, KnownIssue } from '@/types';
 import { useModelsStore } from '@/store/models';
 
@@ -329,6 +335,10 @@ watch(
   border-radius: 999px;
   background: var(--accent-subtle);
   color: var(--accent);
+}
+
+.smp-finetune-section {
+  margin-top: 16px;
 }
 
 .smp-section-title {

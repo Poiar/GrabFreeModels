@@ -44,48 +44,8 @@
         </div>
       </div>
       <nav aria-label="Main navigation">
-        <router-link to="/" active-class="active">
-          <span class="nav-icon">
-            <svg
-              aria-hidden="true"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
-              />
-            </svg>
-          </span>
-          <span>Model Instances</span>
-        </router-link>
-        <router-link to="/supermodels" active-class="active">
-          <span class="nav-icon">
-            <svg
-              aria-hidden="true"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <line x1="3" y1="9" x2="21" y2="9" />
-              <line x1="3" y1="15" x2="21" y2="15" />
-              <line x1="9" y1="3" x2="9" y2="21" />
-            </svg>
-          </span>
-          <span>Super Models</span>
-        </router-link>
-        <router-link to="/dashboard" active-class="active">
+        <!-- Dashboard — overview first -->
+        <router-link to="/dashboard" active-class="active" class="nav-dashboard">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -106,7 +66,8 @@
           </span>
           <span>Dashboard</span>
         </router-link>
-        <router-link to="/creators" active-class="active">
+        <!-- Primary browsing: models -->
+        <router-link to="/supermodels" active-class="active" class="nav-supermodels">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -119,13 +80,15 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="3" y1="15" x2="21" y2="15" />
+              <line x1="9" y1="3" x2="9" y2="21" />
             </svg>
           </span>
-          <span>Creators</span>
+          <span>Super Models</span>
         </router-link>
-        <router-link to="/families" active-class="active">
+        <router-link to="/" active-class="active" class="nav-instances">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -138,74 +101,15 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <rect x="3" y="3" width="7" height="7" />
-              <rect x="14" y="3" width="7" height="7" />
-              <rect x="14" y="14" width="7" height="7" />
-              <rect x="3" y="14" width="7" height="7" />
+              <path
+                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+              />
             </svg>
           </span>
-          <span>Families</span>
+          <span>Model Instances</span>
         </router-link>
-        <router-link to="/providers" active-class="active">
-          <span class="nav-icon">
-            <svg
-              aria-hidden="true"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-            </svg>
-          </span>
-          <span>Providers</span>
-        </router-link>
-        <router-link to="/issues" active-class="active">
-          <span class="nav-icon">
-            <svg
-              aria-hidden="true"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          </span>
-          <span>Issues</span>
-        </router-link>
-        <router-link to="/compare" active-class="active">
-          <span class="nav-icon">
-            <svg
-              aria-hidden="true"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
-              <line x1="12" y1="22" x2="12" y2="15.5" />
-              <polyline points="22 8.5 12 15.5 2 8.5" />
-            </svg>
-          </span>
-          <span>Compare</span>
-        </router-link>
-        <router-link to="/rankings" active-class="active">
+        <!-- Quality signal: rankings -->
+        <router-link to="/rankings" active-class="active" class="nav-rankings">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -228,7 +132,7 @@
           </span>
           <span>Rankings (Free)</span>
         </router-link>
-        <router-link to="/rankings-paid" active-class="active">
+        <router-link to="/rankings-paid" active-class="active" class="nav-rankings">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -250,6 +154,127 @@
             </svg>
           </span>
           <span>Rankings (Paid)</span>
+        </router-link>
+        <!-- Infrastructure -->
+        <router-link to="/providers" active-class="active" class="nav-providers">
+          <span class="nav-icon">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+          </span>
+          <span>Providers</span>
+        </router-link>
+        <!-- Supporting dimensions -->
+        <router-link to="/creators" active-class="active" class="nav-creators">
+          <span class="nav-icon">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </span>
+          <span>Creators</span>
+        </router-link>
+        <router-link to="/fine-tuners" active-class="active" class="nav-finetuners">
+          <span class="nav-icon">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+            </svg>
+          </span>
+          <span>Fine Tuners</span>
+        </router-link>
+        <router-link to="/families" active-class="active" class="nav-families">
+          <span class="nav-icon">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+            </svg>
+          </span>
+          <span>Families</span>
+        </router-link>
+        <router-link to="/base-models" active-class="active" class="nav-basemodels">
+          <span class="nav-icon">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+              <line x1="12" y1="22.08" x2="12" y2="12" />
+            </svg>
+          </span>
+          <span>Base Models</span>
+        </router-link>
+        <!-- Utility -->
+        <router-link to="/compare" active-class="active" class="nav-compare">
+          <span class="nav-icon">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
+              <line x1="12" y1="22" x2="12" y2="15.5" />
+              <polyline points="22 8.5 12 15.5 2 8.5" />
+            </svg>
+          </span>
+          <span>Compare</span>
         </router-link>
       </nav>
 
@@ -380,6 +405,9 @@
   <!-- Keyboard shortcuts modal -->
   <KeyboardShortcutsModal :open="shortcutsModalOpen" @close="shortcutsModalOpen = false" />
 
+  <!-- Global search -->
+  <GlobalSearch />
+
   <!-- Toast container -->
   <ToastContainer />
 </template>
@@ -395,6 +423,7 @@ import ToastContainer from '@/components/ToastContainer.vue';
 import SkeletonLoader from '@/components/SkeletonLoader.vue';
 import MobileHeader from '@/components/MobileHeader.vue';
 import SourceTogglePanel from '@/components/SourceTogglePanel.vue';
+import GlobalSearch from '@/components/GlobalSearch.vue';
 
 const route = useRoute();
 const store = useModelsStore();
@@ -588,4 +617,34 @@ function timeAgo(date: Date, _now: number): string {
     pointer-events: auto;
   }
 }
+
+/* ── Nav icon colors ── */
+.nav-dashboard { color: #93c5fd; }
+.nav-supermodels { color: #6ee7b7; }
+.nav-instances { color: #6ee7b7; }
+.nav-rankings { color: #fcd34d; }
+.nav-providers { color: #c4b5fd; }
+.nav-creators { color: #fda4af; }
+.nav-finetuners { color: #f9a8d4; }
+.nav-families { color: #a5b4fc; }
+.nav-basemodels { color: #a5b4fc; }
+.nav-compare { color: #cbd5e1; }
+
+/* Active always wins over colored hover states */
+.sidebar nav a.active,
+.sidebar nav a.active:hover {
+  color: var(--accent) !important;
+}
+
+/* Hover slightly intensifies */
+.nav-dashboard:hover { color: #bfdbfe; }
+.nav-supermodels:hover { color: #a7f3d0; }
+.nav-instances:hover { color: #a7f3d0; }
+.nav-rankings:hover { color: #fde68a; }
+.nav-providers:hover { color: #ddd6fe; }
+.nav-creators:hover { color: #fecdd3; }
+.nav-finetuners:hover { color: #fce7f3; }
+.nav-families:hover { color: #c7d2fe; }
+.nav-basemodels:hover { color: #c7d2fe; }
+.nav-compare:hover { color: #e2e8f0; }
 </style>

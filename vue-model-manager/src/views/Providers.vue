@@ -28,15 +28,15 @@
         <div class="pc-stats">
           <div class="pc-stat">
             <span class="pc-stat-val">{{ provider.model_count }}</span>
-            <span class="pc-stat-lbl">Models</span>
+            <span class="pc-stat-lbl">Instances</span>
+          </div>
+          <div class="pc-stat">
+            <span class="pc-stat-val free">{{ providerModels[provider.slug]?.length || 0 }}</span>
+            <span class="pc-stat-lbl">Free</span>
           </div>
           <div class="pc-stat">
             <span class="pc-stat-val working">{{ provider.working_count }}</span>
             <span class="pc-stat-lbl">Working</span>
-          </div>
-          <div class="pc-stat" v-if="provider.model_count - provider.working_count > 0">
-            <span class="pc-stat-val down">{{ provider.model_count - provider.working_count }}</span>
-            <span class="pc-stat-lbl">Down</span>
           </div>
         </div>
 
@@ -237,6 +237,7 @@ function navigateProviderPanel(index: number) {
 }
 
 .pc-stat-val.working { color: var(--green); }
+.pc-stat-val.free { color: var(--accent); }
 .pc-stat-val.down { color: var(--red); }
 
 .pc-stat-lbl {

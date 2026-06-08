@@ -146,6 +146,18 @@
             </div>
           </div>
         </div>
+        <div v-if="topFamilies.length > 0" class="family-dist-section">
+          <div class="ft-subtitle">Top Families</div>
+          <div class="family-bars">
+            <div v-for="f in topFamilies" :key="f.name" class="family-bar-row">
+              <span class="family-bar-label">{{ f.name }}</span>
+              <div class="family-bar-track">
+                <div class="family-bar-fill" :style="{ width: f.pct + '%' }"></div>
+              </div>
+              <span class="family-bar-count">{{ f.count }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -315,6 +327,24 @@ const deepestChains = computed(() => {
   }
   chains.sort((a, b) => b.depth - a.depth);
   return chains.slice(0, 5);
+});
+
+const topFamilies = computed(() => {
+  const famMap = new Map<string, number>();
+  for (const model of store.allModels) {
+    if (model.family && model.family !== 'Uncategorized') {
+      famMap.set(model.family, (famMap.get(model.family) ?? 0) + 1);
+    }
+  }
+  const sorted = Array.from(famMap.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8);
+  const max = sorted[0]?.[1] ?? 1;
+  return sorted.map(([name, count]) => ({
+    name,
+    count,
+    pct: Math.round((count / max) * 100),
+  }));
 });
 </script>
 
@@ -917,6 +947,62 @@ const deepestChains = computed(() => {
     flex-direction: column;
     gap: 12px;
   }
+}
+
+/* Family Distribution bars */
+.family-dist-section {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.family-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.family-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.family-bar-label {
+  width: 80px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-align: right;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.family-bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--depth-1, var(--bg-elevated));
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.family-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-end, #a78bfa));
+  transition: width 0.6s var(--ease-emphasis);
+}
+
+.family-bar-count {
+  width: 32px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  text-align: left;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {

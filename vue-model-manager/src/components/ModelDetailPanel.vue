@@ -71,14 +71,9 @@
             </span>
           </div>
 
-          <!-- Fine-tunes (derived models) -->
-          <div v-if="derivedModels.length" class="dp-finetunes">
-            <h3 class="dp-section-title">Fine-tunes ({{ derivedModels.length }})</h3>
-            <div class="dp-finetune-chips">
-              <router-link v-for="dm in derivedModels" :key="dm.super_id" :to="`/model/${dm.slug}`" class="dp-finetune-chip">
-                {{ dm.name }}
-              </router-link>
-            </div>
+          <!-- Recursive fine-tune tree -->
+          <div class="dp-finetunes">
+            <FineTuneTree :root-slug="model.slug" />
           </div>
 
           <!-- Provider comparison table -->
@@ -109,6 +104,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue';
 import ProviderTable from '@/components/ProviderTable.vue';
+import FineTuneTree from '@/components/FineTuneTree.vue';
 import type { ModelData, CreatorData, KnownIssue } from '@/types';
 import { useModelsStore } from '@/store/models';
 
@@ -183,10 +179,6 @@ const lineageChain = computed(() => {
     }
   }
   return chain;
-});
-
-const derivedModels = computed(() => {
-  return store.derivedModels.get(props.model.slug) ?? [];
 });
 
 function roleLabel(role: string): string {
@@ -358,26 +350,6 @@ watch(
 
 .dp-finetunes {
   margin: 0 0 4px;
-}
-
-.dp-finetune-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.dp-finetune-chip {
-  padding: 3px 10px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  border-radius: 999px;
-  background: rgba(99, 102, 241, 0.12);
-  color: #818cf8;
-  text-decoration: none;
-  transition: background 0.15s;
-}
-.dp-finetune-chip:hover {
-  background: rgba(99, 102, 241, 0.25);
 }
 
 .dp-rankings {
