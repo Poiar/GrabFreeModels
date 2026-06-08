@@ -25,17 +25,7 @@
 
     <!-- Hero Stats -->
     <div class="hero-stats">
-      <div class="hero-stat-card stat-accent">
-        <div class="hsc-top-bar"></div>
-        <div class="hsc-value stat-number">{{ store.visibleStats.working }}</div>
-        <div class="hsc-label">Working Models</div>
-        <div class="hsc-spark">
-          <svg viewBox="0 0 60 20" class="sparkline">
-            <polyline :points="sparkPoints.working" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </div>
-      </div>
-      <div class="hero-stat-card stat-green">
+<div class="hero-stat-card stat-green">
         <div class="hsc-top-bar"></div>
         <div class="hsc-value stat-number">{{ store.visibleStats.models }}</div>
         <div class="hsc-label">Super Models</div>
@@ -62,36 +52,6 @@
         <div class="hsc-spark">
           <svg viewBox="0 0 60 20" class="sparkline">
             <polyline :points="sparkPoints.creators" fill="none" stroke="var(--cyan)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </div>
-      </div>
-      <div class="hero-stat-card stat-success glass-card">
-        <div class="hsc-top-bar"></div>
-        <div class="hsc-value stat-number green-val">{{ Math.round(store.visibleStats.workingRatio * 100) }}<span class="hsc-unit">%</span></div>
-        <div class="hsc-label">Success Rate</div>
-        <!-- SVG Donut -->
-        <div class="hsc-donut">
-          <svg viewBox="0 0 48 48">
-            <circle cx="24" cy="24" r="20" fill="none" stroke="var(--border)" stroke-width="4" />
-            <circle
-              cx="24" cy="24" r="20"
-              fill="none"
-              stroke="var(--green)"
-              stroke-width="4"
-              stroke-linecap="round"
-              :stroke-dasharray="`${Math.round(store.visibleStats.workingRatio * 125.66)} 125.66`"
-              transform="rotate(-90 24 24)"
-            />
-          </svg>
-        </div>
-      </div>
-      <div class="hero-stat-card stat-broken">
-        <div class="hsc-top-bar"></div>
-        <div class="hsc-value stat-number orange-val">{{ store.visibleStats.broken }}</div>
-        <div class="hsc-label">Broken</div>
-        <div class="hsc-spark">
-          <svg viewBox="0 0 60 20" class="sparkline">
-            <polyline :points="sparkPoints.broken" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
       </div>
@@ -164,53 +124,7 @@
     <!-- Provider Health Waveform -->
     <ProviderPulseWave class="pulse-wave-section" />
 
-    <!-- Ecosystem monitor section -->
-    <div class="section-header">
-      <h3>Provider Ecosystem</h3>
-      <span class="section-badge">{{ store.visibleProviderRefs.length }} live</span>
-    </div>
-
-    <div class="ecosystem-grid">
-      <div
-        v-for="prov in store.visibleProviderRefs"
-        :key="prov.id"
-        class="eco-provider-card gradient-border-card"
-        :class="{ 'prov-dimmed': prov.health_status === 'down' }"
-      >
-        <div class="epc-header">
-          <span class="pulse-dot" :class="{ error: prov.health_status === 'down' }"></span>
-          <span class="epc-name">{{ prov.name }}</span>
-          <span v-if="store.usedUpProviders.includes(prov.slug)" class="epc-warn" title="Monthly quota exceeded">⚠</span>
-        </div>
-        <div class="epc-ring-row">
-          <svg viewBox="0 0 56 56" class="epc-donut">
-            <circle cx="28" cy="28" r="24" fill="none" stroke="var(--border)" stroke-width="5" />
-            <circle
-              cx="28" cy="28" r="24"
-              fill="none"
-              :stroke="prov.health_status === 'healthy' ? 'var(--green)' : prov.health_status === 'degraded' ? 'var(--orange)' : 'var(--red)'"
-              stroke-width="5"
-              stroke-linecap="round"
-              :stroke-dasharray="`${Math.round((prov.working_count / Math.max(prov.model_count, 1)) * 150.8)} 150.8`"
-              transform="rotate(-90 28 28)"
-            />
-            <text x="28" y="28" text-anchor="middle" dominant-baseline="central" class="epc-donut-text" fill="var(--text)">
-              {{ prov.working_count }}/{{ prov.model_count }}
-            </text>
-          </svg>
-        </div>
-        <div class="epc-stats-row">
-          <span class="epc-stat working">✓ {{ prov.working_count }}</span>
-          <span class="epc-stat-div">/</span>
-          <span class="epc-stat total">{{ prov.model_count }}</span>
-        </div>
-        <div class="epc-bar-track">
-          <div class="epc-bar-fill" :style="{ width: `${prov.model_count > 0 ? Math.round((prov.working_count / prov.model_count) * 100) : 0}%` }" :class="`bar-${prov.health_status}`"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Used-up providers -->
+<!-- Used-up providers -->
     <div v-if="store.usedUpProviders.length > 0" class="used-up-section">
       <div class="card">
         <div class="card-title">Monthly Quota Exhausted ({{ store.currentMonth }})</div>

@@ -67,11 +67,8 @@ const waveformData = computed((): WaveformBand[] => {
 
 const bandCount = computed(() => waveformData.value.length);
 
-let animId = 0;
 let width = 0;
 let height = 0;
-let time = 0;
-let reducedMotion = false;
 
 function bandLabelY(idx: number): number {
   if (waveformData.value.length === 0) return 0;
@@ -87,10 +84,7 @@ function draw() {
   ctx.clearRect(0, 0, width, height);
 
   const bands = waveformData.value;
-  if (bands.length === 0) {
-    animId = requestAnimationFrame(draw);
-    return;
-  }
+  if (bands.length === 0) return;
 
   const bandH = height / bands.length;
 
@@ -98,7 +92,7 @@ function draw() {
     const band = bands[i];
     const bandY = i * bandH;
     const centerY = bandY + bandH / 2;
-    const phase = time * 0.02 + i * 1.8;
+    const phase = i * 1.8;
 
     // Determine band color based on health
     const workingRatio = band.total > 0 ? band.working / band.total : 0;
@@ -160,10 +154,6 @@ function draw() {
   maskGrad.addColorStop(1, 'transparent');
   ctx.fillStyle = maskGrad;
   ctx.fillRect(0, 0, 100, height);
-
-  time++;
-  if (reducedMotion || !visible) { animId = 0; return; }
-  animId = requestAnimationFrame(draw);
 }
 
 function resize() {
@@ -171,7 +161,7 @@ function resize() {
   const canvas = canvasRef.value;
   if (!container || !canvas) return;
   const rect = container.getBoundingClientRect();
-  const dpr = reducedMotion ? 1 : window.devicePixelRatio || 1;
+  const dpr = window.devicePixelRatio || 1;
   width = rect.width;
   height = rect.height;
   canvas.width = width * dpr;
@@ -183,45 +173,17 @@ function resize() {
 }
 
 let resizeObs: ResizeObserver | null = null;
-let visible = true;
-
-function onVisibility() {
-  visible = document.visibilityState === 'visible';
-  if (visible && !animId) {
-    animId = requestAnimationFrame(draw);
-  }
-}
-
-const mqReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-function onReducedMotion(e: MediaQueryListEvent | { matches: boolean }) {
-  reducedMotion = e.matches;
-  if (reducedMotion) {
-    cancelAnimationFrame(animId);
-    animId = 0;
-    resize();
-    animId = requestAnimationFrame(draw);
-  } else if (!animId) {
-    animId = requestAnimationFrame(draw);
-  }
-}
 
 onMounted(() => {
-  reducedMotion = mqReduced.matches;
-  mqReduced.addEventListener('change', onReducedMotion);
-
   resize();
-  animId = requestAnimationFrame(draw);
+  draw();
 
-  resizeObs = new ResizeObserver(() => resize());
+  resizeObs = new ResizeObserver(() => { resize(); draw(); });
   if (containerRef.value) resizeObs.observe(containerRef.value);
-  document.addEventListener('visibilitychange', onVisibility);
 });
 
 onUnmounted(() => {
-  cancelAnimationFrame(animId);
   resizeObs?.disconnect();
-  document.removeEventListener('visibilitychange', onVisibility);
-  mqReduced.removeEventListener('change', onReducedMotion);
 });
 </script>
 

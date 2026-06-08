@@ -58,10 +58,11 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <rect x="3" y="3" width="7" height="7" rx="1" />
-              <rect x="14" y="3" width="7" height="7" rx="1" />
-              <rect x="3" y="14" width="7" height="7" rx="1" />
-              <rect x="14" y="14" width="7" height="7" rx="1" />
+              <line x1="4" y1="20" x2="4" y2="12" />
+              <line x1="9" y1="20" x2="9" y2="6" />
+              <line x1="14" y1="20" x2="14" y2="14" />
+              <line x1="19" y1="20" x2="19" y2="9" />
+              <line x1="2" y1="20" x2="22" y2="20" />
             </svg>
           </span>
           <span>Dashboard</span>
@@ -227,10 +228,11 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <rect x="3" y="3" width="7" height="7" />
-              <rect x="14" y="3" width="7" height="7" />
-              <rect x="14" y="14" width="7" height="7" />
-              <rect x="3" y="14" width="7" height="7" />
+              <circle cx="9" cy="7" r="3" />
+              <circle cx="17" cy="7" r="3" />
+              <circle cx="13" cy="17" r="3" />
+              <line x1="10.5" y1="9.5" x2="12.5" y2="14.5" />
+              <line x1="15.5" y1="9.5" x2="13.5" y2="14.5" />
             </svg>
           </span>
           <span>Families</span>

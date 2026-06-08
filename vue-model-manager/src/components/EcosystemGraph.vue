@@ -76,6 +76,16 @@ let arcs: ConnectionArc[] = [];
 let width = 0;
 let height = 0;
 let reducedMotion = false;
+let frozen = false;
+let tickCount = 0;
+let unfreezeUntil = 0;
+const EQUILIBRIUM_ENERGY = 0.3;
+const MAX_SETTLE_TICKS = 400;
+const HOVER_UNFREEZE_TICKS = 90;
+
+function hashFromId(id: number, offset: number): number {
+  return ((id * 2654435761 + offset * 7919) % 10000) / 10000;
+}
 
 const nodeCount = computed(() => store.allModels.length);
 const providerCount = computed(() => store.providerRefs.length);
@@ -122,7 +132,9 @@ function getProviderSlugsForModel(model: ModelData): string[] {
 }
 
 function buildLayout() {
-  const models = store.allModels.slice(0, 60);
+  const models = store.allModels
+    .filter(m => m.providers.some(p => !p._removed))
+    .slice(0, 220);
   const provs = store.providerRefs.filter((p) => p.model_count > 0);
 
   if (!provs.length || !width || !height) return;
@@ -131,26 +143,32 @@ function buildLayout() {
   const cy = height / 2;
   const layoutRadius = Math.min(width, height) * 0.35;
 
-  // Position provider stars in a circle
-  stars = provs.map((prov, i) => {
-    const angle = (i / provs.length) * Math.PI * 2 - Math.PI / 2;
-    const r = Math.max(8, Math.min(22, 8 + prov.working_count * 0.6));
-    return {
-      id: prov.id,
-      slug: prov.slug,
-      name: prov.name,
-      x: cx + Math.cos(angle) * layoutRadius,
-      y: cy + Math.sin(angle) * layoutRadius,
-      radius: r,
-      workingCount: prov.working_count,
-      totalCount: prov.model_count,
-      healthRatio: prov.model_count > 0 ? prov.working_count / prov.model_count : 0,
-    };
-  });
+  // Position provider stars in a circle - healthiest providers at the top
+  stars = provs
+    .sort((a, b) => {
+      const aRatio = a.model_count > 0 ? a.working_count / a.model_count : 0;
+      const bRatio = b.model_count > 0 ? b.working_count / b.model_count : 0;
+      return bRatio - aRatio;
+    })
+    .map((prov, i) => {
+      const angle = (i / provs.length) * Math.PI * 2 - Math.PI / 2;
+      const r = Math.max(8, Math.min(22, 8 + prov.working_count * 0.6));
+      return {
+        id: prov.id,
+        slug: prov.slug,
+        name: prov.name,
+        x: cx + Math.cos(angle) * layoutRadius,
+        y: cy + Math.sin(angle) * layoutRadius,
+        radius: r,
+        workingCount: prov.working_count,
+        totalCount: prov.model_count,
+        healthRatio: prov.model_count > 0 ? prov.working_count / prov.model_count : 0,
+      };
+    });
 
   const starBySlug = new Map(stars.map((s) => [s.slug, s]));
 
-  // Assign models as moons to their primary provider
+  // Assign models as moons to their primary provider (deterministic positions)
   moons = [];
   const usedNames = new Set<string>();
   for (const model of models) {
@@ -159,10 +177,10 @@ function buildLayout() {
     const parentSlug = getPrimaryProvider(model);
     const star = starBySlug.get(parentSlug);
     if (!star) continue;
-    const ctx = model.best_context ?? 8192;
-    const moonR = Math.max(2.5, Math.min(8, Math.log2(ctx) * 0.8));
-    const angle = Math.random() * Math.PI * 2;
-    const orbitR = star.radius + 14 + Math.random() * 30;
+    const ctxLen = model.best_context ?? 8192;
+    const moonR = Math.max(2.5, Math.min(8, Math.log2(ctxLen) * 0.8));
+    const angle = hashFromId(model.super_id, 0) * Math.PI * 2;
+    const orbitR = star.radius + 14 + hashFromId(model.super_id, 1) * 30;
     moons.push({
       id: String(model.super_id),
       name: model.name,
@@ -221,8 +239,10 @@ function tick() {
     ctx.stroke();
   }
 
-  // Update moon physics (skip if reduced motion)
-  if (!reducedMotion) {
+  // Update moon physics (skip if reduced motion or frozen)
+  const shouldAnimate = !reducedMotion && (!frozen || tickCount < unfreezeUntil);
+  if (shouldAnimate) {
+    let totalEnergy = 0;
     for (const moon of moons) {
       const star = starBySlug.get(moon.parentSlug);
       if (!star) continue;
@@ -233,7 +253,7 @@ function tick() {
       const dist = Math.sqrt(dx * dx + dy * dy) + 0.01;
       const targetDist = moon.orbitRadius;
       const distDiff = dist - targetDist;
-      const gravityForce = distDiff * 0.0008;
+      const gravityForce = distDiff * 0.001;
       moon.vx += (dx / dist) * gravityForce;
       moon.vy += (dy / dist) * gravityForce;
 
@@ -250,7 +270,7 @@ function tick() {
         const odist = Math.sqrt(odx * odx + ody * ody) + 0.01;
         const minDist = moon.radius + other.radius + 6;
         if (odist < minDist) {
-          const force = (minDist - odist) * 0.04;
+          const force = (minDist - odist) * 0.05;
           moon.vx += (odx / odist) * force;
           moon.vy += (ody / odist) * force;
         }
@@ -268,6 +288,16 @@ function tick() {
       moon.vy *= 0.99;
       moon.x += moon.vx;
       moon.y += moon.vy;
+      totalEnergy += moon.vx * moon.vx + moon.vy * moon.vy;
+    }
+
+    tickCount++;
+    // Freeze when settled or max ticks reached
+    if (!frozen && tickCount >= 30 && totalEnergy < EQUILIBRIUM_ENERGY) {
+      frozen = true;
+    }
+    if (!frozen && tickCount >= MAX_SETTLE_TICKS) {
+      frozen = true;
     }
   }
 
@@ -368,7 +398,14 @@ function tick() {
   }
 
   ctx.globalAlpha = 1;
-  if (reducedMotion) { animId = 0; return; }
+  if (reducedMotion || frozen) {
+    if (frozen && tickCount < unfreezeUntil) {
+      animId = requestAnimationFrame(tick);
+    } else {
+      animId = 0;
+      return;
+    }
+  }
   animId = requestAnimationFrame(tick);
 }
 
@@ -406,6 +443,12 @@ function onMouseMove(e: MouseEvent) {
     hovered.value = hit.item;
     hoveredType.value = hit.type;
     tooltipStyle.value = { left: px + 12 + 'px', top: py - 10 + 'px' };
+    // Briefly wake the simulation on hover
+    if (frozen && !reducedMotion) {
+      frozen = false;
+      unfreezeUntil = tickCount + HOVER_UNFREEZE_TICKS;
+      if (!animId) animId = requestAnimationFrame(tick);
+    }
   } else {
     hovered.value = null;
     hoveredType.value = null;
@@ -480,18 +523,18 @@ onMounted(() => {
   resize();
   buildLayout();
   if (stars.length) {
-    // Draw one static frame, then animate if not reduced
-    const canvas = canvasRef.value;
-    const ctx = canvas?.getContext('2d');
-    if (ctx) tick();
-    if (reducedMotion) {
-      cancelAnimationFrame(animId);
-      animId = 0;
-    }
+    tickCount = 0;
+    frozen = false;
+    // Let simulation settle to equilibrium, then freeze
+    animId = requestAnimationFrame(tick);
   }
 
   resizeObs = new ResizeObserver(() => {
     resize();
+    // Render one frame on resize after frozen
+    if (frozen && !animId) {
+      animId = requestAnimationFrame(tick);
+    }
   });
   if (containerRef.value) resizeObs.observe(containerRef.value);
   document.addEventListener('visibilitychange', onVisibility);
