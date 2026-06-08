@@ -36,8 +36,8 @@ qa-deep-*.json
 # Generated model data (exported from PostgreSQL nightly)
 modelsdev-free-models.json
 
-# Generated scraping output
-data/
+# Generated scraping output (root only)
+/data/
 
 # Nightly summary log
 nightly-summary.log
