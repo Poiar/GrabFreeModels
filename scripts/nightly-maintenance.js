@@ -79,6 +79,7 @@ function loadFromDb() {
 const STEP_NAMES = [
   'snapshot-prev-state',
   'validate',
+  'inherit-families',
   'prune-stale-rankings',
   'backfill-context',
   'snapshot-pre-rank-state',
@@ -215,7 +216,13 @@ let pipelineStart = Date.now();
       { critical: true },
     );
 
-    // 2. Prune stale non-working models from rankings metadata (7-day burn-in)
+    // 2. Inherit family assignments from base model parents
+    console.log('Inheriting family assignments from base model parents...');
+    await runStep('inherit-families', async () => {
+      execSync('node scripts/inherit-families.js --apply', { stdio: 'inherit' });
+    });
+
+    // 3. Prune stale non-working models from rankings metadata (7-day burn-in)
     console.log('Pruning stale non-working models from rankings (7-day burn-in)...');
     await runStep('prune-stale-rankings', async () => {
       const BURN_IN_MS = 7 * 24 * 60 * 60 * 1000;

@@ -6,6 +6,40 @@
       <p class="cd-subtitle">
         {{ creator.model_count }} models · {{ creator.provider_count }} providers
       </p>
+      <p v-if="creatorDescription" class="cd-description">{{ creatorDescription }}</p>
+    </div>
+
+    <!-- Features row: provider icons, capabilities, best-for -->
+    <div class="cd-features-row">
+      <div class="cd-provider-icons" v-if="creatorProviders.length">
+        <ProviderIcon
+          v-for="p in creatorProviders"
+          :key="p.slug"
+          :slug="p.slug"
+          :size="18"
+          :alt="p.name"
+          cls="cd-prov-icon"
+        />
+      </div>
+      <div class="cd-caps">
+        <span
+          v-for="cap in capabilities"
+          :key="cap.key"
+          class="cd-cap-badge"
+          :class="{ active: cap.has }"
+          :title="cap.label"
+        >{{ cap.label }}</span>
+      </div>
+      <div class="cd-bestfor-tags" v-if="topBestFor.length">
+        <span v-for="tag in topBestFor.slice(0, 6)" :key="tag" class="cd-bestfor">{{ tag }}</span>
+      </div>
+      <div class="cd-input-types" v-if="inputTypes.length">
+        <span v-for="t in inputTypes" :key="t" class="cd-input-type">{{ t }}</span>
+      </div>
+      <div class="cd-rank-highlights" v-if="rankingHighlights.length">
+        <span class="cd-rank-label">Top 3:</span>
+        <span v-for="r in rankingHighlights" :key="r" class="cd-rank-tag">{{ r }}</span>
+      </div>
     </div>
 
     <!-- Rich metadata -->
@@ -15,16 +49,16 @@
         <span class="cd-stat-label">Working models</span>
       </div>
       <div class="cd-stat">
-        <span class="cd-stat-value">{{ formatContext(bestContext) }}</span>
-        <span class="cd-stat-label">Best context</span>
+        <span class="cd-stat-value">{{ contextRange }}</span>
+        <span class="cd-stat-label">Context range</span>
       </div>
       <div class="cd-stat">
         <span class="cd-stat-value">{{ topProvider }}</span>
         <span class="cd-stat-label">Most providers</span>
       </div>
       <div class="cd-stat">
-        <span class="cd-stat-value">{{ activeSince }}</span>
-        <span class="cd-stat-label">Active since</span>
+        <span class="cd-stat-value">{{ releaseRange }}</span>
+        <span class="cd-stat-label">Release range</span>
       </div>
       <div class="cd-stat">
         <span class="cd-stat-value">{{ frontierCount }}</span>
@@ -97,6 +131,7 @@ import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import SuperModelCard from '@/components/SuperModelCard.vue';
 import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
+import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useModelsStore } from '@/store/models';
 import type { ModelData } from '@/types';
 
@@ -130,6 +165,20 @@ const bestContext = computed(() => {
   if (!creator.value) return 0;
   const contexts = creator.value.models.map((m) => m.best_context).filter((ctx) => ctx !== null);
   return contexts.length > 0 ? Math.max(...contexts, 0) : 0;
+});
+
+const minContext = computed(() => {
+  if (!creator.value) return 0;
+  const contexts = creator.value.models.map((m) => m.best_context).filter((ctx) => ctx !== null);
+  return contexts.length > 0 ? Math.min(...contexts) : 0;
+});
+
+const contextRange = computed(() => {
+  const min = minContext.value;
+  const max = bestContext.value;
+  if (!min && !max) return '—';
+  if (!min || min === max) return formatContext(max);
+  return `${formatContext(min)} – ${formatContext(max)}`;
 });
 
 const topProvider = computed(() => {
@@ -219,6 +268,79 @@ const familyList = computed(() => {
     if (m.family) families.add(m.family);
   }
   return [...families].sort();
+});
+
+// ── Top best_for tags across all models ──
+const topBestFor = computed(() => {
+  if (!creator.value) return [];
+  const counts: Record<string, number> = {};
+  for (const model of creator.value.models) {
+    for (const tag of model.best_for || []) {
+      counts[tag] = (counts[tag] || 0) + 1;
+    }
+  }
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([tag]) => tag);
+});
+
+// ── Provider icons for this creator ──
+const creatorProviders = computed(() => {
+  if (!creator.value) return [];
+  const providers = new Map<string, string>();
+  for (const model of creator.value.models) {
+    for (const dp of model.providers) {
+      if (!dp._removed) providers.set(dp.provider_slug, dp.provider);
+    }
+  }
+  return Array.from(providers.entries()).map(([slug, name]) => ({ slug, name }));
+});
+
+// ── Capability badges ──
+const capabilities = computed(() => {
+  if (!creator.value) return [];
+  const caps = [
+    { key: 'supports_tools', label: 'tools' },
+    { key: 'supports_reasoning', label: 'reasoning' },
+    { key: 'supports_attachment', label: 'vision' },
+    { key: 'supports_structured_output', label: 'structured JSON' },
+    { key: 'open_weights', label: 'open weights' },
+  ];
+  return caps.map((cap) => {
+    let has = false;
+    for (const model of creator.value!.models) {
+      for (const dp of model.providers) {
+        if (dp._removed) continue;
+        if ((dp as any)[cap.key] === true) {
+          has = true;
+          break;
+        }
+      }
+      if (has) break;
+    }
+    return { ...cap, has };
+  });
+});
+
+// ── Auto-generated description ──
+const creatorDescription = computed(() => {
+  const c = creator.value;
+  if (!c) return '';
+  const families = familyList.value;
+  let text = `${c.name} creates `;
+  if (families.length === 0) {
+    text += 'models';
+  } else if (families.length === 1) {
+    text += `the ${families[0]} family`;
+  } else {
+    const last = families[families.length - 1];
+    text += `${families.slice(0, -1).join(', ')} and ${last} families`;
+  }
+  text += ` — ${c.model_count} model${c.model_count !== 1 ? 's' : ''} across ${c.provider_count} provider${c.provider_count !== 1 ? 's' : ''}`;
+  const tags = topBestFor.value.slice(0, 3);
+  if (tags.length) text += `, with strengths in ${tags.join(', ')}`;
+  text += '.';
+  return text;
 });
 </script>
 
@@ -346,6 +468,73 @@ const familyList = computed(() => {
 .cd-family-tag:hover {
   color: var(--accent);
   background: var(--accent-subtle);
+}
+
+.cd-description {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 6px 0 0;
+  max-width: 720px;
+}
+
+.cd-features-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 0;
+}
+
+.cd-provider-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cd-prov-icon {
+  border-radius: 4px;
+  opacity: 0.8;
+  transition: opacity 0.12s;
+}
+.cd-prov-icon:hover {
+  opacity: 1;
+}
+
+.cd-caps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.cd-cap-badge {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border: 1px solid transparent;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+.cd-cap-badge.active {
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+}
+
+.cd-bestfor-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.cd-bestfor {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 500;
 }
 
 .section-title {

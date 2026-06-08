@@ -30,6 +30,11 @@
             <input v-model="multiProviderFilter" type="checkbox" />
             <span>2+ Providers</span>
           </label>
+          <div class="sm-segmented" role="group" aria-label="Model type filter">
+            <button :class="{ active: modelFilter === 'all' }" @click="modelFilter = 'all'">All</button>
+            <button :class="{ active: modelFilter === 'root' }" @click="modelFilter = 'root'">Root</button>
+            <button :class="{ active: modelFilter === 'finetune' }" @click="modelFilter = 'finetune'">Fine</button>
+          </div>
         </div>
         <div class="sm-sort">
           <select v-model="sortBy" class="sort-select">
@@ -42,22 +47,40 @@
             <option value="tools">Sort: Tools</option>
           </select>
           <button class="sort-dir-btn" @click="sortDesc = !sortDesc" :title="sortDesc ? 'Descending' : 'Ascending'">{{ sortDesc ? '↓' : '↑' }}</button>
+          <button class="view-toggle-btn" @click="viewMode = viewMode === 'flat' ? 'tree' : 'flat'" :title="viewMode === 'flat' ? 'Group by parent model' : 'Flat list'">{{ viewMode === 'flat' ? '⤵ Tree' : '≡ Flat' }}</button>
         </div>
       </div>
       <div class="sm-count">{{ filteredItems.length }} of {{ superItems.length }} super models</div>
     </div>
 
     <!-- Card list -->
-    <div v-if="sortedItems.length > 0" class="sm-list">
-      <SuperModelCard
-        v-for="item in sortedItems"
-        :key="item.slug"
-        :model="modelBySlug.get(item.slug)!"
-        :creator-slug="item.creatorSlug ?? undefined"
-        @click="openPanel(item)"
-        @creator-click="openCreatorPanel"
-      />
-    </div>
+    <template v-if="sortedItems.length > 0">
+      <div v-if="viewMode === 'flat'" class="sm-list">
+        <SuperModelCard
+          v-for="item in sortedItems"
+          :key="item.slug"
+          :model="modelBySlug.get(item.slug)!"
+          :creator-slug="item.creatorSlug ?? undefined"
+          @click="openPanel(item)"
+          @creator-click="openCreatorPanel"
+        />
+      </div>
+      <div v-else class="sm-tree">
+        <div
+          v-for="entry in treeItems"
+          :key="entry.item.slug"
+          class="tree-entry"
+          :class="{ 'tree-child': entry.depth > 0 }"
+        >
+          <SuperModelCard
+            :model="modelBySlug.get(entry.item.slug)!"
+            :creator-slug="entry.item.creatorSlug ?? undefined"
+            @click="openPanel(entry.item)"
+            @creator-click="openCreatorPanel"
+          />
+        </div>
+      </div>
+    </template>
 
     <!-- Empty state -->
     <div v-else class="empty-state">
@@ -176,6 +199,8 @@ const toolsFilter = ref(false);
 const multiProviderFilter = ref(false);
 const sortBy = ref('creator');
 const sortDesc = ref(false);
+const viewMode = ref<'flat' | 'tree'>('flat');
+const modelFilter = ref<'all' | 'root' | 'finetune'>('all');
 
 const searchedItems = computed(() => {
   const q = searchQuery.value.trim().toLowerCase();
@@ -201,6 +226,13 @@ const filteredItems = computed(() => {
   if (familyFilter.value) items = items.filter(i => i.family === familyFilter.value);
   if (toolsFilter.value) items = items.filter(i => i.any_tools);
   if (multiProviderFilter.value) items = items.filter(i => i.datapointsCount >= 2);
+  if (modelFilter.value !== 'all') {
+    items = items.filter(i => {
+      const m = modelBySlug.value.get(i.slug);
+      if (!m) return modelFilter.value === 'root';
+      return modelFilter.value === 'root' ? !m.base_model : !!m.base_model;
+    });
+  }
   return items;
 });
 
@@ -230,6 +262,38 @@ const sortedItems = computed(() => {
   return arr;
 });
 
+const treeItems = computed(() => {
+  const flat = sortedItems.value;
+  const visibleSlugs = new Set(flat.map(i => i.slug));
+  const childItems = new Map<string, SuperItem[]>();
+  const isChildSlug = new Set<string>();
+
+  for (const item of flat) {
+    const m = modelBySlug.value.get(item.slug);
+    const parentSlug = m?.base_model;
+    if (parentSlug && visibleSlugs.has(parentSlug)) {
+      isChildSlug.add(item.slug);
+      if (!childItems.has(parentSlug)) childItems.set(parentSlug, []);
+      childItems.get(parentSlug)!.push(item);
+    }
+  }
+
+  // Sort children by name under each parent
+  for (const [, children] of childItems) {
+    children.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  const result: { item: SuperItem; depth: number }[] = [];
+  for (const item of flat) {
+    if (isChildSlug.has(item.slug)) continue;
+    result.push({ item, depth: 0 });
+    for (const child of (childItems.get(item.slug) || [])) {
+      result.push({ item: child, depth: 1 });
+    }
+  }
+  return result;
+});
+
 const FAMILY_OVERRIDES: Record<string, string> = { gpt: 'GPT', glm: 'GLM', llm: 'LLM' };
 
 function formatFamily(raw: string): string {
@@ -242,6 +306,7 @@ function clearAllFilters() {
   familyFilter.value = '';
   toolsFilter.value = false;
   multiProviderFilter.value = false;
+  modelFilter.value = 'all';
 }
 
 // ── Super model detail panel ──
@@ -372,6 +437,61 @@ function navigateCreatorPanel(index: number) {
 }
 
 .sm-count { font-size: 0.68rem; color: var(--text-muted); }
+
+/* Segmented filter buttons */
+.sm-segmented {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.sm-segmented button {
+  background: none;
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s;
+}
+.sm-segmented button:last-child { border-right: none; }
+.sm-segmented button.active {
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 600;
+}
+.sm-segmented button:hover:not(.active) { background: var(--bg-hover); }
+
+/* View toggle */
+.view-toggle-btn {
+  background: var(--bg-elevated, var(--bg-card));
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.view-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Tree view */
+.sm-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tree-entry { position: relative; }
+.tree-child { margin-left: 20px; }
+.tree-child :deep(.sm-card) {
+  border-left-color: var(--text-muted);
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
 
 /* Card list */
 .sm-list {

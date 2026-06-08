@@ -53,6 +53,7 @@
                 <span v-else>{{ ancestor.name }}</span>
                 <span v-if="i < lineageChain.length - 1"> → </span>
               </template>
+              <span class="dp-depth-badge">Depth: {{ lineageChain.length }}</span>
             </span>
             <span v-else-if="model.base_creator && model.base_creator !== model.creator" class="dp-meta-item">
               Based on: {{ model.base_creator }} architecture
@@ -341,6 +342,18 @@ watch(
 }
 .dp-meta-link:hover {
   text-decoration: underline;
+}
+
+.dp-depth-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
+  vertical-align: middle;
+  margin-left: 4px;
 }
 
 .dp-finetunes {

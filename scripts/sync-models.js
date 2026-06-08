@@ -603,6 +603,55 @@ async function getSkipRemovalCheck(client) {
   return new Set(['openrouter/owl-alpha', 'openrouter/openrouter/free']);
 }
 
+// ── Creator name humanization ──
+const CREATOR_WHITELIST = new Map([
+  ['meta-llama', 'Meta'],
+  ['meta', 'Meta'],
+  ['mistralai', 'Mistral AI'],
+  ['deepseek-ai', 'DeepSeek'],
+  ['qwen', 'Alibaba Qwen'],
+  ['Qwen', 'Alibaba Qwen'],
+  ['google', 'Google'],
+  ['nvidia', 'NVIDIA'],
+  ['microsoft', 'Microsoft'],
+  ['openai', 'OpenAI'],
+  ['cohere', 'Cohere'],
+  ['anthropic', 'Anthropic'],
+  ['ibm', 'IBM'],
+  ['xai', 'xAI'],
+  ['01-ai', '01.AI'],
+  ['tiiuae', 'TII'],
+  ['rhymes-ai', 'Rhymes AI'],
+  ['stabilityai', 'Stability AI'],
+  ['togethercomputer', 'Together AI'],
+  ['black-forest-labs', 'Black Forest Labs'],
+  ['bytedance', 'ByteDance'],
+  ['alibaba', 'Alibaba'],
+  ['tencent', 'Tencent'],
+  ['minimax', 'MiniMax'],
+  ['deepinfra', 'DeepInfra'],
+  ['siliconflow', 'SiliconFlow'],
+  ['novitaai', 'NovitaAI'],
+  ['zhipuai', 'ZhipuAI'],
+]);
+
+function humanizeCreator(raw) {
+  if (CREATOR_WHITELIST.has(raw)) return CREATOR_WHITELIST.get(raw);
+
+  // Split on hyphens/underscores -> capitalize each word
+  if (/[-_]/.test(raw)) {
+    return raw.split(/[-_]/).filter(Boolean).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  }
+
+  // Detect camelCase boundaries in mixed-case names
+  if (/[A-Z]/.test(raw) && /[a-z]/.test(raw)) {
+    return raw.replace(/([a-z])([A-Z])/g, '$1 $2');
+  }
+
+  // All lowercase, no separators — capitalize first letter
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
 function normalizeModelSlug(name) {
   let slug = name
     .toLowerCase()
@@ -980,12 +1029,15 @@ function normalizeModelSlug(name) {
           const remoteId = m.id.includes('/') ? m.id.slice(m.id.indexOf('/') + 1) : m.id;
           const superSlug = normalizeModelSlug(m.name);
 
+          // Extract creator from model ID when it contains org prefix (e.g., "org/modelName")
+          const creator = remoteId.includes('/') ? humanizeCreator(remoteId.split('/')[0]) : null;
+
           // Upsert super model
           const { rows: mmRows } = await client.query(
-            `INSERT INTO super_models (name, slug) VALUES ($1, $2)
-             ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+            `INSERT INTO super_models (name, slug, creator) VALUES ($1, $2, $3)
+             ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, creator = COALESCE(super_models.creator, EXCLUDED.creator)
              RETURNING id`,
-            [m.name, superSlug],
+            [m.name, superSlug, creator],
           );
           const superId = mmRows[0].id;
 

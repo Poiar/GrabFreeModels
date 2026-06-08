@@ -37,6 +37,7 @@
       <router-link v-if="model.base_model" :to="`/model/${model.base_model}`" class="mc-finetune-badge" title="Fine-tune — click to see base model" @click.stop>
         FT: {{ baseModelName }}
       </router-link>
+      <span v-if="finetuneDepth >= 2" class="mc-depth-badge">Gen {{ finetuneDepth }}</span>
       <span v-else-if="baseCreatorLabel" class="mc-base-creator-badge">{{ baseCreatorLabel }}</span>
       <span v-if="limitBadges.card" class="mc-limit-warn" title="Credit card required by some providers">Card</span>
       <span v-if="limitBadges.sub" class="mc-limit-warn" :title="limitBadges.sub">Sub</span>
@@ -83,6 +84,18 @@ const baseModelName = computed(() => {
   if (!props.model.base_model) return '';
   const parent = store.modelBySlug.get(props.model.base_model);
   return parent ? parent.name : props.model.base_model;
+});
+
+const finetuneDepth = computed(() => {
+  if (!props.model.base_model) return 0;
+  let depth = 0;
+  let slug: string | null = props.model.base_model;
+  while (slug) {
+    depth++;
+    const parent = store.modelBySlug.get(slug);
+    slug = parent?.base_model ?? null;
+  }
+  return depth;
 });
 
 const baseCreatorLabel = computed(() => {
@@ -384,6 +397,16 @@ function roleLabel(role: string): string {
   border-radius: 999px;
   background: rgba(251, 191, 36, 0.15);
   color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.mc-depth-badge {
+  padding: 1px 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
   flex-shrink: 0;
 }
 

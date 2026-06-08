@@ -95,6 +95,20 @@ async function buildModelsData(client, pool, options = {}) {
     }
   }
 
+  // Fallback: infer creator from a name prefix (org/name or org: name pattern)
+  function inferCreatorFromName(name) {
+    if (!name) return null;
+    const slashIdx = name.indexOf('/');
+    if (slashIdx > 0 && slashIdx < name.length - 1) {
+      return name.slice(0, slashIdx).trim();
+    }
+    const colonIdx = name.indexOf(':');
+    if (colonIdx > 0 && colonIdx < name.length - 1) {
+      return name.slice(0, colonIdx).trim();
+    }
+    return null;
+  }
+
   const CTX_NORM = 1048756;
   const outputModels = [];
   const workingIds = [];
@@ -110,7 +124,7 @@ async function buildModelsData(client, pool, options = {}) {
       super_name: dm.super_name,
       name: dm.super_name,
       provider: dm.provider_name,
-      creator: dm.super_creator || null,
+      creator: dm.super_creator || inferCreatorFromName(dm.super_name) || null,
       base_creator: dm.super_base_creator || null,
       context_length: dm.context_length ?? null,
       is_free: dm.is_free,

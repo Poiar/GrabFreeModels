@@ -97,6 +97,58 @@
       </div>
     </div>
 
+    <!-- Fine-tune Stats -->
+    <div class="finetune-section">
+      <div class="card">
+        <div class="card-title">Fine-tune Stats</div>
+        <div class="ft-coverage-row">
+          <span class="ft-subtitle">Family Coverage</span>
+          <span class="ft-coverage-pct">{{ coveragePct }}%</span>
+        </div>
+        <div class="ft-coverage-bar-track">
+          <div class="ft-coverage-bar-fill" :style="{ width: coveragePct + '%' }"></div>
+        </div>
+        <div class="ft-stats-row">
+          <div class="ft-stat">
+            <div class="ft-value">{{ foundationCount }}</div>
+            <div class="ft-label">Foundation Models</div>
+          </div>
+          <div class="ft-stat">
+            <div class="ft-value accent-val">{{ finetuneCount }}</div>
+            <div class="ft-label">Fine-tuned Models</div>
+          </div>
+          <div class="ft-stat">
+            <div class="ft-value muted-val">{{ uncategorizedCount }}</div>
+            <div class="ft-label">Uncategorized</div>
+          </div>
+        </div>
+        <div v-if="topDerived.length > 0" class="most-derived-section">
+          <div class="ft-subtitle">Most Fine-tuned</div>
+          <div class="ft-chips">
+            <router-link
+              v-for="[slug, children] in topDerived"
+              :key="slug"
+              :to="`/model/${slug}`"
+              class="ft-chip"
+            >
+              <span class="ft-chip-name">{{ store.modelBySlug.get(slug)?.name ?? slug }}</span>
+              <span class="ft-chip-count">{{ children.length }}</span>
+            </router-link>
+          </div>
+        </div>
+        <div v-if="deepestChains.length > 0" class="deepest-chains-section">
+          <div class="ft-subtitle">Deepest Chains</div>
+          <div class="chain-list">
+            <div v-for="entry in deepestChains" :key="entry.model.super_id" class="chain-row">
+              <router-link :to="`/model/${entry.model.slug}`" class="chain-model-link">{{ entry.model.name }}</router-link>
+              <span class="chain-depth-badge">Depth {{ entry.depth }}</span>
+              <span class="chain-path">{{ entry.path.join(' → ') }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Provider Health Waveform -->
     <ProviderPulseWave class="pulse-wave-section" />
 
@@ -185,6 +237,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import type { ModelData } from '@/types';
 import { useModelsStore } from '@/store/models';
 import EcosystemGraph from '@/components/EcosystemGraph.vue';
 import ProviderPulseWave from '@/components/ProviderPulseWave.vue';
@@ -212,6 +265,57 @@ function generateSparkPath(base: number, seed: number): string {
   }
   return pts.join(' ');
 }
+
+// Fine-tune statistics
+const foundationCount = computed(() =>
+  store.allModels.filter(m => !m.base_model).length,
+);
+
+const finetuneCount = computed(() =>
+  store.allModels.filter(m => m.base_model).length,
+);
+
+const uncategorizedCount = computed(() =>
+  store.allModels.filter(m => !m.family || m.family === 'Uncategorized').length,
+);
+
+const modelsWithFamily = computed(() =>
+  store.allModels.filter(m => m.family && m.family !== 'Uncategorized').length,
+);
+
+const coveragePct = computed(() =>
+  Math.round((modelsWithFamily.value / Math.max(store.allModels.length, 1)) * 100),
+);
+
+const topDerived = computed(() => {
+  const entries = Array.from(store.derivedModels.entries());
+  entries.sort((a, b) => b[1].length - a[1].length);
+  return entries.slice(0, 6);
+});
+
+const deepestChains = computed(() => {
+  const chains: { model: ModelData; depth: number; path: string[] }[] = [];
+  for (const model of store.allModels) {
+    if (!model.base_model) continue;
+    const path: string[] = [];
+    let slug: string | null = model.base_model;
+    while (slug) {
+      const parent = store.modelBySlug.get(slug);
+      if (parent) {
+        path.push(parent.name);
+        slug = parent.base_model;
+      } else {
+        path.push(slug);
+        slug = null;
+      }
+    }
+    if (path.length >= 2) {
+      chains.push({ model, depth: path.length, path });
+    }
+  }
+  chains.sort((a, b) => b.depth - a.depth);
+  return chains.slice(0, 5);
+});
 </script>
 
 <style scoped>
@@ -631,6 +735,188 @@ function generateSparkPath(base: number, seed: number): string {
 
 .pulse-wave-section {
   margin-bottom: 28px;
+}
+
+/* Fine-tune Stats */
+.finetune-section {
+  margin-bottom: 24px;
+}
+
+.ft-stats-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.ft-stat {
+  flex: 1;
+}
+
+.ft-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: 2px;
+}
+
+.ft-value.accent-val {
+  color: var(--accent);
+}
+
+.ft-value.muted-val {
+  color: var(--text-muted);
+}
+
+.ft-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.most-derived-section {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.ft-subtitle {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.ft-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ft-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--accent-subtle, rgba(107,138,255,0.1));
+  color: var(--accent);
+  text-decoration: none;
+  transition: all var(--dur-standard, 300ms) var(--ease-default);
+  border: 1px solid transparent;
+}
+
+.ft-chip:hover {
+  background: var(--accent-subtle-hover, rgba(107,138,255,0.18));
+  border-color: var(--accent-dim, rgba(107,138,255,0.3));
+  transform: translateY(-1px);
+}
+
+.ft-chip-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ft-chip-count {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: var(--radius-full);
+  background: var(--bg-elevated, rgba(255,255,255,0.06));
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Deepest Chains */
+.deepest-chains-section {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.chain-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chain-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 0.72rem;
+}
+
+.chain-model-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.chain-model-link:hover {
+  text-decoration: underline;
+}
+
+.chain-depth-badge {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #a5b4fc;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.chain-path {
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ft-coverage-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.ft-coverage-pct {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.ft-coverage-bar-track {
+  height: 4px;
+  background: var(--depth-1, var(--bg-elevated));
+  border-radius: 2px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.ft-coverage-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-end, #a78bfa));
+  transition: width 0.6s var(--ease-emphasis);
+}
+
+@media (max-width: 500px) {
+  .ft-stats-row {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 
 @media (max-width: 768px) {

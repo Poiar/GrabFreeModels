@@ -56,6 +56,11 @@
         <input v-model="cardRequiredFilter" type="checkbox" />
         <span>Card req.</span>
       </label>
+      <div class="ml-segmented" role="group" aria-label="Model type filter">
+        <button :class="{ active: modelFilter === 'all' }" @click="modelFilter = 'all'">All</button>
+        <button :class="{ active: modelFilter === 'root' }" @click="modelFilter = 'root'">Root</button>
+        <button :class="{ active: modelFilter === 'finetune' }" @click="modelFilter = 'finetune'">Fine</button>
+      </div>
       <div class="ml-sort">
         <select v-model="sortKey" class="ml-select" aria-label="Sort by">
           <option value="name">Sort: Name</option>
@@ -142,6 +147,7 @@ const statusFilter = ref(getQueryParam('status', ''));
 const cardRequiredFilter = ref(getQueryParam('card', '') === '1');
 const sortKey = ref(getQueryParam('sort', 'name'));
 const sortAsc = ref(getQueryParam('asc', 'true') !== 'false');
+const modelFilter = ref<'all' | 'root' | 'finetune'>('all');
 
 // Sync filter state → URL query params
 watch(
@@ -241,6 +247,10 @@ const filteredDatapoints = computed(() => {
         // Card required filter
         if (cardRequiredFilter.value && !(dp.limitations?.requires_card)) continue;
 
+        // Root/fine-tune filter
+        if (modelFilter.value === 'root' && model.base_model) continue;
+        if (modelFilter.value === 'finetune' && !model.base_model) continue;
+
         items.push({ dp, model, creator, siblingCount });
       }
     }
@@ -289,6 +299,7 @@ function clearFilters() {
   creatorFilter.value = '';
   statusFilter.value = '';
   cardRequiredFilter.value = false;
+  modelFilter.value = 'all';
 }
 
 function exportJSON() {
@@ -443,6 +454,32 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   cursor: pointer;
   font-size: 0.78rem;
 }
+
+.ml-segmented {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.ml-segmented button {
+  background: none;
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s;
+}
+.ml-segmented button:last-child { border-right: none; }
+.ml-segmented button.active {
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 600;
+}
+.ml-segmented button:hover:not(.active) { background: var(--bg-hover); }
 
 .ml-export {
   display: flex;
