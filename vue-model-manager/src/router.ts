@@ -58,8 +58,14 @@ const routes = [
   {
     path: '/compare',
     name: 'Compare',
-    component: () => import('@/views/CompareView.vue'),
-    meta: { title: 'Compare' },
+    component: () => import('@/views/CompareModels.vue'),
+    meta: { title: 'Compare Models' },
+  },
+  {
+    path: '/catalog',
+    name: 'Catalog',
+    component: () => import('@/views/Catalog.vue'),
+    meta: { title: 'Catalog' },
   },
   {
     path: '/rankings',

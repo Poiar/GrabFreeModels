@@ -278,6 +278,26 @@
           </span>
           <span>Compare</span>
         </router-link>
+        <router-link to="/catalog" active-class="active" class="nav-catalog">
+          <span class="nav-icon">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              <line x1="8" y1="11" x2="14" y2="11" />
+            </svg>
+          </span>
+          <span>Catalog</span>
+        </router-link>
       </nav>
 
       <SourceTogglePanel />
@@ -631,6 +651,7 @@ function timeAgo(date: Date, _now: number): string {
 .nav-families { color: #a5b4fc; }
 .nav-basemodels { color: #a5b4fc; }
 .nav-compare { color: #cbd5e1; }
+.nav-catalog { color: #f0abfc; }
 
 /* Active always wins over colored hover states */
 .sidebar nav a.active,
@@ -649,4 +670,5 @@ function timeAgo(date: Date, _now: number): string {
 .nav-families:hover { color: #c7d2fe; }
 .nav-basemodels:hover { color: #c7d2fe; }
 .nav-compare:hover { color: #e2e8f0; }
+.nav-catalog:hover { color: #f5d0fe; }
 </style>
