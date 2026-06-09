@@ -884,6 +884,21 @@ function normalizeModelSlug(name) {
       'deepseek', 'groq', 'opencode', 'github-models', 'deepinfra', 'cloudflare', 'novitaai', 'siliconflow', 'xai', 'zhipuai',
     ]);
 
+    // Track providers that returned 0 models -- assume fetch failure, skip removal
+    const providersWithZeroResults = new Set();
+    const providerArrays = {
+      openrouter: orModels, cerebras: cbModels, nvidia: nvModels, google: googleModels,
+      deepseek: dsModels, groq: groqModels, opencode: ocModels, 'github-models': ghModels,
+      deepinfra: diModels, cloudflare: cfModels, novitaai: nvtModels, siliconflow: sfModels,
+      xai: xaiModels, zhipuai: zhipuModels,
+    };
+    for (const [slug, arr] of Object.entries(providerArrays)) {
+      if (!arr || arr.length === 0) {
+        providersWithZeroResults.add(slug);
+        logger.warn('Provider ' + slug + ' returned 0 models -- assuming fetch failure, skipping removal');
+      }
+    }
+
     const { rows: dbModels } = await client.query(`
       SELECT dm.full_id, dp.name AS provider_name, dp.slug AS provider_slug
       FROM datapoint_models dm
@@ -893,6 +908,7 @@ function normalizeModelSlug(name) {
 
     for (const m of dbModels) {
       if (!syncedSlugs.has(m.provider_slug)) continue; // skip community-imported providers
+      if (providersWithZeroResults.has(m.provider_slug)) continue; // skip zero-result providers
       if (!allCurrentFreeIds.has(m.full_id) && !skipRemovalCheck.has(m.full_id)) {
         potentiallyRemoved.push(m);
       }
