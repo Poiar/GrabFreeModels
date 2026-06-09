@@ -916,6 +916,153 @@ function normalizeModelSlug(name) {
     logger.info(`  Potentially removed: ${potentiallyRemoved.length}`);
     for (const r of potentiallyRemoved) logger.info(`    ? ${r.full_id}`);
 
+    // ── Spec change detection ──
+    // Compare API-provided values with DB values to detect meaningful
+    // changes in model specifications (context, pricing, capabilities).
+    logger.info('\n[Spec Changes] Detecting model spec changes...');
+
+    // Build map of full_id → API-provided values from all fetches
+    const apiModelValues = new Map();
+
+    for (const m of orModels) {
+      const p = m.pricing || {};
+      const inputPrice = p.prompt !== undefined ? parseFloat(p.prompt) : undefined;
+      const outputPrice = p.completion !== undefined ? parseFloat(p.completion) : undefined;
+      apiModelValues.set(`openrouter/${m.id}`, {
+        context_length: m.context_length ?? null,
+        input_price_per_million: inputPrice,
+        output_price_per_million: outputPrice,
+      });
+    }
+
+    const otherProvidersData = [
+      { models: cbModels || [], prefix: '' },
+      { models: nvModels || [], prefix: 'nvidia/' },
+      { models: googleModels || [], prefix: '' },
+      { models: dsModels || [], prefix: '' },
+      { models: groqModels || [], prefix: '' },
+      { models: ocModels || [], prefix: '' },
+      { models: diModels || [], prefix: '' },
+      { models: cfModels || [], prefix: '' },
+      { models: nvtModels || [], prefix: '' },
+      { models: sfModels || [], prefix: '' },
+      { models: ghModels || [], prefix: '' },
+      { models: xaiModels || [], prefix: '' },
+      { models: zhipuModels || [], prefix: '' },
+    ];
+
+    for (const { models, prefix } of otherProvidersData) {
+      for (const m of models) {
+        apiModelValues.set(prefix + m.id, {
+          context_length: m.context_length ?? null,
+        });
+      }
+    }
+
+    // Query current DB values for all free, active models
+    const { rows: currentVals } = await client.query(`
+      SELECT full_id, context_length, input_price_per_million, output_price_per_million,
+             supports_tools
+      FROM datapoint_models
+      WHERE is_free = true AND is_removed = false
+    `);
+
+    // Query supports_reasoning from features table
+    const { rows: reasonRows } = await client.query(`
+      SELECT dm.full_id
+      FROM datapoint_models dm
+      JOIN datapoint_model_features dmf ON dmf.datapoint_model_id = dm.id
+      WHERE dmf.feature_type = 'supports_reasoning' AND dmf.value = 'true'
+        AND dm.is_free = true AND dm.is_removed = false
+    `);
+    const dbSupportsReasoning = new Set(reasonRows.map((r) => r.full_id));
+
+    const currentValMap = {};
+    for (const row of currentVals) {
+      currentValMap[row.full_id] = row;
+    }
+
+    const specChanges = [];
+
+    for (const [fullId, apiVal] of apiModelValues) {
+      const dbRow = currentValMap[fullId];
+      if (!dbRow) continue; // Model not in DB yet (will be added as new)
+
+      // context_length — flag if changed by >10%
+      if (dbRow.context_length !== null && apiVal.context_length !== null && apiVal.context_length > 0) {
+        const oldLen = Number(dbRow.context_length);
+        const newLen = apiVal.context_length;
+        const pctChange = Math.abs(newLen - oldLen) / oldLen;
+        if (pctChange > 0.1) {
+          specChanges.push({
+            full_id: fullId,
+            field: 'context_length',
+            old: oldLen,
+            new: newLen,
+            reason: `${pctChange >= 1 ? '+' : ''}${(pctChange * 100).toFixed(0)}% change`,
+          });
+        }
+      }
+
+      // input_price_per_million — flag any change (OpenRouter only)
+      if (apiVal.input_price_per_million !== undefined && dbRow.input_price_per_million !== null) {
+        const oldP = Number(dbRow.input_price_per_million);
+        if (Math.abs(apiVal.input_price_per_million - oldP) > 0.0001) {
+          specChanges.push({
+            full_id: fullId,
+            field: 'input_price_per_million',
+            old: oldP,
+            new: apiVal.input_price_per_million,
+            reason: 'price changed',
+          });
+        }
+      }
+
+      // output_price_per_million — flag any change (OpenRouter only)
+      if (apiVal.output_price_per_million !== undefined && dbRow.output_price_per_million !== null) {
+        const oldP = Number(dbRow.output_price_per_million);
+        if (Math.abs(apiVal.output_price_per_million - oldP) > 0.0001) {
+          specChanges.push({
+            full_id: fullId,
+            field: 'output_price_per_million',
+            old: oldP,
+            new: apiVal.output_price_per_million,
+            reason: 'price changed',
+          });
+        }
+      }
+
+      // supports_tools — flag capability changes
+      const apiSupportsTools = apiVal.supports_tools;
+      if (apiSupportsTools !== undefined && dbRow.supports_tools !== null) {
+        if (apiSupportsTools !== dbRow.supports_tools) {
+          specChanges.push({
+            full_id: fullId,
+            field: 'supports_tools',
+            old: dbRow.supports_tools,
+            new: apiSupportsTools,
+            reason: apiSupportsTools ? 'tools capability added' : 'tools capability removed',
+          });
+        }
+      }
+
+      // supports_reasoning — flag capability changes (from features table)
+      const dbHasReasoning = dbSupportsReasoning.has(fullId);
+      if (apiVal.supports_reasoning !== undefined) {
+        if (apiVal.supports_reasoning !== dbHasReasoning) {
+          specChanges.push({
+            full_id: fullId,
+            field: 'supports_reasoning',
+            old: dbHasReasoning,
+            new: apiVal.supports_reasoning,
+            reason: apiVal.supports_reasoning ? 'reasoning capability added' : 'reasoning capability removed',
+          });
+        }
+      }
+    }
+
+    specChanges.sort((a, b) => a.full_id.localeCompare(b.full_id));
+
     // --- Summary ---
     const totalNew =
       newOr.length +
@@ -935,6 +1082,14 @@ function normalizeModelSlug(name) {
     logger.info('\n=== Summary ===');
     logger.info(`  New models found:    ${totalNew}`);
     logger.info(`  Potentially removed: ${potentiallyRemoved.length}`);
+    logger.info(`  Spec changes:        ${specChanges.length}`);
+
+    if (specChanges.length > 0) {
+      logger.info('\n--- Spec Changes Detected ---');
+      for (const ch of specChanges) {
+        logger.info(`  ${ch.full_id} | ${ch.field}: ${ch.old} → ${ch.new} (${ch.reason})`);
+      }
+    }
 
     if (!APPLY) {
       logger.info('\nDry-run mode. Use --apply to update PostgreSQL');
@@ -1112,6 +1267,45 @@ function normalizeModelSlug(name) {
               m.full_id,
             ],
           );
+        }
+
+        // Store spec changes in metadata
+        if (specChanges.length > 0) {
+          const { rows: existingSpecMeta } = await client.query(
+            "SELECT value FROM metadata WHERE key = '_spec_changes'",
+          );
+          let specHistory = [];
+          if (existingSpecMeta.length > 0) {
+            try {
+              specHistory = typeof existingSpecMeta[0].value === 'string'
+                ? JSON.parse(existingSpecMeta[0].value)
+                : existingSpecMeta[0].value;
+            } catch { specHistory = []; }
+          }
+          if (!Array.isArray(specHistory)) specHistory = [];
+
+          specHistory.push({
+            date: new Date().toISOString(),
+            changes: specChanges.map((c) => ({
+              full_id: c.full_id,
+              field: c.field,
+              old: c.old,
+              new: c.new,
+              reason: c.reason,
+            })),
+          });
+
+          // Keep last 100 entries to avoid unbounded growth
+          if (specHistory.length > 100) {
+            specHistory = specHistory.slice(-100);
+          }
+
+          await client.query(
+            `INSERT INTO metadata (key, value) VALUES ($1, $2::jsonb)
+             ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+            ['_spec_changes', JSON.stringify(specHistory)],
+          );
+          logger.info(`  Stored ${specChanges.length} spec changes in metadata`);
         }
 
         await client.query('COMMIT');
