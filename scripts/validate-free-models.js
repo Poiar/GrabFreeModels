@@ -57,7 +57,7 @@ async function loadFromDb() {
   }
 }
 
-async function saveToDbAndExport() {
+async function saveToDbAndExport(observations = []) {
   const client = await DB_POOL.connect();
   try {
     // Snapshot current test_summary as "previous" before overwriting
@@ -88,8 +88,42 @@ async function saveToDbAndExport() {
       );
     }
     await client.query('COMMIT');
+
+    // Insert observations after commit (non-critical, best-effort)
+    if (observations.length > 0) {
+      try {
+        const BATCH_SIZE = 100;
+        for (let i = 0; i < observations.length; i += BATCH_SIZE) {
+          const batch = observations.slice(i, i + BATCH_SIZE);
+          const placeholders = [];
+          const params = [];
+          let idx = 1;
+          for (const obs of batch) {
+            placeholders.push(`($${idx}, $${idx + 1}, $${idx + 2}, $${idx + 3}, $${idx + 4}, $${idx + 5}, $${idx + 6}, $${idx + 7})`);
+            params.push(
+              obs.datapoint_model_id,
+              obs.full_id,
+              obs.provider,
+              obs.model_name,
+              obs.status,
+              obs.latency_ms,
+              obs.error_type,
+              obs.metadata || null,
+            );
+            idx += 8;
+          }
+          await client.query(
+            `INSERT INTO test_observations (datapoint_model_id, full_id, provider, model_name, status, latency_ms, error_type, metadata) VALUES ${placeholders.join(', ')}`,
+            params,
+          );
+        }
+        logger.info(`Recorded ${observations.length} test observations`);
+      } catch (e) {
+        logger.error(`Failed to record test observations: ${e.message}`);
+      }
+    }
   } catch (e) {
-    await client.query('ROLLBACK');
+    try { await client.query('ROLLBACK'); } catch { /* ignore rollback error */ }
     throw e;
   } finally {
     client.release();
@@ -194,6 +228,65 @@ function httpsPost(url, body, headers) {
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+// ── Cooldown state per endpoint (Item 9) ──
+const cooldownState = new Map(); // endpoint → { until: epochMs, reason: string }
+const COOLDOWN_FILE = path.join(REPO_ROOT, '.cooldown-state.json');
+
+function loadCooldownState() {
+  try {
+    if (fs.existsSync(COOLDOWN_FILE)) {
+      const data = JSON.parse(fs.readFileSync(COOLDOWN_FILE, 'utf8'));
+      const now = Date.now();
+      for (const [ep, val] of Object.entries(data)) {
+        if (val.until > now) cooldownState.set(ep, val);
+      }
+    }
+  } catch { /* cooldown file is advisory */ }
+}
+
+function saveCooldownState() {
+  try {
+    const obj = {};
+    const now = Date.now();
+    for (const [ep, val] of cooldownState.entries()) {
+      if (val.until > now) obj[ep] = val;
+    }
+    if (Object.keys(obj).length > 0) {
+      fs.writeFileSync(COOLDOWN_FILE, JSON.stringify(obj, null, 2));
+    } else {
+      try { fs.unlinkSync(COOLDOWN_FILE); } catch { /* ignore */ }
+    }
+  } catch { /* cooldown persistence is best-effort */ }
+}
+
+function cooldownTTL(errorType) {
+  switch (errorType) {
+    case 'auth': return 30 * 60 * 1000;       // 30 min — broken key
+    case 'rate_limited': return 60 * 1000;     // 1 min — back off
+    case 'server_error': return 5 * 60 * 1000; // 5 min — transient
+    case 'timeout': return 2 * 60 * 1000;      // 2 min — network blip
+    case 'network_error': return 10 * 60 * 1000; // 10 min — connectivity
+    default: return 0;  // no cooldown
+  }
+}
+
+function isInCooldown(endpoint) {
+  const cd = cooldownState.get(endpoint);
+  if (!cd) return false;
+  if (Date.now() >= cd.until) {
+    cooldownState.delete(endpoint);
+    return false;
+  }
+  return true;
+}
+
+function applyCooldown(endpoint, errorType) {
+  const ttl = cooldownTTL(errorType);
+  if (ttl <= 0) return; // client_error (except 429) doesn't cooldown
+  cooldownState.set(endpoint, { until: Date.now() + ttl, reason: errorType });
+  saveCooldownState();
 }
 
 // --- Provider configuration ---
@@ -370,14 +463,17 @@ async function testModel(apiModelId, phase, apiKey, apiUrl) {
   };
   const results = [];
   for (let i = 0; i < 3; i++) {
-    let result;
+    let obs;
     let retries = 0;
     while (retries <= 1) {
       try {
+        const startMs = Date.now();
         const timeout = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('ETIMEDOUT')), 30000),
         );
         const res = await Promise.race([httpsPost(apiUrl, body, headers), timeout]);
+        const latencyMs = Date.now() - startMs;
+
         if (res.status === 429 && retries === 0) {
           // Retry once on rate-limit with backoff
           const delay = phase === 'burst' ? 2000 : 5000;
@@ -392,7 +488,12 @@ async function testModel(apiModelId, phase, apiKey, apiUrl) {
           retries++;
           continue;
         }
-        result = res.status >= 200 && res.status < 300 ? 'OK' : String(res.status);
+        const isOk = res.status >= 200 && res.status < 300;
+        obs = {
+          status: isOk ? 'OK' : String(res.status),
+          latencyMs,
+          errorType: isOk ? null : (res.status === 429 ? 'rate_limited' : res.status >= 500 ? 'server_error' : 'client_error'),
+        };
         break;
       } catch (e) {
         const isTimeout =
@@ -403,11 +504,15 @@ async function testModel(apiModelId, phase, apiKey, apiUrl) {
           retries++;
           continue;
         }
-        result = isTimeout ? 'TIMEOUT' : 'ERR';
+        obs = {
+          status: isTimeout ? 'TIMEOUT' : 'ERR',
+          latencyMs: isTimeout ? 30000 : null,
+          errorType: isTimeout ? 'timeout' : (e.code === 'ECONNRESET' ? 'network_error' : 'client_error'),
+        };
         break;
       }
     }
-    results.push(result);
+    results.push(obs);
     if (phase === 'burst') await sleep(300);
     else await sleep(5000);
   }
@@ -418,6 +523,7 @@ async function testModel(apiModelId, phase, apiKey, apiUrl) {
 (async () => {
   try {
   auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
+  loadCooldownState(); // Load persisted cooldown state (Item 9)
   await loadFromDb();
 } catch (e) {
   logger.error(`Failed to load from DB: ${e.message}\n${e.stack}`);
@@ -544,6 +650,18 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
     process.exit(0);
   }
 
+  // Load datapoint_model_ids for observation recording
+  let dmIdByFullId = {};
+  try {
+    const { rows: dmIdRows } = await DB_POOL.query(
+      'SELECT id, full_id FROM datapoint_models WHERE full_id = ANY($1)',
+      [confirmed.map(m => m.id)]
+    );
+    for (const r of dmIdRows) dmIdByFullId[r.full_id] = r.id;
+  } catch (e) {
+    logger.info(`Could not load DM IDs for observations: ${e.message}`);
+  }
+
   // 3. Test confirmed models — endpoints in parallel, sequential within each
   logger.info(`Testing ${confirmed.length} models...\n`);
   const byEp = {};
@@ -554,7 +672,7 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
 
   const allResults = [];
 
-  async function testOne(m) {
+  async function testOne(m, dmIdMap) {
     const ep = getEndpoint(m.id);
     const cfg = ENDPOINT_CONFIG[ep];
     const vIds = validIds[ep];
@@ -576,13 +694,38 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
         detail: `Unhandled error: ${e.message}`,
         burst: [],
         delayed: [],
+        observations: [],
       };
     }
-    logger.info(`  Burst:   ${burst.join(', ')}`);
-    logger.info(`  Delayed: ${delayed.join(', ')}`);
+    logger.info(`  Burst:   ${burst.map(r => r.status).join(', ')}`);
+    logger.info(`  Delayed: ${delayed.map(r => r.status).join(', ')}`);
+
+    // Build observation rows from individual request results
+    const observations = [];
+    function addObservations(arr, phase) {
+      for (let i = 0; i < arr.length; i++) {
+        const r = arr[i];
+        observations.push({
+          datapoint_model_id: dmIdMap[m.id] || null,
+          full_id: m.id,
+          provider: ep,
+          model_name: m.name || null,
+          status: r.status === 'OK' ? 'pass' : 'fail',
+          latency_ms: r.latencyMs,
+          error_type: r.errorType,
+          metadata: JSON.stringify({
+            request_phase: phase,
+            api_model_id: apiId,
+            request_num: i + 1,
+          }),
+        });
+      }
+    }
+    addObservations(burst, 'burst');
+    addObservations(delayed, 'delayed');
 
     const all = [...burst, ...delayed];
-    const ok = all.filter((r) => r === 'OK').length;
+    const ok = all.filter((r) => r.status === 'OK').length;
     const total = all.length;
 
     let status, detail;
@@ -590,8 +733,8 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
       status = 'working';
       detail = `All ${total} requests succeeded.`;
     } else if (ok === 0) {
-      const all429 = all.every((r) => r === '429');
-      const allTimeout = all.some((r) => r === 'TIMEOUT');
+      const all429 = all.every((r) => r.status === '429');
+      const allTimeout = all.some((r) => r.status === 'TIMEOUT');
       status = all429 ? 'rate_limited' : allTimeout ? 'broken' : 'broken';
       detail = all429
         ? `All ${total} requests rate-limited (429).`
@@ -606,16 +749,28 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
       detail = `${ok}/${total} OK - sporadic, not reliably usable.`;
     }
 
+    // Apply cooldown based on observed error types (Item 9)
+    const nonOkErrorTypes = new Set(
+      all.filter((r) => r.status !== 'OK').map((r) => r.errorType).filter(Boolean),
+    );
+    for (const et of nonOkErrorTypes) applyCooldown(ep, et);
+
     recordModelResult(ep, m.id, status, detail);
 
     const color = status === 'working' ? '\x1b[32m' : '\x1b[33m';
     logger.info(`  => ${color}${status}\x1b[0m\n`);
-    return { id: m.id, status, detail, burst, delayed };
+    return { id: m.id, status, detail, burst, delayed, observations };
   }
 
   async function runEndpoint(ep) {
+    if (isInCooldown(ep)) {
+      const cd = cooldownState.get(ep);
+      const remaining = Math.ceil((cd.until - Date.now()) / 1000);
+      logger.info(`  [${ep}] in cooldown (${cd.reason}) — ${remaining}s remaining, skipping`);
+      return;
+    }
     for (const m of byEp[ep] || []) {
-      allResults.push(await testOne(m));
+      allResults.push(await testOne(m, dmIdByFullId));
     }
   }
 
@@ -636,7 +791,8 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
   // --- Summary ---
   printResultsTable();
 
-  // Provider outage alerts
+  // Provider outage alerts with stale=healthy semantics (Item 10)
+  // Providers in cooldown are assumed healthy — they were skipped intentionally
   const outageProviders = [];
   for (const [ep, s] of Object.entries(endpointStats)) {
     if (s.tested > 0 && s.passed / s.tested < 0.5) {
@@ -654,6 +810,18 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
       logger.info(`  ${p.endpoint}: ${p.passed}/${p.tested} passed (${p.passRate})`);
     }
     logger.info('');
+  }
+
+  // Report currently cooldowned providers (assumed healthy, not flagged as outage)
+  const now = Date.now();
+  const activeCooldowns = [...cooldownState.entries()].filter(([, v]) => v.until > now);
+  if (activeCooldowns.length > 0) {
+    logger.info('─── Cooldown States (stale = healthy) ───');
+    for (const [ep, cd] of activeCooldowns) {
+      const remaining = Math.ceil((cd.until - now) / 1000);
+      logger.info(`  ${ep}: ${cd.reason} (${remaining}s remaining)`);
+    }
+    logger.info('────────────────────────\n');
   }
 
   if (!APPLY) {
@@ -712,7 +880,29 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
   }
 
   json._test_summary.date = today;
-  await saveToDbAndExport();
+
+  // Collect observations from allResults for insertion
+  const allObservations = [];
+  for (const r of allResults) {
+    if (r.observations && r.observations.length > 0) {
+      allObservations.push(...r.observations);
+    }
+  }
+  // Add observations for not_found models
+  for (const nf of notFound) {
+    allObservations.push({
+      datapoint_model_id: dmIdByFullId[nf.model.id] || null,
+      full_id: nf.model.id,
+      provider: nf.endpoint,
+      model_name: nf.model.name || null,
+      status: 'fail',
+      latency_ms: null,
+      error_type: 'not_found',
+      metadata: JSON.stringify({ tried_id: nf.triedId }),
+    });
+  }
+
+  await saveToDbAndExport(allObservations);
   logger.info('DB updated and JSON exported successfully');
 
   // --- Auto re-rank if working set changed ---

@@ -1,0 +1,159 @@
+{
+  "openrouter": {
+    "name": "OpenRouter",
+    "baseUrl": "https://openrouter.ai/api/v1/chat/completions",
+    "modelsUrl": "https://openrouter.ai/api/v1/models",
+    "authEnv": "auth.openrouter.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": { "maxTokens": "max_tokens" },
+    "flags": { "supportsStreaming": true, "requiresOrgId": false, "freeSuffix": ":free" },
+    "rateLimit": "20 RPM / 1,000 TPM"
+  },
+  "cerebras": {
+    "name": "Cerebras",
+    "baseUrl": "https://api.cerebras.ai/v1/chat/completions",
+    "modelsUrl": "https://api.cerebras.ai/v1/models",
+    "authEnv": "auth.cerebras.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "supportsStreaming": true },
+    "rateLimit": "30 RPM / 1M TPM"
+  },
+  "nvidia": {
+    "name": "NVIDIA",
+    "baseUrl": "https://integrate.api.nvidia.com/v1/chat/completions",
+    "modelsUrl": "https://integrate.api.nvidia.com/v1/models",
+    "authEnv": "auth.nvidia.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "supportsStreaming": true, "nvidiaPrefixForNative": true }
+  },
+  "huggingface": {
+    "name": "HuggingFace",
+    "baseUrl": "https://router.huggingface.co/v1/chat/completions",
+    "modelsUrl": null,
+    "authEnv": "auth.huggingface.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "supportsStreaming": true }
+  },
+  "deepseek": {
+    "name": "DeepSeek",
+    "baseUrl": "https://api.deepseek.com/v1/chat/completions",
+    "modelsUrl": "https://api.deepseek.com/models",
+    "authEnv": "auth.deepseek.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "supportsStreaming": true }
+  },
+  "google": {
+    "name": "Google",
+    "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+    "modelsUrl": "https://generativelanguage.googleapis.com/v1beta/models",
+    "authEnv": "auth.google.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "usesQueryParamAuth": true, "supportsStreaming": true },
+    "rateLimit": "15 RPM / 1M TPM"
+  },
+  "groq": {
+    "name": "Groq",
+    "baseUrl": "https://api.groq.com/openai/v1/chat/completions",
+    "modelsUrl": "https://api.groq.com/openai/v1/models",
+    "authEnv": "auth.groq.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "supportsStreaming": true },
+    "rateLimit": "30 RPM / 7,000 TPM"
+  },
+  "deepinfra": {
+    "name": "DeepInfra",
+    "baseUrl": "https://api.deepinfra.com/v1/openai/chat/completions",
+    "modelsUrl": "https://api.deepinfra.com/v1/openai/models",
+    "authEnv": "auth.deepinfra.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "supportsStreaming": true }
+  },
+  "novitaai": {
+    "name": "NovitaAI",
+    "baseUrl": "https://api.novita.ai/v3/openai/chat/completions",
+    "modelsUrl": "https://api.novita.ai/v3/openai/models",
+    "authEnv": "auth.novitaai.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "supportsStreaming": true }
+  },
+  "siliconflow": {
+    "name": "SiliconFlow",
+    "baseUrl": "https://api.siliconflow.cn/v1/chat/completions",
+    "modelsUrl": "https://api.siliconflow.com/v1/models",
+    "authEnv": "auth.siliconflow.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "supportsStreaming": true }
+  },
+  "xai": {
+    "name": "xAI",
+    "baseUrl": "https://api.x.ai/v1/chat/completions",
+    "modelsUrl": "https://api.x.ai/v1/models",
+    "authEnv": "auth.xai.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "supportsStreaming": true }
+  },
+  "zhipuai": {
+    "name": "ZhipuAI",
+    "baseUrl": "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+    "modelsUrl": "https://open.bigmodel.cn/api/paas/v4/models",
+    "authEnv": "auth.zhipuai.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "supportsStreaming": true }
+  },
+  "opencode": {
+    "name": "OpenCode",
+    "baseUrl": "https://opencode.ai/zen/v1/chat/completions",
+    "modelsUrl": "https://opencode.ai/zen/v1/models",
+    "authEnv": "auth.opencode.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "nonOpenAICompat": true }
+  },
+  "cloudflare": {
+    "name": "Cloudflare",
+    "baseUrl": "https://api.cloudflare.com/client/v4/accounts/{accountId}/ai/run",
+    "modelsUrl": "https://api.cloudflare.com/client/v4/accounts/{accountId}/ai/models/search",
+    "authEnv": "auth.cloudflare.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "requiresAccountId": true, "nonOpenAICompat": true }
+  },
+  "llmgateway": {
+    "name": "LLM Gateway",
+    "baseUrl": "https://api.llmgateway.io/v1/chat/completions",
+    "modelsUrl": null,
+    "authEnv": "auth.llmgateway.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": {}
+  },
+  "alibaba": {
+    "name": "Alibaba",
+    "baseUrl": "https://dashscope.aliyuncs.com/api/v1/chat/completions",
+    "modelsUrl": "https://dashscope.aliyuncs.com/api/v1/models",
+    "authEnv": "auth.alibaba.DASHSCOPE_API_KEY",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": { "supportsStreaming": true }
+  },
+  "github-models": {
+    "name": "GitHub Models",
+    "baseUrl": "https://models.inference.ai.azure.com",
+    "modelsUrl": "https://models.inference.ai.azure.com/models",
+    "authEnv": "auth.github_models.key",
+    "authHeader": "Authorization: Bearer {key}",
+    "paramMapping": {},
+    "flags": {}
+  }
+}
