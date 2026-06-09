@@ -5,31 +5,14 @@ description: Discover what other running Claude Code sessions are working on. Tr
 
 # Peer Session Discovery
 
-Discover what other running Claude Code sessions in this Tabby window are working on — without interrupting them.
+Show what other Claude Code sessions are running — without interrupting them.
 
-## Steps
+**1. Self** — `~/.claude/scripts/peer-id.ps1` to get your UUID (exclude yourself).
 
-### 1. Identify running projects
+**2. List** — `list_tabs`. For each tab with `claude.exe` that isn't you, report:
+- Short name (first 8 chars of UUID)
+- Project (Playwright path: `C:\OC\<X>\node_modules\...` → `C:\OC\<X>`; npm-cache → deepclaude)
 
-Call `list_tabs`. Count peer tabs per project:
-- Extract project dir from each peer's Playwright MCP path (`C:\OC\<X>\node_modules\...\@playwright\mcp\cli.js` → `C:\OC\<X>`)
-- Npm-cache Playwright paths → check `dc.ps1` or node cmdlines for the project dir
-- Exclude your own tab (the one with `bash.exe` or `git.exe`)
-- For the project you're in, add +1 to the count (to account for your session)
+**3. Context** — For each session, check inbox (`peer-inbox`) or process cmdlines for recent activity.
 
-### 2. Run scanner with counts
-
-```powershell
-& "$env:USERPROFILE\.claude\skills\peer-sessions\peer-sessions.ps1" -MaxPerRepo @{"C:\OC\Foo"=2; "C:\OC\Bar"=1}
-```
-
-The script returns the N most recent sessions per project. Filter out the line matching your last prompt.
-
-### 3. Present
-
-```
-<cwd> — <branch> — <State>
-<summary>
-```
-
-To message a discovered session, use `/peer-msg` with the project path shown.
+To message a discovered session, use `/peer-msg` with the short name.

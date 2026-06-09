@@ -58,7 +58,7 @@
             <div class="rr-rank" :class="{ 'rr-medal': idx < 3 }">{{ idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '#' + (idx + 1) }}</div>
             <div class="rr-info">
               <div class="rr-name-row">
-                <svg class="rr-provider-icon" :viewBox="getProviderIcon(modelEntry.providerSlug).viewBox" v-html="getProviderIcon(modelEntry.providerSlug).body"></svg>
+                <ProviderIcon :slug="modelEntry.providerSlug" :size="14" cls="rr-provider-icon" />
                 <span class="rr-name">{{ modelEntry.displayName }}</span>
                 <span class="rr-creator">{{ modelEntry.creatorName }}</span>
               </div>
@@ -213,7 +213,8 @@
 import { ref, computed } from 'vue';
 import { useModelsStore } from '@/store/models';
 import type { RoleScore, RoleMeta, ProviderDatapoint, ModelData, CreatorData } from '@/types';
-import { resolveCreatorSlug, getProviderIcon } from '@/data/provider-icons';
+import ProviderIcon from '@/components/ProviderIcon.vue';
+import { resolveCreatorSlug } from '@/data/provider-icons';
 
 const props = defineProps<{
   rankings?: Record<string, string[]>;

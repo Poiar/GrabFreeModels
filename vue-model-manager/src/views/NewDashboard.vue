@@ -7,7 +7,7 @@
         <h2>Dashboard</h2>
         <p>
           {{ store.visibleStats.creators }} creators, {{ store.visibleStats.providers }} providers,
-          {{ store.visibleStats.models }} models tracked<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template>
+          {{ store.visibleStats.models }} models tracked<template v-if="store.isSourceFilterActive"> <span class="filtered-note"> (filtered)</span></template>
         </p>
       </div>
     </div>

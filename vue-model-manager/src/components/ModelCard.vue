@@ -4,7 +4,7 @@
     <div class="mc-header">
       <div class="mc-header-left">
         <span class="mc-badge mc-badge-creator">
-          <svg v-if="creatorIconSvg" class="mc-creator-icon" :viewBox="creatorIconSvg.viewBox" v-html="creatorIconSvg.body"></svg>
+          <ProviderIcon :slug="creator.id" :size="16" cls="mc-creator-icon" />
           <span v-else class="mc-creator-icon-fb">{{ (creator.name || '?')[0] }}</span>
           {{ creator.name }}
           <button class="copy-btn-badge" title="Copy creator" @click.stop="copyText(creator.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
@@ -64,7 +64,7 @@ import ProviderStrip from '@/components/ProviderStrip.vue';
 import type { ModelData, CreatorData, ProviderDatapoint } from '@/types';
 import { useModelsStore } from '@/store/models';
 import { useToast } from '@/composables/useToast';
-import { getProviderIcon } from '@/data/provider-icons';
+import ProviderIcon from '@/components/ProviderIcon.vue';
 
 const props = defineProps<{
   model: ModelData;
@@ -190,7 +190,6 @@ function handleCardClick(e: MouseEvent) {
   emit('model-click');
 }
 
-const creatorIconSvg = computed(() => getProviderIcon(props.creator.id));
 
 const { success: toastSuccess } = useToast();
 

@@ -33,7 +33,7 @@
         class="creator-card"
       >
         <div class="cc-icon-row">
-          <svg class="cc-icon" :viewBox="getProviderIcon(creator.id).viewBox" v-html="getProviderIcon(creator.id).body"></svg>
+          <ProviderIcon :slug="creator.id" :size="24" cls="cc-icon" />
           <h3 class="cc-name">{{ creator.name }}</h3>
         </div>
         <div class="cc-stats">
@@ -62,7 +62,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useModelsStore } from '@/store/models';
-import { getProviderIcon } from '@/data/provider-icons';
+import ProviderIcon from '@/components/ProviderIcon.vue';
 import { getCountryForCreator, CONTINENTS } from '@/data/creator-countries';
 import type { CreatorData } from '@/types';
 const store = useModelsStore();

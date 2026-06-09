@@ -8,8 +8,7 @@
           stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round"
         >
-          <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
         </svg>
         <span>Sources</span>
         <span v-if="activeCount > 0" class="stp-badge">{{ activeCount }}</span>
@@ -35,7 +34,7 @@
           </button>
         </div>
         <label v-for="s in apiSources" :key="s.id" class="stp-toggle-row">
-          <span class="stp-toggle-label">{{ s.name }}</span>
+          <span class="stp-toggle-label">{{ s.name.replace(/\s*API$/i, '') }}</span>
           <label class="stp-switch">
             <input
               type="checkbox"
@@ -51,6 +50,9 @@
       <div class="stp-section">
         <div class="stp-section-header">
           <span>Community Sources</span>
+          <button class="stp-super-toggle" @click="toggleSuperCommunity">
+            {{ superCommunityEnabled ? 'Disable All' : 'Enable All' }}
+          </button>
         </div>
         <label v-for="s in communitySources" :key="s.id" class="stp-toggle-row">
           <span class="stp-toggle-label">{{ s.name }}</span>
@@ -87,10 +89,14 @@ const communitySources = computed(() =>
   store.sources.filter((s) => s.source_type === 'community_list'),
 );
 const activeCount = computed(() =>
-  store.sources.filter((s) => store.toggleState[s.id] === false).length,
+  store.sources.filter((s) => store.toggleState[s.id] !== false).length,
 );
 
 const superApiEnabled = computed(() => store.superApiEnabled);
+
+const superCommunityEnabled = computed(() =>
+  communitySources.value.every((s) => store.toggleState[s.id] !== false),
+);
 
 function isEnabled(id: number) {
   return store.toggleState[id] !== false;
@@ -100,6 +106,12 @@ function toggle(id: number) {
 }
 function toggleSuperApi() {
   store.superApiEnabled = !store.superApiEnabled;
+}
+function toggleSuperCommunity() {
+  const enable = !superCommunityEnabled.value;
+  for (const s of communitySources.value) {
+    store.toggleSource(s.id, enable);
+  }
 }
 </script>
 

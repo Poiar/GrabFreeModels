@@ -5,39 +5,28 @@ description: Send a message to another running Claude Code session. Triggers: "s
 
 # Peer Messaging
 
-Send messages to other Claude Code sessions via `send_to_tab`. Use the full tab UUID — prefix matching is display-only.
+Format: `/peer-msg X → Y #N: msg` (new) or `re: N: reply` (reply)
 
 ## Steps
 
-### 1. Resolve IDs
+**1. Self** — `~/.claude/scripts/peer-id.ps1` returns `{uuid, name, msgN}`. If `unknown`, auto-identify via `list_tabs` (match your proxy port to the tab whose `node.exe start-proxy.ts` cmdline contains it), then cache: `~/.claude/scripts/peer-id.ps1 <uuid> <first8>`
 
-**Self:** Read from `$env:USERPROFILE\.claude\tab-id.txt` (cached at session start). If missing, call `list_tabs` and find your tab by matching your project dir against Playwright MCP paths.
+**2. Target** — `list_tabs`, find tab with `claude.exe`, map name (first 8 chars of UUID) to full UUID.
 
-**Target:** Call `list_tabs`, find tabs with `claude.exe`, and identify the target by its Playwright MCP path — a local install under `C:\OC\<Project>\node_modules\...\@playwright\mcp\cli.js` means that project; an `npm-cache\_npx\...` path means global (usually deepclaude). Prefer local over npm-cache.
-
-### 2. Send
-
-First contact — include the protocol instruction:
+**3. Send** — `~/.claude/scripts/peer-next.ps1` returns the next msgId. Then send. Always prefix with `/peer-msg`:
 
 ```
-send_to_tab <target-id> "[peer · <project> — reply to: <your-tab-id> · answer briefly, then resume your task]: <message>"
+send_to_tab <uuid> "/peer-msg <you> → <them> #<N>: <msg>"
 ```
 
-Submit with `submit: true`.
-
-### 3. Log
-
-```powershell
-$m = @{direction="out";from_tab="<your-id>";from_proj="$pwd";to_tab="<target>";to_proj="<target-project>";message="<msg>";at=(Get-Date -Format "o")} | ConvertTo-Json -Compress
-Add-Content "$env:USERPROFILE\.claude\peer-messages.jsonl" $m
-```
+**4. Log** — `$env:USERPROFILE\.claude\scripts\peer-log.ps1 -Dir out -From <you> -To <them> -Msg "<msg>" -MsgId <N>`
 
 ## Reply flow
 
-When you receive a `[peer · ...]` message, the `reply to:` field contains the sender's tab UUID. Your ID is in the cache file — no need to call `list_tabs`. Drop the instruction and reply:
+If `Y` matches your name → reply. If not → ignore.
 
 ```
-send_to_tab <reply-to-id> "[peer · <your project> — reply to: <your-tab-id>]: <reply>"
+send_to_tab <uuid> "/peer-msg <you> → <them> re: <N>: <reply>"
 ```
 
-Log as in step 3, plus an inbound entry (`direction="in"`, `from_tab` = their ID, `to_tab` = your ID). Keep replies concise.
+Log inbound: `$env:USERPROFILE\.claude\scripts\peer-log.ps1 -Dir in -From <them> -To <you> -Msg "<msg>" -MsgId <N>`. Log reply: same as send, with `-Refs <N>`.

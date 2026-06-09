@@ -3,8 +3,7 @@
     <!-- Row 1: Provider name + status -->
     <div class="ic-provider-row">
       <span class="ic-provider-name">
-        <svg v-if="providerIconSvg" class="ic-provider-icon" :viewBox="providerIconSvg.viewBox" v-html="providerIconSvg.body"></svg>
-        <span v-else class="ic-provider-icon-fb">{{ dp.provider[0] }}</span>
+        <ProviderIcon :slug="dp.provider_slug" :size="14" cls="ic-provider-icon" />
         <router-link :to="`/provider/${dp.provider_slug}`" class="ic-provider-link" @click.stop>{{ dp.provider }}</router-link>
         <button class="copy-btn-badge" title="Copy provider" @click.stop="copyText(dp.provider)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
       </span>
@@ -17,7 +16,7 @@
     <!-- Row 2: Creator / Family / Super Model -->
     <div class="ic-meta-row">
       <router-link :to="'/creator/' + creator.id" class="ic-badge ic-badge-creator ic-badge-link" @click.stop>
-        <svg v-if="creatorIconSvg" class="ic-icon" :viewBox="creatorIconSvg.viewBox" v-html="creatorIconSvg.body"></svg>
+        <ProviderIcon :slug="creator.id" :size="12" cls="ic-icon" />
         <span v-else class="ic-icon-fb">{{ (creator.name || '?')[0] }}</span>
         {{ creator.name }}
       </router-link>
@@ -97,7 +96,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { getProviderIcon } from '@/data/provider-icons';
+import ProviderIcon from '@/components/ProviderIcon.vue';
 import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
 import { useToast } from '@/composables/useToast';
 import { useModelsStore } from '@/store/models';
@@ -116,8 +115,6 @@ const emit = defineEmits<{
 
 const store = useModelsStore();
 
-const providerIconSvg = computed(() => getProviderIcon(props.dp.provider_slug));
-const creatorIconSvg = computed(() => getProviderIcon(props.creator.id));
 const providerColor = computed(() => getProviderColor(props.dp.provider_slug));
 const providerColorMuted = computed(() => getProviderColorMuted(props.dp.provider_slug));
 

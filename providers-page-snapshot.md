@@ -1,0 +1,567 @@
+- generic [ref=e3]:
+  - link "Skip to main content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - img [ref=e8]
+      - generic [ref=e16]:
+        - heading "GrabFreeModels" [level=1] [ref=e17]
+        - paragraph [ref=e18]: Free LLM Intelligence
+    - navigation "Main navigation" [ref=e19]:
+      - link "Dashboard" [ref=e20] [cursor=pointer]:
+        - /url: "#/dashboard"
+        - img [ref=e22]
+        - generic [ref=e23]: Dashboard
+      - link "Super Models" [ref=e24] [cursor=pointer]:
+        - /url: "#/supermodels"
+        - img [ref=e26]
+        - generic [ref=e28]: Super Models
+      - link "Model Instances" [ref=e29] [cursor=pointer]:
+        - /url: "#/"
+        - img [ref=e31]
+        - generic [ref=e33]: Model Instances
+      - link "Rankings (Free)" [ref=e34] [cursor=pointer]:
+        - /url: "#/rankings"
+        - img [ref=e36]
+        - generic [ref=e42]: Rankings (Free)
+      - link "Rankings (Paid)" [ref=e43] [cursor=pointer]:
+        - /url: "#/rankings-paid"
+        - img [ref=e45]
+        - generic [ref=e51]: Rankings (Paid)
+      - link "Providers" [ref=e52] [cursor=pointer]:
+        - /url: "#/providers"
+        - img [ref=e54]
+        - generic [ref=e57]: Providers
+      - link "Creators" [ref=e58] [cursor=pointer]:
+        - /url: "#/creators"
+        - img [ref=e60]
+        - generic [ref=e63]: Creators
+      - link "Fine Tuners" [ref=e64] [cursor=pointer]:
+        - /url: "#/fine-tuners"
+        - img [ref=e66]
+        - generic [ref=e68]: Fine Tuners
+      - link "Families" [ref=e69] [cursor=pointer]:
+        - /url: "#/families"
+        - img [ref=e71]
+        - generic [ref=e77]: Families
+      - link "Base Models" [ref=e78] [cursor=pointer]:
+        - /url: "#/base-models"
+        - img [ref=e80]
+        - generic [ref=e83]: Base Models
+      - link "Compare" [ref=e84] [cursor=pointer]:
+        - /url: "#/compare"
+        - img [ref=e86]
+        - generic [ref=e89]: Compare
+    - button "Sources 1" [ref=e121] [cursor=pointer]:
+      - generic [ref=e92]:
+        - img [ref=e93]
+        - generic [ref=e96]: Sources
+        - generic [ref=e122]: "1"
+      - img [ref=e97]
+    - generic [ref=e99]:
+      - generic [ref=e125]: Updated just now
+      - generic [ref=e100]:
+        - button "Switch to light mode" [ref=e101] [cursor=pointer]:
+          - img [ref=e102]
+        - button "Refresh" [ref=e126] [cursor=pointer]:
+          - img [ref=e127]
+          - text: Refresh
+      - button "? shortcuts" [ref=e110] [cursor=pointer]:
+        - img [ref=e111]
+        - generic [ref=e113]: "? shortcuts"
+  - main [ref=e114]:
+    - generic [ref=e132]:
+      - generic [ref=e133]:
+        - heading "Providers" [level=2] [ref=e134]
+        - paragraph [ref=e135]: 18 API providers hosting free models(filtered)
+      - generic [ref=e136]:
+        - button "OpenRouter openrouter degraded 453 Instances 439 Free 10 Working https://openrouter.ai/api/v1 Anthropic Claude Haiku Latest Anthropic Claude Sonnet Latest arcee-ai/trinity-large-preview auto baidu/ERNIE-4.5-300B-A47B bigstral-12b-32k +433 more" [ref=e137] [cursor=pointer]:
+          - generic [ref=e138]:
+            - generic [ref=e140]:
+              - heading "OpenRouter" [level=3] [ref=e141]:
+                - text: OpenRouter
+                - button "Copy name" [ref=e142]:
+                  - img [ref=e143]
+              - text: openrouter
+            - generic [ref=e146]: degraded
+          - generic [ref=e147]:
+            - generic [ref=e148]:
+              - generic [ref=e149]: "453"
+              - generic [ref=e150]: Instances
+            - generic [ref=e151]:
+              - generic [ref=e152]: "439"
+              - generic [ref=e153]: Free
+            - generic [ref=e154]:
+              - generic [ref=e155]: "10"
+              - generic [ref=e156]: Working
+          - generic [ref=e159]: https://openrouter.ai/api/v1
+          - generic [ref=e160]:
+            - generic [ref=e161]: Anthropic Claude Haiku Latest
+            - generic [ref=e162]: Anthropic Claude Sonnet Latest
+            - generic [ref=e163]: arcee-ai/trinity-large-preview
+            - generic [ref=e164]: auto
+            - generic [ref=e165]: baidu/ERNIE-4.5-300B-A47B
+            - generic [ref=e166]: bigstral-12b-32k
+            - generic [ref=e167]: +433 more
+        - button "LLM Gateway llmgateway degraded 189 Instances 189 Free 0 Working auto Auto Route claude-3-5-sonnet-20241022 claude-3-7-sonnet claude-3-7-sonnet-20250219 claude-3-opus +183 more" [ref=e168] [cursor=pointer]:
+          - generic [ref=e169]:
+            - generic [ref=e171]:
+              - heading "LLM Gateway" [level=3] [ref=e172]:
+                - text: LLM Gateway
+                - button "Copy name" [ref=e173]:
+                  - img [ref=e174]
+              - text: llmgateway
+            - generic [ref=e177]: degraded
+          - generic [ref=e178]:
+            - generic [ref=e179]:
+              - generic [ref=e180]: "189"
+              - generic [ref=e181]: Instances
+            - generic [ref=e182]:
+              - generic [ref=e183]: "189"
+              - generic [ref=e184]: Free
+            - generic [ref=e185]:
+              - generic [ref=e186]: "0"
+              - generic [ref=e187]: Working
+          - generic [ref=e189]:
+            - generic [ref=e190]: auto
+            - generic [ref=e191]: Auto Route
+            - generic [ref=e192]: claude-3-5-sonnet-20241022
+            - generic [ref=e193]: claude-3-7-sonnet
+            - generic [ref=e194]: claude-3-7-sonnet-20250219
+            - generic [ref=e195]: claude-3-opus
+            - generic [ref=e196]: +183 more
+        - button "NVIDIA nvidia degraded 184 Instances 180 Free 0 Working https://integrate.api.nvidia.com/v1 abacusai/dracarys-llama-3_1-70b-instruct AceInstruct-1.5B AceInstruct-72B AceInstruct-7B AceMath-1.5B-Instruct AceMath-72B-Instruct +174 more" [ref=e197] [cursor=pointer]:
+          - generic [ref=e198]:
+            - generic [ref=e200]:
+              - heading "NVIDIA" [level=3] [ref=e201]:
+                - text: NVIDIA
+                - button "Copy name" [ref=e202]:
+                  - img [ref=e203]
+              - text: nvidia
+            - generic [ref=e206]: degraded
+          - generic [ref=e207]:
+            - generic [ref=e208]:
+              - generic [ref=e209]: "184"
+              - generic [ref=e210]: Instances
+            - generic [ref=e211]:
+              - generic [ref=e212]: "180"
+              - generic [ref=e213]: Free
+            - generic [ref=e214]:
+              - generic [ref=e215]: "0"
+              - generic [ref=e216]: Working
+          - generic [ref=e218]: https://integrate.api.nvidia.com/v1
+          - generic [ref=e219]:
+            - generic [ref=e220]: abacusai/dracarys-llama-3_1-70b-instruct
+            - generic [ref=e221]: AceInstruct-1.5B
+            - generic [ref=e222]: AceInstruct-72B
+            - generic [ref=e223]: AceInstruct-7B
+            - generic [ref=e224]: AceMath-1.5B-Instruct
+            - generic [ref=e225]: AceMath-72B-Instruct
+            - generic [ref=e226]: +174 more
+        - button "Deepinfra deepinfra degraded 155 Instances 155 Free 0 Working all-MiniLM-L12-v2 all-MiniLM-L6-v2 all-mpnet-base-v2 anthropic/claude-3-7-sonnet-latest anthropic/claude-4-opus baai/bge-m3 +149 more" [ref=e227] [cursor=pointer]:
+          - generic [ref=e228]:
+            - generic [ref=e230]:
+              - heading "Deepinfra" [level=3] [ref=e231]:
+                - text: Deepinfra
+                - button "Copy name" [ref=e232]:
+                  - img [ref=e233]
+              - text: deepinfra
+            - generic [ref=e236]: degraded
+          - generic [ref=e237]:
+            - generic [ref=e238]:
+              - generic [ref=e239]: "155"
+              - generic [ref=e240]: Instances
+            - generic [ref=e241]:
+              - generic [ref=e242]: "155"
+              - generic [ref=e243]: Free
+            - generic [ref=e244]:
+              - generic [ref=e245]: "0"
+              - generic [ref=e246]: Working
+          - generic [ref=e248]:
+            - generic [ref=e249]: all-MiniLM-L12-v2
+            - generic [ref=e250]: all-MiniLM-L6-v2
+            - generic [ref=e251]: all-mpnet-base-v2
+            - generic [ref=e252]: anthropic/claude-3-7-sonnet-latest
+            - generic [ref=e253]: anthropic/claude-4-opus
+            - generic [ref=e254]: baai/bge-m3
+            - generic [ref=e255]: +149 more
+        - button "Novitaai novitaai degraded 135 Instances 134 Free 0 Working ai_infer_test_1 ai_infer_test_2 ai_infer_test_3 autoglm-phone-9b-multilingual baichuan-m2-32b bunny +128 more" [ref=e256] [cursor=pointer]:
+          - generic [ref=e257]:
+            - generic [ref=e259]:
+              - heading "Novitaai" [level=3] [ref=e260]:
+                - text: Novitaai
+                - button "Copy name" [ref=e261]:
+                  - img [ref=e262]
+              - text: novitaai
+            - generic [ref=e265]: degraded
+          - generic [ref=e266]:
+            - generic [ref=e267]:
+              - generic [ref=e268]: "135"
+              - generic [ref=e269]: Instances
+            - generic [ref=e270]:
+              - generic [ref=e271]: "134"
+              - generic [ref=e272]: Free
+            - generic [ref=e273]:
+              - generic [ref=e274]: "0"
+              - generic [ref=e275]: Working
+          - generic [ref=e277]:
+            - generic [ref=e278]: ai_infer_test_1
+            - generic [ref=e279]: ai_infer_test_2
+            - generic [ref=e280]: ai_infer_test_3
+            - generic [ref=e281]: autoglm-phone-9b-multilingual
+            - generic [ref=e282]: baichuan-m2-32b
+            - generic [ref=e283]: bunny
+            - generic [ref=e284]: +128 more
+        - button "SiliconFlow siliconflow degraded 121 Instances 118 Free 0 Working ascend-tribe/pangu-pro-moe baidu/ERNIE-4.5-300B-A47B black-forest-labs/flux_1-kontext-dev black-forest-labs/flux_1-schnell black-forest-labs/flux.1-dev CosyVoice2-0.5B +112 more" [ref=e285] [cursor=pointer]:
+          - generic [ref=e286]:
+            - generic [ref=e288]:
+              - heading "SiliconFlow" [level=3] [ref=e289]:
+                - text: SiliconFlow
+                - button "Copy name" [ref=e290]:
+                  - img [ref=e291]
+              - text: siliconflow
+            - generic [ref=e294]: degraded
+          - generic [ref=e295]:
+            - generic [ref=e296]:
+              - generic [ref=e297]: "121"
+              - generic [ref=e298]: Instances
+            - generic [ref=e299]:
+              - generic [ref=e300]: "118"
+              - generic [ref=e301]: Free
+            - generic [ref=e302]:
+              - generic [ref=e303]: "0"
+              - generic [ref=e304]: Working
+          - generic [ref=e306]:
+            - generic [ref=e307]: ascend-tribe/pangu-pro-moe
+            - generic [ref=e308]: baidu/ERNIE-4.5-300B-A47B
+            - generic [ref=e309]: black-forest-labs/flux_1-kontext-dev
+            - generic [ref=e310]: black-forest-labs/flux_1-schnell
+            - generic [ref=e311]: black-forest-labs/flux.1-dev
+            - generic [ref=e312]: CosyVoice2-0.5B
+            - generic [ref=e313]: +112 more
+        - button "Google AI google degraded 91 Instances 91 Free 8 Working https://generativelanguage.googleapis.com/v1beta codegemma-1.1-2b codegemma-2b flan-t5-base flan-t5-large flan-t5-small flan-t5-xl +85 more" [ref=e314] [cursor=pointer]:
+          - generic [ref=e315]:
+            - generic [ref=e317]:
+              - heading "Google AI" [level=3] [ref=e318]:
+                - text: Google AI
+                - button "Copy name" [ref=e319]:
+                  - img [ref=e320]
+              - text: google
+            - generic [ref=e323]: degraded
+          - generic [ref=e324]:
+            - generic [ref=e325]:
+              - generic [ref=e326]: "91"
+              - generic [ref=e327]: Instances
+            - generic [ref=e328]:
+              - generic [ref=e329]: "91"
+              - generic [ref=e330]: Free
+            - generic [ref=e331]:
+              - generic [ref=e332]: "8"
+              - generic [ref=e333]: Working
+          - generic [ref=e336]: https://generativelanguage.googleapis.com/v1beta
+          - generic [ref=e337]:
+            - generic [ref=e338]: codegemma-1.1-2b
+            - generic [ref=e339]: codegemma-2b
+            - generic [ref=e340]: flan-t5-base
+            - generic [ref=e341]: flan-t5-large
+            - generic [ref=e342]: flan-t5-small
+            - generic [ref=e343]: flan-t5-xl
+            - generic [ref=e344]: +85 more
+        - button "GitHub Models github-models degraded 89 Instances 87 Free 0 Working AI21 Jamba 1.5 Large AI21 Jamba 1.5 Mini ai21-labs/ai21-jamba-1.5-mini Codestral 25.01 Cohere Command R+ cohere-command-r +81 more" [ref=e345] [cursor=pointer]:
+          - generic [ref=e346]:
+            - generic [ref=e348]:
+              - heading "GitHub Models" [level=3] [ref=e349]:
+                - text: GitHub Models
+                - button "Copy name" [ref=e350]:
+                  - img [ref=e351]
+              - text: github-models
+            - generic [ref=e354]: degraded
+          - generic [ref=e355]:
+            - generic [ref=e356]:
+              - generic [ref=e357]: "89"
+              - generic [ref=e358]: Instances
+            - generic [ref=e359]:
+              - generic [ref=e360]: "87"
+              - generic [ref=e361]: Free
+            - generic [ref=e362]:
+              - generic [ref=e363]: "0"
+              - generic [ref=e364]: Working
+          - generic [ref=e366]:
+            - generic [ref=e367]: AI21 Jamba 1.5 Large
+            - generic [ref=e368]: AI21 Jamba 1.5 Mini
+            - generic [ref=e369]: ai21-labs/ai21-jamba-1.5-mini
+            - generic [ref=e370]: Codestral 25.01
+            - generic [ref=e371]: Cohere Command R+
+            - generic [ref=e372]: cohere-command-r
+            - generic [ref=e373]: +81 more
+        - button "Mistral mistral degraded 68 Instances 67 Free 0 Working https://api.mistral.ai/v1 Codestral codestral-2508 Devstral Small 2 devstral-2512 devstral-medium devstral-medium-2507 +61 more" [ref=e374] [cursor=pointer]:
+          - generic [ref=e375]:
+            - generic [ref=e377]:
+              - heading "Mistral" [level=3] [ref=e378]:
+                - text: Mistral
+                - button "Copy name" [ref=e379]:
+                  - img [ref=e380]
+              - text: mistral
+            - generic [ref=e383]: degraded
+          - generic [ref=e384]:
+            - generic [ref=e385]:
+              - generic [ref=e386]: "68"
+              - generic [ref=e387]: Instances
+            - generic [ref=e388]:
+              - generic [ref=e389]: "67"
+              - generic [ref=e390]: Free
+            - generic [ref=e391]:
+              - generic [ref=e392]: "0"
+              - generic [ref=e393]: Working
+          - generic [ref=e395]: https://api.mistral.ai/v1
+          - generic [ref=e396]:
+            - generic [ref=e397]: Codestral
+            - generic [ref=e398]: codestral-2508
+            - generic [ref=e399]: Devstral Small 2
+            - generic [ref=e400]: devstral-2512
+            - generic [ref=e401]: devstral-medium
+            - generic [ref=e402]: devstral-medium-2507
+            - generic [ref=e403]: +61 more
+        - button "OpenCode Zen opencode degraded 42 Instances 42 Free 0 Working Big Pickle claude-haiku-4-5 claude-opus-4-1 claude-opus-4-5 claude-opus-4-6 claude-opus-4-7 +36 more" [ref=e404] [cursor=pointer]:
+          - generic [ref=e405]:
+            - generic [ref=e407]:
+              - heading "OpenCode Zen" [level=3] [ref=e408]:
+                - text: OpenCode Zen
+                - button "Copy name" [ref=e409]:
+                  - img [ref=e410]
+              - text: opencode
+            - generic [ref=e413]: degraded
+          - generic [ref=e414]:
+            - generic [ref=e415]:
+              - generic [ref=e416]: "42"
+              - generic [ref=e417]: Instances
+            - generic [ref=e418]:
+              - generic [ref=e419]: "42"
+              - generic [ref=e420]: Free
+            - generic [ref=e421]:
+              - generic [ref=e422]: "0"
+              - generic [ref=e423]: Working
+          - generic [ref=e425]:
+            - generic [ref=e426]: Big Pickle
+            - generic [ref=e427]: claude-haiku-4-5
+            - generic [ref=e428]: claude-opus-4-1
+            - generic [ref=e429]: claude-opus-4-5
+            - generic [ref=e430]: claude-opus-4-6
+            - generic [ref=e431]: claude-opus-4-7
+            - generic [ref=e432]: +36 more
+        - button "Cloudflare cloudflare degraded 39 Instances 39 Free 0 Working deepseek-r1-distill-qwen-32b Gemma 2B Instruct (LoRA) Gemma 3 12B Instruct Gemma 7B Instruct Gemma 7B Instruct (LoRA) gemma-3-12b-it +33 more" [ref=e433] [cursor=pointer]:
+          - generic [ref=e434]:
+            - generic [ref=e436]:
+              - heading "Cloudflare" [level=3] [ref=e437]:
+                - text: Cloudflare
+                - button "Copy name" [ref=e438]:
+                  - img [ref=e439]
+              - text: cloudflare
+            - generic [ref=e442]: degraded
+          - generic [ref=e443]:
+            - generic [ref=e444]:
+              - generic [ref=e445]: "39"
+              - generic [ref=e446]: Instances
+            - generic [ref=e447]:
+              - generic [ref=e448]: "39"
+              - generic [ref=e449]: Free
+            - generic [ref=e450]:
+              - generic [ref=e451]: "0"
+              - generic [ref=e452]: Working
+          - generic [ref=e454]:
+            - generic [ref=e455]: deepseek-r1-distill-qwen-32b
+            - generic [ref=e456]: Gemma 2B Instruct (LoRA)
+            - generic [ref=e457]: Gemma 3 12B Instruct
+            - generic [ref=e458]: Gemma 7B Instruct
+            - generic [ref=e459]: Gemma 7B Instruct (LoRA)
+            - generic [ref=e460]: gemma-3-12b-it
+            - generic [ref=e461]: +33 more
+        - button "DeepSeek deepseek degraded 39 Instances 38 Free 1 Working https://api.deepseek.com/v1 DeepSeek V3.1 Terminus DeepSeek V3.2 DeepSeek V3.2 Exp DeepSeek V4 Flash DeepSeek V4 Pro deepseek-ai/DeepSeek-V4-Pro +32 more" [ref=e462] [cursor=pointer]:
+          - generic [ref=e463]:
+            - generic [ref=e465]:
+              - heading "DeepSeek" [level=3] [ref=e466]:
+                - text: DeepSeek
+                - button "Copy name" [ref=e467]:
+                  - img [ref=e468]
+              - text: deepseek
+            - generic [ref=e471]: degraded
+          - generic [ref=e472]:
+            - generic [ref=e473]:
+              - generic [ref=e474]: "39"
+              - generic [ref=e475]: Instances
+            - generic [ref=e476]:
+              - generic [ref=e477]: "38"
+              - generic [ref=e478]: Free
+            - generic [ref=e479]:
+              - generic [ref=e480]: "1"
+              - generic [ref=e481]: Working
+          - generic [ref=e484]: https://api.deepseek.com/v1
+          - generic [ref=e485]:
+            - generic [ref=e486]: DeepSeek V3.1 Terminus
+            - generic [ref=e487]: DeepSeek V3.2
+            - generic [ref=e488]: DeepSeek V3.2 Exp
+            - generic [ref=e489]: DeepSeek V4 Flash
+            - generic [ref=e490]: DeepSeek V4 Pro
+            - generic [ref=e491]: deepseek-ai/DeepSeek-V4-Pro
+            - generic [ref=e492]: +32 more
+        - button "Z.AI zai degraded 25 Instances 23 Free 0 Working GLM 4 32B GLM 4.5 GLM 4.5 Air GLM 4.5V GLM 4.6 GLM 4.6V +17 more" [ref=e493] [cursor=pointer]:
+          - generic [ref=e494]:
+            - generic [ref=e496]:
+              - heading "Z.AI" [level=3] [ref=e497]:
+                - text: Z.AI
+                - button "Copy name" [ref=e498]:
+                  - img [ref=e499]
+              - text: zai
+            - generic [ref=e502]: degraded
+          - generic [ref=e503]:
+            - generic [ref=e504]:
+              - generic [ref=e505]: "25"
+              - generic [ref=e506]: Instances
+            - generic [ref=e507]:
+              - generic [ref=e508]: "23"
+              - generic [ref=e509]: Free
+            - generic [ref=e510]:
+              - generic [ref=e511]: "0"
+              - generic [ref=e512]: Working
+          - generic [ref=e514]:
+            - generic [ref=e515]: GLM 4 32B
+            - generic [ref=e516]: GLM 4.5
+            - generic [ref=e517]: GLM 4.5 Air
+            - generic [ref=e518]: GLM 4.5V
+            - generic [ref=e519]: GLM 4.6
+            - generic [ref=e520]: GLM 4.6V
+            - generic [ref=e521]: +17 more
+        - button "xAI xai degraded 23 Instances 23 Free 0 Working Grok 4.3 Grok Build 0.1 grok-3 grok-3-beta grok-3-mini grok-3-mini-beta +17 more" [ref=e522] [cursor=pointer]:
+          - generic [ref=e523]:
+            - generic [ref=e525]:
+              - heading "xAI" [level=3] [ref=e526]:
+                - text: xAI
+                - button "Copy name" [ref=e527]:
+                  - img [ref=e528]
+              - text: xai
+            - generic [ref=e531]: degraded
+          - generic [ref=e532]:
+            - generic [ref=e533]:
+              - generic [ref=e534]: "23"
+              - generic [ref=e535]: Instances
+            - generic [ref=e536]:
+              - generic [ref=e537]: "23"
+              - generic [ref=e538]: Free
+            - generic [ref=e539]:
+              - generic [ref=e540]: "0"
+              - generic [ref=e541]: Working
+          - generic [ref=e543]:
+            - generic [ref=e544]: Grok 4.3
+            - generic [ref=e545]: Grok Build 0.1
+            - generic [ref=e546]: grok-3
+            - generic [ref=e547]: grok-3-beta
+            - generic [ref=e548]: grok-3-mini
+            - generic [ref=e549]: grok-3-mini-beta
+            - generic [ref=e550]: +17 more
+        - button "Groq groq degraded 22 Instances 22 Free 0 Working https://api.groq.com/openai/v1 allam-2-7b Canopy Labs Orpheus Arabic Saudi canopylabs/orpheus-arabic-saudi canopylabs/orpheus-v1-english compound Compound +16 more" [ref=e551] [cursor=pointer]:
+          - generic [ref=e552]:
+            - generic [ref=e554]:
+              - heading "Groq" [level=3] [ref=e555]:
+                - text: Groq
+                - button "Copy name" [ref=e556]:
+                  - img [ref=e557]
+              - text: groq
+            - generic [ref=e560]: degraded
+          - generic [ref=e561]:
+            - generic [ref=e562]:
+              - generic [ref=e563]: "22"
+              - generic [ref=e564]: Instances
+            - generic [ref=e565]:
+              - generic [ref=e566]: "22"
+              - generic [ref=e567]: Free
+            - generic [ref=e568]:
+              - generic [ref=e569]: "0"
+              - generic [ref=e570]: Working
+          - generic [ref=e572]: https://api.groq.com/openai/v1
+          - generic [ref=e573]:
+            - generic [ref=e574]: allam-2-7b
+            - generic [ref=e575]: Canopy Labs Orpheus Arabic Saudi
+            - generic [ref=e576]: canopylabs/orpheus-arabic-saudi
+            - generic [ref=e577]: canopylabs/orpheus-v1-english
+            - generic [ref=e578]: compound
+            - generic [ref=e579]: Compound
+            - generic [ref=e580]: +16 more
+        - button "Cohere cohere degraded 21 Instances 21 Free 0 Working aya-23-35B aya-23-8B aya-expanse-32b aya-expanse-8b c4ai-aya-expanse-32b c4ai-aya-vision-32b +15 more" [ref=e581] [cursor=pointer]:
+          - generic [ref=e582]:
+            - generic [ref=e584]:
+              - heading "Cohere" [level=3] [ref=e585]:
+                - text: Cohere
+                - button "Copy name" [ref=e586]:
+                  - img [ref=e587]
+              - text: cohere
+            - generic [ref=e590]: degraded
+          - generic [ref=e591]:
+            - generic [ref=e592]:
+              - generic [ref=e593]: "21"
+              - generic [ref=e594]: Instances
+            - generic [ref=e595]:
+              - generic [ref=e596]: "21"
+              - generic [ref=e597]: Free
+            - generic [ref=e598]:
+              - generic [ref=e599]: "0"
+              - generic [ref=e600]: Working
+          - generic [ref=e602]:
+            - generic [ref=e603]: aya-23-35B
+            - generic [ref=e604]: aya-23-8B
+            - generic [ref=e605]: aya-expanse-32b
+            - generic [ref=e606]: aya-expanse-8b
+            - generic [ref=e607]: c4ai-aya-expanse-32b
+            - generic [ref=e608]: c4ai-aya-vision-32b
+            - generic [ref=e609]: +15 more
+        - button "Zhipu AI zhipuai degraded 14 Instances 13 Free 0 Working glm-4.5 glm-4.5-air glm-4.5-flash glm-4.5v glm-4.6 glm-4.6v +7 more" [ref=e610] [cursor=pointer]:
+          - generic [ref=e611]:
+            - generic [ref=e613]:
+              - heading "Zhipu AI" [level=3] [ref=e614]:
+                - text: Zhipu AI
+                - button "Copy name" [ref=e615]:
+                  - img [ref=e616]
+              - text: zhipuai
+            - generic [ref=e619]: degraded
+          - generic [ref=e620]:
+            - generic [ref=e621]:
+              - generic [ref=e622]: "14"
+              - generic [ref=e623]: Instances
+            - generic [ref=e624]:
+              - generic [ref=e625]: "13"
+              - generic [ref=e626]: Free
+            - generic [ref=e627]:
+              - generic [ref=e628]: "0"
+              - generic [ref=e629]: Working
+          - generic [ref=e631]:
+            - generic [ref=e632]: glm-4.5
+            - generic [ref=e633]: glm-4.5-air
+            - generic [ref=e634]: glm-4.5-flash
+            - generic [ref=e635]: glm-4.5v
+            - generic [ref=e636]: glm-4.6
+            - generic [ref=e637]: glm-4.6v
+            - generic [ref=e638]: +7 more
+        - button "Cerebras cerebras degraded 4 Instances 4 Free 0 Working https://api.cerebras.ai/v1 gpt-oss-120b llama3.1-8b qwen-3-235b-a22b-instruct-2507 zai-glm-4.7" [ref=e639] [cursor=pointer]:
+          - generic [ref=e640]:
+            - generic [ref=e642]:
+              - heading "Cerebras" [level=3] [ref=e643]:
+                - text: Cerebras
+                - button "Copy name" [ref=e644]:
+                  - img [ref=e645]
+              - text: cerebras
+            - generic [ref=e648]: degraded
+          - generic [ref=e649]:
+            - generic [ref=e650]:
+              - generic [ref=e651]: "4"
+              - generic [ref=e652]: Instances
+            - generic [ref=e653]:
+              - generic [ref=e654]: "4"
+              - generic [ref=e655]: Free
+            - generic [ref=e656]:
+              - generic [ref=e657]: "0"
+              - generic [ref=e658]: Working
+          - generic [ref=e660]: https://api.cerebras.ai/v1
+          - generic [ref=e661]:
+            - generic [ref=e662]: gpt-oss-120b
+            - generic [ref=e663]: llama3.1-8b
+            - generic [ref=e664]: qwen-3-235b-a22b-instruct-2507
+            - generic [ref=e665]: zai-glm-4.7

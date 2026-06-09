@@ -11,7 +11,7 @@
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
-              <svg class="crp-icon" :viewBox="icon.viewBox" v-html="icon.body"></svg>
+              <ProviderIcon :slug="creator.id" :size="64" cls="crp-icon" />
               <h2 class="crp-title">{{ creator.name }}</h2>
             </div>
             <button class="crp-close" aria-label="Close panel" @click="close">
@@ -56,7 +56,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue';
 import type { CreatorData } from '@/types';
-import { getProviderIcon } from '@/data/provider-icons';
+import ProviderIcon from '@/components/ProviderIcon.vue';
 
 const props = defineProps<{
   open: boolean;
@@ -87,7 +87,6 @@ function goNext() {
   emit('navigate-to', props.creatorIndex + 1);
 }
 
-const icon = computed(() => getProviderIcon(props.creator.id));
 
 function onKey(e: KeyboardEvent) {
   if (!props.open) return;

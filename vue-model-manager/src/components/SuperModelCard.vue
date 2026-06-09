@@ -32,7 +32,7 @@
         :class="{ 'is-link': !!model.creator }"
         @click.stop="model.creator ? emit('creator-click', model.creator!) : null"
       >
-        <svg v-if="creatorIcon" class="sm-icon" :viewBox="creatorIcon.viewBox" v-html="creatorIcon.body"></svg>
+        <ProviderIcon v-if="creatorSlug" :slug="creatorSlug" :size="18" cls="sm-icon" />
         <span v-else class="sm-icon-fb">{{ (model.creator || '?')[0] }}</span>
         {{ model.creator || '—' }}
         <button v-if="model.creator" class="copy-btn-badge" title="Copy creator" @click.stop="copyText(model.creator!)">
@@ -100,9 +100,8 @@
 import { computed } from 'vue';
 import type { ModelData, ProviderDatapoint } from '@/types';
 import { useModelsStore } from '@/store/models';
-import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useToast } from '@/composables/useToast';
-import { getProviderIcon } from '@/data/provider-icons';
+import ProviderIcon from '@/components/ProviderIcon.vue';
 import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
 
 const ROLES = ['model', 'build', 'general', 'small_model', 'explore'] as const;
@@ -224,10 +223,8 @@ const sourceBadges = computed(() => {
     .filter(Boolean) as { key: string; label: string; title: string; cssClass: string }[];
 });
 
-const creatorIcon = computed(() => {
-  const slug = props.creatorSlug || props.model.creator;
-  if (!slug) return null;
-  return getProviderIcon(slug);
+const creatorSlug = computed(() => {
+  return props.creatorSlug || props.model.creator || null;
 });
 
 const FAMILY_OVERRIDES: Record<string, string> = { gpt: 'GPT', glm: 'GLM', llm: 'LLM' };

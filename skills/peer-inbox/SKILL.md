@@ -5,41 +5,8 @@ description: Check recent peer-to-peer messages between Claude Code sessions. Tr
 
 # Peer Inbox
 
-Check the shared message log for messages addressed to this project.
+Read recent messages from the shared JSONL log.
 
-## Steps
+Run `~/.claude/scripts/peer-inbox.ps1` (optionally with `-Tail 50` for more history). Shows messages to/from you with `→` (sent) / `←` (received) markers and thread IDs.
 
-### 0. Cache tab ID
-
-If `$env:USERPROFILE\.claude\tab-id.txt` doesn't exist, call `list_tabs`, find your tab (Playwright path = local install in your project), and cache it: `"<uuid>" | Out-File "$env:USERPROFILE\.claude\tab-id.txt"`
-
-### 1. Read messages for this project
-
-```powershell
-$log = "$env:USERPROFILE\.claude\peer-messages.jsonl"
-if (-not (Test-Path $log)) {
-  Write-Host "No peer messages yet."
-  return
-}
-
-$here = (Get-Location).Path.TrimEnd('\')
-$found = $false
-Get-Content $log -Tail 50 | ForEach-Object {
-  $m = try { $_ | ConvertFrom-Json } catch { $null }
-  if (-not $m -or -not $m.to_proj) { continue }
-  $to = $m.to_proj.ToString().TrimEnd('\')
-  if ($to -eq $here -or $to -eq '*') {
-    $found = $true
-    $from = if ($m.from_proj) { $m.from_proj } elseif ($m.from_project) { $m.from_project } else { "unknown" }
-    $msg = if ($m.message) { $m.message } else { $m.msg }
-    Write-Host "$($m.at)  from $from: $msg"
-  }
-}
-if (-not $found) {
-  Write-Host "No messages for this project."
-}
-```
-
-### Reply
-
-To reply, run `/peer-msg` with the project name from `from_proj` — e.g., if `from_proj` is `C:\OC\deepclaude`, target is `deepclaude`.
+To reply, use `/peer-msg` with the sender's name.
