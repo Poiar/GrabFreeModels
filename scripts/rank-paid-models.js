@@ -405,8 +405,8 @@ async function rankModels() {
       for (const [role, cfg] of Object.entries(ROLES)) {
         if (cfg.manual) { bmRankings[role] = []; bmScores[role] = []; continue; }
         const scored = eligible.map((m) => {
-          const quality = qualityScore(m, role, null, true);
-          return { id: m.id, score: quality.total, ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: quality.total };
+          const q = qualityScore(m, role, 'artificial_analysis', true);
+          return { id: m.id, score: q.total, ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: q.total, qualityIntel: q.intel, qualityCoding: q.coding, qualitySpeed: q.speed, qualityLatency: q.latency };
         });
         scored.sort((a, b) => b.score - a.score);
         bmRankings[role] = scored.map((s) => s.id);
