@@ -505,18 +505,33 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  // Model scores
+  // Model scores — cross-reference scores to all full_ids of the same super model
+  // so lookups work regardless of which provider listing is used as key.
+  const superIdToFullIds = {};
+  for (const m of outputModels) {
+    if (!superIdToFullIds[m.super_id]) superIdToFullIds[m.super_id] = [];
+    superIdToFullIds[m.super_id].push(m.id);
+  }
+
   const { rows: scoreRows } = await client.query(
-    'SELECT dm.full_id, ms.source, ms.score_type, ms.score_value FROM model_scores ms JOIN datapoint_models dm ON dm.id = ms.datapoint_model_id',
+    'SELECT dm.full_id, dm.super_model_id, ms.source, ms.score_type, ms.score_value FROM model_scores ms JOIN datapoint_models dm ON dm.id = ms.datapoint_model_id',
   );
   const scoreMap = {};
+  const seen = new Set();
   for (const r of scoreRows) {
-    if (!scoreMap[r.full_id]) scoreMap[r.full_id] = [];
-    scoreMap[r.full_id].push({
+    const siblings = superIdToFullIds[r.super_model_id] || [r.full_id];
+    const entry = {
       source: r.source,
       score_type: r.score_type,
       score_value: r.score_value !== null ? Number(r.score_value) : null,
-    });
+    };
+    for (const fid of siblings) {
+      const dedupeKey = `${fid}|${r.source}|${r.score_type}`;
+      if (seen.has(dedupeKey)) continue;
+      seen.add(dedupeKey);
+      if (!scoreMap[fid]) scoreMap[fid] = [];
+      scoreMap[fid].push(entry);
+    }
   }
 
   // Provider health
