@@ -236,6 +236,7 @@ const variantLabels: Record<string, string> = {
   combined: 'Combined (AA + Models.dev)',
   artificial_analysis: 'Artificial Analysis',
   modelsdev: 'Models.dev',
+  _benchmarks: 'Benchmarks Only (no context/tags)',
 };
 
 function onVariantChange(ev: Event) {

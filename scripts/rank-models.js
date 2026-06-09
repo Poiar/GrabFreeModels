@@ -273,6 +273,28 @@ async function rankModels() {
       }
     }
 
+    // Benchmarks-only variant: pure qualityScore, no context or tags
+    {
+      const bmRankings = {};
+      const bmScores = {};
+      for (const [role, cfg] of Object.entries(ROLES)) {
+        if (cfg.manual) { bmRankings[role] = []; bmScores[role] = []; continue; }
+        const scored = eligible.map((m) => {
+          const quality = qualityScore(m, role, null);
+          return { id: m.id, score: quality, ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: quality };
+        });
+        scored.sort((a, b) => b.score - a.score);
+        bmRankings[role] = scored.map((s) => s.id);
+        bmScores[role] = scored;
+      }
+      allVariants._benchmarks = { ...bmRankings, _scores: bmScores, _meta: allMeta };
+
+      console.log('\n-- benchmarks only --');
+      for (const role of Object.keys(ROLES)) {
+        console.log(`  ${role}: ${bmRankings[role].slice(0, 3).join(', ')}`);
+      }
+    }
+
     // ── Diff against current rankings in DB ──
     const { rows: metaRows } = await client.query(
       "SELECT value::text FROM metadata WHERE key = '_role_rankings'",
