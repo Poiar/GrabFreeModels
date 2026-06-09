@@ -26,11 +26,13 @@ Tabby matches tab ID prefixes in the `reply to:` field for readability, but `sen
 
 ### 2. Send
 
+First contact in a thread — include the instruction so the recipient knows the protocol:
+
 ```
-send_to_tab <target-tab-id> "[peer · <project> — reply to: <your-tab-id>]: <message>"
+send_to_tab <target-id> "[peer · <project> — reply to: <your-tab-id> · answer briefly, then resume your task]: <message>"
 ```
 
-`submit: true`. For first contact in a thread, include "answer briefly, then resume your task" before the closing bracket.
+`submit: true`.
 
 ### 3. Log
 
@@ -41,10 +43,10 @@ Add-Content "$env:USERPROFILE\.claude\peer-messages.jsonl" $m
 
 ## Reply flow
 
-When you receive a `[peer · ...]` message, the `reply to:` field contains the sender's tab ID. Reply:
+When you receive a `[peer · ...]` message, the `reply to:` field contains the sender's full tab UUID. Drop the instruction — it served its purpose on first contact:
 
 ```
 send_to_tab <reply-to-id> "[peer · <your project> — reply to: <your-tab-id>]: <reply>"
 ```
 
-Keep replies concise — they appear as the other session's next user input. Use the full tab UUID from `list_tabs` for `send_to_tab`.
+Keep replies concise — they appear as the other session's next user input. Always use the full tab UUID for `send_to_tab`.
