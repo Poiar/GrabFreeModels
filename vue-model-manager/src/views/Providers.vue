@@ -10,6 +10,7 @@
         v-for="(provider, idx) in sortedProviders"
         :key="provider.slug"
         class="provider-card glass-card"
+        :style="{ '--pc-color-muted': getProviderColorMuted(provider.slug), '--pc-color': getProviderColor(provider.slug) }"
         role="button"
         tabindex="0"
         @click="openProviderPanel(idx)"
@@ -84,6 +85,7 @@ import { useModelsStore } from '@/store/models';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import ProviderPanel from '@/components/ProviderPanel.vue';
 import { useToast } from '@/composables/useToast';
+import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
 import type { ProviderReference } from '@/types';
 
 const store = useModelsStore();
@@ -147,6 +149,7 @@ function navigateProviderPanel(index: number) {
 .provider-card {
   padding: 16px;
   cursor: pointer;
+  border-left: 3px solid var(--pc-color);
 }
 
 .pc-header {

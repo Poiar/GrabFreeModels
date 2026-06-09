@@ -1,5 +1,5 @@
 <template>
-  <div class="ic-card" :class="[`ic-${dp.status.result}`]" @click="handleClick">
+  <div class="ic-card" :class="[`ic-${dp.status.result}`]" :style="{ '--ic-provider-color': providerColorMuted }" @click="handleClick">
     <!-- Row 1: Provider name + status -->
     <div class="ic-provider-row">
       <span class="ic-provider-name">
@@ -16,29 +16,29 @@
 
     <!-- Row 2: Creator / Family / Super Model -->
     <div class="ic-meta-row">
-      <span class="ic-badge ic-badge-creator">
+      <router-link :to="'/creator/' + creator.id" class="ic-badge ic-badge-creator ic-badge-link" @click.stop>
         <svg v-if="creatorIconSvg" class="ic-icon" :viewBox="creatorIconSvg.viewBox" v-html="creatorIconSvg.body"></svg>
         <span v-else class="ic-icon-fb">{{ (creator.name || '?')[0] }}</span>
         {{ creator.name }}
-      </span>
+      </router-link>
       <span class="ic-badge-sep">/</span>
-      <span v-if="model.family" class="ic-badge ic-badge-family">
+      <router-link v-if="model.family" :to="'/family/' + model.family" class="ic-badge ic-badge-family ic-badge-link" @click.stop>
         <span class="ic-icon-fb">{{ formatFamily(model.family)[0] }}</span>
         {{ formatFamily(model.family) }}
-      </span>
+      </router-link>
       <span v-if="model.family" class="ic-badge-sep">/</span>
-      <span class="ic-badge ic-badge-model" @click.stop="$emit('navigate-super')">
+      <router-link :to="'/model/' + model.slug" class="ic-badge ic-badge-model ic-badge-link" @click.stop>
         <span class="ic-icon-fb">{{ model.name[0] }}</span>
         {{ model.name }}
-      </span>
+      </router-link>
     </div>
 
     <!-- Row 3: Instance key (full_id) -->
     <div class="ic-key-row">
-      <span class="ic-key-pill" :title="dp.full_id">
+      <router-link :to="'/model/' + model.slug" class="ic-key-pill ic-key-link" :title="dp.full_id" @click.stop>
         {{ dp.full_id }}
-        <button class="copy-btn-badge" title="Copy full ID" @click.stop="copyText(dp.full_id)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-      </span>
+        <button class="copy-btn-badge" title="Copy full ID" @click.stop.prevent="copyText(dp.full_id)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+      </router-link>
     </div>
 
     <!-- Row 4: Capabilities -->
@@ -88,9 +88,9 @@
           <span v-for="b in sourceBadges" :key="b.key" class="ic-source-badge" :class="b.cssClass" :title="b.title">{{ b.label }}</span>
         </span>
       </div>
-      <span v-if="siblingCount > 0" class="ic-siblings" @click.stop="$emit('navigate-super')">
+      <router-link v-if="siblingCount > 0" :to="'/model/' + model.slug" class="ic-siblings ic-siblings-link" @click.stop>
         +{{ siblingCount }} other{{ siblingCount !== 1 ? 's' : '' }}
-      </span>
+      </router-link>
     </div>
   </div>
 </template>
@@ -98,6 +98,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { getProviderIcon } from '@/data/provider-icons';
+import { getProviderColorMuted } from '@/data/provider-colors';
 import { useToast } from '@/composables/useToast';
 import { useModelsStore } from '@/store/models';
 import type { ProviderDatapoint, ModelData, CreatorData } from '@/types';
@@ -110,7 +111,6 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  'navigate-super': [];
   'click': [];
 }>();
 
@@ -118,6 +118,7 @@ const store = useModelsStore();
 
 const providerIconSvg = computed(() => getProviderIcon(props.dp.provider_slug));
 const creatorIconSvg = computed(() => getProviderIcon(props.creator.id));
+const providerColorMuted = computed(() => getProviderColorMuted(props.dp.provider_slug));
 
 const hasImageInput = computed(() => (props.dp.input_types || []).includes('image'));
 
@@ -288,6 +289,20 @@ async function copyText(text: string) {
   white-space: nowrap;
 }
 
+.ic-key-link {
+  text-decoration: none;
+  color: var(--text-muted);
+}
+
+.ic-key-link:hover {
+  color: var(--accent);
+}
+
+.ic-badge-link {
+  text-decoration: none;
+  color: inherit;
+}
+
 .ic-provider-name {
   display: inline-flex;
   align-items: center;
@@ -302,6 +317,7 @@ async function copyText(text: string) {
   height: 16px;
   border-radius: 3px;
   flex-shrink: 0;
+  background: var(--ic-provider-color);
 }
 
 .ic-provider-icon-fb {
@@ -520,7 +536,13 @@ async function copyText(text: string) {
   flex-shrink: 0;
 }
 
-.ic-siblings:hover {
+.ic-siblings-link {
+  text-decoration: none;
+  color: var(--accent);
+}
+
+.ic-siblings:hover,
+.ic-siblings-link:hover {
   text-decoration: underline;
 }
 

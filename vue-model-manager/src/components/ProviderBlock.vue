@@ -1,6 +1,7 @@
 <template>
   <div
     class="provider-block"
+    :style="{ '--pb-color': getProviderColorMuted(dp.provider_slug) }"
     :class="{
       expanded,
       'status-working': dp.status.result === 'working',
@@ -73,6 +74,7 @@
 import { computed } from 'vue';
 import type { ProviderDatapoint } from '@/types';
 import { useModelsStore } from '@/store/models';
+import { getProviderColorMuted } from '@/data/provider-colors';
 
 const props = defineProps<{
   dp: ProviderDatapoint;
@@ -132,8 +134,9 @@ function formatContext(ctx: number | null): string {
   gap: 4px;
   padding: 6px 8px;
   border-radius: 6px;
-  background: var(--bg-elevated);
+  background: linear-gradient(135deg, var(--pb-color) 0%, var(--bg-elevated) 40%);
   border: 1px solid var(--border);
+  border-left: 2px solid var(--pb-color, var(--border));
   min-width: 100px;
   cursor: pointer;
   transition:
