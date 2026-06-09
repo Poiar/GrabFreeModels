@@ -33,7 +33,7 @@
           :value="roleVariants[role.key] ?? 'combined'"
           @change="onRoleVariantChange(role.key, ($event.target as HTMLSelectElement).value)"
         >
-          <option v-for="v in roleVariantOpts(role.key)" :key="v" :value="v">{{ variantLabels[v] ?? v }}</option>
+          <option v-for="v in roleVariantOpts(role.key)" :key="v" :value="v">{{ compactVariantLabels[v] ?? v }}</option>
         </select>
       </div>
 
@@ -352,6 +352,14 @@ const variantLabels: Record<string, string> = {
   artificial_analysis: 'Artificial Analysis',
   modelsdev: 'Models.dev',
   _benchmarks: 'Benchmarks Only (our blend)',
+};
+
+// Compact labels for per-role selectors (shorter to fit narrow columns)
+const compactVariantLabels: Record<string, string> = {
+  combined: 'Combined',
+  artificial_analysis: 'AA',
+  modelsdev: 'Models.dev',
+  _benchmarks: 'Benchmarks',
 };
 
 const variantDescriptions: Record<string, string> = {
@@ -787,11 +795,14 @@ function wfFinalPct(entry: ModelEntry): number {
   color: var(--text-dim);
   border: 1px solid var(--border-light);
   border-radius: 4px;
-  padding: 2px 6px;
-  font-size: 0.6rem;
+  padding: 3px 5px;
+  font-size: 0.58rem;
   cursor: pointer;
   flex-shrink: 0;
-  max-width: 140px;
+  max-width: 100px;
+  line-height: 1;
+  vertical-align: middle;
+  align-self: center;
 }
 
 .role-variant-select:focus {
