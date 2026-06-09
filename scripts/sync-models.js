@@ -633,6 +633,11 @@ const CREATOR_WHITELIST = new Map([
   ['zhipuai', 'ZhipuAI'],
   ['thenlper', 'Alibaba'],
   ['nlper', 'Alibaba'],
+  ['arcee-ai', 'Arcee AI'],
+  ['openrouter', 'OpenRouter'],
+  ['llmgateway', 'LLMGateway'],
+  ['novita', 'NovitaAI'],
+  ['novitaai', 'NovitaAI'],
 ]);
 
 function humanizeCreator(raw) {
@@ -650,6 +655,33 @@ function humanizeCreator(raw) {
 
   // All lowercase, no separators — capitalize first letter
   return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
+function inferCreatorFromName(name) {
+  if (!name) return null;
+  // org/name pattern
+  const slashIdx = name.indexOf('/');
+  if (slashIdx > 0 && slashIdx < name.length - 1) {
+    return humanizeCreator(name.slice(0, slashIdx).trim());
+  }
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  // Exact slug matches
+  const bySlug = {
+    'owl-alpha': 'OpenRouter', 'bodybuilder': 'OpenRouter', 'pareto-code': 'OpenRouter',
+    'spotlight': 'OpenRouter', 'coder-large': 'Arcee AI', 'virtuoso-large': 'Arcee AI',
+    'auto-route': 'LLMGateway', 'custom-model': 'LLMGateway',
+    'ai-infer-test-1': 'NovitaAI', 'ai-infer-test-2': 'NovitaAI', 'ai-infer-test-3': 'NovitaAI',
+    'maestro-reasoning': 'Aion Labs',
+  };
+  if (bySlug[slug]) return bySlug[slug];
+  // Prefix matches for model families
+  const byPrefix = { qwq: 'Alibaba', tongyi: 'Alibaba', qianfan: 'Baidu', sonar: 'Perplexity',
+    sqlcoder: 'Defog', allam: 'SDAIA', 'ui-tars': 'ByteDance', intellect: 'Prime Intellect',
+    bunny: 'BAAI' };
+  for (const [prefix, creator] of Object.entries(byPrefix)) {
+    if (slug === prefix || slug.startsWith(prefix + '-')) return creator;
+  }
+  return null;
 }
 
 function normalizeModelSlug(name) {
@@ -1206,8 +1238,9 @@ function normalizeModelSlug(name) {
           const modelInstanceKey = m.id.includes('/') ? m.id.slice(m.id.indexOf('/') + 1) : m.id;
           const superSlug = normalizeModelSlug(m.name);
 
-          // Extract creator from model ID when it contains org prefix (e.g., "org/modelName")
-          const creator = modelInstanceKey.includes('/') ? humanizeCreator(modelInstanceKey.split('/')[0]) : null;
+          // Extract creator from model ID org prefix, fallback to name inference
+          let creator = modelInstanceKey.includes('/') ? humanizeCreator(modelInstanceKey.split('/')[0]) : null;
+          if (!creator) creator = inferCreatorFromName(m.name);
 
           // Upsert super model
           const { rows: mmRows } = await client.query(

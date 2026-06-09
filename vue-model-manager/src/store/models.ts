@@ -51,6 +51,28 @@ function saveToCache(rawJson: string, key: string = CACHE_KEY) {
   }
 }
 
+async function fetchWithRetry(url: string, signal?: AbortSignal, maxRetries = 3): Promise<Response> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const resp = await fetch(url, { signal });
+      if (resp.status === 429 && attempt < maxRetries) {
+        // Exponential backoff: 1s, 2s, 4s
+        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+        continue;
+      }
+      return resp;
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') throw e;
+      lastError = e;
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+      }
+    }
+  }
+  throw lastError;
+}
+
 export const useModelsStore = defineStore('models', () => {
   const data = ref<ModelsData | null>(null);
   const loading = ref(true);
@@ -683,7 +705,7 @@ export const useModelsStore = defineStore('models', () => {
     }
 
     try {
-      let resp = await fetch('/api/data', { signal });
+      let resp = await fetchWithRetry('/api/data', signal);
       const ct = resp.headers.get('content-type') || '';
       if (!resp.ok || !ct.includes('application/json')) resp = await fetch('/available-models.json', { signal });
       const rawJson = await resp.text();
@@ -772,7 +794,7 @@ export const useModelsStore = defineStore('models', () => {
     }
 
     try {
-      let resp = await fetch('/api/data/paid');
+      let resp = await fetchWithRetry('/api/data/paid');
       const ct = resp.headers.get('content-type') || '';
       if (!resp.ok || !ct.includes('application/json')) resp = await fetch('/available-models-paid.json');
       const rawJson = await resp.text();

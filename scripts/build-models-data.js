@@ -126,7 +126,27 @@ async function buildModelsData(client, pool, options = {}) {
     } catch { /* table may not exist */ }
   }
 
-  // Known model-family name prefixes → creator, for models with no explicit creator set
+  // Known model slug → creator, for models with no explicit creator set.
+  // Exact matches first, then prefix-based matches for model families.
+  const CREATOR_BY_SLUG = new Map([
+    // OpenRouter native models & routers (id = openrouter/*)
+    ['owl-alpha', 'OpenRouter'],
+    ['bodybuilder', 'OpenRouter'],
+    ['pareto-code', 'OpenRouter'],
+    ['spotlight', 'OpenRouter'],
+    // Arcee AI models (id = arcee-ai/*, but stored without org prefix)
+    ['coder-large', 'Arcee AI'],
+    ['virtuoso-large', 'Arcee AI'],
+    // LLMGateway routers
+    ['auto-route', 'LLMGateway'],
+    ['custom-model', 'LLMGateway'],
+    // NovitaAI test models
+    ['ai-infer-test-1', 'NovitaAI'],
+    ['ai-infer-test-2', 'NovitaAI'],
+    ['ai-infer-test-3', 'NovitaAI'],
+    // Miscellaneous
+    ['maestro-reasoning', 'Aion Labs'],
+  ]);
   const CREATOR_BY_PREFIX = [
     ['qwq', 'Alibaba'],
     ['tongyi', 'Alibaba'],
@@ -138,6 +158,10 @@ async function buildModelsData(client, pool, options = {}) {
     ['intellect', 'Prime Intellect'],
     ['bunny', 'BAAI'],
   ];
+  // Known base model + derivation method for specific slugs
+  const DERIVATION_BY_SLUG = new Map([
+    ['coder-large', { base_model: 'qwen-2.5-instruct', derivation_method: 'finetune' }],
+  ]);
 
   // Fallback: infer creator from model name when super_models.creator is NULL
   function inferCreatorFromName(name) {
@@ -150,8 +174,9 @@ async function buildModelsData(client, pool, options = {}) {
     if (colonIdx > 0 && colonIdx < name.length - 1) {
       return name.slice(0, colonIdx).trim();
     }
-    // Check known prefixes against slugified name
+    // Check exact + prefix matches against slugified name
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    if (CREATOR_BY_SLUG.has(slug)) return CREATOR_BY_SLUG.get(slug);
     for (const [prefix, creator] of CREATOR_BY_PREFIX) {
       if (slug === prefix || slug.startsWith(prefix + '-')) {
         return creator;
@@ -192,8 +217,8 @@ async function buildModelsData(client, pool, options = {}) {
       temperature: feat?.temperature?.[0] === undefined ? null : feat.temperature[0] === 'true',
       open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
       family: dm.super_family || feat?.family?.[0] || null,
-      base_model: dm.super_base_model || null,
-      derivation_method: dm.super_derivation_method || null,
+      base_model: dm.super_base_model || (DERIVATION_BY_SLUG.get(dm.super_slug) || {}).base_model || null,
+      derivation_method: dm.super_derivation_method || (DERIVATION_BY_SLUG.get(dm.super_slug) || {}).derivation_method || null,
       knowledge_cutoff: feat?.knowledge_cutoff?.[0] || null,
       releaseDate: feat?.release_date?.[0] || null,
       lastUpdated: feat?.last_updated?.[0] || null,
@@ -417,6 +442,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
         base_creator: dp.base_creator || null,
         family: dp.family,
         base_model: dp.base_model,
+        derivation_method: dp.derivation_method || null,
         best_for: [...(dp.best_for || [])],
         best_context: dp.context_length || 0,
         min_context: dp.context_length || 0,
@@ -431,6 +457,9 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     }
     if (dp.base_creator && (!model.base_creator || dp.base_creator.length > model.base_creator.length)) {
       model.base_creator = dp.base_creator;
+    }
+    if (dp.derivation_method && !model.derivation_method) {
+      model.derivation_method = dp.derivation_method;
     }
     model.providers.push({
       full_id: dp.id,
@@ -516,6 +545,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
           base_creator: model.base_creator || null,
           family: model.family || null,
           base_model: model.base_model || null,
+          derivation_method: model.derivation_method || null,
           best_for: model.best_for,
           best_context: model.best_context,
           min_context: model.min_context || null,
