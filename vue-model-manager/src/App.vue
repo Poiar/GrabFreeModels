@@ -196,7 +196,7 @@
           </span>
           <span>Creators</span>
         </router-link>
-        <router-link to="/fine-tuners" active-class="active" class="nav-finetuners">
+        <router-link to="/derivatives" active-class="active" class="nav-derivatives">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -213,7 +213,7 @@
               <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
             </svg>
           </span>
-          <span>Fine Tuners</span>
+          <span>Derivatives</span>
         </router-link>
         <router-link to="/families" active-class="active" class="nav-families">
           <span class="nav-icon">
@@ -647,7 +647,7 @@ function timeAgo(date: Date, _now: number): string {
 .nav-rankings { color: #fcd34d; }
 .nav-providers { color: #c4b5fd; }
 .nav-creators { color: #fda4af; }
-.nav-finetuners { color: #f9a8d4; }
+.nav-derivatives { color: #f9a8d4; }
 .nav-families { color: #a5b4fc; }
 .nav-basemodels { color: #a5b4fc; }
 .nav-compare { color: #cbd5e1; }
@@ -666,7 +666,7 @@ function timeAgo(date: Date, _now: number): string {
 .nav-rankings:hover { color: #fde68a; }
 .nav-providers:hover { color: #ddd6fe; }
 .nav-creators:hover { color: #fecdd3; }
-.nav-finetuners:hover { color: #fce7f3; }
+.nav-derivatives:hover { color: #fce7f3; }
 .nav-families:hover { color: #c7d2fe; }
 .nav-basemodels:hover { color: #c7d2fe; }
 .nav-compare:hover { color: #e2e8f0; }

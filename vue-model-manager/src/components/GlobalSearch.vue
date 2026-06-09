@@ -110,23 +110,23 @@ const flatItems = computed<SearchItem[]>(() => {
   }
   creatorItems.sort((a, b) => a.name.localeCompare(b.name));
 
-  // Fine Tuners
-  const ftItems: SearchItem[] = [];
+  // Derivatives
+  const derivItems: SearchItem[] = [];
   for (const c of store.creators) {
     if (!c.models.some((m) => m.base_creator && m.base_creator !== m.creator)) continue;
     if (match(c.name) || match(c.id)) {
-      ftItems.push({
-        id: `finetuner:${c.id}`,
+      derivItems.push({
+        id: `derivative:${c.id}`,
         name: c.name,
-        meta: `${c.model_count} fine-tunes`,
-        route: `/fine-tuner/${c.id}`,
-        typeLabel: 'Fine Tuner',
-        category: 'Fine Tuners',
+        meta: `${c.model_count} derivatives`,
+        route: `/derivative/${c.id}`,
+        typeLabel: 'Derivative',
+        category: 'Derivatives',
         flatIndex: 0,
       });
     }
   }
-  ftItems.sort((a, b) => a.name.localeCompare(b.name));
+  derivItems.sort((a, b) => a.name.localeCompare(b.name));
 
   // Families
   const familyItems: SearchItem[] = [];
@@ -166,7 +166,7 @@ const flatItems = computed<SearchItem[]>(() => {
   const all = [
     ...modelItems.slice(0, 5),
     ...creatorItems.slice(0, 5),
-    ...ftItems.slice(0, 5),
+    ...derivItems.slice(0, 5),
     ...familyItems.slice(0, 5),
     ...providerItems.slice(0, 5),
   ];

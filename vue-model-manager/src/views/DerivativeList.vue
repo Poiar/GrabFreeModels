@@ -1,8 +1,8 @@
 <template>
-  <div class="ft-list-page">
+  <div class="deriv-list-page">
     <div class="page-header">
-      <h2>Fine Tuners</h2>
-      <p>{{ fineTuners.length }} fine-tuners tracked<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template></p>
+      <h2>Derivatives</h2>
+      <p>{{ derivatives.length }} derivatives tracked<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template></p>
     </div>
 
     <div class="cc-controls">
@@ -22,14 +22,14 @@
         class="cc-continent-btn"
         :class="{ active: selectedContinent === c }"
         @click="selectedContinent = c"
-      >{{ c === 'All' ? `All (${fineTuners.length})` : `${c} (${continentCount(c)})` }}</button>
+      >{{ c === 'All' ? `All (${derivatives.length})` : `${c} (${continentCount(c)})` }}</button>
     </div>
 
     <div class="creator-grid">
       <router-link
         v-for="creator in sortedCreators"
         :key="creator.id"
-        :to="`/fine-tuner/${creator.id}`"
+        :to="`/derivative/${creator.id}`"
         class="creator-card"
       >
         <div class="cc-icon-row">
@@ -44,10 +44,10 @@
           class="cc-country"
           :style="{ color: getCountryForCreator(creator.id).text, background: getCountryForCreator(creator.id).color }"
         >{{ getCountryForCreator(creator.id).name }}</span>
-        <div v-if="getBaseCreators(creator).length" class="ft-base-creators">
-          <span class="ft-base-label">builds on</span>
-          <span v-for="bc in getBaseCreators(creator).slice(0, 3)" :key="bc" class="ft-base-tag">{{ bc }}</span>
-          <span v-if="getBaseCreators(creator).length > 3" class="ft-base-tag ft-base-more">+{{ getBaseCreators(creator).length - 3 }}</span>
+        <div v-if="getBaseCreators(creator).length" class="deriv-base-creators">
+          <span class="deriv-base-label">builds on</span>
+          <span v-for="bc in getBaseCreators(creator).slice(0, 3)" :key="bc" class="deriv-base-tag">{{ bc }}</span>
+          <span v-if="getBaseCreators(creator).length > 3" class="deriv-base-tag deriv-base-more">+{{ getBaseCreators(creator).length - 3 }}</span>
         </div>
         <div v-if="getFamilies(creator).length" class="cc-families">
           <span v-for="f in getFamilies(creator).slice(0, 4)" :key="f" class="cc-family-tag">{{ f }}</span>
@@ -71,7 +71,7 @@ const sortBy = ref<'name' | 'models' | 'providers' | 'country'>('models');
 const sortAsc = ref(false);
 const selectedContinent = ref('All');
 
-const fineTuners = computed(() =>
+const derivatives = computed(() =>
   store.creators.filter((c) =>
     c.models.some((m) => {
       // Has explicit derivation metadata from HF → definitely a derivative
@@ -84,15 +84,15 @@ const fineTuners = computed(() =>
 
 function continentCount(continent: string): number {
   let count = 0;
-  for (const c of fineTuners.value) {
+  for (const c of derivatives.value) {
     if (getCountryForCreator(c.id).continent === continent) count++;
   }
   return count;
 }
 
 const filteredCreators = computed(() => {
-  if (selectedContinent.value === 'All') return fineTuners.value;
-  return fineTuners.value.filter(
+  if (selectedContinent.value === 'All') return derivatives.value;
+  return derivatives.value.filter(
     (c) => getCountryForCreator(c.id).continent === selectedContinent.value,
   );
 });
@@ -142,7 +142,7 @@ function getBaseCreators(creator: CreatorData): string[] {
 </script>
 
 <style scoped>
-.ft-list-page {
+.deriv-list-page {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -284,20 +284,20 @@ function getBaseCreators(creator: CreatorData): string[] {
   margin-bottom: 6px;
 }
 
-.ft-base-creators {
+.deriv-base-creators {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 4px;
   margin-bottom: 6px;
 }
-.ft-base-label {
+.deriv-base-label {
   font-size: 0.6rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
-.ft-base-tag {
+.deriv-base-tag {
   font-size: 0.64rem;
   padding: 1px 7px;
   border-radius: 3px;
@@ -305,7 +305,7 @@ function getBaseCreators(creator: CreatorData): string[] {
   color: #a855f7;
   font-weight: 600;
 }
-.ft-base-more {
+.deriv-base-more {
   color: var(--accent);
   background: var(--accent-subtle);
 }
@@ -333,7 +333,7 @@ function getBaseCreators(creator: CreatorData): string[] {
 }
 
 @media (max-width: 768px) {
-  .ft-list-page {
+  .deriv-list-page {
     padding: 12px;
   }
   .creator-grid {

@@ -199,6 +199,27 @@ async function main() {
           child = { super_id: superMatch.id, slug: superMatch.slug, creator: superMatch.creator };
         }
       }
+      if (!child) {
+        // Third attempt: use PG normalize_model_slug() — strips additional prefixes, handles (free) suffixes
+        const { rows: normRows } = await client.query(
+          `SELECT normalize_model_slug($1) AS norm_slug`, [hfName]
+        );
+        if (normRows.length > 0 && normRows[0].norm_slug) {
+          const superMatch = slugToSuper.get(normRows[0].norm_slug);
+          if (superMatch) {
+            child = { super_id: superMatch.id, slug: superMatch.slug, creator: superMatch.creator };
+          }
+        }
+      }
+      if (!child) {
+        // Fourth attempt: case-insensitive substring match against super_model name (unambiguous only)
+        const hfNameLC = hfName.toLowerCase();
+        const nameMatches = allSuper.filter(s => hfNameLC.includes(s.name.toLowerCase()));
+        if (nameMatches.length === 1) {
+          const sm = nameMatches[0];
+          child = { super_id: sm.id, slug: sm.slug, creator: sm.creator };
+        }
+      }
 
       if (!child) {
         if (lineage.baseModelId) {
@@ -225,13 +246,35 @@ async function main() {
           if (superMatch) {
             baseSlug = superMatch.slug;
             baseCreator = superMatch.creator;
-          } else {
-            // Last resort: extract org from base model ID
-            const orgSlash = lineage.baseModelId.indexOf('/');
-            if (orgSlash >= 0) {
-              baseCreator = lineage.baseModelId.slice(0, orgSlash);
+          }
+        }
+        if (!baseSlug) {
+          // Third attempt: PG normalize_model_slug()
+          const { rows: normRows } = await client.query(
+            `SELECT normalize_model_slug($1) AS norm_slug`, [lineage.baseModelId]
+          );
+          if (normRows.length > 0 && normRows[0].norm_slug) {
+            const superMatch = slugToSuper.get(normRows[0].norm_slug);
+            if (superMatch) {
+              baseSlug = superMatch.slug;
+              baseCreator = superMatch.creator;
             }
-            baseSlug = slug;
+          }
+        }
+        if (!baseSlug) {
+          // Fourth attempt: case-insensitive substring match (unambiguous only)
+          const bmLC = lineage.baseModelId.toLowerCase();
+          const nameMatches = allSuper.filter(s => bmLC.includes(s.name.toLowerCase()));
+          if (nameMatches.length === 1) {
+            baseSlug = nameMatches[0].slug;
+            baseCreator = nameMatches[0].creator;
+          }
+        }
+        if (!baseSlug) {
+          // Last resort: extract org from base model ID
+          const orgSlash = lineage.baseModelId.indexOf('/');
+          if (orgSlash >= 0) {
+            baseCreator = lineage.baseModelId.slice(0, orgSlash);
           }
         }
       }

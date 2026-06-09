@@ -15,9 +15,9 @@
         <h3 class="bml-name">{{ item.baseName }}</h3>
         <div class="bml-stats">
           <span class="bml-stat">{{ item.derivativeCount }} derivative{{ item.derivativeCount !== 1 ? 's' : '' }}</span>
-          <span class="bml-stat">{{ item.fineTunerCount }} fine-tuner{{ item.fineTunerCount !== 1 ? 's' : '' }}</span>
+          <span class="bml-stat">{{ item.derivativeCreatorCount }} derivative creator{{ item.derivativeCreatorCount !== 1 ? 's' : '' }}</span>
         </div>
-        <div class="bml-top">Top fine-tuner: {{ item.topFineTuner }}</div>
+        <div class="bml-top">Top derivative creator: {{ item.topDerivativeCreator }}</div>
       </router-link>
     </div>
   </div>
@@ -31,22 +31,22 @@ import type { ModelData } from '@/types';
 const store = useModelsStore();
 
 const baseModelGroups = computed(() => {
-  const groups: Record<string, { derivatives: ModelData[]; fineTuners: Set<string> }> = {};
+  const groups: Record<string, { derivatives: ModelData[]; derivativeCreators: Set<string> }> = {};
   for (const creator of store.creators) {
     for (const model of creator.models) {
       const base = model.base_model;
       if (!base) continue;
-      if (!groups[base]) groups[base] = { derivatives: [], fineTuners: new Set() };
+      if (!groups[base]) groups[base] = { derivatives: [], derivativeCreators: new Set() };
       groups[base].derivatives.push(model);
-      groups[base].fineTuners.add(creator.name);
+      groups[base].derivativeCreators.add(creator.name);
     }
   }
   return Object.entries(groups)
     .map(([baseName, data]) => ({
       baseName,
       derivativeCount: data.derivatives.length,
-      fineTunerCount: data.fineTuners.size,
-      topFineTuner: [...data.fineTuners].sort()[0],
+      derivativeCreatorCount: data.derivativeCreators.size,
+      topDerivativeCreator: [...data.derivativeCreators].sort()[0],
     }))
     .sort((a, b) => b.derivativeCount - a.derivativeCount);
 });

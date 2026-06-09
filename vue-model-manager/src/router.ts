@@ -25,17 +25,21 @@ const routes = [
     component: () => import('@/views/CreatorDetail.vue'),
     meta: { title: 'Creator' },
   },
+  // Redirect old fine-tuner URLs
+  { path: '/fine-tuners', redirect: '/derivatives' },
+  { path: '/fine-tuner/:id', redirect: '/derivative/:id' },
+
   {
-    path: '/fine-tuners',
-    name: 'FineTuners',
-    component: () => import('@/views/FineTunerList.vue'),
-    meta: { title: 'Fine Tuners' },
+    path: '/derivatives',
+    name: 'Derivatives',
+    component: () => import('@/views/DerivativeList.vue'),
+    meta: { title: 'Derivatives' },
   },
   {
-    path: '/fine-tuner/:id',
-    name: 'FineTunerDetail',
-    component: () => import('@/views/FineTunerDetail.vue'),
-    meta: { title: 'Fine Tuner' },
+    path: '/derivative/:id',
+    name: 'DerivativeDetail',
+    component: () => import('@/views/DerivativeDetail.vue'),
+    meta: { title: 'Derivative' },
   },
   {
     path: '/provider/:slug',

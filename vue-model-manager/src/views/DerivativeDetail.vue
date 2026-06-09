@@ -1,7 +1,7 @@
 <template>
-  <div v-if="creator" class="ftd-page">
+  <div v-if="creator" class="dd-page">
     <div class="page-header">
-      <router-link to="/fine-tuners" class="back-link">← Fine Tuners</router-link>
+      <router-link to="/derivatives" class="back-link">← Derivatives</router-link>
       <h2>
         {{ creator.name }}
         <span
@@ -12,21 +12,21 @@
       <p class="cd-subtitle">
         {{ creator.model_count }} models · {{ creator.provider_count }} providers
       </p>
-      <p v-if="baseCreatorList.length" class="ftd-base-line">
-        Fine-tunes models from
+      <p v-if="baseCreatorList.length" class="dd-base-line">
+        Derives models from
         <span v-for="(bc, i) in baseCreatorList" :key="bc">
-          <router-link :to="`/creator/${getBaseCreatorSlug(bc)}`" class="ftd-base-link">{{ bc }}</router-link
+          <router-link :to="`/creator/${getBaseCreatorSlug(bc)}`" class="dd-base-link">{{ bc }}</router-link
           ><template v-if="i < baseCreatorList.length - 1">, </template>
         </span>
       </p>
-      <p v-if="ftDescription" class="ftd-description">{{ ftDescription }}</p>
+      <p v-if="derivDescription" class="dd-description">{{ derivDescription }}</p>
     </div>
 
     <!-- Features row -->
     <div class="cd-features-row">
-      <div class="cd-provider-icons" v-if="ftProviders.length">
+      <div class="cd-provider-icons" v-if="derivProviders.length">
         <ProviderIcon
-          v-for="p in ftProviders"
+          v-for="p in derivProviders"
           :key="p.slug"
           :slug="p.slug"
           :size="18"
@@ -116,8 +116,8 @@
 
     <!-- Models grouped by base creator -->
     <h3 class="section-title">Models</h3>
-    <div v-for="[base, models] in modelsByBaseCreator" :key="base" class="ftd-group">
-      <h4 class="ftd-group-title">{{ base === 'Original models' ? base : `Builds on ${base}` }}</h4>
+    <div v-for="[base, models] in modelsByBaseCreator" :key="base" class="dd-group">
+      <h4 class="dd-group-title">{{ base === 'Original models' ? base : `Builds on ${base}` }}</h4>
       <div class="cd-models">
         <SuperModelCard
           v-for="model in models"
@@ -140,8 +140,8 @@
     />
   </div>
   <div v-else class="cd-not-found">
-    <p>Fine-tuner not found.</p>
-    <router-link to="/fine-tuners" class="back-link">← Back to fine-tuners</router-link>
+    <p>Derivative creator not found.</p>
+    <router-link to="/derivatives" class="back-link">← Back to derivatives</router-link>
   </div>
 </template>
 
@@ -379,7 +379,7 @@ const inputTypes = computed(() => {
 });
 
 // ── Provider icons ──
-const ftProviders = computed(() => {
+const derivProviders = computed(() => {
   if (!creator.value) return [];
   const providers = new Map<string, string>();
   for (const model of creator.value.models) {
@@ -403,13 +403,13 @@ const rankingHighlights = computed(() => {
 });
 
 // ── Auto-generated description ──
-const ftDescription = computed(() => {
+const derivDescription = computed(() => {
   const c = creator.value;
   if (!c) return '';
   const families = familyList.value;
   const bases = baseCreatorList.value;
   const db = derivationBreakdown.value;
-  const verb = db.length > 0 ? 'derives' : 'fine-tunes';
+  const verb = db.length > 0 ? 'derives' : 'produces';
   let text = `${c.name} ${verb} `;
   if (families.length === 0) {
     text += 'models';
@@ -437,7 +437,7 @@ const ftDescription = computed(() => {
 </script>
 
 <style scoped>
-.ftd-page {
+.dd-page {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -470,7 +470,7 @@ const ftDescription = computed(() => {
   vertical-align: middle;
 }
 
-.ftd-description {
+.dd-description {
   font-size: 0.82rem;
   color: var(--text-secondary);
   line-height: 1.5;
@@ -478,17 +478,17 @@ const ftDescription = computed(() => {
   max-width: 720px;
 }
 
-.ftd-base-line {
+.dd-base-line {
   font-size: 0.78rem;
   color: var(--text-secondary);
   margin: 6px 0 0;
 }
-.ftd-base-link {
+.dd-base-link {
   color: var(--accent);
   font-weight: 600;
   text-decoration: none;
 }
-.ftd-base-link:hover { text-decoration: underline; }
+.dd-base-link:hover { text-decoration: underline; }
 
 .cd-features-row {
   display: flex;
@@ -675,10 +675,10 @@ const ftDescription = computed(() => {
   background: var(--accent-subtle);
 }
 
-.ftd-group {
+.dd-group {
   margin-bottom: 16px;
 }
-.ftd-group-title {
+.dd-group-title {
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -705,7 +705,7 @@ const ftDescription = computed(() => {
 }
 
 @media (max-width: 768px) {
-  .ftd-page { padding: 12px; }
+  .dd-page { padding: 12px; }
   .cd-meta-grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>

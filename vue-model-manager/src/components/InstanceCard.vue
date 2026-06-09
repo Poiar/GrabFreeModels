@@ -17,7 +17,7 @@
     <div class="ic-meta-row">
       <router-link :to="'/creator/' + creator.id" class="ic-badge ic-badge-creator ic-badge-link" @click.stop>
         <ProviderIcon :slug="creator.id" :size="12" cls="ic-icon" />
-        <span v-else class="ic-icon-fb">{{ (creator.name || '?')[0] }}</span>
+        <span class="ic-icon-fb">{{ (creator.name || '?')[0] }}</span>
         {{ creator.name }}
       </router-link>
       <span class="ic-badge-sep">/</span>

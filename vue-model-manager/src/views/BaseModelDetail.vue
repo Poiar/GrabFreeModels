@@ -5,7 +5,7 @@
       <h2>{{ baseModelName }}</h2>
       <p class="bmd-subtitle">
         {{ derivatives.length }} derivative{{ derivatives.length !== 1 ? 's' : '' }}
-        by {{ fineTunerCount }} fine-tuner{{ fineTunerCount !== 1 ? 's' : '' }}
+        by {{ derivativeCount }} derivative creator{{ derivativeCount !== 1 ? 's' : '' }}
       </p>
     </div>
 
@@ -15,7 +15,7 @@
 
     <div v-for="[creatorName, { creatorId, models }] in groupedByCreator" :key="creatorName" class="bmd-creator-group">
       <h3 class="bmd-creator-name">
-        <router-link :to="isFineTuner(creatorId) ? `/fine-tuner/${creatorId}` : `/creator/${creatorId}`" class="bmd-creator-link">
+        <router-link :to="isDerivative(creatorId) ? `/derivative/${creatorId}` : `/creator/${creatorId}`" class="bmd-creator-link">
           {{ creatorName }}
         </router-link>
         <span class="bmd-creator-count">{{ models.length }} model{{ models.length !== 1 ? 's' : '' }}</span>
@@ -77,9 +77,9 @@ const groupedByCreator = computed(() => {
   return Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0]));
 });
 
-const fineTunerCount = computed(() => new Set(derivatives.value.map((d) => d.creatorName)).size);
+const derivativeCount = computed(() => new Set(derivatives.value.map((d) => d.creatorName)).size);
 
-function isFineTuner(creatorId: string): boolean {
+function isDerivative(creatorId: string): boolean {
   const c = store.creators.find((cr) => cr.id === creatorId);
   return c ? c.models.some((m) => m.base_creator && m.base_creator !== m.creator) : false;
 }

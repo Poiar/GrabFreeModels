@@ -148,9 +148,9 @@ const route = useRoute();
 const creatorId = computed(() => route.params.id as string);
 const creator = computed(() => store.creators.find((c) => c.id === creatorId.value));
 
-const isFineTunerRoute = computed(() => route.path.startsWith('/fine-tuner'));
-const parentRoute = computed(() => isFineTunerRoute.value ? '/fine-tuners' : '/creators');
-const parentLabel = computed(() => isFineTunerRoute.value ? 'Fine Tuners' : 'Creators');
+const isDerivativeRoute = computed(() => route.path.startsWith('/derivative'));
+const parentRoute = computed(() => isDerivativeRoute.value ? '/derivatives' : '/creators');
+const parentLabel = computed(() => isDerivativeRoute.value ? 'Derivatives' : 'Creators');
 
 const detailModel = ref<ModelData | null>(null);
 function openDetail(model: ModelData) {
