@@ -11,14 +11,18 @@ Send messages to other Claude Code sessions in this Tabby window.
 
 ### 1. Resolve tabs via Playwright MCP paths
 
-Call `list_tabs`. Filter to tabs with `claude.exe`. Extract the project from each tab's Playwright MCP path:
+Call `list_tabs`. Filter to tabs with `claude.exe`. Then run:
 
-- `C:\OC\<Project>\node_modules\...\@playwright\mcp\cli.js` → project is `<Project>`, tab is local to that repo
-- `npm-cache\...\@playwright\mcp\cli.js` → global install, project unknown from path alone
+```powershell
+# Save list_tabs output to temp file, then:
+& "$env:USERPROFILE\.claude\skills\peer-msg\resolve-peers.ps1" -MyProject "GrabFreeModels" < tabs.json
+```
 
-**Find yourself:** The tab whose Playwright path contains your current project directory.
+The script maps each tab to its project by scanning Playwright MCP paths:
+- `C:\OC\<Project>\node_modules\...\@playwright\mcp\cli.js` → `<Project>` (local)
+- `npm-cache\...\@playwright\mcp\cli.js` → `(global)` — fall back to process cmdlines
 
-**Find the target:** If the user names a project (e.g. "deepclaude"), match the tab whose Playwright path or process cmdlines reference that project. If ambiguous, show matches and ask.
+**Self** is the tab marked `<-- YOU`. **Target** is the tab matching the named project.
 
 ### 2. Send the message
 
