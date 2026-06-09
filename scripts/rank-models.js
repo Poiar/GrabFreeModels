@@ -97,8 +97,8 @@ async function rankModels() {
       return m.context_length / CTX_NORM;
     }
 
-    function findScore(scores, type) {
-      const s = scores?.find((s) => s.score_type === type);
+    function findScore(scores, type, source) {
+      const s = scores?.find((s) => s.score_type === type && (!source || s.source === source));
       return s ? s.score_value : null;
     }
 
@@ -116,13 +116,13 @@ async function rankModels() {
       return bonus;
     }
 
-    function qualityScore(m, role) {
+    function qualityScore(m, role, source) {
       const scores = scoreMap.get(m.id);
       if (!scores || scores.length === 0) return 0;
-      const intelligence = findScore(scores, 'intelligence');
-      const speed = findScore(scores, 'output_speed');
-      const coding = findScore(scores, 'aider-polyglot') || findScore(scores, 'swe-bench-verified');
-      const latency = findScore(scores, 'latency_total');
+      const intelligence = findScore(scores, 'intelligence', source);
+      const speed = findScore(scores, 'output_speed', source);
+      const coding = findScore(scores, 'aider-polyglot', source) || findScore(scores, 'swe-bench-verified', source);
+      const latency = findScore(scores, 'latency_total', source);
       let qs = 0;
       if (intelligence !== null && ['model', 'build', 'general', 'explore'].includes(role)) {
         qs += Math.max(0, intelligence / 40);
@@ -236,6 +236,43 @@ async function rankModels() {
       }
     }
 
+    // ── Per-source ranking variants ──
+    const SOURCES = ['artificial_analysis', 'modelsdev'];
+    const allVariants = { combined: { ...newRankings, _scores: allScores, _meta: allMeta } };
+
+    for (const source of SOURCES) {
+      const srcRankings = {};
+      const srcScores = {};
+      const srcMeta = allMeta; // same role metadata
+
+      for (const [role, cfg] of Object.entries(ROLES)) {
+        if (cfg.manual) { srcRankings[role] = []; srcScores[role] = []; continue; }
+
+        const scored = eligible.map((m) => {
+          const ctx = ctxScore(m);
+          const tags = tagBonus(m, cfg.tagKeywords);
+          const quality = qualityScore(m, role, source);
+          const score = ctx * cfg.ctxWeight + tags + quality;
+          const ctxContrib = ctx * cfg.ctxWeight;
+          const matchedTags = (cfg.tagKeywords || []).filter((kw) =>
+            (m.best_for || []).some((t) => t.toLowerCase().includes(kw.toLowerCase())),
+          );
+          return { id: m.id, score, ctx: m.context_length || 0, ctxScore: ctx, ctxWeight: cfg.ctxWeight, ctxContrib, tagBonus: tags, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags, matchedPenaltyTags: [], qualityBonus: quality };
+        });
+
+        scored.sort((a, b) => { if (b.score !== a.score) return b.score - a.score; return b.ctx - a.ctx; });
+        srcRankings[role] = scored.map((s) => s.id);
+        srcScores[role] = scored;
+      }
+
+      allVariants[source] = { ...srcRankings, _scores: srcScores, _meta: srcMeta };
+
+      console.log(`\n-- ${source} --`);
+      for (const role of Object.keys(ROLES)) {
+        console.log(`  ${role}: ${srcRankings[role].slice(0, 3).join(', ')}`);
+      }
+    }
+
     // ── Diff against current rankings in DB ──
     const { rows: metaRows } = await client.query(
       "SELECT value::text FROM metadata WHERE key = '_role_rankings'",
@@ -260,7 +297,7 @@ async function rankModels() {
     // ── Apply ──
     if (APPLY) {
       await client.query('BEGIN');
-      const rankingsWithMeta = { ...newRankings, _scores: allScores, _meta: allMeta };
+      const rankingsWithMeta = { ...newRankings, _variants: allVariants, _scores: allScores, _meta: allMeta };
       await client.query(
         `INSERT INTO metadata (key, value) VALUES ('_role_rankings', $1)
          ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,

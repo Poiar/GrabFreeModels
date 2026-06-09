@@ -143,8 +143,8 @@ async function rankModels() {
       return m.context_length / CTX_NORM;
     }
 
-    function findScore(scores, type) {
-      const s = scores?.find((s) => s.score_type === type);
+    function findScore(scores, type, source) {
+      const s = scores?.find((s) => s.score_type === type && (!source || s.source === source));
       return s ? s.score_value : null;
     }
 
@@ -165,39 +165,26 @@ async function rankModels() {
     // Benchmark-based quality signal. Scored models get a 0-3 bonus
     // proportional to their intelligence/speed/coding benchmarks.
     // Unscored models get 0 — no penalty, just no bonus.
-    function qualityScore(m, role) {
+    function qualityScore(m, role, source) {
       const scores = scoreMap.get(m.id);
       if (!scores || scores.length === 0) return 0;
-
-      const intelligence = findScore(scores, 'intelligence');   // 0-100
-      const speed = findScore(scores, 'output_speed');         // tokens/s
-      const coding =
-        findScore(scores, 'aider-polyglot') ||
-        findScore(scores, 'swe-bench-verified');
-      const latency = findScore(scores, 'latency_total');       // seconds
-
+      const intelligence = findScore(scores, 'intelligence', source);
+      const speed = findScore(scores, 'output_speed', source);
+      const coding = findScore(scores, 'aider-polyglot', source) || findScore(scores, 'swe-bench-verified', source);
+      const latency = findScore(scores, 'latency_total', source);
       let qs = 0;
-
-      // Intelligence: contributes to roles where raw capability matters
       if (intelligence !== null && ['model', 'build', 'general', 'explore'].includes(role)) {
-        qs += Math.max(0, intelligence / 40); // 0-100 → 0-2.5
+        qs += Math.max(0, intelligence / 40);
       }
-
-      // Coding benchmarks: extra boost for build role
       if (role === 'build' && coding !== null) {
         qs += Math.min(coding / 30, 1.5);
       }
-
-      // Speed: contributes to general + small_model
       if (['general', 'small_model'].includes(role) && speed !== null) {
         qs += Math.min(speed / 80, 1.5);
       }
-
-      // Latency penalty for small_model (slower = worse for "fast" role)
       if (role === 'small_model' && latency !== null && latency > 0) {
         qs -= Math.min(latency / 4, 1);
       }
-
       return Math.max(0, Math.min(qs, 3));
     }
 
@@ -292,6 +279,43 @@ async function rankModels() {
       }
     }
 
+    // ── Per-source ranking variants ──
+    const SOURCES = ['artificial_analysis', 'modelsdev'];
+    const allVariants = { combined: { ...newRankings, _scores: allScores, _meta: allMeta } };
+
+    for (const source of SOURCES) {
+      const srcRankings = {};
+      const srcScores = {};
+      const srcMeta = allMeta;
+
+      for (const [role, cfg] of Object.entries(ROLES)) {
+        if (cfg.manual) { srcRankings[role] = []; srcScores[role] = []; continue; }
+
+        const scored = eligible.map((m) => {
+          const ctx = ctxScore(m);
+          const tags = tagBonus(m, cfg.tagKeywords);
+          const quality = qualityScore(m, role, source);
+          const score = ctx * cfg.ctxWeight + tags + quality;
+          const ctxContrib = ctx * cfg.ctxWeight;
+          const matchedTags = (cfg.tagKeywords || []).filter((kw) =>
+            (m.best_for || []).some((t) => t.toLowerCase().includes(kw.toLowerCase())),
+          );
+          return { id: m.id, score, ctx: m.context_length || 0, ctxScore: ctx, ctxWeight: cfg.ctxWeight, ctxContrib, tagBonus: tags, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags, matchedPenaltyTags: [], qualityBonus: quality };
+        });
+
+        scored.sort((a, b) => { if (b.score !== a.score) return b.score - a.score; return b.ctx - a.ctx; });
+        srcRankings[role] = scored.map((s) => s.id);
+        srcScores[role] = scored;
+      }
+
+      allVariants[source] = { ...srcRankings, _scores: srcScores, _meta: srcMeta };
+
+      console.log(`\n-- ${source} --`);
+      for (const role of Object.keys(ROLES)) {
+        console.log(`  ${role}: ${srcRankings[role].slice(0, 3).join(', ')}`);
+      }
+    }
+
     // ── Diff against current paid rankings in DB ──
     const { rows: metaRows } = await client.query(
       "SELECT value::text FROM metadata WHERE key = '_role_rankings_paid'",
@@ -316,7 +340,7 @@ async function rankModels() {
     // ── Apply ──
     if (APPLY) {
       await client.query('BEGIN');
-      const rankingsWithMeta = { ...newRankings, _scores: allScores, _meta: allMeta };
+      const rankingsWithMeta = { ...newRankings, _variants: allVariants, _scores: allScores, _meta: allMeta };
       await client.query(
         `INSERT INTO metadata (key, value) VALUES ('_role_rankings_paid', $1)
          ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,

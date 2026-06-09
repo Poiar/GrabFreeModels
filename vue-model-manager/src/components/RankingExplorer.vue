@@ -3,6 +3,12 @@
     <div class="page-header">
       <h2>{{ title }}</h2>
       <p v-if="subtitle">{{ subtitle }}</p>
+      <div v-if="variantOptions.length > 1" class="variant-selector">
+        <label for="ranking-source">Benchmark source:</label>
+        <select id="ranking-source" :value="selectedVariant" @change="onVariantChange">
+          <option v-for="v in variantOptions" :key="v" :value="v">{{ variantLabels[v] ?? v }}</option>
+        </select>
+      </div>
     </div>
 
     <div v-if="roles.length === 0" class="rankings-empty">
@@ -216,12 +222,29 @@ const props = defineProps<{
   title?: string;
   subtitle?: string;
   datapointByIdFn?: (id: string) => { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined;
+  selectedVariant?: string;
+  variantOptions?: string[];
+}>();
+
+const emit = defineEmits<{
+  'update:selectedVariant': [val: string];
 }>();
 
 const store = useModelsStore();
 
+const variantLabels: Record<string, string> = {
+  combined: 'Combined (AA + Models.dev)',
+  artificial_analysis: 'Artificial Analysis',
+  modelsdev: 'Models.dev',
+};
+
+function onVariantChange(ev: Event) {
+  emit('update:selectedVariant', (ev.target as HTMLSelectElement).value);
+}
+
 const title = computed(() => props.title ?? 'Role Rankings (Free)');
 const subtitle = computed(() => props.subtitle ?? 'See how models rank for each role and explore their score breakdowns');
+const variantOptions = computed(() => props.variantOptions ?? ['combined']);
 
 function resolveDatapoint(id: string): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
   if (props.datapointByIdFn) return props.datapointByIdFn(id);
@@ -445,6 +468,35 @@ function wfFinalPct(entry: ModelEntry): number {
   font-size: 0.78rem;
   color: var(--text-muted);
   margin: 0 0 24px;
+}
+
+.variant-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.variant-selector label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.variant-selector select {
+  appearance: auto;
+  background: var(--bg-card, #1a1a2e);
+  color: var(--text-primary, #e2e8f0);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.variant-selector select:focus {
+  outline: none;
+  border-color: var(--accent, #818cf8);
 }
 
 .rankings-empty {

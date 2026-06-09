@@ -105,6 +105,15 @@ export interface ModelsData {
     explore: string[];
     _scores?: Record<string, RoleScore[]>;
     _meta?: Record<string, RoleMeta>;
+    _variants?: Record<string, {
+      model: string[];
+      build: string[];
+      general: string[];
+      small_model: string[];
+      explore: string[];
+      _scores?: Record<string, RoleScore[]>;
+      _meta?: Record<string, RoleMeta>;
+    }>;
   };
   _model_scores: ModelScoresData;
   _provider_usage: { description: string; [provider: string]: ProviderUsage | string };

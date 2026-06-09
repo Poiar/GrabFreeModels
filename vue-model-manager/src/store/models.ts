@@ -308,37 +308,63 @@ export const useModelsStore = defineStore('models', () => {
     return 'mixed';
   }
 
+  // ── Ranking variant selection ──
+  const rankingVariant = ref<string>('combined');
+  const paidRankingVariant = ref<string>('combined');
+
+  function resolveVariant(r: ModelsData['_role_rankings'] | undefined | null, variant: string) {
+    if (!r) return null;
+    if (variant !== 'combined' && r._variants?.[variant]) return r._variants[variant];
+    return r;
+  }
+
   // ── Metadata ──
   const roleRankings = computed(() => {
-    const r = data.value?._role_rankings;
+    const r = resolveVariant(data.value?._role_rankings, rankingVariant.value);
     if (!r) return {} as Record<Role, string[]>;
     const result = {} as Record<Role, string[]>;
     for (const role of ROLE_ORDER) result[role] = r[role] ?? [];
     return result;
   });
 
-  const roleScores = computed(
-    () => data.value?._role_rankings?._scores ?? ({} as Record<string, RoleScore[]>),
-  );
-  const roleMeta = computed(
-    () => data.value?._role_rankings?._meta ?? ({} as Record<string, RoleMeta>),
-  );
+  const roleScores = computed(() => {
+    const r = resolveVariant(data.value?._role_rankings, rankingVariant.value);
+    return r?._scores ?? ({} as Record<string, RoleScore[]>);
+  });
+  const roleMeta = computed(() => {
+    const r = resolveVariant(data.value?._role_rankings, rankingVariant.value);
+    return r?._meta ?? ({} as Record<string, RoleMeta>);
+  });
+
+  const availableRankingVariants = computed(() => {
+    const variants = data.value?._role_rankings?._variants;
+    const keys = variants ? Object.keys(variants).filter(k => k !== 'combined') : [];
+    return keys.length > 0 ? ['combined', ...keys] : ['combined'];
+  });
 
   // ── Paid metadata ──
   const paidRoleRankings = computed(() => {
-    const r = paidData.value?._role_rankings;
+    const r = resolveVariant(paidData.value?._role_rankings, paidRankingVariant.value);
     if (!r) return {} as Record<Role, string[]>;
     const result = {} as Record<Role, string[]>;
     for (const role of ROLE_ORDER) result[role] = r[role] ?? [];
     return result;
   });
 
-  const paidRoleScores = computed(
-    () => paidData.value?._role_rankings?._scores ?? ({} as Record<string, RoleScore[]>),
-  );
-  const paidRoleMeta = computed(
-    () => paidData.value?._role_rankings?._meta ?? ({} as Record<string, RoleMeta>),
-  );
+  const paidRoleScores = computed(() => {
+    const r = resolveVariant(paidData.value?._role_rankings, paidRankingVariant.value);
+    return r?._scores ?? ({} as Record<string, RoleScore[]>);
+  });
+  const paidRoleMeta = computed(() => {
+    const r = resolveVariant(paidData.value?._role_rankings, paidRankingVariant.value);
+    return r?._meta ?? ({} as Record<string, RoleMeta>);
+  });
+
+  const paidAvailableRankingVariants = computed(() => {
+    const variants = paidData.value?._role_rankings?._variants;
+    const keys = variants ? Object.keys(variants).filter(k => k !== 'combined') : [];
+    return keys.length > 0 ? ['combined', ...keys] : ['combined'];
+  });
 
   const paidCreators = computed((): CreatorData[] => paidData.value?.creators ?? []);
   const paidProviderRefs = computed((): ProviderReference[] => paidData.value?.providers ?? []);
@@ -728,6 +754,10 @@ export const useModelsStore = defineStore('models', () => {
     // Model status helper
     getModelStatus,
     // Metadata
+    rankingVariant,
+    paidRankingVariant,
+    availableRankingVariants,
+    paidAvailableRankingVariants,
     roleRankings,
     roleScores,
     roleMeta,

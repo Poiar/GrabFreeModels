@@ -12,6 +12,9 @@
       :scores="store.paidRoleScores"
       :meta="store.paidRoleMeta"
       :datapoint-by-id-fn="resolvePaidDatapoint"
+      :selected-variant="store.paidRankingVariant"
+      :variant-options="store.paidAvailableRankingVariants"
+      @update:selected-variant="store.paidRankingVariant = $event"
       title="Role Rankings (Paid)"
       subtitle="See how paid models rank for each role and explore their score breakdowns"
     />
