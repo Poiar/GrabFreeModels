@@ -507,10 +507,15 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
 
   // Model scores — cross-reference scores to all full_ids of the same super model
   // so lookups work regardless of which provider listing is used as key.
+  // Build super_id → full_ids from ALL datapoints (free + paid), not just
+  // the filtered outputModels, so benchmark-provider entries propagate to API-provider entries.
+  const { rows: allDpRows } = await client.query(
+    'SELECT id, full_id, super_model_id FROM datapoint_models',
+  );
   const superIdToFullIds = {};
-  for (const m of outputModels) {
-    if (!superIdToFullIds[m.super_id]) superIdToFullIds[m.super_id] = [];
-    superIdToFullIds[m.super_id].push(m.id);
+  for (const r of allDpRows) {
+    if (!superIdToFullIds[r.super_model_id]) superIdToFullIds[r.super_model_id] = [];
+    superIdToFullIds[r.super_model_id].push(r.full_id);
   }
 
   const { rows: scoreRows } = await client.query(
