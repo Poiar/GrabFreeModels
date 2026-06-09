@@ -79,6 +79,7 @@ function loadFromDb() {
 const STEP_NAMES = [
   'snapshot-prev-state',
   'validate',
+  'check-health-degradation',
   'inherit-families',
   'backfill-family-by-name',
   'backfill-derivatives',
@@ -247,6 +248,68 @@ let pipelineStart = Date.now();
       } catch (e) {
         // Don't fail the pipeline — degradation checks are diagnostic
         console.log(`  Degradation check exited with error: ${e.message}`);
+      }
+    });
+
+    // 1d. Check model health degradation — models with 5+ consecutive working tests now broken
+    await runStep('check-health-degradation', async () => {
+      try {
+        const { rows } = await pool.query(`
+          WITH inference_models AS (
+            SELECT dm.full_id
+            FROM datapoint_models dm
+            JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
+            WHERE dm.is_free = true AND dm.is_removed = false
+              AND (dp.is_health_trackable = true OR dp.is_health_trackable IS NULL)
+          )
+          SELECT hs.full_id, hs.status, hs.tested_at
+          FROM model_health_snapshots hs
+          JOIN inference_models im ON im.full_id = hs.full_id
+          ORDER BY hs.full_id, hs.tested_at DESC
+        `);
+
+        // Group by full_id and check health degradation
+        const healthMap = new Map();
+        for (const r of rows) {
+          if (!healthMap.has(r.full_id)) healthMap.set(r.full_id, []);
+          healthMap.get(r.full_id).push(r);
+        }
+
+        const degraded = [];
+        for (const [fullId, snapshots] of healthMap) {
+          if (snapshots.length < 6) continue; // need at least 6 to have 5 working + 1 broken
+
+          const mostRecent = snapshots[0];
+          if (mostRecent.status === 'working') continue; // still working, no issue
+
+          // Count consecutive working before the most recent non-working
+          let streak = 0;
+          for (let i = 1; i < snapshots.length; i++) {
+            if (snapshots[i].status === 'working') streak++;
+            else break;
+          }
+
+          if (streak >= 5) {
+            degraded.push({
+              full_id: fullId,
+              status: mostRecent.status,
+              tested_at: new Date(mostRecent.tested_at).toISOString().slice(0, 10),
+              streak,
+            });
+          }
+        }
+
+        if (degraded.length === 0) {
+          console.log('  \x1b[32mNo health degradation detected.\x1b[0m');
+        } else {
+          console.log(`  \x1b[33m${degraded.length} model(s) with health degradation:\x1b[0m`);
+          for (const d of degraded) {
+            const color = d.status === 'broken' ? '\x1b[31m' : '\x1b[33m';
+            console.log(`    ${color}${d.full_id}\x1b[0m — ${d.status} on ${d.tested_at} (was working for ${d.streak} consecutive tests)`);
+          }
+        }
+      } catch (e) {
+        console.log(`  Unable to query model_health_snapshots: ${e.message}`);
       }
     });
 

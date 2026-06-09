@@ -81,6 +81,35 @@
           <h3 class="dp-section-title">Providers ({{ model.providers.length }})</h3>
           <ProviderTable :providers="model.providers" />
 
+          <!-- Health history -->
+          <div v-if="providerHealthList.length" class="dp-health">
+            <h3 class="dp-section-title">Health History</h3>
+            <div v-for="h in providerHealthList" :key="h.fullId" class="dp-health-row">
+              <span class="dp-health-provider">{{ h.providerName }}</span>
+              <span
+                class="dp-stability-badge"
+                :class="stabilityClass(h.stability)"
+                :title="`Stability: ${h.stability}%`"
+              >
+                {{ h.stability }}%
+              </span>
+              <div class="dp-sparkline">
+                <span
+                  v-for="(snap, i) in h.lastSnapshots"
+                  :key="i"
+                  class="dp-sparkline-dot"
+                  :class="`dot-${snap.status}`"
+                  :title="snapTooltip(snap)"
+                ></span>
+              </div>
+              <span class="dp-health-streak">{{ h.streakText }}</span>
+              <span v-if="h.lastWorking" class="dp-health-last">{{ h.lastWorking }}</span>
+            </div>
+          </div>
+          <div v-else class="dp-health-empty">
+            No health history yet — run validation to collect data.
+          </div>
+
           <!-- Known issues -->
           <div v-if="modelIssues.length" class="dp-issues">
             <h3 class="dp-section-title">Known Issues</h3>
@@ -106,7 +135,7 @@
 import { computed, watch } from 'vue';
 import ProviderTable from '@/components/ProviderTable.vue';
 import FineTuneTree from '@/components/FineTuneTree.vue';
-import type { ModelData, CreatorData, KnownIssue } from '@/types';
+import type { ModelData, CreatorData, KnownIssue, HealthSnapshot } from '@/types';
 import { useModelsStore } from '@/store/models';
 
 const props = defineProps<{
@@ -211,6 +240,63 @@ const modelIssues = computed((): KnownIssue[] => {
   const providerIds = new Set(props.model.providers.map((p) => p.full_id));
   return issues.filter((i) => providerIds.has(i.model_id));
 });
+
+// ── Health history ──
+interface HealthRow {
+  fullId: string;
+  providerName: string;
+  stability: number;
+  lastSnapshots: HealthSnapshot[];
+  streakText: string;
+  lastWorking: string | null;
+}
+
+const providerHealthList = computed((): HealthRow[] => {
+  const rows: HealthRow[] = [];
+  for (const dp of props.model.providers) {
+    const health = store.getModelHealth(dp.full_id);
+    if (!health || health.snapshots.length === 0) continue;
+    const lastSnapshots = health.snapshots.slice(-15);
+    const latest = lastSnapshots[lastSnapshots.length - 1];
+    let streakText: string;
+    if (latest.status === 'working') {
+      streakText = `Working for ${health.streak} consecutive tests`;
+    } else if (latest.status === 'broken' || latest.status === 'not_found') {
+      streakText = `Broken for ${health.streak} tests`;
+    } else {
+      streakText = `${health.streak} tests`;
+    }
+    rows.push({
+      fullId: dp.full_id,
+      providerName: dp.provider,
+      stability: health.stability,
+      lastSnapshots,
+      streakText,
+      lastWorking: health.last_working ? formatDateNice(health.last_working) : null,
+    });
+  }
+  return rows;
+});
+
+function stabilityClass(stability: number): string {
+  if (stability >= 90) return 'stab-green';
+  if (stability >= 70) return 'stab-yellow';
+  return 'stab-red';
+}
+
+function snapTooltip(snap: HealthSnapshot): string {
+  const date = new Date(snap.date);
+  const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  let text = `${dateStr}: ${snap.status}`;
+  if (snap.detail) text += ` — ${snap.detail}`;
+  if (snap.latency_ms !== null) text += ` (${snap.latency_ms}ms)`;
+  return text;
+}
+
+function formatDateNice(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
 
 function onKey(e: KeyboardEvent) {
   if (!props.open) return;
@@ -463,6 +549,116 @@ watch(
 .dp-next-btn:disabled {
   opacity: 0.3;
   cursor: default;
+}
+
+/* ── Health History ── */
+.dp-health {
+  margin-top: 4px;
+}
+
+.dp-health-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.dp-health-provider {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.dp-stability-badge {
+  padding: 1px 7px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.dp-stability-badge.stab-green {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--green);
+}
+
+.dp-stability-badge.stab-yellow {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--orange);
+}
+
+.dp-stability-badge.stab-red {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--red);
+}
+
+.dp-sparkline {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.dp-sparkline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: default;
+  transition: transform 0.12s;
+}
+
+.dp-sparkline-dot:hover {
+  transform: scale(1.6);
+}
+
+.dp-sparkline-dot.dot-working {
+  background: var(--green);
+}
+
+.dp-sparkline-dot.dot-broken {
+  background: var(--red);
+}
+
+.dp-sparkline-dot.dot-rate_limited {
+  background: var(--orange);
+}
+
+.dp-sparkline-dot.dot-not_found {
+  background: #9ca3af;
+}
+
+.dp-sparkline-dot.dot-untested {
+  background: var(--text-muted);
+}
+
+.dp-sparkline-dot.dot-unknown {
+  background: var(--text-muted);
+  opacity: 0.5;
+}
+
+.dp-health-streak {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.dp-health-last {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+.dp-health-empty {
+  padding: 16px 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+  font-style: italic;
 }
 
 @media (max-width: 768px) {

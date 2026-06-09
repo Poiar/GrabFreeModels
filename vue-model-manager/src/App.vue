@@ -133,7 +133,7 @@
           </span>
           <span>Rankings (Free)</span>
         </router-link>
-        <router-link to="/rankings-paid" active-class="active" class="nav-rankings">
+        <router-link to="/rankings-paid" active-class="active" class="nav-rankings-paid">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -640,18 +640,19 @@ function timeAgo(date: Date, _now: number): string {
   }
 }
 
-/* ── Nav icon colors ── */
-.nav-dashboard { color: #93c5fd; }
-.nav-supermodels { color: #6ee7b7; }
-.nav-instances { color: #6ee7b7; }
-.nav-rankings { color: #fcd34d; }
-.nav-providers { color: #c4b5fd; }
-.nav-creators { color: #fda4af; }
-.nav-derivatives { color: #f9a8d4; }
-.nav-families { color: #a5b4fc; }
-.nav-basemodels { color: #a5b4fc; }
-.nav-compare { color: #cbd5e1; }
-.nav-catalog { color: #f0abfc; }
+/* ── Nav icon colors — 12 distinct hues evenly spread across the color wheel ── */
+.nav-dashboard { color: #60a5fa; }      /* blue */
+.nav-supermodels { color: #34d399; }     /* emerald */
+.nav-instances { color: #22d3ee; }       /* cyan */
+.nav-rankings { color: #fbbf24; }        /* amber */
+.nav-rankings-paid { color: #fb923c; }   /* orange */
+.nav-providers { color: #a78bfa; }       /* violet */
+.nav-creators { color: #f87171; }        /* red */
+.nav-derivatives { color: #e879f9; }     /* fuchsia */
+.nav-families { color: #818cf8; }        /* indigo */
+.nav-basemodels { color: #c084fc; }      /* purple */
+.nav-compare { color: #f472b6; }         /* pink */
+.nav-catalog { color: #2dd4bf; }         /* teal */
 
 /* Active always wins over colored hover states */
 .sidebar nav a.active,
@@ -659,16 +660,17 @@ function timeAgo(date: Date, _now: number): string {
   color: var(--accent) !important;
 }
 
-/* Hover slightly intensifies */
-.nav-dashboard:hover { color: #bfdbfe; }
-.nav-supermodels:hover { color: #a7f3d0; }
-.nav-instances:hover { color: #a7f3d0; }
+/* Hover */
+.nav-dashboard:hover { color: #93c5fd; }
+.nav-supermodels:hover { color: #6ee7b7; }
+.nav-instances:hover { color: #67e8f9; }
 .nav-rankings:hover { color: #fde68a; }
-.nav-providers:hover { color: #ddd6fe; }
-.nav-creators:hover { color: #fecdd3; }
-.nav-derivatives:hover { color: #fce7f3; }
-.nav-families:hover { color: #c7d2fe; }
-.nav-basemodels:hover { color: #c7d2fe; }
-.nav-compare:hover { color: #e2e8f0; }
-.nav-catalog:hover { color: #f5d0fe; }
+.nav-rankings-paid:hover { color: #fdba74; }
+.nav-providers:hover { color: #c4b5fd; }
+.nav-creators:hover { color: #fca5a5; }
+.nav-derivatives:hover { color: #f0abfc; }
+.nav-families:hover { color: #a5b4fc; }
+.nav-basemodels:hover { color: #d8b4fe; }
+.nav-compare:hover { color: #f9a8d4; }
+.nav-catalog:hover { color: #5eead4; }
 </style>

@@ -22,6 +22,7 @@ CREATE TABLE datapoint_providers (
     name            VARCHAR(128) NOT NULL,
     base_url        VARCHAR(512),
     npm_package     VARCHAR(128),
+    is_health_trackable BOOLEAN DEFAULT true,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -174,6 +175,19 @@ CREATE TABLE test_observations (
     metadata            JSONB,
     tested_at           TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Model health snapshots: per-validation-run results for stability tracking
+CREATE TABLE IF NOT EXISTS model_health_snapshots (
+  id SERIAL PRIMARY KEY,
+  full_id TEXT NOT NULL,
+  tested_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  status TEXT NOT NULL,
+  detail TEXT,
+  latency_ms INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_health_full_id ON model_health_snapshots(full_id);
+CREATE INDEX IF NOT EXISTS idx_health_tested_at ON model_health_snapshots(tested_at);
 
 -- Indexes
 CREATE INDEX idx_dp_models_super ON datapoint_models(super_model_id);

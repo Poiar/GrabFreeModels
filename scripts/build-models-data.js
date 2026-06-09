@@ -657,6 +657,68 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     failureRates.note = 'test_observations table not available';
   }
 
+  // ── Model health snapshots ──
+  // Only track providers with is_health_trackable = true (excludes HuggingFace etc.)
+  let modelHealth = {};
+
+  try {
+    const { rows: healthRows } = await client.query(`
+      WITH inference_models AS (
+        SELECT dm.full_id
+        FROM datapoint_models dm
+        JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
+        WHERE dm.is_free = $1 AND dm.is_removed = false
+          AND (dp.is_health_trackable = true OR dp.is_health_trackable IS NULL)
+      )
+      SELECT hs.full_id, hs.tested_at, hs.status, hs.detail, hs.latency_ms
+      FROM model_health_snapshots hs
+      JOIN inference_models im ON im.full_id = hs.full_id
+      WHERE hs.tested_at >= now() - interval '30 days'
+      ORDER BY hs.full_id, hs.tested_at DESC
+    `, [isFree]);
+
+    // Group by full_id
+    const healthMap = new Map();
+    for (const r of healthRows) {
+      if (!healthMap.has(r.full_id)) healthMap.set(r.full_id, []);
+      healthMap.get(r.full_id).push(r);
+    }
+
+    for (const [fullId, snapshots] of healthMap) {
+      // Keep last 20 snapshots (they're already sorted DESC by tested_at)
+      const limited = snapshots.slice(0, 20);
+
+      const total = limited.length;
+      const working = limited.filter((s) => s.status === 'working').length;
+      const stability = total > 0 ? Math.round((working / total) * 100) : 0;
+
+      const lastWorking = limited.find((s) => s.status === 'working');
+      const lastWorkingDate = lastWorking ? new Date(lastWorking.tested_at).toISOString().slice(0, 10) : null;
+
+      // Compute streak: consecutive 'working' from most recent test backward
+      let streak = 0;
+      for (const s of limited) {
+        if (s.status === 'working') streak++;
+        else break;
+      }
+
+      modelHealth[fullId] = {
+        snapshots: limited.map((s) => ({
+          date: new Date(s.tested_at).toISOString().slice(0, 10),
+          status: s.status,
+          detail: s.detail || '',
+          latency_ms: s.latency_ms !== null ? Number(s.latency_ms) : null,
+        })),
+        stability,
+        last_working: lastWorkingDate,
+        streak,
+      };
+    }
+  } catch {
+    // model_health_snapshots table may not exist yet (migration not run)
+    modelHealth = { _note: 'model_health_snapshots table not available' };
+  }
+
   return {
     creators,
     providers,
@@ -690,6 +752,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     _failure_rates: failureRates,
     _failover_suggestions: failoverSuggestions,
     _key_health: meta._key_health || null,
+    _model_health: modelHealth,
     provider_health: health,
   };
 }

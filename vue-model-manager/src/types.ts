@@ -4,6 +4,20 @@ export interface ModelStatus {
   detail: string;
 }
 
+export interface HealthSnapshot {
+  date: string;
+  status: string;
+  detail: string;
+  latency_ms: number | null;
+}
+
+export interface ModelHealthHistory {
+  snapshots: HealthSnapshot[];
+  stability: number;
+  last_working: string | null;
+  streak: number;
+}
+
 export interface ModelLimitations {
   daily_tokens?: number;
   daily_requests?: number;
@@ -100,6 +114,7 @@ export interface ModelsData {
   provider_health: Record<string, ProviderHealth>;
   _test_summary: TestSummary;
   _test_summary_previous: TestSummary | null;
+  _model_health?: Record<string, ModelHealthHistory>;
   _role_rankings: {
     description: string;
     model: string[];

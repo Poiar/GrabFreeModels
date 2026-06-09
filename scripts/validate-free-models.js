@@ -34,6 +34,25 @@ for (let i = 0; i < args.length; i++) {
 
 const PROVIDER_CONFIG = require('./provider-config.json');
 
+/** Check if a model's provider is health-trackable (DB-driven, not hardcoded) */
+function isInferenceProvider(fullId) {
+  const providerSlug = fullId.split('/')[0];
+  return healthTrackableProviders.has(providerSlug);
+}
+
+// Loaded at startup from DB datapoint_providers.is_health_trackable
+let healthTrackableProviders = new Set();
+
+/** Compute average latency from burst + delayed request results */
+function computeAverageLatency(result) {
+  const allLatencies = [
+    ...(result.burst || []).map((r) => r.latencyMs),
+    ...(result.delayed || []).map((r) => r.latencyMs),
+  ].filter((l) => l !== null && l !== undefined);
+  if (allLatencies.length === 0) return null;
+  return Math.round(allLatencies.reduce((a, b) => a + b, 0) / allLatencies.length);
+}
+
 const REPO_ROOT = path.join(__dirname, '..');
 const MODELS_FILE = path.join(REPO_ROOT, 'available-models.json');
 
@@ -79,7 +98,21 @@ async function loadFromDb() {
   }
 }
 
-async function saveToDbAndExport(observations = []) {
+async function loadHealthTrackableProviders() {
+  try {
+    const { rows } = await DB_POOL.query(
+      `SELECT slug FROM datapoint_providers WHERE is_health_trackable = true OR is_health_trackable IS NULL`
+    );
+    healthTrackableProviders = new Set(rows.map((r) => r.slug));
+    logger.info(`Health-trackable providers: ${rows.length} (${[...healthTrackableProviders].join(', ')})`);
+  } catch (e) {
+    // Fallback to empty set if column doesn't exist yet
+    logger.warn(`Could not load health-trackable providers: ${e.message}`);
+    healthTrackableProviders = new Set();
+  }
+}
+
+async function saveToDbAndExport(observations = [], healthSnapshots = []) {
   const client = await DB_POOL.connect();
   try {
     // Snapshot current test_summary as "previous" before overwriting
@@ -118,6 +151,32 @@ async function saveToDbAndExport(observations = []) {
       );
     }
     await client.query('COMMIT');
+
+    // Insert health snapshots after commit (non-critical, best-effort)
+    if (healthSnapshots.length > 0) {
+      try {
+        const BATCH_SIZE = 100;
+        for (let i = 0; i < healthSnapshots.length; i += BATCH_SIZE) {
+          const batch = healthSnapshots.slice(i, i + BATCH_SIZE);
+          const placeholders = [];
+          const params = [];
+          let idx = 1;
+          for (const hs of batch) {
+            placeholders.push(`($${idx}, $${idx + 1}, $${idx + 2}, $${idx + 3})`);
+            params.push(hs.full_id, hs.status, hs.detail, hs.latency_ms);
+            idx += 4;
+          }
+          await client.query(
+            `INSERT INTO model_health_snapshots (full_id, tested_at, status, detail, latency_ms) VALUES ${placeholders.join(', ')}`,
+            params,
+          );
+        }
+        logger.info(`Recorded ${healthSnapshots.length} health snapshots`);
+      } catch (e) {
+        // model_health_snapshots table may not exist yet (migration not run)
+        logger.info(`Health snapshots recording skipped: ${e.message}`);
+      }
+    }
 
     // Insert observations after commit (non-critical, best-effort)
     if (observations.length > 0) {
@@ -568,6 +627,7 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
   auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
   loadCooldownState(); // Load persisted cooldown state (Item 9)
   await loadFromDb();
+  await loadHealthTrackableProviders();
 } catch (e) {
   logger.error(`Failed to load from DB: ${e.message}\n${e.stack}`);
   process.exit(1);
@@ -1029,7 +1089,17 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
     });
   }
 
-  await saveToDbAndExport(allObservations);
+  // Compute health snapshots for inference providers only
+  const healthSnapshots = allResults
+    .filter((r) => isInferenceProvider(r.id))
+    .map((r) => ({
+      full_id: r.id,
+      status: r.status,
+      detail: r.detail,
+      latency_ms: computeAverageLatency(r),
+    }));
+
+  await saveToDbAndExport(allObservations, healthSnapshots);
   logger.info('DB updated and JSON exported successfully');
 
   // --- Auto re-rank if working set actually changed ---

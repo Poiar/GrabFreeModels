@@ -11,6 +11,7 @@
       <span class="sm-model-name">
         <span class="sm-model-icon-fb">{{ model.name[0] }}</span>
         {{ model.name }}
+        <span v-if="isDegraded" class="sm-degraded-warning" title="Stability degraded — was stable, now broken">!</span>
         <button class="copy-btn-badge" title="Copy name" @click.stop="copyText(model.name)">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </button>
@@ -168,6 +169,10 @@ const rateLimitedCount = computed(() => rateLimited.value.length);
 const anyTools = computed(() => activeDps.value.some((d) => d.supports_tools));
 const anyReasoning = computed(() => activeDps.value.some((d) => d.supports_reasoning));
 const anyOpenWeights = computed(() => activeDps.value.some((d) => d.open_weights));
+
+const isDegraded = computed(() =>
+  activeDps.value.some((d) => store.degradedModels.has(d.full_id)),
+);
 
 const status = computed(() => {
   const total = activeDps.value.length;
@@ -336,6 +341,22 @@ async function copyText(text: string) {
   text-transform: uppercase;
   flex-shrink: 0;
   color: var(--accent);
+}
+
+.sm-degraded-warning {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  line-height: 1;
+  flex-shrink: 0;
+  cursor: help;
 }
 
 .sm-header-right {

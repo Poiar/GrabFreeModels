@@ -11,6 +11,7 @@ import type {
   SourceToggleState,
   RoleScore,
   RoleMeta,
+  ModelHealthHistory,
 } from '@/types';
 
 const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore'] as const;
@@ -363,6 +364,27 @@ export const useModelsStore = defineStore('models', () => {
     if (variant !== 'combined' && r._variants?.[variant]) return r._variants[variant];
     return r;
   }
+
+  // ── Model health history ──
+  function getModelHealth(fullId: string): ModelHealthHistory | null {
+    return data.value?._model_health?.[fullId] ?? null;
+  }
+
+  // ── Degradation detection ──
+  const degradedModels = computed((): Set<string> => {
+    const degraded = new Set<string>();
+    const health = data.value?._model_health;
+    if (!health) return degraded;
+    for (const [fullId, history] of Object.entries(health)) {
+      if (history.stability >= 80 && history.snapshots.length > 0) {
+        const latest = history.snapshots[history.snapshots.length - 1];
+        if (latest.status === 'broken') {
+          degraded.add(fullId);
+        }
+      }
+    }
+    return degraded;
+  });
 
   // ── Metadata ──
   // Free rankings: each role resolved from its own variant
@@ -833,6 +855,9 @@ export const useModelsStore = defineStore('models', () => {
     removedModels,
     // Model status helper
     getModelStatus,
+    // Health history
+    getModelHealth,
+    degradedModels,
     // Metadata
     rankingVariant,
     paidRankingVariant,
