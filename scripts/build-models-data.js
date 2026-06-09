@@ -144,10 +144,12 @@ async function buildModelsData(client, pool, options = {}) {
     ['ai-infer-test-1', 'NovitaAI'],
     ['ai-infer-test-2', 'NovitaAI'],
     ['ai-infer-test-3', 'NovitaAI'],
+    // OpenRouter routing services (not real models — creator N/A)
+    ['free-models-router', 'N/A'],
     // Miscellaneous
     ['maestro-reasoning', 'Aion Labs'],
-    ['elephant', 'Unidentifyable'],
-    ['gt-4p', 'Unidentifyable'],
+    ['elephant', 'Unidentifiable'],
+    ['gt-4p', 'Unidentifiable'],
   ]);
   const CREATOR_BY_PREFIX = [
     ['qwq', 'Alibaba'],
@@ -159,6 +161,7 @@ async function buildModelsData(client, pool, options = {}) {
     ['ui-tars', 'ByteDance'],
     ['intellect', 'Prime Intellect'],
     ['bunny', 'BAAI'],
+    ['gpt-oss', 'OpenAI'],
   ];
   // Known base model + derivation method for specific slugs
   const DERIVATION_BY_SLUG = new Map([
@@ -319,9 +322,9 @@ async function buildModelsData(client, pool, options = {}) {
     'stability ai': { id: 'stability', name: 'Stability AI' },
     stabilityai: { id: 'stability', name: 'Stability AI' },
     eleutherai: { id: 'eleutherai', name: 'EleutherAI' },
-    qwq: { id: 'qwen', name: 'Alibaba' },
-    qwen: { id: 'qwen', name: 'Alibaba' },
-    'alibaba tongyi lab': { id: 'qwen', name: 'Alibaba' },
+    qwq: { id: 'alibaba', name: 'Alibaba' },
+    qwen: { id: 'alibaba', name: 'Alibaba' },
+    'alibaba tongyi lab': { id: 'alibaba', name: 'Alibaba' },
     // Additional aliases
     'ai21 labs': { id: 'ai21', name: 'AI21 Labs' },
     ai21labs: { id: 'ai21', name: 'AI21 Labs' },
@@ -393,7 +396,49 @@ async function buildModelsData(client, pool, options = {}) {
     nlper: { id: 'alibaba', name: 'Alibaba' },
     rokid: { id: 'rokid', name: 'Rokid' },
     corwealth: { id: 'corwealth', name: 'CorWealth' },
+    // Additional fine-tuner orgs
+    abacusai: { id: 'abacus-ai', name: 'Abacus AI' },
+    teknium: { id: 'teknium', name: 'Teknium' },
+    openbmb: { id: 'openbmb', name: 'OpenBMB' },
+    internlm: { id: 'internlm', name: 'InternLM' },
+    // Canonicalize spelling + placeholder
+    unidentifyable: { id: 'unidentifiable', name: 'Unidentifiable' },
+    unidentifiable: { id: 'unidentifiable', name: 'Unidentifiable' },
+    'n/a': { id: 'na', name: 'N/A' },
   };
+
+// ── Known user creators (individuals on non-HF platforms that the data-driven
+// HF-only rule won't catch). These supplement the automatic detection below.
+const KNOWN_USER_CREATOR_IDS = new Set([
+  'gryphe',       // Gryphe — individual (MythoMax)
+  'mancer',       // Mancer — individual fine-tuner
+  'rnj',          // RNJ — individual fine-tuner
+  'sao10k',       // Sao10K — individual fine-tuner (Eros, Stheno)
+  'shibing624',   // Shibing624 — individual fine-tuner
+  'teknium',      // Teknium — individual creator (OpenHermes)
+  'thedrummer',   // TheDrummer — individual fine-tuner (Rocinante)
+  'undi95',       // Undi95 — individual fine-tuner
+]);
+
+// ── Classify creator type from provider distribution ──
+// HuggingFace-only → user (individual). All others → lab by default.
+// KNOWN_USER_CREATOR_IDS catches individuals who also appear on non-HF providers.
+function classifyCreatorType(creatorId, providerSlugs) {
+  if (KNOWN_USER_CREATOR_IDS.has(creatorId)) return 'user';
+  if (providerSlugs.size === 1 && providerSlugs.has('huggingface')) return 'user';
+  return 'lab';
+}
+
+// ── Derive creator role from model derivation methods ──
+// "Fine-tuner" if the majority of models are derivatives; "Model creator" otherwise.
+function deriveCreatorRole(models) {
+  let derivativeCount = 0;
+  for (const model of models) {
+    if (model.derivation_method) derivativeCount++;
+  }
+  if (derivativeCount > 0 && derivativeCount >= models.length * 0.5) return 'Fine-tuner';
+  return 'Model creator';
+}
 
 const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holdings)\b\.?$/gi;
 
@@ -575,9 +620,13 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
         for (const p of model.providers) providerSet.add(p.provider_slug);
       }
 
+      const rawModels = Array.from(creator.modelMap.values());
+
       return {
         id: creator.id,
         name: creator.name,
+        type: classifyCreatorType(creator.id, providerSet),
+        role: deriveCreatorRole(rawModels),
         model_count: models.length,
         provider_count: providerSet.size,
         models,
