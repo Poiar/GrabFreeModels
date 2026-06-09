@@ -5,34 +5,25 @@ description: Send a message to another running Claude Code session. Triggers: "s
 
 # Peer Messaging
 
-Send messages to other Claude Code sessions in this Tabby window via `send_to_tab`. The other session sees it as input, responds, and continues its task.
+Send messages to other Claude Code sessions via `send_to_tab`. Use the full tab UUID — prefix matching is display-only.
 
 ## Steps
 
-### 1. Resolve tabs
+### 1. Resolve IDs
 
-**Self:** Read your tab ID from `$env:USERPROFILE\.claude\tab-id.txt` (cached at session start). If missing, call `list_tabs`, find your tab (Playwright path = local install in your project dir), and cache it there.
+**Self:** Read from `$env:USERPROFILE\.claude\tab-id.txt` (cached at session start). If missing, call `list_tabs` and find your tab by matching your project dir against Playwright MCP paths.
 
-**Target:** Call `list_tabs`. Find tabs with `claude.exe`. Extract project from the Playwright MCP path:
-
-```
-C:\OC\<Project>\node_modules\...\@playwright\mcp\cli.js  →  local install = that project
-npm-cache\_npx\...\@playwright\mcp\cli.js                 →  global/cache = not this project (usually deepclaude)
-```
-
-The target is the tab whose Playwright path matches the named project (local install). Prefer local over npm-cache.
-
-Tabby matches tab ID prefixes in the `reply to:` field for readability, but `send_to_tab` requires the full UUID from `list_tabs`.
+**Target:** Call `list_tabs`, find tabs with `claude.exe`, and identify the target by its Playwright MCP path — a local install under `C:\OC\<Project>\node_modules\...\@playwright\mcp\cli.js` means that project; an `npm-cache\_npx\...` path means global (usually deepclaude). Prefer local over npm-cache.
 
 ### 2. Send
 
-First contact in a thread — include the instruction so the recipient knows the protocol:
+First contact — include the protocol instruction:
 
 ```
 send_to_tab <target-id> "[peer · <project> — reply to: <your-tab-id> · answer briefly, then resume your task]: <message>"
 ```
 
-`submit: true`.
+Submit with `submit: true`.
 
 ### 3. Log
 
@@ -43,22 +34,10 @@ Add-Content "$env:USERPROFILE\.claude\peer-messages.jsonl" $m
 
 ## Reply flow
 
-When you receive a `[peer · ...]` message, the `reply to:` field contains the sender's full tab UUID. Your tab ID is cached at `$env:USERPROFILE\.claude\tab-id.txt` — read it directly, no need to call `list_tabs`. Drop the instruction — it served its purpose on first contact:
+When you receive a `[peer · ...]` message, the `reply to:` field contains the sender's tab UUID. Your ID is in the cache file — no need to call `list_tabs`. Drop the instruction and reply:
 
 ```
 send_to_tab <reply-to-id> "[peer · <your project> — reply to: <your-tab-id>]: <reply>"
 ```
 
-Log both inbound and outbound so the JSONL has a complete record:
-
-```powershell
-# Outbound (reply you're sending):
-$m = @{direction="out";from_tab="<your-id>";from_proj="$pwd";to_tab="<reply-to-id>";to_proj="<their-project>";message="<reply>";at=(Get-Date -Format "o")} | ConvertTo-Json -Compress
-Add-Content "$env:USERPROFILE\.claude\peer-messages.jsonl" $m
-
-# Inbound (message you received):
-$m = @{direction="in";from_tab="<their-id>";to_tab="<your-id>";message="<their-message>";at=(Get-Date -Format "o")} | ConvertTo-Json -Compress
-Add-Content "$env:USERPROFILE\.claude\peer-messages.jsonl" $m
-```
-
-Keep replies concise — they appear as the other session's next user input. Always use the full tab UUID for `send_to_tab`.
+Log as in step 3, plus an inbound entry (`direction="in"`, `from_tab` = their ID, `to_tab` = your ID). Keep replies concise.

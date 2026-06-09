@@ -11,11 +11,7 @@ Check the shared message log for messages addressed to this project.
 
 ### 0. Cache tab ID
 
-If `$env:USERPROFILE\.claude\tab-id.txt` doesn't exist, call `list_tabs`, find your tab (Playwright path = local install in your project), and write the UUID:
-
-```powershell
-"<your-tab-uuid>" | Out-File "$env:USERPROFILE\.claude\tab-id.txt"
-```
+If `$env:USERPROFILE\.claude\tab-id.txt` doesn't exist, call `list_tabs`, find your tab (Playwright path = local install in your project), and cache it: `"<uuid>" | Out-File "$env:USERPROFILE\.claude\tab-id.txt"`
 
 ### 1. Read messages for this project
 
@@ -43,8 +39,6 @@ if (-not $found) {
   Write-Host "No messages for this project."
 }
 ```
-
-The filter on `to_proj` means you only see messages meant for you — no noise from cross-project chatter.
 
 ### Reply
 
