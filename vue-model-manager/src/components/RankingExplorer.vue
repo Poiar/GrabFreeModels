@@ -760,16 +760,20 @@ function wfFinalPct(entry: ModelEntry): number {
   top: 50%;
   width: 8px;
   height: 1px;
-  background: var(--border-light);
+  background: rgba(255,255,255,0.18);
 }
 
 .vd-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  border: 1.5px solid var(--border);
-  background: transparent;
+  border: 2px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.06);
   transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.vd-option:hover .vd-dot {
+  border-color: rgba(255,255,255,0.45);
 }
 
 .vd-option.active .vd-dot {
@@ -852,11 +856,15 @@ function wfFinalPct(entry: ModelEntry): number {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  border: 1.5px solid var(--border);
-  background: transparent;
+  border: 2px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.06);
   transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
   flex-shrink: 0;
   position: relative;
+}
+
+.rvd-option:hover .rvd-dot {
+  border-color: rgba(255,255,255,0.45);
 }
 
 .rvd-option.active .rvd-dot {
@@ -874,7 +882,7 @@ function wfFinalPct(entry: ModelEntry): number {
   width: 8px;
   height: 1px;
   margin-top: -0.5px;
-  background: var(--border-light);
+  background: rgba(255,255,255,0.18);
 }
 
 .rvd-label {
