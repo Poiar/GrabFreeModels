@@ -776,17 +776,19 @@ function wfFinalPct(entry: ModelEntry): number {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 4px;
   padding: 8px 10px;
   user-select: none;
+  min-height: 38px;
 }
 
 .role-header-left {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .role-variant-select {
@@ -799,9 +801,7 @@ function wfFinalPct(entry: ModelEntry): number {
   font-size: 0.58rem;
   cursor: pointer;
   flex-shrink: 0;
-  max-width: 100px;
-  line-height: 1;
-  vertical-align: middle;
+  max-width: 95px;
   align-self: center;
 }
 
@@ -818,8 +818,11 @@ function wfFinalPct(entry: ModelEntry): number {
 }
 
 .role-title {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   letter-spacing: -0.01em;
   margin: 0;
   white-space: nowrap;
