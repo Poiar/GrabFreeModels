@@ -19,7 +19,7 @@ async function rankModels() {
   try {
     // Load eligible models: free + working + tools + not removed
     const { rows: eligibleRows } = await client.query(`
-      SELECT dm.full_id AS id, mm.name, dm.context_length, dm.is_free, dm.supports_tools,
+      SELECT dm.id AS db_id, dm.full_id AS id, mm.name, dm.context_length, dm.is_free, dm.supports_tools,
              dp.name AS provider
       FROM datapoint_models dm
       JOIN super_models mm ON mm.id = dm.super_model_id
@@ -69,7 +69,25 @@ async function rankModels() {
       console.log('');
     }
 
-    console.log(`Eligible models: ${eligible.length}\n`);
+    // Load benchmark scores for eligible models
+    const eligibleDbIds = eligible.map((m) => m.db_id);
+    const scoreMap = new Map();
+    let scoredCount = 0;
+    if (eligibleDbIds.length > 0) {
+      const { rows: scoreRows } = await client.query(`
+        SELECT dm.full_id, ms.source, ms.score_type, ms.score_value
+        FROM model_scores ms
+        JOIN datapoint_models dm ON dm.id = ms.datapoint_model_id
+        WHERE dm.id = ANY($1)
+      `, [eligibleDbIds]);
+      for (const r of scoreRows) {
+        if (!scoreMap.has(r.full_id)) scoreMap.set(r.full_id, []);
+        scoreMap.get(r.full_id).push({ source: r.source, score_type: r.score_type, score_value: Number(r.score_value) });
+      }
+      scoredCount = new Set(scoreRows.map(r => r.full_id)).size;
+    }
+
+    console.log(`Eligible models: ${eligible.length} (${scoredCount} with benchmark scores)\n`);
 
     // ── Scoring helpers ──
     const CTX_NORM = 1048756;
@@ -77,6 +95,11 @@ async function rankModels() {
     function ctxScore(m) {
       if (!m.context_length) return -0.5;
       return m.context_length / CTX_NORM;
+    }
+
+    function findScore(scores, type) {
+      const s = scores?.find((s) => s.score_type === type);
+      return s ? s.score_value : null;
     }
 
     function tagBonus(m, keywords) {
@@ -91,6 +114,29 @@ async function rankModels() {
         }
       }
       return bonus;
+    }
+
+    function qualityScore(m, role) {
+      const scores = scoreMap.get(m.id);
+      if (!scores || scores.length === 0) return 0;
+      const intelligence = findScore(scores, 'intelligence');
+      const speed = findScore(scores, 'output_speed');
+      const coding = findScore(scores, 'aider-polyglot') || findScore(scores, 'swe-bench-verified');
+      const latency = findScore(scores, 'latency_total');
+      let qs = 0;
+      if (intelligence !== null && ['model', 'build', 'general', 'explore'].includes(role)) {
+        qs += Math.max(0, intelligence / 40);
+      }
+      if (role === 'build' && coding !== null) {
+        qs += Math.min(coding / 30, 1.5);
+      }
+      if (['general', 'small_model'].includes(role) && speed !== null) {
+        qs += Math.min(speed / 80, 1.5);
+      }
+      if (role === 'small_model' && latency !== null && latency > 0) {
+        qs -= Math.min(latency / 4, 1);
+      }
+      return Math.max(0, Math.min(qs, 3));
     }
 
     // ── Role definitions ──
@@ -137,7 +183,8 @@ async function rankModels() {
       const scored = eligible.map((m) => {
         const ctx = ctxScore(m);
         const tags = tagBonus(m, cfg.tagKeywords);
-        const score = ctx * cfg.ctxWeight + tags;
+        const quality = qualityScore(m, role);
+        const score = ctx * cfg.ctxWeight + tags + quality;
         const ctxContrib = ctx * cfg.ctxWeight;
         const matchedTags = (cfg.tagKeywords || []).filter((kw) =>
           (m.best_for || []).some((t) => t.toLowerCase().includes(kw.toLowerCase())),
@@ -155,6 +202,7 @@ async function rankModels() {
           nameSizePenalty: 0,
           matchedTags,
           matchedPenaltyTags: [],
+          qualityBonus: quality,
         };
       });
 
