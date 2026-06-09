@@ -244,9 +244,11 @@ async function copyText(text: string) {
 }
 
 .provider-card {
+  display: block;
+  position: relative;
   padding: 16px;
   cursor: pointer;
-  position: relative;
+  text-decoration: none;
 }
 
 .provider-card::before {
