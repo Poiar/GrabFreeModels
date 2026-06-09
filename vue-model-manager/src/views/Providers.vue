@@ -149,9 +149,7 @@ function navigateProviderPanel(index: number) {
 .provider-card {
   padding: 16px;
   cursor: pointer;
-  border-left: 4px solid var(--pc-color);
   position: relative;
-  overflow: hidden;
 }
 
 .provider-card::before {
@@ -159,10 +157,12 @@ function navigateProviderPanel(index: number) {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 3px;
+  width: 4px;
+  height: 100%;
   background: var(--pc-color);
-  opacity: 0.3;
+  border-radius: 8px 0 0 8px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .pc-header {
