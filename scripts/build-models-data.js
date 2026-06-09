@@ -141,9 +141,9 @@ async function buildModelsData(client, pool, options = {}) {
     ['auto-route', 'LLMGateway'],
     ['custom-model', 'LLMGateway'],
     // NovitaAI test models
-    ['ai-infer-test-1', 'NovitaAI'],
-    ['ai-infer-test-2', 'NovitaAI'],
-    ['ai-infer-test-3', 'NovitaAI'],
+    ['ai-infer-test-1', 'Novita AI'],
+    ['ai-infer-test-2', 'Novita AI'],
+    ['ai-infer-test-3', 'Novita AI'],
     // OpenRouter routing services (not real models — creator N/A)
     ['free-models-router', 'N/A'],
     // Miscellaneous
@@ -187,6 +187,7 @@ async function buildModelsData(client, pool, options = {}) {
         return creator;
       }
     }
+    console.warn(`build-models-data: could not infer creator from name "${name}" (slug: "${slug}") — add to CREATOR_BY_PREFIX or CREATOR_BY_SLUG`);
     return null;
   }
 
@@ -391,9 +392,15 @@ async function buildModelsData(client, pool, options = {}) {
     'lg ai': { id: 'lg', name: 'LG AI' },
     deepgram: { id: 'deepgram', name: 'Deepgram' },
     viivox: { id: 'viivox', name: 'ViiVox' },
+    // Provider-as-creator misattributions + casing fixes
+    'github models': { id: 'cohere', name: 'Cohere' },
+    'fun audio llm': { id: 'alibaba', name: 'Alibaba' },
+    fishaudio: { id: 'fishaudio', name: 'FishAudio' },
+    openchat: { id: 'openchat', name: 'OpenChat' },
     // Alibaba namespace artifacts
     thenlper: { id: 'alibaba', name: 'Alibaba' },
     nlper: { id: 'alibaba', name: 'Alibaba' },
+    'tongyi mai': { id: 'alibaba', name: 'Alibaba' },
     rokid: { id: 'rokid', name: 'Rokid' },
     corwealth: { id: 'corwealth', name: 'CorWealth' },
     // Additional fine-tuner orgs
@@ -404,26 +411,41 @@ async function buildModelsData(client, pool, options = {}) {
     // Canonicalize spelling + placeholder
     unidentifyable: { id: 'unidentifiable', name: 'Unidentifiable' },
     unidentifiable: { id: 'unidentifiable', name: 'Unidentifiable' },
+    novitaai: { id: 'novita-ai', name: 'Novita AI' },
+    'novita ai': { id: 'novita-ai', name: 'Novita AI' },
     'n/a': { id: 'na', name: 'N/A' },
   };
 
-// ── Known user creators (individuals on non-HF platforms that the data-driven
-// HF-only rule won't catch). These supplement the automatic detection below.
+// ── Known user creators (individuals / personal accounts — not companies, labs, or research orgs) ──
+// These supplement the automatic HF-only detection below.
+// Free: gryphe, sao10k, shibing624, openchat, devstral
+// Paid: mancer, rnj, thedrummer, undi95, anthracite, perceptron
 const KNOWN_USER_CREATOR_IDS = new Set([
+  'anthracite',   // Anthracite — individual (Magnum fine-tunes)
+  'devstral',     // Devstral — individual fine-tuner (devstral-small)
   'gryphe',       // Gryphe — individual (MythoMax)
-  'mancer',       // Mancer — individual fine-tuner
+  'mancer',       // Mancer — individual fine-tuner (Weaver)
+  'openchat',     // OpenChat — community project (openchat-7b)
+  'perceptron',   // Perceptron — individual (Perceptron Mk1)
   'rnj',          // RNJ — individual fine-tuner
   'sao10k',       // Sao10K — individual fine-tuner (Eros, Stheno)
-  'shibing624',   // Shibing624 — individual fine-tuner
-  'teknium',      // Teknium — individual creator (OpenHermes)
-  'thedrummer',   // TheDrummer — individual fine-tuner (Rocinante)
-  'undi95',       // Undi95 — individual fine-tuner
+  'shibing624',   // Shibing624 — individual fine-tuner (text2vec)
+  'thedrummer',   // TheDrummer — individual fine-tuner (Rocinante, Cydonia)
+  'undi95',       // Undi95 — individual fine-tuner (ReMM SLERP)
+]);
+
+// ── Other / placeholder creators (not real labs or users — routers, unknown, N/A) ──
+const OTHER_CREATOR_IDS = new Set([
+  'na',
+  'unidentifiable',
+  'unknown',
 ]);
 
 // ── Classify creator type from provider distribution ──
-// HuggingFace-only → user (individual). All others → lab by default.
-// KNOWN_USER_CREATOR_IDS catches individuals who also appear on non-HF providers.
+// Other → placeholder/unknown. HuggingFace-only → user. KNOWN_USER set → user.
+// All others → lab.
 function classifyCreatorType(creatorId, providerSlugs) {
+  if (OTHER_CREATOR_IDS.has(creatorId)) return 'other';
   if (KNOWN_USER_CREATOR_IDS.has(creatorId)) return 'user';
   if (providerSlugs.size === 1 && providerSlugs.has('huggingface')) return 'user';
   return 'lab';
@@ -454,7 +476,10 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
   }
 
   function slugifyCreator(raw) {
-    if (!raw) return { id: 'unknown', name: 'Unknown' };
+    if (!raw) {
+      console.warn('build-models-data: null/undefined creator — mapping to "unknown"');
+      return { id: 'unknown', name: 'Unknown' };
+    }
     const trimmed = raw.trim();
     const lowered = trimmed.toLowerCase();
     // Try exact match first, then normalized match
@@ -463,6 +488,9 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     if (AUTHOR_OVERRIDES[normalized]) return AUTHOR_OVERRIDES[normalized];
     const cleaned = lowered.replace(LEGAL_SUFFIX_RE, '').trim();
     const slug = cleaned.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    if (!slug || slug === 'unknown') {
+      console.warn(`build-models-data: creator "${trimmed}" mapped to "unknown" — add to AUTHOR_OVERRIDES or CREATOR_BY_PREFIX`);
+    }
     return { id: slug || 'unknown', name: trimmed };
   }
 
