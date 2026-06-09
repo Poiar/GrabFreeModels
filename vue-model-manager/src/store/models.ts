@@ -315,8 +315,8 @@ export const useModelsStore = defineStore('models', () => {
   // Per-role variant overrides. When all roles agree, the master dropdown
   // shows that variant. When they differ, master shows "Custom".
   const DEFAULT_ROLE_VARIANTS: Record<string, string> = {
-    model: '_benchmarks', build: '_benchmarks', general: '_benchmarks',
-    small_model: '_benchmarks', explore: '_benchmarks',
+    model: 'combined', build: 'combined', general: 'combined',
+    small_model: 'combined', explore: 'combined',
   };
   const paidRoleVariants = ref<Record<string, string>>({ ...DEFAULT_ROLE_VARIANTS });
   const freeRoleVariants = ref<Record<string, string>>({ ...DEFAULT_ROLE_VARIANTS });
