@@ -33,9 +33,9 @@ super_models                    datapoint_models
 │ slug                 │       │ context_length           │
 │ creator              │       │ supports_tools           │
 │ base_creator         │       │ status_result            │
-└──────────────────────┘       │ is_free                  │
-                               └──────────┬──────────────┘
-                                          │
+│ family               │       │ is_free                  │
+│ base_model           │       └──────────┬──────────────┘
+└──────────────────────┘                  │
                                ┌──────────▼──────────────┐
                                │ datapoint_model_sources  │
                                │ (provenance: which       │
@@ -46,6 +46,7 @@ super_models                    datapoint_models
 
 - **Creator**: organization that built the model (e.g., Meta, Google, DeepSeek). Normalized via a 100+ entry alias map in `build-models-data.js`.
 - **Base creator**: original model maker for derived/fine-tuned models, traced from HuggingFace architecture families.
+- **Base model**: parent super_model slug from which this model was fine-tuned/derived. A proper column on `super_models`, backfilled by `backfill-base-models.js` via substring matching.
 - **Source provenance**: every datapoint tracks which sources (API providers, community lists, HF Hub, leaderboards) contributed it via `datapoint_model_sources`.
 - **Import pipeline**: 3-pass slug matching (direct → provider-stripped → routing-prefix-stripped) in `import-external-models.js`, with creator extraction and org-prefix stripping.
 
@@ -79,7 +80,7 @@ npm run build         # Type-check + production build → dist/
 | Route               | View                    | Description                                                    |
 | ------------------- | ----------------------- | -------------------------------------------------------------- |
 | `#/`                | Model Instances         | Filterable grid of all datapoint instances by provider/status  |
-| `#/dashboard`       | Dashboard               | Hero stats, provider ecosystem grid, pulse waveform            |
+| `#/dashboard`       | Dashboard               | Hero stats, quick search, critical issues, top ranked/scored, validation deltas, recently active |
 | `#/supermodels`     | Super Models            | Card list grouped by canonical model with creator, badges, nav |
 | `#/creators`        | Creators                | Models grouped by creator/lab with icons                       |
 | `#/creator/:id`     | Creator Detail          | Single creator with all their models                           |
@@ -95,7 +96,10 @@ npm run build         # Type-check + production build → dist/
 scripts/                    # Node.js pipeline scripts (CommonJS)
   sync-models.js            #   Fetch from 18+ providers, diff against DB
   validate-free-models.js   #   Test model endpoints against live APIs
-  rank-models.js            #   Deterministic role ranking algorithm
+  rank-models.js            #   Deterministic role ranking algorithm (free)
+  rank-paid-models.js        #   Deterministic role ranking algorithm (paid)
+  backfill-base-models.js    #   Detect fine-tune lineage via substring matching
+  inherit-families.js        #   Walk base_model chains to inherit family assignments
   nightly-maintenance.js    #   Full nightly pipeline orchestrator
   build-models-data.js      #   Shared data builder (API + all scripts)
   fetch-modelsdev-models.js #   Ingest models.dev catalog into sources pipeline
@@ -115,6 +119,8 @@ server/                     # Express API (port 3001)
   db.js                     #   Neon-aware Postgres pool
   routes/data.js            #   GET /api/data, GET /api/health
 db/                         # PostgreSQL schema v2 + migrations
+  schema.sql                 #   Canonical schema with seed data
+  migrations/                #   Ordered schema migrations
 vue-model-manager/          # Vue 3 + Pinia frontend (ESM/TypeScript)
 snapshots/                  # Timestamped JSON exports
 ```

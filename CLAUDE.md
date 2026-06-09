@@ -88,6 +88,7 @@ npm run summary          # Text overview of model counts and ranking sizes
 - **Git hooks:** Pre-commit runs Gitleaks via `.githooks/pre-commit`. The `.gitleaks.toml` config file manages false-positive allowlists.
 - **Incoming peer messages:** When you see a message starting with `[peer ·` in the conversation (delivered via system-reminder), it's from another Claude session. The `reply to:` field contains their tab ID. Read your tab ID from `$env:USERPROFILE\.claude\tab-id.txt` (cached at startup). Respond directly using `send_to_tab <reply-to-id> "[peer · <project> — reply to: <your-tab-id>]: <reply>"` — no need for the user to relay. Answer briefly, then continue your current task. Log the inbound message to `$env:USERPROFILE\.claude\peer-messages.jsonl` with `direction="in"`, `from_tab`, `to_tab` (your id), `message`, and `at`.
 - **Peer inbox:** At session start, run `/peer-inbox` to check for messages. Cache your tab ID: call `list_tabs`, find your tab (Playwright path = local install in your project), write it to `$env:USERPROFILE\.claude\tab-id.txt`. Use `/peer-msg` to initiate new conversations. Don't poll mid-session; check once at the start.
+- **base_model is a super_models column**, not a feature tag. `build-models-data.js` reads it from `sm.base_model` directly. `backfill-base-models.js` populates it via substring matching. `inherit-families.js` walks base_model chains to assign families.
 - **Never restart the dev server yourself.** If Vite HMR fails to pick up `.vue` changes (known issue with `RecycleScroller`/`DynamicScroller` swaps and structural template changes), ask the user to restart with `cd vue-model-manager && npm run dev`.
 - **Before recommending models:** Check `supports_tools` in the datapoint — if false, don't recommend that model for tasks requiring tool use. Refer to `best_for` field for role-fit guidance.
 
@@ -99,8 +100,12 @@ npm run summary          # Text overview of model counts and ranking sizes
 | `scripts/build-models-data.js`          | Shared data builder — builds ModelsData from PG       |
 | `scripts/sync-models.js`                | Fetch free models from providers, diff against DB     |
 | `scripts/validate-free-models.js`       | Test models against live APIs                         |
-| `scripts/rank-models.js`                | Deterministic role ranking algorithm                  |
+| `scripts/rank-models.js`                | Deterministic role ranking algorithm (free)           |
+| `scripts/rank-paid-models.js`           | Deterministic role ranking algorithm (paid)           |
+| `scripts/backfill-base-models.js`       | Detect fine-tune lineage via substring matching       |
+| `scripts/inherit-families.js`           | Walk base_model chains to inherit family assignments  |
 | `scripts/nightly-maintenance.js`        | Full nightly pipeline orchestrator                    |
+| `db/migrations/`                        | Ordered schema migrations                             |
 | `server/db.js`                          | Postgres pool (Neon-aware)                            |
 | `server/routes/data.js`                 | API routes (`/api/data`, `/api/health`)               |
 | `vue-model-manager/src/store/models.ts` | Pinia store — fetches + derives all model data        |

@@ -45,11 +45,35 @@ async function rankModels() {
       bestForMap.get(r.full_id).push(r.value);
     }
 
-    // Attach best_for to models
-    const eligible = eligibleRows.map((m) => ({
-      ...m,
-      best_for: bestForMap.get(m.id) || [],
-    }));
+    // Infer best_for-like tags from model names when curated tags are absent.
+    // Paid models lack curated best_for features, but names carry strong signals
+    // (coder, flash, pro, mini, thinking, vision, etc.) that let role scoring
+    // differentiate instead of collapsing to pure context-length ordering.
+    function inferTagsFromName(name) {
+      if (!name) return [];
+      const tags = [];
+      const n = name.toLowerCase();
+      if (/\bcoder\b|\bcodex\b|\bdevstral\b|\bbuild\b/i.test(n)) tags.push('coding');
+      if (/\bmulti.agent\b|\bagentic\b/i.test(n)) tags.push('agentic');
+      if (/\bfunction.call|\btool.use|\btool\b/i.test(n)) tags.push('tool use');
+      if (/\breasoning\b|\bdeep.research\b|\bdeep.think\b/i.test(n)) tags.push('reasoning');
+      if (/\bthinking\b|\bthink\b/i.test(n)) tags.push('thinking');
+      if (/\b(?:pro|plus|max|premier|large)\b/i.test(n)) tags.push('current default');
+      if (/\bvision\b|\bvl\b|\bimage\b|\baudio\b|\bvideo\b|\bmultimodal\b/i.test(n)) tags.push('multimodal');
+      if (/\bflash\b|\bfast\b|\bturbo\b|\bquick\b/i.test(n)) tags.push('fast');
+      if (/\bnano\b|\bmicro\b|\btiny\b/i.test(n)) tags.push('ultra-lightweight');
+      if (/\bmini\b|\bsmall\b|\blite\b/i.test(n)) tags.push('lightweight');
+      if (/\bpreview\b|\bexp\b|\bexperimental\b|\balpha\b/i.test(n)) tags.push('new');
+      return tags;
+    }
+
+    // Attach best_for to models — merge curated DB tags with name-inferred tags
+    const eligible = eligibleRows.map((m) => {
+      const curated = bestForMap.get(m.id) || [];
+      const inferred = inferTagsFromName(m.name);
+      const merged = [...new Set([...curated, ...inferred])];
+      return { ...m, best_for: merged };
+    });
 
     console.log(`Eligible paid models: ${eligible.length}\n`);
 
