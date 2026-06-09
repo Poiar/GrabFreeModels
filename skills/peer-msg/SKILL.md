@@ -37,7 +37,7 @@ send_to_tab <target-id> "[peer · <project> — reply to: <your-tab-id> · answe
 ### 3. Log
 
 ```powershell
-$m = @{direction="out";from_tab="<your-id>";from_project="$pwd";to_tab="<target>";message="<msg>";at=(Get-Date -Format "o")} | ConvertTo-Json -Compress
+$m = @{direction="out";from_tab="<your-id>";from_proj="$pwd";to_tab="<target>";to_proj="<target-project>";message="<msg>";at=(Get-Date -Format "o")} | ConvertTo-Json -Compress
 Add-Content "$env:USERPROFILE\.claude\peer-messages.jsonl" $m
 ```
 

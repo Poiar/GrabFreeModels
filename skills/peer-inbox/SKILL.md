@@ -26,7 +26,9 @@ Get-Content $log -Tail 50 | ForEach-Object {
   $to = $m.to_proj.ToString().TrimEnd('\')
   if ($to -eq $here -or $to -eq '*') {
     $found = $true
-    Write-Host "$($m.at)  from $($m.from_proj): $($m.msg)"
+    $from = if ($m.from_proj) { $m.from_proj } elseif ($m.from_project) { $m.from_project } else { "unknown" }
+    $msg = if ($m.message) { $m.message } else { $m.msg }
+    Write-Host "$($m.at)  from $from: $msg"
   }
 }
 if (-not $found) {
