@@ -58,6 +58,7 @@ export interface ModelData {
   base_model: string | null;
   best_for: string[];
   best_context: number | null;
+  min_context: number | null;
   role_rankings: Record<string, number>;
   providers: ProviderDatapoint[];
 }
@@ -94,6 +95,7 @@ export interface ModelsData {
   models: DatapointModel[];
   provider_health: Record<string, ProviderHealth>;
   _test_summary: TestSummary;
+  _test_summary_previous: TestSummary | null;
   _role_rankings: {
     description: string;
     model: string[];

@@ -279,7 +279,7 @@ export const useModelsStore = defineStore('models', () => {
   );
 
   const brokenModels = computed(() =>
-    allModels.value.filter((m) => m.providers.some((p) => p.status.result === 'broken')),
+    allModels.value.filter((m) => m.providers.some((p) => p.status.result === 'broken' || p.status.result === 'not_found')),
   );
 
   const rateLimitedModels = computed(() =>
@@ -300,7 +300,7 @@ export const useModelsStore = defineStore('models', () => {
     if (activeProviders.length === 0) return 'down';
     const working = activeProviders.filter((p) => p.status.result === 'working').length;
     const untested = activeProviders.filter((p) => p.status.result === 'untested').length;
-    const broken = activeProviders.filter((p) => p.status.result === 'broken').length;
+    const broken = activeProviders.filter((p) => p.status.result === 'broken' || p.status.result === 'not_found').length;
     if (working === activeProviders.length) return 'working';
     if (untested === activeProviders.length) return 'untested';
     if (working > 0) return 'mixed';
@@ -359,6 +359,8 @@ export const useModelsStore = defineStore('models', () => {
   const knownIssues = computed(() => data.value?._known_issues?.issues ?? []);
 
   const testSummary = computed(() => data.value?._test_summary ?? null);
+  const testSummaryPrevious = computed(() => data.value?._test_summary_previous ?? null);
+  const modelScores = computed(() => data.value?._model_scores ?? null);
   const validationMethod = computed(() => data.value?._validation_method ?? null);
 
   const providerUsage = computed(() => {
@@ -508,7 +510,7 @@ export const useModelsStore = defineStore('models', () => {
       datapoints: datapoints.length,
       providers: visibleProviderRefs.value.length,
       working,
-      broken: datapoints.filter(d => d.status.result === 'broken').length,
+      broken: datapoints.filter(d => d.status.result === 'broken' || d.status.result === 'not_found').length,
       workingRatio: datapoints.length > 0 ? Math.round((working / datapoints.length) * 100) : 0,
     };
   });
@@ -518,7 +520,7 @@ export const useModelsStore = defineStore('models', () => {
     const totalModels = allModels.value.length;
     const totalDatapoints = allDatapoints.value.length;
     const workingCount = allDatapoints.value.filter((d) => d.status.result === 'working').length;
-    const brokenCount = allDatapoints.value.filter((d) => d.status.result === 'broken').length;
+    const brokenCount = allDatapoints.value.filter((d) => d.status.result === 'broken' || d.status.result === 'not_found').length;
 
     return {
       creators: creators.value.length,
@@ -731,6 +733,8 @@ export const useModelsStore = defineStore('models', () => {
     roleMeta,
     knownIssues,
     testSummary,
+    testSummaryPrevious,
+    modelScores,
     validationMethod,
     // Provider usage
     providerUsage,
