@@ -1,25 +1,19 @@
 # GrabFreeModels
 
-Discovers, tests, ranks, and syncs free LLM models across 18+ providers. Powers [models.dev](https://models.dev) data ingestion and exposes a live Vue 3 dashboard at `:5173`.
+Discovers, tests, ranks, and syncs free LLM models across 60+ providers. Powers [models.dev](https://models.dev) data ingestion and exposes a live Vue 3 dashboard at `:5173`.
 
-Key data sources: direct provider API scraping, [models.dev](https://github.com/anomalyco/models.dev) (the open-source AI model catalog), HuggingFace Hub, OpenRouter categories, and the Open LLM Leaderboard.
+Key data sources: direct provider API scraping, [models.dev](https://github.com/anomalyco/models.dev) (the open-source AI model catalog), and OpenRouter.
 
 ## How it works
 
 ```
 Provider APIs ──┐
 models.dev ─────┤
-HF Hub ─────────┼── sync ──→ Postgres ──→ Express API ──→ Vue 3 SPA
-Mastra ─────────┤              │  ▲            :3001           :5173
-Leaderboards ───┘              │  │
+OpenRouter ─────┼── sync ──→ Postgres ──→ Express API ──→ Vue 3 SPA
+HF Hub ─────────┤              │  ▲            :3001           :5173
+External lists ─┘              │  │
                                ▼  │
                           validate ──→ rank ──→ export ──→ git snapshot
-                               │
-                          import-external-models
-                          (3-pass slug match +
-                           creator extraction +
-                           source provenance links)
-```
 
 Every free model gets a `super_model` (canonical identity) with per-provider `datapoint_model` rows. The nightly pipeline validates endpoints, re-ranks by role, snapshots the DB, and optionally alerts on changes.
 
@@ -59,15 +53,16 @@ npm run build                          # Type-check + production build
 # Pipeline scripts (all support --dry-run default, --apply to write)
 node scripts/sync-models.js            # Fetch from providers + models.dev, diff vs DB
 node scripts/validate-free-models.js   # Test model endpoints against live APIs
-node scripts/rank-models.js            # Rebuild _role_rankings
-node scripts/re-rank.js                # Full re-rank: backfill → rank → metadata → check
+node scripts/rank-models.js            # Rebuild _role_rankings (free)
+node scripts/rank-paid-models.js       # Rebuild _role_rankings_paid (paid)
+npm run re-rank                        # Full re-rank: backfill → rank → metadata → check
 node scripts/nightly-maintenance.js    # Full nightly pipeline
 npm run nightly:dry                    # Nightly without DB writes
 ```
 
 ## Frontend
 
-Vue 3 + Vite + Pinia SPA with a premium dark theme and zero additional npm dependencies (CSS/SVG/Canvas only).
+Vue 3 + Vite + Pinia SPA with a premium dark theme.
 
 ```bash
 cd vue-model-manager
@@ -82,9 +77,17 @@ npm run build         # Type-check + production build → dist/
 | `#/`                | Model Instances         | Filterable grid of all datapoint instances by provider/status  |
 | `#/dashboard`       | Dashboard               | Hero stats, quick search, critical issues, top ranked/scored, validation deltas, recently active |
 | `#/supermodels`     | Super Models            | Card list grouped by canonical model with creator, badges, nav |
+| `#/model/:slug`     | Model Detail            | Single super model with all provider instances                 |
 | `#/creators`        | Creators                | Models grouped by creator/lab with icons                       |
 | `#/creator/:id`     | Creator Detail          | Single creator with all their models                           |
+| `#/fine-tuners`     | Fine Tuners             | Creators that fine-tune base models                            |
+| `#/fine-tuner/:id`  | Fine Tuner Detail       | Single fine-tuner with their derived models                    |
+| `#/families`        | Families                | Models grouped by lineage family (Llama, Qwen, etc.)           |
+| `#/family/:name`    | Family Detail           | Single family with all member models                           |
+| `#/base-models`     | Base Models             | Foundation models ranked by derivative count                   |
+| `#/base-model/:name`| Base Model Detail       | Single base model with its derivatives                         |
 | `#/providers`       | Providers               | Provider list with health indicators                           |
+| `#/provider/:slug`  | Provider Detail         | Single provider with all its model instances                   |
 | `#/rankings`        | Rankings (Free)         | Per-role ranking with waterfall score breakdown                |
 | `#/rankings-paid`   | Rankings (Paid)         | Same, for paid models                                          |
 | `#/issues`          | Issues                  | Known issues per model + seismograph timeline                  |
@@ -94,7 +97,7 @@ npm run build         # Type-check + production build → dist/
 
 ```
 scripts/                    # Node.js pipeline scripts (CommonJS)
-  sync-models.js            #   Fetch from 18+ providers, diff against DB
+  sync-models.js            #   Fetch from 60+ providers, diff against DB
   validate-free-models.js   #   Test model endpoints against live APIs
   rank-models.js            #   Deterministic role ranking algorithm (free)
   rank-paid-models.js        #   Deterministic role ranking algorithm (paid)
@@ -108,10 +111,9 @@ scripts/                    # Node.js pipeline scripts (CommonJS)
   import-external-models.js #   Import from external model registries
   fetch-huggingface-hub.js  #   Scrape HF Hub for free inference models
   fetch-openllm-leaderboard.js # Fetch Open LLM Leaderboard data
-  re-rank.js                #   Full re-rank pipeline wrapper
   generate-dashboard.js     #   HTML dashboard of provider health
   metrics-exporter.js       #   Prometheus metrics endpoint (:9090)
-  summary.js                #   Text overview of model counts
+  model-summary.js          #   Text overview of model counts
   check-rankings.js         #   Sanity-check _role_rankings
   export-from-pg.js         #   Export PG → JSON snapshot
   cleanup-snapshots.js      #   Rotate old snapshots
