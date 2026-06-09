@@ -40,4 +40,4 @@ The filter on `to_proj` means you only see messages meant for you — no noise f
 
 ### Reply
 
-To reply, use `/peer-msg` with the `from_proj` shown in the message as the target.
+To reply, run `/peer-msg` with the project name from `from_proj` — e.g., if `from_proj` is `C:\OC\deepclaude`, target is `deepclaude`.

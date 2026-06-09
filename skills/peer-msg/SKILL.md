@@ -51,4 +51,16 @@ Drop the instruction — it served its purpose on first contact:
 send_to_tab <reply-to-id> "[peer · <your project> — reply to: <your-tab-id>]: <reply>"
 ```
 
+Log both inbound and outbound so the JSONL has a complete record:
+
+```powershell
+# Outbound (reply you're sending):
+$m = @{direction="out";from_tab="<your-id>";from_proj="$pwd";to_tab="<reply-to-id>";to_proj="<their-project>";message="<reply>";at=(Get-Date -Format "o")} | ConvertTo-Json -Compress
+Add-Content "$env:USERPROFILE\.claude\peer-messages.jsonl" $m
+
+# Inbound (message you received):
+$m = @{direction="in";from_tab="<their-id>";to_tab="<your-id>";message="<their-message>";at=(Get-Date -Format "o")} | ConvertTo-Json -Compress
+Add-Content "$env:USERPROFILE\.claude\peer-messages.jsonl" $m
+```
+
 Keep replies concise — they appear as the other session's next user input. Always use the full tab UUID for `send_to_tab`.
