@@ -48,7 +48,7 @@ const PROVIDER_MAP = {
   // ── models.dev provider name → datapoint_providers.slug ──────────
   'x-ai': 'xai',
   'mistralai': 'mistral',
-  'z-ai': 'zai',
+  'z-ai': 'zhipuai',
   'moonshotai': 'openrouter',
   'qwen': 'openrouter',
   'meta-llama': 'openrouter',

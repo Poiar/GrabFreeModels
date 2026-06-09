@@ -193,10 +193,6 @@ const PROVIDER_LIMITATIONS = {
     rate_limit: 'Varies by model',
     notes: 'Free tier via ZhipuAI coding plan. Requires account.',
   },
-  'zai-coding-plan': {
-    rate_limit: 'Varies by model',
-    notes: 'Free tier via Z.ai coding plan. Requires account.',
-  },
   'kimi-for-coding': {
     rate_limit: 'Varies by model',
     notes: 'Free tier via Kimi for Coding. Requires account.',
@@ -248,10 +244,6 @@ const PROVIDER_LIMITATIONS = {
   zenmux: {
     rate_limit: 'Varies by model',
     notes: 'Free tier via ZenMux. Rate limited.',
-  },
-  zai: {
-    rate_limit: 'Varies by model',
-    notes: 'Free tier via Z.ai. Requires account.',
   },
   zhipuai: {
     rate_limit: 'Varies by model',
@@ -672,6 +664,7 @@ function inferCreatorFromName(name) {
     'auto-route': 'LLMGateway', 'custom-model': 'LLMGateway',
     'ai-infer-test-1': 'NovitaAI', 'ai-infer-test-2': 'NovitaAI', 'ai-infer-test-3': 'NovitaAI',
     'maestro-reasoning': 'Aion Labs',
+    'elephant': 'Unidentifyable', 'gt-4p': 'Unidentifyable',
   };
   if (bySlug[slug]) return bySlug[slug];
   // Prefix matches for model families

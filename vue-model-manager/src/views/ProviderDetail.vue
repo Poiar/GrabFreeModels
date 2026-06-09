@@ -13,6 +13,7 @@
         {{ totalModels }} models ·
         <span class="pd-health" :class="provider.health_status">{{ provider.health_status }}</span>
       </p>
+      <p v-if="provider.description" class="pd-description">{{ provider.description }}</p>
     </div>
 
     <!-- Provider info -->
@@ -205,6 +206,14 @@ const pctWorking = computed(() => {
 .pd-health.healthy { color: var(--green); background: color-mix(in srgb, var(--green) 12%, transparent); }
 .pd-health.degraded { color: var(--orange); background: color-mix(in srgb, var(--orange) 12%, transparent); }
 .pd-health.down { color: var(--red); background: color-mix(in srgb, var(--red) 12%, transparent); }
+
+.pd-description {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 8px 0 0;
+  max-width: 800px;
+}
 
 .pd-meta-grid {
   display: grid;

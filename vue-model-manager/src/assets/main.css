@@ -2337,6 +2337,13 @@ th.sortable.active .sort-indicator { opacity: 1; }
   border-color: var(--glass-border);
 }
 
+/* ── Provider Icon SVG fallback visibility ── */
+.pi-svg,
+.pi-svg * {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
 /* ── Gradient Border Card ── */
 .gradient-border-card {
   position: relative;

@@ -36,8 +36,6 @@ const CREATOR_COUNTRY: Record<string, string> = {
   'tongyi-mai': 'CN',
   'wan': 'CN',
   'xiaomi': 'CN',
-  'z-ai': 'CN',
-  'zai': 'CN',
   'zhipu': 'CN',
   'zhipu-ai': 'CN',
 

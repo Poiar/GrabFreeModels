@@ -217,7 +217,7 @@ function getCountryNameForStyle(_id: string): string {
 }
 .page-header p {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
   margin: 0;
 }
 .filtered-note {
@@ -236,7 +236,7 @@ function getCountryNameForStyle(_id: string): string {
   border: 1px solid var(--border);
   border-radius: 5px;
   background: var(--bg-card);
-  color: var(--text-muted);
+  color: var(--text-dim);
   font-family: inherit;
   cursor: pointer;
 }
@@ -250,14 +250,14 @@ function getCountryNameForStyle(_id: string): string {
   border: 1px solid var(--border);
   border-radius: 5px;
   background: var(--bg-card);
-  color: var(--text-muted);
+  color: var(--text-dim);
   cursor: pointer;
   font-family: monospace;
   line-height: 1;
 }
 .sort-dir-btn:hover {
   color: var(--text);
-  border-color: var(--text-muted);
+  border-color: var(--text-dim);
 }
 
 .cc-continent-filters {
@@ -273,14 +273,14 @@ function getCountryNameForStyle(_id: string): string {
   border-radius: 5px;
   border: 1px solid var(--border);
   background: var(--bg-card);
-  color: var(--text-muted);
+  color: var(--text-dim);
   cursor: pointer;
   font-family: inherit;
   transition: color 0.12s, background 0.12s, border-color 0.12s;
 }
 .cc-continent-btn:hover {
   color: var(--text);
-  border-color: var(--text-muted);
+  border-color: var(--text-dim);
 }
 .cc-continent-btn.active {
   color: var(--accent);
@@ -383,7 +383,7 @@ function getCountryNameForStyle(_id: string): string {
 
 .cc-stat-lbl {
   font-size: 0.62rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -422,7 +422,7 @@ function getCountryNameForStyle(_id: string): string {
 
 .cc-base-chip.cc-base-more {
   background: var(--bg-hover);
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 
 .cc-families {
@@ -442,7 +442,7 @@ function getCountryNameForStyle(_id: string): string {
 
 .cc-family-more {
   background: var(--bg-hover);
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 
 @media (max-width: 768px) {

@@ -95,3 +95,6 @@ _*.js
 # Temp config files with secrets
 scripts/_tmp_cfg.json
 .vercel
+
+# Runtime state
+.cooldown-state.json

@@ -474,7 +474,7 @@ const creatorDescription = computed(() => {
 }
 .cd-subtitle {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
   margin: 0;
 }
 
@@ -511,7 +511,7 @@ const creatorDescription = computed(() => {
 }
 .cd-stat-label {
   font-size: 0.65rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -529,7 +529,7 @@ const creatorDescription = computed(() => {
 .val-segment.rate_limited { background: var(--orange); }
 .val-segment.broken { background: var(--red); }
 .val-segment.untested { background: var(--accent); }
-.val-segment.not_found { background: var(--text-muted); }
+.val-segment.not_found { background: var(--text-dim); }
 
 .cd-val-legend {
   display: flex;
@@ -560,8 +560,8 @@ const creatorDescription = computed(() => {
 .val-legend.broken::before { background: var(--red); }
 .val-legend.untested { color: var(--accent); }
 .val-legend.untested::before { background: var(--accent); }
-.val-legend.not_found { color: var(--text-muted); }
-.val-legend.not_found::before { background: var(--text-muted); }
+.val-legend.not_found { color: var(--text-dim); }
+.val-legend.not_found::before { background: var(--text-dim); }
 
 .cd-families {
   display: flex;
@@ -572,7 +572,7 @@ const creatorDescription = computed(() => {
 }
 .cd-families-label {
   font-size: 0.68rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -582,7 +582,7 @@ const creatorDescription = computed(() => {
   padding: 3px 10px;
   border-radius: 4px;
   background: var(--bg-elevated);
-  color: var(--text-muted);
+  color: var(--text-dim);
   text-decoration: none;
   transition: color 0.12s, background 0.12s;
 }
@@ -633,7 +633,7 @@ const creatorDescription = computed(() => {
   letter-spacing: 0.03em;
   padding: 2px 7px;
   border-radius: 4px;
-  color: var(--text-muted);
+  color: var(--text-dim);
   background: var(--bg-elevated);
   border: 1px solid transparent;
   transition: color 0.12s, background 0.12s, border-color 0.12s;
@@ -670,7 +670,7 @@ const creatorDescription = computed(() => {
   letter-spacing: 0.03em;
   padding: 2px 7px;
   border-radius: 4px;
-  color: var(--text-muted);
+  color: var(--text-dim);
   background: var(--bg-elevated);
   border: 1px solid var(--border);
 }
@@ -686,7 +686,7 @@ const creatorDescription = computed(() => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 .cd-rank-tag {
   font-size: 0.62rem;
@@ -712,7 +712,7 @@ const creatorDescription = computed(() => {
 .cd-not-found {
   padding: 40px 20px;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 
 @media (max-width: 768px) {
@@ -742,7 +742,7 @@ const creatorDescription = computed(() => {
   border-radius: 999px;
   border: 1px solid var(--border);
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-dim);
   cursor: pointer;
   font-family: inherit;
   transition: all 0.12s;

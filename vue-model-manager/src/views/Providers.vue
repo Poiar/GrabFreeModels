@@ -171,7 +171,7 @@ async function copyText(text: string) {
 
 <style scoped>
 .page-header h2 { font-size: 1.3rem; font-weight: 700; margin: 0 0 4px; }
-.page-header p { font-size: 0.78rem; color: var(--text-muted); margin: 0 0 16px; }
+.page-header p { font-size: 0.78rem; color: var(--text-dim); margin: 0 0 16px; }
 .filtered-note { color: var(--accent); font-weight: 600; }
 
 .cc-controls {
@@ -180,12 +180,12 @@ async function copyText(text: string) {
   margin-bottom: 12px;
 }
 .sort-select {
+  color: var(--text-dim);
   font-size: 0.72rem;
   padding: 4px 10px;
   border: 1px solid var(--border);
   border-radius: 5px;
   background: var(--bg-card);
-  color: var(--text-muted);
   font-family: inherit;
   cursor: pointer;
 }
@@ -199,14 +199,14 @@ async function copyText(text: string) {
   border: 1px solid var(--border);
   border-radius: 5px;
   background: var(--bg-card);
-  color: var(--text-muted);
+  color: var(--text-dim);
   cursor: pointer;
   font-family: monospace;
   line-height: 1;
 }
 .sort-dir-btn:hover {
   color: var(--text);
-  border-color: var(--text-muted);
+  border-color: var(--text-dim);
 }
 
 .cc-continent-filters {
@@ -222,14 +222,14 @@ async function copyText(text: string) {
   border-radius: 5px;
   border: 1px solid var(--border);
   background: var(--bg-card);
-  color: var(--text-muted);
+  color: var(--text-dim);
   cursor: pointer;
   font-family: inherit;
   transition: color 0.12s, background 0.12s, border-color 0.12s;
 }
 .cc-continent-btn:hover {
   color: var(--text);
-  border-color: var(--text-muted);
+  border-color: var(--text-dim);
 }
 .cc-continent-btn.active {
   color: var(--accent);
@@ -295,7 +295,7 @@ async function copyText(text: string) {
   justify-content: center;
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: var(--text-dim);
   cursor: pointer;
   padding: 1px;
   border-radius: 2px;
@@ -315,7 +315,7 @@ async function copyText(text: string) {
 
 .pc-slug {
   font-size: 0.62rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
   font-family: 'JetBrains Mono', monospace;
 }
 
@@ -367,7 +367,7 @@ async function copyText(text: string) {
 
 .pc-stat-lbl {
   font-size: 0.62rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -392,13 +392,13 @@ async function copyText(text: string) {
 
 .pc-url {
   font-size: 0.58rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
   font-family: 'JetBrains Mono', monospace;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   margin-bottom: 10px;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .pc-models {
@@ -418,7 +418,7 @@ async function copyText(text: string) {
 
 .pc-model-chip.more {
   background: var(--bg-hover);
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 
 @media (max-width: 768px) {

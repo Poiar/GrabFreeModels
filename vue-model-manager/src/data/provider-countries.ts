@@ -55,8 +55,6 @@ const PROVIDER_COUNTRY: Record<string, string> = {
   'xiaomi-token-plan-ams': 'CN',
   'xiaomi-token-plan-cn': 'CN',
   'xiaomi-token-plan-sgp': 'CN',
-  'zai': 'CN',
-  'zai-coding-plan': 'CN',
   'zenmux': 'CN',
   'zhipuai': 'CN',
   'zhipuai-coding-plan': 'CN',

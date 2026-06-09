@@ -34,8 +34,6 @@ const BRAND_COLORS: Record<string, string> = {
   'alibaba-token-plan': '#FF6A00',
   zhipuai: '#4F46E5',
   'zhipuai-coding-plan': '#4F46E5',
-  zai: '#4F46E5',
-  'zai-coding-plan': '#4F46E5',
 
   // ── Cloud platforms ──
   azure: '#0078D4',

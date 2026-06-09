@@ -112,6 +112,7 @@ export interface ProviderReference {
   name: string;
   npm_package: string | null;
   base_url: string;
+  description: string | null;
   model_count: number;
   working_count: number;
   health_status: string;

@@ -146,6 +146,8 @@ async function buildModelsData(client, pool, options = {}) {
     ['ai-infer-test-3', 'NovitaAI'],
     // Miscellaneous
     ['maestro-reasoning', 'Aion Labs'],
+    ['elephant', 'Unidentifyable'],
+    ['gt-4p', 'Unidentifyable'],
   ]);
   const CREATOR_BY_PREFIX = [
     ['qwq', 'Alibaba'],
@@ -342,10 +344,10 @@ async function buildModelsData(client, pool, options = {}) {
     togethercomputer: { id: 'together', name: 'Together AI' },
     siliconflow: { id: 'siliconflow', name: 'SiliconFlow' },
     'siliconflow-cn': { id: 'siliconflow', name: 'SiliconFlow' },
-    'z.ai': { id: 'zai', name: 'Z.AI' },
-    'z ai': { id: 'zai', name: 'Z.AI' },
-    'z-ai': { id: 'zai', name: 'Z.AI' },
-    'zai-org': { id: 'zai', name: 'Z.AI' },
+    'z.ai': { id: 'zhipu', name: 'Zhipu AI' },
+    'z ai': { id: 'zhipu', name: 'Zhipu AI' },
+    'z-ai': { id: 'zhipu', name: 'Zhipu AI' },
+    'zai-org': { id: 'zhipu', name: 'Zhipu AI' },
     'hugging face': { id: 'huggingface', name: 'Hugging Face' },
     huggingface: { id: 'huggingface', name: 'Hugging Face' },
     'arcee ai': { id: 'arcee', name: 'Arcee AI' },
@@ -395,11 +397,25 @@ async function buildModelsData(client, pool, options = {}) {
 
 const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holdings)\b\.?$/gi;
 
+  // Normalize a raw creator name for lookup: strip dots (Z.AI → ZAI),
+  // collapse whitespace, lowercase. Prevents duplicate creator IDs from
+  // punctuation variants of the same name.
+  function normalizeCreatorName(raw) {
+    return raw
+      .toLowerCase()
+      .replace(/\./g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   function slugifyCreator(raw) {
     if (!raw) return { id: 'unknown', name: 'Unknown' };
     const trimmed = raw.trim();
     const lowered = trimmed.toLowerCase();
+    // Try exact match first, then normalized match
+    const normalized = normalizeCreatorName(trimmed);
     if (AUTHOR_OVERRIDES[lowered]) return AUTHOR_OVERRIDES[lowered];
+    if (AUTHOR_OVERRIDES[normalized]) return AUTHOR_OVERRIDES[normalized];
     const cleaned = lowered.replace(LEGAL_SUFFIX_RE, '').trim();
     const slug = cleaned.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     return { id: slug || 'unknown', name: trimmed };
@@ -580,6 +596,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
         name: dp.provider,
         npm_package: dp.npm_package || null,
         base_url: dp.base_url || null,
+        description: null,
         model_count: 0,
         working_count: 0,
       });
@@ -588,6 +605,44 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     ref.model_count++;
     if (dp.status.result === 'working') ref.working_count++;
   }
+
+  const PROVIDER_DESCRIPTIONS = {
+    'alibaba-cn': 'Alibaba Cloud\'s DashScope API for Qwen models (Tongyi, QwQ) — China-based inference with strong reasoning and multilingual capabilities.',
+    'alibaba-coding-plan': 'Alibaba Cloud\'s DashScope API for Qwen models (Tongyi, QwQ) — China-based inference with strong reasoning and multilingual capabilities.',
+    'alibaba-coding-plan-cn': 'Alibaba Cloud\'s DashScope API for Qwen models (Tongyi, QwQ) — China-based inference with strong reasoning and multilingual capabilities.',
+    anthropic: 'Anthropic\'s official API for the Claude model family — frontier models known for safety, reasoning, and coding capabilities.',
+    cerebras: 'Inference provider leveraging Cerebras\' wafer-scale hardware to deliver extremely high token throughput (thousands of tokens per second) for select open models.',
+    cloudflare: 'Cloudflare\'s global edge network serving Workers AI models, including their AI Gateway for routing and observability across providers.',
+    'cloudflare-ai-gateway': 'Cloudflare\'s AI Gateway — a unified endpoint for routing requests across multiple LLM providers with built-in caching, rate limiting, and analytics.',
+    cohere: 'Cohere\'s API platform for the Command and Aya model families, specializing in RAG, multilingual, and enterprise use cases.',
+    deepinfra: 'Community-driven inference provider offering pay-per-token access to hundreds of open models with minimal hosting markup.',
+    deepseek: 'DeepSeek\'s official API for their frontier models (DeepSeek-V3, DeepSeek-R1) offering competitive pricing for both chat and reasoning workloads.',
+    firepass: 'Alternative API endpoint for Fireworks inference, serving open models at competitive prices.',
+    fireworks: 'Serverless inference platform optimized for speed and cost-efficiency, supporting a broad catalog of open models with LoRA adapters.',
+    'github-models': 'GitHub\'s model playground and API offering free access to popular models from multiple providers running on Azure AI infrastructure.',
+    google: 'Google\'s official API for the Gemini and Gemma model families, providing free-tier access with generous rate limits and multimodal support.',
+    groq: 'LPU-based inference provider delivering ultra-low latency (hundreds of tokens per second) for open models running on custom hardware.',
+    huggingface: 'The largest open-source ML community — hosts and serves thousands of models, datasets, and demos via the Hugging Face Inference API and TGI-powered serverless endpoints.',
+    llmgateway: 'Open-source API gateway providing a unified OpenAI-compatible interface for calling open-weight models from various inference backends.',
+    lmstudio: 'Local inference platform — runs models directly on your hardware with an OpenAI-compatible localhost API, no cloud dependency.',
+    mistral: 'Mistral AI\'s official API platform for their frontier models (Mistral Large, Codestral, Ministral) with competitive free-tier access.',
+    modelsdev: 'Community-driven model discovery platform that indexes and compares LLM pricing, context windows, and provider availability across the ecosystem.',
+    'novita-ai': 'Novita AI\'s API platform providing inference for open models with competitive free-tier pricing and OpenAI-compatible endpoints.',
+    novitaai: 'Novita AI\'s API platform providing inference for open models with competitive free-tier pricing and OpenAI-compatible endpoints.',
+    nvidia: 'NVIDIA\'s API platform providing high-performance inference for open models running on their GPU infrastructure, including the Nemotron and Llama families.',
+    openai: 'OpenAI\'s official API for GPT-4o, GPT-4.1, and other frontier models — the most widely adopted LLM API ecosystem.',
+    opencode: 'OpenCode Zen API — focused on fast, affordable inference for coding and agentic workloads running on optimized infrastructure.',
+    openrouter: 'Multi-provider API gateway offering unified access to 300+ models across dozens of providers with a single API key, standardized billing, and automatic failover.',
+    siliconflow: 'Chinese inference provider offering competitive pricing for open models, with strong coverage of Qwen and DeepSeek model variants.',
+    'siliconflow-cn': 'Chinese inference provider offering competitive pricing for open models, with strong coverage of Qwen and DeepSeek model variants.',
+    together: 'Together AI\'s API platform for large-scale inference of open-source models across a broad catalog with competitive pricing and fine-tuning support.',
+    xai: 'xAI\'s official API for the Grok model family — frontier models with real-time knowledge and strong reasoning.',
+    zhipuai: 'Zhipu AI\'s official API for the GLM model family with strong Chinese-English bilingual capabilities and multimodal support.',
+    'zhipuai-coding-plan': 'Zhipu AI\'s official API for the GLM model family with strong Chinese-English bilingual capabilities and multimodal support.',
+    zai: 'Zhipu AI\'s (formerly Z.AI) API for the GLM model family, providing Chinese-English bilingual models with competitive regional pricing.',
+    'zai-coding-plan': 'Zhipu AI\'s (formerly Z.AI) API for the GLM model family, providing Chinese-English bilingual models with competitive regional pricing.',
+    vercel: 'Vercel AI Gateway — a single API endpoint to access multiple LLM providers with built-in caching, rate limiting, and observability.',
+  };
 
   const PROVIDER_BASE_URLS = {
     'alibaba-cn': 'https://dashscope.aliyuncs.com/api/v1',
@@ -622,12 +677,15 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     xai: 'https://api.x.ai/v1',
     zhipuai: 'https://open.bigmodel.cn/api/paas/v4',
     'zhipuai-coding-plan': 'https://open.bigmodel.cn/api/paas/v4',
+    zai: 'https://api.z.ai/api/v1',
+    'zai-coding-plan': 'https://api.z.ai/api/v1',
   };
 
   const providers = Array.from(providerRefMap.values())
     .map((ref) => ({
       ...ref,
       base_url: ref.base_url || PROVIDER_BASE_URLS[ref.slug] || '',
+      description: ref.description || PROVIDER_DESCRIPTIONS[ref.slug] || null,
       health_status:
         ref.working_count === ref.model_count && ref.model_count > 0
           ? 'healthy'

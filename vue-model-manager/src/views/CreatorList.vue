@@ -134,7 +134,7 @@ function getFamilies(creator: CreatorData): string[] {
 }
 .page-header p {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
   margin: 0;
 }
 
@@ -154,7 +154,7 @@ function getFamilies(creator: CreatorData): string[] {
   border: 1px solid var(--border);
   border-radius: 5px;
   background: var(--bg-card);
-  color: var(--text-muted);
+  color: var(--text-dim);
   font-family: inherit;
   cursor: pointer;
 }
@@ -168,14 +168,14 @@ function getFamilies(creator: CreatorData): string[] {
   border: 1px solid var(--border);
   border-radius: 5px;
   background: var(--bg-card);
-  color: var(--text-muted);
+  color: var(--text-dim);
   cursor: pointer;
   font-family: monospace;
   line-height: 1;
 }
 .sort-dir-btn:hover {
   color: var(--text);
-  border-color: var(--text-muted);
+  border-color: var(--text-dim);
 }
 
 .cc-continent-filters {
@@ -191,14 +191,14 @@ function getFamilies(creator: CreatorData): string[] {
   border-radius: 5px;
   border: 1px solid var(--border);
   background: var(--bg-card);
-  color: var(--text-muted);
+  color: var(--text-dim);
   cursor: pointer;
   font-family: inherit;
   transition: color 0.12s, background 0.12s, border-color 0.12s;
 }
 .cc-continent-btn:hover {
   color: var(--text);
-  border-color: var(--text-muted);
+  border-color: var(--text-dim);
 }
 .cc-continent-btn.active {
   color: var(--accent);
@@ -254,7 +254,7 @@ function getFamilies(creator: CreatorData): string[] {
 }
 .cc-stat {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 .cc-country {
   display: inline-block;
@@ -278,7 +278,7 @@ function getFamilies(creator: CreatorData): string[] {
   padding: 1px 6px;
   border-radius: 3px;
   background: var(--bg-elevated);
-  color: var(--text-muted);
+  color: var(--text-dim);
   white-space: nowrap;
 }
 

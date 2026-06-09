@@ -75,6 +75,7 @@ function onImgError() {
   display: inline-block;
   width: v-bind('`${size}px`');
   height: v-bind('`${size}px`');
+  color: var(--text-dim);
 }
 
 .pi-img {
