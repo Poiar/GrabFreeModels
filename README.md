@@ -1,6 +1,6 @@
 # GrabFreeModels
 
-Discovers, tests, ranks, and syncs free LLM models across 60+ providers. Powers [models.dev](https://models.dev) data ingestion and exposes a live Vue 3 dashboard at `:5173`.
+Discovers, tests, ranks, and syncs free LLM models across 60+ providers. Imports from [models.dev](https://models.dev) and exposes a live Vue 3 dashboard at `:5173`.
 
 Key data sources: direct provider API scraping, [models.dev](https://github.com/anomalyco/models.dev) (the open-source AI model catalog), and OpenRouter.
 
