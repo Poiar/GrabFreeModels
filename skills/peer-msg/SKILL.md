@@ -47,4 +47,4 @@ When you receive a `[peer · ...]` message, the `reply to:` field contains the s
 send_to_tab <reply-to-id> "[peer · <your project> — reply to: <your-tab-id>]: <reply>"
 ```
 
-Keep replies concise — they appear as the other session's next user input. Tabby matches tab ID prefixes, so the short form works.
+Keep replies concise — they appear as the other session's next user input. Use the full tab UUID from `list_tabs` for `send_to_tab`.
