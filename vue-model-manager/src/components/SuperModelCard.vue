@@ -54,21 +54,22 @@
     <!-- Row 3: Provider stats -->
     <div class="sm-stats">
       <span class="sm-stat">{{ datapointsCount }} provider{{ datapointsCount !== 1 ? 's' : '' }}</span>
-      <span class="sm-stat-divider">|</span>
-      <span v-if="workingCount > 0" class="sm-stat sm-stat-working">{{ workingCount }} working</span>
+      <template v-if="workingCount > 0">
+        <span class="sm-stat-divider">|</span>
+        <span class="sm-stat sm-stat-working">{{ workingCount }} working</span>
+      </template>
       <template v-if="rateLimitedCount > 0">
         <span class="sm-stat-divider">|</span>
-        <span class="sm-stat sm-stat-limited">{{ rateLimitedCount }} limited</span>
+        <span class="sm-stat sm-stat-limited">
+          {{ workingCount === 0 && brokenCount === 0 ? 'all limited' : rateLimitedCount + ' limited' }}
+        </span>
       </template>
       <template v-if="brokenCount > 0">
         <span class="sm-stat-divider">|</span>
         <span class="sm-stat sm-stat-broken">{{ brokenCount }} down</span>
       </template>
-      <template v-if="workingCount === 0 && brokenCount === 0">
-        <span class="sm-stat sm-stat-none">untested</span>
-      </template>
       <span class="sm-stat-divider">|</span>
-      <span class="sm-stat">Max: {{ model.best_context ? formatContext(model.best_context) : '—' }} ctx</span>
+      <span class="sm-stat">{{ contextLabel }}</span>
       <template v-if="anyTools">
         <span class="sm-stat-divider">|</span>
         <span class="sm-stat sm-stat-tools">Tools</span>
@@ -82,7 +83,7 @@
     <!-- Row 5: Footer — provider tags + source badges -->
     <div class="sm-footer">
       <div class="sm-providers">
-        <span v-for="p in providerTags.slice(0, 6)" :key="p.slug" class="provider-tag">
+        <span v-for="p in providerTags.slice(0, 6)" :key="p.slug" class="provider-tag" :style="{ background: getProviderColorMuted(p.slug), color: getProviderColor(p.slug) }">
           <ProviderIcon :slug="p.slug" :size="14" :cls="'sm-provider-logo'" />
           {{ p.name }}
         </span>
@@ -102,6 +103,7 @@ import { useModelsStore } from '@/store/models';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useToast } from '@/composables/useToast';
 import { getProviderIcon } from '@/data/provider-icons';
+import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
 
 const ROLES = ['model', 'build', 'general', 'small_model', 'explore'] as const;
 const ROLE_SHORT: Record<string, string> = { model: 'Mod', build: 'Bld', general: 'Gen', small_model: 'Sml', explore: 'Exp' };
@@ -141,6 +143,14 @@ const status = computed(() => {
   if (working.value.length === activeDps.value.length) return 'working';
   if (working.value.length > 0) return 'mixed';
   return 'down';
+});
+
+const contextLabel = computed(() => {
+  const maxCtx = props.model.best_context;
+  const minCtx = props.model.min_context;
+  if (!maxCtx && !minCtx) return '— ctx';
+  if (!minCtx || minCtx === maxCtx) return `${formatContext(maxCtx!)} ctx`;
+  return `${formatContext(minCtx)}–${formatContext(maxCtx!)} ctx`;
 });
 
 const providerTags = computed(() => {
@@ -436,8 +446,6 @@ async function copyText(text: string) {
   border-radius: 4px;
   font-size: 0.6rem;
   font-weight: 500;
-  background: var(--accent-subtle);
-  color: var(--accent);
   white-space: nowrap;
 }
 

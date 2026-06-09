@@ -1,5 +1,5 @@
 <template>
-  <div class="ic-card" :class="[`ic-${dp.status.result}`]" :style="{ '--ic-provider-color': providerColorMuted }" @click="handleClick">
+  <div class="ic-card" :class="[`ic-${dp.status.result}`]" :style="{ '--ic-provider-color': providerColorMuted, '--ic-provider-color-main': providerColor }" @click="handleClick">
     <!-- Row 1: Provider name + status -->
     <div class="ic-provider-row">
       <span class="ic-provider-name">
@@ -98,7 +98,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { getProviderIcon } from '@/data/provider-icons';
-import { getProviderColorMuted } from '@/data/provider-colors';
+import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
 import { useToast } from '@/composables/useToast';
 import { useModelsStore } from '@/store/models';
 import type { ProviderDatapoint, ModelData, CreatorData } from '@/types';
@@ -118,6 +118,7 @@ const store = useModelsStore();
 
 const providerIconSvg = computed(() => getProviderIcon(props.dp.provider_slug));
 const creatorIconSvg = computed(() => getProviderIcon(props.creator.id));
+const providerColor = computed(() => getProviderColor(props.dp.provider_slug));
 const providerColorMuted = computed(() => getProviderColorMuted(props.dp.provider_slug));
 
 const hasImageInput = computed(() => (props.dp.input_types || []).includes('image'));
@@ -309,7 +310,7 @@ async function copyText(text: string) {
   gap: 6px;
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--text);
+  color: var(--ic-provider-color-main, var(--text));
 }
 
 .ic-provider-icon {
@@ -567,7 +568,7 @@ async function copyText(text: string) {
 }
 .ic-provider-link:hover {
   text-decoration: underline;
-  color: var(--accent);
+  color: var(--ic-provider-color-main, var(--accent));
 }
 
 .ic-provider-name:hover .copy-btn-badge,

@@ -1,7 +1,7 @@
 <template>
   <div
     class="provider-block"
-    :style="{ '--pb-color': getProviderColorMuted(dp.provider_slug) }"
+    :style="{ '--pb-color': getProviderColorMuted(dp.provider_slug), '--pb-color-main': getProviderColor(dp.provider_slug) }"
     :class="{
       expanded,
       'status-working': dp.status.result === 'working',
@@ -74,7 +74,7 @@
 import { computed } from 'vue';
 import type { ProviderDatapoint } from '@/types';
 import { useModelsStore } from '@/store/models';
-import { getProviderColorMuted } from '@/data/provider-colors';
+import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
 
 const props = defineProps<{
   dp: ProviderDatapoint;
@@ -180,7 +180,7 @@ function formatContext(ctx: number | null): string {
 .pb-name {
   font-size: 0.72rem;
   font-weight: 600;
-  color: var(--text);
+  color: var(--pb-color-main, var(--text));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -149,7 +149,20 @@ function navigateProviderPanel(index: number) {
 .provider-card {
   padding: 16px;
   cursor: pointer;
-  border-left: 3px solid var(--pc-color);
+  border-left: 4px solid var(--pc-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.provider-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--pc-color);
+  opacity: 0.3;
 }
 
 .pc-header {
@@ -174,6 +187,7 @@ function navigateProviderPanel(index: number) {
   display: flex;
   align-items: center;
   gap: 3px;
+  color: var(--pc-color);
 }
 
 .copy-btn-sm {

@@ -12,7 +12,7 @@
                 </svg>
               </button>
               <ProviderIcon :slug="provider.slug" :size="28" />
-              <h2 class="prp-title">{{ provider.name }}</h2>
+              <h2 class="prp-title" :style="{ color: providerColor }">{{ provider.name }}</h2>
               <span class="prp-slug">{{ provider.slug }}</span>
               <span class="prp-status" :class="provider.health_status">{{ provider.health_status }}</span>
             </div>
@@ -81,6 +81,7 @@ import { computed, watch } from 'vue';
 import type { ProviderReference } from '@/types';
 import { useModelsStore } from '@/store/models';
 import ProviderIcon from '@/components/ProviderIcon.vue';
+import { getProviderColor } from '@/data/provider-colors';
 import { useToast } from '@/composables/useToast';
 
 const props = defineProps<{
@@ -96,6 +97,7 @@ const emit = defineEmits<{
 }>();
 
 const store = useModelsStore();
+const providerColor = computed(() => getProviderColor(props.provider.slug));
 
 function close() {
   emit('close');
