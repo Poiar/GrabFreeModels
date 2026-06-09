@@ -234,6 +234,7 @@ function mapAuthorToProvider(author) {
           gated: m.gated,
           isFreeInference: true,
           author: m.author,
+          cardData: m.cardData || null,
         });
 
         await client.query(

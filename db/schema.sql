@@ -11,6 +11,7 @@ CREATE TABLE super_models (
     base_creator    VARCHAR(128),                  -- original model maker (for derived/fine-tuned models)
     family          VARCHAR(64),                   -- model lineage (Llama, GPT, Qwen, etc.)
     base_model      VARCHAR(256),                  -- parent super_model slug this is derived/fine-tuned from
+    derivation_method VARCHAR(32),                 -- how: finetune, merge, distillation, dpo, continued_pretraining, lora_adapter, quantization, foundation, unknown
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
