@@ -90,7 +90,6 @@ const CREATORS = {
   devstral: 'Devstral',
   longcat: 'Meituan',
   llama: 'Meta',
-  opencode: 'opencode',
   nova: 'Nova',
   'nano-gpt': 'Nano GPT',
   umans: 'Umans AI',
@@ -253,8 +252,11 @@ function normalizeCreator(name) {
 
         // Case 1: First segment is a known creator directly
         // E.g., deepseek/deepseek-chat, google/gemini-pro
-        creator = normalizeCreator(parts[0]);
-        if (creator) break;
+        // Skip if first segment is a routing/aggregator provider
+        if (!ROUTER_PREFIXES.has(parts[0])) {
+          creator = normalizeCreator(parts[0]);
+          if (creator) break;
+        }
 
         // Case 2: First segment is a router, second is the creator
         // E.g., openrouter/openai/gpt-5.1, github-models/meta/llama-4

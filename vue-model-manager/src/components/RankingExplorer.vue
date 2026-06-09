@@ -88,13 +88,28 @@
             <div class="rr-rank" :class="{ 'rr-medal': idx < 3 }">{{ idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '#' + (idx + 1) }}</div>
             <div class="rr-info">
               <div class="rr-name-row">
-                <ProviderIcon :slug="modelEntry.providerSlug" :size="14" cls="rr-provider-icon" />
                 <span class="rr-name">{{ modelEntry.displayName }}</span>
                 <span class="rr-creator">{{ modelEntry.creatorName }}</span>
               </div>
               <div class="rr-key-row">
-                <span class="rr-key">{{ modelEntry.id }}</span>
-                <span class="rr-provider-tag">{{ modelEntry.providerName }}</span>
+                <span class="rr-key">{{ modelEntry.slug }}</span>
+                <template v-for="(ps, psi) in modelEntry.providerSlugs" :key="ps">
+                  <span
+                    v-if="psi < 3"
+                    class="rr-provider-tag"
+                    :title="ps"
+                  >
+                    <ProviderIcon :slug="ps" :size="11" cls="rr-provider-inline-icon" />
+                    {{ ps }}
+                  </span>
+                </template>
+                <span
+                  v-if="modelEntry.providerSlugs.length > 3"
+                  class="rr-provider-tag rr-provider-more"
+                  :title="modelEntry.providerSlugs.slice(3).join(', ')"
+                >
+                  +{{ modelEntry.providerSlugs.length - 3 }} more
+                </span>
               </div>
               <div class="rr-bar-track">
                 <div
@@ -492,8 +507,10 @@ interface ModelEntry {
   name: string;
   displayName: string;
   creatorName: string;
+  slug: string;
   providerSlug: string;
   providerName: string;
+  providerSlugs: string[];
   score: number | null;
   scorePct: number;
   scoreDetail?: {
@@ -573,45 +590,56 @@ const roles = computed((): RoleSection[] => {
     const roleScores = scores[key] ?? [];
     const maxScore = roleScores.length > 0 ? Math.max(...roleScores.map((s) => s.score)) : 1;
 
-    const models: ModelEntry[] = modelIds.slice(0, 30).map((id) => {
+    const seenSuperIds = new Set<number>();
+    const models: ModelEntry[] = [];
+    for (const id of modelIds) {
+      if (models.length >= 30) break;
+      const resolved = resolveDatapoint(id);
+      if (!resolved) {
+        // Fallback: unresolved IDs shown as-is (no dedup possible)
+        const detail = roleScores.find((s) => s.id === id);
+        const score = detail?.score ?? null;
+        const slug = resolveCreatorSlug(id);
+        models.push({
+          id,
+          name: id,
+          displayName: humanizeId(id),
+          creatorName: '',
+          slug,
+          providerSlug: slug,
+          providerName: slug,
+          providerSlugs: [slug],
+          score,
+          scorePct: score ? Math.round((score / maxScore) * 100) : 0,
+          scoreDetail: detail ? buildScoreDetail(detail) : undefined,
+          matchedTags: detail?.matchedTags,
+          penaltyTags: detail?.matchedPenaltyTags,
+        });
+        continue;
+      }
+      const superId = resolved.model.super_id;
+      if (seenSuperIds.has(superId)) continue;
+      seenSuperIds.add(superId);
       const detail = roleScores.find((s) => s.id === id);
       const score = detail?.score ?? null;
-      const resolved = resolveDatapoint(id);
-      const providerSlug = resolveCreatorSlug(id);
-      const displayName = resolved?.model.name ?? humanizeId(id);
-      const creatorName = resolved?.creator.name ?? '';
-      const providerName = resolved?.dp.provider ?? providerSlug;
-      return {
+      const providerSlugs = [...new Set(resolved.model.providers.map((p) => p.provider_slug))];
+      const bestProvider = providerSlugs[0] ?? '';
+      models.push({
         id,
-        name: id,
-        displayName,
-        creatorName,
-        providerSlug,
-        providerName,
+        name: resolved.model.name,
+        displayName: resolved.model.name,
+        creatorName: resolved.creator.name,
+        slug: resolved.model.slug,
+        providerSlug: bestProvider,
+        providerName: resolved.dp.provider ?? bestProvider,
+        providerSlugs,
         score,
         scorePct: score ? Math.round((score / maxScore) * 100) : 0,
-        scoreDetail: detail
-          ? {
-              ctxScore: detail.ctxScore,
-              ctxWeight: detail.ctxWeight,
-              ctxContrib: detail.ctxContrib,
-              tagBonus: detail.tagBonus,
-              tagPenalty: detail.tagPenalty,
-              penaltyContrib: detail.penaltyContrib,
-              nameSizePenalty: detail.nameSizePenalty,
-              matchedTags: detail.matchedTags,
-              matchedPenaltyTags: detail.matchedPenaltyTags,
-              qualityBonus: detail.qualityBonus ?? 0,
-              qualityIntel: detail.qualityIntel ?? 0,
-              qualityCoding: detail.qualityCoding ?? 0,
-              qualitySpeed: detail.qualitySpeed ?? 0,
-              qualityLatency: detail.qualityLatency ?? 0,
-            }
-          : undefined,
+        scoreDetail: detail ? buildScoreDetail(detail) : undefined,
         matchedTags: detail?.matchedTags,
         penaltyTags: detail?.matchedPenaltyTags,
-      };
-    });
+      });
+    }
 
     return {
       key,
@@ -621,6 +649,25 @@ const roles = computed((): RoleSection[] => {
     };
   });
 });
+
+function buildScoreDetail(detail: RoleScore) {
+  return {
+    ctxScore: detail.ctxScore,
+    ctxWeight: detail.ctxWeight,
+    ctxContrib: detail.ctxContrib,
+    tagBonus: detail.tagBonus,
+    tagPenalty: detail.tagPenalty,
+    penaltyContrib: detail.penaltyContrib,
+    nameSizePenalty: detail.nameSizePenalty,
+    matchedTags: detail.matchedTags,
+    matchedPenaltyTags: detail.matchedPenaltyTags,
+    qualityBonus: detail.qualityBonus ?? 0,
+    qualityIntel: detail.qualityIntel ?? 0,
+    qualityCoding: detail.qualityCoding ?? 0,
+    qualitySpeed: detail.qualitySpeed ?? 0,
+    qualityLatency: detail.qualityLatency ?? 0,
+  };
+}
 
 function humanizeId(fullId: string): string {
   // Take the last meaningful segment, strip provider prefixes and :free suffix
@@ -1036,6 +1083,13 @@ function wfFinalPct(entry: ModelEntry): number {
   color: var(--text-dim);
 }
 
+.rr-provider-inline-icon {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
 .rr-creator {
   display: none;
 }
@@ -1043,8 +1097,9 @@ function wfFinalPct(entry: ModelEntry): number {
 .rr-key-row {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   min-width: 0;
+  flex-wrap: wrap;
 }
 
 .rr-key {
@@ -1062,11 +1117,21 @@ function wfFinalPct(entry: ModelEntry): number {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: 2px 6px;
+  padding: 1px 5px;
   border-radius: var(--radius-full);
   background: rgba(255,255,255,0.1);
   color: var(--text-dim);
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.rr-provider-more {
+  background: transparent;
+  color: var(--text-dim);
+  opacity: 0.6;
+  cursor: help;
 }
 
 .rr-bar-track {
