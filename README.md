@@ -1,6 +1,6 @@
 # GrabFreeModels
 
-Discovers, tests, ranks, and syncs free LLM models across 60+ providers. Imports from [models.dev](https://models.dev) and exposes a live Vue 3 dashboard at `:5173`.
+Discovers, tests, ranks, and syncs free and paid LLM models across 60+ providers. Imports from [models.dev](https://models.dev) and exposes a live Vue 3 dashboard at `:5173`.
 
 Key data sources: direct provider API scraping, [models.dev](https://github.com/anomalyco/models.dev) (the open-source AI model catalog), and OpenRouter.
 
@@ -15,7 +15,7 @@ External lists ─┘              │  │
                                ▼  │
                           validate ──→ rank ──→ export ──→ git snapshot
 
-Every free model gets a `super_model` (canonical identity) with per-provider `datapoint_model` rows. The nightly pipeline validates endpoints, re-ranks by role, snapshots the DB, and optionally alerts on changes.
+Every model gets a `super_model` (canonical identity) with per-provider `datapoint_model` rows. The nightly pipeline syncs free and paid models, validates free endpoints, re-ranks by role, snapshots the DB, and optionally alerts on changes.
 
 ## Data Model
 
@@ -39,16 +39,16 @@ super_models                    datapoint_models
 ```
 
 - **Creator**: organization that built the model (e.g., Meta, Google, DeepSeek). Normalized via a 100+ entry alias map in `build-models-data.js`.
-- **Base creator**: original model maker for derived/fine-tuned models, traced from HuggingFace architecture families.
+- **Base creator**: original model maker for derived/fine-tuned models, detected via slug pattern matching in `backfill-base-creators.js`.
 - **Base model**: parent super_model slug from which this model was fine-tuned/derived. A proper column on `super_models`, backfilled by `backfill-base-models.js` via substring matching.
-- **Source provenance**: every datapoint tracks which sources (API providers, community lists, HF Hub, leaderboards) contributed it via `datapoint_model_sources`.
+- **Source provenance**: every datapoint tracks which sources (API providers, community lists) contributed it via `datapoint_model_sources`.
 - **Import pipeline**: 3-pass slug matching (direct → provider-stripped → routing-prefix-stripped) in `import-external-models.js`, with creator extraction and org-prefix stripping.
 
 ## Quick Start
 
 ```bash
 npm run dev:all                        # DB API + Vite dev server
-npm run build                          # Type-check + production build
+npm run build                          # Prep + install + type-check + production build
 
 # Pipeline scripts (all support --dry-run default, --apply to write)
 node scripts/sync-models.js            # Fetch from providers + models.dev, diff vs DB
@@ -137,8 +137,5 @@ snapshots/                  # Timestamped JSON exports
 
 ## Related Open-Source Projects
 
-- **[models.dev](https://models.dev)** — Community-contributed AI model database (TOML → JSON API). GrabFreeModels imports its free-model subset as a canonical reference and contributes back via the source provenance pipeline. Built by the SST/anomalyco team with Bun + TypeScript.
-- **Open LLM Leaderboard** — Public table of free models with pricing, context length, and benchmarks. (Python + FastAPI)
-- **HuggingFace Model Hub** — Filtered view for models with free hosted inference API. (JavaScript/React)
-- **Free-LLM-Models** — Curated list of free endpoints with JSON data files. (Markdown + Static)
-- **Awesome-LLM** — Awesome-list section linking free/open-source models and providers. (Markdown)
+- **[models.dev](https://models.dev)** — Community-contributed AI model database (TOML → JSON API). Built by the SST/anomalyco team with Bun + TypeScript. GrabFreeModels imports its free-model subset as a canonical reference.
+- **[free-llm-api-resources](https://github.com/cheahjs/free-llm-api-resources)** — Community-curated list of free LLM endpoints. Ingested as a community-list source in the provenance pipeline.
