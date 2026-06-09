@@ -43,7 +43,9 @@ Add-Content "$env:USERPROFILE\.claude\peer-messages.jsonl" $m
 
 ## Reply flow
 
-When you receive a `[peer · ...]` message, the `reply to:` field contains the sender's full tab UUID. Drop the instruction — it served its purpose on first contact:
+When you receive a `[peer · ...]` message, the `reply to:` field contains the sender's full tab UUID. To find your own tab ID: call `list_tabs`, match your project dir against Playwright MCP paths (local install = you). Same logic as step 1, but for self.
+
+Drop the instruction — it served its purpose on first contact:
 
 ```
 send_to_tab <reply-to-id> "[peer · <your project> — reply to: <your-tab-id>]: <reply>"
