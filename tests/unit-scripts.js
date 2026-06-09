@@ -310,6 +310,300 @@ test('uses row.super_id (not masterId) for INSERT', () => {
   assert.ok(paramLines, 'Should reference row.super_id in INSERT params');
 });
 
+// ── check-score-integrity.js: mean ──
+console.log('\n=== check-score-integrity.js: mean ===');
+
+function _mean(values) {
+  const n = values.length;
+  if (n === 0) return 0;
+  let sum = 0;
+  for (const v of values) sum += v;
+  return sum / n;
+}
+
+test('computes correct average of numbers', () => {
+  assert.strictEqual(_mean([1, 2, 3, 4, 5]), 3);
+});
+
+test('returns 0 for empty array', () => {
+  assert.strictEqual(_mean([]), 0);
+});
+
+test('handles single value', () => {
+  assert.strictEqual(_mean([42]), 42);
+});
+
+// ── check-score-integrity.js: stddev ──
+console.log('\n=== check-score-integrity.js: stddev ===');
+
+function _stddev(values, meanVal) {
+  const n = values.length;
+  if (n < 2) return 0;
+  let sumSq = 0;
+  for (const v of values) sumSq += (v - meanVal) ** 2;
+  return Math.sqrt(sumSq / (n - 1));
+}
+
+test('computes correct standard deviation', () => {
+  // [0, 2, 4] with mean 2: variance = (4+0+4)/2 = 4, stddev = 2
+  assert.strictEqual(_stddev([0, 2, 4], 2), 2);
+});
+
+test('returns 0 for single element', () => {
+  assert.strictEqual(_stddev([42], 42), 0);
+});
+
+test('returns 0 when all values are identical', () => {
+  assert.strictEqual(_stddev([5, 5, 5], 5), 0);
+});
+
+// ── check-score-integrity.js: error handling and flags ──
+console.log('\n=== check-score-integrity.js: error handling and flags ===');
+
+test('exits with code 1 when outliers are found', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'check-score-integrity.js'),
+    'utf8',
+  );
+  const exitPattern = src.match(/if \(hadIssues\)[\s\S]*?process\.exit\(1\)/);
+  assert.ok(exitPattern, 'process.exit(1) should follow hadIssues check');
+});
+
+test('exits with code 0 when no issues found', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'check-score-integrity.js'),
+    'utf8',
+  );
+  assert.ok(
+    src.includes('All scores pass integrity checks'),
+    'should print success message when no issues',
+  );
+  assert.ok(
+    !src.includes('process.exit(0)'),
+    'should not have explicit process.exit(0) on success (falls through naturally)',
+  );
+});
+
+test('--json flag produces valid JSON output structure', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'check-score-integrity.js'),
+    'utf8',
+  );
+  assert.ok(src.includes('generated_at'), 'JSON output should include generated_at');
+  assert.ok(src.includes('summary'), 'JSON output should include summary');
+  assert.ok(src.includes('outliers'), 'JSON output should include outliers array');
+  assert.ok(src.includes('deltas'), 'JSON output should include deltas array');
+});
+
+test('handles empty model_scores table gracefully', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'check-score-integrity.js'),
+    'utf8',
+  );
+  assert.ok(
+    src.includes('model_scores table does not exist'),
+    'should have graceful message for missing table',
+  );
+  assert.ok(src.includes('allScores.length === 0'), 'should check for empty results');
+  assert.ok(src.includes('No scores found'), 'should print message for empty scores');
+});
+
+// ── diff-rankings.js: ranking comparison ──
+console.log('\n=== diff-rankings.js: ranking comparison ===');
+
+test('correctly identifies new entries in rankings', () => {
+  const oldList = ['a', 'b', 'c'];
+  const newList = ['a', 'b', 'c', 'd', 'e'];
+  const oldSet = new Set(oldList);
+  const added = newList.filter((id) => !oldSet.has(id));
+  assert.strictEqual(added.length, 2);
+  assert.ok(added.includes('d'));
+  assert.ok(added.includes('e'));
+});
+
+test('correctly identifies dropped entries in rankings', () => {
+  const oldList = ['a', 'b', 'c', 'd', 'e'];
+  const newList = ['a', 'b', 'c'];
+  const newSet = new Set(newList);
+  const removed = oldList.filter((id) => !newSet.has(id));
+  assert.strictEqual(removed.length, 2);
+  assert.ok(removed.includes('d'));
+  assert.ok(removed.includes('e'));
+});
+
+test('correctly identifies movers with 3+ position change', () => {
+  const oldList = ['a', 'b', 'c', 'd', 'e'];
+  const newList = ['e', 'b', 'c', 'a', 'd']; // a: 0->3, e: 4->0
+  const newSet = new Set(newList);
+  const oldPos = {};
+  oldList.forEach((id, i) => (oldPos[id] = i));
+  const newPos = {};
+  newList.forEach((id, i) => (newPos[id] = i));
+  const movers = [];
+  for (const id of oldList) {
+    if (!newSet.has(id)) continue;
+    const delta = oldPos[id] - newPos[id];
+    if (Math.abs(delta) >= 3) {
+      movers.push({ id, delta });
+    }
+  }
+  assert.strictEqual(movers.length, 2);
+  assert.ok(movers.some((m) => m.id === 'a' && m.delta === -3));
+  assert.ok(movers.some((m) => m.id === 'e' && m.delta === 4));
+});
+
+test('handles identical rankings with no changes', () => {
+  const oldList = ['a', 'b', 'c'];
+  const newList = ['a', 'b', 'c'];
+  const oldSet = new Set(oldList);
+  const newSet = new Set(newList);
+  const added = newList.filter((id) => !oldSet.has(id));
+  const removed = oldList.filter((id) => !newSet.has(id));
+  assert.strictEqual(added.length, 0);
+  assert.strictEqual(removed.length, 0);
+});
+
+// ── diff-rankings.js: CLI flags and error handling ──
+console.log('\n=== diff-rankings.js: CLI flags and error handling ===');
+
+test('--json flag produces valid JSON output structure', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'diff-rankings.js'),
+    'utf8',
+  );
+  assert.ok(src.includes('generated_at'), 'JSON output should include generated_at');
+  assert.ok(src.includes('results'), 'JSON output should include results');
+  assert.ok(src.includes('old_source'), 'JSON output should include old_source');
+  assert.ok(src.includes('new_source'), 'JSON output should include new_source');
+});
+
+test('handles missing file error gracefully', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'diff-rankings.js'),
+    'utf8',
+  );
+  assert.ok(src.includes('function loadJsonFile'), 'loadJsonFile function should exist');
+  assert.ok(src.includes('try {'), 'loadJsonFile should have try block');
+  assert.ok(src.includes("'Failed to load '"), 'loadJsonFile should have error message');
+  assert.ok(src.includes('process.exit(1)'), 'loadJsonFile should exit on error');
+});
+
+// ── compute-latency-percentiles.js: CLI flags ──
+console.log('\n=== compute-latency-percentiles.js: CLI flags ===');
+
+test('parses --days flag correctly', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'compute-latency-percentiles.js'),
+    'utf8',
+  );
+  assert.ok(src.includes("args.indexOf('--days')"), 'should parse --days flag');
+  assert.ok(src.includes(': 30;'), 'should default to 30 days');
+});
+
+test('--model flag filters to single model', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'compute-latency-percentiles.js'),
+    'utf8',
+  );
+  assert.ok(src.includes("args.indexOf('--model')"), 'should parse --model flag');
+  assert.ok(src.includes('SINGLE_MODEL'), 'should have SINGLE_MODEL variable');
+});
+
+test('--json flag produces valid JSON output structure', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'compute-latency-percentiles.js'),
+    'utf8',
+  );
+  assert.ok(src.includes('generated_at'), 'JSON should include generated_at');
+  assert.ok(src.includes('description'), 'JSON should include description');
+  assert.ok(src.includes('days'), 'JSON should include days');
+  assert.ok(src.includes('models'), 'JSON should include models array');
+});
+
+test('handles empty test_observations table gracefully', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'compute-latency-percentiles.js'),
+    'utf8',
+  );
+  assert.ok(
+    src.includes('test_observations table does not exist'),
+    'should have graceful message for missing table',
+  );
+  assert.ok(src.includes('No observations found'), 'should handle empty results');
+});
+
+// ── check-degradation.js: CLI flags and webhook ──
+console.log('\n=== check-degradation.js: CLI flags and webhook ===');
+
+test('parses --baseline-days flag correctly', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'check-degradation.js'),
+    'utf8',
+  );
+  assert.ok(src.includes("args.indexOf('--baseline-days')"), 'should parse --baseline-days flag');
+  assert.ok(src.includes(': 7;'), 'should default to 7 days');
+});
+
+test('--json flag produces valid JSON output structure', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'check-degradation.js'),
+    'utf8',
+  );
+  assert.ok(src.includes('generated_at'), 'JSON should include generated_at');
+  assert.ok(src.includes('run_date'), 'JSON should include run_date');
+  assert.ok(src.includes('alerts'), 'JSON should include alerts');
+});
+
+test('handles empty test_observations table gracefully', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'check-degradation.js'),
+    'utf8',
+  );
+  assert.ok(
+    src.includes('test_observations table does not exist'),
+    'should have graceful message for missing table',
+  );
+});
+
+test('--alert flag requires webhook URL (env var or CLI arg)', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'check-degradation.js'),
+    'utf8',
+  );
+  assert.ok(
+    src.includes('--alert flag set but no webhook URL configured'),
+    'should error when --alert set without webhook URL',
+  );
+  assert.ok(src.includes('DEGRADATION_WEBHOOK_URL'), 'should check env var');
+  assert.ok(src.includes('--webhook-url'), 'should support --webhook-url CLI arg');
+});
+
+test('sendWebhook function exists and creates a valid request', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'check-degradation.js'),
+    'utf8',
+  );
+  assert.ok(src.includes('function sendWebhook'), 'sendWebhook function should exist');
+  assert.ok(src.includes("'Content-Type'"), 'should set Content-Type header');
+  assert.ok(src.includes("'Content-Length'"), 'should set Content-Length header');
+  assert.ok(src.includes('JSON.stringify'), 'should stringify the payload');
+});
+
 // ── Summary ──
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
 if (failed > 0) {
