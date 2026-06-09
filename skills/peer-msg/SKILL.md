@@ -14,21 +14,23 @@ Send messages to other Claude Code sessions in this Tabby window via `send_to_ta
 Call `list_tabs`. Find tabs with `claude.exe`. Extract project from the Playwright MCP path:
 
 ```
-C:\OC\<Project>\node_modules\...\@playwright\mcp\cli.js  →  <Project> (local)
-npm-cache\...\@playwright\mcp\cli.js                      →  global — fall back to dc.ps1 cmdline
+C:\OC\<Project>\node_modules\...\@playwright\mcp\cli.js  →  local install = that project
+npm-cache\_npx\...\@playwright\mcp\cli.js                 →  global/cache = not this project (usually deepclaude)
 ```
 
-**Self:** The tab whose Playwright path contains your current project directory, AND has `bash.exe` or `git.exe` (tiebreaker when multiple tabs share the same project).
+**Self:** The tab whose Playwright path uses a LOCAL install in your project dir. When multiple tabs share the same project (all local), use `bash.exe` vs `pwsh.exe` as tiebreaker.
 
-**Target:** The tab whose Playwright path (or dc.ps1 fallback) matches the named project.
+**Target:** The tab whose Playwright path matches the named project (local install). Prefer local over npm-cache.
+
+Tabby matches tab ID prefixes in the `reply to:` field for readability, but `send_to_tab` requires the full UUID from `list_tabs`.
 
 ### 2. Send
 
 ```
-send_to_tab <target-tab-id> "[peer · <project> · reply to: <your-tab-id> · answer briefly, then resume your task]: <message>"
+send_to_tab <target-tab-id> "[peer · <project> — reply to: <your-tab-id>]: <message>"
 ```
 
-`submit: true`. No slug — it's unreliable. The `reply to:` field is the routing mechanism.
+`submit: true`. For first contact in a thread, include "answer briefly, then resume your task" before the closing bracket.
 
 ### 3. Log
 
@@ -45,4 +47,4 @@ When you receive a `[peer · ...]` message, the `reply to:` field contains the s
 send_to_tab <reply-to-id> "[peer · <your project> — reply to: <your-tab-id>]: <reply>"
 ```
 
-Keep replies concise — they appear as the other session's next user input.
+Keep replies concise — they appear as the other session's next user input. Tabby matches tab ID prefixes, so the short form works.
