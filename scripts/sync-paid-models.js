@@ -94,6 +94,7 @@ async function fetchPaidModels() {
       output_price_per_million: output,
       supports_tools: m.supports_tools ?? null,
       supports_reasoning: m.supports_reasoning ?? null,
+      description: m.description || null,
     });
   }
 
@@ -108,6 +109,48 @@ async function fetchPaidModels() {
 
   console.log(`\nMapped ${mapped.length} paid models for sync`);
   return mapped;
+}
+
+function inferTags(name, description) {
+  const tags = [];
+
+  // Name-based patterns
+  if (name) {
+    const n = name.toLowerCase();
+    if (/\bcoder\b|\bcodex\b|\bdevstral\b|\bbuild\b/i.test(n)) tags.push('coding');
+    if (/\bmulti.agent\b|\bagentic\b/i.test(n)) tags.push('agentic');
+    if (/\bfunction.call|\btool.use|\btool\b/i.test(n)) tags.push('tool use');
+    if (/\breasoning\b|\bdeep.research\b|\bdeep.think\b/i.test(n)) tags.push('reasoning');
+    if (/\bthinking\b|\bthink\b/i.test(n)) tags.push('thinking');
+    if (/\b(?:pro|plus|max|premier|large)\b/i.test(n)) tags.push('current default');
+    if (/\bvision\b|\bvl\b|\bimage\b|\baudio\b|\bvideo\b|\bmultimodal\b/i.test(n)) tags.push('multimodal');
+    if (/\bflash\b|\bfast\b|\bturbo\b|\bquick\b/i.test(n)) tags.push('fast');
+    if (/\bnano\b|\bmicro\b|\btiny\b/i.test(n)) tags.push('ultra-lightweight');
+    if (/\bmini\b|\bsmall\b|\blite\b/i.test(n)) tags.push('lightweight');
+    if (/\bpreview\b|\bexp\b|\bexperimental\b|\balpha\b/i.test(n)) tags.push('new');
+  }
+
+  // Description-based patterns
+  if (description) {
+    const d = description.toLowerCase();
+    if (/\bcoding\b|\bcoder\b|\bprogramming\b|\bsoftware.engineering\b/i.test(d)) tags.push('coding');
+    if (/\bagentic\b|\bmulti.agent\b|\bautonomous.*agent\b|\bagent.*workflow\b/i.test(d)) tags.push('agentic');
+    if (/\btool.using\b|\bfunction.calling\b|\bsupports.*tools\b|\bthousands.*tool\b/i.test(d)) tags.push('tool use');
+    if (/\breasoning\b/i.test(d) && !/\bnon.reasoning\b|\bnot.reasoning\b/i.test(d)) tags.push('reasoning');
+    if (/\bthinking\b|\bchain.of.thought\b/i.test(d)) tags.push('thinking');
+    if (/\bmultimodal\b|\bvision.language\b|\bimage.*understanding\b/i.test(d)) tags.push('multimodal');
+    if (/\bflagship\b|\bmost capable\b|\bpremier\b|\bhighest.quality\b|\bbest overall\b/i.test(d)) tags.push('current default');
+    if (/\bgeneral purpose\b|\bgeneral.*tasks\b|\bversatile\b|\ball.?around\b/i.test(d)) tags.push('general purpose');
+    if (/\blightweight\b|\bcompact\b|\befficient inference\b|\bsmall.*parameter\b/i.test(d)) tags.push('lightweight');
+    if (/\bfast\b|\bhigh.speed\b|\blow.latency\b|\bquick\b|\brapid\b/i.test(d)) tags.push('fast');
+    if (/\bcost.effective\b|\baffordable\b|\bbudget|\bvalue.*money\b/i.test(d)) tags.push('cost-efficient');
+    if (/\bcreative\b|\bwriting\b|\bstorytelling\b|\bcontent.*creation\b/i.test(d)) tags.push('general chat');
+    if (/\bresearch\b|\bscience\b|\bscientific\b|\bacademia\b/i.test(d)) tags.push('complex tasks');
+    if (/\btranslation\b|\bmultilingual\b|\blanguage.*support\b/i.test(d)) tags.push('multilingual');
+    if (/\bpreview\b|\bexp\b|\bexperimental\b|\balpha\b/i.test(d)) tags.push('new');
+  }
+
+  return [...new Set(tags)];
 }
 
 async function main() {
@@ -178,6 +221,29 @@ async function main() {
       if (potentiallyRemoved.length > 30) console.log(`  ... and ${potentiallyRemoved.length - 30} more`);
     }
 
+    // Tag inference coverage report
+    const allModels = [...newModels, ...updatedModels, ...unchangedModels];
+    const withDesc = allModels.filter((m) => m.description).length;
+    const withNameTags = allModels.filter((m) => inferTags(m.name, null).length > 0).length;
+    const withDescTags = allModels.filter((m) => m.description && inferTags(null, m.description).length > 0).length;
+    const withAnyTags = allModels.filter((m) => inferTags(m.name, m.description).length > 0).length;
+    console.log(`\n── Tag Inference Coverage ──`);
+    console.log(`  With description: ${withDesc}/${allModels.length}`);
+    console.log(`  Tags from name:   ${withNameTags}`);
+    console.log(`  Tags from desc:   ${withDescTags}`);
+    console.log(`  Tags from either: ${withAnyTags}`);
+    console.log(`  No tags at all:   ${allModels.length - withAnyTags}`);
+    // Show sample inferences for notable models
+    console.log(`\n  Sample inferences:`);
+    const samples = allModels.filter((m) => {
+      const tags = inferTags(m.name, m.description);
+      return tags.length > 0;
+    }).slice(0, 8);
+    for (const m of samples) {
+      const tags = inferTags(m.name, m.description);
+      console.log(`    ${m.id.split('/').pop()} → [${tags.join(', ')}]`);
+    }
+
     if (!APPLY) {
       console.log('\nReport mode. Use --apply to write changes.');
       return;
@@ -246,6 +312,40 @@ async function main() {
          m.input_price_per_million, m.output_price_per_million],
       );
       const dmId = dmRows[0].id;
+
+      // Inferred best_for tags from name + description
+      const inferredTags = inferTags(m.name, m.description);
+      if (inferredTags.length > 0) {
+        await client.query(
+          `DELETE FROM datapoint_model_features
+           WHERE datapoint_model_id = $1 AND feature_type = 'best_for'`,
+          [dmId],
+        );
+        for (const tag of inferredTags) {
+          await client.query(
+            `INSERT INTO datapoint_model_features (datapoint_model_id, feature_type, value)
+             VALUES ($1, 'best_for', $2)
+             ON CONFLICT (datapoint_model_id, feature_type, value) DO NOTHING`,
+            [dmId, tag],
+          );
+        }
+      }
+
+      // Store raw description for standalone ranking inference
+      if (m.description) {
+        const desc = m.description.substring(0, 256);
+        await client.query(
+          `DELETE FROM datapoint_model_features
+           WHERE datapoint_model_id = $1 AND feature_type = 'description'`,
+          [dmId],
+        );
+        await client.query(
+          `INSERT INTO datapoint_model_features (datapoint_model_id, feature_type, value)
+           VALUES ($1, 'description', $2)
+           ON CONFLICT (datapoint_model_id, feature_type, value) DO NOTHING`,
+          [dmId, desc],
+        );
+      }
 
       // Record provenance
       if (srcId) {

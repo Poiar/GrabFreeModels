@@ -19,7 +19,7 @@ async function rankModels() {
   try {
     // Load eligible paid models — no working status requirement (paid models aren't validated)
     const { rows: eligibleRows } = await client.query(`
-      SELECT dm.full_id AS id, mm.name, dm.context_length, dm.is_free, dm.supports_tools,
+      SELECT dm.id AS db_id, dm.full_id AS id, mm.name, dm.context_length, dm.is_free, dm.supports_tools,
              dp.name AS provider
       FROM datapoint_models dm
       JOIN super_models mm ON mm.id = dm.super_model_id
@@ -45,37 +45,95 @@ async function rankModels() {
       bestForMap.get(r.full_id).push(r.value);
     }
 
+    // Load stored descriptions for standalone inference
+    const descMap = new Map();
+    const { rows: descRows } = await client.query(`
+      SELECT dm.full_id, dmf.value
+      FROM datapoint_model_features dmf
+      JOIN datapoint_models dm ON dm.id = dmf.datapoint_model_id
+      WHERE dmf.feature_type = 'description'
+        AND dm.is_free = false
+    `);
+    for (const r of descRows) {
+      if (eligibleFullIds.has(r.full_id)) {
+        descMap.set(r.full_id, r.value);
+      }
+    }
+
     // Infer best_for-like tags from model names when curated tags are absent.
     // Paid models lack curated best_for features, but names carry strong signals
     // (coder, flash, pro, mini, thinking, vision, etc.) that let role scoring
     // differentiate instead of collapsing to pure context-length ordering.
-    function inferTagsFromName(name) {
-      if (!name) return [];
+    function inferTags(name, description) {
+      if (!name && !description) return [];
       const tags = [];
-      const n = name.toLowerCase();
-      if (/\bcoder\b|\bcodex\b|\bdevstral\b|\bbuild\b/i.test(n)) tags.push('coding');
-      if (/\bmulti.agent\b|\bagentic\b/i.test(n)) tags.push('agentic');
-      if (/\bfunction.call|\btool.use|\btool\b/i.test(n)) tags.push('tool use');
-      if (/\breasoning\b|\bdeep.research\b|\bdeep.think\b/i.test(n)) tags.push('reasoning');
-      if (/\bthinking\b|\bthink\b/i.test(n)) tags.push('thinking');
-      if (/\b(?:pro|plus|max|premier|large)\b/i.test(n)) tags.push('current default');
-      if (/\bvision\b|\bvl\b|\bimage\b|\baudio\b|\bvideo\b|\bmultimodal\b/i.test(n)) tags.push('multimodal');
-      if (/\bflash\b|\bfast\b|\bturbo\b|\bquick\b/i.test(n)) tags.push('fast');
-      if (/\bnano\b|\bmicro\b|\btiny\b/i.test(n)) tags.push('ultra-lightweight');
-      if (/\bmini\b|\bsmall\b|\blite\b/i.test(n)) tags.push('lightweight');
-      if (/\bpreview\b|\bexp\b|\bexperimental\b|\balpha\b/i.test(n)) tags.push('new');
-      return tags;
+
+      // Name-based patterns
+      if (name) {
+        const n = name.toLowerCase();
+        if (/\bcoder\b|\bcodex\b|\bdevstral\b|\bbuild\b/i.test(n)) tags.push('coding');
+        if (/\bmulti.agent\b|\bagentic\b/i.test(n)) tags.push('agentic');
+        if (/\bfunction.call|\btool.use|\btool\b/i.test(n)) tags.push('tool use');
+        if (/\breasoning\b|\bdeep.research\b|\bdeep.think\b/i.test(n)) tags.push('reasoning');
+        if (/\bthinking\b|\bthink\b/i.test(n)) tags.push('thinking');
+        if (/\b(?:pro|plus|max|premier|large)\b/i.test(n)) tags.push('current default');
+        if (/\bvision\b|\bvl\b|\bimage\b|\baudio\b|\bvideo\b|\bmultimodal\b/i.test(n)) tags.push('multimodal');
+        if (/\bflash\b|\bfast\b|\bturbo\b|\bquick\b/i.test(n)) tags.push('fast');
+        if (/\bnano\b|\bmicro\b|\btiny\b/i.test(n)) tags.push('ultra-lightweight');
+        if (/\bmini\b|\bsmall\b|\blite\b/i.test(n)) tags.push('lightweight');
+        if (/\bpreview\b|\bexp\b|\bexperimental\b|\balpha\b/i.test(n)) tags.push('new');
+      }
+
+      // Description-based patterns
+      if (description) {
+        const d = description.toLowerCase();
+        if (/\bcoding\b|\bcoder\b|\bprogramming\b|\bsoftware.engineering\b/i.test(d)) tags.push('coding');
+        if (/\bagentic\b|\bmulti.agent\b|\bautonomous.*agent\b|\bagent.*workflow\b/i.test(d)) tags.push('agentic');
+        if (/\btool.using\b|\bfunction.calling\b|\bsupports.*tools\b|\bthousands.*tool\b/i.test(d)) tags.push('tool use');
+        if (/\breasoning\b/i.test(d) && !/\bnon.reasoning\b|\bnot.reasoning\b/i.test(d)) tags.push('reasoning');
+        if (/\bthinking\b|\bchain.of.thought\b/i.test(d)) tags.push('thinking');
+        if (/\bmultimodal\b|\bvision.language\b|\bimage.*understanding\b/i.test(d)) tags.push('multimodal');
+        if (/\bflagship\b|\bmost capable\b|\bpremier\b|\bhighest.quality\b|\bbest overall\b/i.test(d)) tags.push('current default');
+        if (/\bgeneral purpose\b|\bgeneral.*tasks\b|\bversatile\b|\ball.?around\b/i.test(d)) tags.push('general purpose');
+        if (/\blightweight\b|\bcompact\b|\befficient inference\b|\bsmall.*parameter\b/i.test(d)) tags.push('lightweight');
+        if (/\bfast\b|\bhigh.speed\b|\blow.latency\b|\bquick\b|\brapid\b/i.test(d)) tags.push('fast');
+        if (/\bcost.effective\b|\baffordable\b|\bbudget|\bvalue.*money\b/i.test(d)) tags.push('cost-efficient');
+        if (/\bcreative\b|\bwriting\b|\bstorytelling\b|\bcontent.*creation\b/i.test(d)) tags.push('general chat');
+        if (/\bresearch\b|\bscience\b|\bscientific\b|\bacademia\b/i.test(d)) tags.push('complex tasks');
+        if (/\btranslation\b|\bmultilingual\b|\blanguage.*support\b/i.test(d)) tags.push('multilingual');
+        if (/\bpreview\b|\bexp\b|\bexperimental\b|\balpha\b/i.test(d)) tags.push('new');
+      }
+
+      return [...new Set(tags)];
     }
 
     // Attach best_for to models — merge curated DB tags with name-inferred tags
     const eligible = eligibleRows.map((m) => {
       const curated = bestForMap.get(m.id) || [];
-      const inferred = inferTagsFromName(m.name);
+      const desc = descMap.get(m.id) || null;
+      const inferred = inferTags(m.name, desc);
       const merged = [...new Set([...curated, ...inferred])];
       return { ...m, best_for: merged };
     });
 
-    console.log(`Eligible paid models: ${eligible.length}\n`);
+    // Load benchmark scores from model_scores for eligible paid models
+    const eligibleDbIds = eligible.map((m) => m.db_id);
+    const scoreMap = new Map();
+    let scoredCount = 0;
+    if (eligibleDbIds.length > 0) {
+      const { rows: scoreRows } = await client.query(`
+        SELECT dm.full_id, ms.source, ms.score_type, ms.score_value
+        FROM model_scores ms
+        JOIN datapoint_models dm ON dm.id = ms.datapoint_model_id
+        WHERE dm.id = ANY($1)
+      `, [eligibleDbIds]);
+      for (const r of scoreRows) {
+        if (!scoreMap.has(r.full_id)) scoreMap.set(r.full_id, []);
+        scoreMap.get(r.full_id).push({ source: r.source, score_type: r.score_type, score_value: Number(r.score_value) });
+      }
+      scoredCount = new Set(scoreRows.map(r => r.full_id)).size;
+    }
+    console.log(`Eligible paid models: ${eligible.length} (${scoredCount} with benchmark scores)\n`);
 
     // ── Scoring helpers ──
     const CTX_NORM = 1048756;
@@ -83,6 +141,11 @@ async function rankModels() {
     function ctxScore(m) {
       if (!m.context_length) return -0.5;
       return m.context_length / CTX_NORM;
+    }
+
+    function findScore(scores, type) {
+      const s = scores?.find((s) => s.score_type === type);
+      return s ? s.score_value : null;
     }
 
     function tagBonus(m, keywords) {
@@ -97,6 +160,45 @@ async function rankModels() {
         }
       }
       return bonus;
+    }
+
+    // Benchmark-based quality signal. Scored models get a 0-3 bonus
+    // proportional to their intelligence/speed/coding benchmarks.
+    // Unscored models get 0 — no penalty, just no bonus.
+    function qualityScore(m, role) {
+      const scores = scoreMap.get(m.id);
+      if (!scores || scores.length === 0) return 0;
+
+      const intelligence = findScore(scores, 'intelligence');   // 0-100
+      const speed = findScore(scores, 'output_speed');         // tokens/s
+      const coding =
+        findScore(scores, 'aider-polyglot') ||
+        findScore(scores, 'swe-bench-verified');
+      const latency = findScore(scores, 'latency_total');       // seconds
+
+      let qs = 0;
+
+      // Intelligence: contributes to roles where raw capability matters
+      if (intelligence !== null && ['model', 'build', 'general', 'explore'].includes(role)) {
+        qs += Math.max(0, intelligence / 40); // 0-100 → 0-2.5
+      }
+
+      // Coding benchmarks: extra boost for build role
+      if (role === 'build' && coding !== null) {
+        qs += Math.min(coding / 30, 1.5);
+      }
+
+      // Speed: contributes to general + small_model
+      if (['general', 'small_model'].includes(role) && speed !== null) {
+        qs += Math.min(speed / 80, 1.5);
+      }
+
+      // Latency penalty for small_model (slower = worse for "fast" role)
+      if (role === 'small_model' && latency !== null && latency > 0) {
+        qs -= Math.min(latency / 4, 1);
+      }
+
+      return Math.max(0, Math.min(qs, 3));
     }
 
     // ── Role definitions ──
@@ -137,7 +239,8 @@ async function rankModels() {
       const scored = eligible.map((m) => {
         const ctx = ctxScore(m);
         const tags = tagBonus(m, cfg.tagKeywords);
-        const score = ctx * cfg.ctxWeight + tags;
+        const quality = qualityScore(m, role);
+        const score = ctx * cfg.ctxWeight + tags + quality;
         const ctxContrib = ctx * cfg.ctxWeight;
         const matchedTags = (cfg.tagKeywords || []).filter((kw) =>
           (m.best_for || []).some((t) => t.toLowerCase().includes(kw.toLowerCase())),
@@ -155,6 +258,7 @@ async function rankModels() {
           nameSizePenalty: 0,
           matchedTags,
           matchedPenaltyTags: [],
+          qualityBonus: quality,
         };
       });
 
