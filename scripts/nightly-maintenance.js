@@ -95,6 +95,7 @@ const STEP_NAMES = [
   'export-final-json',
   'commit-push',
   'webhook-alerts',
+  'nightly-summary',
 ];
 
 const cliArgs = process.argv.slice(2);
@@ -543,6 +544,11 @@ let pipelineStart = Date.now();
         }
       }
       fs.unlinkSync(tmpFile);
+    });
+
+    // 18. Nightly summary delivery to Slack/Discord
+    await runStep('nightly-summary', async () => {
+      execSync('node scripts/nightly-summary.js', { stdio: 'inherit' });
     });
 
     printStepTable(Date.now() - pipelineStart);

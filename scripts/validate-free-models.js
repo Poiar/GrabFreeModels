@@ -32,8 +32,30 @@ for (let i = 0; i < args.length; i++) {
   }
 }
 
+const PROVIDER_CONFIG = require('./provider-config.json');
+
 const REPO_ROOT = path.join(__dirname, '..');
 const MODELS_FILE = path.join(REPO_ROOT, 'available-models.json');
+
+/** Parse rate limit string like "20 RPM / 1,000 TPM" into delay config */
+function parseRateLimit(str) {
+  if (!str) return { rpm: null, delayMs: 3000 };
+  const match = str.match(/(\d+)\s*RPM/);
+  if (!match) return { rpm: null, delayMs: 3000 };
+  const rpm = parseInt(match[1], 10);
+  const delayMs = Math.ceil(60000 / rpm);
+  return { rpm, delayMs };
+}
+
+/** Get pre-computed rate limit config for an endpoint */
+const rateLimitCache = {};
+function getRateLimit(endpoint) {
+  if (rateLimitCache[endpoint]) return rateLimitCache[endpoint];
+  const cfg = PROVIDER_CONFIG[endpoint];
+  const rl = parseRateLimit(cfg ? cfg.rateLimit : null);
+  rateLimitCache[endpoint] = rl;
+  return rl;
+}
 const AUTH_FILE = path.join(
   process.env.HOME || process.env.USERPROFILE || 'C:\\Users\\pc',
   '.local',
@@ -449,7 +471,7 @@ function resolveApiModelId(modelId, endpoint, validIds) {
   return bare;
 }
 
-async function testModel(apiModelId, phase, apiKey, apiUrl) {
+async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, normalDelay = 3000) {
   const headers = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${apiKey}`,
@@ -513,8 +535,8 @@ async function testModel(apiModelId, phase, apiKey, apiUrl) {
       }
     }
     results.push(obs);
-    if (phase === 'burst') await sleep(300);
-    else await sleep(5000);
+    if (phase === 'burst') await sleep(burstDelay);
+    else await sleep(normalDelay);
   }
   return results;
 }
@@ -672,7 +694,7 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
 
   const allResults = [];
 
-  async function testOne(m, dmIdMap) {
+  async function testOne(m, dmIdMap, burstDelay, normalDelay) {
     const ep = getEndpoint(m.id);
     const cfg = ENDPOINT_CONFIG[ep];
     const vIds = validIds[ep];
@@ -682,8 +704,8 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
     logger.info(`[${ep}] ${m.id} → ${apiId}`);
     let burst, delayed;
     try {
-      burst = await testModel(apiId, 'burst', cfg.key(), cfg.url);
-      delayed = await testModel(apiId, 'delayed', cfg.key(), cfg.url);
+      burst = await testModel(apiId, 'burst', cfg.key(), cfg.url, burstDelay, normalDelay);
+      delayed = await testModel(apiId, 'delayed', cfg.key(), cfg.url, burstDelay, normalDelay);
     } catch (e) {
       // Catch any unhandled errors from testModel
       logger.info(`  => \x1b[31mbroken\x1b[0m (unhandled error: ${e.message})\n`);
@@ -769,8 +791,17 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
       logger.info(`  [${ep}] in cooldown (${cd.reason}) — ${remaining}s remaining, skipping`);
       return;
     }
-    for (const m of byEp[ep] || []) {
-      allResults.push(await testOne(m, dmIdByFullId));
+    const rl = getRateLimit(ep);
+    const burstDelayMs = Math.ceil(rl.delayMs * 0.5);
+    const normalDelayMs = rl.delayMs;
+    logger.info(`  [${ep}] rate limit: ${rl.rpm ? rl.rpm + ' RPM' : 'default'} → burst ${burstDelayMs}ms, normal ${normalDelayMs}ms`);
+
+    const models = byEp[ep] || [];
+    for (let i = 0; i < models.length; i++) {
+      allResults.push(await testOne(models[i], dmIdByFullId, burstDelayMs, normalDelayMs));
+      if (i < models.length - 1) {
+        await sleep(normalDelayMs);
+      }
     }
   }
 
