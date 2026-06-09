@@ -5,6 +5,26 @@
       <p>{{ store.visibleProviderRefs.length }} API provider{{ store.visibleProviderRefs.length !== 1 ? 's' : '' }} hosting free models<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template></p>
     </div>
 
+    <div class="cc-controls">
+      <select v-model="sortBy" class="sort-select">
+        <option value="name">Sort: Name</option>
+        <option value="models">Sort: Models</option>
+        <option value="workers">Sort: Workers</option>
+        <option value="country">Sort: Country</option>
+      </select>
+      <button class="sort-dir-btn" @click="sortAsc = !sortAsc" :title="sortAsc ? 'Ascending' : 'Descending'">{{ sortAsc ? '↑' : '↓' }}</button>
+    </div>
+
+    <div class="cc-continent-filters">
+      <button
+        v-for="c in CONTINENTS"
+        :key="c"
+        class="cc-continent-btn"
+        :class="{ active: selectedContinent === c }"
+        @click="selectedContinent = c"
+      >{{ c === 'All' ? `All (${store.visibleProviderRefs.length})` : `${c} (${continentCount(c)})` }}</button>
+    </div>
+
     <div class="providers-grid">
       <div
         v-for="(provider, idx) in sortedProviders"
@@ -90,14 +110,54 @@ import ProviderIcon from '@/components/ProviderIcon.vue';
 import ProviderPanel from '@/components/ProviderPanel.vue';
 import { useToast } from '@/composables/useToast';
 import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
-import { getCountryForProvider } from '@/data/provider-countries';
+import { getCountryForProvider, CONTINENTS } from '@/data/provider-countries';
 import type { ProviderReference } from '@/types';
 
 const store = useModelsStore();
 
-const sortedProviders = computed(() =>
-  [...store.visibleProviderRefs].sort((a, b) => b.model_count - a.model_count),
-);
+const sortBy = ref<'name' | 'models' | 'workers' | 'country'>('models');
+const sortAsc = ref(false);
+const selectedContinent = ref('All');
+
+function continentCount(continent: string): number {
+  let count = 0;
+  for (const p of store.visibleProviderRefs) {
+    if (getCountryForProvider(p.slug).continent === continent) count++;
+  }
+  return count;
+}
+
+const filteredProviders = computed(() => {
+  if (selectedContinent.value === 'All') return store.visibleProviderRefs;
+  return store.visibleProviderRefs.filter(
+    (p) => getCountryForProvider(p.slug).continent === selectedContinent.value,
+  );
+});
+
+const sortedProviders = computed(() => {
+  const list = [...filteredProviders.value];
+  const dir = sortAsc.value ? 1 : -1;
+  list.sort((a, b) => {
+    let cmp = 0;
+    switch (sortBy.value) {
+      case 'name':
+        cmp = a.name.localeCompare(b.name);
+        break;
+      case 'models':
+        cmp = b.model_count - a.model_count;
+        break;
+      case 'workers':
+        cmp = b.working_count - a.working_count;
+        break;
+      case 'country':
+        cmp = getCountryForProvider(a.slug).name.localeCompare(getCountryForProvider(b.slug).name)
+           || a.name.localeCompare(b.name);
+        break;
+    }
+    return cmp * dir;
+  });
+  return list;
+});
 
 const providerModels = computed(() => {
   const map: Record<string, { super_id: number; name: string }[]> = {};
@@ -142,8 +202,71 @@ function navigateProviderPanel(index: number) {
 
 <style scoped>
 .page-header h2 { font-size: 1.3rem; font-weight: 700; margin: 0 0 4px; }
-.page-header p { font-size: 0.78rem; color: var(--text-muted); margin: 0 0 20px; }
+.page-header p { font-size: 0.78rem; color: var(--text-muted); margin: 0 0 16px; }
 .filtered-note { color: var(--accent); font-weight: 600; }
+
+.cc-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.sort-select {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-family: inherit;
+  cursor: pointer;
+}
+.sort-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.sort-dir-btn {
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: monospace;
+  line-height: 1;
+}
+.sort-dir-btn:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.cc-continent-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.cc-continent-btn {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+.cc-continent-btn:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+.cc-continent-btn.active {
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+}
 
 .providers-grid {
   display: grid;
