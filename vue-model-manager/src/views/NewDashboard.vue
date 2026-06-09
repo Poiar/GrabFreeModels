@@ -108,6 +108,12 @@
             <div class="ft-label">Uncategorized</div>
           </div>
         </div>
+        <div v-if="derivationMethodEntries.length > 0" class="ft-derivation-breakdown">
+          <div class="ft-subtitle">By Derivation Method</div>
+          <div class="ft-deriv-chips">
+            <span v-for="[method, count] in derivationMethodEntries" :key="method" class="ft-deriv-chip">{{ DERIV_LABELS[method] || method }}: {{ count }}</span>
+          </div>
+        </div>
         <div v-if="topDerived.length > 0" class="most-derived-section">
           <div class="ft-subtitle">Most Fine-tuned</div>
           <div class="ft-chips">
@@ -294,9 +300,24 @@ const foundationCount = computed(() =>
   store.allModels.filter(m => !m.base_model).length,
 );
 
+const DERIV_LABELS: Record<string, string> = {
+  finetune: 'Fine-tune', merge: 'Merge', distillation: 'Distillation', dpo: 'DPO',
+  continued_pretraining: 'CPT', lora_adapter: 'LoRA', quantization: 'Quantized', unknown: 'Unknown',
+};
+
 const finetuneCount = computed(() =>
   store.allModels.filter(m => m.base_model).length,
 );
+
+const derivationMethodEntries = computed(() => {
+  const counts: Record<string, number> = {};
+  for (const m of store.allModels) {
+    if (!m.base_model) continue;
+    const method = m.derivation_method || 'unknown';
+    counts[method] = (counts[method] || 0) + 1;
+  }
+  return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+});
 
 const uncategorizedCount = computed(() =>
   store.allModels.filter(m => !m.family || m.family === 'Uncategorized').length,
@@ -1149,6 +1170,25 @@ function formatTimeAgo(dateStr: string | null): string {
   color: var(--text-muted);
 }
 
+.ft-derivation-breakdown {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.ft-deriv-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+.ft-deriv-chip {
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
 .most-derived-section {
   border-top: 1px solid var(--border);
   padding-top: 12px;

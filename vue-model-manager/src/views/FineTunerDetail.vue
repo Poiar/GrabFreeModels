@@ -77,6 +77,10 @@
         <span class="cd-stat-value">{{ frontierCount }}</span>
         <span class="cd-stat-label">Frontier models</span>
       </div>
+      <div class="cd-stat" v-if="derivationBreakdown.length">
+        <span class="cd-stat-value">{{ derivationBreakdown.map(d => `${d.label} ${d.count}`).join(' · ') }}</span>
+        <span class="cd-stat-label">Derivation methods</span>
+      </div>
       <div class="cd-stat">
         <span class="cd-stat-value">{{ validationSummary }}</span>
         <span class="cd-stat-label">Validation</span>
@@ -298,6 +302,23 @@ const valFlex = computed(() => {
   };
 });
 
+const DERIVATION_LABELS: Record<string, string> = {
+  finetune: 'FT', merge: 'Merge', distillation: 'Distill', dpo: 'DPO',
+  continued_pretraining: 'CPT', lora_adapter: 'LoRA', quantization: 'Quant', unknown: 'Derived',
+};
+
+const derivationBreakdown = computed(() => {
+  if (!creator.value) return [];
+  const counts: Record<string, number> = {};
+  for (const m of creator.value.models) {
+    const method = m.derivation_method || 'unknown';
+    counts[method] = (counts[method] || 0) + 1;
+  }
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([method, count]) => ({ label: DERIVATION_LABELS[method] || method, count }));
+});
+
 const validationSummary = computed(() => {
   const c = valCounts.value;
   const total = c.working + c.broken + c.rate_limited + c.untested + c.not_found;
@@ -387,7 +408,9 @@ const ftDescription = computed(() => {
   if (!c) return '';
   const families = familyList.value;
   const bases = baseCreatorList.value;
-  let text = `${c.name} fine-tunes `;
+  const db = derivationBreakdown.value;
+  const verb = db.length > 0 ? 'derives' : 'fine-tunes';
+  let text = `${c.name} ${verb} `;
   if (families.length === 0) {
     text += 'models';
   } else if (families.length === 1) {
@@ -402,6 +425,10 @@ const ftDescription = computed(() => {
     text += ` from ${bases.slice(0, -1).join(', ')} and ${bases[bases.length - 1]}`;
   }
   text += ` — ${c.model_count} model${c.model_count !== 1 ? 's' : ''} across ${c.provider_count} provider${c.provider_count !== 1 ? 's' : ''}`;
+  if (db.length > 0) {
+    const methodStr = db.map(d => `${d.count} ${d.label}`).join(', ');
+    text += ` (${methodStr})`;
+  }
   const tags = topBestFor.value.slice(0, 3);
   if (tags.length) text += `, with strengths in ${tags.join(', ')}`;
   text += '.';

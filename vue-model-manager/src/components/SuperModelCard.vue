@@ -14,8 +14,8 @@
         <button class="copy-btn-badge" title="Copy name" @click.stop="copyText(model.name)">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </button>
-        <router-link v-if="model.base_model" :to="`/model/${model.base_model}`" class="sm-finetune-badge" title="Fine-tune — click to see base model" @click.stop>
-          FT: {{ baseModelName }}
+        <router-link v-if="model.base_model" :to="`/model/${model.base_model}`" class="sm-finetune-badge" :class="derivationBadgeClass" :title="derivationTitle" @click.stop>
+          {{ derivationLabel }}
         </router-link>
       </span>
       <div class="sm-header-right">
@@ -120,10 +120,42 @@ const emit = defineEmits<{
 const store = useModelsStore();
 const { success: toastSuccess } = useToast();
 
+const DERIVATION_META: Record<string, { label: string; cssClass: string }> = {
+  finetune: { label: 'FT', cssClass: 'deriv-ft' },
+  merge: { label: 'Merge', cssClass: 'deriv-merge' },
+  distillation: { label: 'Distill', cssClass: 'deriv-distill' },
+  dpo: { label: 'DPO', cssClass: 'deriv-dpo' },
+  continued_pretraining: { label: 'CPT', cssClass: 'deriv-cpt' },
+  lora_adapter: { label: 'LoRA', cssClass: 'deriv-lora' },
+  quantization: { label: 'Quant', cssClass: 'deriv-quant' },
+  unknown: { label: 'Derived', cssClass: 'deriv-unknown' },
+};
+
 const baseModelName = computed(() => {
   if (!props.model.base_model) return null;
   const parent = store.modelBySlug.get(props.model.base_model);
   return parent ? parent.name : props.model.base_model;
+});
+
+const derivationMeta = computed(() => {
+  const method = props.model.derivation_method;
+  if (method && DERIVATION_META[method]) return DERIVATION_META[method];
+  return DERIVATION_META.unknown;
+});
+
+const derivationLabel = computed(() => {
+  const name = baseModelName.value;
+  if (!name) return derivationMeta.value.label;
+  return `${derivationMeta.value.label}: ${name}`;
+});
+
+const derivationBadgeClass = computed(() => derivationMeta.value.cssClass);
+
+const derivationTitle = computed(() => {
+  const method = props.model.derivation_method || 'derived';
+  const name = baseModelName.value;
+  if (!name) return `${method} model`;
+  return `${method} of ${name} — click to see base model`;
 });
 
 const activeDps = computed(() => props.model.providers.filter((p: ProviderDatapoint) => !p._removed));
@@ -374,6 +406,14 @@ async function copyText(text: string) {
   cursor: pointer;
   transition: background 0.15s;
 }
+.sm-finetune-badge.deriv-ft { background: rgba(99, 102, 241, 0.12); color: #818cf8; }
+.sm-finetune-badge.deriv-merge { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
+.sm-finetune-badge.deriv-distill { background: rgba(236, 72, 153, 0.12); color: #ec4899; }
+.sm-finetune-badge.deriv-dpo { background: rgba(34, 211, 238, 0.12); color: #22d3ee; }
+.sm-finetune-badge.deriv-cpt { background: rgba(250, 204, 21, 0.12); color: #eab308; }
+.sm-finetune-badge.deriv-lora { background: rgba(52, 211, 153, 0.12); color: #34d399; }
+.sm-finetune-badge.deriv-quant { background: rgba(251, 146, 60, 0.12); color: #fb923c; }
+.sm-finetune-badge.deriv-unknown { background: rgba(156, 163, 175, 0.12); color: #9ca3af; }
 
 .sm-badge-sep {
   font-size: 0.6rem;

@@ -34,10 +34,10 @@
       >
       <span v-if="sourceSummaryText" class="mc-stat-divider">|</span>
       <span v-if="sourceSummaryText" class="mc-stat mc-source-line">{{ sourceSummaryText }}</span>
-      <router-link v-if="model.base_model" :to="`/model/${model.base_model}`" class="mc-finetune-badge" title="Fine-tune — click to see base model" @click.stop>
-        FT: {{ baseModelName }}
+      <router-link v-if="model.base_model" :to="`/model/${model.base_model}`" class="mc-finetune-badge" :class="derivationBadgeClass" :title="derivationTitle" @click.stop>
+        {{ derivationLabel }}
       </router-link>
-      <span v-if="finetuneDepth >= 2" class="mc-depth-badge">Gen {{ finetuneDepth }}</span>
+      <span v-if="derivationDepth >= 2" class="mc-depth-badge">Gen {{ derivationDepth }}</span>
       <span v-else-if="baseCreatorLabel" class="mc-base-creator-badge">{{ baseCreatorLabel }}</span>
       <span v-if="limitBadges.card" class="mc-limit-warn" title="Credit card required by some providers">Card</span>
       <span v-if="limitBadges.sub" class="mc-limit-warn" :title="limitBadges.sub">Sub</span>
@@ -80,13 +80,45 @@ const expanded = ref(false);
 
 const store = useModelsStore();
 
+const DERIVATION_META: Record<string, { label: string; cssClass: string }> = {
+  finetune: { label: 'FT', cssClass: 'deriv-ft' },
+  merge: { label: 'Merge', cssClass: 'deriv-merge' },
+  distillation: { label: 'Distill', cssClass: 'deriv-distill' },
+  dpo: { label: 'DPO', cssClass: 'deriv-dpo' },
+  continued_pretraining: { label: 'CPT', cssClass: 'deriv-cpt' },
+  lora_adapter: { label: 'LoRA', cssClass: 'deriv-lora' },
+  quantization: { label: 'Quant', cssClass: 'deriv-quant' },
+  unknown: { label: 'Derived', cssClass: 'deriv-unknown' },
+};
+
 const baseModelName = computed(() => {
   if (!props.model.base_model) return '';
   const parent = store.modelBySlug.get(props.model.base_model);
   return parent ? parent.name : props.model.base_model;
 });
 
-const finetuneDepth = computed(() => {
+const derivationMeta = computed(() => {
+  const method = props.model.derivation_method;
+  if (method && DERIVATION_META[method]) return DERIVATION_META[method];
+  return DERIVATION_META.unknown;
+});
+
+const derivationLabel = computed(() => {
+  const name = baseModelName.value;
+  if (!name) return derivationMeta.value.label;
+  return `${derivationMeta.value.label}: ${name}`;
+});
+
+const derivationBadgeClass = computed(() => derivationMeta.value.cssClass);
+
+const derivationTitle = computed(() => {
+  const method = props.model.derivation_method || 'derived';
+  const name = baseModelName.value;
+  if (!name) return `${method} model`;
+  return `${method} of ${name} — click to see base model`;
+});
+
+const derivationDepth = computed(() => {
   if (!props.model.base_model) return 0;
   let depth = 0;
   let slug: string | null = props.model.base_model;
@@ -99,7 +131,7 @@ const finetuneDepth = computed(() => {
 });
 
 const baseCreatorLabel = computed(() => {
-  if (props.model.base_model) return ''; // already showing FT badge
+  if (props.model.base_model) return ''; // already showing derivation badge
   if (!props.model.base_creator) return '';
   if (props.model.base_creator === props.model.creator) return '';
   return `Based on ${props.model.base_creator}`;
@@ -415,6 +447,22 @@ function roleLabel(role: string): string {
 .mc-finetune-badge:hover {
   background: rgba(99, 102, 241, 0.22);
 }
+.mc-finetune-badge.deriv-ft { background: rgba(99, 102, 241, 0.12); color: #818cf8; }
+.mc-finetune-badge.deriv-ft:hover { background: rgba(99, 102, 241, 0.22); }
+.mc-finetune-badge.deriv-merge { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
+.mc-finetune-badge.deriv-merge:hover { background: rgba(168, 85, 247, 0.22); }
+.mc-finetune-badge.deriv-distill { background: rgba(236, 72, 153, 0.12); color: #ec4899; }
+.mc-finetune-badge.deriv-distill:hover { background: rgba(236, 72, 153, 0.22); }
+.mc-finetune-badge.deriv-dpo { background: rgba(34, 211, 238, 0.12); color: #22d3ee; }
+.mc-finetune-badge.deriv-dpo:hover { background: rgba(34, 211, 238, 0.22); }
+.mc-finetune-badge.deriv-cpt { background: rgba(250, 204, 21, 0.12); color: #eab308; }
+.mc-finetune-badge.deriv-cpt:hover { background: rgba(250, 204, 21, 0.22); }
+.mc-finetune-badge.deriv-lora { background: rgba(52, 211, 153, 0.12); color: #34d399; }
+.mc-finetune-badge.deriv-lora:hover { background: rgba(52, 211, 153, 0.22); }
+.mc-finetune-badge.deriv-quant { background: rgba(251, 146, 60, 0.12); color: #fb923c; }
+.mc-finetune-badge.deriv-quant:hover { background: rgba(251, 146, 60, 0.22); }
+.mc-finetune-badge.deriv-unknown { background: rgba(156, 163, 175, 0.12); color: #9ca3af; }
+.mc-finetune-badge.deriv-unknown:hover { background: rgba(156, 163, 175, 0.22); }
 
 .mc-base-creator-badge {
   padding: 1px 6px;

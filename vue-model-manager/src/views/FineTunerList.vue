@@ -73,7 +73,12 @@ const selectedContinent = ref('All');
 
 const fineTuners = computed(() =>
   store.creators.filter((c) =>
-    c.models.some((m) => m.base_creator && m.base_creator !== m.creator),
+    c.models.some((m) => {
+      // Has explicit derivation metadata from HF → definitely a derivative
+      if (m.derivation_method && m.derivation_method !== 'foundation') return true;
+      // Fallback: heuristic base_creator different from creator
+      return m.base_creator && m.base_creator !== m.creator;
+    }),
   ),
 );
 

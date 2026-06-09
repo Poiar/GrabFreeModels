@@ -13,10 +13,10 @@ Format: `/peer-msg X → Y #N: msg` (new) or `re: N: reply` (reply)
 
 **2. Target** — `list_tabs`, find tab with `claude.exe`, map name (first 8 chars of UUID) to full UUID.
 
-**3. Send** — `~/.claude/scripts/peer-next.ps1` returns the next msgId. Then send. Always prefix with `/peer-msg`:
+**3. Send** — `~/.claude/scripts/peer-next.ps1` returns the next msgId. Then send. Always prefix with `/peer-msg`. **submit: true is REQUIRED — never omit it.**
 
 ```
-send_to_tab <uuid> "/peer-msg <you> → <them> #<N>: <msg>"
+send_to_tab <uuid> "/peer-msg <you> → <them> #<N>: <msg>"  ← submit MUST be true
 ```
 
 **4. Log** — `$env:USERPROFILE\.claude\scripts\peer-log.ps1 -Dir out -From <you> -To <them> -Msg "<msg>" -MsgId <N>`
@@ -26,7 +26,7 @@ send_to_tab <uuid> "/peer-msg <you> → <them> #<N>: <msg>"
 If `Y` matches your name → reply. If not → ignore.
 
 ```
-send_to_tab <uuid> "/peer-msg <you> → <them> re: <N>: <reply>"
+send_to_tab <uuid> "/peer-msg <you> → <them> re: <N>: <reply>"  ← submit MUST be true
 ```
 
 Log inbound: `$env:USERPROFILE\.claude\scripts\peer-log.ps1 -Dir in -From <them> -To <you> -Msg "<msg>" -MsgId <N>`. Log reply: same as send, with `-Refs <N>`.

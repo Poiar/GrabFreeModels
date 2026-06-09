@@ -47,6 +47,7 @@
               >Best for: {{ model.best_for.join(', ') }}</span
             >
             <span v-if="lineageChain.length > 0" class="dp-meta-item">
+              <span v-if="model.derivation_method" class="dp-deriv-badge">{{ derivationLabel }}</span>
               Based on:
               <template v-for="(ancestor, i) in lineageChain" :key="i">
                 <router-link v-if="ancestor.slug" :to="`/model/${ancestor.slug}`" class="dp-meta-link">{{ ancestor.name }}</router-link>
@@ -164,6 +165,17 @@ const activeCount = computed(() =>
   props.model.providers.filter((p) => !p._removed && p.status.result === 'working').length,
 );
 const totalCount = computed(() => props.model.providers.filter((p) => !p._removed).length);
+
+const DERIV_LABELS_PANEL: Record<string, string> = {
+  finetune: 'Fine-tune', merge: 'Merge', distillation: 'Distillation', dpo: 'DPO',
+  continued_pretraining: 'Continued PT', lora_adapter: 'LoRA', quantization: 'Quantized',
+};
+
+const derivationLabel = computed(() => {
+  const method = props.model.derivation_method;
+  if (!method) return null;
+  return DERIV_LABELS_PANEL[method] || method;
+});
 
 const lineageChain = computed(() => {
   const chain: { name: string; slug: string | null }[] = [];
@@ -336,6 +348,16 @@ watch(
   text-decoration: underline;
 }
 
+.dp-deriv-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+  margin-right: 4px;
+}
 .dp-depth-badge {
   display: inline-block;
   padding: 1px 6px;

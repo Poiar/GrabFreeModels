@@ -45,8 +45,8 @@
             <span class="ft-link-name">{{ child.name }}</span>
           </router-link>
 
-          <!-- FT badge -->
-          <span class="ft-badge">FT</span>
+          <!-- Derivation method badge -->
+          <span class="ft-badge" :class="derivBadgeClass(child)">{{ derivBadgeLabel(child) }}</span>
         </div>
 
         <!-- Recursive children -->
@@ -63,6 +63,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useModelsStore } from '@/store/models';
+import type { ModelData } from '@/types';
 
 const props = withDefaults(defineProps<{
   rootSlug: string;
@@ -104,6 +105,28 @@ function toggleNode(slug: string) {
     next.add(slug);
   }
   expanded.value = next;
+}
+
+const DERIV_META_TREE: Record<string, { label: string; cssClass: string }> = {
+  finetune: { label: 'FT', cssClass: 'deriv-ft' },
+  merge: { label: 'M', cssClass: 'deriv-merge' },
+  distillation: { label: 'D', cssClass: 'deriv-distill' },
+  dpo: { label: 'DPO', cssClass: 'deriv-dpo' },
+  continued_pretraining: { label: 'CPT', cssClass: 'deriv-cpt' },
+  lora_adapter: { label: 'LoRA', cssClass: 'deriv-lora' },
+  quantization: { label: 'Q', cssClass: 'deriv-quant' },
+};
+
+function derivBadgeLabel(child: ModelData): string {
+  const method = child.derivation_method;
+  if (method && DERIV_META_TREE[method]) return DERIV_META_TREE[method].label;
+  return 'FT';
+}
+
+function derivBadgeClass(child: ModelData): string {
+  const method = child.derivation_method;
+  if (method && DERIV_META_TREE[method]) return DERIV_META_TREE[method].cssClass;
+  return 'deriv-ft';
 }
 
 const indentPx = computed(() => props.depth * 20 + 8);
@@ -228,4 +251,11 @@ export default { name: 'FineTuneTree' };
   flex-shrink: 0;
   line-height: 1.4;
 }
+.ft-badge.deriv-ft { background: rgba(99, 102, 241, 0.12); color: #818cf8; }
+.ft-badge.deriv-merge { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
+.ft-badge.deriv-distill { background: rgba(236, 72, 153, 0.12); color: #ec4899; }
+.ft-badge.deriv-dpo { background: rgba(34, 211, 238, 0.12); color: #22d3ee; }
+.ft-badge.deriv-cpt { background: rgba(250, 204, 21, 0.12); color: #eab308; }
+.ft-badge.deriv-lora { background: rgba(52, 211, 153, 0.12); color: #34d399; }
+.ft-badge.deriv-quant { background: rgba(251, 146, 60, 0.12); color: #fb923c; }
 </style>
