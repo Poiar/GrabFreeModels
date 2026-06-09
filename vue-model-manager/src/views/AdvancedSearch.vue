@@ -1,7 +1,7 @@
 <template>
   <div class="catalog-page">
     <div class="page-header">
-      <h2>Model Catalog</h2>
+      <h2>Advanced Search</h2>
     </div>
 
     <!-- ═══ JQL Filter Bar ═══ -->

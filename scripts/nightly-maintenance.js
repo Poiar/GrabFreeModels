@@ -82,6 +82,7 @@ const STEP_NAMES = [
   'inherit-families',
   'backfill-family-by-name',
   'backfill-derivatives',
+  'backfill-quantization',
   'prune-stale-rankings',
   'backfill-context',
   'snapshot-pre-rank-state',
@@ -265,6 +266,12 @@ let pipelineStart = Date.now();
     console.log('Backfilling training lineage from HF Hub metadata...');
     await runStep('backfill-derivatives', async () => {
       execSync('node scripts/backfill-derivatives.js --apply', { stdio: 'inherit' });
+    });
+
+    // 3c. Backfill quantization from HF Hub tags + model names
+    console.log('Backfilling quantization from HF Hub tags...');
+    await runStep('backfill-quantization', async () => {
+      execSync('node scripts/backfill-quantization.js --apply', { stdio: 'inherit' });
     });
 
     // 4. Prune stale non-working models from rankings metadata (7-day burn-in)

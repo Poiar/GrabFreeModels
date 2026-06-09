@@ -3,10 +3,10 @@
     <div class="page-header">
       <h2>{{ title }}</h2>
       <p v-if="subtitle">{{ subtitle }}</p>
-      <div v-if="variantOptions.length > 1" class="variant-selector">
-        <label for="ranking-source">Benchmark source:</label>
-        <select id="ranking-source" :value="selectedVariant" @change="onVariantChange">
-          <option v-for="v in variantOptions" :key="v" :value="v">{{ variantLabels[v] ?? v }}</option>
+      <div v-if="allVariantKeys.length > 1" class="variant-selector">
+        <label for="ranking-source">All roles:</label>
+        <select id="ranking-source" :value="masterVariant" @change="onMasterChange">
+          <option v-for="v in masterOptions" :key="v" :value="v">{{ masterOptionLabel(v) }}</option>
         </select>
       </div>
     </div>
@@ -27,6 +27,14 @@
           <h3 class="role-title">{{ role.label }}</h3>
           <span class="role-badge" :style="{ background: roleColors[role.key]?.soft, color: roleColors[role.key]?.accent }">{{ role.models.length }} models</span>
         </div>
+        <select
+          v-if="roleVariantOpts(role.key).length > 1"
+          class="role-variant-select"
+          :value="roleVariants[role.key] ?? 'combined'"
+          @change="onRoleVariantChange(role.key, ($event.target as HTMLSelectElement).value)"
+        >
+          <option v-for="v in roleVariantOpts(role.key)" :key="v" :value="v">{{ variantLabels[v] ?? v }}</option>
+        </select>
       </div>
 
       <div class="role-body">
@@ -325,10 +333,16 @@ const props = defineProps<{
   selectedVariant?: string;
   variantOptions?: string[];
   modelScores?: ModelScoresData | null;
+  // Per-role variant state (new)
+  roleVariants?: Record<string, string>;
+  masterVariant?: string;
+  variantKeys?: string[];
 }>();
 
 const emit = defineEmits<{
   'update:selectedVariant': [val: string];
+  'update:roleVariant': [role: string, variant: string];
+  'update:masterVariant': [variant: string];
 }>();
 
 const store = useModelsStore();
@@ -358,7 +372,50 @@ function onVariantChange(ev: Event) {
 const title = computed(() => props.title ?? 'Role Rankings (Free)');
 const subtitle = computed(() => props.subtitle ?? 'See how models rank for each role and explore their score breakdowns');
 const variantOptions = computed(() => props.variantOptions ?? ['combined']);
-const variantDescription = computed(() => variantDescriptions[props.selectedVariant ?? 'combined'] ?? '');
+// Per-role variant state — use props if provided, else derive from single variant
+const roleVariants = computed(() => props.roleVariants ?? {});
+const allVariantKeys = computed(() => props.variantKeys ?? (props.variantOptions ?? ['combined']));
+const masterVariant = computed(() => props.masterVariant ?? props.selectedVariant ?? 'combined');
+
+const ROLE_VARIANT_OPTIONS: Record<string, string[]> = {
+  model:    ['combined', 'artificial_analysis', '_benchmarks'],
+  build:    ['combined', 'artificial_analysis', 'modelsdev', '_benchmarks'],
+  general:  ['combined', 'artificial_analysis', '_benchmarks'],
+  small_model: ['combined', 'artificial_analysis', '_benchmarks'],
+  explore:  ['combined', 'artificial_analysis', '_benchmarks'],
+};
+
+function roleVariantOpts(role: string): string[] {
+  const base = ROLE_VARIANT_OPTIONS[role] ?? ['combined'];
+  return base.filter(v => v === 'combined' || allVariantKeys.value.includes(v));
+}
+
+const masterOptions = computed(() => {
+  const base = allVariantKeys.value.filter(v => v !== 'combined');
+  const opts = ['combined', ...base];
+  return opts;
+});
+
+function masterOptionLabel(v: string): string {
+  if (v === 'custom') return 'Custom';
+  return variantLabels[v] ?? v;
+}
+
+function onMasterChange(ev: Event) {
+  const val = (ev.target as HTMLSelectElement).value;
+  if (val === 'custom') return;
+  emit('update:masterVariant', val);
+}
+
+function onRoleVariantChange(role: string, variant: string) {
+  emit('update:roleVariant', role, variant);
+}
+
+const variantDescription = computed(() => {
+  const mv = masterVariant.value;
+  if (mv === 'custom') return 'Per-role benchmark sources are mixed — each role uses its own scoring.';
+  return variantDescriptions[mv] ?? '';
+});
 
 const scoreTypeLabels: Record<string, string> = {
   intelligence: 'Intelligence Index',

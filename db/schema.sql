@@ -39,6 +39,7 @@ CREATE TABLE datapoint_models (
     full_id                 VARCHAR(512) NOT NULL UNIQUE, -- providerSlug/remoteId
     -- raw fields from the provider
     context_length          INTEGER,
+    quantization            VARCHAR(32),                   -- weight precision: fp32, fp16, bf16, fp8, fp4, int8, int4, gguf, gptq, awq, bnb
     input_price_per_million NUMERIC(12,4) NOT NULL DEFAULT 0,
     output_price_per_million NUMERIC(12,4) NOT NULL DEFAULT 0,
     is_free                 BOOLEAN NOT NULL DEFAULT true,

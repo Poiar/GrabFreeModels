@@ -278,7 +278,7 @@
           </span>
           <span>Compare</span>
         </router-link>
-        <router-link to="/catalog" active-class="active" class="nav-catalog">
+        <router-link to="/advanced-search" active-class="active" class="nav-catalog">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -296,7 +296,7 @@
               <line x1="8" y1="11" x2="14" y2="11" />
             </svg>
           </span>
-          <span>Catalog</span>
+          <span>Advanced Search</span>
         </router-link>
       </nav>
 

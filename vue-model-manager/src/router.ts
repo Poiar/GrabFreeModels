@@ -62,10 +62,10 @@ const routes = [
     meta: { title: 'Compare Models' },
   },
   {
-    path: '/catalog',
-    name: 'Catalog',
-    component: () => import('@/views/Catalog.vue'),
-    meta: { title: 'Catalog' },
+    path: '/advanced-search',
+    name: 'AdvancedSearch',
+    component: () => import('@/views/AdvancedSearch.vue'),
+    meta: { title: 'Advanced Search' },
   },
   {
     path: '/rankings',

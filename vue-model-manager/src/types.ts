@@ -21,6 +21,7 @@ export interface ProviderDatapoint {
   provider: string;
   provider_slug: string;
   context_length: number | null;
+  quantization: string | null;
   is_free: boolean;
   supports_tools: boolean | null;
   supports_reasoning: boolean | null;
@@ -138,6 +139,7 @@ export interface DatapointModel {
   base_creator: string | null;
   source: string; // provider slug
   context_length: number | null;
+  quantization: string | null;
   is_free: boolean;
   supports_tools: boolean | null;
   supports_reasoning: boolean | null;

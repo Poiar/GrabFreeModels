@@ -127,6 +127,7 @@ async function buildModelsData(client, pool, options = {}) {
       creator: dm.super_creator || inferCreatorFromName(dm.super_name) || null,
       base_creator: dm.super_base_creator || null,
       context_length: dm.context_length ?? null,
+      quantization: dm.quantization || null,
       is_free: dm.is_free,
       supports_tools: dm.supports_tools,
       limitations: dm.limitations || null,

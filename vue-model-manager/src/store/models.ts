@@ -312,6 +312,52 @@ export const useModelsStore = defineStore('models', () => {
   const rankingVariant = ref<string>('_benchmarks');
   const paidRankingVariant = ref<string>('_benchmarks');
 
+  // Per-role variant overrides. When all roles agree, the master dropdown
+  // shows that variant. When they differ, master shows "Custom".
+  const DEFAULT_ROLE_VARIANTS: Record<string, string> = {
+    model: '_benchmarks', build: '_benchmarks', general: '_benchmarks',
+    small_model: '_benchmarks', explore: '_benchmarks',
+  };
+  const paidRoleVariants = ref<Record<string, string>>({ ...DEFAULT_ROLE_VARIANTS });
+  const freeRoleVariants = ref<Record<string, string>>({ ...DEFAULT_ROLE_VARIANTS });
+
+  function syncMasterToRoles(variant: string, target: Ref<Record<string, string>>) {
+    for (const role of Object.keys(target.value)) target.value[role] = variant;
+  }
+
+  function deriveMaster(roleMap: Record<string, string>): string {
+    const vals = new Set(Object.values(roleMap));
+    return vals.size === 1 ? [...vals][0] : 'custom';
+  }
+
+  const paidMasterVariant = computed(() => deriveMaster(paidRoleVariants.value));
+  const freeMasterVariant = computed(() => deriveMaster(freeRoleVariants.value));
+
+  function setPaidMaster(variant: string) {
+    if (variant === 'custom') return;
+    syncMasterToRoles(variant, paidRoleVariants);
+  }
+
+  function setFreeMaster(variant: string) {
+    if (variant === 'custom') return;
+    syncMasterToRoles(variant, freeRoleVariants);
+  }
+
+  // Resolve per-role data from a _role_rankings object (with _variants)
+  function resolveRoleData(
+    r: ModelsData['_role_rankings'] | undefined | null,
+    role: string,
+    roleVariants: Record<string, string>,
+  ) {
+    const variant = roleVariants[role] ?? 'combined';
+    const v = resolveVariant(r, variant);
+    return {
+      rankings: (v?.[role] ?? []) as string[],
+      scores: (v?._scores?.[role] ?? []) as RoleScore[],
+      meta: (v?._meta?.[role] ?? {}) as RoleMeta,
+    };
+  }
+
   function resolveVariant(r: ModelsData['_role_rankings'] | undefined | null, variant: string) {
     if (!r) return null;
     if (variant !== 'combined' && r._variants?.[variant]) return r._variants[variant];
@@ -319,21 +365,27 @@ export const useModelsStore = defineStore('models', () => {
   }
 
   // ── Metadata ──
+  // Free rankings: each role resolved from its own variant
   const roleRankings = computed(() => {
-    const r = resolveVariant(data.value?._role_rankings, rankingVariant.value);
+    const r = data.value?._role_rankings;
     if (!r) return {} as Record<Role, string[]>;
     const result = {} as Record<Role, string[]>;
-    for (const role of ROLE_ORDER) result[role] = r[role] ?? [];
+    for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, freeRoleVariants.value).rankings;
     return result;
   });
-
   const roleScores = computed(() => {
-    const r = resolveVariant(data.value?._role_rankings, rankingVariant.value);
-    return r?._scores ?? ({} as Record<string, RoleScore[]>);
+    const r = data.value?._role_rankings;
+    if (!r) return {} as Record<string, RoleScore[]>;
+    const result = {} as Record<string, RoleScore[]>;
+    for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, freeRoleVariants.value).scores;
+    return result;
   });
   const roleMeta = computed(() => {
-    const r = resolveVariant(data.value?._role_rankings, rankingVariant.value);
-    return r?._meta ?? ({} as Record<string, RoleMeta>);
+    const r = data.value?._role_rankings;
+    if (!r) return {} as Record<string, RoleMeta>;
+    const result = {} as Record<string, RoleMeta>;
+    for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, freeRoleVariants.value).meta;
+    return result;
   });
 
   const availableRankingVariants = computed(() => {
@@ -342,27 +394,54 @@ export const useModelsStore = defineStore('models', () => {
     return keys.length > 0 ? ['combined', ...keys] : ['combined'];
   });
 
-  // ── Paid metadata ──
+  // ── Paid metadata (per-role variant resolution) ──
   const paidRoleRankings = computed(() => {
-    const r = resolveVariant(paidData.value?._role_rankings, paidRankingVariant.value);
+    const r = paidData.value?._role_rankings;
     if (!r) return {} as Record<Role, string[]>;
     const result = {} as Record<Role, string[]>;
-    for (const role of ROLE_ORDER) result[role] = r[role] ?? [];
+    for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, paidRoleVariants.value).rankings;
+    return result;
+  });
+  const paidRoleScores = computed(() => {
+    const r = paidData.value?._role_rankings;
+    if (!r) return {} as Record<string, RoleScore[]>;
+    const result = {} as Record<string, RoleScore[]>;
+    for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, paidRoleVariants.value).scores;
+    return result;
+  });
+  const paidRoleMeta = computed(() => {
+    const r = paidData.value?._role_rankings;
+    if (!r) return {} as Record<string, RoleMeta>;
+    const result = {} as Record<string, RoleMeta>;
+    for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, paidRoleVariants.value).meta;
     return result;
   });
 
-  const paidRoleScores = computed(() => {
-    const r = resolveVariant(paidData.value?._role_rankings, paidRankingVariant.value);
-    return r?._scores ?? ({} as Record<string, RoleScore[]>);
+  // Variant options filtered by role — Models.dev only applies to Build
+  const ROLE_VARIANT_OPTIONS: Record<string, string[]> = {
+    model:    ['combined', 'artificial_analysis', '_benchmarks'],
+    build:    ['combined', 'artificial_analysis', 'modelsdev', '_benchmarks'],
+    general:  ['combined', 'artificial_analysis', '_benchmarks'],
+    small_model: ['combined', 'artificial_analysis', '_benchmarks'],
+    explore:  ['combined', 'artificial_analysis', '_benchmarks'],
+  };
+
+  function roleVariantOptions(role: string, availableKeys: string[]): string[] {
+    const base = ROLE_VARIANT_OPTIONS[role] ?? ['combined'];
+    return base.filter(v => v === 'combined' || availableKeys.includes(v));
+  }
+
+  const freeVariantKeys = computed(() => {
+    const variants = data.value?._role_rankings?._variants;
+    return variants ? Object.keys(variants).filter(k => k !== 'combined') : [];
   });
-  const paidRoleMeta = computed(() => {
-    const r = resolveVariant(paidData.value?._role_rankings, paidRankingVariant.value);
-    return r?._meta ?? ({} as Record<string, RoleMeta>);
+  const paidVariantKeys = computed(() => {
+    const variants = paidData.value?._role_rankings?._variants;
+    return variants ? Object.keys(variants).filter(k => k !== 'combined') : [];
   });
 
   const paidAvailableRankingVariants = computed(() => {
-    const variants = paidData.value?._role_rankings?._variants;
-    const keys = variants ? Object.keys(variants).filter(k => k !== 'combined') : [];
+    const keys = paidVariantKeys.value;
     return keys.length > 0 ? ['combined', ...keys] : ['combined'];
   });
 
@@ -762,6 +841,16 @@ export const useModelsStore = defineStore('models', () => {
     roleRankings,
     roleScores,
     roleMeta,
+    // Per-role variant state
+    paidRoleVariants,
+    freeRoleVariants,
+    paidMasterVariant,
+    freeMasterVariant,
+    setPaidMaster,
+    setFreeMaster,
+    roleVariantOptions,
+    freeVariantKeys,
+    paidVariantKeys,
     knownIssues,
     testSummary,
     testSummaryPrevious,

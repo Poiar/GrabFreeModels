@@ -24,6 +24,7 @@
       <span class="pb-status-dot" :class="`dot-${dp.status.result}`"></span>
     </div>
     <div class="pb-stats">
+      <span v-if="dp.quantization" class="pb-quant" :title="quantTitle(dp.quantization)">{{ dp.quantization.toUpperCase() }}</span>
       <span class="pb-context">{{ formatContext(dp.context_length) }}</span>
       <span v-if="dp.supports_tools" class="pb-tools" title="Tools supported">
         <svg
@@ -125,6 +126,25 @@ function formatContext(ctx: number | null): string {
   return `${Math.round(ctx / 1000)}K`;
 }
 
+const QUANT_TITLES: Record<string, string> = {
+  fp32: '32-bit full precision',
+  fp16: '16-bit half precision',
+  bf16: 'Brain floating point 16',
+  fp8: '8-bit floating point',
+  fp4: '4-bit floating point',
+  int8: '8-bit integer quantization',
+  int4: '4-bit integer quantization',
+  gguf: 'GGUF quantized format',
+  gptq: 'GPTQ 4-bit quantization',
+  awq: 'AWQ 4-bit quantization',
+  bnb: 'BitsAndBytes quantization',
+  quantized: 'Quantized weights',
+};
+
+function quantTitle(q: string): string {
+  return QUANT_TITLES[q] || `${q.toUpperCase()} quantized weights`;
+}
+
 </script>
 
 <style scoped>
@@ -216,6 +236,15 @@ function formatContext(ctx: number | null): string {
   gap: 6px;
 }
 
+.pb-quant {
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(251, 146, 60, 0.12);
+  color: #fb923c;
+  letter-spacing: 0.04em;
+}
 .pb-context {
   font-size: 0.68rem;
   color: var(--text-muted);
