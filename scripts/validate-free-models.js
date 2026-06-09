@@ -109,6 +109,14 @@ async function saveToDbAndExport(observations = []) {
         [prevValue],
       );
     }
+    // Persist key health data for historical monitoring
+    if (json._key_health) {
+      await client.query(
+        `INSERT INTO metadata (key, value) VALUES ('_key_health', $1)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+        [JSON.stringify(json._key_health)],
+      );
+    }
     await client.query('COMMIT');
 
     // Insert observations after commit (non-critical, best-effort)
@@ -157,11 +165,18 @@ async function saveToDbAndExport(observations = []) {
 
 // --- Result tracking ---
 const endpointStats = {};
+const endpointHttpErrors = {}; // endpoint -> { httpStatus: count }
 
 function initEndpointStat(ep) {
   if (!endpointStats[ep]) {
     endpointStats[ep] = { tested: 0, passed: 0, failed: 0, timedOut: 0, failures: [] };
   }
+}
+
+function recordEndpointHttpError(ep, httpStatus) {
+  if (!endpointHttpErrors[ep]) endpointHttpErrors[ep] = {};
+  if (!endpointHttpErrors[ep][httpStatus]) endpointHttpErrors[ep][httpStatus] = 0;
+  endpointHttpErrors[ep][httpStatus]++;
 }
 
 function recordModelResult(ep, modelId, status, error) {
@@ -722,6 +737,13 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
     logger.info(`  Burst:   ${burst.map(r => r.status).join(', ')}`);
     logger.info(`  Delayed: ${delayed.map(r => r.status).join(', ')}`);
 
+    // Track HTTP-level errors for key health monitoring
+    for (const r of [...burst, ...delayed]) {
+      if (r.status !== 'OK' && r.status !== 'TIMEOUT' && r.status !== 'ERR' && !isNaN(parseInt(r.status))) {
+        recordEndpointHttpError(ep, r.status);
+      }
+    }
+
     // Build observation rows from individual request results
     const observations = [];
     function addObservations(arr, phase) {
@@ -855,13 +877,80 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
     logger.info('────────────────────────\n');
   }
 
+  // --- Key health classification ---
+  const today = new Date().toISOString().slice(0, 10);
+
+  function classifyEndpointHealth(ep) {
+    const s = endpointStats[ep];
+    if (!s || s.tested === 0) return 'unknown';
+    if (s.passed === s.tested) return 'healthy';
+
+    const httpErrs = endpointHttpErrors[ep] || {};
+    // Count total non-OK HTTP responses (not timeouts/network errors, just HTTP status codes)
+    let totalHttpErrors = 0;
+    let authErrors = 0;
+    let rateLimitErrors = 0;
+    for (const [code, count] of Object.entries(httpErrs)) {
+      totalHttpErrors += count;
+      if (code === '401' || code === '403') authErrors += count;
+      if (code === '429') rateLimitErrors += count;
+    }
+
+    if (totalHttpErrors > 0 && authErrors === totalHttpErrors) return 'expired';
+    if (totalHttpErrors > 0 && rateLimitErrors === totalHttpErrors) return 'rate_limited';
+    if (s.passed > 0) return 'degraded';
+    return 'down';
+  }
+
+  const keyHealth = {};
+  for (const ep of Object.keys(endpointStats)) {
+    keyHealth[ep] = {
+      status: classifyEndpointHealth(ep),
+      tested: endpointStats[ep].tested,
+      passed: endpointStats[ep].passed,
+      failed: endpointStats[ep].failed,
+      timedOut: endpointStats[ep].timedOut,
+      date: today,
+    };
+  }
+  // Include endpoints in cooldown (they were skipped, so last known state is the best we have)
+  // Cooldowned endpoints get a 'cooldown_skipped' status to distinguish from intentionally-untested
+  for (const [ep, cd] of activeCooldowns) {
+    if (!keyHealth[ep]) {
+      keyHealth[ep] = {
+        status: 'cooldown_skipped',
+        tested: 0,
+        passed: 0,
+        failed: 0,
+        timedOut: 0,
+        date: today,
+        cooldown_reason: cd.reason,
+      };
+    }
+  }
+
+  // Print key health overview
+  logger.info('─── API Key Health ───');
+  for (const [ep, kh] of Object.entries(keyHealth).sort()) {
+    const icon = kh.status === 'healthy' ? '' : kh.status === 'expired' ? ' (KEY MAY BE EXPIRED)' : kh.status === 'rate_limited' ? ' (RATE LIMITED)' : kh.status === 'degraded' ? ' (DEGRADED)' : kh.status === 'down' ? ' (DOWN)' : '';
+    logger.info(`  ${ep.padEnd(16)} ${kh.status}${icon}`);
+    // Distinguish "model is dead" from "key expired" — print HTTP error breakdown for degraded endpoints
+    if (kh.status !== 'healthy' && kh.status !== 'unknown' && kh.status !== 'cooldown_skipped') {
+      const httpErrs = endpointHttpErrors[ep] || {};
+      const parts = Object.entries(httpErrs)
+        .sort(([a], [b]) => parseInt(a) - parseInt(b))
+        .map(([code, count]) => `${code}:${count}`);
+      if (parts.length > 0) logger.info(`    HTTP errors: ${parts.join(', ')}`);
+    }
+  }
+  logger.info('─────────────────────\n');
+
   if (!APPLY) {
     logger.info('\nReport mode. Use --apply to update available-models.json');
     return;
   }
 
   // --- Apply results ---
-  const today = new Date().toISOString().slice(0, 10);
 
   // NOTE: opencode/ models are skipped (require Zen SDK). They keep their existing status.
   // NOTE: _role_rankings are NOT updated here — that's rank-models.js's job.
@@ -911,6 +1000,7 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
   }
 
   json._test_summary.date = today;
+  json._key_health = keyHealth;
 
   // Collect observations from allResults for insertion
   const allObservations = [];

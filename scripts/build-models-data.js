@@ -543,6 +543,34 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     }
   }
 
+  // ── Failover suggestions ──
+  // For every broken model, find working alternatives on other providers for the same super_model
+  const failoverSuggestions = { forward: {}, reverse: {} };
+  {
+    const workingBySuperId = new Map();
+    const brokenBySuperId = new Map();
+    for (const m of outputModels) {
+      if (m._removed) continue;
+      if (m.status.result === 'working') {
+        if (!workingBySuperId.has(m.super_id)) workingBySuperId.set(m.super_id, []);
+        workingBySuperId.get(m.super_id).push(m.id);
+      } else if (m.status.result === 'broken') {
+        if (!brokenBySuperId.has(m.super_id)) brokenBySuperId.set(m.super_id, []);
+        brokenBySuperId.get(m.super_id).push(m.id);
+      }
+    }
+    for (const [superId, broken] of brokenBySuperId) {
+      const working = workingBySuperId.get(superId) || [];
+      if (working.length === 0) continue;
+      for (const brokenId of broken) {
+        failoverSuggestions.forward[brokenId] = working;
+      }
+      for (const wId of working) {
+        failoverSuggestions.reverse[wId] = (failoverSuggestions.reverse[wId] || []).concat(broken);
+      }
+    }
+  }
+
   // Provider health
   const health = {};
   for (const m of outputModels) {
@@ -639,6 +667,8 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     _known_issues: meta._known_issues || { description: '', issues: [] },
     _validation_method: meta._validation_method || { description: '' },
     _failure_rates: failureRates,
+    _failover_suggestions: failoverSuggestions,
+    _key_health: meta._key_health || null,
     provider_health: health,
   };
 }

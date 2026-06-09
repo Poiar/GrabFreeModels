@@ -18,6 +18,8 @@ const VALID_FIELDS = [
   '_known_issues',
   '_validation_method',
   '_failure_rates',
+  '_failover_suggestions',
+  '_key_health',
   'provider_health',
 ];
 
