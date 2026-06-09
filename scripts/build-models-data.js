@@ -69,6 +69,19 @@ async function buildModelsData(client, pool, options = {}) {
     'last_updated',
     'supports_attachment',
     'supports_structured_output',
+    'model_tier',
+    'model_variant',
+    'param_count_b',
+    'active_param_count_b',
+    'expert_count',
+    'thinking_variant',
+    'model_version',
+    'release_stage',
+    'coding_specialized',
+    'modality_vision',
+    'modality_video',
+    'modality_audio',
+    'description',
   ];
 
   if (dmIds.length > 0) {
@@ -113,7 +126,20 @@ async function buildModelsData(client, pool, options = {}) {
     } catch { /* table may not exist */ }
   }
 
-  // Fallback: infer creator from a name prefix (org/name or org: name pattern)
+  // Known model-family name prefixes → creator, for models with no explicit creator set
+  const CREATOR_BY_PREFIX = [
+    ['qwq', 'Alibaba'],
+    ['tongyi', 'Alibaba'],
+    ['qianfan', 'Baidu'],
+    ['sonar', 'Perplexity'],
+    ['sqlcoder', 'Defog'],
+    ['allam', 'SDAIA'],
+    ['ui-tars', 'ByteDance'],
+    ['intellect', 'Prime Intellect'],
+    ['bunny', 'BAAI'],
+  ];
+
+  // Fallback: infer creator from model name when super_models.creator is NULL
   function inferCreatorFromName(name) {
     if (!name) return null;
     const slashIdx = name.indexOf('/');
@@ -123,6 +149,13 @@ async function buildModelsData(client, pool, options = {}) {
     const colonIdx = name.indexOf(':');
     if (colonIdx > 0 && colonIdx < name.length - 1) {
       return name.slice(0, colonIdx).trim();
+    }
+    // Check known prefixes against slugified name
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    for (const [prefix, creator] of CREATOR_BY_PREFIX) {
+      if (slug === prefix || slug.startsWith(prefix + '-')) {
+        return creator;
+      }
     }
     return null;
   }
@@ -168,6 +201,16 @@ async function buildModelsData(client, pool, options = {}) {
       best_for: feat?.best_for || [],
       input_types: inputMap.get(dm.id) || [],
       output_types: outputMap.get(dm.id) || [],
+      model_tier: feat?.model_tier || [],
+      model_variant: feat?.model_variant?.[0] || null,
+      param_count_b: feat?.param_count_b?.[0] ? parseInt(feat.param_count_b[0], 10) : null,
+      active_param_count_b: feat?.active_param_count_b?.[0] ? parseInt(feat.active_param_count_b[0], 10) : null,
+      expert_count: feat?.expert_count?.[0] ? parseInt(feat.expert_count[0], 10) : null,
+      thinking_variant: feat?.thinking_variant?.[0] === 'true' || false,
+      model_version: feat?.model_version?.[0] || null,
+      release_stage: feat?.release_stage?.[0] || null,
+      coding_specialized: feat?.coding_specialized?.[0] === 'true' || false,
+      description: feat?.description?.[0] || null,
       status: {
         tested: dm.status_tested || null,
         result: dm.status_result || 'untested',
@@ -318,6 +361,9 @@ async function buildModelsData(client, pool, options = {}) {
     'lg ai': { id: 'lg', name: 'LG AI' },
     deepgram: { id: 'deepgram', name: 'Deepgram' },
     viivox: { id: 'viivox', name: 'ViiVox' },
+    // Alibaba namespace artifacts
+    thenlper: { id: 'alibaba', name: 'Alibaba' },
+    nlper: { id: 'alibaba', name: 'Alibaba' },
     rokid: { id: 'rokid', name: 'Rokid' },
     corwealth: { id: 'corwealth', name: 'CorWealth' },
   };
@@ -406,6 +452,16 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
       best_for: dp.best_for,
       input_types: dp.input_types,
       output_types: dp.output_types,
+      model_tier: dp.model_tier,
+      model_variant: dp.model_variant,
+      param_count_b: dp.param_count_b,
+      active_param_count_b: dp.active_param_count_b,
+      expert_count: dp.expert_count,
+      thinking_variant: dp.thinking_variant,
+      model_version: dp.model_version,
+      release_stage: dp.release_stage,
+      coding_specialized: dp.coding_specialized,
+      description: dp.description,
       status: dp.status,
       last_success: dp.last_success,
       deprecated_at: dp.deprecated_at,
@@ -504,17 +560,38 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
   }
 
   const PROVIDER_BASE_URLS = {
-    openrouter: 'https://openrouter.ai/api/v1',
-    nvidia: 'https://integrate.api.nvidia.com/v1',
+    'alibaba-cn': 'https://dashscope.aliyuncs.com/api/v1',
+    'alibaba-coding-plan': 'https://dashscope.aliyuncs.com/api/v1',
+    'alibaba-coding-plan-cn': 'https://dashscope.aliyuncs.com/api/v1',
+    anthropic: 'https://api.anthropic.com',
     cerebras: 'https://api.cerebras.ai/v1',
-    groq: 'https://api.groq.com/openai/v1',
-    togetherai: 'https://api.together.xyz/v1',
-    mistral: 'https://api.mistral.ai/v1',
+    cloudflare: 'https://api.cloudflare.com/client/v4',
+    'cloudflare-ai-gateway': 'https://gateway.ai.cloudflare.com/v1',
+    cohere: 'https://api.cohere.ai/v1',
+    deepinfra: 'https://api.deepinfra.com/v1/openai',
     deepseek: 'https://api.deepseek.com/v1',
-    huggingface: 'https://api-inference.huggingface.co/v1',
+    firepass: 'https://api.fireworks.ai',
+    fireworks: 'https://api.fireworks.ai',
+    'github-models': 'https://models.inference.ai.azure.com',
     google: 'https://generativelanguage.googleapis.com/v1beta',
-    openai: 'https://api.openai.com/v1',
-    anthropic: 'https://api.anthropic.com/v1',
+    groq: 'https://api.groq.com/openai/v1',
+    huggingface: 'https://router.huggingface.co/v1',
+    llmgateway: 'https://api.llmgateway.io/v1',
+    lmstudio: 'http://localhost:1234/v1',
+    mistral: 'https://api.mistral.ai/v1',
+    modelsdev: 'https://models.dev',
+    'novita-ai': 'https://api.novita.ai/v3/openai',
+    novitaai: 'https://api.novita.ai/v3/openai',
+    nvidia: 'https://integrate.api.nvidia.com/v1',
+    openai: 'https://api.openai.com',
+    opencode: 'https://opencode.ai/zen/v1',
+    openrouter: 'https://openrouter.ai/api/v1',
+    siliconflow: 'https://api.siliconflow.cn/v1',
+    'siliconflow-cn': 'https://api.siliconflow.cn/v1',
+    together: 'https://api.together.xyz',
+    xai: 'https://api.x.ai/v1',
+    zhipuai: 'https://open.bigmodel.cn/api/paas/v4',
+    'zhipuai-coding-plan': 'https://open.bigmodel.cn/api/paas/v4',
   };
 
   const providers = Array.from(providerRefMap.values())

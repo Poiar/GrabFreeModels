@@ -2503,3 +2503,101 @@ th.sortable.active .sort-indicator { opacity: 1; }
   100% { background-position: 0% 100%; }
 }
 
+/* ── Key-derived model pills (shared between SuperModelCard + ModelDetailPanel) ── */
+.sm-tier-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+.sm-variant-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(20, 184, 166, 0.12);
+  color: #14b8a6;
+}
+.sm-size-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 600;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(167, 139, 250, 0.1);
+  color: var(--purple, #a78bfa);
+}
+.sm-thinking-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(244, 114, 182, 0.12);
+  color: #f472b6;
+}
+.sm-stage-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.sm-stage-chip.stage-preview,
+.sm-stage-chip.stage-experimental,
+.sm-stage-chip.stage-exp,
+.sm-stage-chip.stage-dev,
+.sm-stage-chip.stage-beta,
+.sm-stage-chip.stage-alpha {
+  background: rgba(250, 204, 21, 0.15);
+  color: #ca8a04;
+}
+.sm-stage-chip.stage-stable {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green);
+}
+.sm-stage-chip.stage-latest {
+  background: rgba(96, 165, 250, 0.12);
+  color: #60a5fa;
+}
+.sm-coder-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+.sm-version-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 600;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+}
+
+/* Key-derived tags row in detail panel */
+.dp-derived-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.dp-description-text {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+  width: 100%;
+  margin-top: 4px;
+}
+

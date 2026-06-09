@@ -47,12 +47,18 @@
       </span>
     </div>
 
-    <!-- Row 3: Role tags — best_for + context + capabilities -->
+    <!-- Row 3: Role tags — best_for + context + capabilities + key-derived pills -->
     <div class="sm-tags-row">
       <span v-if="model.best_for.length" class="sm-tags-group">
         <span v-for="tag in model.best_for" :key="tag" class="sm-best-for-chip">{{ tag }}</span>
       </span>
       <span v-if="contextChip" class="sm-ctx-chip">{{ contextChip }}</span>
+      <span v-for="tier in uniqueTiers" :key="'tier-'+tier" class="sm-tier-chip">{{ formatTier(tier) }}</span>
+      <span v-if="uniqueVariant" class="sm-variant-chip">{{ formatVariant(uniqueVariant) }}</span>
+      <span v-if="sizeLabel" class="sm-size-chip">{{ sizeLabel }}</span>
+      <span v-if="anyThinking" class="sm-thinking-chip">Thinking</span>
+      <span v-if="uniqueStage" class="sm-stage-chip" :class="'stage-'+uniqueStage">{{ formatStage(uniqueStage) }}</span>
+      <span v-if="anyCoding" class="sm-coder-chip">Coder</span>
       <span v-if="anyOpenWeights" class="sm-cap-chip sm-cap-open">Open</span>
       <span v-if="anyTools" class="sm-cap-chip sm-cap-tools">Tools</span>
       <span v-if="anyReasoning" class="sm-cap-chip sm-cap-reasoning">Reasoning</span>
@@ -170,6 +176,36 @@ const anyTools = computed(() => activeDps.value.some((d) => d.supports_tools));
 const anyReasoning = computed(() => activeDps.value.some((d) => d.supports_reasoning));
 const anyOpenWeights = computed(() => activeDps.value.some((d) => d.open_weights));
 
+// ── Key-derived feature aggregates ──
+const uniqueTiers = computed(() => {
+  const set = new Set<string>();
+  for (const d of activeDps.value) for (const t of (d.model_tier || [])) set.add(t);
+  return [...set];
+});
+const uniqueVariant = computed(() => {
+  for (const d of activeDps.value) if (d.model_variant) return d.model_variant;
+  return null;
+});
+const sizeLabel = computed(() => {
+  let minB = Infinity; let maxB = 0; let activeB: number | null = null;
+  for (const d of activeDps.value) {
+    if (d.param_count_b) {
+      if (d.param_count_b < minB) minB = d.param_count_b;
+      if (d.param_count_b > maxB) maxB = d.param_count_b;
+    }
+    if (d.active_param_count_b) activeB = d.active_param_count_b;
+  }
+  if (!isFinite(minB)) return null;
+  const range = minB === maxB ? `${maxB}B` : `${minB}B–${maxB}B`;
+  return activeB ? `${range} (${activeB}B active)` : range;
+});
+const anyThinking = computed(() => activeDps.value.some((d) => d.thinking_variant));
+const anyCoding = computed(() => activeDps.value.some((d) => d.coding_specialized));
+const uniqueStage = computed(() => {
+  for (const d of activeDps.value) if (d.release_stage) return d.release_stage;
+  return null;
+});
+
 const isDegraded = computed(() =>
   activeDps.value.some((d) => store.degradedModels.has(d.full_id)),
 );
@@ -275,6 +311,23 @@ function formatContext(n: number): string {
 
 function formatDateShort(date: string): string {
   return date.slice(2);
+}
+
+function formatTier(t: string): string {
+  return t === 'omni' ? 'Omni' : t.charAt(0).toUpperCase() + t.slice(1);
+}
+
+function formatVariant(v: string): string {
+  return v.charAt(0).toUpperCase() + v.slice(1);
+}
+
+function formatStage(s: string): string {
+  if (s === 'experimental') return 'Exp';
+  if (s === 'preview') return 'Preview';
+  if (s === 'dev') return 'Dev';
+  if (s === 'beta') return 'Beta';
+  if (s === 'alpha') return 'Alpha';
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function handleClick(e: MouseEvent) {
@@ -486,6 +539,77 @@ async function copyText(text: string) {
 .sm-cap-open { background: rgba(52, 211, 153, 0.12); color: var(--green); }
 .sm-cap-tools { background: rgba(96, 165, 250, 0.12); color: #60a5fa; }
 .sm-cap-reasoning { background: rgba(251, 146, 60, 0.12); color: #fb923c; }
+
+/* Key-derived pills */
+.sm-tier-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+.sm-variant-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(20, 184, 166, 0.12);
+  color: #14b8a6;
+}
+.sm-size-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 600;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(167, 139, 250, 0.1);
+  color: var(--purple, #a78bfa);
+}
+.sm-thinking-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(244, 114, 182, 0.12);
+  color: #f472b6;
+}
+.sm-stage-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.sm-stage-chip.stage-preview,
+.sm-stage-chip.stage-experimental,
+.sm-stage-chip.stage-exp,
+.sm-stage-chip.stage-dev,
+.sm-stage-chip.stage-beta,
+.sm-stage-chip.stage-alpha {
+  background: rgba(250, 204, 21, 0.15);
+  color: #ca8a04;
+}
+.sm-stage-chip.stage-stable {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green);
+}
+.sm-stage-chip.stage-latest {
+  background: rgba(96, 165, 250, 0.12);
+  color: #60a5fa;
+}
+.sm-coder-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
 
 .sm-icon {
   width: 12px;

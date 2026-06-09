@@ -26,14 +26,12 @@
     </div>
 
     <div class="providers-grid">
-      <div
-        v-for="(provider, idx) in sortedProviders"
+      <router-link
+        v-for="provider in sortedProviders"
         :key="provider.slug"
+        :to="`/provider/${provider.slug}`"
         class="provider-card glass-card"
         :style="{ '--pc-color-muted': getProviderColorMuted(provider.slug), '--pc-color': getProviderColor(provider.slug) }"
-        role="button"
-        tabindex="0"
-        @click="openProviderPanel(idx)"
       >
         <div class="pc-header">
           <ProviderIcon :slug="provider.slug" :size="32" />
@@ -87,19 +85,8 @@
             +{{ (providerModels[provider.slug]?.length || 0) - 6 }} more
           </div>
         </div>
-      </div>
+      </router-link>
     </div>
-
-    <!-- Provider detail panel -->
-    <ProviderPanel
-      v-if="panelProvider"
-      :open="!!panelProvider"
-      :provider="panelProvider"
-      :provider-index="providerIndex"
-      :provider-list="sortedProviders"
-      @close="panelProvider = null"
-      @navigate-to="navigateProviderPanel"
-    />
   </div>
 </template>
 
@@ -107,11 +94,9 @@
 import { computed, ref } from 'vue';
 import { useModelsStore } from '@/store/models';
 import ProviderIcon from '@/components/ProviderIcon.vue';
-import ProviderPanel from '@/components/ProviderPanel.vue';
 import { useToast } from '@/composables/useToast';
 import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
 import { getCountryForProvider, CONTINENTS } from '@/data/provider-countries';
-import type { ProviderReference } from '@/types';
 
 const store = useModelsStore();
 
@@ -181,22 +166,6 @@ const { success: toastSuccess } = useToast();
 
 async function copyText(text: string) {
   try { await navigator.clipboard.writeText(text); toastSuccess(`"${text}" copied`); } catch { /* noop */ }
-}
-
-// ── Provider detail panel ──
-const panelProvider = ref<ProviderReference | null>(null);
-const providerIndex = ref(0);
-
-function openProviderPanel(index: number) {
-  providerIndex.value = index;
-  panelProvider.value = sortedProviders.value[index];
-}
-
-function navigateProviderPanel(index: number) {
-  const provider = sortedProviders.value[index];
-  if (!provider) return;
-  providerIndex.value = index;
-  panelProvider.value = provider;
 }
 </script>
 

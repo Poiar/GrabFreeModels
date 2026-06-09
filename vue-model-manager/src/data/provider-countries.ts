@@ -66,6 +66,9 @@ const PROVIDER_COUNTRY: Record<string, string> = {
   'mistral': 'FR',
   'poolside': 'FR',
 
+  // ── Netherlands ──
+  'deepinfra': 'NL',
+
   // ── Canada ──
   'cohere': 'CA',
 };

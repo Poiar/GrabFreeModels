@@ -185,6 +185,7 @@ const COUNTRIES: Record<string, CountryInfo> = {
   JP: { code: 'JP', name: 'Japan', continent: 'Asia', color: '#BC002D', text: '#FFFFFF' },
   SG: { code: 'SG', name: 'Singapore', continent: 'Asia', color: '#ED2939', text: '#FFFFFF' },
   CH: { code: 'CH', name: 'Switzerland', continent: 'Europe', color: '#DA291C', text: '#FFFFFF' },
+  NL: { code: 'NL', name: 'Netherlands', continent: 'Europe', color: '#FF6600', text: '#1A1A1A' },
   UU: { code: 'UU', name: 'User', continent: 'Other', color: '#6366F1', text: '#FFFFFF' },
   XX: { code: 'XX', name: 'Unknown', continent: 'Other', color: '#718096', text: '#FFFFFF' },
 };

@@ -65,6 +65,18 @@
             >
           </div>
 
+          <!-- Key-derived features -->
+          <div v-if="dpTiers.length || dpVariant || dpSize || dpThinking || dpCoding || dpStage || dpVersion || dpDescription" class="dp-derived-tags">
+            <span v-for="tier in dpTiers" :key="'tier-'+tier" class="sm-tier-chip">{{ tier.charAt(0).toUpperCase() + tier.slice(1) }}</span>
+            <span v-if="dpVariant" class="sm-variant-chip">{{ dpVariant.charAt(0).toUpperCase() + dpVariant.slice(1) }}</span>
+            <span v-if="dpSize" class="sm-size-chip">{{ dpSize }}</span>
+            <span v-if="dpThinking" class="sm-thinking-chip">Thinking</span>
+            <span v-if="dpStage" class="sm-stage-chip" :class="'stage-'+dpStage">{{ dpStage === 'experimental' ? 'Exp' : dpStage.charAt(0).toUpperCase() + dpStage.slice(1) }}</span>
+            <span v-if="dpCoding" class="sm-coder-chip">Coder</span>
+            <span v-if="dpVersion" class="sm-version-chip">v{{ dpVersion }}</span>
+            <span v-if="dpDescription" class="dp-description-text">{{ dpDescription }}</span>
+          </div>
+
           <!-- Role rankings -->
           <div v-if="Object.keys(model.role_rankings).length" class="dp-rankings">
             <span v-for="(rank, role) in model.role_rankings" :key="role" class="dp-ranking-badge">
@@ -204,6 +216,49 @@ const derivationLabel = computed(() => {
   const method = props.model.derivation_method;
   if (!method) return null;
   return DERIV_LABELS_PANEL[method] || method;
+});
+
+// ── Key-derived aggregates across all providers ──
+const dpTiers = computed(() => {
+  const set = new Set<string>();
+  for (const dp of props.model.providers) if (!dp._removed) for (const t of (dp.model_tier || [])) set.add(t);
+  return [...set].sort();
+});
+const dpVariant = computed(() => {
+  for (const dp of props.model.providers) if (!dp._removed && dp.model_variant) return dp.model_variant;
+  return null;
+});
+const dpSize = computed(() => {
+  let minB = Infinity; let maxB = 0; let activeB: number | null = null; let experts: number | null = null;
+  for (const dp of props.model.providers) {
+    if (dp._removed) continue;
+    if (dp.param_count_b) {
+      if (dp.param_count_b < minB) minB = dp.param_count_b;
+      if (dp.param_count_b > maxB) maxB = dp.param_count_b;
+    }
+    if (dp.active_param_count_b) activeB = dp.active_param_count_b;
+    if (dp.expert_count) experts = dp.expert_count;
+  }
+  if (!isFinite(minB)) return null;
+  const parts: string[] = [];
+  parts.push(minB === maxB ? `${maxB}B params` : `${minB}B–${maxB}B params`);
+  if (activeB) parts.push(`${activeB}B active`);
+  if (experts) parts.push(`${experts} experts`);
+  return parts.join(' · ');
+});
+const dpThinking = computed(() => props.model.providers.some(dp => !dp._removed && dp.thinking_variant));
+const dpCoding = computed(() => props.model.providers.some(dp => !dp._removed && dp.coding_specialized));
+const dpStage = computed(() => {
+  for (const dp of props.model.providers) if (!dp._removed && dp.release_stage) return dp.release_stage;
+  return null;
+});
+const dpVersion = computed(() => {
+  for (const dp of props.model.providers) if (!dp._removed && dp.model_version) return dp.model_version;
+  return null;
+});
+const dpDescription = computed(() => {
+  for (const dp of props.model.providers) if (!dp._removed && dp.description) return dp.description;
+  return null;
 });
 
 const lineageChain = computed(() => {

@@ -42,7 +42,7 @@ const tried = ref(new Set<string>());
 const icon = computed(() => getProviderIcon(props.slug));
 const color = computed(() => getProviderColorMuted(props.slug));
 
-const CANDIDATES = ['.svg', '.png'];
+const CANDIDATES = ['.svg', '.png', '.jpg', '.jpeg'];
 
 const imgSrc = computed(() => {
   for (const ext of CANDIDATES) {
