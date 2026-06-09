@@ -97,11 +97,25 @@
       >{{ c.name }}</router-link>
     </div>
 
+    <!-- Derivation method filter chips -->
+    <div class="ml-deriv-bar">
+      <button
+        v-for="chip in DERIV_CHIPS"
+        :key="chip.value"
+        class="ml-deriv-chip"
+        :class="[chip.cssClass, { active: derivFilter === chip.value }]"
+        @click="derivFilter = chip.value"
+      >
+        {{ chip.label }}
+        <span class="ml-deriv-count">{{ modelDerivationCounts[chip.value] ?? 0 }}</span>
+      </button>
+    </div>
+
     <!-- Model list -->
     <h3 class="section-title">Models</h3>
     <div class="fd-models">
       <SuperModelCard
-        v-for="model in family.models"
+        v-for="model in filteredModels"
         :key="model.slug"
         :model="model"
         :creator-slug="creatorSlugMap.get(model.creator || '')"
@@ -158,6 +172,58 @@ const FAMILY_NAME_OVERRIDES: Record<string, string> = {
   gpt: 'GPT',
   glm: 'GLM',
 };
+
+// ── Derivation method filter ──
+const derivFilter = ref('all');
+
+const DERIV_META: Record<string, { label: string; cssClass: string }> = {
+  finetune: { label: 'FT', cssClass: 'deriv-ft' },
+  merge: { label: 'Merge', cssClass: 'deriv-merge' },
+  distillation: { label: 'Distill', cssClass: 'deriv-distill' },
+  dpo: { label: 'DPO', cssClass: 'deriv-dpo' },
+  continued_pretraining: { label: 'CPT', cssClass: 'deriv-cpt' },
+  lora_adapter: { label: 'LoRA', cssClass: 'deriv-lora' },
+};
+
+const DERIV_CHIPS = [
+  { value: 'all', label: 'All', cssClass: '' },
+  { value: 'foundation', label: 'Foundation', cssClass: 'deriv-foundation' },
+  ...Object.entries(DERIV_META).map(([value, meta]) => ({ value, label: meta.label, cssClass: meta.cssClass })),
+];
+
+const modelDerivationCounts = computed(() => {
+  const seenModels = new Set<string>();
+  const counts: Record<string, number> = {};
+  for (const chip of DERIV_CHIPS) {
+    counts[chip.value] = 0;
+  }
+
+  const models = family.value?.models ?? [];
+  for (const model of models) {
+    if (seenModels.has(model.slug)) continue;
+    seenModels.add(model.slug);
+
+    counts.all++;
+
+    const method = model.derivation_method;
+    if (method && counts[method] !== undefined) {
+      counts[method]++;
+    } else {
+      counts.foundation++;
+    }
+  }
+
+  return counts;
+});
+
+const filteredModels = computed(() => {
+  const models = family.value?.models ?? [];
+  if (derivFilter.value === 'all') return models;
+  return models.filter((model) => {
+    if (derivFilter.value === 'foundation') return !model.derivation_method;
+    return model.derivation_method === derivFilter.value;
+  });
+});
 
 function formatFamilyName(raw: string): string {
   if (raw === 'Uncategorized') return raw;
@@ -658,5 +724,63 @@ const familyDescription = computed(() => {
   .fd-meta-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* Derivation filter chips */
+.ml-deriv-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+.ml-deriv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 11px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+
+.ml-deriv-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ml-deriv-chip.deriv-ft { border-color: rgba(99, 102, 241, 0.35); color: #818cf8; }
+.ml-deriv-chip.deriv-merge { border-color: rgba(168, 85, 247, 0.35); color: #a855f7; }
+.ml-deriv-chip.deriv-distill { border-color: rgba(236, 72, 153, 0.35); color: #ec4899; }
+.ml-deriv-chip.deriv-dpo { border-color: rgba(34, 211, 238, 0.35); color: #22d3ee; }
+.ml-deriv-chip.deriv-cpt { border-color: rgba(250, 204, 21, 0.35); color: #eab308; }
+.ml-deriv-chip.deriv-lora { border-color: rgba(52, 211, 153, 0.35); color: #34d399; }
+.ml-deriv-chip.deriv-foundation { border-color: rgba(156, 163, 175, 0.35); color: #9ca3af; }
+
+.ml-deriv-chip.active {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ml-deriv-chip.deriv-ft.active { background: rgba(99, 102, 241, 0.14); border-color: #818cf8; color: #818cf8; }
+.ml-deriv-chip.deriv-merge.active { background: rgba(168, 85, 247, 0.14); border-color: #a855f7; color: #a855f7; }
+.ml-deriv-chip.deriv-distill.active { background: rgba(236, 72, 153, 0.14); border-color: #ec4899; color: #ec4899; }
+.ml-deriv-chip.deriv-dpo.active { background: rgba(34, 211, 238, 0.14); border-color: #22d3ee; color: #22d3ee; }
+.ml-deriv-chip.deriv-cpt.active { background: rgba(250, 204, 21, 0.14); border-color: #eab308; color: #eab308; }
+.ml-deriv-chip.deriv-lora.active { background: rgba(52, 211, 153, 0.14); border-color: #34d399; color: #34d399; }
+.ml-deriv-chip.deriv-foundation.active { background: rgba(156, 163, 175, 0.14); border-color: #9ca3af; color: #9ca3af; }
+
+.ml-deriv-count {
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.8;
 }
 </style>

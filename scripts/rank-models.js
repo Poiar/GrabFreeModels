@@ -14,13 +14,37 @@ require('dotenv').config();
 const pool = require('../server/db');
 const APPLY = process.argv.includes('--apply');
 
+// Quantization adjustment factors — applied as a multiplicative penalty
+// to the final score when a datapoint has a quantization format set.
+// Small penalty (0.5–2%) only acts as a tiebreaker when scores are close.
+const QUANT_ADJUSTMENT = {
+  fp16: 1.00,
+  bf16: 1.00,
+  fp8: 0.995,
+  int8: 0.99,
+  fp4: 0.98,
+  int4: 0.98,
+  gguf: 0.98,
+  awq: 0.98,
+  gptq: 0.98,
+  bnb: 0.98,
+  quantized: 0.985,
+  default: 1.00,
+};
+
+function getQuantFactor(quantization) {
+  if (!quantization) return 1.0;
+  const factor = QUANT_ADJUSTMENT[quantization];
+  return factor !== undefined ? factor : QUANT_ADJUSTMENT.default;
+}
+
 async function rankModels() {
   const client = await pool.connect();
   try {
     // Load eligible models: free + working + tools + not removed
     const { rows: eligibleRows } = await client.query(`
       SELECT dm.id AS db_id, dm.full_id AS id, mm.name, dm.context_length, dm.is_free, dm.supports_tools,
-             dp.name AS provider
+             dm.quantization, dp.name AS provider
       FROM datapoint_models dm
       JOIN super_models mm ON mm.id = dm.super_model_id
       JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
@@ -235,7 +259,7 @@ async function rankModels() {
         const ctx = ctxScore(m);
         const tags = tagBonus(m, cfg.tagKeywords);
         const q = qualityScore(m, role);
-        const score = ctx * cfg.ctxWeight + tags + q.total;
+        const score = (ctx * cfg.ctxWeight + tags + q.total) * getQuantFactor(m.quantization);
         const ctxContrib = ctx * cfg.ctxWeight;
         const matchedTags = (cfg.tagKeywords || []).filter((kw) =>
           (m.best_for || []).some((t) => t.toLowerCase().includes(kw.toLowerCase())),
@@ -332,7 +356,7 @@ async function rankModels() {
         // Pure benchmark ranking — no context, no tags. Matches source website 1-to-1.
         const scored = eligible.map((m) => {
           const q = qualityScore(m, role, source, true);
-          return { id: m.id, score: q.total, ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: q.total, qualityIntel: q.intel, qualityCoding: q.coding, qualitySpeed: q.speed, qualityLatency: q.latency };
+          return { id: m.id, score: q.total * getQuantFactor(m.quantization), ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: q.total, qualityIntel: q.intel, qualityCoding: q.coding, qualitySpeed: q.speed, qualityLatency: q.latency };
         });
 
         scored.sort((a, b) => b.score - a.score);
@@ -366,7 +390,7 @@ async function rankModels() {
         if (cfg.manual) { bmRankings[role] = []; bmScores[role] = []; continue; }
         const scored = eligible.map((m) => {
           const q = qualityScore(m, role, 'artificial_analysis', true);
-          return { id: m.id, score: q.total, ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: q.total, qualityIntel: q.intel, qualityCoding: q.coding, qualitySpeed: q.speed, qualityLatency: q.latency };
+          return { id: m.id, score: q.total * getQuantFactor(m.quantization), ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: q.total, qualityIntel: q.intel, qualityCoding: q.coding, qualitySpeed: q.speed, qualityLatency: q.latency };
         });
         scored.sort((a, b) => b.score - a.score);
         bmRankings[role] = scored.map((s) => s.id);

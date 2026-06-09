@@ -171,14 +171,10 @@ async function main() {
     }
     console.log(`  Mapped ${hfNameToSuper.size} HF model IDs to super_models via datapoint_models.`);
 
-    // 6. Also build a slug lookup for fallback name-based matching
+    // 6. Also build a slug lookup for fallback name-based matching (include all super_models)
     const { rows: allSuper } = await client.query(`
       SELECT sm.id, sm.slug, sm.name, sm.creator
       FROM super_models sm
-      WHERE EXISTS (
-        SELECT 1 FROM datapoint_models dm
-        WHERE dm.super_model_id = sm.id AND NOT dm.is_removed
-      )
     `);
     const slugToSuper = new Map();
     for (const s of allSuper) {
@@ -221,6 +217,17 @@ async function main() {
         const nameMatches = allSuper.filter(s => hfNameLC.includes(s.name.toLowerCase()));
         if (nameMatches.length === 1) {
           const sm = nameMatches[0];
+          child = { super_id: sm.id, slug: sm.slug, creator: sm.creator };
+        }
+      }
+      if (!child) {
+        // Fifth attempt: strip org prefix from HF model ID, match against slug suffix
+        // e.g. "HuggingFaceH4/zephyr-7b-alpha" → stripped "zephyr-7b-alpha" → slug ends with "zephyr-7b-alpha"
+        const stripped = stripOrg(hfName);
+        const slugSuffix = slugify(stripped);
+        const suffixMatches = allSuper.filter(s => s.slug.endsWith(slugSuffix));
+        if (suffixMatches.length === 1) {
+          const sm = suffixMatches[0];
           child = { super_id: sm.id, slug: sm.slug, creator: sm.creator };
         }
       }
