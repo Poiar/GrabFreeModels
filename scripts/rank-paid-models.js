@@ -122,25 +122,54 @@ async function rankModels() {
     let scoredCount = 0;
     if (eligibleDbIds.length > 0) {
       const { rows: scoreRows } = await client.query(`
-        SELECT dm.full_id, ms.source, ms.score_type, ms.score_value
+        SELECT dm.full_id, ms.source, ms.score_type, ms.score_value, ms.fetched_at
         FROM model_scores ms
         JOIN datapoint_models dm ON dm.id = ms.datapoint_model_id
         WHERE dm.id = ANY($1)
       `, [eligibleDbIds]);
       for (const r of scoreRows) {
         if (!scoreMap.has(r.full_id)) scoreMap.set(r.full_id, []);
-        scoreMap.get(r.full_id).push({ source: r.source, score_type: r.score_type, score_value: Number(r.score_value) });
+        scoreMap.get(r.full_id).push({ source: r.source, score_type: r.score_type, score_value: Number(r.score_value), fetched_at: r.fetched_at });
       }
       scoredCount = new Set(scoreRows.map(r => r.full_id)).size;
     }
     console.log(`Eligible paid models: ${eligible.length} (${scoredCount} with benchmark scores)\n`);
 
-    // ── Scoring helpers ──
-    const CTX_NORM = 1048756;
+    // ── Pre-compute normalization bounds from observed data (Items 1-3, 6) ──
+    const scoreTypeStats = new Map();
+    for (const scores of scoreMap.values()) {
+      for (const s of scores) {
+        const v = Number(s.score_value);
+        if (!isFinite(v)) continue;
+        let stats = scoreTypeStats.get(s.score_type);
+        if (!stats) { stats = { max: 0, sum: 0, count: 0 }; scoreTypeStats.set(s.score_type, stats); }
+        stats.max = Math.max(stats.max, Math.abs(v));
+        stats.sum += v; stats.count++;
+      }
+    }
+    for (const [, stats] of scoreTypeStats) stats.mean = stats.count > 0 ? stats.sum / stats.count : 1;
 
+    const maxContext = Math.max(...eligible.map((m) => m.context_length || 0), 1);
+
+    function sigmoid(x) { return 1 / (1 + Math.exp(-x)); }
+    function sigSquash(x, mean) {
+      if (!x || !mean || mean <= 0) return 0;
+      return 2 * sigmoid(2 * x / mean) - 1;
+    }
+
+    // Time-decay: ~90-day half-life (Item 6)
+    const HALF_LIFE_DAYS = 90;
+    const DECAY_LAMBDA = Math.LN2 / HALF_LIFE_DAYS;
+    function freshnessWeight(fetchedAt) {
+      if (!fetchedAt) return 1;
+      const days = (Date.now() - new Date(fetchedAt).getTime()) / 864e5;
+      return Math.exp(-DECAY_LAMBDA * Math.max(0, days));
+    }
+
+    // ── Scoring helpers ──
     function ctxScore(m) {
       if (!m.context_length) return -0.5;
-      return m.context_length / CTX_NORM;
+      return m.context_length / maxContext;
     }
 
     function findScore(scores, type, source) {
@@ -148,42 +177,47 @@ async function rankModels() {
       return s ? s.score_value : null;
     }
 
+    // findDecayedScore applies time-decay freshness weight (Item 6)
+    function findDecayedScore(scores, type, source) {
+      const s = scores?.find((s) => s.score_type === type && (!source || s.source === source));
+      return s ? s.score_value * freshnessWeight(s.fetched_at) : null;
+    }
+
+    // tagBonus normalized by total keywords per role (Item 4)
     function tagBonus(m, keywords) {
-      let bonus = 0;
+      if (!keywords || keywords.length === 0) return 0;
+      let matched = 0;
       const tags = (m.best_for || []).map((t) => t.toLowerCase());
       for (const kw of keywords) {
         for (const tag of tags) {
-          if (tag.includes(kw)) {
-            bonus += 1;
-            break;
-          }
+          if (tag.includes(kw)) { matched++; break; }
         }
       }
-      return bonus;
+      return Math.min(matched / keywords.length, 1.0);
     }
 
-    // Benchmark-based quality signal. Scored models get a 0-3 bonus
-    // proportional to their intelligence/speed/coding benchmarks.
-    // Unscored models get 0 — no penalty, just no bonus.
+    // qualityScore: population-adaptive normalization + sigmoid squash (Items 1, 2)
     function qualityScore(m, role, source) {
       const scores = scoreMap.get(m.id);
       if (!scores || scores.length === 0) return 0;
-      const intelligence = findScore(scores, 'intelligence', source);
-      const speed = findScore(scores, 'output_speed', source);
-      const coding = findScore(scores, 'aider-polyglot', source) || findScore(scores, 'swe-bench-verified', source);
-      const latency = findScore(scores, 'latency_total', source);
+      const intelligence = findDecayedScore(scores, 'intelligence', source);
+      const speed = findDecayedScore(scores, 'output_speed', source);
+      const coding = findDecayedScore(scores, 'aider-polyglot', source) || findDecayedScore(scores, 'swe-bench-verified', source);
+      const latency = findDecayedScore(scores, 'latency_total', source);
       let qs = 0;
       if (intelligence !== null && ['model', 'build', 'general', 'explore'].includes(role)) {
-        qs += Math.max(0, intelligence / 40);
+        const maxI = scoreTypeStats.get('intelligence')?.max || 40;
+        qs += Math.max(0, intelligence / maxI);
       }
       if (role === 'build' && coding !== null) {
-        qs += Math.min(coding / 30, 1.5);
+        const cStats = scoreTypeStats.get('aider-polyglot') || scoreTypeStats.get('swe-bench-verified');
+        qs += sigSquash(coding, cStats?.mean || 30);
       }
       if (['general', 'small_model'].includes(role) && speed !== null) {
-        qs += Math.min(speed / 80, 1.5);
+        qs += sigSquash(speed, scoreTypeStats.get('output_speed')?.mean || 80);
       }
       if (role === 'small_model' && latency !== null && latency > 0) {
-        qs -= Math.min(latency / 4, 1);
+        qs -= sigSquash(latency, scoreTypeStats.get('latency_total')?.mean || 4);
       }
       return Math.max(0, Math.min(qs, 3));
     }
@@ -271,8 +305,8 @@ async function rankModels() {
         const m = scored[i];
         const model = eligible.find((x) => x.id === m.id);
         const ctx = model.context_length
-          ? model.context_length >= CTX_NORM
-            ? (model.context_length / CTX_NORM).toFixed(1) + 'M'
+          ? model.context_length >= 1000000
+            ? (model.context_length / 1000000).toFixed(1) + 'M'
             : Math.round(model.context_length / 1000) + 'K'
           : '?';
         console.log(`  #${i + 1} [${ctx}] score=${m.score.toFixed(2)} ${m.id}`);
@@ -377,6 +411,57 @@ async function rankModels() {
       }
     }
 
+    // ── Bootstrap confidence intervals (Item 5) ──
+    function computeBootstrapCI(modelScores, role, nIterations) {
+      if (!modelScores || modelScores.length < 2) return null;
+      nIterations = nIterations || 1000;
+      const results = [];
+      const n = modelScores.length;
+      for (let i = 0; i < nIterations; i++) {
+        const sample = [];
+        for (let j = 0; j < n; j++) sample.push(modelScores[Math.floor(Math.random() * n)]);
+        const intelligence = findScore(sample, 'intelligence');
+        const speed = findScore(sample, 'output_speed');
+        const coding = findScore(sample, 'aider-polyglot') || findScore(sample, 'swe-bench-verified');
+        const latency = findScore(sample, 'latency_total');
+        let qs = 0;
+        if (intelligence !== null && ['model', 'build', 'general', 'explore'].includes(role)) {
+          qs += Math.max(0, intelligence / (scoreTypeStats.get('intelligence')?.max || 40));
+        }
+        if (role === 'build' && coding !== null) {
+          const cS = scoreTypeStats.get('aider-polyglot') || scoreTypeStats.get('swe-bench-verified');
+          qs += sigSquash(coding, cS?.mean || 30);
+        }
+        if (['general', 'small_model'].includes(role) && speed !== null) {
+          qs += sigSquash(speed, scoreTypeStats.get('output_speed')?.mean || 80);
+        }
+        if (role === 'small_model' && latency !== null && latency > 0) {
+          qs -= sigSquash(latency, scoreTypeStats.get('latency_total')?.mean || 4);
+        }
+        results.push(Math.max(0, Math.min(qs, 3)));
+      }
+      results.sort((a, b) => a - b);
+      return {
+        low: results[Math.floor(nIterations * 0.025)],
+        high: results[Math.floor(nIterations * 0.975)],
+      };
+    }
+
+    const allCI = {};
+    for (const [role, cfg] of Object.entries(ROLES)) {
+      if (cfg.manual) { allCI[role] = {}; continue; }
+      const roleCI = {};
+      for (const m of eligible) {
+        const scores = scoreMap.get(m.id);
+        if (!scores || scores.length < 2) continue;
+        const ci = computeBootstrapCI(scores, role);
+        if (ci) roleCI[m.id] = ci;
+      }
+      allCI[role] = roleCI;
+      const withCI = Object.keys(roleCI).length;
+      if (withCI > 0) console.log(`  ${role}: bootstrap CI for ${withCI} models`);
+    }
+
     // ── Diff against current paid rankings in DB ──
     const { rows: metaRows } = await client.query(
       "SELECT value::text FROM metadata WHERE key = '_role_rankings_paid'",
@@ -401,7 +486,7 @@ async function rankModels() {
     // ── Apply ──
     if (APPLY) {
       await client.query('BEGIN');
-      const rankingsWithMeta = { ...newRankings, _variants: allVariants, _scores: allScores, _meta: allMeta };
+      const rankingsWithMeta = { ...newRankings, _variants: allVariants, _scores: allScores, _meta: allMeta, _ci: allCI };
       await client.query(
         `INSERT INTO metadata (key, value) VALUES ('_role_rankings_paid', $1)
          ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
