@@ -130,7 +130,7 @@ const counts = computed(() => {
         if (dp.provider_slug !== providerSlug.value || dp._removed) continue;
         const r = dp.status.result;
         if (r === 'working') working++;
-        else if (r === 'broken') broken++;
+        else if (r === 'broken' || r === 'not_found') broken++;
         else if (r === 'rate_limited') rate_limited++;
         else untested++;
       }

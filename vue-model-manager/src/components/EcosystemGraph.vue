@@ -13,7 +13,7 @@
     </div>
     <div v-if="hovered && hoveredType === 'moon'" class="eco-tooltip" :style="tooltipStyle">
       <span class="eco-tt-name">{{ (hovered as ModelMoon).name }}</span>
-      <span class="eco-tt-count">{{ (hovered as ModelMoon).parentSlug }}</span>
+      <span class="eco-tt-count">{{ (hovered as ModelMoon).parentName }}</span>
     </div>
     <div class="eco-overlay">
       <span class="eco-label">Model Ecosystem</span>
@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useModelsStore } from '@/store/models';
 import type { ModelData } from '@/types';
 
@@ -46,18 +46,15 @@ interface ModelMoon {
   name: string;
   x: number;
   y: number;
-  vx: number;
-  vy: number;
   radius: number;
   status: 'working' | 'broken' | 'rate_limited' | 'untested' | 'down';
   parentSlug: string;
-  orbitRadius: number;
+  parentName: string;
 }
 
 interface ConnectionArc {
   fromSlug: string;
   toSlug: string;
-  modelName: string;
 }
 
 const containerRef = ref<HTMLElement | null>(null);
@@ -66,22 +63,12 @@ const selectedStar = ref<string | null>(null);
 const hovered = ref<ProviderStar | ModelMoon | null>(null);
 const hoveredType = ref<'star' | 'moon' | null>(null);
 const tooltipStyle = ref({ left: '0px', top: '0px' });
-const mouseX = ref(0);
-const mouseY = ref(0);
 
-let animId = 0;
 let stars: ProviderStar[] = [];
 let moons: ModelMoon[] = [];
 let arcs: ConnectionArc[] = [];
 let width = 0;
 let height = 0;
-let reducedMotion = false;
-let frozen = false;
-let tickCount = 0;
-let unfreezeUntil = 0;
-const EQUILIBRIUM_ENERGY = 0.3;
-const MAX_SETTLE_TICKS = 400;
-const HOVER_UNFREEZE_TICKS = 90;
 
 function hashFromId(id: number, offset: number): number {
   return ((id * 2654435761 + offset * 7919) % 10000) / 10000;
@@ -112,7 +99,7 @@ function getModelStatus(model: ModelData): ModelMoon['status'] {
   const working = active.filter((p) => p.status.result === 'working').length;
   if (working === active.length) return 'working';
   if (working > 0) return 'rate_limited';
-  const broken = active.filter((p) => p.status.result === 'broken').length;
+  const broken = active.filter((p) => p.status.result === 'broken' || p.status.result === 'not_found').length;
   if (broken === active.length) return 'broken';
   return 'untested';
 }
@@ -143,7 +130,6 @@ function buildLayout() {
   const cy = height / 2;
   const layoutRadius = Math.min(width, height) * 0.35;
 
-  // Position provider stars in a circle - healthiest providers at the top
   stars = provs
     .sort((a, b) => {
       const aRatio = a.model_count > 0 ? a.working_count / a.model_count : 0;
@@ -168,7 +154,6 @@ function buildLayout() {
 
   const starBySlug = new Map(stars.map((s) => [s.slug, s]));
 
-  // Assign models as moons to their primary provider (deterministic positions)
   moons = [];
   const usedNames = new Set<string>();
   const statusPriority: Record<string, number> = { working: 0, rate_limited: 1, untested: 2, broken: 3, down: 4 };
@@ -192,12 +177,10 @@ function buildLayout() {
       name: model.name,
       x: star.x + Math.cos(angle) * orbitR,
       y: star.y + Math.sin(angle) * orbitR,
-      vx: 0,
-      vy: 0,
       radius: moonR,
       status: getModelStatus(model),
       parentSlug,
-      orbitRadius: orbitR,
+      parentName: star.name,
     });
   }
 
@@ -211,7 +194,7 @@ function buildLayout() {
         const bSlug = slugs[i] < slugs[j] ? slugs[j] : slugs[i];
         const key = `${aSlug}|||${bSlug}`;
         if (!arcMap.has(key)) {
-          arcMap.set(key, { fromSlug: aSlug, toSlug: bSlug, modelName: model.name });
+          arcMap.set(key, { fromSlug: aSlug, toSlug: bSlug });
         }
       }
     }
@@ -219,7 +202,7 @@ function buildLayout() {
   arcs = [...arcMap.values()];
 }
 
-function tick() {
+function draw() {
   const ctx = canvasRef.value?.getContext('2d');
   if (!ctx || !width || !height) return;
 
@@ -228,83 +211,20 @@ function tick() {
 
   ctx.clearRect(0, 0, width, height);
 
-  // Draw shared-model arcs first (behind everything)
+  // Draw shared-model arcs
   for (const arc of arcs) {
     const from = starBySlug.get(arc.fromSlug);
     const to = starBySlug.get(arc.toSlug);
     if (!from || !to) continue;
     const dimmed = selectedSlug && selectedSlug !== arc.fromSlug && selectedSlug !== arc.toSlug;
-    const alpha = dimmed ? 0.06 : 0.18;
     ctx.beginPath();
     const midX = (from.x + to.x) / 2;
     const midY = (from.y + to.y) / 2 - 20;
     ctx.moveTo(from.x, from.y);
     ctx.quadraticCurveTo(midX, midY, to.x, to.y);
-    ctx.strokeStyle = `rgba(99,128,247,${alpha})`;
+    ctx.strokeStyle = `rgba(99,128,247,${dimmed ? 0.06 : 0.18})`;
     ctx.lineWidth = 0.6;
     ctx.stroke();
-  }
-
-  // Update moon physics (skip if reduced motion or frozen)
-  const shouldAnimate = !reducedMotion && (!frozen || tickCount < unfreezeUntil);
-  if (shouldAnimate) {
-    let totalEnergy = 0;
-    for (const moon of moons) {
-      const star = starBySlug.get(moon.parentSlug);
-      if (!star) continue;
-
-      // Gravitational pull toward parent star
-      const dx = star.x - moon.x;
-      const dy = star.y - moon.y;
-      const dist = Math.sqrt(dx * dx + dy * dy) + 0.01;
-      const targetDist = moon.orbitRadius;
-      const distDiff = dist - targetDist;
-      const gravityForce = distDiff * 0.001;
-      moon.vx += (dx / dist) * gravityForce;
-      moon.vy += (dy / dist) * gravityForce;
-
-      // Orbital velocity (perpendicular to gravitational direction)
-      const orbitSpeed = 0.25 / Math.sqrt(targetDist);
-      moon.vx += (-dy / dist) * orbitSpeed;
-      moon.vy += (dx / dist) * orbitSpeed;
-
-      // Repulsion from other moons of same star
-      for (const other of moons) {
-        if (other === moon || other.parentSlug !== moon.parentSlug) continue;
-        const odx = moon.x - other.x;
-        const ody = moon.y - other.y;
-        const odist = Math.sqrt(odx * odx + ody * ody) + 0.01;
-        const minDist = moon.radius + other.radius + 6;
-        if (odist < minDist) {
-          const force = (minDist - odist) * 0.05;
-          moon.vx += (odx / odist) * force;
-          moon.vy += (ody / odist) * force;
-        }
-      }
-
-      // Boundary push
-      const margin = moon.radius + 4;
-      if (moon.x < margin) moon.vx += 0.15;
-      if (moon.x > width - margin) moon.vx -= 0.15;
-      if (moon.y < margin) moon.vy += 0.15;
-      if (moon.y > height - margin) moon.vy -= 0.15;
-
-      // Damping
-      moon.vx *= 0.99;
-      moon.vy *= 0.99;
-      moon.x += moon.vx;
-      moon.y += moon.vy;
-      totalEnergy += moon.vx * moon.vx + moon.vy * moon.vy;
-    }
-
-    tickCount++;
-    // Freeze when settled or max ticks reached
-    if (!frozen && tickCount >= 30 && totalEnergy < EQUILIBRIUM_ENERGY) {
-      frozen = true;
-    }
-    if (!frozen && tickCount >= MAX_SETTLE_TICKS) {
-      frozen = true;
-    }
   }
 
   // Draw moons
@@ -349,7 +269,7 @@ function tick() {
     }
   }
 
-  // Draw provider stars (on top)
+  // Draw provider stars
   for (const star of stars) {
     const dimmed = selectedSlug && star.slug !== selectedSlug;
     const alpha = dimmed ? 0.25 : 1;
@@ -404,19 +324,9 @@ function tick() {
   }
 
   ctx.globalAlpha = 1;
-  if (reducedMotion || frozen) {
-    if (frozen && tickCount < unfreezeUntil) {
-      animId = requestAnimationFrame(tick);
-    } else {
-      animId = 0;
-      return;
-    }
-  }
-  animId = requestAnimationFrame(tick);
 }
 
 function hitTest(px: number, py: number): { type: 'star'; item: ProviderStar } | { type: 'moon'; item: ModelMoon } | null {
-  // Check stars first (they're on top)
   for (const star of stars) {
     const dx = px - star.x;
     const dy = py - star.y;
@@ -424,7 +334,6 @@ function hitTest(px: number, py: number): { type: 'star'; item: ProviderStar } |
       return { type: 'star', item: star };
     }
   }
-  // Then moons
   for (const moon of moons) {
     const dx = px - moon.x;
     const dy = py - moon.y;
@@ -441,23 +350,18 @@ function onMouseMove(e: MouseEvent) {
   const rect = container.getBoundingClientRect();
   const px = e.clientX - rect.left;
   const py = e.clientY - rect.top;
-  mouseX.value = px;
-  mouseY.value = py;
 
   const hit = hitTest(px, py);
   if (hit) {
     hovered.value = hit.item;
     hoveredType.value = hit.type;
     tooltipStyle.value = { left: px + 12 + 'px', top: py - 10 + 'px' };
-    // Briefly wake the simulation on star hover
-    if (hit.type === 'star' && frozen && !reducedMotion) {
-      frozen = false;
-      unfreezeUntil = tickCount + HOVER_UNFREEZE_TICKS;
-      if (!animId) animId = requestAnimationFrame(tick);
-    }
-  } else {
+    // Redraw to show hover state
+    draw();
+  } else if (hovered.value) {
     hovered.value = null;
     hoveredType.value = null;
+    draw();
   }
 }
 
@@ -470,14 +374,10 @@ function onClick(e: MouseEvent) {
   const hit = hitTest(px, py);
   if (hit?.type === 'star') {
     selectedStar.value = selectedStar.value === hit.item.slug ? null : hit.item.slug;
-    if (frozen && !reducedMotion) {
-      frozen = false;
-      unfreezeUntil = tickCount + HOVER_UNFREEZE_TICKS;
-      if (!animId) animId = requestAnimationFrame(tick);
-    }
   } else {
     selectedStar.value = null;
   }
+  draw();
 }
 
 function resize() {
@@ -485,7 +385,7 @@ function resize() {
   const canvas = canvasRef.value;
   if (!container || !canvas) return;
   const rect = container.getBoundingClientRect();
-  const dpr = reducedMotion ? 1 : window.devicePixelRatio || 1;
+  const dpr = window.devicePixelRatio || 1;
   width = rect.width;
   height = rect.height;
   canvas.width = width * dpr;
@@ -497,80 +397,23 @@ function resize() {
 }
 
 let resizeObs: ResizeObserver | null = null;
-let visible = true;
-
-function onVisibility() {
-  visible = document.visibilityState === 'visible';
-  if (visible && !animId) {
-    animId = requestAnimationFrame(tick);
-  }
-}
-
-const mqReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-function onReducedMotion(e: MediaQueryListEvent | { matches: boolean }) {
-  reducedMotion = e.matches;
-  if (reducedMotion) {
-    cancelAnimationFrame(animId);
-    animId = 0;
-    resize();
-    buildLayout();
-    // Static render
-    const canvas = canvasRef.value;
-    const ctx = canvas?.getContext('2d');
-    if (ctx && canvas) { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-    if (!animId) {
-      animId = requestAnimationFrame(tick);
-      animId = 0; // single frame
-    }
-  } else if (!animId) {
-    animId = requestAnimationFrame(tick);
-  }
-}
 
 onMounted(() => {
-  reducedMotion = mqReduced.matches;
-  mqReduced.addEventListener('change', onReducedMotion);
-
   resize();
   buildLayout();
-  if (stars.length) {
-    tickCount = 0;
-    frozen = false;
-    // Let simulation settle to equilibrium, then freeze
-    animId = requestAnimationFrame(tick);
-  }
+  draw();
 
   resizeObs = new ResizeObserver(() => {
     resize();
-    // Render one frame on resize after frozen
-    if (frozen && !animId) {
-      animId = requestAnimationFrame(tick);
-    }
+    buildLayout();
+    draw();
   });
   if (containerRef.value) resizeObs.observe(containerRef.value);
-  document.addEventListener('visibilitychange', onVisibility);
 });
 
 onUnmounted(() => {
-  cancelAnimationFrame(animId);
   resizeObs?.disconnect();
-  document.removeEventListener('visibilitychange', onVisibility);
-  mqReduced.removeEventListener('change', onReducedMotion);
 });
-
-watch(() => store.allModels, () => {
-  buildLayout();
-  if (stars.length && !animId && !reducedMotion) {
-    animId = requestAnimationFrame(tick);
-  }
-}, { deep: false });
-
-watch(() => store.providerRefs, () => {
-  buildLayout();
-  if (stars.length && !animId && !reducedMotion) {
-    animId = requestAnimationFrame(tick);
-  }
-}, { deep: false });
 </script>
 
 <style scoped>

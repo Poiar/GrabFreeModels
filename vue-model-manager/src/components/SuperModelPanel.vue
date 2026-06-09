@@ -26,7 +26,7 @@
           <div class="smp-meta">
             <span v-if="model.family" class="smp-meta-item">Family: {{ model.family }}</span>
             <span v-if="model.best_for.length" class="smp-meta-item">Best for: {{ model.best_for.join(', ') }}</span>
-            <span class="smp-meta-item">Context: up to {{ formatContext(model.best_context) }}</span>
+            <span class="smp-meta-item">Context: {{ panelContextLabel }}</span>
             <span v-if="bestKnowledge" class="smp-meta-item">Knowledge: {{ bestKnowledge }}</span>
             <span class="smp-meta-item">{{ activeCount }} working / {{ totalCount }} providers</span>
             <span v-if="anyAttachment" class="smp-cap-badge smp-cap-attach" title="Attachment">Attach</span>
@@ -126,6 +126,14 @@ function formatContext(ctx: number | null): string {
   if (ctx >= 1_000_000) return `${(ctx / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
   return `${Math.round(ctx / 1000)}K`;
 }
+
+const panelContextLabel = computed(() => {
+  const maxCtx = props.model.best_context;
+  const minCtx = props.model.min_context;
+  if (!maxCtx && !minCtx) return '—';
+  if (!minCtx || minCtx === maxCtx) return `up to ${formatContext(maxCtx!)}`;
+  return `${formatContext(minCtx)}–${formatContext(maxCtx!)}`;
+});
 
 const activeCount = computed(() =>
   props.model.providers.filter(p => !p._removed && p.status.result === 'working').length,

@@ -44,7 +44,7 @@ const waveformData = computed((): WaveformBand[] => {
         for (const dp of m.providers) {
           if (dp.provider_slug === prov.slug && !dp._removed) {
             if (dp.status.result === 'working') working++;
-            else if (dp.status.result === 'broken') broken++;
+            else if (dp.status.result === 'broken' || dp.status.result === 'not_found') broken++;
             else if (dp.status.result === 'rate_limited') rateLimited++;
           }
         }

@@ -25,7 +25,7 @@
 
     <!-- Summary stats -->
     <div class="mc-stats">
-      <span class="mc-stat">Max: {{ formatContext(model.best_context) }} context</span>
+      <span class="mc-stat">{{ contextLabel }}</span>
       <span class="mc-stat-divider">|</span>
       <span class="mc-stat">Free</span>
       <span class="mc-stat-divider">|</span>
@@ -134,10 +134,21 @@ const sourceSummaryText = computed(() => {
 const status = computed(() => {
   const active = props.model.providers.filter((p) => !p._removed);
   if (!active.length) return 'down';
-  const working = active.filter((p) => p.status.result === 'working').length;
+
+  let working = 0, broken = 0, limited = 0, untested = 0;
+  for (const p of active) {
+    const result = p.status.result;
+    if (result === 'working') working++;
+    else if (result === 'broken' || result === 'not_found') broken++;
+    else if (result === 'rate_limited') limited++;
+    else untested++;
+  }
+
   if (working === active.length) return 'working';
   if (working > 0) return 'mixed';
-  return 'down';
+  if (broken > 0) return 'broken';
+  if (limited > 0) return 'limited';
+  return 'untested';
 });
 
 const activeProviderCount = computed(() => props.model.providers.filter((p) => !p._removed).length);
@@ -191,6 +202,14 @@ function handleProviderClick(dp: ProviderDatapoint) {
   emit('provider-click', dp);
 }
 
+const contextLabel = computed(() => {
+  const maxCtx = props.model.best_context;
+  const minCtx = props.model.min_context;
+  if (!maxCtx && !minCtx) return '— context';
+  if (!minCtx || minCtx === maxCtx) return `Max: ${formatContext(maxCtx!)} context`;
+  return `${formatContext(minCtx)}–${formatContext(maxCtx!)} context`;
+});
+
 function formatContext(ctx: number | null): string {
   if (!ctx) return '—';
   if (ctx >= 1_000_000) return `${(ctx / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
@@ -232,6 +251,14 @@ function roleLabel(role: string): string {
 }
 
 .model-card.card-down {
+  border-left-color: var(--red);
+}
+
+.model-card.card-limited {
+  border-left-color: var(--orange);
+}
+
+.model-card.card-broken {
   border-left-color: var(--red);
 }
 

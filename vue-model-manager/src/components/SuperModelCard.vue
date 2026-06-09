@@ -1,7 +1,7 @@
 <template>
   <div
     class="sm-card"
-    :class="[`card-${status}`, { 'card-has-removed': hasRemoved }]"
+    :class="`card-${status}`"
     @click="handleClick"
     role="button"
     tabindex="0"
@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <!-- Row 2: Creator / Family / Base creator (lineage) -->
+    <!-- Row 2: Creator / Family (lineage) -->
     <div class="sm-meta-row">
       <span
         class="sm-badge sm-badge-creator"
@@ -44,14 +44,20 @@
         <span class="sm-icon-fb">{{ formatFamily(model.family)[0] }}</span>
         {{ formatFamily(model.family) }}
       </span>
-      <span v-if="model.family" class="sm-badge-sep">/</span>
-      <span v-if="model.base_creator && model.base_creator !== model.creator" class="sm-badge sm-badge-base" :title="'Architecture lineage: ' + model.base_creator">
-        <span class="sm-icon-fb">{{ model.base_creator[0] }}</span>
-        {{ model.base_creator }}
-      </span>
     </div>
 
-    <!-- Row 3: Provider stats -->
+    <!-- Row 3: Role tags — best_for + context + capabilities -->
+    <div class="sm-tags-row">
+      <span v-if="model.best_for.length" class="sm-tags-group">
+        <span v-for="tag in model.best_for" :key="tag" class="sm-best-for-chip">{{ tag }}</span>
+      </span>
+      <span v-if="contextChip" class="sm-ctx-chip">{{ contextChip }}</span>
+      <span v-if="anyOpenWeights" class="sm-cap-chip sm-cap-open">Open</span>
+      <span v-if="anyTools" class="sm-cap-chip sm-cap-tools">Tools</span>
+      <span v-if="anyReasoning" class="sm-cap-chip sm-cap-reasoning">Reasoning</span>
+    </div>
+
+    <!-- Row 4: Provider stats -->
     <div class="sm-stats">
       <span class="sm-stat">{{ datapointsCount }} provider{{ datapointsCount !== 1 ? 's' : '' }}</span>
       <template v-if="workingCount > 0">
@@ -67,12 +73,6 @@
       <template v-if="brokenCount > 0">
         <span class="sm-stat-divider">|</span>
         <span class="sm-stat sm-stat-broken">{{ brokenCount }} down</span>
-      </template>
-      <span class="sm-stat-divider">|</span>
-      <span class="sm-stat">{{ contextLabel }}</span>
-      <template v-if="anyTools">
-        <span class="sm-stat-divider">|</span>
-        <span class="sm-stat sm-stat-tools">Tools</span>
       </template>
       <template v-if="releaseDate">
         <span class="sm-stat-divider">|</span>
@@ -129,28 +129,37 @@ const baseModelName = computed(() => {
 
 const activeDps = computed(() => props.model.providers.filter((p: ProviderDatapoint) => !p._removed));
 const working = computed(() => activeDps.value.filter((d) => d.status.result === 'working'));
-const broken = computed(() => activeDps.value.filter((d) => d.status.result === 'broken'));
+const broken = computed(() => activeDps.value.filter((d) => d.status.result === 'broken' || d.status.result === 'not_found'));
 const rateLimited = computed(() => activeDps.value.filter((d) => d.status.result === 'rate_limited'));
 const datapointsCount = computed(() => activeDps.value.length);
 const workingCount = computed(() => working.value.length);
 const brokenCount = computed(() => broken.value.length);
 const rateLimitedCount = computed(() => rateLimited.value.length);
-const hasRemoved = computed(() => props.model.providers.some((d) => d._removed));
 const anyTools = computed(() => activeDps.value.some((d) => d.supports_tools));
+const anyReasoning = computed(() => activeDps.value.some((d) => d.supports_reasoning));
+const anyOpenWeights = computed(() => activeDps.value.some((d) => d.open_weights));
 
 const status = computed(() => {
-  if (!activeDps.value.length) return 'down';
-  if (working.value.length === activeDps.value.length) return 'working';
+  const total = activeDps.value.length;
+  if (!total) return 'down';
+  if (working.value.length === total) return 'working';
   if (working.value.length > 0) return 'mixed';
-  return 'down';
+  if (broken.value.length > 0) return 'broken';
+  if (rateLimited.value.length > 0) return 'limited';
+  return 'untested';
 });
 
 const contextLabel = computed(() => {
   const maxCtx = props.model.best_context;
   const minCtx = props.model.min_context;
-  if (!maxCtx && !minCtx) return '— ctx';
-  if (!minCtx || minCtx === maxCtx) return `${formatContext(maxCtx!)} ctx`;
-  return `${formatContext(minCtx)}–${formatContext(maxCtx!)} ctx`;
+  if (!maxCtx && !minCtx) return null;
+  if (!minCtx || minCtx === maxCtx) return formatContext(maxCtx!);
+  return `${formatContext(minCtx)}–${formatContext(maxCtx!)}`;
+});
+
+const contextChip = computed(() => {
+  const label = contextLabel.value;
+  return label ? `${label} ctx` : null;
 });
 
 const providerTags = computed(() => {
@@ -260,14 +269,12 @@ async function copyText(text: string) {
 .sm-card.card-working { border-left-color: var(--green); }
 .sm-card.card-mixed { border-left-color: var(--orange); }
 .sm-card.card-down { border-left-color: var(--border); }
+.sm-card.card-untested { border-left-color: var(--text-muted); }
+.sm-card.card-limited { border-left-color: var(--orange); }
 
 .sm-card:hover {
   border-color: var(--border-focus);
   box-shadow: var(--shadow-md);
-}
-
-.sm-card.card-has-removed {
-  border-left-color: var(--orange);
 }
 
 /* Row 1: Model name + ranking badges */
@@ -321,7 +328,7 @@ async function copyText(text: string) {
 }
 
 
-/* Row 2: Creator / Family / Base creator badges */
+/* Row 2: Creator / Family */
 .sm-meta-row {
   display: flex;
   align-items: center;
@@ -358,11 +365,6 @@ async function copyText(text: string) {
   color: var(--purple);
 }
 
-.sm-badge-base {
-  background: rgba(250, 204, 21, 0.12);
-  color: var(--yellow, #facb15);
-}
-
 .sm-finetune-badge {
   padding: 1px 6px;
   font-size: 0.6rem;
@@ -381,6 +383,53 @@ async function copyText(text: string) {
   color: var(--text-muted);
   flex-shrink: 0;
 }
+
+/* Row 3: best_for chips + context + capability chips */
+.sm-tags-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.sm-tags-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.sm-best-for-chip {
+  padding: 1px 6px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(96, 165, 250, 0.12);
+  color: #60a5fa;
+}
+
+.sm-ctx-chip {
+  padding: 1px 6px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(167, 139, 250, 0.1);
+  color: var(--purple, #a78bfa);
+}
+
+.sm-cap-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.sm-cap-open { background: rgba(52, 211, 153, 0.12); color: var(--green); }
+.sm-cap-tools { background: rgba(96, 165, 250, 0.12); color: #60a5fa; }
+.sm-cap-reasoning { background: rgba(251, 146, 60, 0.12); color: #fb923c; }
 
 .sm-icon {
   width: 12px;
@@ -403,7 +452,7 @@ async function copyText(text: string) {
   flex-shrink: 0;
 }
 
-/* Row 3: Stats */
+/* Row 4: Provider stats */
 .sm-stats {
   display: flex;
   align-items: center;
@@ -422,7 +471,6 @@ async function copyText(text: string) {
 .sm-stat-limited { color: var(--orange); font-weight: 600; }
 .sm-stat-broken { color: var(--red); }
 .sm-stat-none { color: var(--text-muted); }
-.sm-stat-tools { color: var(--blue, #60a5fa); }
 
 /* Row 5: Footer */
 .sm-footer {

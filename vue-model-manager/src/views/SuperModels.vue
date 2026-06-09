@@ -16,7 +16,7 @@
         <div class="filter-dropdowns">
           <select v-model="creatorFilter" class="sm-select" aria-label="Filter by creator">
             <option value="">All Creators</option>
-            <option v-for="c in store.visibleCreators" :key="c.id" :value="c.id">{{ c.name }}</option>
+            <option v-for="c in filteredCreatorOptions" :key="c.id" :value="c.id">{{ c.name }}</option>
           </select>
           <select v-model="familyFilter" class="sm-select" aria-label="Filter by family">
             <option value="">All Families</option>
@@ -160,7 +160,7 @@ const superItems = computed<SuperItem[]>(() => {
     const providers = [...providerSet.entries()].map(([slug, name]) => ({ slug, name }));
     const dps = m.providers.filter((p) => !p._removed);
     const working = dps.filter((d) => d.status.result === 'working');
-    const broken = dps.filter((d) => d.status.result === 'broken');
+    const broken = dps.filter((d) => d.status.result === 'broken' || d.status.result === 'not_found');
     const rateLimited = dps.filter((d) => d.status.result === 'rate_limited');
     const untested = dps.filter((d) => d.status.result === 'untested');
     const allTags = [...new Set(dps.flatMap((d) => [...d.tags, ...d.best_for]))];
@@ -214,10 +214,18 @@ const searchedItems = computed(() => {
 
 const families = computed(() => {
   const set = new Set<string>();
-  for (const m of superItems.value) {
+  for (const m of searchedItems.value) {
     if (m.family) set.add(m.family);
   }
   return [...set].sort();
+});
+
+const filteredCreatorOptions = computed(() => {
+  const activeCreators = new Set<string>();
+  for (const item of searchedItems.value) {
+    if (item.creator) activeCreators.add(item.creator);
+  }
+  return store.visibleCreators.filter(c => activeCreators.has(c.name));
 });
 
 const filteredItems = computed(() => {
@@ -252,7 +260,7 @@ const sortedItems = computed(() => {
       case 'instances': cmp = b.datapointsCount - a.datapointsCount; break;
       case 'context': cmp = (b.best_context_length ?? 0) - (a.best_context_length ?? 0); break;
       case 'status': {
-        const score = (i: SuperItem) => (i.workingCount > 0 ? 3 : i.untestedCount > 0 ? 2 : i.rateLimitedCount > 0 ? 1 : 0);
+        const score = (i: SuperItem) => (i.workingCount > 0 ? 3 : i.rateLimitedCount > 0 ? 2 : i.brokenCount > 0 ? 1 : 0);
         cmp = score(b) - score(a); break;
       }
       case 'tools': cmp = (b.any_tools ? 1 : 0) - (a.any_tools ? 1 : 0); break;

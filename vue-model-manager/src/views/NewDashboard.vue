@@ -12,6 +12,18 @@
       </div>
     </div>
 
+    <!-- Quick search -->
+    <div class="dash-search">
+      <input
+        v-model="searchQuery"
+        type="text"
+        class="dash-search-input"
+        placeholder="Search models, creators, families, providers…"
+        @keydown.enter="goSearch"
+      />
+      <button class="dash-search-btn" @click="goSearch">Find</button>
+    </div>
+
     <!-- Stale banner -->
     <div v-if="store.isStale" class="stale-banner">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -53,6 +65,20 @@
           <svg viewBox="0 0 60 20" class="sparkline">
             <polyline :points="sparkPoints.creators" fill="none" stroke="var(--cyan)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Critical issues -->
+    <div v-if="criticalIssues.length > 0" class="issues-alert-section">
+      <div class="card issues-alert-card">
+        <div class="card-title">Issues Needing Attention</div>
+        <div class="issues-alert-list">
+          <div v-for="issue in criticalIssues" :key="issue.model_id + issue.issue" class="issues-alert-row">
+            <span class="ia-severity" :class="'ia-sev-' + issue.severity">{{ issue.severity }}</span>
+            <span class="ia-model">{{ modelNameForId(issue.model_id) }}</span>
+            <span class="ia-text">{{ issue.issue }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -121,10 +147,7 @@
       </div>
     </div>
 
-    <!-- Provider Health Waveform -->
-    <ProviderPulseWave class="pulse-wave-section" />
-
-<!-- Used-up providers -->
+    <!-- Used-up providers -->
     <div v-if="store.usedUpProviders.length > 0" class="used-up-section">
       <div class="card">
         <div class="card-title">Monthly Quota Exhausted ({{ store.currentMonth }})</div>
@@ -137,22 +160,95 @@
       </div>
     </div>
 
-    <!-- Ecosystem ambient graph -->
-    <EcosystemGraph class="eco-graph-section" />
+    <!-- Top Ranked + Top Scored -->
+    <div class="insights-row">
+      <div class="card">
+        <div class="card-title">Top Ranked (Free)</div>
+        <div class="top-ranked-list">
+          <router-link
+            v-for="entry in topPerRole"
+            :key="entry.role"
+            :to="'/model/' + entry.slug"
+            class="top-ranked-row"
+          >
+            <span class="tr-role">{{ entry.roleLabel }}</span>
+            <span class="tr-name">{{ entry.name }}</span>
+          </router-link>
+        </div>
+      </div>
+
+      <div class="card" v-if="topScored.length > 0">
+        <div class="card-title">Top Scored (Intelligence)</div>
+        <div class="top-ranked-list">
+          <router-link
+            v-for="entry in topScored"
+            :key="entry.slug"
+            :to="'/model/' + entry.slug"
+            class="top-ranked-row"
+          >
+            <span class="tr-role">{{ entry.score }}</span>
+            <span class="tr-name">{{ entry.name }}</span>
+          </router-link>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recently Active -->
+    <div class="recent-section">
+      <div class="card">
+        <div class="card-title">Recently Active</div>
+        <div class="recent-list">
+          <router-link
+            v-for="entry in recentlyActive"
+            :key="entry.dp.full_id"
+            :to="'/model/' + entry.model.slug"
+            class="recent-row"
+          >
+            <span class="recent-model">{{ entry.model.name }}</span>
+            <span class="recent-provider">via {{ entry.dp.provider }}</span>
+            <span class="recent-time">{{ formatTimeAgo(entry.dp.last_success) }}</span>
+          </router-link>
+        </div>
+      </div>
+    </div>
 
     <!-- Validation & activity -->
     <div v-if="store.testSummary" class="validation-section">
       <div class="card spotlight-card">
-        <div class="card-title">Latest Validation</div>
+        <div class="card-title">Latest Validation (Free Instances)</div>
         <div class="val-body">
           <div class="val-date">
             <span class="pulse-dot"></span>
             {{ store.testSummary.date }}
+            <span v-if="store.testSummaryPrevious" class="val-vs">
+              vs {{ store.testSummaryPrevious.date }}
+            </span>
           </div>
           <div class="val-counts">
-            <span class="val-count working">{{ store.testSummary.results.working?.length ?? 0 }} working</span>
-            <span class="val-count broken">{{ store.testSummary.results.broken?.length ?? 0 }} broken</span>
-            <span class="val-count limited">{{ store.testSummary.results.rate_limited?.length ?? 0 }} limited</span>
+            <span class="val-count working">
+              {{ store.testSummary.results.working?.length ?? 0 }} working
+              <template v-if="store.testSummaryPrevious">
+                <span v-if="workingDelta > 0" class="val-delta val-delta-up">+{{ workingDelta }}</span>
+                <span v-else-if="workingDelta < 0" class="val-delta val-delta-down">{{ workingDelta }}</span>
+                <span v-else class="val-delta val-delta-flat">—</span>
+              </template>
+            </span>
+            <span class="val-count broken">
+              {{ store.testSummary.results.broken?.length ?? 0 }} broken
+              <template v-if="store.testSummaryPrevious">
+                <span v-if="brokenDelta > 0" class="val-delta val-delta-up">+{{ brokenDelta }}</span>
+                <span v-else-if="brokenDelta < 0" class="val-delta val-delta-down">{{ brokenDelta }}</span>
+                <span v-else class="val-delta val-delta-flat">—</span>
+              </template>
+            </span>
+            <span class="val-count limited">
+              {{ store.testSummary.results.rate_limited?.length ?? 0 }} limited
+              <template v-if="store.testSummaryPrevious">
+                <span v-if="limitedDelta > 0" class="val-delta val-delta-up">+{{ limitedDelta }}</span>
+                <span v-else-if="limitedDelta < 0" class="val-delta val-delta-down">{{ limitedDelta }}</span>
+                <span v-else class="val-delta val-delta-flat">—</span>
+              </template>
+            </span>
           </div>
           <p v-if="store.validationMethod" class="val-procedure">{{ store.validationMethod.procedure }}</p>
         </div>
@@ -162,11 +258,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import type { ModelData } from '@/types';
 import { useModelsStore } from '@/store/models';
-import EcosystemGraph from '@/components/EcosystemGraph.vue';
-import ProviderPulseWave from '@/components/ProviderPulseWave.vue';
+
+const router = useRouter();
 
 const store = useModelsStore();
 
@@ -260,6 +357,124 @@ const topFamilies = computed(() => {
     pct: Math.round((count / max) * 100),
   }));
 });
+
+// Top-scored by intelligence (artificial_analysis)
+const topScored = computed(() => {
+  const scores = store.modelScores;
+  if (!scores) return [];
+  const entries: { slug: string; name: string; score: number }[] = [];
+  for (const [fullId, scoreList] of Object.entries(scores.scores)) {
+    const intel = scoreList.find(s => s.source === 'artificial_analysis' && s.score_type === 'intelligence');
+    if (!intel || intel.score_value == null) continue;
+    const dp = store.datapointById.get(fullId);
+    if (!dp) continue;
+    entries.push({ slug: dp.model.slug, name: dp.model.name, score: intel.score_value });
+  }
+  // Dedupe by slug, keep highest score
+  const best = new Map<string, { slug: string; name: string; score: number }>();
+  for (const e of entries) {
+    const existing = best.get(e.slug);
+    if (!existing || e.score > existing.score) best.set(e.slug, e);
+  }
+  return [...best.values()].sort((a, b) => b.score - a.score).slice(0, 5);
+});
+
+// Top-ranked free models: #1 per role
+const roleLabels: Record<string, string> = {
+  model: 'Model',
+  build: 'Build',
+  general: 'General',
+  small_model: 'Small',
+  explore: 'Explore',
+};
+
+const topPerRole = computed(() => {
+  const rankings = store.roleRankings;
+  const result: { role: string; roleLabel: string; slug: string; name: string }[] = [];
+  for (const role of ['model', 'build', 'general', 'small_model', 'explore'] as const) {
+    const slugs = rankings[role];
+    if (!slugs || slugs.length === 0) continue;
+    const top = slugs[0];
+    const model = store.modelBySlug.get(top);
+    result.push({
+      role,
+      roleLabel: roleLabels[role] || role,
+      slug: top,
+      name: model?.name ?? top,
+    });
+  }
+  return result;
+});
+
+// Recently active: models with most recent last_success
+const recentlyActive = computed(() => {
+  const items: { dp: { full_id: string; provider: string; last_success: string | null }; model: { slug: string; name: string } }[] = [];
+  for (const creator of store.visibleCreators) {
+    for (const model of creator.models) {
+      for (const dp of model.providers) {
+        if (dp._removed || !dp.last_success) continue;
+        items.push({
+          dp: { full_id: dp.full_id, provider: dp.provider, last_success: dp.last_success },
+          model: { slug: model.slug, name: model.name },
+        });
+      }
+    }
+  }
+  items.sort((a, b) => new Date(b.dp.last_success!).getTime() - new Date(a.dp.last_success!).getTime());
+  return items.slice(0, 5);
+});
+
+// Quick search
+const searchQuery = ref('');
+
+function goSearch() {
+  const q = searchQuery.value.trim();
+  if (q) {
+    router.push({ path: '/', query: { q } });
+  }
+}
+
+// Critical issues (high + critical severity)
+const criticalIssues = computed(() =>
+  store.knownIssues.filter(i => i.severity === 'critical' || i.severity === 'high').slice(0, 6),
+);
+
+function modelNameForId(fullId: string): string {
+  const entry = store.datapointById.get(fullId);
+  return entry?.model.name ?? fullId.split('/').slice(1).join('/');
+}
+
+// Validation deltas vs previous run
+const workingDelta = computed(() => {
+  if (!store.testSummary || !store.testSummaryPrevious?.results) return 0;
+  const cur = store.testSummary.results.working?.length ?? 0;
+  const prev = store.testSummaryPrevious.results.working?.length ?? 0;
+  return cur - prev;
+});
+
+const brokenDelta = computed(() => {
+  if (!store.testSummary || !store.testSummaryPrevious?.results) return 0;
+  const cur = store.testSummary.results.broken?.length ?? 0;
+  const prev = store.testSummaryPrevious.results.broken?.length ?? 0;
+  return cur - prev;
+});
+
+const limitedDelta = computed(() => {
+  if (!store.testSummary || !store.testSummaryPrevious?.results) return 0;
+  const cur = store.testSummary.results.rate_limited?.length ?? 0;
+  const prev = store.testSummaryPrevious.results.rate_limited?.length ?? 0;
+  return cur - prev;
+});
+
+function formatTimeAgo(dateStr: string | null): string {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const hours = diff / 3_600_000;
+  if (hours < 1) return '<1h ago';
+  if (hours < 24) return `${Math.round(hours)}h ago`;
+  const days = Math.round(hours / 24);
+  return `${days}d ago`;
+}
 </script>
 
 <style scoped>
@@ -268,6 +483,130 @@ const topFamilies = computed(() => {
   margin: 0 auto;
   padding: 20px;
 }
+
+/* Quick search */
+.dash-search {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.dash-search-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.dash-search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-subtle);
+}
+
+.dash-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.dash-search-btn {
+  padding: 10px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dash-search-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Critical issues alert */
+.issues-alert-section {
+  margin-bottom: 24px;
+}
+
+.issues-alert-card {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.issues-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.issues-alert-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 0.75rem;
+}
+
+.ia-severity {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.ia-sev-critical {
+  background: rgba(239, 68, 68, 0.18);
+  color: var(--red);
+}
+
+.ia-sev-high {
+  background: rgba(251, 191, 36, 0.18);
+  color: var(--orange);
+}
+
+.ia-model {
+  font-weight: 600;
+  color: var(--text);
+  flex-shrink: 0;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ia-text {
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Validation deltas */
+.val-vs {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.val-delta {
+  font-size: 0.62rem;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.val-delta-up { color: var(--green); }
+.val-delta-down { color: var(--red); }
+.val-delta-flat { color: var(--text-muted); }
 
 /* Aurora header */
 .aurora-header {
@@ -586,6 +925,105 @@ const topFamilies = computed(() => {
 .epc-bar-fill.bar-degraded { background: var(--orange); }
 .epc-bar-fill.bar-down { background: var(--red); }
 
+/* Top Ranked + Top Scored row */
+.insights-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 700px) {
+  .insights-row {
+    grid-template-columns: 1fr;
+  }
+}
+.top-ranked-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.top-ranked-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.12s;
+}
+
+.top-ranked-row:hover {
+  background: var(--bg-elevated, rgba(255,255,255,0.03));
+}
+
+.tr-role {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  width: 60px;
+  flex-shrink: 0;
+}
+
+.tr-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Recently Active */
+.recent-section {
+  margin-bottom: 24px;
+}
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.recent-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.12s;
+}
+
+.recent-row:hover {
+  background: var(--bg-elevated, rgba(255,255,255,0.03));
+}
+
+.recent-model {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-provider {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.recent-time {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 /* Used-up section */
 .used-up-section {
   margin-bottom: 24px;
@@ -614,11 +1052,6 @@ const topFamilies = computed(() => {
   font-size: 0.62rem;
   font-weight: 400;
   opacity: 0.7;
-}
-
-/* Ecosystem graph section */
-.eco-graph-section {
-  margin-bottom: 24px;
 }
 
 /* Validation section */
@@ -675,10 +1108,6 @@ const topFamilies = computed(() => {
   letter-spacing: 0.08em;
   color: var(--text-muted);
   margin-bottom: 12px;
-}
-
-.pulse-wave-section {
-  margin-bottom: 28px;
 }
 
 /* Fine-tune Stats */

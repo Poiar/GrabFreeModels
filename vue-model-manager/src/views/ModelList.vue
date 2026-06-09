@@ -93,7 +93,6 @@
         :model="item.model"
         :creator="item.creator"
         :sibling-count="item.siblingCount"
-        @navigate-super="openDetail(item.model, item.creator)"
         @click="openDetail(item.model, item.creator)"
       />
     </div>

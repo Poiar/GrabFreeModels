@@ -6,7 +6,7 @@
       expanded,
       'status-working': dp.status.result === 'working',
       'status-rate-limited': dp.status.result === 'rate_limited',
-      'status-broken': dp.status.result === 'broken',
+      'status-broken': dp.status.result === 'broken' || dp.status.result === 'not_found',
     }"
   >
     <div class="pb-header">

@@ -164,7 +164,7 @@ const statusLabel = computed(() => {
     broken: 'down',
     rate_limited: 'limited',
     untested: 'untested',
-    not_found: 'gone',
+    not_found: 'missing',
   };
   return labels[props.dp.status.result] || props.dp.status.result;
 });
