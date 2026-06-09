@@ -9,6 +9,14 @@ Check the shared message log for messages addressed to this project.
 
 ## Steps
 
+### 0. Cache tab ID
+
+If `$env:USERPROFILE\.claude\tab-id.txt` doesn't exist, call `list_tabs`, find your tab (Playwright path = local install in your project), and write the UUID:
+
+```powershell
+"<your-tab-uuid>" | Out-File "$env:USERPROFILE\.claude\tab-id.txt"
+```
+
 ### 1. Read messages for this project
 
 ```powershell

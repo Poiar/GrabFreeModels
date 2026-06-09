@@ -11,16 +11,16 @@ Send messages to other Claude Code sessions in this Tabby window via `send_to_ta
 
 ### 1. Resolve tabs
 
-Call `list_tabs`. Find tabs with `claude.exe`. Extract project from the Playwright MCP path:
+**Self:** Read your tab ID from `$env:USERPROFILE\.claude\tab-id.txt` (cached at session start). If missing, call `list_tabs`, find your tab (Playwright path = local install in your project dir), and cache it there.
+
+**Target:** Call `list_tabs`. Find tabs with `claude.exe`. Extract project from the Playwright MCP path:
 
 ```
 C:\OC\<Project>\node_modules\...\@playwright\mcp\cli.js  →  local install = that project
 npm-cache\_npx\...\@playwright\mcp\cli.js                 →  global/cache = not this project (usually deepclaude)
 ```
 
-**Self:** The tab whose Playwright path uses a LOCAL install in your project dir. When multiple tabs share the same project (all local), use `bash.exe` vs `pwsh.exe` as tiebreaker.
-
-**Target:** The tab whose Playwright path matches the named project (local install). Prefer local over npm-cache.
+The target is the tab whose Playwright path matches the named project (local install). Prefer local over npm-cache.
 
 Tabby matches tab ID prefixes in the `reply to:` field for readability, but `send_to_tab` requires the full UUID from `list_tabs`.
 
@@ -43,9 +43,7 @@ Add-Content "$env:USERPROFILE\.claude\peer-messages.jsonl" $m
 
 ## Reply flow
 
-When you receive a `[peer · ...]` message, the `reply to:` field contains the sender's full tab UUID. To find your own tab ID: call `list_tabs`, match your project dir against Playwright MCP paths (local install = you). Same logic as step 1, but for self.
-
-Drop the instruction — it served its purpose on first contact:
+When you receive a `[peer · ...]` message, the `reply to:` field contains the sender's full tab UUID. Your tab ID is cached at `$env:USERPROFILE\.claude\tab-id.txt` — read it directly, no need to call `list_tabs`. Drop the instruction — it served its purpose on first contact:
 
 ```
 send_to_tab <reply-to-id> "[peer · <your project> — reply to: <your-tab-id>]: <reply>"
