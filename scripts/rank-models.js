@@ -153,42 +153,46 @@ async function rankModels() {
     // qualityScore: population-adaptive normalization + sigmoid squash (Items 1, 2)
     // When linear=true, uses raw value/max scaling instead of sigmoid — preserves
     // full-range differentiation for pure-benchmark variants where this IS the score.
+    // Returns { total, intel, coding, speed, latency } for transparency in the UI.
     function qualityScore(m, role, source, linear) {
       const scores = scoreMap.get(m.id);
-      if (!scores || scores.length === 0) return 0;
+      if (!scores || scores.length === 0) return { total: 0, intel: 0, coding: 0, speed: 0, latency: 0 };
       const intelligence = findDecayedScore(scores, 'intelligence', source);
       const speed = findDecayedScore(scores, 'output_speed', source);
       const coding = findDecayedScore(scores, 'aider-polyglot', source) || findDecayedScore(scores, 'swe-bench-verified', source);
       const latency = findDecayedScore(scores, 'latency_total', source);
-      let qs = 0;
+      let intel = 0, cod = 0, spd = 0, lat = 0;
       if (intelligence !== null && ['model', 'build', 'general', 'explore'].includes(role)) {
         const maxI = scoreTypeStats.get('intelligence')?.max || 40;
-        qs += linear ? (intelligence / Math.max(maxI, 1)) : Math.max(0, intelligence / maxI);
+        intel = linear ? (intelligence / Math.max(maxI, 1)) : Math.max(0, intelligence / maxI);
       }
       if (role === 'build' && coding !== null) {
         if (linear) {
           const cStats = scoreTypeStats.get('aider-polyglot') || scoreTypeStats.get('swe-bench-verified');
-          qs += coding / Math.max(cStats?.max || 100, 1);
+          cod = coding / Math.max(cStats?.max || 100, 1);
         } else {
           const cStats = scoreTypeStats.get('aider-polyglot') || scoreTypeStats.get('swe-bench-verified');
-          qs += sigSquash(coding, cStats?.mean || 30);
+          cod = sigSquash(coding, cStats?.mean || 30);
         }
       }
       if (['general', 'small_model'].includes(role) && speed !== null) {
         if (linear) {
-          qs += Math.min(speed / Math.max(scoreTypeStats.get('output_speed')?.max || 300, 1), 1);
+          spd = Math.min(speed / Math.max(scoreTypeStats.get('output_speed')?.max || 300, 1), 1);
         } else {
-          qs += sigSquash(speed, scoreTypeStats.get('output_speed')?.mean || 80);
+          spd = sigSquash(speed, scoreTypeStats.get('output_speed')?.mean || 80);
         }
       }
       if (role === 'small_model' && latency !== null && latency > 0) {
         if (linear) {
-          qs -= Math.min(latency / Math.max(scoreTypeStats.get('latency_total')?.max || 100, 1), 1);
+          lat = Math.min(latency / Math.max(scoreTypeStats.get('latency_total')?.max || 100, 1), 1);
         } else {
-          qs -= sigSquash(latency, scoreTypeStats.get('latency_total')?.mean || 4);
+          lat = sigSquash(latency, scoreTypeStats.get('latency_total')?.mean || 4);
         }
       }
-      return linear ? Math.max(0, qs) : Math.max(0, Math.min(qs, 3));
+      const total = linear
+        ? Math.max(0, intel + cod + spd - lat)
+        : Math.max(0, Math.min(intel + cod + spd - lat, 3));
+      return { total, intel, coding: cod, speed: spd, latency: lat };
     }
 
     // ── Role definitions ──
@@ -235,8 +239,8 @@ async function rankModels() {
       const scored = eligible.map((m) => {
         const ctx = ctxScore(m);
         const tags = tagBonus(m, cfg.tagKeywords);
-        const quality = qualityScore(m, role);
-        const score = ctx * cfg.ctxWeight + tags + quality;
+        const q = qualityScore(m, role);
+        const score = ctx * cfg.ctxWeight + tags + q.total;
         const ctxContrib = ctx * cfg.ctxWeight;
         const matchedTags = (cfg.tagKeywords || []).filter((kw) =>
           (m.best_for || []).some((t) => t.toLowerCase().includes(kw.toLowerCase())),
@@ -254,7 +258,11 @@ async function rankModels() {
           nameSizePenalty: 0,
           matchedTags,
           matchedPenaltyTags: [],
-          qualityBonus: quality,
+          qualityBonus: q.total,
+          qualityIntel: q.intel,
+          qualityCoding: q.coding,
+          qualitySpeed: q.speed,
+          qualityLatency: q.latency,
         };
       });
 
@@ -328,8 +336,8 @@ async function rankModels() {
 
         // Pure benchmark ranking — no context, no tags. Matches source website 1-to-1.
         const scored = eligible.map((m) => {
-          const quality = qualityScore(m, role, source, true);
-          return { id: m.id, score: quality, ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: quality };
+          const q = qualityScore(m, role, source, true);
+          return { id: m.id, score: q.total, ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: q.total, qualityIntel: q.intel, qualityCoding: q.coding, qualitySpeed: q.speed, qualityLatency: q.latency };
         });
 
         scored.sort((a, b) => b.score - a.score);

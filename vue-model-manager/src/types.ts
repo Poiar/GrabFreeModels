@@ -232,6 +232,11 @@ export interface RoleScore {
   nameSizePenalty: number;
   matchedTags: string[];
   matchedPenaltyTags: string[];
+  qualityBonus: number;
+  qualityIntel: number;
+  qualityCoding: number;
+  qualitySpeed: number;
+  qualityLatency: number;
 }
 
 export interface RoleMeta {

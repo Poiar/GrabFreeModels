@@ -96,6 +96,39 @@
           <div v-if="expandedModels.has(`${role.key}/${modelEntry.id}`)" class="rr-breakdown">
             <!-- Non-Combined variants: show benchmark scores -->
             <template v-if="isNonCombinedVariant()">
+              <div class="rrb-section" v-if="modelEntry.scoreDetail && (modelEntry.scoreDetail.qualityBonus ?? 0) > 0">
+                <div class="rrb-label">Quality Score Components</div>
+                <div class="rrb-bars">
+                  <div class="rrb-row" v-if="(modelEntry.scoreDetail.qualityIntel ?? 0) > 0">
+                    <span class="rrb-tag">Intelligence</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill quality" :style="{ width: `${Math.max(1, ((modelEntry.scoreDetail.qualityIntel ?? 0) / Math.max(modelEntry.scoreDetail.qualityBonus ?? 1, 0.01)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val">{{ (modelEntry.scoreDetail.qualityIntel ?? 0).toFixed(2) }}</span>
+                  </div>
+                  <div class="rrb-row" v-if="(modelEntry.scoreDetail.qualityCoding ?? 0) > 0">
+                    <span class="rrb-tag">Coding</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill quality" :style="{ width: `${Math.max(1, ((modelEntry.scoreDetail.qualityCoding ?? 0) / Math.max(modelEntry.scoreDetail.qualityBonus ?? 1, 0.01)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val">{{ (modelEntry.scoreDetail.qualityCoding ?? 0).toFixed(2) }}</span>
+                  </div>
+                  <div class="rrb-row" v-if="(modelEntry.scoreDetail.qualitySpeed ?? 0) > 0">
+                    <span class="rrb-tag">Speed</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill quality" :style="{ width: `${Math.max(1, ((modelEntry.scoreDetail.qualitySpeed ?? 0) / Math.max(modelEntry.scoreDetail.qualityBonus ?? 1, 0.01)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val">{{ (modelEntry.scoreDetail.qualitySpeed ?? 0).toFixed(2) }}</span>
+                  </div>
+                  <div class="rrb-row" v-if="(modelEntry.scoreDetail.qualityLatency ?? 0) > 0">
+                    <span class="rrb-tag">Latency</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill quality penalty" :style="{ width: `${Math.max(1, ((modelEntry.scoreDetail.qualityLatency ?? 0) / Math.max(modelEntry.scoreDetail.qualityBonus ?? 1, 0.01)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val penalty-val">-{{ (modelEntry.scoreDetail.qualityLatency ?? 0).toFixed(2) }}</span>
+                  </div>
+                </div>
+              </div>
               <div class="rrb-section">
                 <div class="rrb-label">Benchmark Scores</div>
                 <div v-if="benchmarkScoresForModel(modelEntry.id).length === 0" class="rrb-empty">
@@ -142,6 +175,41 @@
                       <div class="rrb-fill bonus" :style="{ width: `${Math.max(1, (modelEntry.scoreDetail.tagBonus / (modelEntry.score || 1)) * 100)}%` }"></div>
                     </div>
                     <span class="rrb-val">+{{ modelEntry.scoreDetail.tagBonus?.toFixed(1) ?? '0' }}</span>
+                  </div>
+                  <div class="rrb-row" v-if="modelEntry.scoreDetail && (modelEntry.scoreDetail.qualityBonus ?? 0) > 0">
+                    <span class="rrb-tag">Quality</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill quality" :style="{ width: `${Math.max(1, ((modelEntry.scoreDetail.qualityBonus ?? 0) / (modelEntry.score || 1)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val">+{{ (modelEntry.scoreDetail.qualityBonus ?? 0).toFixed(1) }}</span>
+                  </div>
+                  <div class="rrb-row" v-if="modelEntry.scoreDetail && (modelEntry.scoreDetail.qualityIntel ?? 0) > 0">
+                    <span class="rrb-tag qsub">Intelligence</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill quality-sub" :style="{ width: `${Math.max(1, ((modelEntry.scoreDetail.qualityIntel ?? 0) / (modelEntry.score || 1)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val qsub-val">{{ (modelEntry.scoreDetail.qualityIntel ?? 0).toFixed(2) }}</span>
+                  </div>
+                  <div class="rrb-row" v-if="modelEntry.scoreDetail && (modelEntry.scoreDetail.qualityCoding ?? 0) > 0">
+                    <span class="rrb-tag qsub">Coding</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill quality-sub" :style="{ width: `${Math.max(1, ((modelEntry.scoreDetail.qualityCoding ?? 0) / (modelEntry.score || 1)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val qsub-val">{{ (modelEntry.scoreDetail.qualityCoding ?? 0).toFixed(2) }}</span>
+                  </div>
+                  <div class="rrb-row" v-if="modelEntry.scoreDetail && (modelEntry.scoreDetail.qualitySpeed ?? 0) > 0">
+                    <span class="rrb-tag qsub">Speed</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill quality-sub" :style="{ width: `${Math.max(1, ((modelEntry.scoreDetail.qualitySpeed ?? 0) / (modelEntry.score || 1)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val qsub-val">{{ (modelEntry.scoreDetail.qualitySpeed ?? 0).toFixed(2) }}</span>
+                  </div>
+                  <div class="rrb-row" v-if="modelEntry.scoreDetail && (modelEntry.scoreDetail.qualityLatency ?? 0) > 0">
+                    <span class="rrb-tag qsub">Latency</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill quality-sub penalty" :style="{ width: `${Math.max(1, ((modelEntry.scoreDetail.qualityLatency ?? 0) / (modelEntry.score || 1)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val qsub-val penalty">-{{ (modelEntry.scoreDetail.qualityLatency ?? 0).toFixed(2) }}</span>
                   </div>
                   <div class="rrb-row" v-if="modelEntry.scoreDetail && modelEntry.scoreDetail.tagPenalty > 0">
                     <span class="rrb-tag">Tag Penalty</span>
@@ -364,6 +432,11 @@ interface ModelEntry {
     nameSizePenalty: number;
     matchedTags: string[];
     matchedPenaltyTags: string[];
+    qualityBonus: number;
+    qualityIntel: number;
+    qualityCoding: number;
+    qualitySpeed: number;
+    qualityLatency: number;
   };
   matchedTags?: string[];
   penaltyTags?: string[];
@@ -454,6 +527,11 @@ const roles = computed((): RoleSection[] => {
               nameSizePenalty: detail.nameSizePenalty,
               matchedTags: detail.matchedTags,
               matchedPenaltyTags: detail.matchedPenaltyTags,
+              qualityBonus: detail.qualityBonus ?? 0,
+              qualityIntel: detail.qualityIntel ?? 0,
+              qualityCoding: detail.qualityCoding ?? 0,
+              qualitySpeed: detail.qualitySpeed ?? 0,
+              qualityLatency: detail.qualityLatency ?? 0,
             }
           : undefined,
         matchedTags: detail?.matchedTags,
@@ -907,6 +985,8 @@ function wfFinalPct(entry: ModelEntry): number {
 .rrb-fill.total { background: var(--accent-gradient); }
 .rrb-fill.ctx { background: var(--viz-hue-3, #48dbfb); }
 .rrb-fill.bonus { background: var(--green); }
+.rrb-fill.quality { background: var(--viz-hue-5, #a78bfa); }
+.rrb-fill.quality-sub { background: color-mix(in srgb, var(--viz-hue-5, #a78bfa) 50%, transparent); }
 .rrb-fill.penalty { background: var(--red); }
 
 .rrb-val {
@@ -917,6 +997,20 @@ function wfFinalPct(entry: ModelEntry): number {
   color: var(--text-dim);
   text-align: right;
   flex-shrink: 0;
+}
+
+.rrb-tag.qsub {
+  padding-left: 12px;
+  font-size: 0.55rem;
+}
+
+.rrb-val.qsub-val {
+  font-size: 0.55rem;
+  color: var(--text-muted);
+}
+
+.rrb-val.qsub-val.penalty {
+  color: var(--red);
 }
 
 .penalty-val {
