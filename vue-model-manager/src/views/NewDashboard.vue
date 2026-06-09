@@ -302,7 +302,7 @@ const foundationCount = computed(() =>
 
 const DERIV_LABELS: Record<string, string> = {
   finetune: 'Fine-tune', merge: 'Merge', distillation: 'Distillation', dpo: 'DPO',
-  continued_pretraining: 'CPT', lora_adapter: 'LoRA', quantization: 'Quantized', unknown: 'Unknown',
+  continued_pretraining: 'CPT', lora_adapter: 'LoRA', unknown: 'Unknown',
 };
 
 const finetuneCount = computed(() =>

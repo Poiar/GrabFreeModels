@@ -127,7 +127,6 @@ const DERIVATION_META: Record<string, { label: string; cssClass: string }> = {
   dpo: { label: 'DPO', cssClass: 'deriv-dpo' },
   continued_pretraining: { label: 'CPT', cssClass: 'deriv-cpt' },
   lora_adapter: { label: 'LoRA', cssClass: 'deriv-lora' },
-  quantization: { label: 'Quant', cssClass: 'deriv-quant' },
   unknown: { label: 'Derived', cssClass: 'deriv-unknown' },
 };
 
@@ -412,7 +411,6 @@ async function copyText(text: string) {
 .sm-finetune-badge.deriv-dpo { background: rgba(34, 211, 238, 0.12); color: #22d3ee; }
 .sm-finetune-badge.deriv-cpt { background: rgba(250, 204, 21, 0.12); color: #eab308; }
 .sm-finetune-badge.deriv-lora { background: rgba(52, 211, 153, 0.12); color: #34d399; }
-.sm-finetune-badge.deriv-quant { background: rgba(251, 146, 60, 0.12); color: #fb923c; }
 .sm-finetune-badge.deriv-unknown { background: rgba(156, 163, 175, 0.12); color: #9ca3af; }
 
 .sm-badge-sep {

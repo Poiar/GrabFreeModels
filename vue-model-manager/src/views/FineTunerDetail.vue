@@ -304,7 +304,7 @@ const valFlex = computed(() => {
 
 const DERIVATION_LABELS: Record<string, string> = {
   finetune: 'FT', merge: 'Merge', distillation: 'Distill', dpo: 'DPO',
-  continued_pretraining: 'CPT', lora_adapter: 'LoRA', quantization: 'Quant', unknown: 'Derived',
+  continued_pretraining: 'CPT', lora_adapter: 'LoRA', unknown: 'Derived',
 };
 
 const derivationBreakdown = computed(() => {

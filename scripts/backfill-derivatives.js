@@ -34,9 +34,6 @@ const METHOD_TAGS = {
   'continued-pretraining': 'continued_pretraining',
   lora: 'lora_adapter',
   'peft': 'lora_adapter',
-  'quantized': 'quantization',
-  'quantization': 'quantization',
-  'gguf': 'quantization',
 };
 
 const BASE_MODEL_TAG_PREFIX = 'base_model:';

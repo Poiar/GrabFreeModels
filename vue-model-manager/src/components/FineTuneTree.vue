@@ -114,7 +114,6 @@ const DERIV_META_TREE: Record<string, { label: string; cssClass: string }> = {
   dpo: { label: 'DPO', cssClass: 'deriv-dpo' },
   continued_pretraining: { label: 'CPT', cssClass: 'deriv-cpt' },
   lora_adapter: { label: 'LoRA', cssClass: 'deriv-lora' },
-  quantization: { label: 'Q', cssClass: 'deriv-quant' },
 };
 
 function derivBadgeLabel(child: ModelData): string {
@@ -257,5 +256,5 @@ export default { name: 'FineTuneTree' };
 .ft-badge.deriv-dpo { background: rgba(34, 211, 238, 0.12); color: #22d3ee; }
 .ft-badge.deriv-cpt { background: rgba(250, 204, 21, 0.12); color: #eab308; }
 .ft-badge.deriv-lora { background: rgba(52, 211, 153, 0.12); color: #34d399; }
-.ft-badge.deriv-quant { background: rgba(251, 146, 60, 0.12); color: #fb923c; }
+
 </style>

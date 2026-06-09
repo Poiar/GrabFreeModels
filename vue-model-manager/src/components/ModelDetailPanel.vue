@@ -168,7 +168,7 @@ const totalCount = computed(() => props.model.providers.filter((p) => !p._remove
 
 const DERIV_LABELS_PANEL: Record<string, string> = {
   finetune: 'Fine-tune', merge: 'Merge', distillation: 'Distillation', dpo: 'DPO',
-  continued_pretraining: 'Continued PT', lora_adapter: 'LoRA', quantization: 'Quantized',
+  continued_pretraining: 'Continued PT', lora_adapter: 'LoRA',
 };
 
 const derivationLabel = computed(() => {
