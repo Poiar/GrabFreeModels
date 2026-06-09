@@ -156,6 +156,21 @@ CREATE TABLE model_scores (
     UNIQUE (datapoint_model_id, source, score_type)
 );
 
+-- Test observations: per-request latency and status for validation runs
+CREATE TABLE test_observations (
+    id                  SERIAL PRIMARY KEY,
+    datapoint_model_id  INTEGER REFERENCES datapoint_models(id) ON DELETE CASCADE,
+    full_id             VARCHAR(512) NOT NULL,
+    provider            VARCHAR(64) NOT NULL,
+    model_name          VARCHAR(256),
+    status              VARCHAR(16) NOT NULL,       -- 'pass' or 'fail'
+    latency_ms          NUMERIC(10,2),
+    error_type          VARCHAR(64),                -- 'timeout', 'rate_limited', 'server_error', 'client_error', 'network_error', 'not_found'
+    cost_details        JSONB,
+    metadata            JSONB,
+    tested_at           TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Indexes
 CREATE INDEX idx_dp_models_super ON datapoint_models(super_model_id);
 CREATE INDEX idx_dp_models_provider ON datapoint_models(datapoint_provider_id);
@@ -168,6 +183,10 @@ CREATE INDEX idx_model_scores_dm ON model_scores(datapoint_model_id);
 CREATE INDEX idx_model_scores_source ON model_scores(source);
 CREATE INDEX idx_model_scores_type ON model_scores(score_type);
 CREATE INDEX idx_model_scores_source_type ON model_scores(source, score_type);
+CREATE INDEX idx_test_obs_full_id ON test_observations(full_id);
+CREATE INDEX idx_test_obs_tested_at ON test_observations(tested_at);
+CREATE INDEX idx_test_obs_provider ON test_observations(provider);
+CREATE INDEX idx_test_obs_dm ON test_observations(datapoint_model_id);
 
 -- Helper function: normalize model name to slug
 -- Strips provider prefixes, lowercases, removes special chars

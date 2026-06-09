@@ -207,7 +207,7 @@ let pipelineStart = Date.now();
       }
     });
 
-    // 1. Run validation (updates statuses in PG, exports JSON)
+    // 1. Run validation (updates statuses in PG, exports JSON, records test observations)
     console.log('Running validation...');
     await runStep(
       'validate',
@@ -216,6 +216,36 @@ let pipelineStart = Date.now();
       },
       { critical: true },
     );
+
+    // 1b. Verify test observations were recorded
+    await runStep('record-observations', async () => {
+      try {
+        const today = new Date().toISOString().slice(0, 10);
+        const { rows } = await pool.query(
+          "SELECT COUNT(*) AS count, COUNT(DISTINCT full_id) AS models FROM test_observations WHERE tested_at::date >= $1",
+          [today],
+        );
+        const count = parseInt(rows[0].count, 10);
+        const models = parseInt(rows[0].models, 10);
+        console.log(`  ${count} observations across ${models} models for ${today}`);
+        if (count === 0) {
+          console.log('  WARNING: No test observations recorded — table may be empty');
+        }
+      } catch (e) {
+        // If the table doesn't exist yet (migration not run), log warning but don't fail
+        console.log(`  Unable to query test_observations: ${e.message}`);
+      }
+    });
+
+    // 1c. Check for degradation (latency spikes, failure rate jumps)
+    await runStep('check-degradation', async () => {
+      try {
+        execSync('node scripts/check-degradation.js', { stdio: 'inherit' });
+      } catch (e) {
+        // Don't fail the pipeline — degradation checks are diagnostic
+        console.log(`  Degradation check exited with error: ${e.message}`);
+      }
+    });
 
     // 2. Inherit family assignments from base model parents
     console.log('Inheriting family assignments from base model parents...');

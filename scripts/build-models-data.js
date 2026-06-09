@@ -531,6 +531,59 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     else if (m.status.result === 'broken') health[m.provider].broken++;
   }
 
+  // Per-model failure rates from test_observations (7d and 30d)
+  let failureRates = { description: 'Per-model failure rates from test_observations', models: {} };
+  try {
+    const { rows: frRows } = await client.query(`
+      SELECT
+        full_id,
+        ROUND(COUNT(*) FILTER (WHERE status = 'fail') * 100.0 / NULLIF(COUNT(*), 0), 1) AS failure_rate_7d,
+        COUNT(*) AS samples_7d,
+        COUNT(*) FILTER (WHERE status = 'fail') AS failures_7d
+      FROM test_observations
+      WHERE tested_at >= now() - interval '7 days'
+      GROUP BY full_id
+    `);
+    const { rows: frRows30d } = await client.query(`
+      SELECT
+        full_id,
+        ROUND(COUNT(*) FILTER (WHERE status = 'fail') * 100.0 / NULLIF(COUNT(*), 0), 1) AS failure_rate_30d,
+        COUNT(*) AS samples_30d,
+        COUNT(*) FILTER (WHERE status = 'fail') AS failures_30d
+      FROM test_observations
+      WHERE tested_at >= now() - interval '30 days'
+      GROUP BY full_id
+    `);
+
+    const frMap7d = {};
+    for (const r of frRows) {
+      frMap7d[r.full_id] = r;
+    }
+    const frMap30d = {};
+    for (const r of frRows30d) {
+      frMap30d[r.full_id] = r;
+    }
+
+    failureRates.models = {};
+    for (const m of outputModels) {
+      const fr7 = frMap7d[m.id];
+      const fr30 = frMap30d[m.id];
+      if (fr7 || fr30) {
+        failureRates.models[m.id] = {
+          failure_rate_7d: fr7 ? Number(fr7.failure_rate_7d) : null,
+          samples_7d: fr7 ? parseInt(fr7.samples_7d, 10) : 0,
+          failures_7d: fr7 ? parseInt(fr7.failures_7d, 10) : 0,
+          failure_rate_30d: fr30 ? Number(fr30.failure_rate_30d) : null,
+          samples_30d: fr30 ? parseInt(fr30.samples_30d, 10) : 0,
+          failures_30d: fr30 ? parseInt(fr30.failures_30d, 10) : 0,
+        };
+      }
+    }
+  } catch (e) {
+    // test_observations table may not exist yet (migration not run)
+    failureRates.note = 'test_observations table not available: ' + e.message;
+  }
+
   return {
     creators,
     providers,
@@ -561,6 +614,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     _provider_usage: meta._provider_usage || { description: '' },
     _known_issues: meta._known_issues || { description: '', issues: [] },
     _validation_method: meta._validation_method || { description: '' },
+    _failure_rates: failureRates,
     provider_health: health,
   };
 }
