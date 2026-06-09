@@ -197,7 +197,9 @@ async function rankModels() {
     }
 
     // qualityScore: population-adaptive normalization + sigmoid squash (Items 1, 2)
-    function qualityScore(m, role, source) {
+    // When linear=true, uses raw value/max scaling instead of sigmoid — preserves
+    // full-range differentiation for pure-benchmark variants where this IS the score.
+    function qualityScore(m, role, source, linear) {
       const scores = scoreMap.get(m.id);
       if (!scores || scores.length === 0) return 0;
       const intelligence = findDecayedScore(scores, 'intelligence', source);
@@ -207,19 +209,32 @@ async function rankModels() {
       let qs = 0;
       if (intelligence !== null && ['model', 'build', 'general', 'explore'].includes(role)) {
         const maxI = scoreTypeStats.get('intelligence')?.max || 40;
-        qs += Math.max(0, intelligence / maxI);
+        qs += linear ? (intelligence / Math.max(maxI, 1)) : Math.max(0, intelligence / maxI);
       }
       if (role === 'build' && coding !== null) {
-        const cStats = scoreTypeStats.get('aider-polyglot') || scoreTypeStats.get('swe-bench-verified');
-        qs += sigSquash(coding, cStats?.mean || 30);
+        if (linear) {
+          const cStats = scoreTypeStats.get('aider-polyglot') || scoreTypeStats.get('swe-bench-verified');
+          qs += coding / Math.max(cStats?.max || 100, 1);
+        } else {
+          const cStats = scoreTypeStats.get('aider-polyglot') || scoreTypeStats.get('swe-bench-verified');
+          qs += sigSquash(coding, cStats?.mean || 30);
+        }
       }
       if (['general', 'small_model'].includes(role) && speed !== null) {
-        qs += sigSquash(speed, scoreTypeStats.get('output_speed')?.mean || 80);
+        if (linear) {
+          qs += Math.min(speed / Math.max(scoreTypeStats.get('output_speed')?.max || 300, 1), 1);
+        } else {
+          qs += sigSquash(speed, scoreTypeStats.get('output_speed')?.mean || 80);
+        }
       }
       if (role === 'small_model' && latency !== null && latency > 0) {
-        qs -= sigSquash(latency, scoreTypeStats.get('latency_total')?.mean || 4);
+        if (linear) {
+          qs -= Math.min(latency / Math.max(scoreTypeStats.get('latency_total')?.max || 100, 1), 1);
+        } else {
+          qs -= sigSquash(latency, scoreTypeStats.get('latency_total')?.mean || 4);
+        }
       }
-      return Math.max(0, Math.min(qs, 3));
+      return linear ? Math.max(0, qs) : Math.max(0, Math.min(qs, 3));
     }
 
     // ── Role definitions ──
@@ -353,7 +368,7 @@ async function rankModels() {
 
         // Pure benchmark ranking — no context, no tags. Matches source website 1-to-1.
         const scored = eligible.map((m) => {
-          const quality = qualityScore(m, role, source);
+          const quality = qualityScore(m, role, source, true);
           return { id: m.id, score: quality, ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: quality };
         });
 
@@ -387,7 +402,7 @@ async function rankModels() {
       for (const [role, cfg] of Object.entries(ROLES)) {
         if (cfg.manual) { bmRankings[role] = []; bmScores[role] = []; continue; }
         const scored = eligible.map((m) => {
-          const quality = qualityScore(m, role, null);
+          const quality = qualityScore(m, role, null, true);
           return { id: m.id, score: quality, ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: quality };
         });
         scored.sort((a, b) => b.score - a.score);
