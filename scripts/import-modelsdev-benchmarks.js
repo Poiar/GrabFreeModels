@@ -91,11 +91,15 @@ function httpsGet(url) {
  * Returns Map<candidateKey, { id, model_instance_key, full_id, super_name }>
  */
 async function buildModelsdevLookup(client) {
+  // Match against both modelsdev (free) and openrouter (paid) datapoints.
+  // Prefer modelsdev rows by putting them first (earlier entries win on collision).
   const { rows } = await client.query(`
     SELECT dm.id, dm.model_instance_key, dm.full_id, sm.name AS super_name
     FROM datapoint_models dm
     JOIN super_models sm ON sm.id = dm.super_model_id
-    WHERE dm.datapoint_provider_id = (SELECT id FROM datapoint_providers WHERE slug = 'modelsdev')
+    JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
+    WHERE dp.slug IN ('modelsdev', 'openrouter')
+    ORDER BY dp.slug = 'modelsdev' DESC
   `);
 
   const lookup = new Map();

@@ -153,9 +153,9 @@ async function scrape() {
       console.log(' ', m.name, 'intel:', m.intelligence, 'price:', m.price, 'ctx:', m.context),
     );
 
-  // Load all free datapoints grouped by super_name, prefer working
+  // Load all datapoints grouped by super_name, prefer working, free first then paid
   const { rows: allRows } = await pool.query(
-    "SELECT dm.id, dm.full_id, mm.name AS super_name, dm.status_result FROM datapoint_models dm JOIN super_models mm ON mm.id = dm.super_model_id WHERE dm.is_free = true AND dm.is_removed = false ORDER BY dm.status_result = 'working' DESC, dm.status_result = 'untested' DESC",
+    "SELECT dm.id, dm.full_id, mm.name AS super_name, dm.status_result, dm.is_free FROM datapoint_models dm JOIN super_models mm ON mm.id = dm.super_model_id WHERE dm.is_removed = false ORDER BY dm.is_free = true DESC, dm.status_result = 'working' DESC, dm.status_result = 'untested' DESC",
   );
   // Deduplicate: for each super_name, pick the best datapoint (working > untested > other)
   const bestBySuper = new Map();
@@ -165,7 +165,7 @@ async function scrape() {
     }
   }
   const ourModels = Array.from(bestBySuper.values());
-  console.log('Our unique free super models:', ourModels.length);
+  console.log('Our unique free+paid super models:', ourModels.length);
 
   let matched = 0;
   const changes = [];
