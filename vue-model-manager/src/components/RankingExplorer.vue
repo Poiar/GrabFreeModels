@@ -27,7 +27,7 @@
         <select
           v-if="roleVariantOpts(role.key).length > 1"
           class="role-variant-select"
-          :value="roleVariants[role.key] ?? 'combined'"
+          :value="roleVariants[role.key] ?? '_benchmarks'"
           @change="onRoleVariantChange(role.key, ($event.target as HTMLSelectElement).value)"
         >
           <option v-for="v in roleVariantOpts(role.key)" :key="v" :value="v">{{ compactVariantLabels[v] ?? v }}</option>
@@ -370,11 +370,11 @@ const allVariantKeys = computed(() => props.variantKeys ?? (props.variantOptions
 const masterVariant = computed(() => props.masterVariant ?? props.selectedVariant ?? 'combined');
 
 const ROLE_VARIANT_OPTIONS: Record<string, string[]> = {
-  model:    ['combined', 'artificial_analysis', '_benchmarks'],
-  build:    ['combined', 'artificial_analysis', 'modelsdev', '_benchmarks'],
-  general:  ['combined', 'artificial_analysis', '_benchmarks'],
-  small_model: ['combined', 'artificial_analysis', '_benchmarks'],
-  explore:  ['combined', 'artificial_analysis', '_benchmarks'],
+  model:    ['artificial_analysis', '_benchmarks'],
+  build:    ['artificial_analysis', 'modelsdev', '_benchmarks'],
+  general:  ['artificial_analysis', '_benchmarks'],
+  small_model: ['artificial_analysis', '_benchmarks'],
+  explore:  ['artificial_analysis', '_benchmarks'],
 };
 
 function roleVariantOpts(role: string): string[] {
@@ -382,18 +382,17 @@ function roleVariantOpts(role: string): string[] {
   return base.filter(v => v === 'combined' || allVariantKeys.value.includes(v));
 }
 
-// Master options: intersection of what all roles support, so picking "MD"
-// doesn't silently fail on non-Build roles. Appends "Custom" when roles differ.
+// Master options: intersection of what all roles support.
+// Appends "Custom" when roles differ.
 const commonVariantKeys = computed(() => {
   const roleKeys = Object.keys(roleVariants.value);
-  if (roleKeys.length === 0) return ['combined'];
+  if (roleKeys.length === 0) return ['_benchmarks'];
   let common = new Set(roleVariantOpts(roleKeys[0]));
   for (let i = 1; i < roleKeys.length; i++) {
     const roleOpts = new Set(roleVariantOpts(roleKeys[i]));
     common = new Set([...common].filter(v => roleOpts.has(v)));
   }
-  const base = [...common].filter(v => v !== 'combined');
-  return ['combined', ...base];
+  return [...common];
 });
 
 const masterOptions = computed(() => {
@@ -419,7 +418,7 @@ function onRoleVariantChange(role: string, variant: string) {
 
 function roleVariantLabel(role: string): string {
   const v = roleVariants.value[role];
-  if (!v || v === 'combined') return '';
+  if (!v) return '';
   return variantLabels[v] ?? '';
 }
 
