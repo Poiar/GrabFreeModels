@@ -21,6 +21,10 @@
             <h3 class="pc-name">{{ provider.name }}<button class="copy-btn-sm" title="Copy name" @click.stop="copyText(provider.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></h3>
             <span class="pc-slug">{{ provider.slug }}</span>
           </div>
+          <span
+            class="pc-country"
+            :style="{ color: getCountryForProvider(provider.slug).text, background: getCountryForProvider(provider.slug).color }"
+          >{{ getCountryForProvider(provider.slug).name }}</span>
           <span class="pc-status" :class="provider.health_status">
             {{ provider.health_status }}
           </span>
@@ -86,6 +90,7 @@ import ProviderIcon from '@/components/ProviderIcon.vue';
 import ProviderPanel from '@/components/ProviderPanel.vue';
 import { useToast } from '@/composables/useToast';
 import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
+import { getCountryForProvider } from '@/data/provider-countries';
 import type { ProviderReference } from '@/types';
 
 const store = useModelsStore();
@@ -218,6 +223,15 @@ function navigateProviderPanel(index: number) {
   font-size: 0.62rem;
   color: var(--text-muted);
   font-family: 'JetBrains Mono', monospace;
+}
+
+.pc-country {
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
 }
 
 .pc-status {

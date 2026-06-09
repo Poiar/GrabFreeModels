@@ -2,7 +2,13 @@
   <div v-if="provider" class="pd-page">
     <div class="page-header">
       <router-link to="/providers" class="back-link">← Providers</router-link>
-      <h2>{{ provider.name }}</h2>
+      <h2>
+        {{ provider.name }}
+        <span
+          class="cd-country"
+          :style="{ color: getCountryForProvider(provider.slug).text, background: getCountryForProvider(provider.slug).color }"
+        >{{ getCountryForProvider(provider.slug).name }}</span>
+      </h2>
       <p class="pd-subtitle">
         {{ totalModels }} models ·
         <span class="pd-health" :class="provider.health_status">{{ provider.health_status }}</span>
@@ -92,6 +98,7 @@ import { useRoute } from 'vue-router';
 import SuperModelCard from '@/components/SuperModelCard.vue';
 import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
 import { useModelsStore } from '@/store/models';
+import { getCountryForProvider } from '@/data/provider-countries';
 import type { CreatorData, ModelData } from '@/types';
 
 const store = useModelsStore();
@@ -172,6 +179,15 @@ const pctWorking = computed(() => {
   font-size: 1.3rem;
   font-weight: 700;
   margin: 8px 0 4px;
+}
+.cd-country {
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+  margin-left: 4px;
 }
 .pd-subtitle {
   font-size: 0.78rem;

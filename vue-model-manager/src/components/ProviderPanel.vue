@@ -14,6 +14,10 @@
               <ProviderIcon :slug="provider.slug" :size="28" />
               <h2 class="prp-title" :style="{ color: providerColor }">{{ provider.name }}</h2>
               <span class="prp-slug">{{ provider.slug }}</span>
+              <span
+                class="prp-country"
+                :style="{ color: getCountryForProvider(provider.slug).text, background: getCountryForProvider(provider.slug).color }"
+              >{{ getCountryForProvider(provider.slug).name }}</span>
               <span class="prp-status" :class="provider.health_status">{{ provider.health_status }}</span>
             </div>
             <button class="prp-close" aria-label="Close panel" @click="close">
@@ -82,6 +86,7 @@ import type { ProviderReference } from '@/types';
 import { useModelsStore } from '@/store/models';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { getProviderColor } from '@/data/provider-colors';
+import { getCountryForProvider } from '@/data/provider-countries';
 import { useToast } from '@/composables/useToast';
 
 const props = defineProps<{
@@ -243,6 +248,15 @@ watch(
   font-size: 0.62rem;
   color: var(--text-muted);
   font-family: 'JetBrains Mono', monospace;
+}
+
+.prp-country {
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
 }
 
 .prp-status {
