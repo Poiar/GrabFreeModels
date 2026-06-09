@@ -283,10 +283,36 @@ async function rankModels() {
     const SOURCES = ['artificial_analysis', 'modelsdev'];
     const allVariants = { combined: { ...newRankings, _scores: allScores, _meta: allMeta } };
 
+    const SOURCE_DESCRIPTIONS = {
+      artificial_analysis: {
+        model: 'Primary model — ranked by AA Intelligence Index (quality evaluation)',
+        build: 'Coding tasks — ranked by AA Intelligence + output speed',
+        general: 'Everyday use — ranked by AA Intelligence + speed + latency',
+        small_model: 'Lightweight models — ranked by output speed + low latency',
+        explore: 'Experimental — ranked by AA Intelligence + multimodal signals',
+      },
+      modelsdev: {
+        model: 'Primary model — ranked by models.dev coding benchmarks',
+        build: 'Coding tasks — ranked by SWE-Bench Verified, Aider Polyglot, SciCode',
+        general: 'Everyday use — ranked by coding benchmarks + terminal benchmarks',
+        small_model: 'Lightweight models — ranked by benchmark efficiency scores',
+        explore: 'Experimental — ranked by diverse benchmark coverage',
+      },
+    };
+
+    const BM_DESCRIPTIONS = {
+      model: 'Pure benchmark scores — zero context length or tag weighting. Matches external leaderboards.',
+      build: 'Coding benchmarks only — SWE-Bench, Aider Polyglot, SciCode, Terminal-Bench. No context bonus.',
+      general: 'Speed + intelligence benchmarks only — output speed, latency, AA Intelligence. No context bonus.',
+      small_model: 'Speed + latency benchmarks only — fastest models win. Context length ignored entirely.',
+      explore: 'Diverse benchmarks — all available scores weighted equally. No context or tag bias.',
+    };
+
     for (const source of SOURCES) {
       const srcRankings = {};
       const srcScores = {};
-      const srcMeta = allMeta;
+      const srcMeta = {};
+      const descMap = SOURCE_DESCRIPTIONS[source];
 
       for (const [role, cfg] of Object.entries(ROLES)) {
         if (cfg.manual) { srcRankings[role] = []; srcScores[role] = []; continue; }
@@ -306,6 +332,15 @@ async function rankModels() {
         scored.sort((a, b) => { if (b.score !== a.score) return b.score - a.score; return b.ctx - a.ctx; });
         srcRankings[role] = scored.map((s) => s.id);
         srcScores[role] = scored;
+        srcMeta[role] = {
+          description: descMap[role] || cfg.description,
+          ctxWeight: cfg.ctxWeight,
+          tagKeywords: cfg.tagKeywords || [],
+          tagPenaltyKeywords: cfg.tagPenaltyKeywords || [],
+          nameSizePenalty: cfg.nameSizePenalty || false,
+          maxCtx: cfg.maxCtx || null,
+          needsTools: cfg.needsTools || false,
+        };
       }
 
       allVariants[source] = { ...srcRankings, _scores: srcScores, _meta: srcMeta };
@@ -320,6 +355,7 @@ async function rankModels() {
     {
       const bmRankings = {};
       const bmScores = {};
+      const bmMeta = {};
       for (const [role, cfg] of Object.entries(ROLES)) {
         if (cfg.manual) { bmRankings[role] = []; bmScores[role] = []; continue; }
         const scored = eligible.map((m) => {
@@ -329,8 +365,17 @@ async function rankModels() {
         scored.sort((a, b) => b.score - a.score);
         bmRankings[role] = scored.map((s) => s.id);
         bmScores[role] = scored;
+        bmMeta[role] = {
+          description: BM_DESCRIPTIONS[role] || cfg.description,
+          ctxWeight: 0,
+          tagKeywords: [],
+          tagPenaltyKeywords: [],
+          nameSizePenalty: false,
+          maxCtx: null,
+          needsTools: false,
+        };
       }
-      allVariants._benchmarks = { ...bmRankings, _scores: bmScores, _meta: allMeta };
+      allVariants._benchmarks = { ...bmRankings, _scores: bmScores, _meta: bmMeta };
 
       console.log('\n-- benchmarks only --');
       for (const role of Object.keys(ROLES)) {
