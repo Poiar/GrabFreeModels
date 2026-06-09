@@ -315,6 +315,7 @@ function clearAllFilters() {
   toolsFilter.value = false;
   multiProviderFilter.value = false;
   modelFilter.value = 'all';
+  viewMode.value = 'flat';
 }
 
 // ── Super model detail panel ──

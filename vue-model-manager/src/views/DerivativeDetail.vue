@@ -592,6 +592,9 @@ const derivDescription = computed(() => {
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .cd-stat-label {
   font-size: 0.65rem;

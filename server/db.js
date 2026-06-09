@@ -19,6 +19,10 @@ const pool = connectionString
       database: process.env.PGDATABASE,
     });
 
+pool.on('error', (err) => {
+  console.error('Pool error:', err.message);
+});
+
 if (isNeon) {
   const ping = () => pool.query('SELECT 1').catch(() => {});
   const interval = setInterval(ping, 60000);

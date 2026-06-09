@@ -441,7 +441,7 @@ const recentlyActive = computed(() => {
       }
     }
   }
-  items.sort((a, b) => new Date(b.dp.last_success!).getTime() - new Date(a.dp.last_success!).getTime());
+  items.sort((a, b) => { if (!a.dp.last_success || !b.dp.last_success) return 0; return new Date(b.dp.last_success).getTime() - new Date(a.dp.last_success).getTime(); });
   return items.slice(0, 5);
 });
 

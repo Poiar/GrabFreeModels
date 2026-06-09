@@ -30,7 +30,7 @@ async function buildModelsData(client, pool, options = {}) {
            mm.base_creator AS super_base_creator, mm.family AS super_family, mm.base_model AS super_base_model,
            mm.derivation_method AS super_derivation_method,
            dp.name AS provider_name, dp.slug AS provider_slug,
-           dp.npm_package
+           dp.npm_package, dp.base_url
     FROM datapoint_models dm
     JOIN super_models mm ON mm.id = dm.super_model_id
     JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
@@ -73,17 +73,35 @@ async function buildModelsData(client, pool, options = {}) {
 
   if (dmIds.length > 0) {
     const useClient = pool || client;
-    const combinedQuery = `SELECT datapoint_model_id, 'input' AS kind, input_type AS type_val, NULL AS feat_val FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1) UNION ALL SELECT datapoint_model_id, 'output' AS kind, output_type AS type_val, NULL AS feat_val FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1) UNION ALL SELECT datapoint_model_id, 'feature' AS kind, feature_type AS type_val, value AS feat_val FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)`;
-    const { rows: combinedRows } = await useClient.query(combinedQuery, [dmIds]);
 
-    for (const r of combinedRows) {
-      if (r.kind === 'input') {
+    try {
+      const { rows } = await useClient.query(
+        'SELECT datapoint_model_id, input_type AS type_val FROM datapoint_model_input_types WHERE datapoint_model_id = ANY($1)',
+        [dmIds]
+      );
+      for (const r of rows) {
         if (!inputMap.has(r.datapoint_model_id)) inputMap.set(r.datapoint_model_id, []);
         inputMap.get(r.datapoint_model_id).push(r.type_val);
-      } else if (r.kind === 'output') {
+      }
+    } catch { /* table may not exist */ }
+
+    try {
+      const { rows } = await useClient.query(
+        'SELECT datapoint_model_id, output_type AS type_val FROM datapoint_model_output_types WHERE datapoint_model_id = ANY($1)',
+        [dmIds]
+      );
+      for (const r of rows) {
         if (!outputMap.has(r.datapoint_model_id)) outputMap.set(r.datapoint_model_id, []);
         outputMap.get(r.datapoint_model_id).push(r.type_val);
-      } else if (r.kind === 'feature') {
+      }
+    } catch { /* table may not exist */ }
+
+    try {
+      const { rows } = await useClient.query(
+        'SELECT datapoint_model_id, feature_type AS type_val, value AS feat_val FROM datapoint_model_features WHERE datapoint_model_id = ANY($1)',
+        [dmIds]
+      );
+      for (const r of rows) {
         if (!featMap.has(r.datapoint_model_id)) {
           const obj = { tag: [], best_for: [] };
           for (const f of knownFeatures) obj[f] = [];
@@ -92,7 +110,7 @@ async function buildModelsData(client, pool, options = {}) {
         const bucket = knownFeatures.includes(r.type_val) ? r.type_val : 'tag';
         featMap.get(r.datapoint_model_id)[bucket].push(r.feat_val);
       }
-    }
+    } catch { /* table may not exist */ }
   }
 
   // Fallback: infer creator from a name prefix (org/name or org: name pattern)
@@ -157,6 +175,7 @@ async function buildModelsData(client, pool, options = {}) {
       },
       last_success: dm.last_success || null,
       deprecated_at: dm.deprecated_at || null,
+      base_url: dm.base_url || null,
       source: dm.provider_slug,
       npm_package: dm.npm_package || null,
       source_ids: sourceIdsByDm.get(dm.id) || [],
@@ -474,6 +493,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
         slug: dp.source,
         name: dp.provider,
         npm_package: dp.npm_package || null,
+        base_url: dp.base_url || null,
         model_count: 0,
         working_count: 0,
       });
@@ -500,7 +520,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
   const providers = Array.from(providerRefMap.values())
     .map((ref) => ({
       ...ref,
-      base_url: PROVIDER_BASE_URLS[ref.slug] || '',
+      base_url: ref.base_url || PROVIDER_BASE_URLS[ref.slug] || '',
       health_status:
         ref.working_count === ref.model_count && ref.model_count > 0
           ? 'healthy'
@@ -632,9 +652,9 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
         };
       }
     }
-  } catch (e) {
+  } catch {
     // test_observations table may not exist yet (migration not run)
-    failureRates.note = 'test_observations table not available: ' + e.message;
+    failureRates.note = 'test_observations table not available';
   }
 
   return {

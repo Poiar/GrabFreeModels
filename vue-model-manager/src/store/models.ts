@@ -207,7 +207,7 @@ export const useModelsStore = defineStore('models', () => {
 
   // ── Model lookup by super_id ──
   const modelBySuperId = computed((): Map<number, { model: ModelData; creator: CreatorData }> => {
-    const map = new Map();
+    const map = new Map<number, { model: ModelData; creator: CreatorData }>();
     for (const creator of creators.value) {
       for (const model of creator.models) {
         map.set(model.super_id, { model, creator });

@@ -25,7 +25,7 @@
         <div class="role-header-left">
           <span class="role-dot" :style="{ background: roleColors[role.key]?.accent }"></span>
           <h3 class="role-title">{{ role.label }}</h3>
-          <span class="role-badge" :style="{ background: roleColors[role.key]?.soft, color: roleColors[role.key]?.accent }">{{ role.models.length }} models</span>
+          <span class="role-badge" :style="{ background: roleColors[role.key]?.soft, color: roleColors[role.key]?.accent }" :title="`${role.models.length} models`">{{ role.models.length }}</span>
         </div>
         <select
           v-if="roleVariantOpts(role.key).length > 1"

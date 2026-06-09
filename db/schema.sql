@@ -159,6 +159,8 @@ CREATE TABLE model_scores (
 );
 
 -- Test observations: per-request latency and status for validation runs
+-- datapoint_model_id is nullable because observations may reference models that
+-- were tested but not yet persisted in datapoint_models at observation time.
 CREATE TABLE test_observations (
     id                  SERIAL PRIMARY KEY,
     datapoint_model_id  INTEGER REFERENCES datapoint_models(id) ON DELETE CASCADE,

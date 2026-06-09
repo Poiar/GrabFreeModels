@@ -48,13 +48,21 @@ function httpsGet(url) {
   });
 }
 
-async function getOpenRouterContext(modelId) {
+/** Fetch all OpenRouter models at once and return a Map<modelId, context_length> */
+async function fetchOpenRouterCatalog() {
   try {
     const r = await httpsGet(`https://openrouter.ai/api/v1/models`);
-    const found = r.data?.find((m) => m.id === modelId);
-    return found?.context_length ?? null;
+    const map = new Map();
+    if (r.data && Array.isArray(r.data)) {
+      for (const m of r.data) {
+        if (m.id && m.context_length != null) {
+          map.set(m.id, m.context_length);
+        }
+      }
+    }
+    return map;
   } catch {
-    return null;
+    return new Map();
   }
 }
 
@@ -100,12 +108,16 @@ logger.info(`Models with null context_length: ${targets.length}`);
     }
     /* eslint-enable no-unused-vars */
 
+    // Fetch OpenRouter catalog once (cached — avoid N+1 API calls)
+    const orCatalog = await fetchOpenRouterCatalog();
+    logger.info(`Fetched OpenRouter catalog: ${orCatalog.size} models`);
+
     let updated = 0;
     for (const m of targets) {
       let ctx = null;
 
       const orId = m.full_id.startsWith('nvidia/') ? m.full_id.replace('nvidia/', '') : m.full_id;
-      ctx = await getOpenRouterContext(orId);
+      ctx = orCatalog.get(orId) || null;
       if (ctx) {
         logger.info(`  ${m.full_id}: ${ctx} (from OpenRouter)`);
       }

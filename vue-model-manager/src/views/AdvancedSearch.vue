@@ -132,9 +132,7 @@
                   <span class="facet-range-sep">to</span>
                   <input v-model.number="maxContext" type="number" placeholder="Max" class="facet-range-input" min="0" />
                 </div>
-                <div class="facet-range-presets" style="margin-top:6px;">
-                  <button v-for="preset in contextPresets" :key="preset.label" class="preset-btn" :class="{ 'preset-active': minContext === preset.min && maxContext === preset.max }" @click="setContextPreset(preset)">{{ preset.label }}</button>
-                </div>
+
               </div>
             </div>
           </div>
@@ -512,7 +510,7 @@ const filteredModels = computed(() => {
 
   // Context range
   if (minContext.value !== null) {
-    models = models.filter(m => m.best_context === null || m.best_context >= minContext.value!);
+    models = models.filter(m => m.best_context !== null && m.best_context >= minContext.value!);
   }
   if (maxContext.value !== null) {
     models = models.filter(m => m.best_context !== null && m.best_context <= maxContext.value!);

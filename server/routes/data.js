@@ -1,12 +1,12 @@
 const express = require('express');
-const crypto = require('crypto');
 const pool = require('../db');
 const loadModels = require('../../scripts/load-models');
 
 const router = express.Router();
 
 const CACHE_TTL = 60_000; // 60s — limits staleness while caching aggressive repeat visits
-let dataCache = null; // { etag, data, ts }
+let dataCache = null; // { data, ts }
+let inflightLoad = null;
 
 const VALID_FIELDS = [
   'creators',
@@ -49,17 +49,16 @@ router.get('/data', async (req, res) => {
 
     const now = Date.now();
     if (dataCache && (now - dataCache.ts) < CACHE_TTL) {
-      const clientEtag = req.headers['if-none-match'];
-      if (clientEtag && clientEtag === dataCache.etag) {
-        return res.status(304).end();
-      }
+      res.set('Cache-Control', 'no-cache');
+      return res.json(dataCache.data);
     }
 
-    const result = await loadModels(pool);
-    const etag = `W/"${crypto.createHash('md5').update(JSON.stringify(result)).digest('hex')}"`;
-    dataCache = { etag, data: result, ts: Date.now() };
+    if (!inflightLoad) {
+      inflightLoad = loadModels(pool).finally(() => { inflightLoad = null; });
+    }
+    const result = await inflightLoad;
+    dataCache = { data: result, ts: Date.now() };
 
-    res.set('ETag', etag);
     res.set('Cache-Control', 'no-cache');
     res.json(result);
   } catch (err) {
@@ -69,23 +68,19 @@ router.get('/data', async (req, res) => {
 });
 
 // ── Paid data endpoint ──
-let paidDataCache = null; // { etag, data, ts }
+let paidDataCache = null; // { data, ts }
 
 router.get('/data/paid', async (req, res) => {
   try {
     const now = Date.now();
     if (paidDataCache && (now - paidDataCache.ts) < CACHE_TTL) {
-      const clientEtag = req.headers['if-none-match'];
-      if (clientEtag && clientEtag === paidDataCache.etag) {
-        return res.status(304).end();
-      }
+      res.set('Cache-Control', 'no-cache');
+      return res.json(paidDataCache.data);
     }
 
     const result = await loadModels(pool, { isFree: false });
-    const etag = `W/"${crypto.createHash('md5').update(JSON.stringify(result)).digest('hex')}"`;
-    paidDataCache = { etag, data: result, ts: Date.now() };
+    paidDataCache = { data: result, ts: Date.now() };
 
-    res.set('ETag', etag);
     res.set('Cache-Control', 'no-cache');
     res.json(result);
   } catch (err) {

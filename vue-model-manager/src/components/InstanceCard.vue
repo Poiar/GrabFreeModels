@@ -16,12 +16,12 @@
     <!-- Row 2: Creator / Family / Super Model -->
     <div class="ic-meta-row">
       <router-link :to="'/creator/' + creator.id" class="ic-badge ic-badge-creator ic-badge-link" @click.stop>
-        <ProviderIcon :slug="creator.id" :size="12" cls="ic-icon" />
-        <span class="ic-icon-fb">{{ (creator.name || '?')[0] }}</span>
+        <ProviderIcon v-if="creator.id" :slug="creator.id" :size="12" cls="ic-icon" />
+        <span v-else class="ic-icon-fb">{{ (creator.name || '?')[0] }}</span>
         {{ creator.name }}
       </router-link>
       <span class="ic-badge-sep">/</span>
-      <router-link v-if="model.family" :to="'/family/' + model.family" class="ic-badge ic-badge-family ic-badge-link" @click.stop>
+      <router-link v-if="model.family" :to="'/family/' + encodeURIComponent(model.family)" class="ic-badge ic-badge-family ic-badge-link" @click.stop>
         <span class="ic-icon-fb">{{ formatFamily(model.family)[0] }}</span>
         {{ formatFamily(model.family) }}
       </router-link>
@@ -122,13 +122,11 @@ const hasImageInput = computed(() => (props.dp.input_types || []).includes('imag
 
 const topRankings = computed(() => {
   const rankings = props.model.role_rankings;
-  const result: { role: string; label: string; rank: number }[] = [];
   const labels: Record<string, string> = { model: 'Mod', build: 'Bld', general: 'Gen', small_model: 'Sml', explore: 'Exp' };
-  for (const [role, rank] of Object.entries(rankings)) {
-    if (result.length >= 2) break;
-    result.push({ role, label: labels[role] || role, rank });
-  }
-  return result;
+  return Object.entries(rankings)
+    .sort(([, a], [, b]) => a - b)
+    .slice(0, 2)
+    .map(([role, rank]) => ({ role, label: labels[role] || role, rank }));
 });
 
 const sourceBadges = computed(() => {

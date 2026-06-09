@@ -885,6 +885,8 @@ function normalizeModelSlug(name) {
     ]);
 
     // Track providers that returned 0 models -- assume fetch failure, skip removal
+    // On Sundays (weekly cleanup), flag models from zero-result providers as removed
+    const isWeeklyCleanup = new Date().getDay() === 0;
     const providersWithZeroResults = new Set();
     const providerArrays = {
       openrouter: orModels, cerebras: cbModels, nvidia: nvModels, google: googleModels,
@@ -894,8 +896,12 @@ function normalizeModelSlug(name) {
     };
     for (const [slug, arr] of Object.entries(providerArrays)) {
       if (!arr || arr.length === 0) {
-        providersWithZeroResults.add(slug);
-        logger.warn('Provider ' + slug + ' returned 0 models -- assuming fetch failure, skipping removal');
+        if (isWeeklyCleanup) {
+          logger.warn('Provider ' + slug + ' returned 0 models -- weekly cleanup, flagging as removed');
+        } else {
+          providersWithZeroResults.add(slug);
+          logger.warn('Provider ' + slug + ' returned 0 models -- assuming fetch failure, skipping removal');
+        }
       }
     }
 

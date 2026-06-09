@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="cm-page">
     <div class="page-header">
       <h2>Compare Models</h2>

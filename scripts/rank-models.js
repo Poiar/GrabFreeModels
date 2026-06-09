@@ -126,11 +126,6 @@ async function rankModels() {
       return m.context_length / maxContext;
     }
 
-    function findScore(scores, type, source) {
-      const s = scores?.find((s) => s.score_type === type && (!source || s.source === source));
-      return s ? s.score_value : null;
-    }
-
     // findDecayedScore applies time-decay freshness weight (Item 6)
     function findDecayedScore(scores, type, source) {
       const s = scores?.find((s) => s.score_type === type && (!source || s.source === source));
@@ -371,7 +366,7 @@ async function rankModels() {
         if (cfg.manual) { bmRankings[role] = []; bmScores[role] = []; continue; }
         const scored = eligible.map((m) => {
           const quality = qualityScore(m, role, null, true);
-          return { id: m.id, score: quality, ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: quality };
+          return { id: m.id, score: quality.total, ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: quality.total };
         });
         scored.sort((a, b) => b.score - a.score);
         bmRankings[role] = scored.map((s) => s.id);
@@ -395,57 +390,7 @@ async function rankModels() {
     }
 
     // ── Bootstrap confidence intervals (Item 5) ──
-    function computeBootstrapCI(modelScores, role, nIterations) {
-      if (!modelScores || modelScores.length < 2) return null;
-      nIterations = nIterations || 1000;
-      const results = [];
-      const n = modelScores.length;
-      for (let i = 0; i < nIterations; i++) {
-        const sample = [];
-        for (let j = 0; j < n; j++) sample.push(modelScores[Math.floor(Math.random() * n)]);
-        const intelligence = findScore(sample, 'intelligence');
-        const speed = findScore(sample, 'output_speed');
-        const coding = findScore(sample, 'aider-polyglot') || findScore(sample, 'swe-bench-verified');
-        const latency = findScore(sample, 'latency_total');
-        let qs = 0;
-        if (intelligence !== null && ['model', 'build', 'general', 'explore'].includes(role)) {
-          qs += Math.max(0, intelligence / (scoreTypeStats.get('intelligence')?.max || 40));
-        }
-        if (role === 'build' && coding !== null) {
-          const cS = scoreTypeStats.get('aider-polyglot') || scoreTypeStats.get('swe-bench-verified');
-          qs += sigSquash(coding, cS?.mean || 30);
-        }
-        if (['general', 'small_model'].includes(role) && speed !== null) {
-          qs += sigSquash(speed, scoreTypeStats.get('output_speed')?.mean || 80);
-        }
-        if (role === 'small_model' && latency !== null && latency > 0) {
-          qs -= sigSquash(latency, scoreTypeStats.get('latency_total')?.mean || 4);
-        }
-        results.push(Math.max(0, Math.min(qs, 3)));
-      }
-      results.sort((a, b) => a - b);
-      return {
-        low: results[Math.floor(nIterations * 0.025)],
-        high: results[Math.floor(nIterations * 0.975)],
-      };
-    }
 
-    const allCI = {};
-    for (const [role, cfg] of Object.entries(ROLES)) {
-      if (cfg.manual) { allCI[role] = {}; continue; }
-      const roleCI = {};
-      for (const m of eligible) {
-        const scores = scoreMap.get(m.id);
-        if (!scores || scores.length < 2) continue;
-        const ci = computeBootstrapCI(scores, role);
-        if (ci) roleCI[m.id] = ci;
-      }
-      allCI[role] = roleCI;
-      const withCI = Object.keys(roleCI).length;
-      if (withCI > 0) console.log(`  ${role}: bootstrap CI for ${withCI} models`);
-    }
-
-    // ── Diff against current rankings in DB ──
     const { rows: metaRows } = await client.query(
       "SELECT value::text FROM metadata WHERE key = '_role_rankings'",
     );
@@ -469,7 +414,7 @@ async function rankModels() {
     // ── Apply ──
     if (APPLY) {
       await client.query('BEGIN');
-      const rankingsWithMeta = { ...newRankings, _variants: allVariants, _scores: allScores, _meta: allMeta, _ci: allCI };
+      const rankingsWithMeta = { ...newRankings, _variants: allVariants, _scores: allScores, _meta: allMeta };
       await client.query(
         `INSERT INTO metadata (key, value) VALUES ('_role_rankings', $1)
          ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,

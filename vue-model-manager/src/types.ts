@@ -48,6 +48,7 @@ export interface ProviderDatapoint {
   knowledge_cutoff: string | null;
   last_updated: string | null;
   release_date: string | null;
+  deprecated_at: string | null;
 }
 
 export interface ModelData {
@@ -154,6 +155,7 @@ export interface DatapointModel {
   knowledge_cutoff: string | null;
   releaseDate: string | null;
   lastUpdated: string | null;
+  deprecated_at: string | null;
   tags: string[];
   best_for: string[];
   input_types: string[];
@@ -165,6 +167,8 @@ export interface DatapointModel {
   notes?: string;
   priority_score: number | null;
   limitations?: ModelLimitations | null;
+  npm_package: string | null;
+  source_ids: number[];
 }
 
 export interface SuperModel {

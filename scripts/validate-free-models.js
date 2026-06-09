@@ -399,18 +399,22 @@ const ENDPOINT_CONFIG = {
   groq: {
     url: 'https://api.groq.com/openai/v1/chat/completions',
     key: () => auth.groq?.key,
+    fetchIds: async () => null,
   },
   deepinfra: {
     url: 'https://api.deepinfra.com/v1/openai/chat/completions',
     key: () => auth.deepinfra?.key,
+    fetchIds: async () => null,
   },
   novitaai: {
     url: 'https://api.novita.ai/v3/openai/chat/completions',
     key: () => auth.novitaai?.key,
+    fetchIds: async () => null,
   },
   siliconflow: {
     url: 'https://api.siliconflow.cn/v1/chat/completions',
     key: () => auth.siliconflow?.key,
+    fetchIds: async () => null,
   },
   xai: {
     url: 'https://api.x.ai/v1/chat/completions',
@@ -445,8 +449,10 @@ async function parseOpenRouterModels(key) {
 }
 
 async function parseSimpleModels(key, url) {
+  if (!key) return null;
   const data = await httpsGet(url, { Authorization: `Bearer ${key}` });
   const parsed = JSON.parse(data);
+  if (!Array.isArray(parsed.data)) return null;
   return new Set(parsed.data.map((m) => m.id));
 }
 
@@ -1026,10 +1032,51 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
   await saveToDbAndExport(allObservations);
   logger.info('DB updated and JSON exported successfully');
 
-  // --- Auto re-rank if working set changed ---
-  const workingChanged = allResults.some(
-    (r) => r.status === 'working' || r.status === 'broken' || r.status === 'rate_limited',
-  );
+  // --- Auto re-rank if working set actually changed ---
+  // Compare current results against previous test summary to avoid spurious re-ranking.
+  let workingChanged;
+  try {
+    const { rows: prevRows } = await DB_POOL.query(
+      "SELECT value::text FROM metadata WHERE key = '_test_summary_previous'",
+    );
+    if (prevRows.length > 0) {
+      const prevSummary = JSON.parse(prevRows[0].value);
+      const prevWorking = new Set(prevSummary.results?.working || []);
+      const prevBroken = new Set(prevSummary.results?.broken || []);
+      const prevRateLimited = new Set(prevSummary.results?.rate_limited || []);
+
+      const curWorking = new Set();
+      const curBroken = new Set();
+      const curRateLimited = new Set();
+      for (const r of allResults) {
+        if (r.status === 'working') curWorking.add(r.id);
+        else if (r.status === 'broken') curBroken.add(r.id);
+        else if (r.status === 'rate_limited') curRateLimited.add(r.id);
+      }
+
+      // Detect actual changes in any status bucket
+      const workingAdded = [...curWorking].filter(id => !prevWorking.has(id));
+      const workingDropped = [...prevWorking].filter(id =>
+        curBroken.has(id) || curRateLimited.has(id)
+      );
+      const brokenAdded = [...curBroken].filter(id => !prevBroken.has(id) && prevWorking.has(id));
+      const rateLimitedAdded = [...curRateLimited].filter(id => !prevRateLimited.has(id) && prevWorking.has(id));
+      const brokenResolved = [...prevBroken].filter(id => curWorking.has(id));
+      const rateLimitedResolved = [...prevRateLimited].filter(id => curWorking.has(id));
+
+      workingChanged = workingAdded.length > 0 || workingDropped.length > 0 ||
+                       brokenAdded.length > 0 || rateLimitedAdded.length > 0 ||
+                       brokenResolved.length > 0 || rateLimitedResolved.length > 0;
+    } else {
+      // No previous summary — first run, re-rank if we have any results
+      workingChanged = allResults.length > 0;
+    }
+  } catch (e) {
+    logger.info(`Could not check previous summary: ${e.message}`);
+    workingChanged = allResults.some(
+      (r) => r.status === 'working' || r.status === 'broken' || r.status === 'rate_limited',
+    );
+  }
   if (workingChanged) {
     logger.info('\nWorking set changed — auto re-ranking...');
     const { execFileSync } = require('child_process');

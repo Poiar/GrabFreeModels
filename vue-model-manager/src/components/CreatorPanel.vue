@@ -11,7 +11,7 @@
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
-              <ProviderIcon :slug="creator.id" :size="64" cls="crp-icon" />
+              <ProviderIcon :slug="creator.id" :size="28" />
               <h2 class="crp-title">{{ creator.name }}</h2>
             </div>
             <button class="crp-close" aria-label="Close panel" @click="close">
@@ -106,6 +106,7 @@ watch(
       document.body.style.overflow = '';
     }
   },
+  { immediate: true },
 );
 </script>
 

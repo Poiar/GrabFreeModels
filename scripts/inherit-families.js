@@ -4,7 +4,11 @@
 const { Pool } = require('pg');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 1, ssl: { rejectUnauthorized: false } });
+let connectionString = process.env.DATABASE_URL;
+if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
+  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+}
+const pool = new Pool({ connectionString, max: 1, ssl: { rejectUnauthorized: false } });
 
 function nameToSlug(name) {
   return (name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
