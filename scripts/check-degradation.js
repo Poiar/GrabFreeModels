@@ -13,16 +13,85 @@
  */
 
 require('dotenv').config();
+const https = require('https');
+const http = require('http');
 const pool = require('../server/db');
 
 const args = process.argv.slice(2);
 const JSON_OUTPUT = args.includes('--json');
+const SHOULD_ALERT = args.includes('--alert');
 const BASELINE_DAYS = (() => {
   const idx = args.indexOf('--baseline-days');
   return idx !== -1 ? parseInt(args[idx + 1], 10) : 7;
 })();
 const LATENCY_SIGMA_THRESHOLD = 2.0;  // number of sigma above baseline mean
 const FAILURE_RATE_DELTA_THRESHOLD = 20;  // percentage point increase
+
+function getWebhookUrl() {
+  const idx = args.indexOf('--webhook-url');
+  if (idx !== -1) return args[idx + 1];
+  return process.env.DEGRADATION_WEBHOOK_URL;
+}
+
+function sendWebhook(url, payload) {
+  return new Promise((resolve, reject) => {
+    const u = new URL(url);
+    const mod = u.protocol === 'https:' ? https : http;
+    const data = JSON.stringify({
+      text: 'Degradation Alert: ' + payload.alerts_count + ' model(s) affected',
+      blocks: [
+        {
+          type: 'header',
+          text: { type: 'plain_text', text: 'Model Degradation Detected' },
+        },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: '*Run date:* ' + payload.run_date + '\n*Models checked:* ' + payload.models_checked + '\n*Alerts:* ' + payload.alerts_count,
+          },
+        },
+        ...payload.alerts.flatMap((a) => [
+          { type: 'divider' },
+          {
+            type: 'section',
+            text: { type: 'mrkdwn', text: '*' + a.full_id + '* (' + a.provider + ')' },
+          },
+          ...a.alerts.map((alert) => ({
+            type: 'section',
+            text: { type: 'mrkdwn', text: '• ' + alert.message },
+          })),
+        ]),
+      ],
+    });
+
+    const req = mod.request(
+      url,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(data),
+        },
+      },
+      (res) => {
+        let body = '';
+        res.on('data', (c) => (body += c));
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) resolve();
+          else reject(new Error('Webhook returned ' + res.statusCode + ': ' + body));
+        });
+      },
+    );
+    req.on('error', reject);
+    req.setTimeout(10000, () => {
+      req.destroy();
+      reject(new Error('Webhook timeout'));
+    });
+    req.write(data);
+    req.end();
+  });
+}
 
 async function main() {
   // Check table exists
@@ -226,6 +295,21 @@ async function main() {
       console.log('  Degradation detected — review the models above.');
     } else {
       console.log('  All clear.\n');
+    }
+  }
+
+  // Webhook delivery
+  if (SHOULD_ALERT && alerts.length > 0) {
+    const webhookUrl = getWebhookUrl();
+    if (!webhookUrl) {
+      console.error('--alert flag set but no webhook URL configured. Set DEGRADATION_WEBHOOK_URL env var or pass --webhook-url.');
+      process.exit(1);
+    }
+    try {
+      await sendWebhook(webhookUrl, output);
+      console.log('Webhook alert delivered successfully.');
+    } catch (e) {
+      console.error('Webhook delivery failed:', e.message);
     }
   }
 
