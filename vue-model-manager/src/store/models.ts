@@ -309,8 +309,8 @@ export const useModelsStore = defineStore('models', () => {
   }
 
   // ── Ranking variant selection ──
-  const rankingVariant = ref<string>('combined');
-  const paidRankingVariant = ref<string>('combined');
+  const rankingVariant = ref<string>('_benchmarks');
+  const paidRankingVariant = ref<string>('_benchmarks');
 
   function resolveVariant(r: ModelsData['_role_rankings'] | undefined | null, variant: string) {
     if (!r) return null;
