@@ -317,29 +317,23 @@ async function rankModels() {
       for (const [role, cfg] of Object.entries(ROLES)) {
         if (cfg.manual) { srcRankings[role] = []; srcScores[role] = []; continue; }
 
+        // Pure benchmark ranking — no context, no tags. Matches source website 1-to-1.
         const scored = eligible.map((m) => {
-          const ctx = ctxScore(m);
-          const tags = tagBonus(m, cfg.tagKeywords);
           const quality = qualityScore(m, role, source);
-          const score = ctx * cfg.ctxWeight + tags + quality;
-          const ctxContrib = ctx * cfg.ctxWeight;
-          const matchedTags = (cfg.tagKeywords || []).filter((kw) =>
-            (m.best_for || []).some((t) => t.toLowerCase().includes(kw.toLowerCase())),
-          );
-          return { id: m.id, score, ctx: m.context_length || 0, ctxScore: ctx, ctxWeight: cfg.ctxWeight, ctxContrib, tagBonus: tags, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags, matchedPenaltyTags: [], qualityBonus: quality };
+          return { id: m.id, score: quality, ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: quality };
         });
 
-        scored.sort((a, b) => { if (b.score !== a.score) return b.score - a.score; return b.ctx - a.ctx; });
+        scored.sort((a, b) => b.score - a.score);
         srcRankings[role] = scored.map((s) => s.id);
         srcScores[role] = scored;
         srcMeta[role] = {
           description: descMap[role] || cfg.description,
-          ctxWeight: cfg.ctxWeight,
-          tagKeywords: cfg.tagKeywords || [],
-          tagPenaltyKeywords: cfg.tagPenaltyKeywords || [],
-          nameSizePenalty: cfg.nameSizePenalty || false,
-          maxCtx: cfg.maxCtx || null,
-          needsTools: cfg.needsTools || false,
+          ctxWeight: 0,
+          tagKeywords: [],
+          tagPenaltyKeywords: [],
+          nameSizePenalty: false,
+          maxCtx: null,
+          needsTools: false,
         };
       }
 
