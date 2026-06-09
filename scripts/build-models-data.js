@@ -28,6 +28,7 @@ async function buildModelsData(client, pool, options = {}) {
   const { rows: dmRows } = await client.query(`
     SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug, mm.creator AS super_creator,
            mm.base_creator AS super_base_creator, mm.family AS super_family, mm.base_model AS super_base_model,
+           mm.derivation_method AS super_derivation_method,
            dp.name AS provider_name, dp.slug AS provider_slug,
            dp.npm_package
     FROM datapoint_models dm
@@ -140,6 +141,7 @@ async function buildModelsData(client, pool, options = {}) {
       open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
       family: dm.super_family || feat?.family?.[0] || null,
       base_model: dm.super_base_model || null,
+      derivation_method: dm.super_derivation_method || null,
       knowledge_cutoff: feat?.knowledge_cutoff?.[0] || null,
       releaseDate: feat?.release_date?.[0] || null,
       lastUpdated: feat?.last_updated?.[0] || null,

@@ -43,6 +43,7 @@ export interface ProviderDatapoint {
   source_ids: number[];
   family: string | null;
   base_model: string | null;
+  derivation_method: string | null;
   knowledge_cutoff: string | null;
   last_updated: string | null;
   release_date: string | null;
@@ -56,6 +57,7 @@ export interface ModelData {
   base_creator: string | null;
   family: string | null;
   base_model: string | null;
+  derivation_method: string | null;
   best_for: string[];
   best_context: number | null;
   min_context: number | null;
@@ -146,6 +148,7 @@ export interface DatapointModel {
   open_weights: boolean | null;
   family: string | null;
   base_model: string | null;
+  derivation_method: string | null;
   knowledge_cutoff: string | null;
   releaseDate: string | null;
   lastUpdated: string | null;

@@ -81,6 +81,7 @@ const STEP_NAMES = [
   'validate',
   'inherit-families',
   'backfill-family-by-name',
+  'backfill-derivatives',
   'prune-stale-rankings',
   'backfill-context',
   'snapshot-pre-rank-state',
@@ -258,6 +259,12 @@ let pipelineStart = Date.now();
     console.log('Backfilling family assignments from model names...');
     await runStep('backfill-family-by-name', async () => {
       execSync('node scripts/backfill-family-by-name.js --apply', { stdio: 'inherit' });
+    });
+
+    // 3b. Backfill training lineage (derivation_method, base_model) from HF Hub metadata
+    console.log('Backfilling training lineage from HF Hub metadata...');
+    await runStep('backfill-derivatives', async () => {
+      execSync('node scripts/backfill-derivatives.js --apply', { stdio: 'inherit' });
     });
 
     // 4. Prune stale non-working models from rankings metadata (7-day burn-in)
