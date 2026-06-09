@@ -148,6 +148,12 @@ const CREATOR_COUNTRY: Record<string, string> = {
   // ── Switzerland ──
   'bigcode': 'CH',
 
+  // ── Individual fine-tuners ──
+  'mancer': 'UU',
+  'rnj': 'UU',
+  'thedrummer': 'UU',
+  'undi95': 'UU',
+
   // ── Routers / aggregators (not model creators, fallback) ──
   'openrouter': 'XX',
   'opencode': 'XX',
@@ -179,6 +185,7 @@ const COUNTRIES: Record<string, CountryInfo> = {
   JP: { code: 'JP', name: 'Japan', continent: 'Asia', color: '#BC002D', text: '#FFFFFF' },
   SG: { code: 'SG', name: 'Singapore', continent: 'Asia', color: '#ED2939', text: '#FFFFFF' },
   CH: { code: 'CH', name: 'Switzerland', continent: 'Europe', color: '#DA291C', text: '#FFFFFF' },
+  UU: { code: 'UU', name: 'User', continent: 'Other', color: '#6366F1', text: '#FFFFFF' },
   XX: { code: 'XX', name: 'Unknown', continent: 'Other', color: '#718096', text: '#FFFFFF' },
 };
 
