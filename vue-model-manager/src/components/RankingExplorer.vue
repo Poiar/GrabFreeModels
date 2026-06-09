@@ -16,9 +16,6 @@
     </div>
 
     <template v-else>
-      <div v-if="variantDescription" class="variant-description">
-        {{ variantDescription }}
-      </div>
       <div class="rankings-grid">
       <div v-for="role in roles" :key="role.key" class="role-section" :style="{ borderColor: roleColors[role.key]?.border ?? 'var(--border)' }">
       <div class="role-header" :style="{ background: roleColors[role.key]?.soft ?? 'transparent' }">
@@ -39,6 +36,9 @@
 
       <div class="role-body">
         <div class="role-desc" v-if="role.meta">
+          <div class="role-desc-source" v-if="roleVariantLabel(role.key)">
+            {{ roleVariantLabel(role.key) }}
+          </div>
           <p class="role-desc-text">{{ role.meta.description }}</p>
           <div class="role-desc-factors">
             <span class="role-desc-factor" v-if="role.meta.ctxWeight > 0">
@@ -362,17 +362,6 @@ const compactVariantLabels: Record<string, string> = {
   _benchmarks: 'Benchmarks',
 };
 
-const variantDescriptions: Record<string, string> = {
-  combined:
-    'Scores blend benchmarks from both Artificial Analysis and Models.dev, plus context-length weighting and tag bonuses inferred from model names/descriptions. Opinionated — best for discovering which models excel in each role.',
-  artificial_analysis:
-    'Pure Artificial Analysis benchmark scores only. No context-length or tag heuristics applied. Rankings mirror the AA leaderboard directly. Best for comparing models on AA-evaluated quality dimensions.',
-  modelsdev:
-    'Pure Models.dev benchmark scores only (SWE-Bench, Aider Polyglot, SciCode, Terminal-Bench). No context-length or tag heuristics. Rankings mirror the models.dev leaderboard directly.',
-  _benchmarks:
-    'Pure benchmark scores from all available sources. Zero context-length weighting, zero tag bonuses — objective cross-source signal with no heuristic adjustments. Matches no external leaderboard exactly.',
-};
-
 const title = computed(() => props.title ?? 'Role Rankings (Free)');
 const subtitle = computed(() => props.subtitle ?? 'See how models rank for each role and explore their score breakdowns');
 // Per-role variant state — use props if provided, else derive from single variant
@@ -428,11 +417,11 @@ function onRoleVariantChange(role: string, variant: string) {
   emit('update:roleVariant', role, variant);
 }
 
-const variantDescription = computed(() => {
-  const mv = masterVariant.value;
-  if (mv === 'custom') return 'Per-role benchmark sources are mixed — each role uses its own scoring.';
-  return variantDescriptions[mv] ?? '';
-});
+function roleVariantLabel(role: string): string {
+  const v = roleVariants.value[role];
+  if (!v || v === 'combined') return '';
+  return variantLabels[v] ?? '';
+}
 
 const scoreTypeLabels: Record<string, string> = {
   intelligence: 'Intelligence Index',
@@ -745,16 +734,13 @@ function wfFinalPct(entry: ModelEntry): number {
   border-color: var(--accent, #818cf8);
 }
 
-.variant-description {
-  font-size: 0.72rem;
-  color: var(--text-dim);
-  line-height: 1.5;
-  padding: 8px 14px;
-  margin-bottom: 14px;
-  background: var(--depth-3, rgba(255,255,255,0.03));
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  max-width: 900px;
+.role-desc-source {
+  font-size: 0.55rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 4px;
 }
 
 .rankings-empty {
