@@ -8,8 +8,43 @@ const router = express.Router();
 const CACHE_TTL = 60_000; // 60s — limits staleness while caching aggressive repeat visits
 let dataCache = null; // { etag, data, ts }
 
+const VALID_FIELDS = [
+  'creators',
+  'providers',
+  '_test_summary',
+  '_role_rankings',
+  '_model_scores',
+  '_provider_usage',
+  '_known_issues',
+  '_validation_method',
+  '_failure_rates',
+  'provider_health',
+];
+
 router.get('/data', async (req, res) => {
   try {
+    if (req.query.fields) {
+      const requested = req.query.fields.split(',').map((f) => f.trim()).filter(Boolean);
+      const selected = [];
+      for (const reqField of requested) {
+        const match = VALID_FIELDS.find((vf) => vf.toLowerCase() === reqField.toLowerCase());
+        if (!match) {
+          return res.status(400).json({
+            error: `Invalid field: ${reqField}`,
+            valid_fields: VALID_FIELDS,
+          });
+        }
+        selected.push(match);
+      }
+
+      const result = await loadModels(pool);
+      const filtered = {};
+      for (const field of selected) {
+        filtered[field] = result[field];
+      }
+      return res.json(filtered);
+    }
+
     const now = Date.now();
     if (dataCache && (now - dataCache.ts) < CACHE_TTL) {
       const clientEtag = req.headers['if-none-match'];
