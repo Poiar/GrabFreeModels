@@ -1,13 +1,13 @@
 <template>
   <span class="pi-wrap" :class="[`pi-${size}`, cls]" :style="{ '--pi-color': color }">
     <img
-      v-if="loaded"
-      :src="`/logos/${slug}.svg`"
+      v-if="imgSrc"
+      :src="imgSrc"
       :width="size"
       :height="size"
       class="pi-img"
       :alt="alt"
-      @error="onError"
+      @error="onImgError"
     />
     <svg
       v-else
@@ -38,12 +38,22 @@ const props = withDefaults(
   },
 );
 
-const loaded = ref(true);
+const tried = ref(new Set<string>());
 const icon = computed(() => getProviderIcon(props.slug));
 const color = computed(() => getProviderColorMuted(props.slug));
 
-function onError() {
-  loaded.value = false;
+const CANDIDATES = ['.svg', '.png'];
+
+const imgSrc = computed(() => {
+  for (const ext of CANDIDATES) {
+    const path = `/logos/${props.slug}${ext}`;
+    if (!tried.value.has(path)) return path;
+  }
+  return null;
+});
+
+function onImgError() {
+  if (imgSrc.value) tried.value.add(imgSrc.value);
 }
 </script>
 
@@ -68,6 +78,6 @@ function onError() {
 }
 
 .pi-img {
-  filter: invert(1);
+  /* AA logos are pre-colored — no filter needed */
 }
 </style>
