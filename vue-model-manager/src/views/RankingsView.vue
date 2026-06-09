@@ -2,6 +2,7 @@
   <RankingExplorer
     :selected-variant="store.rankingVariant"
     :variant-options="store.availableRankingVariants"
+    :model-scores="store.modelScores"
     @update:selected-variant="store.rankingVariant = $event"
   />
 </template>

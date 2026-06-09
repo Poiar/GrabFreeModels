@@ -387,6 +387,7 @@ export const useModelsStore = defineStore('models', () => {
   const testSummary = computed(() => data.value?._test_summary ?? null);
   const testSummaryPrevious = computed(() => data.value?._test_summary_previous ?? null);
   const modelScores = computed(() => data.value?._model_scores ?? null);
+  const paidModelScores = computed(() => paidData.value?._model_scores ?? null);
   const validationMethod = computed(() => data.value?._validation_method ?? null);
 
   const providerUsage = computed(() => {
@@ -783,6 +784,7 @@ export const useModelsStore = defineStore('models', () => {
     paidCreators,
     paidProviderRefs,
     paidDatapointById,
+    paidModelScores,
     // Actions
     loadData,
     loadPaidData,

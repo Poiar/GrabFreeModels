@@ -15,8 +15,12 @@
       <p>No ranking data available yet. Run the ranking pipeline to populate data.</p>
     </div>
 
-    <div v-else class="rankings-grid">
-    <div v-for="role in roles" :key="role.key" class="role-section" :style="{ borderColor: roleColors[role.key]?.border ?? 'var(--border)' }">
+    <template v-else>
+      <div v-if="variantDescription" class="variant-description">
+        {{ variantDescription }}
+      </div>
+      <div class="rankings-grid">
+      <div v-for="role in roles" :key="role.key" class="role-section" :style="{ borderColor: roleColors[role.key]?.border ?? 'var(--border)' }">
       <div class="role-header" :style="{ background: roleColors[role.key]?.soft ?? 'transparent' }">
         <div class="role-header-left">
           <span class="role-dot" :style="{ background: roleColors[role.key]?.accent }"></span>
@@ -90,129 +94,156 @@
 
           <!-- Score breakdown -->
           <div v-if="expandedModels.has(`${role.key}/${modelEntry.id}`)" class="rr-breakdown">
-            <div class="rrb-section">
-              <div class="rrb-label">Score Components</div>
-              <div class="rrb-bars">
-                <div class="rrb-row" v-if="modelEntry.scoreDetail">
-                  <span class="rrb-tag">Total Score</span>
-                  <div class="rrb-track">
-                    <div class="rrb-fill total" :style="{ width: `${modelEntry.scorePct}%` }"></div>
-                  </div>
-                  <span class="rrb-val">{{ modelEntry.score?.toFixed(1) }}</span>
+            <!-- Non-Combined variants: show benchmark scores -->
+            <template v-if="isNonCombinedVariant()">
+              <div class="rrb-section">
+                <div class="rrb-label">Benchmark Scores</div>
+                <div v-if="benchmarkScoresForModel(modelEntry.id).length === 0" class="rrb-empty">
+                  No benchmark scores available for this model.
                 </div>
-                <div class="rrb-row" v-if="modelEntry.scoreDetail">
-                  <span class="rrb-tag">Context</span>
-                  <div class="rrb-track">
-                    <div class="rrb-fill ctx" :style="{ width: `${Math.max(1, (modelEntry.scoreDetail.ctxContrib / (modelEntry.score || 1)) * 100)}%` }"></div>
+                <div v-else class="benchmark-grid">
+                  <div
+                    v-for="score in benchmarkScoresForModel(modelEntry.id)"
+                    :key="score.score_type"
+                    class="benchmark-row"
+                  >
+                    <span class="benchmark-label">{{ scoreTypeLabels[score.score_type] ?? score.score_type }}</span>
+                    <span class="benchmark-source-tag">{{ score.source === 'artificial_analysis' ? 'AA' : 'MD' }}</span>
+                    <span class="benchmark-value" :class="{ 'lower-better': scoreTypesLowerBetter.has(score.score_type) }">
+                      {{ score.score_value != null ? score.score_value.toLocaleString() : '—' }}
+                    </span>
                   </div>
-                  <span class="rrb-val">{{ modelEntry.scoreDetail.ctxContrib?.toFixed(1) ?? '0' }}</span>
-                </div>
-                <div class="rrb-row" v-if="modelEntry.scoreDetail">
-                  <span class="rrb-tag">Tag Bonus</span>
-                  <div class="rrb-track">
-                    <div class="rrb-fill bonus" :style="{ width: `${Math.max(1, (modelEntry.scoreDetail.tagBonus / (modelEntry.score || 1)) * 100)}%` }"></div>
-                  </div>
-                  <span class="rrb-val">+{{ modelEntry.scoreDetail.tagBonus?.toFixed(1) ?? '0' }}</span>
-                </div>
-                <div class="rrb-row" v-if="modelEntry.scoreDetail && modelEntry.scoreDetail.tagPenalty > 0">
-                  <span class="rrb-tag">Tag Penalty</span>
-                  <div class="rrb-track">
-                    <div class="rrb-fill penalty" :style="{ width: `${Math.max(1, (modelEntry.scoreDetail.tagPenalty / (modelEntry.score || 1)) * 100)}%` }"></div>
-                  </div>
-                  <span class="rrb-val penalty-val">-{{ modelEntry.scoreDetail.tagPenalty?.toFixed(1) }}</span>
-                </div>
-                <div class="rrb-row" v-if="modelEntry.scoreDetail && modelEntry.scoreDetail.nameSizePenalty > 0">
-                  <span class="rrb-tag">Name Penalty</span>
-                  <div class="rrb-track">
-                    <div class="rrb-fill penalty" :style="{ width: `${Math.max(1, (modelEntry.scoreDetail.nameSizePenalty / (modelEntry.score || 1)) * 100)}%` }"></div>
-                  </div>
-                  <span class="rrb-val penalty-val">-{{ modelEntry.scoreDetail.nameSizePenalty?.toFixed(1) }}</span>
                 </div>
               </div>
-            </div>
-            <div v-if="modelEntry.matchedTags?.length" class="rrb-section">
-              <div class="rrb-label">Matched Tags</div>
-              <div class="rrb-tags">
-                <span v-for="tag in modelEntry.matchedTags" :key="tag" class="rrb-tag-pill positive">{{ tag }}</span>
+            </template>
+
+            <!-- Combined variant: show homebrewed methodology -->
+            <template v-else>
+              <div class="rrb-section">
+                <div class="rrb-label">Score Components</div>
+                <div class="rrb-bars">
+                  <div class="rrb-row" v-if="modelEntry.scoreDetail">
+                    <span class="rrb-tag">Total Score</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill total" :style="{ width: `${modelEntry.scorePct}%` }"></div>
+                    </div>
+                    <span class="rrb-val">{{ modelEntry.score?.toFixed(1) }}</span>
+                  </div>
+                  <div class="rrb-row" v-if="modelEntry.scoreDetail">
+                    <span class="rrb-tag">Context</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill ctx" :style="{ width: `${Math.max(1, (modelEntry.scoreDetail.ctxContrib / (modelEntry.score || 1)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val">{{ modelEntry.scoreDetail.ctxContrib?.toFixed(1) ?? '0' }}</span>
+                  </div>
+                  <div class="rrb-row" v-if="modelEntry.scoreDetail">
+                    <span class="rrb-tag">Tag Bonus</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill bonus" :style="{ width: `${Math.max(1, (modelEntry.scoreDetail.tagBonus / (modelEntry.score || 1)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val">+{{ modelEntry.scoreDetail.tagBonus?.toFixed(1) ?? '0' }}</span>
+                  </div>
+                  <div class="rrb-row" v-if="modelEntry.scoreDetail && modelEntry.scoreDetail.tagPenalty > 0">
+                    <span class="rrb-tag">Tag Penalty</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill penalty" :style="{ width: `${Math.max(1, (modelEntry.scoreDetail.tagPenalty / (modelEntry.score || 1)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val penalty-val">-{{ modelEntry.scoreDetail.tagPenalty?.toFixed(1) }}</span>
+                  </div>
+                  <div class="rrb-row" v-if="modelEntry.scoreDetail && modelEntry.scoreDetail.nameSizePenalty > 0">
+                    <span class="rrb-tag">Name Penalty</span>
+                    <div class="rrb-track">
+                      <div class="rrb-fill penalty" :style="{ width: `${Math.max(1, (modelEntry.scoreDetail.nameSizePenalty / (modelEntry.score || 1)) * 100)}%` }"></div>
+                    </div>
+                    <span class="rrb-val penalty-val">-{{ modelEntry.scoreDetail.nameSizePenalty?.toFixed(1) }}</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div v-if="modelEntry.penaltyTags?.length" class="rrb-section">
-              <div class="rrb-label">Penalty Tags</div>
-              <div class="rrb-tags">
-                <span v-for="tag in modelEntry.penaltyTags" :key="tag" class="rrb-tag-pill negative">{{ tag }}</span>
+              <div v-if="modelEntry.matchedTags?.length" class="rrb-section">
+                <div class="rrb-label">Matched Tags</div>
+                <div class="rrb-tags">
+                  <span v-for="tag in modelEntry.matchedTags" :key="tag" class="rrb-tag-pill positive">{{ tag }}</span>
+                </div>
               </div>
-            </div>
-            <!-- Waterfall Bridge Chart -->
-            <div v-if="modelEntry.scoreDetail" class="rrb-section">
-              <div class="rrb-label">Score Waterfall</div>
-              <div class="waterfall-chart">
-                <div class="wf-row">
-                  <span class="wf-label">Context</span>
-                  <div class="wf-track">
-                    <div class="wf-bar wf-positive" :style="{ width: wfPct(modelEntry.scoreDetail.ctxContrib, modelEntry) + '%' }">
-                      <span class="wf-val">+{{ modelEntry.scoreDetail.ctxContrib.toFixed(1) }}</span>
+              <div v-if="modelEntry.penaltyTags?.length" class="rrb-section">
+                <div class="rrb-label">Penalty Tags</div>
+                <div class="rrb-tags">
+                  <span v-for="tag in modelEntry.penaltyTags" :key="tag" class="rrb-tag-pill negative">{{ tag }}</span>
+                </div>
+              </div>
+              <!-- Waterfall Bridge Chart -->
+              <div v-if="modelEntry.scoreDetail" class="rrb-section">
+                <div class="rrb-label">Score Waterfall</div>
+                <div class="waterfall-chart">
+                  <div class="wf-row">
+                    <span class="wf-label">Context</span>
+                    <div class="wf-track">
+                      <div class="wf-bar wf-positive" :style="{ width: wfPct(modelEntry.scoreDetail.ctxContrib, modelEntry) + '%' }">
+                        <span class="wf-val">+{{ modelEntry.scoreDetail.ctxContrib.toFixed(1) }}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="wf-row">
-                  <span class="wf-label">Tag Bonus</span>
-                  <div class="wf-track">
-                    <div class="wf-bar wf-positive" :style="{ width: wfPct(modelEntry.scoreDetail.tagBonus, modelEntry) + '%', marginLeft: wfPct(modelEntry.scoreDetail.ctxContrib, modelEntry) + '%' }">
-                      <span class="wf-val">+{{ modelEntry.scoreDetail.tagBonus.toFixed(1) }}</span>
+                  <div class="wf-row">
+                    <span class="wf-label">Tag Bonus</span>
+                    <div class="wf-track">
+                      <div class="wf-bar wf-positive" :style="{ width: wfPct(modelEntry.scoreDetail.tagBonus, modelEntry) + '%', marginLeft: wfPct(modelEntry.scoreDetail.ctxContrib, modelEntry) + '%' }">
+                        <span class="wf-val">+{{ modelEntry.scoreDetail.tagBonus.toFixed(1) }}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="wf-row" v-if="modelEntry.scoreDetail.tagPenalty > 0">
-                  <span class="wf-label">Tag Penalty</span>
-                  <div class="wf-track">
-                    <div class="wf-bar wf-negative" :style="{ width: wfPct(modelEntry.scoreDetail.tagPenalty, modelEntry) + '%', marginLeft: wfPenaltyOffset(modelEntry, 'tagPenalty') + '%' }">
-                      <span class="wf-val">&#8722;{{ modelEntry.scoreDetail.tagPenalty.toFixed(1) }}</span>
+                  <div class="wf-row" v-if="modelEntry.scoreDetail.tagPenalty > 0">
+                    <span class="wf-label">Tag Penalty</span>
+                    <div class="wf-track">
+                      <div class="wf-bar wf-negative" :style="{ width: wfPct(modelEntry.scoreDetail.tagPenalty, modelEntry) + '%', marginLeft: wfPenaltyOffset(modelEntry, 'tagPenalty') + '%' }">
+                        <span class="wf-val">&#8722;{{ modelEntry.scoreDetail.tagPenalty.toFixed(1) }}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="wf-row" v-if="modelEntry.scoreDetail.nameSizePenalty > 0">
-                  <span class="wf-label">Name Penalty</span>
-                  <div class="wf-track">
-                    <div class="wf-bar wf-negative" :style="{ width: wfPct(modelEntry.scoreDetail.nameSizePenalty, modelEntry) + '%', marginLeft: wfPenaltyOffset(modelEntry, 'nameSizePenalty') + '%' }">
-                      <span class="wf-val">&#8722;{{ modelEntry.scoreDetail.nameSizePenalty.toFixed(1) }}</span>
+                  <div class="wf-row" v-if="modelEntry.scoreDetail.nameSizePenalty > 0">
+                    <span class="wf-label">Name Penalty</span>
+                    <div class="wf-track">
+                      <div class="wf-bar wf-negative" :style="{ width: wfPct(modelEntry.scoreDetail.nameSizePenalty, modelEntry) + '%', marginLeft: wfPenaltyOffset(modelEntry, 'nameSizePenalty') + '%' }">
+                        <span class="wf-val">&#8722;{{ modelEntry.scoreDetail.nameSizePenalty.toFixed(1) }}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="wf-row wf-final-row">
-                  <span class="wf-label">Final Score</span>
-                  <div class="wf-track">
-                    <div class="wf-marker" :style="{ left: wfFinalPct(modelEntry) + '%' }"></div>
+                  <div class="wf-row wf-final-row">
+                    <span class="wf-label">Final Score</span>
+                    <div class="wf-track">
+                      <div class="wf-marker" :style="{ left: wfFinalPct(modelEntry) + '%' }"></div>
+                    </div>
+                    <span class="wf-final-val">{{ (modelEntry.score ?? 0).toFixed(1) }}</span>
                   </div>
-                  <span class="wf-final-val">{{ (modelEntry.score ?? 0).toFixed(1) }}</span>
                 </div>
               </div>
-            </div>
-            <!-- Tag Match Heatmap Grid -->
-            <div v-if="modelEntry.scoreDetail && (modelEntry.scoreDetail.matchedTags?.length || modelEntry.scoreDetail.matchedPenaltyTags?.length)" class="rrb-section">
-              <div class="rrb-label">Tag Match Breakdown</div>
-              <div class="tag-heatmap">
-                <div class="thm-column">
-                  <span class="thm-col-label positive">Matched ({{ modelEntry.scoreDetail.matchedTags?.length ?? 0 }})</span>
-                  <span v-for="tag in modelEntry.scoreDetail.matchedTags" :key="'m-'+tag" class="thm-pill positive">{{ tag }}</span>
-                </div>
-                <div class="thm-column">
-                  <span class="thm-col-label negative">Penalty ({{ modelEntry.scoreDetail.matchedPenaltyTags?.length ?? 0 }})</span>
-                  <span v-for="tag in modelEntry.scoreDetail.matchedPenaltyTags" :key="'p-'+tag" class="thm-pill negative">{{ tag }}</span>
+              <!-- Tag Match Heatmap Grid -->
+              <div v-if="modelEntry.scoreDetail && (modelEntry.scoreDetail.matchedTags?.length || modelEntry.scoreDetail.matchedPenaltyTags?.length)" class="rrb-section">
+                <div class="rrb-label">Tag Match Breakdown</div>
+                <div class="tag-heatmap">
+                  <div class="thm-column">
+                    <span class="thm-col-label positive">Matched ({{ modelEntry.scoreDetail.matchedTags?.length ?? 0 }})</span>
+                    <span v-for="tag in modelEntry.scoreDetail.matchedTags" :key="'m-'+tag" class="thm-pill positive">{{ tag }}</span>
+                  </div>
+                  <div class="thm-column">
+                    <span class="thm-col-label negative">Penalty ({{ modelEntry.scoreDetail.matchedPenaltyTags?.length ?? 0 }})</span>
+                    <span v-for="tag in modelEntry.scoreDetail.matchedPenaltyTags" :key="'p-'+tag" class="thm-pill negative">{{ tag }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </template>
           </div>
         </div>
       </div>
     </div>
     </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useModelsStore } from '@/store/models';
-import type { RoleScore, RoleMeta, ProviderDatapoint, ModelData, CreatorData } from '@/types';
+import type { RoleScore, RoleMeta, ProviderDatapoint, ModelData, CreatorData, ModelScoresData, ModelScore } from '@/types';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { resolveCreatorSlug } from '@/data/provider-icons';
 
@@ -225,6 +256,7 @@ const props = defineProps<{
   datapointByIdFn?: (id: string) => { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined;
   selectedVariant?: string;
   variantOptions?: string[];
+  modelScores?: ModelScoresData | null;
 }>();
 
 const emit = defineEmits<{
@@ -240,6 +272,17 @@ const variantLabels: Record<string, string> = {
   _benchmarks: 'Benchmarks Only (no context/tags)',
 };
 
+const variantDescriptions: Record<string, string> = {
+  combined:
+    'Scores blend benchmarks from both Artificial Analysis and Models.dev, plus context-length weighting and tag bonuses inferred from model names/descriptions. Opinionated — best for discovering which models excel in each role.',
+  artificial_analysis:
+    'Pure Artificial Analysis benchmark scores only. No context-length or tag heuristics applied. Rankings mirror the AA leaderboard directly. Best for comparing models on AA-evaluated quality dimensions.',
+  modelsdev:
+    'Pure Models.dev benchmark scores only (SWE-Bench, Aider Polyglot, SciCode, Terminal-Bench). No context-length or tag heuristics. Rankings mirror the models.dev leaderboard directly.',
+  _benchmarks:
+    'Pure benchmark scores from all available sources. Zero context-length weighting, zero tag bonuses — objective cross-source signal with no heuristic adjustments. Matches no external leaderboard exactly.',
+};
+
 function onVariantChange(ev: Event) {
   emit('update:selectedVariant', (ev.target as HTMLSelectElement).value);
 }
@@ -247,6 +290,55 @@ function onVariantChange(ev: Event) {
 const title = computed(() => props.title ?? 'Role Rankings (Free)');
 const subtitle = computed(() => props.subtitle ?? 'See how models rank for each role and explore their score breakdowns');
 const variantOptions = computed(() => props.variantOptions ?? ['combined']);
+const variantDescription = computed(() => variantDescriptions[props.selectedVariant ?? 'combined'] ?? '');
+
+const scoreTypeLabels: Record<string, string> = {
+  intelligence: 'Intelligence Index',
+  output_speed: 'Output Speed (toks/s)',
+  latency_total: 'Total Latency (s)',
+  latency_ttft: 'TTFT Latency (s)',
+  context_window: 'Context Window',
+  price_blended: 'Blended Price ($/M)',
+  'aider-polyglot': 'Aider Polyglot',
+  'swe-bench-verified': 'SWE-Bench Verified',
+  'swe-bench-pro': 'SWE-Bench Pro',
+  'swe-atlas-codebase-qna': 'SWE-Atlas Codebase Q&A',
+  'swe-atlas-refactoring': 'SWE-Atlas Refactoring',
+  'swe-atlas-test-writing': 'SWE-Atlas Test Writing',
+  scicode: 'SciCode',
+  'terminal-bench': 'Terminal-Bench',
+  'terminal-bench-2.0': 'Terminal-Bench 2.0',
+  'terminal-bench-hard': 'Terminal-Bench Hard',
+  'artificial-analysis-coding': 'AA Coding',
+  'artificial-analysis-coding-agent': 'AA Coding Agent',
+};
+
+const scoreTypesLowerBetter = new Set([
+  'latency_total', 'latency_ttft', 'price_blended',
+]);
+
+function benchmarkScoresForModel(modelId: string): ModelScore[] {
+  const scores = props.modelScores?.scores?.[modelId];
+  if (!scores || scores.length === 0) return [];
+  const variant = props.selectedVariant ?? 'combined';
+  if (variant === 'combined') return [];
+  const sourceFilter: string | null =
+    variant === 'modelsdev' ? 'modelsdev' :
+    variant === 'artificial_analysis' ? 'artificial_analysis' :
+    null; // _benchmarks: all sources
+  let filtered = sourceFilter
+    ? scores.filter((s) => s.source === sourceFilter)
+    : scores;
+  // Sort: higher-is-better first, then lower-is-better
+  const higher = filtered.filter((s) => !scoreTypesLowerBetter.has(s.score_type));
+  const lower = filtered.filter((s) => scoreTypesLowerBetter.has(s.score_type));
+  return [...higher, ...lower];
+}
+
+function isNonCombinedVariant(): boolean {
+  const v = props.selectedVariant ?? 'combined';
+  return v !== 'combined';
+}
 
 function resolveDatapoint(id: string): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
   if (props.datapointByIdFn) return props.datapointByIdFn(id);
@@ -499,6 +591,18 @@ function wfFinalPct(entry: ModelEntry): number {
 .variant-selector select:focus {
   outline: none;
   border-color: var(--accent, #818cf8);
+}
+
+.variant-description {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  padding: 8px 14px;
+  margin-bottom: 14px;
+  background: var(--depth-3, rgba(255,255,255,0.03));
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  max-width: 900px;
 }
 
 .rankings-empty {
@@ -840,6 +944,60 @@ function wfFinalPct(entry: ModelEntry): number {
 .rrb-tag-pill.negative {
   background: var(--red-subtle);
   color: var(--red);
+}
+
+/* Benchmark scores grid (non-combined variants) */
+.benchmark-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.benchmark-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.benchmark-label {
+  flex: 1;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  min-width: 0;
+}
+
+.benchmark-source-tag {
+  font-size: 0.48rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 5px;
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,0.08);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.benchmark-value {
+  font-size: 0.6rem;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-dim);
+  width: 52px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.benchmark-value.lower-better {
+  color: var(--text-muted);
+}
+
+.rrb-empty {
+  font-size: 0.58rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 4px 0;
 }
 
 /* Waterfall chart */
