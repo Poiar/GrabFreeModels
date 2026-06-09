@@ -32,24 +32,53 @@ const pool = connectionString
 
 const SOURCE = 'artificial_analysis';
 
-// Manual name overrides: AA model name -> our super_name
+// Manual name overrides: AA model name -> our super_name (no vendor prefixes)
 const NAME_OVERRIDES = new Map([
-  ['Gemini 3.1 Pro Preview', 'Gemini 3 Pro Preview'],
-  ['Gemini 3.1 Flash-Lite', 'Gemini 3 Flash Preview'],
-  ['Mistral Small 4', 'Mistral Small 4 119B 2603'],
+  ['Gemini 3.1 Pro Preview', 'Gemini 3.1 Pro Preview'],
+  ['Gemini 3.1 Flash-Lite', 'Gemini 3.1 Flash Lite'],
+  ['Gemini 3.5 Flash', 'Gemini 3.5 Flash'],
+  ['Gemini 2.5 Pro', 'Gemini 2.5 Pro'],
+  ['Gemini 2.5 Flash', 'Gemini 2.5 Flash'],
+  ['Gemini 3 Flash Preview', 'Gemini 3 Flash Preview'],
+  ['GPT-5.3 Codex (xhigh)', 'GPT-5.3 Codex'],
+  ['GPT-5.5 Instant (May 2026)', 'GPT-5.5 Pro'],
+  ['GPT-5.5', 'GPT-5.5 Pro'],
+  ['GPT-5.4', 'GPT-5.4'],
+  ['GPT-5.4 mini', 'GPT-5.4 Mini'],
+  ['GPT-5.4 nano', 'GPT-5.4 Nano'],
+  ['Mistral Small 4', 'Mistral Small 4'],
   ['Mistral Large 3', 'Mistral Large 3 675B Instruct 2512'],
   ['Qwen3.5 Omni Plus', 'Qwen3.5 Plus'],
   ['Qwen3.5 Omni Flash', 'Qwen3.6 Flash'],
-  ['Command A+', 'Cohere Command A'],
-  ['Nemotron Cascade 2 30B A3B', 'Nemotron 3 Nano 30B'],
+  ['Qwen3.6 27B', 'Qwen3.6 27B'],
+  ['Qwen3.6 35B A3B', 'Qwen3.6 35B A3B'],
+  ['Qwen3.7 Max', 'Qwen3.7 Max'],
+  ['Qwen3.7 Plus', 'Qwen3.7 Plus'],
+  ['Qwen3.6 Plus', 'Qwen3.6 Plus'],
+  ['Qwen3.5 397B A17B', 'Qwen3.5 397B A17B'],
   ['Qwen3 Omni 30B A3B', 'Qwen3 30B A3B'],
+  ['Nemotron Cascade 2 30B A3B', 'Nemotron 3 Nano 30B'],
+  ['Nemotron 3 Ultra', 'Nemotron 3 Ultra'],
+  ['Command A+', 'Cohere Command A'],
   ['Gemma 4 E2B', 'Gemma 3n E2b It'],
   ['MiniCPM5-1B', 'MiniCPM-V 4.6 1.3B'],
-  ['GPT-5.3 Codex (xhigh)', 'GPT-5.3 Codex'],
-  ['GPT-5.5 Instant (May 2026)', 'GPT-5.5'],
   ['LFM2.5-VL-1.6B', 'LFM2.5-1.2B-Instruct'],
   ['Magistral Medium 1.2', 'Mistral Medium 3'],
   ['Magistral Small 1.2', 'Magistral Small 2506'],
+  ['MiMo-V2.5-Pro', 'MiMo-V2.5-Pro'],
+  ['MiMo-V2.5', 'MiMo-V2.5'],
+  ['MiniMax-M3', 'MiniMax-M3'],
+  ['MiniMax-M2.7', 'MiniMax M2.7'],
+  ['MiniMax-M2.5', 'MiniMax M2.5'],
+  ['Kimi K2.6', 'Kimi K2.6'],
+  ['Kimi K2.5', 'Kimi K2.5'],
+  ['Grok 4.3', 'Grok 4.3'],
+  ['Grok 4.20', 'Grok 4.20'],
+  ['GLM-5.1', 'glm-5.1'],
+  ['GLM-5-Turbo', 'glm-5-turbo'],
+  ['GLM 5V Turbo', 'GLM 5V Turbo'],
+  ['Hy3-preview', 'hy3-preview'],
+  ['Step 3.7 Flash', 'Step 3.7 Flash'],
 ]);
 
 function fetchPage() {
@@ -157,11 +186,21 @@ async function scrape() {
   const { rows: allRows } = await pool.query(
     "SELECT dm.id, dm.full_id, mm.name AS super_name, dm.status_result, dm.is_free FROM datapoint_models dm JOIN super_models mm ON mm.id = dm.super_model_id WHERE dm.is_removed = false ORDER BY dm.is_free = true DESC, dm.status_result = 'working' DESC, dm.status_result = 'untested' DESC",
   );
-  // Deduplicate: for each super_name, pick the best datapoint (working > untested > other)
+  // Strip vendor prefix like "Anthropic: Claude Opus 4.8" → "Claude Opus 4.8"
+  function stripVendor(name) {
+    return name.replace(/^[^:]+:\s*/, '').trim();
+  }
+
+  // Deduplicate: for each super_name, pick the best datapoint.
+  // Index both prefixed and unprefixed so overrides work either way.
   const bestBySuper = new Map();
   for (const r of allRows) {
     if (!bestBySuper.has(r.super_name)) {
       bestBySuper.set(r.super_name, r);
+    }
+    const clean = stripVendor(r.super_name);
+    if (clean !== r.super_name && !bestBySuper.has(clean)) {
+      bestBySuper.set(clean, r);
     }
   }
   const ourModels = Array.from(bestBySuper.values());
@@ -170,9 +209,16 @@ async function scrape() {
   let matched = 0;
   const changes = [];
 
+  // Strip AA effort suffixes like " (max)", " (xhigh)", " (high)", " (medium)", etc.
+  function stripEffort(name) {
+    return name.replace(/\s*\([^)]*\)\s*$/, '').trim();
+  }
+
   for (const aa of models) {
-    // Check manual override first
-    const override = NAME_OVERRIDES.get(aa.name);
+    const aaStripped = stripEffort(aa.name);
+
+    // Check manual override first (try exact name, then stripped)
+    let override = NAME_OVERRIDES.get(aa.name) || NAME_OVERRIDES.get(aaStripped);
     if (override) {
       const found = ourModels.find((m) => m.super_name === override);
       if (found) {
@@ -183,22 +229,41 @@ async function scrape() {
       }
     }
 
-    const aaNorm = normalizeName(aa.name);
-    /* eslint-disable no-useless-assignment */
+    // Direct super_name lookup (try stripped then original)
+    {
+      let directMatch = false;
+      for (const aaName of [aaStripped, aa.name]) {
+        const found = bestBySuper.get(aaName);
+        if (found) {
+          matched++;
+          const sc = buildScores(aa);
+          if (sc.length > 0) changes.push({ id: found.id, aa: aa.name, our: found.super_name, sc });
+          directMatch = true;
+          break;
+        }
+      }
+      if (directMatch) continue;
+    }
+
+    // Try normalized match, first with stripped name, then original
     let best = null,
       bestScore = 0;
-    for (const m of ourModels) {
-      const n = normalizeName(m.super_name);
-      if (aaNorm === n) {
-        best = m;
-        bestScore = 100;
-        break;
-      }
-      if (aaNorm.includes(n) || n.includes(aaNorm)) {
-        const s = Math.min(aaNorm.length, n.length) / Math.max(aaNorm.length, n.length);
-        if (s > bestScore && s > 0.5) {
-          bestScore = s;
+    for (const aaName of [aaStripped, aa.name]) {
+      if (best) break;
+      const aaNorm = normalizeName(aaName);
+      for (const m of ourModels) {
+        const n = normalizeName(m.super_name);
+        if (aaNorm === n) {
           best = m;
+          bestScore = 100;
+          break;
+        }
+        if (aaNorm.includes(n) || n.includes(aaNorm)) {
+          const s = Math.min(aaNorm.length, n.length) / Math.max(aaNorm.length, n.length);
+          if (s > bestScore && s > 0.5) {
+            bestScore = s;
+            best = m;
+          }
         }
       }
     }

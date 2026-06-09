@@ -86,9 +86,16 @@ async function fetchPaidModels() {
       skippedNoContext.push(m.id);
     }
 
+    // Strip OpenRouter's "Creator: Name" vendor prefix
+    let cleanName = m.name || m.id;
+    const colonSpace = cleanName.indexOf(': ');
+    if (colonSpace > 0 && colonSpace < cleanName.length - 2) {
+      cleanName = cleanName.slice(colonSpace + 2).trim();
+    }
+
     mapped.push({
       id: `openrouter/${m.id}`,
-      name: m.name || m.id,
+      name: cleanName,
       context_length: ctx,
       input_price_per_million: input,
       output_price_per_million: output,
