@@ -348,10 +348,10 @@ const emit = defineEmits<{
 const store = useModelsStore();
 
 const variantLabels: Record<string, string> = {
-  combined: 'Combined (AA + Models.dev)',
+  combined: 'Combined (our blend)',
   artificial_analysis: 'Artificial Analysis',
   modelsdev: 'Models.dev',
-  _benchmarks: 'Benchmarks Only (no context/tags)',
+  _benchmarks: 'Benchmarks Only (our blend)',
 };
 
 const variantDescriptions: Record<string, string> = {
@@ -365,13 +365,8 @@ const variantDescriptions: Record<string, string> = {
     'Pure benchmark scores from all available sources. Zero context-length weighting, zero tag bonuses — objective cross-source signal with no heuristic adjustments. Matches no external leaderboard exactly.',
 };
 
-function onVariantChange(ev: Event) {
-  emit('update:selectedVariant', (ev.target as HTMLSelectElement).value);
-}
-
 const title = computed(() => props.title ?? 'Role Rankings (Free)');
 const subtitle = computed(() => props.subtitle ?? 'See how models rank for each role and explore their score breakdowns');
-const variantOptions = computed(() => props.variantOptions ?? ['combined']);
 // Per-role variant state — use props if provided, else derive from single variant
 const roleVariants = computed(() => props.roleVariants ?? {});
 const allVariantKeys = computed(() => props.variantKeys ?? (props.variantOptions ?? ['combined']));
@@ -390,9 +385,23 @@ function roleVariantOpts(role: string): string[] {
   return base.filter(v => v === 'combined' || allVariantKeys.value.includes(v));
 }
 
+// Master options: intersection of what all roles support, so picking "MD"
+// doesn't silently fail on non-Build roles. Appends "Custom" when roles differ.
+const commonVariantKeys = computed(() => {
+  const roleKeys = Object.keys(roleVariants.value);
+  if (roleKeys.length === 0) return ['combined'];
+  let common = new Set(roleVariantOpts(roleKeys[0]));
+  for (let i = 1; i < roleKeys.length; i++) {
+    const roleOpts = new Set(roleVariantOpts(roleKeys[i]));
+    common = new Set([...common].filter(v => roleOpts.has(v)));
+  }
+  const base = [...common].filter(v => v !== 'combined');
+  return ['combined', ...base];
+});
+
 const masterOptions = computed(() => {
-  const base = allVariantKeys.value.filter(v => v !== 'combined');
-  const opts = ['combined', ...base];
+  const opts = [...commonVariantKeys.value];
+  if (masterVariant.value === 'custom') opts.push('custom');
   return opts;
 });
 
@@ -770,6 +779,24 @@ function wfFinalPct(entry: ModelEntry): number {
   flex-wrap: wrap;
   flex: 1;
   min-width: 0;
+}
+
+.role-variant-select {
+  appearance: auto;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-dim);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.6rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  max-width: 140px;
+}
+
+.role-variant-select:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 .role-dot {

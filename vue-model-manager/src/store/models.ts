@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, type Ref } from 'vue';
 import type {
   ModelsData,
   CreatorData,
@@ -350,11 +350,11 @@ export const useModelsStore = defineStore('models', () => {
     roleVariants: Record<string, string>,
   ) {
     const variant = roleVariants[role] ?? 'combined';
-    const v = resolveVariant(r, variant);
+    const vr = resolveVariant(r, variant) as Record<string, any> | null;
     return {
-      rankings: (v?.[role] ?? []) as string[],
-      scores: (v?._scores?.[role] ?? []) as RoleScore[],
-      meta: (v?._meta?.[role] ?? {}) as RoleMeta,
+      rankings: (vr?.[role] ?? []) as string[],
+      scores: (vr?._scores?.[role] ?? []) as RoleScore[],
+      meta: (vr?._meta?.[role] ?? {}) as RoleMeta,
     };
   }
 

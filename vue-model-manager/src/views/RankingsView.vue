@@ -1,9 +1,14 @@
 <template>
   <RankingExplorer
-    :selected-variant="store.rankingVariant"
-    :variant-options="store.availableRankingVariants"
+    :rankings="store.roleRankings"
+    :scores="store.roleScores"
+    :meta="store.roleMeta"
+    :role-variants="store.freeRoleVariants"
+    :master-variant="store.freeMasterVariant"
+    :variant-keys="store.freeVariantKeys"
     :model-scores="store.modelScores"
-    @update:selected-variant="store.rankingVariant = $event"
+    @update:role-variant="(role: string, variant: string) => store.freeRoleVariants[role] = variant"
+    @update:master-variant="(variant: string) => store.setFreeMaster(variant)"
   />
 </template>
 
