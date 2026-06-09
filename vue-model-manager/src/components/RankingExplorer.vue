@@ -3,11 +3,20 @@
     <div class="page-header">
       <h2>{{ title }}</h2>
       <p v-if="subtitle">{{ subtitle }}</p>
-      <div v-if="allVariantKeys.length > 1" class="variant-selector">
-        <label for="ranking-source">All roles:</label>
-        <select id="ranking-source" :value="masterVariant" @change="onMasterChange">
-          <option v-for="v in masterOptions" :key="v" :value="v">{{ masterOptionLabel(v) }}</option>
-        </select>
+      <div v-if="allVariantKeys.length > 1" class="master-toggle">
+        <span class="toggle-label">All roles</span>
+        <div class="variant-dots">
+          <div
+            v-for="v in masterOptions"
+            :key="v"
+            class="vd-option"
+            :class="{ active: masterVariant === v }"
+            @click="onMasterDotClick(v)"
+          >
+            <span class="vd-dot"></span>
+            <span class="vd-label">{{ compactVariantLabels[v] ?? v }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -24,14 +33,23 @@
           <h3 class="role-title">{{ role.label }}</h3>
           <span class="role-badge" :style="{ background: roleColors[role.key]?.soft, color: roleColors[role.key]?.accent }" :title="`${role.models.length} models`">{{ role.models.length }}</span>
         </div>
-        <select
+        <div
           v-if="roleVariantOpts(role.key).length > 1"
-          class="role-variant-select"
-          :value="roleVariants[role.key] ?? '_benchmarks'"
-          @change="onRoleVariantChange(role.key, ($event.target as HTMLSelectElement).value)"
+          class="role-variant-dots"
+          :title="`Scoring: ${compactVariantLabels[roleVariants[role.key] ?? '_benchmarks'] ?? roleVariants[role.key]}`"
         >
-          <option v-for="v in roleVariantOpts(role.key)" :key="v" :value="v">{{ compactVariantLabels[v] ?? v }}</option>
-        </select>
+          <div
+            v-for="v in roleVariantOpts(role.key)"
+            :key="v"
+            class="rvd-option"
+            :class="{ active: (roleVariants[role.key] ?? '_benchmarks') === v }"
+            :title="compactVariantLabels[v] ?? v"
+            @click="onRoleVariantChange(role.key, v)"
+          >
+            <span class="rvd-dot"></span>
+            <span class="rvd-label">{{ compactVariantLabels[v] ?? v }}</span>
+          </div>
+        </div>
       </div>
 
       <div class="role-body">
@@ -401,15 +419,9 @@ const masterOptions = computed(() => {
   return opts;
 });
 
-function masterOptionLabel(v: string): string {
-  if (v === 'custom') return 'Custom';
-  return variantLabels[v] ?? v;
-}
-
-function onMasterChange(ev: Event) {
-  const val = (ev.target as HTMLSelectElement).value;
-  if (val === 'custom') return;
-  emit('update:masterVariant', val);
+function onMasterDotClick(variant: string) {
+  if (variant === 'custom') return;
+  emit('update:masterVariant', variant);
 }
 
 function onRoleVariantChange(role: string, variant: string) {
@@ -704,33 +716,78 @@ function wfFinalPct(entry: ModelEntry): number {
   margin: 0 0 24px;
 }
 
-.variant-selector {
+/* ── Master dot toggle (page header) ── */
+.master-toggle {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 6px;
 }
 
-.variant-selector label {
-  font-size: 0.75rem;
+.toggle-label {
+  font-size: 0.7rem;
   color: var(--text-muted);
-  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.variant-selector select {
-  appearance: auto;
-  background: var(--bg-card, #1a1a2e);
-  color: var(--text-primary, #e2e8f0);
-  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 0.78rem;
+.variant-dots {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.vd-option {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 6px;
   cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+  position: relative;
 }
 
-.variant-selector select:focus {
-  outline: none;
-  border-color: var(--accent, #818cf8);
+.vd-option:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+/* Connecting line between dots */
+.vd-option + .vd-option::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 50%;
+  width: 8px;
+  height: 1px;
+  background: var(--border-light);
+}
+
+.vd-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.vd-option.active .vd-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 6px var(--accent-glow, rgba(99,128,247,0.4));
+}
+
+.vd-label {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.vd-option.active .vd-label {
+  color: var(--text);
+  font-weight: 600;
 }
 
 .role-desc-source {
@@ -776,23 +833,52 @@ function wfFinalPct(entry: ModelEntry): number {
   overflow: hidden;
 }
 
-.role-variant-select {
-  appearance: auto;
-  background: rgba(255,255,255,0.06);
-  color: var(--text-dim);
-  border: 1px solid var(--border-light);
-  border-radius: 4px;
-  padding: 3px 5px;
-  font-size: 0.58rem;
-  cursor: pointer;
+/* ── Per-role dot toggle (role header) ── */
+.role-variant-dots {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
   flex-shrink: 0;
-  max-width: 95px;
-  align-self: center;
 }
 
-.role-variant-select:focus {
-  outline: none;
+.rvd-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.rvd-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.rvd-option.active .rvd-dot {
+  background: var(--accent);
   border-color: var(--accent);
+  box-shadow: 0 0 5px var(--accent-glow, rgba(99,128,247,0.4));
+}
+
+/* Horizontal connecting line to the right of each dot except the last */
+.rvd-option:not(:last-child) .rvd-dot::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  width: 8px;
+  height: 1px;
+  margin-top: -0.5px;
+  background: var(--border-light);
+}
+
+.rvd-label {
+  display: none;
 }
 
 .role-dot {
