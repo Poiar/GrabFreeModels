@@ -12,14 +12,16 @@ app.use(cors());
 app.use(compression());
 app.use(express.json());
 
-// Simple rate limiter — 30 requests per minute per IP
+// Rate limiter — 60 requests per minute per IP for /api/data
 const rateLimit = new Map();
+const RATE_LIMIT_MAX = 60;
+const RATE_LIMIT_WINDOW = 60_000;
 app.use('/api/data', (req, res, next) => {
   const ip = req.ip || 'unknown';
   const now = Date.now();
   const window = rateLimit.get(ip) || [];
-  const recent = window.filter(t => now - t < 60_000);
-  if (recent.length >= 30) return res.status(429).json({ error: 'Too many requests' });
+  const recent = window.filter(t => now - t < RATE_LIMIT_WINDOW);
+  if (recent.length >= RATE_LIMIT_MAX) return res.status(429).json({ error: 'Too many requests' });
   recent.push(now);
   rateLimit.set(ip, recent);
   next();

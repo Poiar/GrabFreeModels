@@ -86,6 +86,7 @@ const CREATORS = {
   inclusionai: 'Inclusion AI',
   zhipuai: 'Zhipu AI',
   novita: 'Novita AI',
+  'mini max ai': 'MiniMax',
   trytako: 'Tako',
   devstral: 'Devstral',
   longcat: 'Meituan',

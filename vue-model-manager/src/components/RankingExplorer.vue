@@ -622,7 +622,7 @@ const roles = computed((): RoleSection[] => {
       seenSuperIds.add(superId);
       const detail = roleScores.find((s) => s.id === id);
       const score = detail?.score ?? null;
-      const providerSlugs = [...new Set(resolved.model.providers.map((p) => p.provider_slug))];
+      const providerSlugs = [...new Set(resolved.model.providers.map((p) => p.provider_slug))].sort();
       const bestProvider = providerSlugs[0] ?? '';
       models.push({
         id,

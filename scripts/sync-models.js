@@ -629,10 +629,10 @@ const CREATOR_WHITELIST = new Map([
   ['alibaba', 'Alibaba'],
   ['tencent', 'Tencent'],
   ['minimax', 'MiniMax'],
-  ['deepinfra', 'DeepInfra'],
-  ['siliconflow', 'SiliconFlow'],
-  ['novitaai', 'NovitaAI'],
+  ['mini max ai', 'MiniMax'],
   ['zhipuai', 'ZhipuAI'],
+  ['thenlper', 'Alibaba'],
+  ['nlper', 'Alibaba'],
 ]);
 
 function humanizeCreator(raw) {
