@@ -1,0 +1,1894 @@
+{
+  "date": "2026-06-09",
+  "summary": {
+    "total_new": 267,
+    "providers_with_new": 8
+  },
+  "discoveries": {
+    "openrouter": [
+      {
+        "full_id": "openrouter/nex-agi/nex-n2-pro:free",
+        "provider": "openrouter",
+        "model_id": "nex-agi/nex-n2-pro:free",
+        "context_length": 262144,
+        "pricing": "free"
+      },
+      {
+        "full_id": "openrouter/openrouter/owl-alpha",
+        "provider": "openrouter",
+        "model_id": "openrouter/owl-alpha",
+        "context_length": 1048756,
+        "pricing": "free"
+      }
+    ],
+    "nvidia": [
+      {
+        "full_id": "nvidia/01-ai/yi-large",
+        "provider": "nvidia",
+        "model_id": "01-ai/yi-large",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/google/gemma-2-2b-it",
+        "provider": "nvidia",
+        "model_id": "google/gemma-2-2b-it",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/google/gemma-2b",
+        "provider": "nvidia",
+        "model_id": "google/gemma-2b",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/google/gemma-3-12b-it",
+        "provider": "nvidia",
+        "model_id": "google/gemma-3-12b-it",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/google/gemma-3-4b-it",
+        "provider": "nvidia",
+        "model_id": "google/gemma-3-4b-it",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/google/gemma-4-31b-it",
+        "provider": "nvidia",
+        "model_id": "google/gemma-4-31b-it",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/google/recurrentgemma-2b",
+        "provider": "nvidia",
+        "model_id": "google/recurrentgemma-2b",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/mistralai/mistral-large-3-675b-instruct-2512",
+        "provider": "nvidia",
+        "model_id": "mistralai/mistral-large-3-675b-instruct-2512",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/mistralai/mistral-nemotron",
+        "provider": "nvidia",
+        "model_id": "mistralai/mistral-nemotron",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/mistralai/mistral-small-4-119b-2603",
+        "provider": "nvidia",
+        "model_id": "mistralai/mistral-small-4-119b-2603",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/cosmos-reason2-8b",
+        "provider": "nvidia",
+        "model_id": "nvidia/cosmos-reason2-8b",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/llama-3.1-nemotron-51b-instruct",
+        "provider": "nvidia",
+        "model_id": "nvidia/llama-3.1-nemotron-51b-instruct",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/llama-3.1-nemotron-70b-instruct",
+        "provider": "nvidia",
+        "model_id": "nvidia/llama-3.1-nemotron-70b-instruct",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/llama-3.1-nemotron-nano-8b-v1",
+        "provider": "nvidia",
+        "model_id": "nvidia/llama-3.1-nemotron-nano-8b-v1",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+        "provider": "nvidia",
+        "model_id": "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+        "provider": "nvidia",
+        "model_id": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/llama-3.1-nemotron-ultra-253b-v1",
+        "provider": "nvidia",
+        "model_id": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/llama-3.3-nemotron-super-49b-v1",
+        "provider": "nvidia",
+        "model_id": "nvidia/llama-3.3-nemotron-super-49b-v1",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/llama3-chatqa-1.5-70b",
+        "provider": "nvidia",
+        "model_id": "nvidia/llama3-chatqa-1.5-70b",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/mistral-nemo-minitron-8b-8k-instruct",
+        "provider": "nvidia",
+        "model_id": "nvidia/mistral-nemo-minitron-8b-8k-instruct",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/nemotron-3-ultra-550b-a55b",
+        "provider": "nvidia",
+        "model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/nemotron-4-340b-instruct",
+        "provider": "nvidia",
+        "model_id": "nvidia/nemotron-4-340b-instruct",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/nemotron-nano-12b-v2-vl",
+        "provider": "nvidia",
+        "model_id": "nvidia/nemotron-nano-12b-v2-vl",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/nemotron-nano-3-30b-a3b",
+        "provider": "nvidia",
+        "model_id": "nvidia/nemotron-nano-3-30b-a3b",
+        "context_length": null,
+        "pricing": "free"
+      },
+      {
+        "full_id": "nvidia/nvidia/nvidia-nemotron-nano-9b-v2",
+        "provider": "nvidia",
+        "model_id": "nvidia/nvidia-nemotron-nano-9b-v2",
+        "context_length": null,
+        "pricing": "free"
+      }
+    ],
+    "google": [
+      {
+        "full_id": "google/google/gemini-2.0-flash",
+        "provider": "google",
+        "model_id": "google/gemini-2.0-flash",
+        "context_length": 1048576,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-2.0-flash-001",
+        "provider": "google",
+        "model_id": "google/gemini-2.0-flash-001",
+        "context_length": 1048576,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-2.0-flash-lite-001",
+        "provider": "google",
+        "model_id": "google/gemini-2.0-flash-lite-001",
+        "context_length": 1048576,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-2.0-flash-lite",
+        "provider": "google",
+        "model_id": "google/gemini-2.0-flash-lite",
+        "context_length": 1048576,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-2.5-flash-preview-tts",
+        "provider": "google",
+        "model_id": "google/gemini-2.5-flash-preview-tts",
+        "context_length": 8192,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-2.5-pro-preview-tts",
+        "provider": "google",
+        "model_id": "google/gemini-2.5-pro-preview-tts",
+        "context_length": 8192,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-flash-lite-latest",
+        "provider": "google",
+        "model_id": "google/gemini-flash-lite-latest",
+        "context_length": 1048576,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-pro-latest",
+        "provider": "google",
+        "model_id": "google/gemini-pro-latest",
+        "context_length": 1048576,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-3-pro-preview",
+        "provider": "google",
+        "model_id": "google/gemini-3-pro-preview",
+        "context_length": 1048576,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-3.1-pro-preview-customtools",
+        "provider": "google",
+        "model_id": "google/gemini-3.1-pro-preview-customtools",
+        "context_length": 1048576,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-3-pro-image-preview",
+        "provider": "google",
+        "model_id": "google/gemini-3-pro-image-preview",
+        "context_length": 131072,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-3-pro-image",
+        "provider": "google",
+        "model_id": "google/gemini-3-pro-image",
+        "context_length": 131072,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/nano-banana-pro-preview",
+        "provider": "google",
+        "model_id": "google/nano-banana-pro-preview",
+        "context_length": 131072,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-3.1-flash-image-preview",
+        "provider": "google",
+        "model_id": "google/gemini-3.1-flash-image-preview",
+        "context_length": 65536,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-3.1-flash-image",
+        "provider": "google",
+        "model_id": "google/gemini-3.1-flash-image",
+        "context_length": 65536,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-3.1-flash-tts-preview",
+        "provider": "google",
+        "model_id": "google/gemini-3.1-flash-tts-preview",
+        "context_length": 8192,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-robotics-er-1.5-preview",
+        "provider": "google",
+        "model_id": "google/gemini-robotics-er-1.5-preview",
+        "context_length": 1048576,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-robotics-er-1.6-preview",
+        "provider": "google",
+        "model_id": "google/gemini-robotics-er-1.6-preview",
+        "context_length": 131072,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/gemini-2.5-computer-use-preview-10-2025",
+        "provider": "google",
+        "model_id": "google/gemini-2.5-computer-use-preview-10-2025",
+        "context_length": 131072,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/antigravity-preview-05-2026",
+        "provider": "google",
+        "model_id": "google/antigravity-preview-05-2026",
+        "context_length": 131072,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/deep-research-max-preview-04-2026",
+        "provider": "google",
+        "model_id": "google/deep-research-max-preview-04-2026",
+        "context_length": 131072,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/deep-research-preview-04-2026",
+        "provider": "google",
+        "model_id": "google/deep-research-preview-04-2026",
+        "context_length": 131072,
+        "pricing": "free"
+      },
+      {
+        "full_id": "google/google/deep-research-pro-preview-12-2025",
+        "provider": "google",
+        "model_id": "google/deep-research-pro-preview-12-2025",
+        "context_length": 131072,
+        "pricing": "free"
+      }
+    ],
+    "deepinfra": [
+      {
+        "full_id": "deepinfra/mistralai/Mistral-Small-24B-Instruct-2501",
+        "provider": "deepinfra",
+        "model_id": "mistralai/Mistral-Small-24B-Instruct-2501",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "deepinfra/mistralai/Voxtral-Small-24B-2507",
+        "provider": "deepinfra",
+        "model_id": "mistralai/Voxtral-Small-24B-2507",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "deepinfra/mistralai/Mistral-Small-3.2-24B-Instruct-2506",
+        "provider": "deepinfra",
+        "model_id": "mistralai/Mistral-Small-3.2-24B-Instruct-2506",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "deepinfra/mistralai/Mistral-Nemo-Instruct-2407",
+        "provider": "deepinfra",
+        "model_id": "mistralai/Mistral-Nemo-Instruct-2407",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "deepinfra/mistralai/Voxtral-Mini-3B-2507",
+        "provider": "deepinfra",
+        "model_id": "mistralai/Voxtral-Mini-3B-2507",
+        "context_length": null,
+        "pricing": null
+      }
+    ],
+    "novitaai": [
+      {
+        "full_id": "novitaai/moonshotai/kimi-k2-thinking",
+        "provider": "novitaai",
+        "model_id": "moonshotai/kimi-k2-thinking",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "novitaai/moonshotai/kimi-k2-0905",
+        "provider": "novitaai",
+        "model_id": "moonshotai/kimi-k2-0905",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "novitaai/moonshotai/kimi-k2-instruct",
+        "provider": "novitaai",
+        "model_id": "moonshotai/kimi-k2-instruct",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "novitaai/mistralai/mistral-nemo",
+        "provider": "novitaai",
+        "model_id": "mistralai/mistral-nemo",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "novitaai/nvidia/nemotron-3-nano-30b-a3b",
+        "provider": "novitaai",
+        "model_id": "nvidia/nemotron-3-nano-30b-a3b",
+        "context_length": null,
+        "pricing": null
+      }
+    ],
+    "siliconflow": [
+      {
+        "full_id": "siliconflow/google/gemma-4-12B-it",
+        "provider": "siliconflow",
+        "model_id": "google/gemma-4-12B-it",
+        "context_length": null,
+        "pricing": null
+      }
+    ],
+    "zhipuai": [
+      {
+        "full_id": "zhipuai/glm-5-turbo",
+        "provider": "zhipuai",
+        "model_id": "glm-5-turbo",
+        "context_length": null,
+        "pricing": null
+      }
+    ],
+    "huggingface": [
+      {
+        "full_id": "huggingface/boltuix/bert-emotion",
+        "provider": "huggingface",
+        "model_id": "boltuix/bert-emotion",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/boltuix/NeuroFeel",
+        "provider": "huggingface",
+        "model_id": "boltuix/NeuroFeel",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/carsenk/llama3.2_1b_2025_uncensored_v2",
+        "provider": "huggingface",
+        "model_id": "carsenk/llama3.2_1b_2025_uncensored_v2",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/sampathkethineedi/industry-classification-api",
+        "provider": "huggingface",
+        "model_id": "sampathkethineedi/industry-classification-api",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/florianleibert/kimi-k26-dflash-mi300x",
+        "provider": "huggingface",
+        "model_id": "florianleibert/kimi-k26-dflash-mi300x",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/AnasAlokla/multilingual_go_emotions",
+        "provider": "huggingface",
+        "model_id": "AnasAlokla/multilingual_go_emotions",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Novaciano/Uncensored-1b-Creative_Writing_RP-GGUF",
+        "provider": "huggingface",
+        "model_id": "Novaciano/Uncensored-1b-Creative_Writing_RP-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/cybermotaz/Qwen3-Omni-30B-A3B-Instruct-NVFP4",
+        "provider": "huggingface",
+        "model_id": "cybermotaz/Qwen3-Omni-30B-A3B-Instruct-NVFP4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/llmixer/ExllamaV2-Control-Vectors",
+        "provider": "huggingface",
+        "model_id": "llmixer/ExllamaV2-Control-Vectors",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Hellohal2064/vllm-dgx-spark-gb10",
+        "provider": "huggingface",
+        "model_id": "Hellohal2064/vllm-dgx-spark-gb10",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/patrickbdevaney/Qwen3.5-122B-A10B-NVFP4-vllm-docker-jetson-agx-thor",
+        "provider": "huggingface",
+        "model_id": "patrickbdevaney/Qwen3.5-122B-A10B-NVFP4-vllm-docker-jetson-agx-thor",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/waltgrace/mlx-expert-sniper",
+        "provider": "huggingface",
+        "model_id": "waltgrace/mlx-expert-sniper",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Superflows/Superflows-1",
+        "provider": "huggingface",
+        "model_id": "Superflows/Superflows-1",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/carsenk/llama3.2_1b_2025_uncensored",
+        "provider": "huggingface",
+        "model_id": "carsenk/llama3.2_1b_2025_uncensored",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/blackbird-she-doesnt-refuse-21b",
+        "provider": "huggingface",
+        "model_id": "srswti/blackbird-she-doesnt-refuse-21b",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/iBoostAI/Demucs-v4",
+        "provider": "huggingface",
+        "model_id": "iBoostAI/Demucs-v4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Varnikasiva/sentiment-classification-bert-mini",
+        "provider": "huggingface",
+        "model_id": "Varnikasiva/sentiment-classification-bert-mini",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/carsenk/llama3.2_3b_122824_uncensored",
+        "provider": "huggingface",
+        "model_id": "carsenk/llama3.2_3b_122824_uncensored",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/llama3.2_3b_122824_uncensored-i1-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/llama3.2_3b_122824_uncensored-i1-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/muranAI/gemma-3n-E4B-it-GGUF",
+        "provider": "huggingface",
+        "model_id": "muranAI/gemma-3n-E4B-it-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/AnasAlokla/multilingual_go_emotions_V1.2",
+        "provider": "huggingface",
+        "model_id": "AnasAlokla/multilingual_go_emotions_V1.2",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/deepseek-v3.2-speciale-distilled-raptor-32b-4bit",
+        "provider": "huggingface",
+        "model_id": "srswti/deepseek-v3.2-speciale-distilled-raptor-32b-4bit",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/MansfieldPlumbing/Demucs_v4_TRT",
+        "provider": "huggingface",
+        "model_id": "MansfieldPlumbing/Demucs_v4_TRT",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Novaciano/L3.2-2025_SuperUncensored_Q5-GGUF",
+        "provider": "huggingface",
+        "model_id": "Novaciano/L3.2-2025_SuperUncensored_Q5-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Novaciano/ANAL.DESTRUCTION-3.2-1B-Uncensored_V2-GGUF",
+        "provider": "huggingface",
+        "model_id": "Novaciano/ANAL.DESTRUCTION-3.2-1B-Uncensored_V2-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/AnasAlokla/multilingual_go_emotions_V1.1",
+        "provider": "huggingface",
+        "model_id": "AnasAlokla/multilingual_go_emotions_V1.1",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/pancho101/Uncensored-1b-Creative_Writing_RP-GGUF",
+        "provider": "huggingface",
+        "model_id": "pancho101/Uncensored-1b-Creative_Writing_RP-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/LargitData/gemma-4-31b-it-fp8",
+        "provider": "huggingface",
+        "model_id": "LargitData/gemma-4-31b-it-fp8",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/opensynapselabs/arche3.5-codium-0.5B",
+        "provider": "huggingface",
+        "model_id": "opensynapselabs/arche3.5-codium-0.5B",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/llama3.2_3b_122824_uncensored-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/llama3.2_3b_122824_uncensored-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Novaciano/L3.2-1b_SuperUncensored_V2-IQ4_XS-GGUF",
+        "provider": "huggingface",
+        "model_id": "Novaciano/L3.2-1b_SuperUncensored_V2-IQ4_XS-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Novaciano/L3.2-1b_SuperUncensored_V2-Q5_K_M-GGUF",
+        "provider": "huggingface",
+        "model_id": "Novaciano/L3.2-1b_SuperUncensored_V2-Q5_K_M-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Novaciano/L3.2-1b-SuperUncensored_V2-IQ3_XXS-GGUF",
+        "provider": "huggingface",
+        "model_id": "Novaciano/L3.2-1b-SuperUncensored_V2-IQ3_XXS-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/llama3.2_1b_2025_uncensored_v2-i1-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/llama3.2_1b_2025_uncensored_v2-i1-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/rhinosaur0/rapid3dgs",
+        "provider": "huggingface",
+        "model_id": "rhinosaur0/rapid3dgs",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/koureasstavros/TheLittleBaby",
+        "provider": "huggingface",
+        "model_id": "koureasstavros/TheLittleBaby",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/LucidityAI/Astral-4B-Preview",
+        "provider": "huggingface",
+        "model_id": "LucidityAI/Astral-4B-Preview",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/XythicK/Plano-Orchestrator-30B-A3B-GGUF",
+        "provider": "huggingface",
+        "model_id": "XythicK/Plano-Orchestrator-30B-A3B-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/bodega-raptor-8b-mxfp4",
+        "provider": "huggingface",
+        "model_id": "srswti/bodega-raptor-8b-mxfp4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/bodega-vertex-4b",
+        "provider": "huggingface",
+        "model_id": "srswti/bodega-vertex-4b",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Geodd/GLM-4.7-Flash-W8A16",
+        "provider": "huggingface",
+        "model_id": "Geodd/GLM-4.7-Flash-W8A16",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/qoranet/QORA-LLM-2B",
+        "provider": "huggingface",
+        "model_id": "qoranet/QORA-LLM-2B",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Kevletesteur/chimere-system",
+        "provider": "huggingface",
+        "model_id": "Kevletesteur/chimere-system",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/groxaxo/Gemma-4-Abliterated-GPTQ-4bit-Pro-v1",
+        "provider": "huggingface",
+        "model_id": "groxaxo/Gemma-4-Abliterated-GPTQ-4bit-Pro-v1",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/Llama-3.2-3B-optimized-i1-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/Llama-3.2-3B-optimized-i1-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/poolside-laguna-hackathon/lean-laguna",
+        "provider": "huggingface",
+        "model_id": "poolside-laguna-hackathon/lean-laguna",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Felldude/FLUX.2-HDR-VAE",
+        "provider": "huggingface",
+        "model_id": "Felldude/FLUX.2-HDR-VAE",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/01GangaPutraBheeshma/databricks-facebook-opt2-ft-dolly-UT",
+        "provider": "huggingface",
+        "model_id": "01GangaPutraBheeshma/databricks-facebook-opt2-ft-dolly-UT",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/BercyHub/CamemBERT_classification_discussions",
+        "provider": "huggingface",
+        "model_id": "BercyHub/CamemBERT_classification_discussions",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/tank028/gpt-neox-20b-finet",
+        "provider": "huggingface",
+        "model_id": "tank028/gpt-neox-20b-finet",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/coinatur/tinyllama-colorist-v1",
+        "provider": "huggingface",
+        "model_id": "coinatur/tinyllama-colorist-v1",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/gerver/keyli",
+        "provider": "huggingface",
+        "model_id": "gerver/keyli",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Propicto/asr-wav2vec2-orfeo-fr",
+        "provider": "huggingface",
+        "model_id": "Propicto/asr-wav2vec2-orfeo-fr",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Propicto/asr-wav2vec2-commonvoice-15-fr",
+        "provider": "huggingface",
+        "model_id": "Propicto/asr-wav2vec2-commonvoice-15-fr",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/dhrubasumatary/sarvam-1-quantized",
+        "provider": "huggingface",
+        "model_id": "dhrubasumatary/sarvam-1-quantized",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Novaciano/L3.2-2025-SuperUncensored-GGUF",
+        "provider": "huggingface",
+        "model_id": "Novaciano/L3.2-2025-SuperUncensored-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Novaciano/L3.2-1b_SuperUncensored_V2-Q4_K_M-GGUF",
+        "provider": "huggingface",
+        "model_id": "Novaciano/L3.2-1b_SuperUncensored_V2-Q4_K_M-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Novaciano/L3.2-1B_Uncensored_ShortStories-Q5_K_M-GGUF",
+        "provider": "huggingface",
+        "model_id": "Novaciano/L3.2-1B_Uncensored_ShortStories-Q5_K_M-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Novaciano/L3.2-1B-Uncensored_ShortStories_Q4_K_M-GGUF",
+        "provider": "huggingface",
+        "model_id": "Novaciano/L3.2-1B-Uncensored_ShortStories_Q4_K_M-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Wade5/MyModel2",
+        "provider": "huggingface",
+        "model_id": "Wade5/MyModel2",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/larped/llama3.2_1b_2025_uncensored_v2-Q3_K_M-GGUF",
+        "provider": "huggingface",
+        "model_id": "larped/llama3.2_1b_2025_uncensored_v2-Q3_K_M-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/llama3.2_1b_2025_uncensored_v2-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/llama3.2_1b_2025_uncensored_v2-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/kaipybara/hackping-2025",
+        "provider": "huggingface",
+        "model_id": "kaipybara/hackping-2025",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/imperiusrex/Handwritten_model",
+        "provider": "huggingface",
+        "model_id": "imperiusrex/Handwritten_model",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/c1tr0n75/VoxelPathFinder",
+        "provider": "huggingface",
+        "model_id": "c1tr0n75/VoxelPathFinder",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mhd15865/t5_finetuned_on_kit_dataset",
+        "provider": "huggingface",
+        "model_id": "mhd15865/t5_finetuned_on_kit_dataset",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/Astral-4B-Preview-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/Astral-4B-Preview-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/remodlai/Llama-3.2-1B-Instruct-Nova-FP8",
+        "provider": "huggingface",
+        "model_id": "remodlai/Llama-3.2-1B-Instruct-Nova-FP8",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/remodlai/Qwen3-4B-Thinking-2507-Nova-fp8",
+        "provider": "huggingface",
+        "model_id": "remodlai/Qwen3-4B-Thinking-2507-Nova-fp8",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/5ivatej/tinyllama-1.1b-early-exit",
+        "provider": "huggingface",
+        "model_id": "5ivatej/tinyllama-1.1b-early-exit",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/FilledVaccum/Llama-3.1-Sherkala-8B-Chat-Quantized-8-Bits",
+        "provider": "huggingface",
+        "model_id": "FilledVaccum/Llama-3.1-Sherkala-8B-Chat-Quantized-8-Bits",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/lzcczl/best_l.pt",
+        "provider": "huggingface",
+        "model_id": "lzcczl/best_l.pt",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/WpythonW/rubert-tiny2-vllm",
+        "provider": "huggingface",
+        "model_id": "WpythonW/rubert-tiny2-vllm",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/MEscriva/gilbert-whisper-onnx",
+        "provider": "huggingface",
+        "model_id": "MEscriva/gilbert-whisper-onnx",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/cybermotaz/Qwen3-VL-32B-Instruct-NVFP4",
+        "provider": "huggingface",
+        "model_id": "cybermotaz/Qwen3-VL-32B-Instruct-NVFP4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/XythicK/qwen-coder-14b-vulrepair-GGUF",
+        "provider": "huggingface",
+        "model_id": "XythicK/qwen-coder-14b-vulrepair-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/XythicK/Mag-Mell-R1-Uncensored-21B-GGUF",
+        "provider": "huggingface",
+        "model_id": "XythicK/Mag-Mell-R1-Uncensored-21B-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Crometheus00/henry-llama3-8b-instruct",
+        "provider": "huggingface",
+        "model_id": "Crometheus00/henry-llama3-8b-instruct",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/syafiqzufayri/my-resume-parser-lite",
+        "provider": "huggingface",
+        "model_id": "syafiqzufayri/my-resume-parser-lite",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/syafiqzufayri/resume-parser-v2",
+        "provider": "huggingface",
+        "model_id": "syafiqzufayri/resume-parser-v2",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/bodega-centenario-21b-mxfp4",
+        "provider": "huggingface",
+        "model_id": "srswti/bodega-centenario-21b-mxfp4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/bodega-raptor-90m",
+        "provider": "huggingface",
+        "model_id": "srswti/bodega-raptor-90m",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/bodega-raptor-15b-6bit",
+        "provider": "huggingface",
+        "model_id": "srswti/bodega-raptor-15b-6bit",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/bodega-raptor-0.9b",
+        "provider": "huggingface",
+        "model_id": "srswti/bodega-raptor-0.9b",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/axe-turbo-1b",
+        "provider": "huggingface",
+        "model_id": "srswti/axe-turbo-1b",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/bodega-raptor-1b-reasoning-opus4.5-distill",
+        "provider": "huggingface",
+        "model_id": "srswti/bodega-raptor-1b-reasoning-opus4.5-distill",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/axe-turbo-31b",
+        "provider": "huggingface",
+        "model_id": "srswti/axe-turbo-31b",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/bodega-solomon-9b",
+        "provider": "huggingface",
+        "model_id": "srswti/bodega-solomon-9b",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/chavezoscar009/lyra_models",
+        "provider": "huggingface",
+        "model_id": "chavezoscar009/lyra_models",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/syedahmedsoftware/broken-model-fixed",
+        "provider": "huggingface",
+        "model_id": "syedahmedsoftware/broken-model-fixed",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/waqasm86/llamatelemetry-binaries",
+        "provider": "huggingface",
+        "model_id": "waqasm86/llamatelemetry-binaries",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/waqasm86/llamatelemetry-models",
+        "provider": "huggingface",
+        "model_id": "waqasm86/llamatelemetry-models",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/purplesquirrelnetworks/aidp-neural-cloud-paper",
+        "provider": "huggingface",
+        "model_id": "purplesquirrelnetworks/aidp-neural-cloud-paper",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Geodd/GLM-4.7-Flash-FP8",
+        "provider": "huggingface",
+        "model_id": "Geodd/GLM-4.7-Flash-FP8",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/SwarmDX/NanoSwarm",
+        "provider": "huggingface",
+        "model_id": "SwarmDX/NanoSwarm",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/FlimsyFox/llama3.2_1b_2025_uncensored_v2-rk3588-1.1.2",
+        "provider": "huggingface",
+        "model_id": "FlimsyFox/llama3.2_1b_2025_uncensored_v2-rk3588-1.1.2",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Fu01978/Llama-3.2-1B-4B-Quad-MoE-Q4_K_M",
+        "provider": "huggingface",
+        "model_id": "Fu01978/Llama-3.2-1B-4B-Quad-MoE-Q4_K_M",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Joysulem/FireEcho",
+        "provider": "huggingface",
+        "model_id": "Joysulem/FireEcho",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Thejmimiia/blackbird-she-doesnt-refuse-21b",
+        "provider": "huggingface",
+        "model_id": "Thejmimiia/blackbird-she-doesnt-refuse-21b",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/solomon",
+        "provider": "huggingface",
+        "model_id": "srswti/solomon",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/solomon-max",
+        "provider": "huggingface",
+        "model_id": "srswti/solomon-max",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/srswti/keshav",
+        "provider": "huggingface",
+        "model_id": "srswti/keshav",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/jaspervandemeent/Qwen2.5-7B-Instruct-OOM",
+        "provider": "huggingface",
+        "model_id": "jaspervandemeent/Qwen2.5-7B-Instruct-OOM",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/joshuaeric/vllm-tool-calling-guide",
+        "provider": "huggingface",
+        "model_id": "joshuaeric/vllm-tool-calling-guide",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/YellowLabsStudio/yl-home-agent-v3",
+        "provider": "huggingface",
+        "model_id": "YellowLabsStudio/yl-home-agent-v3",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/thehighnotes/vllm-jetson-orin",
+        "provider": "huggingface",
+        "model_id": "thehighnotes/vllm-jetson-orin",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/kamaludeen/multilingual_go_emotions-ONNX",
+        "provider": "huggingface",
+        "model_id": "kamaludeen/multilingual_go_emotions-ONNX",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/Qwen2.5-0.5B-Instruct-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/Qwen2.5-0.5B-Instruct-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/TinyLlama-1.1B-Chat-v1.0-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/TinyLlama-1.1B-Chat-v1.0-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/Qwen2.5-1.5B-Instruct-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/Qwen2.5-1.5B-Instruct-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/Qwen2.5-3B-Instruct-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/Qwen2.5-3B-Instruct-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/Qwen2.5-Coder-1.5B-Instruct-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/Qwen2.5-Coder-1.5B-Instruct-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/Qwen2.5-7B-Instruct-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/Qwen2.5-7B-Instruct-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/Qwen2.5-Coder-7B-Instruct-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/Qwen2.5-Coder-7B-Instruct-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/Mistral-7B-Instruct-v0.3-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/Mistral-7B-Instruct-v0.3-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/deepseek-coder-6.7b-instruct-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/deepseek-coder-6.7b-instruct-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/Qwen2.5-14B-Instruct-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/Qwen2.5-14B-Instruct-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/Qwen2.5-32B-Instruct-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/Qwen2.5-32B-Instruct-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/Mixtral-8x7B-Instruct-v0.1-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/Mixtral-8x7B-Instruct-v0.1-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/zse-zllm/Qwen2.5-72B-Instruct-zse-int4",
+        "provider": "huggingface",
+        "model_id": "zse-zllm/Qwen2.5-72B-Instruct-zse-int4",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/GakoMammang/nurse-ai-model",
+        "provider": "huggingface",
+        "model_id": "GakoMammang/nurse-ai-model",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/jsanchoz/clarisa-cx43-classifier",
+        "provider": "huggingface",
+        "model_id": "jsanchoz/clarisa-cx43-classifier",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Engram-protocol/engram",
+        "provider": "huggingface",
+        "model_id": "Engram-protocol/engram",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/LargitData/gemma-4-26b-a4b-it-fp8",
+        "provider": "huggingface",
+        "model_id": "LargitData/gemma-4-26b-a4b-it-fp8",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Aysunner/gemma-4-31b-it-fp8",
+        "provider": "huggingface",
+        "model_id": "Aysunner/gemma-4-31b-it-fp8",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/rolvai/rolv-primitive",
+        "provider": "huggingface",
+        "model_id": "rolvai/rolv-primitive",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/austindixson/glm-4.7-flash-Opus-Reasoning-Q4_KM",
+        "provider": "huggingface",
+        "model_id": "austindixson/glm-4.7-flash-Opus-Reasoning-Q4_KM",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/fraQtl/TinyLlama-1.1B-fraQtl-kv",
+        "provider": "huggingface",
+        "model_id": "fraQtl/TinyLlama-1.1B-fraQtl-kv",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/fraQtl/Llama-3.2-3B-fraQtl-kv",
+        "provider": "huggingface",
+        "model_id": "fraQtl/Llama-3.2-3B-fraQtl-kv",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/fraQtl/Qwen2.5-3B-fraQtl-kv",
+        "provider": "huggingface",
+        "model_id": "fraQtl/Qwen2.5-3B-fraQtl-kv",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/Mistral-7B-compressed-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/Mistral-7B-compressed-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/Mistral-7B-compressed-i1-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/Mistral-7B-compressed-i1-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Jamphus/gemma-4-31b-it-fp8",
+        "provider": "huggingface",
+        "model_id": "Jamphus/gemma-4-31b-it-fp8",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/nyh1006/kmwe-a-pipeline-encoder",
+        "provider": "huggingface",
+        "model_id": "nyh1006/kmwe-a-pipeline-encoder",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/nyh1006/kmwe-b-pipeline-qwen-llm",
+        "provider": "huggingface",
+        "model_id": "nyh1006/kmwe-b-pipeline-qwen-llm",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/anoymousfml/kmwe-b-pipeline-llama-llm",
+        "provider": "huggingface",
+        "model_id": "anoymousfml/kmwe-b-pipeline-llama-llm",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/rima0034/baslik-onerici",
+        "provider": "huggingface",
+        "model_id": "rima0034/baslik-onerici",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mimi-neoki/vla0-gorgeous-30hz-merged-v2v3-qwen35-2b-lerobot051",
+        "provider": "huggingface",
+        "model_id": "mimi-neoki/vla0-gorgeous-30hz-merged-v2v3-qwen35-2b-lerobot051",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_050353",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_050353",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_050428",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_050428",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_050503",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_050503",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_051340",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_051340",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_051415",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_051415",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_051450",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_051450",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_051551",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_051551",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_051627",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_051627",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_051703",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_051703",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_051942",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_051942",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052016",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052016",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052058",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052058",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052132",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052132",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052209",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052209",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052244",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052244",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052316",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052316",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052350",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052350",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052426",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052426",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052500",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052500",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052534",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052534",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052608",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052608",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052642",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052642",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052717",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052717",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052753",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052753",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052828",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052828",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052902",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052902",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_052937",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_052937",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053011",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053011",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053046",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053046",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053122",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053122",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053156",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053156",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053230",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053230",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053305",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053305",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053342",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053342",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053417",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053417",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053451",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053451",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053527",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053527",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053603",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053603",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053637",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053637",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053712",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053712",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053747",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053747",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053822",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053822",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053857",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053857",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_053933",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_053933",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_054008",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_054008",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_054044",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_054044",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_054127",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_054127",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_054202",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_054202",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_054238",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_054238",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_054312",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_054312",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_054347",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_054347",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_054423",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_054423",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/36n9/Vehuiah-Draco-20260425_054459",
+        "provider": "huggingface",
+        "model_id": "36n9/Vehuiah-Draco-20260425_054459",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/TinyLlama-1.1B-optimized-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/TinyLlama-1.1B-optimized-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/TinyLlama-1.1B-optimized-i1-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/TinyLlama-1.1B-optimized-i1-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/Qwen-2.5-3B-optimized-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/Qwen-2.5-3B-optimized-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/Llama-3.2-3B-optimized-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/Llama-3.2-3B-optimized-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/mradermacher/Qwen-2.5-3B-optimized-i1-GGUF",
+        "provider": "huggingface",
+        "model_id": "mradermacher/Qwen-2.5-3B-optimized-i1-GGUF",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/rajkr/sdxl-pokemon-lora",
+        "provider": "huggingface",
+        "model_id": "rajkr/sdxl-pokemon-lora",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/supanthadey1/bertose-affinose-inference",
+        "provider": "huggingface",
+        "model_id": "supanthadey1/bertose-affinose-inference",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Vasyanator2/JART_models",
+        "provider": "huggingface",
+        "model_id": "Vasyanator2/JART_models",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/stukenov/omniff",
+        "provider": "huggingface",
+        "model_id": "stukenov/omniff",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/CraneAILabs/medgemma-1.5-4b-it-nf4-blackwell",
+        "provider": "huggingface",
+        "model_id": "CraneAILabs/medgemma-1.5-4b-it-nf4-blackwell",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/poolside-laguna-hackathon/laguna-martini",
+        "provider": "huggingface",
+        "model_id": "poolside-laguna-hackathon/laguna-martini",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/yeyemao/aimo-3-yemao-solution",
+        "provider": "huggingface",
+        "model_id": "yeyemao/aimo-3-yemao-solution",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/Dongkkka/rldx-1-cyclo-intelligence-test",
+        "provider": "huggingface",
+        "model_id": "Dongkkka/rldx-1-cyclo-intelligence-test",
+        "context_length": null,
+        "pricing": null
+      },
+      {
+        "full_id": "huggingface/convaiinnovations/qwen-api-fastapi",
+        "provider": "huggingface",
+        "model_id": "convaiinnovations/qwen-api-fastapi",
+        "context_length": null,
+        "pricing": null
+      }
+    ]
+  }
+}
