@@ -121,30 +121,21 @@ async function main() {
 
     const dryRun = !process.argv.includes('--apply');
     if (dryRun) {
-      console.log(`\nDry run — use --apply to insert ${assignments.length} base_model features.`);
+      console.log(`\nDry run — use --apply to update ${assignments.length} super_models.base_model.`);
       return;
     }
 
-    // Insert base_model features for each assignment
-    let inserted = 0;
+    // Update super_models.base_model for each assignment
+    let updated = 0;
     for (const a of assignments) {
-      // Get all active datapoints for this super_model
-      const { rows: dps } = await client.query(
-        'SELECT id FROM datapoint_models WHERE super_model_id = $1 AND NOT is_removed',
-        [a.child_id]
+      await client.query(
+        'UPDATE super_models SET base_model = $1 WHERE id = $2 AND base_model IS NULL',
+        [a.parent_slug, a.child_id]
       );
-      if (dps.length === 0) continue;
-
-      for (const dp of dps) {
-        await client.query(
-          'INSERT INTO datapoint_model_features (datapoint_model_id, feature_type, value) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
-          [dp.id, 'base_model', a.parent_slug]
-        );
-        inserted++;
-      }
+      updated++;
     }
 
-    console.log(`\nInserted ${inserted} base_model features.`);
+    console.log(`\nUpdated ${updated} super_models with base_model column.`);
   } finally {
     client.release();
     await pool.end();

@@ -27,7 +27,7 @@ async function buildModelsData(client, pool, options = {}) {
 
   const { rows: dmRows } = await client.query(`
     SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug, mm.creator AS super_creator,
-           mm.base_creator AS super_base_creator, mm.family AS super_family,
+           mm.base_creator AS super_base_creator, mm.family AS super_family, mm.base_model AS super_base_model,
            dp.name AS provider_name, dp.slug AS provider_slug,
            dp.npm_package
     FROM datapoint_models dm
@@ -68,7 +68,6 @@ async function buildModelsData(client, pool, options = {}) {
     'last_updated',
     'supports_attachment',
     'supports_structured_output',
-    'base_model',
   ];
 
   if (dmIds.length > 0) {
@@ -140,7 +139,7 @@ async function buildModelsData(client, pool, options = {}) {
       temperature: feat?.temperature?.[0] === undefined ? null : feat.temperature[0] === 'true',
       open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
       family: dm.super_family || feat?.family?.[0] || null,
-      base_model: feat?.base_model?.[0] || null,
+      base_model: dm.super_base_model || null,
       knowledge_cutoff: feat?.knowledge_cutoff?.[0] || null,
       releaseDate: feat?.release_date?.[0] || null,
       lastUpdated: feat?.last_updated?.[0] || null,
@@ -351,6 +350,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
         base_model: dp.base_model,
         best_for: [...(dp.best_for || [])],
         best_context: dp.context_length || 0,
+        min_context: dp.context_length || 0,
         role_rankings: {},
         providers: [],
       });
@@ -399,6 +399,9 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     if (dp.context_length && dp.context_length > model.best_context) {
       model.best_context = dp.context_length;
     }
+    if (dp.context_length && (!model.min_context || dp.context_length < model.min_context)) {
+      model.min_context = dp.context_length;
+    }
     for (const tag of dp.best_for || []) {
       if (!model.best_for.includes(tag)) model.best_for.push(tag);
     }
@@ -435,6 +438,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
           base_model: model.base_model || null,
           best_for: model.best_for,
           best_context: model.best_context,
+          min_context: model.min_context || null,
           role_rankings: roleRankingBySuperId[`${model.super_id}`] || {},
           providers: model.providers,
         }))
@@ -540,6 +544,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
         untested: untestedIds,
       },
     },
+    _test_summary_previous: meta._test_summary_previous || null,
     _role_rankings: meta[roleRankingsKey] || {
       description: '',
       model: [],

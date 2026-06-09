@@ -45,14 +45,17 @@ async function main() {
       return null;
     }
 
-    // Load all base_model features (parent links)
+    // Load all base_model links from super_models column
     const { rows: bmFeatures } = await client.query(`
-      SELECT dm.super_model_id, df.value AS parent_slug
-      FROM datapoint_model_features df
-      JOIN datapoint_models dm ON dm.id = df.datapoint_model_id
-      WHERE df.feature_type = 'base_model' AND NOT dm.is_removed
+      SELECT sm.id AS super_model_id, sm.base_model AS parent_slug
+      FROM super_models sm
+      WHERE sm.base_model IS NOT NULL
+      AND EXISTS (
+        SELECT 1 FROM datapoint_models dm
+        WHERE dm.super_model_id = sm.id AND NOT dm.is_removed
+      )
     `);
-    console.log(`Loaded ${bmFeatures.length} base_model feature links.`);
+    console.log(`Loaded ${bmFeatures.length} base_model links from super_models.`);
 
     // Build child super_model_id → parent_slug (deduplicated)
     const baseModelMap = new Map();
@@ -209,11 +212,7 @@ async function main() {
           SELECT 1 FROM datapoint_models dm WHERE dm.super_model_id = sm.id AND NOT dm.is_removed
         )
         AND sm.family IS NULL
-        AND EXISTS (
-          SELECT 1 FROM datapoint_models dm3
-          JOIN datapoint_model_features df2 ON df2.datapoint_model_id = dm3.id AND df2.feature_type = 'base_model'
-          WHERE dm3.super_model_id = sm.id
-        )
+        AND sm.base_model IS NOT NULL
       `);
       console.log(`\nModels still without family: ${uncovered} (${couldStillUse[0].cnt} of those have base_model links — may resolve once parents get family).`);
     }

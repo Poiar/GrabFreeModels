@@ -60,6 +60,12 @@ async function loadFromDb() {
 async function saveToDbAndExport() {
   const client = await DB_POOL.connect();
   try {
+    // Snapshot current test_summary as "previous" before overwriting
+    const { rows: prevRows } = await client.query(
+      `SELECT value::text FROM metadata WHERE key = '_test_summary'`,
+    );
+    const prevValue = prevRows.length > 0 ? prevRows[0].value : null;
+
     await client.query('BEGIN');
     for (const m of json.models) {
       await client.query(
@@ -74,6 +80,13 @@ async function saveToDbAndExport() {
        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
       [JSON.stringify(json._test_summary)],
     );
+    if (prevValue) {
+      await client.query(
+        `INSERT INTO metadata (key, value) VALUES ('_test_summary_previous', $1)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+        [prevValue],
+      );
+    }
     await client.query('COMMIT');
   } catch (e) {
     await client.query('ROLLBACK');

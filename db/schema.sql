@@ -10,6 +10,7 @@ CREATE TABLE super_models (
     creator         VARCHAR(128),                  -- organization behind the model
     base_creator    VARCHAR(128),                  -- original model maker (for derived/fine-tuned models)
     family          VARCHAR(64),                   -- model lineage (Llama, GPT, Qwen, etc.)
+    base_model      VARCHAR(256),                  -- parent super_model slug this is derived/fine-tuned from
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
