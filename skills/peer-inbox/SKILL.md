@@ -5,21 +5,37 @@ description: Check recent peer-to-peer messages between Claude Code sessions. Tr
 
 # Peer Inbox
 
-Check the shared message log to see recent inter-session messages.
+Check the shared message log for messages addressed to this project.
 
 ## Steps
 
-Read the message log:
+### 1. Read messages for this project
 
 ```powershell
-if (Test-Path "$env:USERPROFILE\.claude\peer-messages.jsonl") {
-  Get-Content "$env:USERPROFILE\.claude\peer-messages.jsonl" -Tail 20 | ForEach-Object {
-    $m = $_ | ConvertFrom-Json
-    "$($m.at)  $($m.from_project) [$($m.from_slug)] → $($m.to_tab): $($m.message)"
+$log = "$env:USERPROFILE\.claude\peer-messages.jsonl"
+if (-not (Test-Path $log)) {
+  Write-Host "No peer messages yet."
+  return
+}
+
+$here = (Get-Location).Path.TrimEnd('\')
+$found = $false
+Get-Content $log -Tail 50 | ForEach-Object {
+  $m = try { $_ | ConvertFrom-Json } catch { $null }
+  if (-not $m -or -not $m.to_proj) { continue }
+  $to = $m.to_proj.ToString().TrimEnd('\')
+  if ($to -eq $here -or $to -eq '*') {
+    $found = $true
+    Write-Host "$($m.at)  from $($m.from_proj): $($m.msg)"
   }
-} else {
-  "No peer messages yet."
+}
+if (-not $found) {
+  Write-Host "No messages for this project."
 }
 ```
 
-Show the last 20 messages. If the user asks to reply, use `/peer-msg` with the source tab ID.
+The filter on `to_proj` means you only see messages meant for you — no noise from cross-project chatter.
+
+### Reply
+
+To reply, use `/peer-msg` with the `from_proj` shown in the message as the target.

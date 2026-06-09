@@ -86,6 +86,7 @@ npm run summary          # Text overview of model counts and ranking sizes
 - **Neon connection:** Use the pooler endpoint in `DATABASE_URL`. Set `max: 3` connections for Neon (serverless connection limits). Scripts that create their own pool must append `uselibpqcompat=true` to Neon SSL connection strings.
 - **full_id format:** `providerSlug/modelInstanceKey` (e.g., `openrouter/meta-llama/llama-4`). This is the composite key used throughout the codebase for model lookups.
 - **Git hooks:** Pre-commit runs Gitleaks via `.githooks/pre-commit`. The `.gitleaks.toml` config file manages false-positive allowlists.
+- **Peer inbox:** At session start, run `/peer-inbox` to check for messages from other sessions working on this repo. Messages are project-addressed — you'll only see ones meant for this project. Use `/peer-msg` to reply. Don't poll mid-session; check once at the start.
 - **Never restart the dev server yourself.** If Vite HMR fails to pick up `.vue` changes (known issue with `RecycleScroller`/`DynamicScroller` swaps and structural template changes), ask the user to restart with `cd vue-model-manager && npm run dev`.
 - **Before recommending models:** Check `supports_tools` in the datapoint — if false, don't recommend that model for tasks requiring tool use. Refer to `best_for` field for role-fit guidance.
 

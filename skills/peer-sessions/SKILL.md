@@ -20,10 +20,10 @@ Call `list_tabs`. Count peer tabs per project:
 ### 2. Run scanner with counts
 
 ```powershell
-& "$env:USERPROFILE\.claude\skills\peer-sessions\peer-sessions.ps1" -MaxPerProject @{"C:\OC\Foo"=2; "C:\OC\Bar"=1}
+& "$env:USERPROFILE\.claude\skills\peer-sessions\peer-sessions.ps1" -MaxPerRepo @{"C:\OC\Foo"=2; "C:\OC\Bar"=1}
 ```
 
-The script returns exactly N most recent sessions per project. Filter out the line matching your last prompt.
+The script returns the N most recent sessions per project. Filter out the line matching your last prompt.
 
 ### 3. Present
 
@@ -31,3 +31,5 @@ The script returns exactly N most recent sessions per project. Filter out the li
 <cwd> — <branch> — <State>
 <summary>
 ```
+
+To message a discovered session, use `/peer-msg` with the project path shown.
