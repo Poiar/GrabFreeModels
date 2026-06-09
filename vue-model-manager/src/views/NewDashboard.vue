@@ -111,7 +111,12 @@
         <div v-if="derivationMethodEntries.length > 0" class="ft-derivation-breakdown">
           <div class="ft-subtitle">By Derivation Method</div>
           <div class="ft-deriv-chips">
-            <span v-for="[method, count] in derivationMethodEntries" :key="method" class="ft-deriv-chip">{{ DERIV_LABELS[method] || method }}: {{ count }}</span>
+            <router-link
+              v-for="[method, count] in derivationMethodEntries"
+              :key="method"
+              :to="`/?deriv=${method}`"
+              class="ft-deriv-chip dash-deriv-link"
+            >{{ DERIV_LABELS[method] || method }}: {{ count }}</router-link>
           </div>
         </div>
         <div v-if="topDerived.length > 0" class="most-derived-section">
@@ -1188,6 +1193,14 @@ function formatTimeAgo(dateStr: string | null): string {
   border-radius: 999px;
   background: var(--accent-subtle);
   color: var(--accent);
+}
+.dash-deriv-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.dash-deriv-link:hover {
+  background: var(--accent-subtle-hover, rgba(107,138,255,0.18));
 }
 .most-derived-section {
   border-top: 1px solid var(--border);

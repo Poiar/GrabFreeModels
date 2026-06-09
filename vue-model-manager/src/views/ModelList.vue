@@ -24,7 +24,7 @@
     <div class="ml-header">
       <h2>Instances</h2>
       <p class="ml-subtitle">
-        {{ filteredDatapoints.length }} instance{{ filteredDatapoints.length !== 1 ? 's' : '' }} across {{ providerCount }} provider{{ providerCount !== 1 ? 's' : '' }}<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template>
+        {{ filteredAndSortedDatapoints.length }} instance{{ filteredAndSortedDatapoints.length !== 1 ? 's' : '' }} across {{ providerCount }} provider{{ providerCount !== 1 ? 's' : '' }}<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template>
       </p>
     </div>
 
@@ -76,6 +76,20 @@
           {{ sortAsc ? '▲' : '▼' }}
         </button>
       </div>
+    </div>
+
+    <!-- Derivation method filter chips -->
+    <div class="ml-deriv-bar">
+      <button
+        v-for="chip in DERIV_CHIPS"
+        :key="chip.value"
+        class="ml-deriv-chip"
+        :class="[chip.cssClass, { active: derivFilter === chip.value }]"
+        @click="derivFilter = chip.value"
+      >
+        {{ chip.label }}
+        <span class="ml-deriv-count">{{ modelDerivationCounts[chip.value] ?? 0 }}</span>
+      </button>
     </div>
 
     <!-- Export buttons -->
@@ -147,10 +161,26 @@ const cardRequiredFilter = ref(getQueryParam('card', '') === '1');
 const sortKey = ref(getQueryParam('sort', 'name'));
 const sortAsc = ref(getQueryParam('asc', 'true') !== 'false');
 const modelFilter = ref<'all' | 'root' | 'finetune'>('all');
+const derivFilter = ref(getQueryParam('deriv', 'all'));
+
+const DERIV_META: Record<string, { label: string; cssClass: string }> = {
+  finetune: { label: 'FT', cssClass: 'deriv-ft' },
+  merge: { label: 'Merge', cssClass: 'deriv-merge' },
+  distillation: { label: 'Distill', cssClass: 'deriv-distill' },
+  dpo: { label: 'DPO', cssClass: 'deriv-dpo' },
+  continued_pretraining: { label: 'CPT', cssClass: 'deriv-cpt' },
+  lora_adapter: { label: 'LoRA', cssClass: 'deriv-lora' },
+};
+
+const DERIV_CHIPS = [
+  { value: 'all', label: 'All', cssClass: '' },
+  { value: 'foundation', label: 'Foundation', cssClass: 'deriv-foundation' },
+  ...Object.entries(DERIV_META).map(([value, meta]) => ({ value, label: meta.label, cssClass: meta.cssClass })),
+];
 
 // Sync filter state → URL query params
 watch(
-  [searchQuery, providerFilter, creatorFilter, statusFilter, cardRequiredFilter, sortKey, sortAsc],
+  [searchQuery, providerFilter, creatorFilter, statusFilter, cardRequiredFilter, sortKey, sortAsc, derivFilter],
   () => {
     const q: Record<string, string> = {};
     if (searchQuery.value) q.q = searchQuery.value;
@@ -160,6 +190,7 @@ watch(
     if (cardRequiredFilter.value) q.card = '1';
     if (sortKey.value !== 'name') q.sort = sortKey.value;
     if (!sortAsc.value) q.asc = 'false';
+    if (derivFilter.value !== 'all') q.deriv = derivFilter.value;
     router.replace({ query: Object.keys(q).length ? q : {} });
   },
 );
@@ -258,8 +289,40 @@ const filteredDatapoints = computed(() => {
   return items;
 });
 
+const modelDerivationCounts = computed(() => {
+  const seenModels = new Set<string>();
+  const counts: Record<string, number> = {};
+  for (const chip of DERIV_CHIPS) {
+    counts[chip.value] = 0;
+  }
+
+  for (const item of filteredDatapoints.value) {
+    if (seenModels.has(item.model.slug)) continue;
+    seenModels.add(item.model.slug);
+
+    counts.all++;
+
+    const method = item.model.derivation_method;
+    if (method && counts[method] !== undefined) {
+      counts[method]++;
+    } else {
+      counts.foundation++;
+    }
+  }
+
+  return counts;
+});
+
 const filteredAndSortedDatapoints = computed(() => {
-  const list = [...filteredDatapoints.value];
+  // Apply derivation filter on top of filteredDatapoints
+  let list = filteredDatapoints.value;
+  if (derivFilter.value !== 'all') {
+    list = list.filter((item) => {
+      if (derivFilter.value === 'foundation') return !item.model.derivation_method;
+      return item.model.derivation_method === derivFilter.value;
+    });
+  }
+  list = [...list];
 
   list.sort((a, b) => {
     let aVal: any, bVal: any;
@@ -299,6 +362,7 @@ function clearFilters() {
   statusFilter.value = '';
   cardRequiredFilter.value = false;
   modelFilter.value = 'all';
+  derivFilter.value = 'all';
 }
 
 function exportJSON() {
@@ -479,6 +543,64 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   font-weight: 600;
 }
 .ml-segmented button:hover:not(.active) { background: var(--bg-hover); }
+
+/* Derivation filter chips */
+.ml-deriv-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+.ml-deriv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 11px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+
+.ml-deriv-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ml-deriv-chip.deriv-ft { border-color: rgba(99, 102, 241, 0.35); color: #818cf8; }
+.ml-deriv-chip.deriv-merge { border-color: rgba(168, 85, 247, 0.35); color: #a855f7; }
+.ml-deriv-chip.deriv-distill { border-color: rgba(236, 72, 153, 0.35); color: #ec4899; }
+.ml-deriv-chip.deriv-dpo { border-color: rgba(34, 211, 238, 0.35); color: #22d3ee; }
+.ml-deriv-chip.deriv-cpt { border-color: rgba(250, 204, 21, 0.35); color: #eab308; }
+.ml-deriv-chip.deriv-lora { border-color: rgba(52, 211, 153, 0.35); color: #34d399; }
+.ml-deriv-chip.deriv-foundation { border-color: rgba(156, 163, 175, 0.35); color: #9ca3af; }
+
+.ml-deriv-chip.active {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ml-deriv-chip.deriv-ft.active { background: rgba(99, 102, 241, 0.14); border-color: #818cf8; color: #818cf8; }
+.ml-deriv-chip.deriv-merge.active { background: rgba(168, 85, 247, 0.14); border-color: #a855f7; color: #a855f7; }
+.ml-deriv-chip.deriv-distill.active { background: rgba(236, 72, 153, 0.14); border-color: #ec4899; color: #ec4899; }
+.ml-deriv-chip.deriv-dpo.active { background: rgba(34, 211, 238, 0.14); border-color: #22d3ee; color: #22d3ee; }
+.ml-deriv-chip.deriv-cpt.active { background: rgba(250, 204, 21, 0.14); border-color: #eab308; color: #eab308; }
+.ml-deriv-chip.deriv-lora.active { background: rgba(52, 211, 153, 0.14); border-color: #34d399; color: #34d399; }
+.ml-deriv-chip.deriv-foundation.active { background: rgba(156, 163, 175, 0.14); border-color: #9ca3af; color: #9ca3af; }
+
+.ml-deriv-count {
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.8;
+}
 
 .ml-export {
   display: flex;
