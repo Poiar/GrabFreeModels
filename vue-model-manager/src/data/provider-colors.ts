@@ -160,6 +160,19 @@ const BRAND_COLORS: Record<string, string> = {
   vivgrid: '#3B82F6',
   xpersona: '#6366F1',
   zenmux: '#4F46E5',
+
+  // ── Creator brands (used in CreatorList, CreatorDetail, etc.) ──
+  amazon: '#FF9900',
+  defog: '#3B82F6',
+  kwaipilot: '#FF4906',
+  openbmb: '#2563EB',
+  primeintellect: '#6366F1',
+  'prime-intellect': '#6366F1',
+  salesforce: '#00A1E0',
+  teknium: '#F97316',
+  sdaia: '#006C35',
+  aion: '#4F46E5',
+  'ascend-tribe': '#6366F1',
 };
 
 // Deterministic color from slug hash — ensures every provider gets a color

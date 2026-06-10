@@ -623,15 +623,22 @@ export const useModelsStore = defineStore('models', () => {
 
   const visibleProviderRefs = computed((): ProviderReference[] => {
     if (!isSourceFilterActive.value) return providerRefs.value;
-    // Pre-index base URLs and npm_package from the full provider list
+    // Pre-index all provider metadata from the full provider list for source-filtering path
     const baseUrlMap = new Map(providerRefs.value.map(p => [p.slug, p.base_url]));
     const npmPackageMap = new Map(providerRefs.value.map(p => [p.slug, p.npm_package]));
-    const map = new Map<string, { working: number; total: number; name: string; slug: string; base_url: string; npm_package: string | null }>();
+    const providerTypeMap = new Map(providerRefs.value.map(p => [p.slug, p.provider_type]));
+    const servesThirdPartyMap = new Map(providerRefs.value.map(p => [p.slug, p.serves_third_party]));
+    const hardwareMap = new Map(providerRefs.value.map(p => [p.slug, p.hardware]));
+    const compatMap = new Map(providerRefs.value.map(p => [p.slug, p.is_openai_compat]));
+    const streamingMap = new Map(providerRefs.value.map(p => [p.slug, p.supports_streaming]));
+    const accountIdMap = new Map(providerRefs.value.map(p => [p.slug, p.requires_account_id]));
+    const descriptionMap = new Map(providerRefs.value.map(p => [p.slug, p.description]));
+    const map = new Map<string, { working: number; total: number; name: string; slug: string; base_url: string; npm_package: string | null; provider_type: string | null; serves_third_party: boolean | null; hardware: string | null; is_openai_compat: boolean | null; supports_streaming: boolean | null; requires_account_id: boolean | null; description: string | null }>();
     for (const model of visibleModels.value) {
       for (const dp of model.providers) {
         const slug = dp.provider_slug;
         if (!map.has(slug)) {
-          map.set(slug, { working: 0, total: 0, name: dp.provider, slug, base_url: baseUrlMap.get(slug) || '', npm_package: npmPackageMap.get(slug) || null });
+          map.set(slug, { working: 0, total: 0, name: dp.provider, slug, base_url: baseUrlMap.get(slug) || '', npm_package: npmPackageMap.get(slug) || null, provider_type: providerTypeMap.get(slug) || null, serves_third_party: servesThirdPartyMap.get(slug) ?? null, hardware: hardwareMap.get(slug) || null, is_openai_compat: compatMap.get(slug) ?? null, supports_streaming: streamingMap.get(slug) ?? null, requires_account_id: accountIdMap.get(slug) ?? null, description: descriptionMap.get(slug) || null });
         }
         const entry = map.get(slug)!;
         entry.total++;
@@ -644,6 +651,13 @@ export const useModelsStore = defineStore('models', () => {
       name: e.name,
       base_url: e.base_url,
       npm_package: e.npm_package,
+      provider_type: e.provider_type,
+      serves_third_party: e.serves_third_party,
+      hardware: e.hardware,
+      is_openai_compat: e.is_openai_compat,
+      supports_streaming: e.supports_streaming,
+      requires_account_id: e.requires_account_id,
+      description: e.description,
       model_count: e.total,
       working_count: e.working,
       health_status: e.total === 0 ? 'down' : e.working === e.total ? 'healthy' : 'degraded',

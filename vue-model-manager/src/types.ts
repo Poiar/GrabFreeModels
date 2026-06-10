@@ -66,6 +66,12 @@ export interface ProviderDatapoint {
   priority_score: number | null;
   limitations?: ModelLimitations | null;
   source_ids: number[];
+  provider_type: string | null;
+  serves_third_party: boolean | null;
+  hardware: string | null;
+  is_openai_compat: boolean | null;
+  supports_streaming: boolean | null;
+  requires_account_id: boolean | null;
   family: string | null;
   base_model: string | null;
   derivation_method: string | null;
@@ -114,6 +120,12 @@ export interface ProviderReference {
   name: string;
   npm_package: string | null;
   base_url: string;
+  provider_type: string | null;
+  serves_third_party: boolean | null;
+  hardware: string | null;
+  is_openai_compat: boolean | null;
+  supports_streaming: boolean | null;
+  requires_account_id: boolean | null;
   description: string | null;
   model_count: number;
   working_count: number;
@@ -207,6 +219,12 @@ export interface DatapointModel {
   limitations?: ModelLimitations | null;
   npm_package: string | null;
   source_ids: number[];
+  provider_type: string | null;
+  serves_third_party: boolean | null;
+  hardware: string | null;
+  is_openai_compat: boolean | null;
+  supports_streaming: boolean | null;
+  requires_account_id: boolean | null;
 }
 
 export interface SuperModel {

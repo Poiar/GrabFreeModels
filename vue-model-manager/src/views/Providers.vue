@@ -41,9 +41,19 @@
       >{{ c === 'All' ? `All (${store.visibleProviderRefs.length})` : `${c} (${continentCount(c)})` }}</button>
     </div>
 
+    <div class="cc-type-filters">
+      <button
+        v-for="t in typeChips"
+        :key="t.key"
+        class="cc-type-btn"
+        :class="{ active: selectedType === t.key }"
+        @click="selectedType = selectedType === t.key ? 'All' : t.key"
+      >{{ t.key === 'All' ? `All types (${store.visibleProviderRefs.length})` : `${t.label} (${t.count})` }}</button>
+    </div>
+
     <div class="providers-grid">
       <router-link
-        v-for="provider in sortedProviders"
+        v-for="provider in filtered"
         :key="provider.slug"
         :to="`/provider/${provider.slug}`"
         class="provider-card glass-card"
@@ -61,6 +71,9 @@
           >{{ getCountryForProvider(provider.slug).name }}</span>
           <span class="pc-status" :class="provider.health_status">
             {{ provider.health_status }}
+          </span>
+          <span v-if="provider.provider_type" class="pc-type-badge" :class="provider.provider_type">
+            {{ PROVIDER_TYPE_LABELS[provider.provider_type] || provider.provider_type }}
           </span>
         </div>
 
@@ -107,33 +120,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useModelsStore } from '@/store/models';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useToast } from '@/composables/useToast';
 import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
 import { getCountryForProvider, CONTINENTS } from '@/data/provider-countries';
+import { useProviderFilters, PROVIDER_TYPE_LABELS } from '@/composables/useProviderFilters';
 
 const store = useModelsStore();
 
-const searchQuery = ref('');
-const sortBy = ref<'name' | 'models' | 'workers' | 'country'>('models');
-const sortAsc = ref(false);
-const selectedContinent = ref('All');
-const selectedHealth = ref('All');
+const { filters, filtered, healthChips, typeChips } = useProviderFilters(
+  computed(() => store.visibleProviderRefs),
+  (slug) => getCountryForProvider(slug),
+);
 
-const healthChips = computed(() => {
-  const counts: Record<string, number> = { healthy: 0, degraded: 0, down: 0 };
-  for (const p of store.visibleProviderRefs) {
-    counts[p.health_status] = (counts[p.health_status] || 0) + 1;
-  }
-  return [
-    { key: 'All', label: 'All', count: store.visibleProviderRefs.length },
-    { key: 'healthy', label: 'Healthy', count: counts.healthy || 0 },
-    { key: 'degraded', label: 'Degraded', count: counts.degraded || 0 },
-    { key: 'down', label: 'Down', count: counts.down || 0 },
-  ];
-});
+// Destructure filter refs so template bindings resolve directly
+const { searchQuery, sortBy, sortAsc, selectedHealth, selectedContinent, selectedType } = filters;
 
 function continentCount(continent: string): number {
   let count = 0;
@@ -142,54 +145,6 @@ function continentCount(continent: string): number {
   }
   return count;
 }
-
-const filteredProviders = computed(() => {
-  let list = store.visibleProviderRefs;
-
-  const q = searchQuery.value.trim().toLowerCase();
-  if (q) {
-    list = list.filter((p) =>
-      p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q),
-    );
-  }
-
-  if (selectedHealth.value !== 'All') {
-    list = list.filter((p) => p.health_status === selectedHealth.value);
-  }
-
-  if (selectedContinent.value !== 'All') {
-    list = list.filter(
-      (p) => getCountryForProvider(p.slug).continent === selectedContinent.value,
-    );
-  }
-
-  return list;
-});
-
-const sortedProviders = computed(() => {
-  const list = [...filteredProviders.value];
-  const dir = sortAsc.value ? 1 : -1;
-  list.sort((a, b) => {
-    let cmp = 0;
-    switch (sortBy.value) {
-      case 'name':
-        cmp = a.name.localeCompare(b.name);
-        break;
-      case 'models':
-        cmp = b.model_count - a.model_count;
-        break;
-      case 'workers':
-        cmp = b.working_count - a.working_count;
-        break;
-      case 'country':
-        cmp = getCountryForProvider(a.slug).name.localeCompare(getCountryForProvider(b.slug).name)
-           || a.name.localeCompare(b.name);
-        break;
-    }
-    return cmp * dir;
-  });
-  return list;
-});
 
 const providerModels = computed(() => {
   const map: Record<string, { super_id: number; name: string }[]> = {};
@@ -329,6 +284,49 @@ async function copyText(text: string) {
   background: var(--accent-subtle);
   border-color: var(--accent);
 }
+
+.cc-type-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.cc-type-btn {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+.cc-type-btn:hover {
+  color: var(--text);
+  border-color: var(--text-dim);
+}
+.cc-type-btn.active {
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+}
+
+.pc-type-badge {
+  font-size: 0.56rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+.pc-type-badge.router { background: rgba(139,92,246,0.12); color: #A78BFA; }
+.pc-type-badge.inference { background: rgba(59,130,246,0.12); color: #60A5FA; }
+.pc-type-badge.local { background: rgba(16,185,129,0.12); color: #34D399; }
+.pc-type-badge.discovery { background: rgba(245,158,11,0.12); color: #FBBF24; }
+.pc-type-badge.unknown { background: rgba(156,163,175,0.12); color: #9CA3AF; }
 
 .providers-grid {
   display: grid;

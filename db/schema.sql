@@ -231,25 +231,25 @@ END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
 -- Seed datapoint_providers
-INSERT INTO datapoint_providers (slug, name, base_url) VALUES
-    ('modelsdev', 'models.dev', 'https://models.dev'),
-    ('openrouter', 'OpenRouter', 'https://openrouter.ai'),
-    ('nvidia', 'NVIDIA', 'https://integrate.api.nvidia.com'),
-    ('cerebras', 'Cerebras', 'https://api.cerebras.ai'),
-    ('huggingface', 'Hugging Face', 'https://huggingface.co'),
-    ('deepseek', 'DeepSeek', 'https://api.deepseek.com'),
-    ('google', 'Google AI', 'https://generativelanguage.googleapis.com'),
-    ('opencode', 'OpenCode Zen', 'https://opencode.ai/zen'),
-    ('llmgateway', 'LLM Gateway', 'https://llm-gateway.com'),
-    ('github-models', 'GitHub Models', 'https://models.inference.ai.azure.com'),
-    ('vercel', 'Vercel AI Gateway', 'https://ai-gateway.vercel.sh'),
-    ('groq', 'Groq', 'https://api.groq.com'),
-    ('mistral', 'Mistral', 'https://api.mistral.ai'),
-    ('together', 'Together', 'https://api.together.xyz'),
-    ('fireworks', 'Fireworks', 'https://api.fireworks.ai'),
-    ('cloudflare', 'Cloudflare AI', 'https://api.cloudflare.com'),
-    ('anthropic', 'Anthropic', 'https://api.anthropic.com'),
-    ('openai', 'OpenAI', 'https://api.openai.com')
+INSERT INTO datapoint_providers (slug, name, base_url, provider_type, serves_third_party, hardware, is_openai_compat) VALUES
+    ('modelsdev', 'models.dev', 'https://models.dev', 'discovery', NULL, 'unknown', true),
+    ('openrouter', 'OpenRouter', 'https://openrouter.ai', 'router', true, 'unknown', true),
+    ('nvidia', 'NVIDIA', 'https://integrate.api.nvidia.com', 'inference', true, 'gpu', true),
+    ('cerebras', 'Cerebras', 'https://api.cerebras.ai', 'inference', true, 'wafer', true),
+    ('huggingface', 'Hugging Face', 'https://huggingface.co', 'router', true, 'unknown', true),
+    ('deepseek', 'DeepSeek', 'https://api.deepseek.com', 'inference', false, 'gpu', true),
+    ('google', 'Google AI', 'https://generativelanguage.googleapis.com', 'inference', false, 'tpu', true),
+    ('opencode', 'OpenCode Zen', 'https://opencode.ai/zen', 'router', true, 'unknown', false),
+    ('llmgateway', 'LLM Gateway', 'https://llm-gateway.com', 'router', true, 'unknown', true),
+    ('github-models', 'GitHub Models', 'https://models.inference.ai.azure.com', 'inference', true, 'gpu', true),
+    ('vercel', 'Vercel AI Gateway', 'https://ai-gateway.vercel.sh', 'router', true, 'unknown', true),
+    ('groq', 'Groq', 'https://api.groq.com', 'inference', true, 'lpu', true),
+    ('mistral', 'Mistral', 'https://api.mistral.ai', 'inference', false, 'gpu', true),
+    ('together', 'Together', 'https://api.together.xyz', 'inference', true, 'gpu', true),
+    ('fireworks', 'Fireworks', 'https://api.fireworks.ai', 'inference', true, 'gpu', true),
+    ('cloudflare', 'Cloudflare AI', 'https://api.cloudflare.com', 'inference', true, 'edge', false),
+    ('anthropic', 'Anthropic', 'https://api.anthropic.com', 'inference', false, 'gpu', true),
+    ('openai', 'OpenAI', 'https://api.openai.com', 'inference', false, 'gpu', true)
 ON CONFLICT (slug) DO NOTHING;
 
 -- Seed sources for provenance tracking (one per API provider, plus community sources)

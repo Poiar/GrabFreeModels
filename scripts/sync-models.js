@@ -277,10 +277,6 @@ const PROVIDER_LIMITATIONS = {
     rate_limit: 'Varies by model',
     notes: 'Free tier via NanoGPT. Rate limited.',
   },
-  'novita-ai': {
-    rate_limit: 'Varies by model',
-    notes: 'Free tier via Novita AI. Rate limited.',
-  },
   orcarouter: {
     rate_limit: 'Varies by model',
     notes: 'Free tier via OrcaRouter. Rate limited.',
@@ -1191,6 +1187,13 @@ function normalizeModelSlug(name) {
         );
         const providerMap = new Map(providerRows.map((r) => [r.slug, r.id]));
 
+        // Build set of router provider names — models discovered via routers should not
+        // have the router's name stored as their creator (routers don't create models).
+        const { rows: routerNameRows } = await client.query(
+          "SELECT name FROM datapoint_providers WHERE provider_type = 'router'",
+        );
+        const routerProviderNames = new Set(routerNameRows.map((r) => r.name.toLowerCase()));
+
         // Ensure sources rows exist for all synced API providers (provenance tracking)
         for (const slug of providerSlugs) {
           const providerId = providerMap.get(slug);
@@ -1249,6 +1252,12 @@ function normalizeModelSlug(name) {
           // Extract creator from model ID org prefix, fallback to name inference
           let creator = modelInstanceKey.includes('/') ? humanizeCreator(modelInstanceKey.split('/')[0]) : null;
           if (!creator) creator = inferCreatorFromName(m.name);
+
+          // Routers are not model creators — if the inferred creator matches a router
+          // provider name, null it so we don't store the router as the model's creator.
+          if (creator && routerProviderNames.has(creator.toLowerCase())) {
+            creator = null;
+          }
 
           // Detect derivation method and immediate parent
           const derivMethod = detectDerivationMethod(m.name);

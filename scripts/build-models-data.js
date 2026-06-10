@@ -31,7 +31,8 @@ async function buildModelsData(client, pool, options = {}) {
            mm.base_creator AS super_base_creator, mm.family AS super_family, mm.base_model AS super_base_model,
            mm.derivation_method AS super_derivation_method,
            dp.name AS provider_name, dp.slug AS provider_slug,
-           dp.npm_package, dp.base_url
+           dp.npm_package, dp.base_url, dp.provider_type, dp.serves_third_party,
+           dp.hardware, dp.is_openai_compat, dp.supports_streaming, dp.requires_account_id
     FROM datapoint_models dm
     JOIN super_models mm ON mm.id = dm.super_model_id
     JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
@@ -134,16 +135,27 @@ async function buildModelsData(client, pool, options = {}) {
   const CREATOR_BY_PREFIX = REG.creatorByPrefix;
   const DERIVATION_BY_SLUG = new Map(Object.entries(REG.derivationBySlug));
 
+  // Routers are not model creators — names that resolve to a router provider
+  // should never be used as creator. See db/migrations/022.
+  const ROUTER_CREATOR_BLACKLIST = new Set([
+    'openrouter', 'llmgateway', 'opencode', 'huggingface', 'vercel',
+    'OpenRouter', 'LLM Gateway', 'LLMGateway', 'OpenCode Zen', 'OpenCode',
+    'Hugging Face', 'HuggingFace', 'Vercel AI Gateway', 'Vercel',
+    'cloudflare-ai-gateway', 'Cloudflare AI Gateway',
+  ]);
+
   // Fallback: infer creator from model name when super_models.creator is NULL
   function inferCreatorFromName(name) {
     if (!name) return null;
     const slashIdx = name.indexOf('/');
     if (slashIdx > 0 && slashIdx < name.length - 1) {
-      return name.slice(0, slashIdx).trim();
+      const prefix = name.slice(0, slashIdx).trim();
+      if (!ROUTER_CREATOR_BLACKLIST.has(prefix)) return prefix;
     }
     const colonIdx = name.indexOf(':');
     if (colonIdx > 0 && colonIdx < name.length - 1) {
-      return name.slice(0, colonIdx).trim();
+      const prefix = name.slice(0, colonIdx).trim();
+      if (!ROUTER_CREATOR_BLACKLIST.has(prefix)) return prefix;
     }
     // Check exact + prefix matches against slugified name
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -216,6 +228,12 @@ async function buildModelsData(client, pool, options = {}) {
       last_success: dm.last_success || null,
       deprecated_at: dm.deprecated_at || null,
       base_url: dm.base_url || null,
+      provider_type: dm.provider_type || null,
+      serves_third_party: dm.serves_third_party,
+      hardware: dm.hardware || null,
+      is_openai_compat: dm.is_openai_compat,
+      supports_streaming: dm.supports_streaming,
+      requires_account_id: dm.requires_account_id,
       source: dm.provider_slug,
       npm_package: dm.npm_package || null,
       source_ids: sourceIdsByDm.get(dm.id) || [],
@@ -489,6 +507,12 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
         name: dp.provider,
         npm_package: dp.npm_package || null,
         base_url: dp.base_url || null,
+        provider_type: dp.provider_type || null,
+        serves_third_party: dp.serves_third_party,
+        hardware: dp.hardware || null,
+        is_openai_compat: dp.is_openai_compat,
+        supports_streaming: dp.supports_streaming,
+        requires_account_id: dp.requires_account_id,
         description: null,
         model_count: 0,
         working_count: 0,
@@ -499,80 +523,9 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     if (dp.status.result === 'working') ref.working_count++;
   }
 
-  const PROVIDER_DESCRIPTIONS = {
-    'alibaba-cn': 'Alibaba Cloud\'s DashScope API for Qwen models (Tongyi, QwQ) — China-based inference with strong reasoning and multilingual capabilities.',
-    'alibaba-coding-plan': 'Alibaba Cloud\'s DashScope API for Qwen models (Tongyi, QwQ) — China-based inference with strong reasoning and multilingual capabilities.',
-    'alibaba-coding-plan-cn': 'Alibaba Cloud\'s DashScope API for Qwen models (Tongyi, QwQ) — China-based inference with strong reasoning and multilingual capabilities.',
-    anthropic: 'Anthropic\'s official API for the Claude model family — frontier models known for safety, reasoning, and coding capabilities.',
-    cerebras: 'Inference provider leveraging Cerebras\' wafer-scale hardware to deliver extremely high token throughput (thousands of tokens per second) for select open models.',
-    cloudflare: 'Cloudflare\'s global edge network serving Workers AI models, including their AI Gateway for routing and observability across providers.',
-    'cloudflare-ai-gateway': 'Cloudflare\'s AI Gateway — a unified endpoint for routing requests across multiple LLM providers with built-in caching, rate limiting, and analytics.',
-    cohere: 'Cohere\'s API platform for the Command and Aya model families, specializing in RAG, multilingual, and enterprise use cases.',
-    deepinfra: 'Community-driven inference provider offering pay-per-token access to hundreds of open models with minimal hosting markup.',
-    deepseek: 'DeepSeek\'s official API for their frontier models (DeepSeek-V3, DeepSeek-R1) offering competitive pricing for both chat and reasoning workloads.',
-    firepass: 'Alternative API endpoint for Fireworks inference, serving open models at competitive prices.',
-    fireworks: 'Serverless inference platform optimized for speed and cost-efficiency, supporting a broad catalog of open models with LoRA adapters.',
-    'github-models': 'GitHub\'s model playground and API offering free access to popular models from multiple providers running on Azure AI infrastructure.',
-    google: 'Google\'s official API for the Gemini and Gemma model families, providing free-tier access with generous rate limits and multimodal support.',
-    groq: 'LPU-based inference provider delivering ultra-low latency (hundreds of tokens per second) for open models running on custom hardware.',
-    huggingface: 'The largest open-source ML community — hosts and serves thousands of models, datasets, and demos via the Hugging Face Inference API and TGI-powered serverless endpoints.',
-    llmgateway: 'Open-source API gateway providing a unified OpenAI-compatible interface for calling open-weight models from various inference backends.',
-    lmstudio: 'Local inference platform — runs models directly on your hardware with an OpenAI-compatible localhost API, no cloud dependency.',
-    mistral: 'Mistral AI\'s official API platform for their frontier models (Mistral Large, Codestral, Ministral) with competitive free-tier access.',
-    modelsdev: 'Community-driven model discovery platform that indexes and compares LLM pricing, context windows, and provider availability across the ecosystem.',
-    'novita-ai': 'Novita AI\'s API platform providing inference for open models with competitive free-tier pricing and OpenAI-compatible endpoints.',
-    novitaai: 'Novita AI\'s API platform providing inference for open models with competitive free-tier pricing and OpenAI-compatible endpoints.',
-    nvidia: 'NVIDIA\'s API platform providing high-performance inference for open models running on their GPU infrastructure, including the Nemotron and Llama families.',
-    openai: 'OpenAI\'s official API for GPT-4o, GPT-4.1, and other frontier models — the most widely adopted LLM API ecosystem.',
-    opencode: 'OpenCode Zen API — focused on fast, affordable inference for coding and agentic workloads running on optimized infrastructure.',
-    openrouter: 'Multi-provider API gateway offering unified access to 300+ models across dozens of providers with a single API key, standardized billing, and automatic failover.',
-    siliconflow: 'Chinese inference provider offering competitive pricing for open models, with strong coverage of Qwen and DeepSeek model variants.',
-    'siliconflow-cn': 'Chinese inference provider offering competitive pricing for open models, with strong coverage of Qwen and DeepSeek model variants.',
-    together: 'Together AI\'s API platform for large-scale inference of open-source models across a broad catalog with competitive pricing and fine-tuning support.',
-    xai: 'xAI\'s official API for the Grok model family — frontier models with real-time knowledge and strong reasoning.',
-    zhipuai: 'Zhipu AI\'s official API for the GLM model family with strong Chinese-English bilingual capabilities and multimodal support.',
-    'zhipuai-coding-plan': 'Zhipu AI\'s official API for the GLM model family with strong Chinese-English bilingual capabilities and multimodal support.',
-    zai: 'Zhipu AI\'s (formerly Z.AI) API for the GLM model family, providing Chinese-English bilingual models with competitive regional pricing.',
-    'zai-coding-plan': 'Zhipu AI\'s (formerly Z.AI) API for the GLM model family, providing Chinese-English bilingual models with competitive regional pricing.',
-    vercel: 'Vercel AI Gateway — a single API endpoint to access multiple LLM providers with built-in caching, rate limiting, and observability.',
-  };
+  const PROVIDER_DESCRIPTIONS = require('../data/provider-descriptions.json');
 
-  const PROVIDER_BASE_URLS = {
-    'alibaba-cn': 'https://dashscope.aliyuncs.com/api/v1',
-    'alibaba-coding-plan': 'https://dashscope.aliyuncs.com/api/v1',
-    'alibaba-coding-plan-cn': 'https://dashscope.aliyuncs.com/api/v1',
-    anthropic: 'https://api.anthropic.com',
-    cerebras: 'https://api.cerebras.ai/v1',
-    cloudflare: 'https://api.cloudflare.com/client/v4',
-    'cloudflare-ai-gateway': 'https://gateway.ai.cloudflare.com/v1',
-    cohere: 'https://api.cohere.ai/v1',
-    deepinfra: 'https://api.deepinfra.com/v1/openai',
-    deepseek: 'https://api.deepseek.com/v1',
-    firepass: 'https://api.fireworks.ai',
-    fireworks: 'https://api.fireworks.ai',
-    'github-models': 'https://models.inference.ai.azure.com',
-    google: 'https://generativelanguage.googleapis.com/v1beta',
-    groq: 'https://api.groq.com/openai/v1',
-    huggingface: 'https://router.huggingface.co/v1',
-    llmgateway: 'https://api.llmgateway.io/v1',
-    lmstudio: 'http://localhost:1234/v1',
-    mistral: 'https://api.mistral.ai/v1',
-    modelsdev: 'https://models.dev',
-    'novita-ai': 'https://api.novita.ai/v3/openai',
-    novitaai: 'https://api.novita.ai/v3/openai',
-    nvidia: 'https://integrate.api.nvidia.com/v1',
-    openai: 'https://api.openai.com',
-    opencode: 'https://opencode.ai/zen/v1',
-    openrouter: 'https://openrouter.ai/api/v1',
-    siliconflow: 'https://api.siliconflow.cn/v1',
-    'siliconflow-cn': 'https://api.siliconflow.cn/v1',
-    together: 'https://api.together.xyz',
-    xai: 'https://api.x.ai/v1',
-    zhipuai: 'https://open.bigmodel.cn/api/paas/v4',
-    'zhipuai-coding-plan': 'https://open.bigmodel.cn/api/paas/v4',
-    zai: 'https://api.z.ai/api/v1',
-    'zai-coding-plan': 'https://api.z.ai/api/v1',
-  };
+  const PROVIDER_BASE_URLS = require('../data/provider-base-urls.json');
 
   const providers = Array.from(providerRefMap.values())
     .map((ref) => ({

@@ -42,6 +42,22 @@
         <span class="cd-stat-value cd-stat-pkg">{{ provider.npm_package }}</span>
         <span class="cd-stat-label">npm package</span>
       </div>
+      <div class="cd-stat" v-if="provider.provider_type">
+        <span class="cd-stat-value cd-stat-type" :class="provider.provider_type">{{ PROVIDER_TYPE_LABELS[provider.provider_type] || provider.provider_type }}</span>
+        <span class="cd-stat-label">Type</span>
+      </div>
+      <div class="cd-stat" v-if="provider.provider_type === 'inference' && provider.serves_third_party !== null">
+        <span class="cd-stat-value cd-stat-host" :class="provider.serves_third_party ? 'host' : 'firstparty'">{{ provider.serves_third_party ? 'Open-model host' : 'First-party only' }}</span>
+        <span class="cd-stat-label">Model scope</span>
+      </div>
+      <div class="cd-stat" v-if="provider.hardware && provider.hardware !== 'unknown'">
+        <span class="cd-stat-value cd-stat-hw" :class="provider.hardware">{{ HARDWARE_LABELS[provider.hardware] || provider.hardware }}</span>
+        <span class="cd-stat-label">Hardware</span>
+      </div>
+      <div class="cd-stat" v-if="!provider.is_openai_compat">
+        <span class="cd-stat-value cd-stat-flag warn">Non-standard API</span>
+        <span class="cd-stat-label">Compatibility</span>
+      </div>
     </div>
 
     <!-- Health bar -->
@@ -101,6 +117,23 @@ import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
 import { useModelsStore } from '@/store/models';
 import { getCountryForProvider } from '@/data/provider-countries';
 import type { CreatorData, ModelData } from '@/types';
+
+const PROVIDER_TYPE_LABELS: Record<string, string> = {
+  router: 'Router',
+  inference: 'Inference',
+  local: 'Local',
+  discovery: 'Discovery',
+};
+
+const HARDWARE_LABELS: Record<string, string> = {
+  gpu: 'GPU cluster',
+  lpu: 'LPU (Groq)',
+  wafer: 'Wafer-scale (Cerebras)',
+  tpu: 'TPU (Google)',
+  edge: 'Edge network',
+  local: 'Local',
+  unknown: 'Unknown',
+};
 
 const store = useModelsStore();
 const route = useRoute();
@@ -250,6 +283,36 @@ const pctWorking = computed(() => {
   font-family: monospace;
   color: var(--green);
 }
+.cd-stat-type {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.cd-stat-type.router { color: #A78BFA; }
+.cd-stat-type.inference { color: #60A5FA; }
+.cd-stat-type.local { color: #34D399; }
+.cd-stat-type.discovery { color: #FBBF24; }
+.cd-stat-host {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.cd-stat-host.host { color: #34D399; }
+.cd-stat-host.firstparty { color: #F59E0B; }
+.cd-stat-hw {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.cd-stat-hw.gpu { color: #F59E0B; }
+.cd-stat-hw.lpu { color: #A78BFA; }
+.cd-stat-hw.wafer { color: #F472B6; }
+.cd-stat-hw.tpu { color: #60A5FA; }
+.cd-stat-hw.edge { color: #34D399; }
+.cd-stat-hw.local { color: #34D399; }
+.cd-stat-flag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.cd-stat-flag.warn { color: #F59E0B; }
 
 .cd-validation-bar {
   display: flex;
