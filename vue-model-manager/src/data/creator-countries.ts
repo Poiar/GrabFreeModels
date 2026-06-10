@@ -26,8 +26,8 @@ const CREATOR_COUNTRY: Record<string, string> = {
   'minimax': 'CN',
   'moonshot': 'CN',
   'moonshot-ai': 'CN',
+  'openbmb': 'CN',
   'nlper': 'CN',
-  'novita-ai': 'CN',
   'qwen': 'CN',
   'paddlepaddle': 'CN',
   'rwkv': 'CN',
@@ -92,11 +92,12 @@ const CREATOR_COUNTRY: Record<string, string> = {
   'pruna-ai': 'US',
   'relace': 'US',
   'resemble-ai': 'US',
-  'ring': 'US',
   'runway': 'US',
+  'salesforce': 'US',
   'sao10k': 'US',
   'sentence-transformers': 'US',
   'sesame': 'US',
+  'teknium': 'US',
   'topaz-labs': 'US',
   'umans-ai': 'US',
   'voyage-ai': 'US',
@@ -167,11 +168,6 @@ const CREATOR_COUNTRY: Record<string, string> = {
   'sdaia': 'SA',
 
   // ── Routers / aggregators (not model creators, fallback) ──
-  'llmgateway': 'XX',
-  'novitaai': 'XX',
-  'opencode': 'XX',
-  'openrouter': 'XX',
-  'switchpoint': 'XX',
   'zai': 'XX',
 
   // ── Unknown / Uncategorized ──
