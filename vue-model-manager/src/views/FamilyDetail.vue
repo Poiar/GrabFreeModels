@@ -6,7 +6,10 @@
       <p class="fd-subtitle">
         {{ family.model_count }} models · {{ family.provider_count }} providers
       </p>
-      <p v-if="familyDescription" class="fd-description">{{ familyDescription }}</p>
+      <!-- Unique-facts chip row -->
+      <div class="fd-facts" v-if="familyFacts.length">
+        <span v-for="f in familyFacts" :key="f.label" class="fd-fact-chip" :class="f.cls">{{ f.label }}</span>
+      </div>
     </div>
 
     <!-- Features row: provider icons, capabilities, best-for, input types, ranking highlights -->
@@ -238,7 +241,7 @@ function formatContext(ctx: number | null): string {
 
 function creatorFor(model: ModelData): CreatorData {
   const c = store.creators.find((cr) => cr.models.some((m) => m.super_id === model.super_id));
-  return c ?? { id: 'unknown', name: model.creator || 'Unknown', model_count: 0, provider_count: 0, models: [] };
+  return c ?? { id: 'unknown', name: model.creator || 'Unknown', type: 'other' as const, role: 'Model creator' as const, model_count: 0, provider_count: 0, models: [] };
 }
 
 // ── Validation counts ──
@@ -444,22 +447,64 @@ const familyCreators = computed(() => {
     .sort((a, b) => b.model_count - a.model_count);
 });
 
-// ── Auto-generated description ──
-const familyDescription = computed(() => {
+// ── Unique-facts chips ──
+function formatParamSize(b: number): string {
+  if (b >= 1000) return (b / 1000).toFixed(1).replace(/\.0$/, '') + 'T';
+  if (b >= 1) return b.toFixed(1).replace(/\.0$/, '') + 'B';
+  return (b * 1000).toFixed(0) + 'M';
+}
+
+const familyFacts = computed(() => {
+  const chips: { label: string; cls: string }[] = [];
   const f = family.value;
-  if (!f) return '';
-  const creators = familyCreators.value;
-  let text = `The ${formatFamilyName(f.name)} family includes ${f.model_count} model${f.model_count !== 1 ? 's' : ''} across ${f.provider_count} provider${f.provider_count !== 1 ? 's' : ''}`;
-  if (creators.length === 1) {
-    text += `, created by ${creators[0].name}`;
-  } else if (creators.length > 1) {
-    const names = creators.map(c => c.name);
-    text += `, created by ${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+  if (!f) return chips;
+
+  // Parameter range
+  const paramSizes = new Set<number>();
+  for (const m of f.models) {
+    for (const dp of m.providers) {
+      if (dp.param_count_b) paramSizes.add(dp.param_count_b);
+    }
   }
-  const tags = topBestFor.value.slice(0, 3);
-  if (tags.length) text += `, with strengths in ${tags.join(', ')}`;
-  text += '.';
-  return text;
+  const paramVals = [...paramSizes].sort((a, b) => a - b);
+  if (paramVals.length) {
+    const min = formatParamSize(paramVals[0]);
+    const max = formatParamSize(paramVals[paramVals.length - 1]);
+    chips.push({ label: min === max ? `${min} params` : `${min} – ${max} params`, cls: 'fact-param' });
+  }
+
+  // Knowledge cutoff range
+  const cutoffs = new Set<string>();
+  for (const m of f.models) {
+    for (const dp of m.providers) {
+      if (dp.knowledge_cutoff) cutoffs.add(dp.knowledge_cutoff);
+    }
+  }
+  const cutoffVals = [...cutoffs].sort();
+  if (cutoffVals.length === 1) {
+    chips.push({ label: `Knowledge cutoff: ${cutoffVals[0]}`, cls: 'fact-cutoff' });
+  } else if (cutoffVals.length > 1) {
+    chips.push({ label: `Knowledge: ${cutoffVals[0]} – ${cutoffVals[cutoffVals.length - 1]}`, cls: 'fact-cutoff' });
+  }
+
+  // Open-weight count
+  let openCount = 0;
+  for (const m of f.models) {
+    if (m.providers.some(p => !p._removed && p.open_weights === true)) openCount++;
+  }
+  if (openCount > 0 && openCount < f.models.length) {
+    chips.push({ label: `${openCount}/${f.model_count} open weight`, cls: 'fact-open' });
+  } else if (openCount === f.models.length) {
+    chips.push({ label: 'All open weight', cls: 'fact-open' });
+  }
+
+  // Creator count
+  const creators = familyCreators.value;
+  if (creators.length > 0) {
+    chips.push({ label: `${creators.length} ${creators.length === 1 ? 'creator' : 'creators'}`, cls: 'fact-creator' });
+  }
+
+  return chips;
 });
 </script>
 
@@ -488,13 +533,23 @@ const familyDescription = computed(() => {
   margin: 0;
 }
 
-.fd-description {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin: 6px 0 0;
-  max-width: 720px;
+/* ── Unique-facts chips ── */
+.fd-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
 }
+.fd-fact-chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.fd-fact-chip.fact-param { background: rgba(99,102,241,0.12); color: #818cf8; }
+.fd-fact-chip.fact-cutoff { background: rgba(168,85,247,0.12); color: #a855f7; }
+.fd-fact-chip.fact-open { background: rgba(52,211,153,0.12); color: #34d399; }
+.fd-fact-chip.fact-creator { background: rgba(236,72,153,0.12); color: #ec4899; }
 
 /* Features row */
 .fd-features-row {

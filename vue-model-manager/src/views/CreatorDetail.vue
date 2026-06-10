@@ -12,7 +12,10 @@
       <p class="cd-subtitle">
         {{ creator.model_count }} models · {{ creator.provider_count }} providers
       </p>
-      <p v-if="creatorDescription" class="cd-description">{{ creatorDescription }}</p>
+      <!-- Unique-facts chip row -->
+      <div class="cd-facts" v-if="creatorFacts.length">
+        <span v-for="f in creatorFacts" :key="f.label" class="cd-fact-chip" :class="f.cls">{{ f.label }}</span>
+      </div>
     </div>
 
     <!-- Features row: provider icons, capabilities, best-for -->
@@ -476,25 +479,69 @@ const rankingHighlights = computed(() => {
   return [...roles].sort();
 });
 
-// ── Auto-generated description ──
-const creatorDescription = computed(() => {
+// ── Unique-facts chips ──
+function formatParamSize(b: number): string {
+  if (b >= 1000) return (b / 1000).toFixed(1).replace(/\.0$/, '') + 'T';
+  if (b >= 1) return b.toFixed(1).replace(/\.0$/, '') + 'B';
+  return (b * 1000).toFixed(0) + 'M';
+}
+
+const creatorFacts = computed(() => {
+  const chips: { label: string; cls: string }[] = [];
   const c = creator.value;
-  if (!c) return '';
-  const families = familyList.value;
-  let text = `${c.name} creates `;
-  if (families.length === 0) {
-    text += 'models';
-  } else if (families.length === 1) {
-    text += `the ${families[0]} family`;
-  } else {
-    const last = families[families.length - 1];
-    text += `${families.slice(0, -1).join(', ')} and ${last} families`;
+  if (!c) return chips;
+
+  // Role: lab, user, or other
+  if (c.type) {
+    const roleLabel = c.type === 'lab' ? 'Research lab' : c.type === 'user' ? 'Independent creator' : 'Organization';
+    chips.push({ label: roleLabel, cls: 'fact-role' });
   }
-  text += ` — ${c.model_count} model${c.model_count !== 1 ? 's' : ''} across ${c.provider_count} provider${c.provider_count !== 1 ? 's' : ''}`;
-  const tags = topBestFor.value.slice(0, 3);
-  if (tags.length) text += `, with strengths in ${tags.join(', ')}`;
-  text += '.';
-  return text;
+
+  // Parameter range across all models
+  const paramSizes = new Set<number>();
+  for (const m of c.models) {
+    for (const dp of m.providers) {
+      if (dp.param_count_b) paramSizes.add(dp.param_count_b);
+    }
+  }
+  const paramVals = [...paramSizes].sort((a, b) => a - b);
+  if (paramVals.length) {
+    const min = formatParamSize(paramVals[0]);
+    const max = formatParamSize(paramVals[paramVals.length - 1]);
+    chips.push({ label: min === max ? `${min} params` : `${min} – ${max} params`, cls: 'fact-param' });
+  }
+
+  // Family count
+  const families = familyList.value;
+  if (families.length) {
+    chips.push({ label: `${families.length} ${families.length === 1 ? 'family' : 'families'}`, cls: 'fact-family' });
+  }
+
+  // Foundation vs derived split
+  let foundation = 0;
+  let derived = 0;
+  for (const m of c.models) {
+    if (m.derivation_method) derived++;
+    else foundation++;
+  }
+  if (derived > 0) {
+    chips.push({ label: `${foundation} original · ${derived} derived`, cls: 'fact-deriv' });
+  } else if (foundation > 0) {
+    chips.push({ label: `${foundation} original models`, cls: 'fact-original' });
+  }
+
+  // Open-weight count
+  let openCount = 0;
+  for (const m of c.models) {
+    if (m.providers.some(p => !p._removed && p.open_weights === true)) openCount++;
+  }
+  if (openCount > 0 && openCount < c.models.length) {
+    chips.push({ label: `${openCount}/${c.model_count} open weight`, cls: 'fact-open' });
+  } else if (openCount === c.models.length) {
+    chips.push({ label: 'All open weight', cls: 'fact-open' });
+  }
+
+  return chips;
 });
 </script>
 
@@ -636,13 +683,25 @@ const creatorDescription = computed(() => {
   background: var(--accent-subtle);
 }
 
-.cd-description {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin: 6px 0 0;
-  max-width: 720px;
+/* ── Unique-facts chips ── */
+.cd-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
 }
+.cd-fact-chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.cd-fact-chip.fact-role { background: rgba(168,85,247,0.12); color: #a855f7; }
+.cd-fact-chip.fact-param { background: rgba(99,102,241,0.12); color: #818cf8; }
+.cd-fact-chip.fact-family { background: rgba(52,211,153,0.12); color: #34d399; }
+.cd-fact-chip.fact-deriv { background: rgba(236,72,153,0.12); color: #ec4899; }
+.cd-fact-chip.fact-original { background: rgba(59,130,246,0.12); color: #60a5fa; }
+.cd-fact-chip.fact-open { background: rgba(52,211,153,0.12); color: #34d399; }
 
 .cd-features-row {
   display: flex;

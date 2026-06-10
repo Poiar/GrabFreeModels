@@ -13,6 +13,10 @@
         {{ totalModels }} models ·
         <span class="pd-health" :class="provider.health_status">{{ provider.health_status }}</span>
       </p>
+      <!-- Unique-facts chip row -->
+      <div class="pd-facts" v-if="providerFacts.length">
+        <span v-for="f in providerFacts" :key="f.label" class="pd-fact-chip" :class="f.cls">{{ f.label }}</span>
+      </div>
       <p v-if="provider.description" class="pd-description">{{ provider.description }}</p>
     </div>
 
@@ -233,6 +237,76 @@ const totalModels = computed(() =>
   providerCreators.value.reduce((sum, c) => sum + c.models.length, 0),
 );
 
+// ── Unique-facts chips ──
+function formatParamSize(b: number): string {
+  if (b >= 1000) return (b / 1000).toFixed(1).replace(/\.0$/, '') + 'T';
+  if (b >= 1) return b.toFixed(1).replace(/\.0$/, '') + 'B';
+  return (b * 1000).toFixed(0) + 'M';
+}
+
+const providerFacts = computed(() => {
+  const chips: { label: string; cls: string }[] = [];
+  if (!provider.value) return chips;
+
+  // Collect all datapoints for this provider
+  const dps: any[] = [];
+  for (const { models } of providerCreators.value) {
+    for (const m of models) {
+      for (const dp of m.providers) {
+        if (dp.provider_slug !== providerSlug.value || dp._removed) continue;
+        dps.push(dp);
+      }
+    }
+  }
+
+  // Parameter range
+  const paramSizes = [...new Set(dps.map(dp => dp.param_count_b).filter(Boolean))].sort((a, b) => a - b);
+  if (paramSizes.length) {
+    const min = formatParamSize(paramSizes[0]);
+    const max = formatParamSize(paramSizes[paramSizes.length - 1]);
+    chips.push({ label: min === max ? `${min} params` : `${min} – ${max} params`, cls: 'fact-param' });
+  }
+
+  // Number of families
+  const families = new Set<string>();
+  for (const { models } of providerCreators.value) {
+    for (const m of models) {
+      if (m.family) families.add(m.family);
+    }
+  }
+  if (families.size > 0) {
+    chips.push({ label: `${families.size} ${families.size === 1 ? 'family' : 'families'}`, cls: 'fact-family' });
+  }
+
+  // Number of creators
+  const creators = providerCreators.value.length;
+  if (creators > 0) {
+    chips.push({ label: `${creators} ${creators === 1 ? 'creator' : 'creators'}`, cls: 'fact-creator' });
+  }
+
+  // Exclusive models (only available via this provider)
+  const rom = store.routerOnlyModels;
+  if (rom) {
+    const exclusive = rom.models.filter(m => m.provider_count >= 1).length;
+    if (exclusive > 0) {
+      chips.push({ label: `${exclusive} exclusive`, cls: 'fact-exclusive' });
+    }
+  }
+
+  // Hardware (if non-standard)
+  if (provider.value.hardware && provider.value.hardware !== 'unknown' && provider.value.hardware !== 'gpu') {
+    const hwLabel = provider.value.hardware === 'lpu' ? 'LPU' : provider.value.hardware === 'wafer' ? 'Wafer-scale' : provider.value.hardware === 'tpu' ? 'TPU' : provider.value.hardware.toUpperCase();
+    chips.push({ label: hwLabel, cls: 'fact-hardware' });
+  }
+
+  // OpenAI compat
+  if (provider.value.is_openai_compat === true) {
+    chips.push({ label: 'OpenAI-compatible', cls: 'fact-compat' });
+  }
+
+  return chips;
+});
+
 const counts = computed(() => {
   let working = 0, broken = 0, rate_limited = 0, untested = 0;
   for (const { models } of providerCreators.value) {
@@ -348,6 +422,26 @@ const failureEntries = computed(() => {
 .pd-health.healthy { color: var(--green); background: color-mix(in srgb, var(--green) 12%, transparent); }
 .pd-health.degraded { color: var(--orange); background: color-mix(in srgb, var(--orange) 12%, transparent); }
 .pd-health.down { color: var(--red); background: color-mix(in srgb, var(--red) 12%, transparent); }
+
+/* ── Unique-facts chips ── */
+.pd-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.pd-fact-chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.pd-fact-chip.fact-param { background: rgba(99,102,241,0.12); color: #818cf8; }
+.pd-fact-chip.fact-family { background: rgba(52,211,153,0.12); color: #34d399; }
+.pd-fact-chip.fact-creator { background: rgba(236,72,153,0.12); color: #ec4899; }
+.pd-fact-chip.fact-exclusive { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.pd-fact-chip.fact-hardware { background: rgba(168,85,247,0.12); color: #a855f7; }
+.pd-fact-chip.fact-compat { background: rgba(59,130,246,0.12); color: #60a5fa; }
 
 .pd-description {
   font-size: 0.82rem;

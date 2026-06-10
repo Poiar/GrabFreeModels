@@ -6,13 +6,17 @@ description: Discover what other running Claude Code sessions are working on. Tr
 # Peer Session Discovery
 
 Show what other Claude Code sessions are running — without interrupting them.
+Registration is **automatic** via `TABBY_AGENT_CHAT_TAB_ID`. No manual setup.
 
-**1. Self** — `~/.claude/scripts/peer-id.ps1` to get your UUID (exclude yourself).
+**1. Self** — `~/.claude/scripts/peer-id.ps1` to get your UUID + auto-register your tab. Exclude yourself.
 
 **2. List** — `list_tabs`. For each tab with `claude.exe` that isn't you, report:
-- Short name (first 8 chars of UUID)
-- Project (Playwright path: `C:\OC\<X>\node_modules\...` → `C:\OC\<X>`; npm-cache → deepclaude)
+- Short name (first 8 chars of UUID, from `peer-tabs.json` or `peer-id-*.txt`)
+- Project (inferred from process cmdlines: e.g. `C:\OC\<X>\node_modules\...` → `C:\OC\<X>`)
+- Registered tab (from `peer-tabs.json`)
 
-**3. Context** — For each session, check inbox (`peer-inbox`) or process cmdlines for recent activity.
+**3. Fleet** — `~/.claude/scripts/peer-dash.ps1` for the status board (which sessions are alive, their status, project, task).
+
+**4. Cleanup** — `~/.claude/scripts/peer-cleanup.ps1` to prune dead sessions. Run periodically.
 
 To message a discovered session, use `/peer-msg` with the short name.

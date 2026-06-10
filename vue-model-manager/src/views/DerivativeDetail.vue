@@ -14,12 +14,15 @@
       </p>
       <p v-if="baseCreatorList.length" class="dd-base-line">
         Derives models from
-        <span v-for="(bc, i) in baseCreatorList" :key="bc">
-          <router-link :to="`/creator/${getBaseCreatorSlug(bc)}`" class="dd-base-link">{{ bc }}</router-link
+        <span v-for="([bcName, bcSlug], i) in baseCreatorList" :key="bcSlug">
+          <router-link :to="`/creator/${bcSlug}`" class="dd-base-link">{{ bcName }}</router-link
           ><template v-if="i < baseCreatorList.length - 1">, </template>
         </span>
       </p>
-      <p v-if="derivDescription" class="dd-description">{{ derivDescription }}</p>
+      <!-- Unique-facts chip row -->
+      <div class="dd-facts" v-if="derivFacts.length">
+        <span v-for="f in derivFacts" :key="f.label" class="dd-fact-chip" :class="f.cls">{{ f.label }}</span>
+      </div>
     </div>
 
     <!-- Features row -->
@@ -183,12 +186,6 @@ const baseCreatorList = computed(() => {
   return [...bases.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 });
 
-function getBaseCreatorSlug(name: string): string {
-  const entry = baseCreatorList.value.find(([n]) => n === name);
-  if (entry) return entry[1];
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-}
-
 function resolveBaseModelName(baseSlug: string): string {
   const parent = store.modelBySlug.get(baseSlug);
   if (parent) return parent.name;
@@ -206,7 +203,7 @@ const modelsByBaseModel = computed(() => {
     } else {
       base = 'Original models';
     }
-    groups[base].push(model);
+    (groups[base] ??= []).push(model);
   }
   // Sort: base models with most derivatives first, "Original models" last
   return Object.entries(groups).sort((a, b) => {
@@ -416,37 +413,64 @@ const rankingHighlights = computed(() => {
   return [...roles].sort();
 });
 
-// ── Auto-generated description ──
-const derivDescription = computed(() => {
+// ── Unique-facts chips ──
+function formatParamSize(b: number): string {
+  if (b >= 1000) return (b / 1000).toFixed(1).replace(/\.0$/, '') + 'T';
+  if (b >= 1) return b.toFixed(1).replace(/\.0$/, '') + 'B';
+  return (b * 1000).toFixed(0) + 'M';
+}
+
+const derivFacts = computed(() => {
+  const chips: { label: string; cls: string }[] = [];
   const c = creator.value;
-  if (!c) return '';
-  const families = familyList.value;
-  const bases = baseCreatorList.value;
+  if (!c) return chips;
+
+  // Parameter range
+  const paramSizes = new Set<number>();
+  for (const m of c.models) {
+    for (const dp of m.providers) {
+      if (dp.param_count_b) paramSizes.add(dp.param_count_b);
+    }
+  }
+  const paramVals = [...paramSizes].sort((a, b) => a - b);
+  if (paramVals.length) {
+    const min = formatParamSize(paramVals[0]);
+    const max = formatParamSize(paramVals[paramVals.length - 1]);
+    chips.push({ label: min === max ? `${min} params` : `${min} – ${max} params`, cls: 'fact-param' });
+  }
+
+  // Number of distinct base models derived from
+  const baseModels = new Set<string>();
+  for (const m of c.models) {
+    if (m.base_model) baseModels.add(m.base_model);
+  }
+  if (baseModels.size > 0) {
+    chips.push({ label: `${baseModels.size} ${baseModels.size === 1 ? 'base model' : 'base models'}`, cls: 'fact-base' });
+  }
+
+  // Number of base creators
+  if (baseCreatorList.value.length > 0) {
+    chips.push({ label: `Builds on ${baseCreatorList.value.length} ${baseCreatorList.value.length === 1 ? 'creator' : 'creators'}`, cls: 'fact-basecreator' });
+  }
+
+  // Most-used derivation method
   const db = derivationBreakdown.value;
-  const verb = db.length > 0 ? 'derives' : 'produces';
-  let text = `${c.name} ${verb} `;
-  if (families.length === 0) {
-    text += 'models';
-  } else if (families.length === 1) {
-    text += `the ${families[0]} family`;
-  } else {
-    const last = families[families.length - 1];
-    text += `${families.slice(0, -1).join(', ')} and ${last} families`;
-  }
-  if (bases.length === 1) {
-    text += ` from ${bases[0]}`;
-  } else if (bases.length > 1) {
-    text += ` from ${bases.slice(0, -1).join(', ')} and ${bases[bases.length - 1]}`;
-  }
-  text += ` — ${c.model_count} model${c.model_count !== 1 ? 's' : ''} across ${c.provider_count} provider${c.provider_count !== 1 ? 's' : ''}`;
   if (db.length > 0) {
-    const methodStr = db.map(d => `${d.count} ${d.label}`).join(', ');
-    text += ` (${methodStr})`;
+    chips.push({ label: `Mostly ${db[0].label} (${db[0].count})`, cls: 'fact-method' });
   }
-  const tags = topBestFor.value.slice(0, 3);
-  if (tags.length) text += `, with strengths in ${tags.join(', ')}`;
-  text += '.';
-  return text;
+
+  // Open-weight count
+  let openCount = 0;
+  for (const m of c.models) {
+    if (m.providers.some(p => !p._removed && p.open_weights === true)) openCount++;
+  }
+  if (openCount > 0 && openCount < c.models.length) {
+    chips.push({ label: `${openCount}/${c.model_count} open weight`, cls: 'fact-open' });
+  } else if (openCount === c.models.length) {
+    chips.push({ label: 'All open weight', cls: 'fact-open' });
+  }
+
+  return chips;
 });
 </script>
 
@@ -484,13 +508,24 @@ const derivDescription = computed(() => {
   vertical-align: middle;
 }
 
-.dd-description {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin: 6px 0 0;
-  max-width: 720px;
+/* ── Unique-facts chips ── */
+.dd-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
 }
+.dd-fact-chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.dd-fact-chip.fact-param { background: rgba(99,102,241,0.12); color: #818cf8; }
+.dd-fact-chip.fact-base { background: rgba(236,72,153,0.12); color: #ec4899; }
+.dd-fact-chip.fact-basecreator { background: rgba(168,85,247,0.12); color: #a855f7; }
+.dd-fact-chip.fact-method { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.dd-fact-chip.fact-open { background: rgba(52,211,153,0.12); color: #34d399; }
 
 .dd-base-line {
   font-size: 0.78rem;
