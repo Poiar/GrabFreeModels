@@ -81,10 +81,36 @@ async function rankModels() {
       bestForMap.get(r.full_id).push(r.value);
     }
 
-    // Attach best_for to models
+    // Load release_date and last_updated features for freshness scoring (#6)
+    const { rows: dateFeatRows } = await client.query(`
+      SELECT dm.full_id, dmf.feature_type, dmf.value
+      FROM datapoint_model_features dmf
+      JOIN datapoint_models dm ON dm.id = dmf.datapoint_model_id
+      WHERE dmf.feature_type IN ('release_date', 'last_updated')
+        AND dm.status_result = 'working'
+    `);
+    const releaseDateMap = new Map();
+    const lastUpdatedMap = new Map();
+    for (const r of dateFeatRows) {
+      if (r.feature_type === 'release_date') releaseDateMap.set(r.full_id, r.value);
+      if (r.feature_type === 'last_updated') lastUpdatedMap.set(r.full_id, r.value);
+    }
+
+    // Load deprecated_at from datapoint_models
+    const { rows: depRows } = await client.query(`
+      SELECT full_id, deprecated_at
+      FROM datapoint_models
+      WHERE full_id = ANY($1) AND deprecated_at IS NOT NULL
+    `, [[...eligibleFullIds]]);
+    const deprecatedMap = new Map(depRows.map(r => [r.full_id, r.deprecated_at]));
+
+    // Attach best_for and date fields to models
     const eligible = eligibleRows.map((m) => ({
       ...m,
       best_for: bestForMap.get(m.id) || [],
+      release_date: releaseDateMap.get(m.id) || null,
+      last_updated: lastUpdatedMap.get(m.id) || null,
+      deprecated_at: deprecatedMap.get(m.id) || null,
     }));
 
     if (ineligibleRows.length > 0) {
@@ -135,7 +161,33 @@ async function rankModels() {
       return 2 * sigmoid(2 * x / mean) - 1;
     }
 
-    // Time-decay: ~90-day half-life (Item 6)
+    // ── Freshness scoring (#6): release_date, last_updated, deprecated_at ──
+    function modelFreshnessScore(m) {
+      if (m.deprecated_at) return -3.0;
+      const releaseDate = m.release_date || null;
+      const lastUpdated = m.last_updated || null;
+      let score = 0;
+      if (releaseDate) {
+        const releaseMs = new Date(releaseDate).getTime();
+        if (!isNaN(releaseMs)) {
+          const ageDays = (Date.now() - releaseMs) / 864e5;
+          if (ageDays <= 180) score = 1.5;       // released within 6 months
+          else if (ageDays <= 365) score = 0.5;   // released within 1 year
+          else score = -0.5;                       // older than 1 year
+        }
+      }
+      // If not recently released but has a recent update, small boost
+      if (score <= 0 && lastUpdated && !m.deprecated_at) {
+        const updatedMs = new Date(lastUpdated).getTime();
+        if (!isNaN(updatedMs)) {
+          const updateAgeDays = (Date.now() - updatedMs) / 864e5;
+          if (updateAgeDays <= 90) score = Math.max(score, 0.3);
+        }
+      }
+      return score;
+    }
+
+    // Time-decay: ~90-day half-life (benchmark score freshness)
     const HALF_LIFE_DAYS = 90;
     const DECAY_LAMBDA = Math.LN2 / HALF_LIFE_DAYS;
     function freshnessWeight(fetchedAt) {
@@ -259,7 +311,8 @@ async function rankModels() {
         const ctx = ctxScore(m);
         const tags = tagBonus(m, cfg.tagKeywords);
         const q = qualityScore(m, role);
-        const score = (ctx * cfg.ctxWeight + tags + q.total) * getQuantFactor(m.quantization);
+        const freshness = modelFreshnessScore(m);
+        const score = (ctx * cfg.ctxWeight + tags + q.total + freshness) * getQuantFactor(m.quantization);
         const ctxContrib = ctx * cfg.ctxWeight;
         const matchedTags = (cfg.tagKeywords || []).filter((kw) =>
           (m.best_for || []).some((t) => t.toLowerCase().includes(kw.toLowerCase())),
@@ -282,6 +335,9 @@ async function rankModels() {
           qualityCoding: q.coding,
           qualitySpeed: q.speed,
           qualityLatency: q.latency,
+          freshness,
+          releaseDate: m.release_date || null,
+          deprecated: !!m.deprecated_at,
         };
       });
 
@@ -356,7 +412,7 @@ async function rankModels() {
         // Pure benchmark ranking — no context, no tags. Matches source website 1-to-1.
         const scored = eligible.map((m) => {
           const q = qualityScore(m, role, source, true);
-          return { id: m.id, score: q.total * getQuantFactor(m.quantization), ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: q.total, qualityIntel: q.intel, qualityCoding: q.coding, qualitySpeed: q.speed, qualityLatency: q.latency };
+          return { id: m.id, score: q.total * getQuantFactor(m.quantization), ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: q.total, qualityIntel: q.intel, qualityCoding: q.coding, qualitySpeed: q.speed, qualityLatency: q.latency, freshness: 0, releaseDate: null, deprecated: false };
         });
 
         scored.sort((a, b) => b.score - a.score);
@@ -390,7 +446,7 @@ async function rankModels() {
         if (cfg.manual) { bmRankings[role] = []; bmScores[role] = []; continue; }
         const scored = eligible.map((m) => {
           const q = qualityScore(m, role, 'artificial_analysis', true);
-          return { id: m.id, score: q.total * getQuantFactor(m.quantization), ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: q.total, qualityIntel: q.intel, qualityCoding: q.coding, qualitySpeed: q.speed, qualityLatency: q.latency };
+          return { id: m.id, score: q.total * getQuantFactor(m.quantization), ctx: m.context_length || 0, ctxScore: 0, ctxWeight: 0, ctxContrib: 0, tagBonus: 0, tagPenalty: 0, penaltyContrib: 0, nameSizePenalty: 0, matchedTags: [], matchedPenaltyTags: [], qualityBonus: q.total, qualityIntel: q.intel, qualityCoding: q.coding, qualitySpeed: q.speed, qualityLatency: q.latency, freshness: 0, releaseDate: null, deprecated: false };
         });
         scored.sort((a, b) => b.score - a.score);
         bmRankings[role] = scored.map((s) => s.id);

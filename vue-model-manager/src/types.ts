@@ -72,6 +72,10 @@ export interface ProviderDatapoint {
   is_openai_compat: boolean | null;
   supports_streaming: boolean | null;
   requires_account_id: boolean | null;
+  max_rpm: number | null;
+  max_tpm: number | null;
+  max_daily_requests: number | null;
+  requires_card: boolean | null;
   family: string | null;
   base_model: string | null;
   derivation_method: string | null;
@@ -79,6 +83,7 @@ export interface ProviderDatapoint {
   last_updated: string | null;
   release_date: string | null;
   deprecated_at: string | null;
+  failure_category: string | null;
 }
 
 export interface ModelData {
@@ -126,6 +131,10 @@ export interface ProviderReference {
   is_openai_compat: boolean | null;
   supports_streaming: boolean | null;
   requires_account_id: boolean | null;
+  max_rpm: number | null;
+  max_tpm: number | null;
+  max_daily_requests: number | null;
+  requires_card: boolean | null;
   description: string | null;
   model_count: number;
   working_count: number;
@@ -163,6 +172,10 @@ export interface ModelsData {
   _provider_usage: { description: string; [provider: string]: ProviderUsage | string };
   _known_issues: { description: string; issues: KnownIssue[] };
   _validation_method: ValidationMethod;
+  _router_only_models?: { count: number; models: Array<{ slug: string; name: string; provider_count: number }>; checked_at: string };
+  _provider_routing_graph?: { routers: Record<string, Array<{ backend: string; name: string; type: string; shared_models: number }>>; built_at: string };
+  _provider_timeline?: { timeline: Array<{ date: string; added: Array<{ slug: string; name: string; type: string }>; cumulative: number }>; total: number; built_at: string };
+  _family_coverage?: { total: number; with_family: number; without_family: number; pct: number; with_base_model_no_family: number };
 }
 
 // EXISTING types (kept for backward compatibility)
@@ -225,6 +238,11 @@ export interface DatapointModel {
   is_openai_compat: boolean | null;
   supports_streaming: boolean | null;
   requires_account_id: boolean | null;
+  max_rpm: number | null;
+  max_tpm: number | null;
+  max_daily_requests: number | null;
+  requires_card: boolean | null;
+  failure_category: string | null;
 }
 
 export interface SuperModel {
@@ -299,6 +317,9 @@ export interface RoleScore {
   qualityCoding: number;
   qualitySpeed: number;
   qualityLatency: number;
+  freshness?: number;
+  releaseDate?: string | null;
+  deprecated?: boolean;
 }
 
 export interface RoleMeta {

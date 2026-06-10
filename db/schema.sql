@@ -51,7 +51,9 @@ CREATE TABLE datapoint_models (
     status_result           model_status,
     status_tested           DATE,
     status_detail           TEXT,
+    failure_category        VARCHAR(32),                   -- parsed from status_detail: timeout, not_found, auth_error, rate_limited, server_error, network_error, unknown
     last_success            TIMESTAMPTZ,
+    deprecated_at           DATE,                          -- when the provider/model deprecated this instance
     created_at              TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at              TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (datapoint_provider_id, model_instance_key)

@@ -192,7 +192,7 @@
               <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
             </svg>
           </span>
-          <span>Compare</span>
+          <span>Compare Providers</span>
         </router-link>
         <!-- Supporting dimensions -->
         <router-link to="/creators" :class="{ active: isNavActive('/creators') }" class="nav-creators">
@@ -294,7 +294,7 @@
               <polyline points="22 8.5 12 15.5 2 8.5" />
             </svg>
           </span>
-          <span>Compare</span>
+          <span>Compare Models</span>
         </router-link>
         <router-link to="/advanced-search" :class="{ active: isNavActive('/advanced-search') }" class="nav-catalog">
           <span class="nav-icon">
@@ -683,6 +683,7 @@ function timeAgo(date: Date, _now: number): string {
 .nav-derivatives { color: #e879f9; }     /* fuchsia */
 .nav-families { color: #818cf8; }        /* indigo */
 .nav-basemodels { color: #c084fc; }      /* purple */
+.nav-compare-providers { color: #a78bfa; } /* violet */
 .nav-compare { color: #f472b6; }         /* pink */
 .nav-catalog { color: #2dd4bf; }         /* teal */
 
@@ -699,6 +700,7 @@ function timeAgo(date: Date, _now: number): string {
 .nav-rankings:hover { color: #fde68a; }
 .nav-rankings-paid:hover { color: #fdba74; }
 .nav-providers:hover { color: #c4b5fd; }
+.nav-compare-providers:hover { color: #c4b5fd; }
 .nav-creators:hover { color: #fca5a5; }
 .nav-derivatives:hover { color: #f0abfc; }
 .nav-families:hover { color: #a5b4fc; }

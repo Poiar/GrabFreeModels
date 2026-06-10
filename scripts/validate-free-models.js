@@ -43,6 +43,19 @@ function isInferenceProvider(fullId) {
 // Loaded at startup from DB datapoint_providers.is_health_trackable
 let healthTrackableProviders = new Set();
 
+/** Categorize a validation failure from status + detail into a structured category */
+function categorizeFailure(status, detail) {
+  if (status === 'working' || status === 'untested') return null;
+  const d = (detail || '').toLowerCase();
+  if (status === 'not_found' || d.includes('not found') || d.includes('404')) return 'not_found';
+  if (d.includes('timeout') || d.includes('timed out') || d.includes('ETIMEDOUT') || status === 'timeout') return 'timeout';
+  if (d.includes('401') || d.includes('403') || d.includes('unauthorized') || d.includes('forbidden') || d.includes('auth') || d.includes('key') || d.includes('expired')) return 'auth_error';
+  if (status === 'rate_limited' || d.includes('429') || d.includes('rate limit')) return 'rate_limited';
+  if (d.includes('500') || d.includes('502') || d.includes('503') || d.includes('server error')) return 'server_error';
+  if (d.includes('ECONNREFUSED') || d.includes('ECONNRESET') || d.includes('ENOTFOUND') || d.includes('network') || d.includes('DNS')) return 'network_error';
+  return 'unknown';
+}
+
 /** Compute average latency from burst + delayed request results */
 function computeAverageLatency(result) {
   const allLatencies = [
@@ -125,9 +138,11 @@ async function saveToDbAndExport(observations = [], healthSnapshots = []) {
     for (const m of json.models) {
       await client.query(
         `UPDATE datapoint_models SET
-           status_result = $1, status_tested = $2, status_detail = $3, last_success = $4
+           status_result = $1, status_tested = $2, status_detail = $3, last_success = $4,
+           failure_category = $6
          WHERE full_id = $5`,
-        [m.status.result, m.status.tested, m.status.detail, m.last_success || null, m.id],
+        [m.status.result, m.status.tested, m.status.detail, m.last_success || null, m.id,
+         categorizeFailure(m.status.result, m.status.detail)],
       );
     }
     await client.query(
@@ -638,6 +653,93 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
   process.exit(1);
 }
 logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
+
+  // ── Pre-validation key health check (#5) ──
+  // Test one known-working model per provider before running the full suite.
+  // If too many providers have dead keys (401/403), stop and report instead
+  // of burning quota on thousands of doomed requests.
+  const KEY_CHECK_MAX_FAILURES = 3; // abort if this many providers have dead keys
+  {
+    logger.info('\n─── Pre-validation Key Health Check ───');
+    // For each endpoint that has an API key, find one known-working model
+    const epModels = {};
+    for (const ep of Object.keys(ENDPOINT_CONFIG)) {
+      const cfg = ENDPOINT_CONFIG[ep];
+      let key;
+      try { key = cfg.key(); } catch { key = null; }
+      if (!key) {
+        logger.info(`  ${ep}: no API key configured — skipping pre-check`);
+        continue;
+      }
+      // Find a model that's currently marked as working for this endpoint
+      const workingModel = json.models.find(m => {
+        if (!m.is_free || m._removed) return false;
+        const modelEp = getEndpoint(m.id);
+        return modelEp === ep && m.status.result === 'working';
+      });
+      if (!workingModel) {
+        logger.info(`  ${ep}: no working model found for pre-check — skipping`);
+        continue;
+      }
+      epModels[ep] = workingModel;
+    }
+
+    if (Object.keys(epModels).length === 0) {
+      logger.info('  No providers to pre-check.\n');
+    } else {
+      // Test each provider's known-working model with a single quick request
+      const preCheckResults = [];
+      for (const [ep, model] of Object.entries(epModels)) {
+        const cfg = ENDPOINT_CONFIG[ep];
+        // Use model ID directly — pre-check runs before full validIds fetch
+        // and we only care about auth errors (401/403), not 404s
+        const apiId = resolveApiModelId(model.id, ep, new Set());
+        logger.info(`  [${ep}] checking key with ${model.id} → ${apiId}`);
+        try {
+          const results = await testModel(apiId, 'pre-check', cfg.key(), cfg.url, 0, 0);
+          const ok = results.filter(r => r.status === 'OK').length;
+          const authErrors = results.filter(r => r.status === '401' || r.status === '403').length;
+          const rateLimited = results.filter(r => r.status === '429').length;
+
+          if (authErrors > 0) {
+            logger.info(`    ⚠ KEY DEAD: auth errors`);
+            preCheckResults.push({ ep, status: 'dead', model: model.id });
+          } else if (ok > 0) {
+            logger.info(`    ✓ key working`);
+            preCheckResults.push({ ep, status: 'ok', model: model.id });
+          } else if (rateLimited > 0) {
+            logger.info(`    ⚐ rate limited — key likely valid`);
+            preCheckResults.push({ ep, status: 'rate_limited', model: model.id });
+          } else {
+            logger.info(`    ? unexpected: ${results.map(r => r.status).join(', ')}`);
+            preCheckResults.push({ ep, status: 'unknown', model: model.id });
+          }
+        } catch (e) {
+          logger.info(`    ⚠ pre-check error: ${e.message}`);
+          preCheckResults.push({ ep, status: 'error', model: model.id, error: e.message });
+        }
+      }
+
+      const deadKeys = preCheckResults.filter(r => r.status === 'dead');
+      if (deadKeys.length >= KEY_CHECK_MAX_FAILURES) {
+        logger.info(`\n⛔ ABORTING: ${deadKeys.length} providers have dead API keys (threshold: ${KEY_CHECK_MAX_FAILURES})`);
+        for (const dk of deadKeys) {
+          logger.info(`  • ${dk.ep}: ${dk.model}`);
+        }
+        logger.info('Fix expired keys before running full validation.\n');
+        process.exit(1);
+      }
+      if (deadKeys.length > 0) {
+        logger.info(`\n⚠ Warning: ${deadKeys.length} dead key(s) detected — proceeding but these providers will fail:`);
+        for (const dk of deadKeys) {
+          logger.info(`  • ${dk.ep}: ${dk.model}`);
+        }
+      } else {
+        logger.info(`  All ${preCheckResults.length} providers passed pre-check.`);
+      }
+      logger.info('────────────────────────\n');
+    }
+  }
 
   // Capture previous test summary for --compare
   let previousSummary = null;

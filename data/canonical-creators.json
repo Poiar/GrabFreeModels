@@ -130,6 +130,7 @@
     "unidentifyable":          { "id": "unidentifiable", "name": "Unidentifiable" },
     "unidentifiable":          { "id": "unidentifiable", "name": "Unidentifiable" },
     "unknown":                 { "id": "unknown", "name": "Unknown" },
+    "ling":                    { "id": "inclusion", "name": "Inclusion AI" },
     "ring":                    { "id": "inclusion", "name": "Inclusion AI" },
     "novitaai":                { "id": "novitaai", "name": "Novita AI" },
     "novita ai":               { "id": "novitaai", "name": "Novita AI" },

@@ -83,6 +83,21 @@
       </div>
     </div>
 
+    <!-- Router-only models alert -->
+    <div v-if="store.routerOnlyModels && store.routerOnlyModels.count > 0" class="router-alert-section">
+      <div class="card router-alert-card">
+        <div class="card-title">Router-Only Models</div>
+        <p class="router-alert-text">
+          <strong>{{ store.routerOnlyModels.count }}</strong> free models are only accessible via routers — no direct inference provider exists.
+          If a router's API key or quota is exhausted, these models become unreachable.
+        </p>
+        <div class="router-alert-models">
+          <span v-for="m in store.routerOnlyModels.models.slice(0, 8)" :key="m.slug" class="router-model-chip">{{ m.name }}</span>
+          <span v-if="store.routerOnlyModels.models.length > 8" class="router-model-chip more">+{{ store.routerOnlyModels.models.length - 8 }} more</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Fine-tune Stats -->
     <div class="finetune-section">
       <div class="card">
@@ -107,6 +122,10 @@
             <div class="ft-value muted-val">{{ uncategorizedCount }}</div>
             <div class="ft-label">Uncategorized</div>
           </div>
+        </div>
+        <div v-if="store.familyCoverage && store.familyCoverage.with_base_model_no_family > 0" class="ft-resolvable">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>{{ store.familyCoverage.with_base_model_no_family }} models have base_model links but no family — run <code>inherit-families</code> to resolve</span>
         </div>
         <div v-if="derivationMethodEntries.length > 0" class="ft-derivation-breakdown">
           <div class="ft-subtitle">By Derivation Method</div>
@@ -166,6 +185,29 @@
           <span v-for="provider in store.usedUpProviders" :key="provider" class="used-up-tag">
             {{ provider }}
             <span class="used-up-reason">{{ store.providerUsage[provider]?.reason ?? '' }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Provider Ecosystem Timeline -->
+    <div v-if="store.providerTimeline" class="timeline-section">
+      <div class="card">
+        <div class="card-title">Provider Ecosystem Growth</div>
+        <p class="card-subtitle">{{ store.providerTimeline.total }} providers tracked across {{ store.providerTimeline.timeline.length }} milestones</p>
+        <div class="tl-bar">
+          <div
+            v-for="entry in timelineBars"
+            :key="entry.date"
+            class="tl-bar-seg"
+            :style="{ flex: entry.width, background: entry.color }"
+            :title="entry.date + ': +' + entry.added.length + ' providers'"
+          ></div>
+        </div>
+        <div class="tl-legend">
+          <span v-for="entry in timelineLast5" :key="entry.date" class="tl-legend-item">
+            <span class="tl-dot" :style="{ background: entry.color }"></span>
+            {{ formatDate(entry.date) }}: +{{ entry.added.length }}
           </span>
         </div>
       </div>
@@ -465,6 +507,34 @@ const criticalIssues = computed(() =>
   store.knownIssues.filter(i => i.severity === 'critical' || i.severity === 'high').slice(0, 6),
 );
 
+// Timeline visualization
+const timelineBars = computed(() => {
+  const tl = store.providerTimeline;
+  if (!tl?.timeline.length) return [];
+  const maxCumulative = Math.max(1, tl.timeline[tl.timeline.length - 1].cumulative);
+  return tl.timeline.map((entry: { date: string; added: Array<{ slug: string }>; cumulative: number; color?: string }) => {
+    const color = entry.added.some((a: { slug: string }) => a.slug === 'openrouter') ? '#A78BFA'
+      : entry.added.length >= 3 ? '#60A5FA'
+      : '#374151';
+    return { ...entry, color, width: Math.max(0.5, (entry.added.length / maxCumulative) * 100) };
+  });
+});
+
+const timelineLast5 = computed(() => {
+  const tl = store.providerTimeline;
+  if (!tl?.timeline.length) return [];
+  return tl.timeline.slice(-5).reverse().map(e => ({
+    ...e,
+    color: (e.added as Array<{slug: string}>).some((a: {slug: string}) => a.slug === 'openrouter') ? '#A78BFA'
+      : e.added.length >= 3 ? '#60A5FA'
+      : '#374151',
+  }));
+});
+
+function formatDate(d: string): string {
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 function modelNameForId(fullId: string): string {
   const entry = store.datapointById.get(fullId);
   return entry?.model.name ?? fullId.split('/').slice(1).join('/');
@@ -615,6 +685,29 @@ function formatTimeAgo(dateStr: string | null): string {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Router-only alert */
+.router-alert-section { margin-bottom: 20px; }
+.router-alert-card { border-left: 3px solid #F59E0B; }
+.router-alert-text { font-size: 0.75rem; color: var(--text-secondary); margin: 4px 0 8px; line-height: 1.4; }
+.router-alert-models { display: flex; flex-wrap: wrap; gap: 4px; }
+.router-model-chip {
+  padding: 1px 6px; font-size: 0.6rem; border-radius: 999px;
+  background: rgba(245,158,11,0.12); color: #F59E0B; white-space: nowrap;
+}
+.router-model-chip.more {
+  background: var(--bg-hover); color: var(--text-dim);
+}
+
+/* Provider timeline */
+.timeline-section { margin-bottom: 20px; }
+.tl-bar { display: flex; height: 24px; border-radius: 4px; overflow: hidden; gap: 1px; margin: 12px 0 8px; }
+.tl-bar-seg { min-width: 2px; border-radius: 2px; transition: opacity 0.2s; cursor: default; }
+.tl-bar-seg:hover { opacity: 0.7; }
+.tl-legend { display: flex; flex-wrap: wrap; gap: 10px; }
+.tl-legend-item { display: flex; align-items: center; gap: 4px; font-size: 0.62rem; color: var(--text-dim); }
+.tl-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.card-subtitle { font-size: 0.68rem; color: var(--text-dim); margin: 2px 0 0; }
 
 /* Validation deltas */
 .val-vs {
@@ -1336,6 +1429,24 @@ function formatTimeAgo(dateStr: string | null): string {
   border-radius: 2px;
   background: linear-gradient(90deg, var(--accent), var(--accent-end, #a78bfa));
   transition: width 0.6s var(--ease-emphasis);
+}
+
+.ft-resolvable {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  margin-top: 4px;
+  background: rgba(251,191,36,0.08);
+  border-radius: 6px;
+  font-size: 0.65rem;
+  color: var(--orange);
+}
+.ft-resolvable code {
+  font-size: 0.6rem;
+  background: rgba(251,191,36,0.12);
+  padding: 1px 4px;
+  border-radius: 3px;
 }
 
 @media (max-width: 500px) {

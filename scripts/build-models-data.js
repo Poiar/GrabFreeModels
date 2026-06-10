@@ -32,7 +32,9 @@ async function buildModelsData(client, pool, options = {}) {
            mm.derivation_method AS super_derivation_method,
            dp.name AS provider_name, dp.slug AS provider_slug,
            dp.npm_package, dp.base_url, dp.provider_type, dp.serves_third_party,
-           dp.hardware, dp.is_openai_compat, dp.supports_streaming, dp.requires_account_id
+           dp.hardware, dp.is_openai_compat, dp.supports_streaming, dp.requires_account_id,
+           dp.max_rpm, dp.max_tpm, dp.max_daily_requests, dp.requires_card,
+           dm.failure_category
     FROM datapoint_models dm
     JOIN super_models mm ON mm.id = dm.super_model_id
     JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
@@ -227,6 +229,7 @@ async function buildModelsData(client, pool, options = {}) {
       },
       last_success: dm.last_success || null,
       deprecated_at: dm.deprecated_at || null,
+      failure_category: dm.failure_category || null,
       base_url: dm.base_url || null,
       provider_type: dm.provider_type || null,
       serves_third_party: dm.serves_third_party,
@@ -234,6 +237,10 @@ async function buildModelsData(client, pool, options = {}) {
       is_openai_compat: dm.is_openai_compat,
       supports_streaming: dm.supports_streaming,
       requires_account_id: dm.requires_account_id,
+      max_rpm: dm.max_rpm,
+      max_tpm: dm.max_tpm,
+      max_daily_requests: dm.max_daily_requests,
+      requires_card: dm.requires_card,
       source: dm.provider_slug,
       npm_package: dm.npm_package || null,
       source_ids: sourceIdsByDm.get(dm.id) || [],
@@ -244,6 +251,22 @@ async function buildModelsData(client, pool, options = {}) {
 
     const ctx_val = entry.context_length ? entry.context_length / CTX_NORM : -0.5;
     const toolsBonus = entry.supports_tools === true ? 2 : 0;
+
+    // ── Auto-tag providers based on their properties ──
+    // These tags augment manually-curated best_for tags from the features table.
+    // They propagate to all models served by a provider.
+    const autoTags = [];
+    if (dm.hardware === 'lpu') autoTags.push('speed');
+    if (dm.hardware === 'wafer') autoTags.push('throughput');
+    if (dm.hardware === 'tpu') autoTags.push('multimodal');
+    if (dm.hardware === 'edge') autoTags.push('low-latency');
+    if (dm.provider_type === 'router') autoTags.push('multi-provider');
+    if (dm.provider_type === 'inference' && dm.serves_third_party === false) autoTags.push('authoritative');
+    if (dm.is_openai_compat === false) autoTags.push('specialized');
+    // Merge auto-tags without duplicating existing tags
+    const mergedBestFor = [...new Set([...(entry.best_for || []), ...autoTags])];
+    entry.best_for = mergedBestFor;
+    entry.tags = [...new Set([...(entry.tags || []), ...autoTags])];
     const codingTags = (entry.best_for || []).some((t) =>
       /\b(cod|programm|agentic|reasoning|tool use|function calling|refactor)\b/i.test(t),
     )
@@ -252,7 +275,36 @@ async function buildModelsData(client, pool, options = {}) {
     // Provider-type adjustments to the base priority score
     const firstPartyBoost = (dm.provider_type === 'inference' && dm.serves_third_party === false) ? 1.5 : 0;
     const routerPenalty = (dm.provider_type === 'router') ? -1.0 : 0;
-    entry.priority_score = Math.round((ctx_val * 1.0 + toolsBonus + codingTags + firstPartyBoost + routerPenalty) * 100) / 100;
+    // Hardware speed bonuses (for latency-sensitive role tiebreaking)
+    const hwSpeedBonus = { lpu: 2.0, wafer: 1.0, tpu: 0.5, gpu: 0, edge: -0.5, local: -1.0, unknown: 0 };
+    const hardwareBonus = hwSpeedBonus[dm.hardware] || 0;
+    // ── Freshness scoring (#6) ──
+    // release_date, last_updated, and deprecated_at factor into model freshness.
+    // Newer models get a discoverability boost; deprecated models get buried.
+    let freshnessScore = 0;
+    const releaseDate = entry.releaseDate || null;
+    const lastUpdated = entry.lastUpdated || null;
+    const deprecatedAt = entry.deprecated_at || null;
+    if (deprecatedAt) {
+      freshnessScore = -3.0;
+    } else if (releaseDate) {
+      const releaseMs = new Date(releaseDate).getTime();
+      if (!isNaN(releaseMs)) {
+        const ageDays = (Date.now() - releaseMs) / 864e5;
+        if (ageDays <= 180) freshnessScore = 1.5;        // released within 6 months
+        else if (ageDays <= 365) freshnessScore = 0.5;    // released within 1 year
+        else freshnessScore = -0.5;                        // older than 1 year
+      }
+    }
+    // If last_updated is recent and model wasn't recently released, small boost
+    if (freshnessScore <= 0 && lastUpdated && !deprecatedAt) {
+      const updatedMs = new Date(lastUpdated).getTime();
+      if (!isNaN(updatedMs)) {
+        const updateAgeDays = (Date.now() - updatedMs) / 864e5;
+        if (updateAgeDays <= 90) freshnessScore = Math.max(freshnessScore, 0.3);
+      }
+    }
+    entry.priority_score = Math.round((ctx_val * 1.0 + toolsBonus + codingTags + firstPartyBoost + routerPenalty + hardwareBonus + freshnessScore) * 100) / 100;
 
     outputModels.push(entry);
     const result = dm.status_result || 'untested';
@@ -420,6 +472,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
       status: dp.status,
       last_success: dp.last_success,
       deprecated_at: dp.deprecated_at,
+      failure_category: dp.failure_category || null,
       _removed: dp._removed,
       _removedDate: dp._removedDate,
       notes: dp.notes,
@@ -516,6 +569,10 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
         is_openai_compat: dp.is_openai_compat,
         supports_streaming: dp.supports_streaming,
         requires_account_id: dp.requires_account_id,
+        max_rpm: dp.max_rpm,
+        max_tpm: dp.max_tpm,
+        max_daily_requests: dp.max_daily_requests,
+        requires_card: dp.requires_card,
         description: null,
         model_count: 0,
         working_count: 0,
@@ -733,6 +790,33 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     modelHealth = { _note: 'model_health_snapshots table not available' };
   }
 
+  // ── Family lineage coverage (#3) ──
+  let familyCoverage = { total: 0, with_family: 0, without_family: 0, pct: 0, with_base_model_no_family: 0 };
+  try {
+    const { rows: fcRows } = await client.query(`
+      SELECT
+        COUNT(*)::int AS total,
+        COUNT(*) FILTER (WHERE family IS NOT NULL)::int AS with_family,
+        COUNT(*) FILTER (WHERE family IS NULL)::int AS without_family,
+        COUNT(*) FILTER (WHERE family IS NULL AND base_model IS NOT NULL)::int AS with_base_model_no_family
+      FROM super_models sm
+      WHERE EXISTS (
+        SELECT 1 FROM datapoint_models dm
+        WHERE dm.super_model_id = sm.id AND NOT dm.is_removed
+      )
+    `);
+    if (fcRows.length > 0) {
+      const r = fcRows[0];
+      familyCoverage = {
+        total: r.total,
+        with_family: r.with_family,
+        without_family: r.without_family,
+        pct: r.total > 0 ? Math.round((r.with_family / r.total) * 100) : 0,
+        with_base_model_no_family: r.with_base_model_no_family,
+      };
+    }
+  } catch { /* family column may not exist yet */ }
+
   return {
     creators,
     providers,
@@ -767,6 +851,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     _failover_suggestions: failoverSuggestions,
     _key_health: meta._key_health || null,
     _model_health: modelHealth,
+    _family_coverage: familyCoverage,
     provider_health: health,
   };
 }

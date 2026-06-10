@@ -506,6 +506,10 @@ export const useModelsStore = defineStore('models', () => {
   );
 
   const knownIssues = computed(() => data.value?._known_issues?.issues ?? []);
+  const routerOnlyModels = computed(() => data.value?._router_only_models ?? null);
+  const routingGraph = computed(() => data.value?._provider_routing_graph ?? null);
+  const providerTimeline = computed(() => data.value?._provider_timeline ?? null);
+  const familyCoverage = computed(() => data.value?._family_coverage ?? null);
 
   const testSummary = computed(() => data.value?._test_summary ?? null);
   const testSummaryPrevious = computed(() => data.value?._test_summary_previous ?? null);
@@ -632,13 +636,17 @@ export const useModelsStore = defineStore('models', () => {
     const compatMap = new Map(providerRefs.value.map(p => [p.slug, p.is_openai_compat]));
     const streamingMap = new Map(providerRefs.value.map(p => [p.slug, p.supports_streaming]));
     const accountIdMap = new Map(providerRefs.value.map(p => [p.slug, p.requires_account_id]));
+    const maxRpmMap = new Map(providerRefs.value.map(p => [p.slug, p.max_rpm]));
+    const maxTpmMap = new Map(providerRefs.value.map(p => [p.slug, p.max_tpm]));
+    const maxDailyMap = new Map(providerRefs.value.map(p => [p.slug, p.max_daily_requests]));
+    const requiresCardMap = new Map(providerRefs.value.map(p => [p.slug, p.requires_card]));
     const descriptionMap = new Map(providerRefs.value.map(p => [p.slug, p.description]));
-    const map = new Map<string, { working: number; total: number; name: string; slug: string; base_url: string; npm_package: string | null; provider_type: string | null; serves_third_party: boolean | null; hardware: string | null; is_openai_compat: boolean | null; supports_streaming: boolean | null; requires_account_id: boolean | null; description: string | null }>();
+    const map = new Map<string, { working: number; total: number; name: string; slug: string; base_url: string; npm_package: string | null; provider_type: string | null; serves_third_party: boolean | null; hardware: string | null; is_openai_compat: boolean | null; supports_streaming: boolean | null; requires_account_id: boolean | null; max_rpm: number | null; max_tpm: number | null; max_daily_requests: number | null; requires_card: boolean | null; description: string | null }>();
     for (const model of visibleModels.value) {
       for (const dp of model.providers) {
         const slug = dp.provider_slug;
         if (!map.has(slug)) {
-          map.set(slug, { working: 0, total: 0, name: dp.provider, slug, base_url: baseUrlMap.get(slug) || '', npm_package: npmPackageMap.get(slug) || null, provider_type: providerTypeMap.get(slug) || null, serves_third_party: servesThirdPartyMap.get(slug) ?? null, hardware: hardwareMap.get(slug) || null, is_openai_compat: compatMap.get(slug) ?? null, supports_streaming: streamingMap.get(slug) ?? null, requires_account_id: accountIdMap.get(slug) ?? null, description: descriptionMap.get(slug) || null });
+          map.set(slug, { working: 0, total: 0, name: dp.provider, slug, base_url: baseUrlMap.get(slug) || '', npm_package: npmPackageMap.get(slug) || null, provider_type: providerTypeMap.get(slug) || null, serves_third_party: servesThirdPartyMap.get(slug) ?? null, hardware: hardwareMap.get(slug) || null, is_openai_compat: compatMap.get(slug) ?? null, supports_streaming: streamingMap.get(slug) ?? null, requires_account_id: accountIdMap.get(slug) ?? null, max_rpm: maxRpmMap.get(slug) ?? null, max_tpm: maxTpmMap.get(slug) ?? null, max_daily_requests: maxDailyMap.get(slug) ?? null, requires_card: requiresCardMap.get(slug) ?? null, description: descriptionMap.get(slug) || null });
         }
         const entry = map.get(slug)!;
         entry.total++;
@@ -657,6 +665,10 @@ export const useModelsStore = defineStore('models', () => {
       is_openai_compat: e.is_openai_compat,
       supports_streaming: e.supports_streaming,
       requires_account_id: e.requires_account_id,
+      max_rpm: e.max_rpm,
+      max_tpm: e.max_tpm,
+      max_daily_requests: e.max_daily_requests,
+      requires_card: e.requires_card,
       description: e.description,
       model_count: e.total,
       working_count: e.working,
@@ -913,6 +925,10 @@ export const useModelsStore = defineStore('models', () => {
     freeVariantKeys,
     paidVariantKeys,
     knownIssues,
+    routerOnlyModels,
+    routingGraph,
+    providerTimeline,
+    familyCoverage,
     testSummary,
     testSummaryPrevious,
     modelScores,

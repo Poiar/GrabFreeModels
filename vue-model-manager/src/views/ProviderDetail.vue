@@ -58,6 +58,25 @@
         <span class="cd-stat-value cd-stat-flag warn">Non-standard API</span>
         <span class="cd-stat-label">Compatibility</span>
       </div>
+      <!-- Rate limits -->
+      <div class="cd-stat" v-if="provider.max_rpm || provider.max_tpm">
+        <span class="cd-stat-value cd-stat-rate">{{ rateLimitText }}</span>
+        <span class="cd-stat-label">Rate limit</span>
+      </div>
+      <div class="cd-stat" v-if="provider.max_daily_requests">
+        <span class="cd-stat-value cd-stat-rate">{{ provider.max_daily_requests?.toLocaleString() }} req/day</span>
+        <span class="cd-stat-label">Daily quota</span>
+      </div>
+      <!-- Routing info (for routers) -->
+      <div class="cd-stat" v-if="provider.provider_type === 'router' && routerBackends.length > 0">
+        <span class="cd-stat-value cd-stat-routers">{{ routerBackends.length }} backends</span>
+        <span class="cd-stat-label">Routes to</span>
+      </div>
+      <!-- Router-only model count -->
+      <div class="cd-stat" v-if="provider.provider_type === 'router' && store.routerOnlyModels">
+        <span class="cd-stat-value cd-stat-flag warn">{{ routerOnlyForThis }}</span>
+        <span class="cd-stat-label">Exclusive models</span>
+      </div>
     </div>
 
     <!-- Health bar -->
@@ -72,6 +91,26 @@
       <span v-if="counts.rate_limited" class="val-legend rate_limited">{{ counts.rate_limited }} rate limited</span>
       <span v-if="counts.broken" class="val-legend broken">{{ counts.broken }} broken</span>
       <span v-if="counts.untested" class="val-legend untested">{{ counts.untested }} untested</span>
+    </div>
+
+    <!-- Quantization distribution (#7) -->
+    <div v-if="quantEntries.length > 0" class="pd-quant-section">
+      <h3 class="section-title">Quantization</h3>
+      <div class="pd-quant-chips">
+        <span v-for="[format, count] in quantEntries" :key="format" class="pd-quant-chip" :class="quantClass(format)">
+          {{ format }}: <strong>{{ count }}</strong>
+        </span>
+      </div>
+    </div>
+
+    <!-- Failure category breakdown (#8) -->
+    <div v-if="failureEntries.length > 0" class="pd-fail-section">
+      <h3 class="section-title">Failure Reasons</h3>
+      <div class="pd-fail-chips">
+        <span v-for="[cat, count] in failureEntries" :key="cat" class="pd-fail-chip" :class="'fail-' + cat">
+          {{ FAILURE_LABELS[cat] || cat }}: <strong>{{ count }}</strong>
+        </span>
+      </div>
     </div>
 
     <!-- Models grouped by creator -->
@@ -125,6 +164,16 @@ const PROVIDER_TYPE_LABELS: Record<string, string> = {
   discovery: 'Discovery',
 };
 
+const FAILURE_LABELS: Record<string, string> = {
+  timeout: 'Timeout',
+  not_found: 'Not found',
+  auth_error: 'Auth error',
+  rate_limited: 'Rate limited',
+  server_error: 'Server error',
+  network_error: 'Network error',
+  unknown: 'Unknown',
+};
+
 const HARDWARE_LABELS: Record<string, string> = {
   gpu: 'GPU cluster',
   lpu: 'LPU (Groq)',
@@ -143,6 +192,27 @@ const provider = computed(() => store.providerRefs.find((p: { slug: string }) =>
 
 const detailModel = ref<ModelData | null>(null);
 const detailCreator = ref<CreatorData | null>(null);
+const rateLimitText = computed(() => {
+  const p = provider.value;
+  if (!p) return '';
+  const parts: string[] = [];
+  if (p.max_rpm) parts.push(`${p.max_rpm} RPM`);
+  if (p.max_tpm) parts.push(p.max_tpm >= 1000000 ? `${(p.max_tpm / 1000000).toFixed(1)}M TPM` : `${p.max_tpm?.toLocaleString()} TPM`);
+  return parts.join(' / ');
+});
+
+const routerBackends = computed(() => {
+  const g = store.routingGraph;
+  if (!g || !provider.value) return [];
+  return g.routers?.[provider.value.slug] ?? [];
+});
+
+const routerOnlyForThis = computed(() => {
+  const rom = store.routerOnlyModels;
+  if (!rom || !provider.value) return 0;
+  return rom.models.filter(m => m.provider_count >= 1).length;
+});
+
 function openDetail(model: ModelData, creator: CreatorData) {
   detailModel.value = model;
   detailCreator.value = creator;
@@ -194,6 +264,45 @@ const hbFlex = computed(() => {
 const pctWorking = computed(() => {
   const c = counts.value;
   return c.total ? Math.round((c.working / c.total) * 100) : 0;
+});
+
+// ── Quantization distribution (#7) ──
+const quantEntries = computed(() => {
+  const dist = new Map<string, number>();
+  for (const { models } of providerCreators.value) {
+    for (const m of models) {
+      for (const dp of m.providers) {
+        if (dp.provider_slug !== providerSlug.value || dp._removed) continue;
+        const q = dp.quantization || 'unknown';
+        dist.set(q, (dist.get(q) || 0) + 1);
+      }
+    }
+  }
+  return [...dist.entries()].sort((a, b) => b[1] - a[1]);
+});
+
+function quantClass(format: string): string {
+  if (format === 'fp16' || format === 'bf16') return 'qt-full';
+  if (format === 'fp8' || format === 'int8') return 'qt-mid';
+  if (format === 'fp4' || format === 'int4' || format === 'gguf' || format === 'awq' || format === 'gptq' || format === 'bnb') return 'qt-low';
+  if (format === 'unknown') return 'qt-unk';
+  return 'qt-other';
+}
+
+// ── Failure category breakdown (#8) ──
+const failureEntries = computed(() => {
+  const dist = new Map<string, number>();
+  for (const { models } of providerCreators.value) {
+    for (const m of models) {
+      for (const dp of m.providers) {
+        if (dp.provider_slug !== providerSlug.value || dp._removed) continue;
+        if (dp.status.result === 'working' || dp.status.result === 'untested') continue;
+        const cat = dp.failure_category || 'unknown';
+        dist.set(cat, (dist.get(cat) || 0) + 1);
+      }
+    }
+  }
+  return [...dist.entries()].sort((a, b) => b[1] - a[1]);
 });
 </script>
 
@@ -313,6 +422,16 @@ const pctWorking = computed(() => {
   text-transform: uppercase;
 }
 .cd-stat-flag.warn { color: #F59E0B; }
+.cd-stat-rate {
+  font-size: 0.72rem;
+  font-family: monospace;
+  color: var(--text);
+}
+.cd-stat-routers {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #A78BFA;
+}
 
 .cd-validation-bar {
   display: flex;
@@ -364,6 +483,48 @@ const pctWorking = computed(() => {
   color: var(--text-muted);
   font-size: 0.85rem;
 }
+
+/* Quantization chips (#7) */
+.pd-quant-section { margin: 16px 0 8px; }
+.pd-quant-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pd-quant-chip {
+  padding: 3px 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 999px;
+}
+.pd-quant-chip strong { font-family: 'JetBrains Mono', monospace; }
+.pd-quant-chip.qt-full { background: rgba(52,211,153,0.12); color: #34D399; }
+.pd-quant-chip.qt-mid { background: rgba(251,191,36,0.12); color: #FBBF24; }
+.pd-quant-chip.qt-low { background: rgba(239,68,68,0.12); color: #F87171; }
+.pd-quant-chip.qt-unk { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+.pd-quant-chip.qt-other { background: rgba(59,130,246,0.12); color: #60A5FA; }
+
+/* Failure category chips (#8) */
+.pd-fail-section { margin: 16px 0 8px; }
+.pd-fail-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pd-fail-chip {
+  padding: 3px 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 999px;
+}
+.pd-fail-chip strong { font-family: 'JetBrains Mono', monospace; }
+.pd-fail-chip.fail-timeout { background: rgba(251,191,36,0.12); color: #FBBF24; }
+.pd-fail-chip.fail-not_found { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+.pd-fail-chip.fail-auth_error { background: rgba(239,68,68,0.15); color: #F87171; }
+.pd-fail-chip.fail-rate_limited { background: rgba(245,158,11,0.12); color: #F59E0B; }
+.pd-fail-chip.fail-server_error { background: rgba(239,68,68,0.12); color: #EF4444; }
+.pd-fail-chip.fail-network_error { background: rgba(59,130,246,0.12); color: #60A5FA; }
+.pd-fail-chip.fail-unknown { background: rgba(156,163,175,0.12); color: #9CA3AF; }
 
 .pd-creator-group {
   margin-bottom: 20px;

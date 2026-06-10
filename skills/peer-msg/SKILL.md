@@ -7,26 +7,50 @@ description: Send a message to another running Claude Code session. Triggers: "s
 
 Format: `/peer-msg X → Y #N: msg` (new) or `re: N: reply` (reply)
 
-## Steps
+Names are the 8-char UUID from `CLAUDE_CODE_SESSION_ID`. No invented names.
 
-**1. Self** — `~/.claude/scripts/peer-id.ps1` returns `{uuid, name, msgN}`. If `unknown`, auto-identify via `list_tabs` (match your proxy port to the tab whose `node.exe start-proxy.ts` cmdline contains it), then cache: `~/.claude/scripts/peer-id.ps1 <uuid> <first8>`
+## Setup (do this ONCE per session — sending OR receiving)
 
-**2. Target** — `list_tabs`, find tab with `claude.exe`, map name (first 8 chars of UUID) to full UUID.
-
-**3. Send** — `~/.claude/scripts/peer-next.ps1` returns the next msgId. Then send. Always prefix with `/peer-msg`. **submit: true is REQUIRED — never omit it.**
-
+**Step 1** — Self-identify:
 ```
-send_to_tab <uuid> "/peer-msg <you> → <them> #<N>: <msg>"  ← submit MUST be true
+~/.claude/scripts/peer-id.ps1
+```
+Returns `{uuid, name, msgN, port}`. Your `name` is your 8-char UUID.
+
+**Step 2** — Find your tab UUID. Call `list_tabs`. Look for a tab with `claude.exe` whose processes contain your project directory in their cmdline. That tab's full UUID (e.g. `af779d9c-aaf2-459e-bf2c-473479bebf9e`) is yours.
+
+**Step 3** — Register so others can find you:
+```
+~/.claude/scripts/peer-id.ps1 -TabId <your-tab-uuid>
+```
+This writes the session→tab mapping to the shared registry. Every session does this — now everyone can find everyone.
+
+## Sending a message
+
+**1. Look up target's tab** — `~/.claude/scripts/peer-tab.ps1 <their-8char-uuid>` returns their full tab UUID. No guessing.
+
+**2. Get next msgId** — `~/.claude/scripts/peer-next.ps1`
+
+**3. Send** — ALWAYS `mode: paste, submit: true`:
+```
+send_to_tab <target-tab-uuid> "/peer-msg <your-uuid> → <their-uuid> #<N>: <msg>"
 ```
 
-**4. Log** — `$env:USERPROFILE\.claude\scripts\peer-log.ps1 -Dir out -From <you> -To <them> -Msg "<msg>" -MsgId <N>`
+**4. Log** — `~/.claude/scripts/peer-log.ps1 -Dir out -From <your-uuid> -To <their-uuid> -Msg "<msg>" -Type <type> -MsgId <N>`
 
-## Reply flow
+## Receiving a message
 
-If `Y` matches your name → reply. If not → ignore.
+When you see `/peer-msg X → Y` in your prompt:
 
+**1. Check target** — If Y != your UUID, ignore.
+
+**2. Look up sender's tab** — `~/.claude/scripts/peer-tab.ps1 <sender-uuid>` returns their tab UUID.
+
+**3. Get next msgId** — `~/.claude/scripts/peer-next.ps1`
+
+**4. Reply** — ALWAYS `mode: paste, submit: true`:
 ```
-send_to_tab <uuid> "/peer-msg <you> → <them> re: <N>: <reply>"  ← submit MUST be true
+send_to_tab <sender-tab-uuid> "/peer-msg <your-uuid> → <sender-uuid> re: <original-N>: <reply>"
 ```
 
-Log inbound: `$env:USERPROFILE\.claude\scripts\peer-log.ps1 -Dir in -From <them> -To <you> -Msg "<msg>" -MsgId <N>`. Log reply: same as send, with `-Refs <N>`.
+**5. Log** — `~/.claude/scripts/peer-log.ps1 -Dir in -From <sender-uuid> -To <your-uuid> -Msg "<msg>" -Type <type> -MsgId <N>`

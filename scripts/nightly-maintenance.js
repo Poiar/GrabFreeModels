@@ -92,6 +92,8 @@ const STEP_NAMES = [
   'detect-ranking-drift',
   'ranking-sanity-check',
   'check-router-only-models',
+  'build-routing-graph',
+  'build-provider-timeline',
   'sync-paid-models',
   'rank-paid-models',
   'check-paid-rankings',
@@ -106,6 +108,7 @@ const STEP_NAMES = [
 const cliArgs = process.argv.slice(2);
 let targetStep = null;
 let continueAfter = false;
+let dryRun = false;
 for (let i = 0; i < cliArgs.length; i++) {
   if (cliArgs[i] === '--step' && cliArgs[i + 1]) {
     targetStep = cliArgs[++i];
@@ -116,6 +119,10 @@ for (let i = 0; i < cliArgs.length; i++) {
     }
   }
   if (cliArgs[i] === '--continue') continueAfter = true;
+  if (cliArgs[i] === '--dry-run') dryRun = true;
+}
+if (dryRun) {
+  console.log('\n⚠ DRY-RUN MODE — no DB writes, no commits\n');
 }
 
 if (targetStep) {
@@ -491,6 +498,92 @@ let pipelineStart = Date.now();
           console.log(`    ${m.slug} — via ${m.provider_count} provider(s)`);
         }
       }
+      return payload;
+    });
+
+    // 9c. Build provider routing graph (which inference providers each router routes to)
+    console.log('\nBuilding provider routing graph...');
+    await runStep('build-routing-graph', async () => {
+      const { rows: graphRows } = await pool.query(`
+        SELECT
+          dp1.slug AS router_slug,
+          dp2.slug AS backend_slug,
+          dp2.name AS backend_name,
+          dp2.provider_type AS backend_type,
+          count(DISTINCT sm.id) AS shared_models
+        FROM super_models sm
+        JOIN datapoint_models dm1 ON dm1.super_model_id = sm.id
+        JOIN datapoint_providers dp1 ON dp1.id = dm1.datapoint_provider_id
+        JOIN datapoint_models dm2 ON dm2.super_model_id = sm.id
+        JOIN datapoint_providers dp2 ON dp2.id = dm2.datapoint_provider_id
+        WHERE dm1.is_removed = false AND dm2.is_removed = false
+          AND dm1.is_free = true AND dm2.is_free = true
+          AND dp1.provider_type = 'router'
+          AND dp2.provider_type IN ('inference', 'local')
+          AND dp1.slug != dp2.slug
+        GROUP BY dp1.slug, dp2.slug, dp2.name, dp2.provider_type
+        ORDER BY dp1.slug, shared_models DESC
+      `);
+      const routing = {};
+      for (const r of graphRows) {
+        if (!routing[r.router_slug]) routing[r.router_slug] = [];
+        routing[r.router_slug].push({
+          backend: r.backend_slug,
+          name: r.backend_name,
+          type: r.backend_type,
+          shared_models: Number(r.shared_models),
+        });
+      }
+      const payload = {
+        routers: routing,
+        built_at: new Date().toISOString(),
+      };
+      await pool.query(
+        `INSERT INTO metadata (key, value) VALUES ('_provider_routing_graph', $1::jsonb)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+        [JSON.stringify(payload)],
+      );
+      const routerCount = Object.keys(routing).length;
+      console.log(`  Routing graph: ${routerCount} routers mapped (stored in metadata._provider_routing_graph)`);
+      for (const [router, backends] of Object.entries(routing)) {
+        console.log(`    ${router} → ${backends.length} backend(s), ${backends.reduce((s,b) => s + b.shared_models, 0)} shared models`);
+      }
+      return payload;
+    });
+
+    // 9d. Build provider ecosystem timeline (growth over time)
+    console.log('\nBuilding provider ecosystem timeline...');
+    await runStep('build-provider-timeline', async () => {
+      const { rows: timelineRows } = await pool.query(`
+        SELECT created_at::date AS date, slug, name, provider_type
+        FROM datapoint_providers
+        ORDER BY created_at
+      `);
+      const byDate = {};
+      for (const r of timelineRows) {
+        const d = r.date instanceof Date ? r.date.toISOString().slice(0, 10) : String(r.date).slice(0, 10);
+        if (!byDate[d]) byDate[d] = [];
+        byDate[d].push({ slug: r.slug, name: r.name, type: r.provider_type });
+      }
+      // Build cumulative counts
+      const entries = Object.entries(byDate).sort(([a], [b]) => a.localeCompare(b));
+      let cumulative = 0;
+      const timeline = entries.map(([date, providers]) => {
+        const addedCount = Array.isArray(providers) ? providers.length : 0;
+        cumulative += addedCount;
+        return { date, added: providers, cumulative };
+      });
+      const payload = {
+        timeline,
+        total: cumulative,
+        built_at: new Date().toISOString(),
+      };
+      await pool.query(
+        `INSERT INTO metadata (key, value) VALUES ('_provider_timeline', $1::jsonb)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+        [JSON.stringify(payload)],
+      );
+      console.log(`  Timeline: ${entries.length} dates, ${cumulative} total providers (stored in metadata._provider_timeline)`);
       return payload;
     });
 

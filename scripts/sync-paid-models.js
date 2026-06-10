@@ -289,14 +289,30 @@ async function main() {
     for (const m of paidModels) {
       const superSlug = normalizeModelSlug(m.name);
 
-      // Upsert super model
-      const { rows: mmRows } = await client.query(
-        `INSERT INTO super_models (name, slug) VALUES ($1, $2)
-         ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
-         RETURNING id`,
-        [m.name, superSlug],
+      // Upsert super model — handle both slug and name uniqueness
+      let superId;
+      const { rows: bySlug } = await client.query(
+        'SELECT id FROM super_models WHERE slug = $1', [superSlug],
       );
-      const superId = mmRows[0].id;
+      if (bySlug.length > 0) {
+        superId = bySlug[0].id;
+        // Update name if the slug match exists
+        await client.query('UPDATE super_models SET name = $1 WHERE id = $2', [m.name, superId]);
+      } else {
+        const { rows: byName } = await client.query(
+          'SELECT id FROM super_models WHERE name = $1', [m.name],
+        );
+        if (byName.length > 0) {
+          // Name already exists under a different slug — reuse it (same underlying model)
+          superId = byName[0].id;
+        } else {
+          const { rows: mmRows } = await client.query(
+            'INSERT INTO super_models (name, slug) VALUES ($1, $2) RETURNING id',
+            [m.name, superSlug],
+          );
+          superId = mmRows[0].id;
+        }
+      }
 
       const modelInstanceKey = m.id.replace('openrouter/', '');
       const existing = existingMap.get(m.id);
