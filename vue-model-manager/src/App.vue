@@ -435,7 +435,7 @@
         <button class="refresh-btn" @click="store.loadData()">Retry</button>
       </div>
       <router-view v-else v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
+        <transition name="fade">
           <component :is="Component" />
         </transition>
       </router-view>
