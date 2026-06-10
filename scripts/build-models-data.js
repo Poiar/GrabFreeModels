@@ -12,6 +12,7 @@
 
 async function buildModelsData(client, pool, options = {}) {
   const { isFree = true } = options;
+  const REG = require('../data/canonical-creators.json');
 
   const { rows: metadataRows } = await client.query(
     'SELECT key, value::text FROM metadata ORDER BY key',
@@ -128,45 +129,10 @@ async function buildModelsData(client, pool, options = {}) {
 
   // Known model slug → creator, for models with no explicit creator set.
   // Exact matches first, then prefix-based matches for model families.
-  const CREATOR_BY_SLUG = new Map([
-    // OpenRouter native models & routers (id = openrouter/*)
-    ['owl-alpha', 'OpenRouter'],
-    ['bodybuilder', 'OpenRouter'],
-    ['pareto-code', 'OpenRouter'],
-    ['spotlight', 'OpenRouter'],
-    // Arcee AI models (id = arcee-ai/*, but stored without org prefix)
-    ['coder-large', 'Arcee AI'],
-    ['virtuoso-large', 'Arcee AI'],
-    // LLMGateway routers
-    ['auto-route', 'LLMGateway'],
-    ['custom-model', 'LLMGateway'],
-    // NovitaAI test models
-    ['ai-infer-test-1', 'Novita AI'],
-    ['ai-infer-test-2', 'Novita AI'],
-    ['ai-infer-test-3', 'Novita AI'],
-    // OpenRouter routing services (not real models — creator N/A)
-    ['free-models-router', 'N/A'],
-    // Miscellaneous
-    ['maestro-reasoning', 'Aion Labs'],
-    ['elephant', 'Unidentifiable'],
-    ['gt-4p', 'Unidentifiable'],
-  ]);
-  const CREATOR_BY_PREFIX = [
-    ['qwq', 'Alibaba'],
-    ['tongyi', 'Alibaba'],
-    ['qianfan', 'Baidu'],
-    ['sonar', 'Perplexity'],
-    ['sqlcoder', 'Defog'],
-    ['allam', 'SDAIA'],
-    ['ui-tars', 'ByteDance'],
-    ['intellect', 'Prime Intellect'],
-    ['bunny', 'BAAI'],
-    ['gpt-oss', 'OpenAI'],
-  ];
-  // Known base model + derivation method for specific slugs
-  const DERIVATION_BY_SLUG = new Map([
-    ['coder-large', { base_model: 'qwen-2.5-instruct', derivation_method: 'finetune' }],
-  ]);
+  // Sources: data/canonical-creators.json → creatorBySlug / creatorByPrefix / derivationBySlug
+  const CREATOR_BY_SLUG = new Map(Object.entries(REG.creatorBySlug));
+  const CREATOR_BY_PREFIX = REG.creatorByPrefix;
+  const DERIVATION_BY_SLUG = new Map(Object.entries(REG.derivationBySlug));
 
   // Fallback: infer creator from model name when super_models.creator is NULL
   function inferCreatorFromName(name) {
@@ -277,169 +243,12 @@ async function buildModelsData(client, pool, options = {}) {
 
   // ── Hierarchy building: creators → models → providers ──
 
-  const AUTHOR_OVERRIDES = {
-    // Major AI labs — canonical forms
-    'google llc': { id: 'google', name: 'Google' },
-    google: { id: 'google', name: 'Google' },
-    'meta platforms, inc.': { id: 'meta', name: 'Meta' },
-    'meta platforms inc.': { id: 'meta', name: 'Meta' },
-    meta: { id: 'meta', name: 'Meta' },
-    'meta-llama': { id: 'meta', name: 'Meta' },
-    anthropic: { id: 'anthropic', name: 'Anthropic' },
-    'anthropic, pbc': { id: 'anthropic', name: 'Anthropic' },
-    openai: { id: 'openai', name: 'OpenAI' },
-    'openai, llc.': { id: 'openai', name: 'OpenAI' },
-    'mistral ai': { id: 'mistral', name: 'Mistral AI' },
-    'mistral ai, pbc': { id: 'mistral', name: 'Mistral AI' },
-    mistral: { id: 'mistral', name: 'Mistral AI' },
-    mistralai: { id: 'mistral', name: 'Mistral AI' },
-    deepseek: { id: 'deepseek', name: 'DeepSeek' },
-    'deepseek-ai': { id: 'deepseek', name: 'DeepSeek' },
-    'alibaba group': { id: 'alibaba', name: 'Alibaba' },
-    'alibaba cloud': { id: 'alibaba', name: 'Alibaba' },
-    alibaba: { id: 'alibaba', name: 'Alibaba' },
-    nvidia: { id: 'nvidia', name: 'NVIDIA' },
-    'nvidia corporation': { id: 'nvidia', name: 'NVIDIA' },
-    cohere: { id: 'cohere', name: 'Cohere' },
-    'cohere inc.': { id: 'cohere', name: 'Cohere' },
-    microsoft: { id: 'microsoft', name: 'Microsoft' },
-    'microsoft corporation': { id: 'microsoft', name: 'Microsoft' },
-    xai: { id: 'xai', name: 'xAI' },
-    'xai corp': { id: 'xai', name: 'xAI' },
-    'x-ai': { id: 'xai', name: 'xAI' },
-    'zhipu ai': { id: 'zhipu', name: 'Zhipu AI' },
-    '01-ai': { id: '01-ai', name: '01.AI' },
-    minimax: { id: 'minimax', name: 'MiniMax' },
-    'minimax group': { id: 'minimax', name: 'MiniMax' },
-    'minimax ai': { id: 'minimax', name: 'MiniMax' },
-    'moonshot ai': { id: 'moonshot', name: 'Moonshot AI' },
-    moonshotai: { id: 'moonshot', name: 'Moonshot AI' },
-    stepfun: { id: 'stepfun', name: 'StepFun' },
-    bytedance: { id: 'bytedance', name: 'ByteDance' },
-    tencent: { id: 'tencent', name: 'Tencent' },
-    'tencent cloud': { id: 'tencent', name: 'Tencent' },
-    baidu: { id: 'baidu', name: 'Baidu' },
-    'inflection ai': { id: 'inflection', name: 'Inflection' },
-    'stability ai': { id: 'stability', name: 'Stability AI' },
-    stabilityai: { id: 'stability', name: 'Stability AI' },
-    eleutherai: { id: 'eleutherai', name: 'EleutherAI' },
-    qwq: { id: 'alibaba', name: 'Alibaba' },
-    qwen: { id: 'alibaba', name: 'Alibaba' },
-    'alibaba tongyi lab': { id: 'alibaba', name: 'Alibaba' },
-    // Additional aliases
-    'ai21 labs': { id: 'ai21', name: 'AI21 Labs' },
-    ai21labs: { id: 'ai21', name: 'AI21 Labs' },
-    'ibm-granite': { id: 'ibm', name: 'IBM' },
-    ibm: { id: 'ibm', name: 'IBM' },
-    tii: { id: 'tii', name: 'TII' },
-    tiiuae: { id: 'tii', name: 'TII' },
-    bigcode: { id: 'bigcode', name: 'BigCode' },
-    'big code': { id: 'bigcode', name: 'BigCode' },
-    'rhymes ai': { id: 'rhymes', name: 'Rhymes AI' },
-    apple: { id: 'apple', name: 'Apple' },
-    databricks: { id: 'databricks', name: 'Databricks' },
-    'h2o.ai': { id: 'h2o', name: 'H2O.ai' },
-    h2oai: { id: 'h2o', name: 'H2O.ai' },
-    upstage: { id: 'upstage', name: 'Upstage' },
-    writer: { id: 'writer', name: 'Writer' },
-    yandex: { id: 'yandex', name: 'Yandex' },
-    sberbank: { id: 'sber', name: 'Sber' },
-    'together ai': { id: 'together', name: 'Together AI' },
-    togethercomputer: { id: 'together', name: 'Together AI' },
-    siliconflow: { id: 'siliconflow', name: 'SiliconFlow' },
-    'siliconflow-cn': { id: 'siliconflow', name: 'SiliconFlow' },
-    'z.ai': { id: 'zhipu', name: 'Zhipu AI' },
-    'z ai': { id: 'zhipu', name: 'Zhipu AI' },
-    'z-ai': { id: 'zhipu', name: 'Zhipu AI' },
-    'zai-org': { id: 'zhipu', name: 'Zhipu AI' },
-    'hugging face': { id: 'huggingface', name: 'Hugging Face' },
-    huggingface: { id: 'huggingface', name: 'Hugging Face' },
-    'arcee ai': { id: 'arcee', name: 'Arcee AI' },
-    allenai: { id: 'ai2', name: 'AI2' },
-    ai2: { id: 'ai2', name: 'AI2' },
-    amazon: { id: 'amazon', name: 'Amazon' },
-    intel: { id: 'intel', name: 'Intel' },
-    samsung: { id: 'samsung', name: 'Samsung' },
-    oracle: { id: 'oracle', name: 'Oracle' },
-    salesforce: { id: 'salesforce', name: 'Salesforce' },
-    sambanova: { id: 'sambanova', name: 'SambaNova' },
-    perplexity: { id: 'perplexity', name: 'Perplexity' },
-    perceptron: { id: 'perceptron', name: 'Perceptron' },
-    'inclusion ai': { id: 'inclusion', name: 'Inclusion AI' },
-    inclusionai: { id: 'inclusion', name: 'Inclusion AI' },
-    'inception ai': { id: 'inception', name: 'Inception AI' },
-    'liquid ai': { id: 'liquid', name: 'Liquid AI' },
-    'essential ai': { id: 'essential', name: 'Essential AI' },
-    'deep cogito': { id: 'deepcogito', name: 'Deep Cogito' },
-    'nous research': { id: 'nous', name: 'Nous Research' },
-    'prime intellect': { id: 'primeintellect', name: 'Prime Intellect' },
-    'nex agi': { id: 'nexagi', name: 'Nex AGI' },
-    'aion labs': { id: 'aion', name: 'Aion Labs' },
-    poolside: { id: 'poolside', name: 'Poolside' },
-    kwaipilot: { id: 'kwaipilot', name: 'Kwaipilot' },
-    'kwai pilot': { id: 'kwaipilot', name: 'Kwaipilot' },
-    morph: { id: 'morph', name: 'Morph' },
-    relace: { id: 'relace', name: 'Relace' },
-    mancer: { id: 'mancer', name: 'Mancer' },
-    sao10k: { id: 'sao10k', name: 'Sao10K' },
-    thedrummer: { id: 'thedrummer', name: 'TheDrummer' },
-    'the drummer': { id: 'thedrummer', name: 'TheDrummer' },
-    xiaomi: { id: 'xiaomi', name: 'Xiaomi' },
-    'xiaomi mimo': { id: 'xiaomi', name: 'Xiaomi' },
-    'deci ai': { id: 'deci', name: 'Deci AI' },
-    kyutai: { id: 'kyutai', name: 'Kyutai' },
-    // opencode is a router/proxy, not a model creator
-    'lg ai': { id: 'lg', name: 'LG AI' },
-    deepgram: { id: 'deepgram', name: 'Deepgram' },
-    viivox: { id: 'viivox', name: 'ViiVox' },
-    // Provider-as-creator misattributions + casing fixes
-    'github models': { id: 'cohere', name: 'Cohere' },
-    'fun audio llm': { id: 'alibaba', name: 'Alibaba' },
-    fishaudio: { id: 'fishaudio', name: 'FishAudio' },
-    openchat: { id: 'openchat', name: 'OpenChat' },
-    // Alibaba namespace artifacts
-    thenlper: { id: 'alibaba', name: 'Alibaba' },
-    nlper: { id: 'alibaba', name: 'Alibaba' },
-    'tongyi mai': { id: 'alibaba', name: 'Alibaba' },
-    rokid: { id: 'rokid', name: 'Rokid' },
-    corwealth: { id: 'corwealth', name: 'CorWealth' },
-    // Additional fine-tuner orgs
-    abacusai: { id: 'abacus-ai', name: 'Abacus AI' },
-    teknium: { id: 'teknium', name: 'Teknium' },
-    openbmb: { id: 'openbmb', name: 'OpenBMB' },
-    internlm: { id: 'internlm', name: 'InternLM' },
-    // Canonicalize spelling + placeholder
-    unidentifyable: { id: 'unidentifiable', name: 'Unidentifiable' },
-    unidentifiable: { id: 'unidentifiable', name: 'Unidentifiable' },
-    novitaai: { id: 'novita-ai', name: 'Novita AI' },
-    'novita ai': { id: 'novita-ai', name: 'Novita AI' },
-    'n/a': { id: 'na', name: 'N/A' },
-  };
+  const AUTHOR_OVERRIDES = REG.authorOverrides;
 
 // ── Known user creators (individuals / personal accounts — not companies, labs, or research orgs) ──
 // These supplement the automatic HF-only detection below.
-// Free: gryphe, sao10k, shibing624, openchat, devstral
-// Paid: mancer, rnj, thedrummer, undi95, anthracite, perceptron
-const KNOWN_USER_CREATOR_IDS = new Set([
-  'anthracite',   // Anthracite — individual (Magnum fine-tunes)
-  'devstral',     // Devstral — individual fine-tuner (devstral-small)
-  'gryphe',       // Gryphe — individual (MythoMax)
-  'mancer',       // Mancer — individual fine-tuner (Weaver)
-  'openchat',     // OpenChat — community project (openchat-7b)
-  'perceptron',   // Perceptron — individual (Perceptron Mk1)
-  'rnj',          // RNJ — individual fine-tuner
-  'sao10k',       // Sao10K — individual fine-tuner (Eros, Stheno)
-  'shibing624',   // Shibing624 — individual fine-tuner (text2vec)
-  'thedrummer',   // TheDrummer — individual fine-tuner (Rocinante, Cydonia)
-  'undi95',       // Undi95 — individual fine-tuner (ReMM SLERP)
-]);
-
-// ── Other / placeholder creators (not real labs or users — routers, unknown, N/A) ──
-const OTHER_CREATOR_IDS = new Set([
-  'na',
-  'unidentifiable',
-  'unknown',
-]);
+const KNOWN_USER_CREATOR_IDS = new Set(REG.knownUserCreatorIds);
+const OTHER_CREATOR_IDS = new Set(REG.otherCreatorIds);
 
 // ── Classify creator type from provider distribution ──
 // Other → placeholder/unknown. HuggingFace-only → user. KNOWN_USER set → user.
@@ -451,12 +260,13 @@ function classifyCreatorType(creatorId, providerSlugs) {
   return 'lab';
 }
 
-// ── Derive creator role from model derivation methods ──
-// "Fine-tuner" if the majority of models are derivatives; "Model creator" otherwise.
+// ── Derive creator role ──
+// "Fine-tuner" if the majority of models are derivatives (have derivation_method
+// or base_model set); "Model creator" otherwise.
 function deriveCreatorRole(models) {
   let derivativeCount = 0;
   for (const model of models) {
-    if (model.derivation_method) derivativeCount++;
+    if (model.derivation_method || model.base_model) derivativeCount++;
   }
   if (derivativeCount > 0 && derivativeCount >= models.length * 0.5) return 'Fine-tuner';
   return 'Model creator';
@@ -478,20 +288,20 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
   function slugifyCreator(raw) {
     if (!raw) {
       console.warn('build-models-data: null/undefined creator — mapping to "unknown"');
-      return { id: 'unknown', name: 'Unknown' };
+      return { id: 'unknown', name: 'Unknown', _canonical: true };
     }
     const trimmed = raw.trim();
     const lowered = trimmed.toLowerCase();
     // Try exact match first, then normalized match
     const normalized = normalizeCreatorName(trimmed);
-    if (AUTHOR_OVERRIDES[lowered]) return AUTHOR_OVERRIDES[lowered];
-    if (AUTHOR_OVERRIDES[normalized]) return AUTHOR_OVERRIDES[normalized];
+    const override = AUTHOR_OVERRIDES[lowered] || AUTHOR_OVERRIDES[normalized];
+    if (override) return { ...override, _canonical: true };
     const cleaned = lowered.replace(LEGAL_SUFFIX_RE, '').trim();
     const slug = cleaned.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     if (!slug || slug === 'unknown') {
       console.warn(`build-models-data: creator "${trimmed}" mapped to "unknown" — add to AUTHOR_OVERRIDES or CREATOR_BY_PREFIX`);
     }
-    return { id: slug || 'unknown', name: trimmed };
+    return { id: slug || 'unknown', name: trimmed, _canonical: false };
   }
 
   // Group by creator → super_model → providers
@@ -509,13 +319,19 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
       creatorMap.set(creatorId, {
         id: creatorId,
         name: creatorInfo.name,
+        _nameIsCanonical: creatorInfo._canonical || false,
         modelMap: new Map(),
       });
     }
     const creator = creatorMap.get(creatorId);
 
-    // Update creator name if we find a better (longer/more canonical) one
-    if (creatorInfo.name.length > creator.name.length) {
+    // Prefer canonical (override) names unconditionally; for non-override names,
+    // prefer longer variants as a tiebreaker. Never let a raw name overwrite a
+    // canonical one that was set earlier.
+    if (creatorInfo._canonical) {
+      creator.name = creatorInfo.name;
+      creator._nameIsCanonical = true;
+    } else if (!creator._nameIsCanonical && creatorInfo.name.length > creator.name.length) {
       creator.name = creatorInfo.name;
     }
 

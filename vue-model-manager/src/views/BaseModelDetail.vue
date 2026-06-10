@@ -81,7 +81,7 @@ const derivativeCount = computed(() => new Set(derivatives.value.map((d) => d.cr
 
 function isDerivative(creatorId: string): boolean {
   const c = store.creators.find((cr) => cr.id === creatorId);
-  return c ? c.models.some((m) => m.base_creator && m.base_creator !== m.creator) : false;
+  return c ? c.models.some((m) => m.base_model && m.base_model !== m.slug) : false;
 }
 
 const detailModel = ref<ModelData | null>(null);

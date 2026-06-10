@@ -94,6 +94,8 @@ export interface ModelData {
 export interface CreatorData {
   id: string;
   name: string;
+  type: 'lab' | 'user' | 'other';
+  role: 'Fine-tuner' | 'Model creator';
   model_count: number;
   provider_count: number;
   models: ModelData[];

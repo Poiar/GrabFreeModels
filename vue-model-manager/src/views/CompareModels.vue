@@ -77,17 +77,17 @@
           <line v-for="(_a, i) in radarAxes" :key="'al'+i" :x1="200" :y1="200" :x2="200 + Math.cos(radarAngle(i) - Math.PI/2) * 180" :y2="200 + Math.sin(radarAngle(i) - Math.PI/2) * 180" stroke="var(--viz-gridline, rgba(255,255,255,0.06))" stroke-width="1" />
           <text v-for="(axis, i) in radarAxes" :key="'albl'+i" :x="200 + Math.cos(radarAngle(i) - Math.PI/2) * 200" :y="200 + Math.sin(radarAngle(i) - Math.PI/2) * 200" text-anchor="middle" dominant-baseline="central" fill="var(--text-dim)" font-size="8" font-family="Inter, sans-serif" font-weight="600">{{ axis.label }}</text>
           <!-- Left model -->
-          <polygon v-if="leftRadarPoints" :points="leftRadarPoints" fill="#6380f7" fill-opacity="0.12" stroke="#6380f7" stroke-width="1.5" />
+          <polygon v-if="leftRadarPoints" :points="leftRadarPoints" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-width="1.5" />
           <!-- Right model -->
-          <polygon v-if="rightRadarPoints" :points="rightRadarPoints" fill="#34d399" fill-opacity="0.12" stroke="#34d399" stroke-width="1.5" />
+          <polygon v-if="rightRadarPoints" :points="rightRadarPoints" fill="var(--green)" fill-opacity="0.12" stroke="var(--green)" stroke-width="1.5" />
           <!-- Dots for left -->
-          <circle v-for="(pt, i) in leftRadarCoords" :key="'lpt'+i" :cx="pt.x" :cy="pt.y" r="3" fill="#6380f7" />
+          <circle v-for="(pt, i) in leftRadarCoords" :key="'lpt'+i" :cx="pt.x" :cy="pt.y" r="3" fill="var(--accent)" />
           <!-- Dots for right -->
-          <circle v-for="(pt, i) in rightRadarCoords" :key="'rpt'+i" :cx="pt.x" :cy="pt.y" r="3" fill="#34d399" />
+          <circle v-for="(pt, i) in rightRadarCoords" :key="'rpt'+i" :cx="pt.x" :cy="pt.y" r="3" fill="var(--green)" />
         </svg>
         <div class="cm-radar-legend">
-          <span class="cm-legend-item"><span class="legend-dot" style="background:#6380f7"></span>{{ leftModel.name }}</span>
-          <span class="cm-legend-item"><span class="legend-dot" style="background:#34d399"></span>{{ rightModel.name }}</span>
+          <span class="cm-legend-item"><span class="legend-dot" style="background:var(--accent)"></span>{{ leftModel.name }}</span>
+          <span class="cm-legend-item"><span class="legend-dot" style="background:var(--green)"></span>{{ rightModel.name }}</span>
         </div>
       </div>
 

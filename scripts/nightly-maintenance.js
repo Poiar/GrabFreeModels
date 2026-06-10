@@ -79,6 +79,7 @@ function loadFromDb() {
 const STEP_NAMES = [
   'snapshot-prev-state',
   'validate',
+  'check-creator-consistency',
   'check-health-degradation',
   'inherit-families',
   'backfill-family-by-name',
@@ -241,7 +242,17 @@ let pipelineStart = Date.now();
       }
     });
 
-    // 1c. Check for degradation (latency spikes, failure rate jumps)
+    // 1c. Check for creator name splits (e.g., same display name under two creator IDs)
+    await runStep('check-creator-consistency', async () => {
+      try {
+        execSync('node scripts/check-creator-consistency.js --json', { stdio: 'inherit' });
+      } catch (e) {
+        // Don't fail the pipeline — consistency issues are surfaced as warnings
+        console.log(`  Creator consistency check found issues: ${e.message}`);
+      }
+    });
+
+    // 1d. Check for degradation (latency spikes, failure rate jumps)
     await runStep('check-degradation', async () => {
       try {
         execSync('node scripts/check-degradation.js', { stdio: 'inherit' });

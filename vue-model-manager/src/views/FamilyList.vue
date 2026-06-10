@@ -6,6 +6,12 @@
     </div>
 
     <div class="fc-controls">
+      <input
+        v-model="searchQuery"
+        type="text"
+        class="search-input"
+        placeholder="Search families..."
+      />
       <select v-model="sortBy" class="sort-select">
         <option value="creator">Sort: Creator</option>
         <option value="family">Sort: Family</option>
@@ -50,11 +56,21 @@ import type { FamilyData } from '@/types';
 
 const store = useModelsStore();
 
+const searchQuery = ref('');
 const sortBy = ref<'creator' | 'family'>('creator');
 const sortAsc = ref(true);
 
+const filteredFamilies = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase();
+  if (!q) return store.visibleFamilies;
+  return store.visibleFamilies.filter((f) =>
+    f.name.toLowerCase().includes(q) ||
+    creatorName(f).toLowerCase().includes(q),
+  );
+});
+
 const sortedFamilies = computed(() => {
-  const list = [...store.visibleFamilies];
+  const list = [...filteredFamilies.value];
   list.sort((a, b) => {
     let ca = creatorName(a);
     let cb = creatorName(b);
@@ -123,6 +139,24 @@ function formatFamilyName(raw: string): string {
   display: flex;
   gap: 8px;
   margin-top: 16px;
+  flex-wrap: wrap;
+}
+.search-input {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: inherit;
+  min-width: 200px;
+  flex: 1;
+  max-width: 320px;
+}
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 .sort-select {
   font-size: 0.72rem;

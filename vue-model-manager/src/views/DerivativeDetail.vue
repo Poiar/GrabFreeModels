@@ -114,10 +114,10 @@
       >{{ f }}</router-link>
     </div>
 
-    <!-- Models grouped by base creator -->
+    <!-- Models grouped by base model -->
     <h3 class="section-title">Models</h3>
-    <div v-for="[base, models] in modelsByBaseCreator" :key="base" class="dd-group">
-      <h4 class="dd-group-title">{{ base === 'Original models' ? base : `Builds on ${base}` }}</h4>
+    <div v-for="[base, models] in modelsByBaseModel" :key="base" class="dd-group">
+      <h4 class="dd-group-title">{{ base === 'Original models' ? base : `Derived from ${base}` }}</h4>
       <div class="cd-models">
         <SuperModelCard
           v-for="model in models"
@@ -172,29 +172,43 @@ function formatContext(ctx: number | null): string {
 
 const baseCreatorList = computed(() => {
   if (!creator.value) return [];
-  const bases = new Set<string>();
+  const bases = new Map<string, string>(); // name → slug
   for (const m of creator.value.models) {
-    if (m.base_creator && m.base_creator !== m.creator) bases.add(m.base_creator);
+    if (!m.base_model) continue;
+    const parent = store.modelBySlug.get(m.base_model);
+    if (parent && parent.creator && parent.creator !== creator.value!.name) {
+      bases.set(parent.creator, parent.creator.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
+    }
   }
-  return [...bases].sort();
+  return [...bases.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 });
 
 function getBaseCreatorSlug(name: string): string {
-  const c = store.creators.find((cr) => cr.name === name);
-  return c?.id || name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const entry = baseCreatorList.value.find(([n]) => n === name);
+  if (entry) return entry[1];
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 }
 
-const modelsByBaseCreator = computed(() => {
+function resolveBaseModelName(baseSlug: string): string {
+  const parent = store.modelBySlug.get(baseSlug);
+  if (parent) return parent.name;
+  // Fallback: format the slug as a readable name
+  return baseSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
+const modelsByBaseModel = computed(() => {
   if (!creator.value) return [];
   const groups: Record<string, ModelData[]> = {};
   for (const model of creator.value.models) {
-    const base = model.base_creator && model.base_creator !== model.creator
-      ? model.base_creator
-      : 'Original models';
-    if (!groups[base]) groups[base] = [];
+    let base: string;
+    if (model.base_model) {
+      base = resolveBaseModelName(model.base_model);
+    } else {
+      base = 'Original models';
+    }
     groups[base].push(model);
   }
-  // Sort: base creators with most models first, "Original models" last
+  // Sort: base models with most derivatives first, "Original models" last
   return Object.entries(groups).sort((a, b) => {
     if (a[0] === 'Original models') return 1;
     if (b[0] === 'Original models') return -1;

@@ -6,6 +6,12 @@
     </div>
 
     <div class="cc-controls">
+      <input
+        v-model="searchQuery"
+        type="text"
+        class="search-input"
+        placeholder="Search creators or families..."
+      />
       <select v-model="sortBy" class="sort-select">
         <option value="name">Sort: Name</option>
         <option value="models">Sort: Models</option>
@@ -13,6 +19,26 @@
         <option value="country">Sort: Country</option>
       </select>
       <button class="sort-dir-btn" @click="sortAsc = !sortAsc" :title="sortAsc ? 'Ascending' : 'Descending'">{{ sortAsc ? '↑' : '↓' }}</button>
+    </div>
+
+    <div v-if="familyChips.length > 1" class="cc-chip-filters">
+      <button
+        v-for="f in familyChips"
+        :key="f"
+        class="cc-chip-btn"
+        :class="{ active: selectedFamily === f }"
+        @click="selectedFamily = selectedFamily === f ? 'All' : f"
+      >{{ f === 'All' ? `All (${derivatives.length})` : `${f} (${familyCount(f)})` }}</button>
+    </div>
+
+    <div v-if="derivMethodChips.length > 1" class="cc-chip-filters">
+      <button
+        v-for="m in derivMethodChips"
+        :key="m.key"
+        class="cc-chip-btn"
+        :class="{ active: selectedMethod === m.key }"
+        @click="selectedMethod = selectedMethod === m.key ? 'All' : m.key"
+      >{{ m.key === 'All' ? `All (${derivatives.length})` : `${m.label} (${m.count})` }}</button>
     </div>
 
     <div class="cc-continent-filters">
@@ -89,20 +115,65 @@ import { getCountryForCreator, CONTINENTS } from '@/data/creator-countries';
 import type { CreatorData } from '@/types';
 const store = useModelsStore();
 
+const searchQuery = ref('');
 const sortBy = ref<'name' | 'models' | 'providers' | 'country'>('models');
 const sortAsc = ref(false);
 const selectedContinent = ref('All');
+const selectedFamily = ref('All');
+const selectedMethod = ref('All');
 
 const derivatives = computed(() =>
   store.creators.filter((c) =>
     c.models.some((m) => {
-      // Has explicit derivation metadata from HF → definitely a derivative
+      // Has explicit derivation metadata → definitely a derivative
       if (m.derivation_method && m.derivation_method !== 'foundation') return true;
-      // Fallback: heuristic base_creator different from creator
-      return m.base_creator && m.base_creator !== m.creator;
+      // Has a known base model different from self
+      return m.base_model && m.base_model !== m.slug;
     }),
   ),
 );
+
+// ── Family chips ──
+const familyChips = computed(() => {
+  const counts = new Map<string, number>();
+  for (const c of derivatives.value) {
+    for (const m of c.models) {
+      if (m.family) counts.set(m.family, (counts.get(m.family) || 0) + 1);
+    }
+  }
+  return ['All', ...[...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([f]) => f)];
+});
+
+function familyCount(family: string): number {
+  let count = 0;
+  for (const c of derivatives.value) {
+    if (c.models.some((m) => m.family === family)) count++;
+  }
+  return count;
+}
+
+// ── Derivation method chips ──
+const DERIV_LABELS: Record<string, string> = {
+  finetune: 'FT', merge: 'Merge', distillation: 'Distill', dpo: 'DPO',
+  continued_pretraining: 'CPT', lora_adapter: 'LoRA',
+};
+
+const derivMethodChips = computed(() => {
+  const counts: Record<string, number> = {};
+  for (const c of derivatives.value) {
+    for (const m of c.models) {
+      const method = m.derivation_method || 'unknown';
+      counts[method] = (counts[method] || 0) + 1;
+    }
+  }
+  const chips = [{ key: 'All', label: 'All', count: derivatives.value.length }];
+  for (const [method, count] of Object.entries(counts).sort((a, b) => b[1] - a[1])) {
+    chips.push({ key: method, label: DERIV_LABELS[method] || 'Other', count });
+  }
+  return chips;
+});
 
 function continentCount(continent: string): number {
   let count = 0;
@@ -113,10 +184,35 @@ function continentCount(continent: string): number {
 }
 
 const filteredCreators = computed(() => {
-  if (selectedContinent.value === 'All') return derivatives.value;
-  return derivatives.value.filter(
-    (c) => getCountryForCreator(c.id).continent === selectedContinent.value,
-  );
+  let list = derivatives.value;
+
+  // Search
+  const q = searchQuery.value.trim().toLowerCase();
+  if (q) {
+    list = list.filter((c) => {
+      if (c.name.toLowerCase().includes(q)) return true;
+      if (c.models.some((m) => m.family?.toLowerCase().includes(q))) return true;
+      return false;
+    });
+  }
+
+  // Continent
+  if (selectedContinent.value !== 'All') {
+    list = list.filter((c) => getCountryForCreator(c.id).continent === selectedContinent.value);
+  }
+
+  // Family
+  if (selectedFamily.value !== 'All') {
+    list = list.filter((c) => c.models.some((m) => m.family === selectedFamily.value));
+  }
+
+  // Derivation method
+  if (selectedMethod.value !== 'All') {
+    list = list.filter((c) => c.models.some((m) =>
+      (m.derivation_method || 'unknown') === selectedMethod.value));
+  }
+
+  return list;
 });
 
 const sortedCreators = computed(() => {
@@ -155,8 +251,10 @@ function getFamilies(creator: CreatorData): string[] {
 function getBaseCreators(creator: CreatorData): string[] {
   const bases = new Set<string>();
   for (const m of creator.models) {
-    if (m.base_creator && m.base_creator !== m.creator) {
-      bases.add(m.base_creator);
+    if (!m.base_model || m.base_model === m.slug) continue;
+    const parent = store.modelBySlug.get(m.base_model);
+    if (parent && parent.creator && parent.creator !== creator.name) {
+      bases.add(parent.creator);
     }
   }
   return [...bases].sort();
@@ -229,6 +327,24 @@ function getCountryNameForStyle(_id: string): string {
   display: flex;
   gap: 8px;
   margin-top: 16px;
+  flex-wrap: wrap;
+}
+.search-input {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: inherit;
+  min-width: 200px;
+  flex: 1;
+  max-width: 320px;
+}
+.search-input::placeholder { color: var(--text-dim); }
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 .sort-select {
   font-size: 0.72rem;
@@ -258,6 +374,34 @@ function getCountryNameForStyle(_id: string): string {
 .sort-dir-btn:hover {
   color: var(--text);
   border-color: var(--text-dim);
+}
+
+.cc-chip-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.cc-chip-btn {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+.cc-chip-btn:hover {
+  color: var(--text);
+  border-color: var(--text-dim);
+}
+.cc-chip-btn.active {
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border-color: var(--accent);
 }
 
 .cc-continent-filters {

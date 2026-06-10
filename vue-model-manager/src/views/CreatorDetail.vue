@@ -100,7 +100,7 @@
         :key="f"
         :to="`/family/${encodeURIComponent(f)}`"
         class="cd-family-tag"
-      >{{ f }}</router-link>
+      >{{ formatFamilyName(f) }}</router-link>
     </div>
 
     <!-- Derivation method filter chips -->
@@ -117,17 +117,24 @@
       </button>
     </div>
 
-    <!-- Model list -->
+    <!-- Model list grouped by family -->
     <h3 class="section-title">Models</h3>
-    <div class="cd-models">
-      <SuperModelCard
-        v-for="model in filteredModels"
-        :key="model.slug"
-        :model="model"
-        :creator-slug="creator.id"
-        @click="openDetail(model)"
-        @creator-click="() => {}"
-      />
+    <div v-if="filteredModels.length === 0" class="cd-empty">No models match the selected filter.</div>
+    <div v-for="{ family, models } in familyGroups" :key="family" class="cd-family-group">
+      <h4 class="cd-family-name">
+        <router-link :to="`/family/${encodeURIComponent(family)}`" class="cd-family-link">{{ formatFamilyName(family) }}</router-link>
+        <span class="cd-family-count">{{ models.length }} model{{ models.length !== 1 ? 's' : '' }}</span>
+      </h4>
+      <div class="cd-models">
+        <SuperModelCard
+          v-for="model in models"
+          :key="model.slug"
+          :model="model"
+          :creator-slug="creator.id"
+          @click="openDetail(model)"
+          @creator-click="() => {}"
+        />
+      </div>
     </div>
 
     <!-- Detail panel -->
@@ -218,9 +225,47 @@ const filteredModels = computed(() => {
   });
 });
 
+const familyGroups = computed(() => {
+  const groups: { family: string; models: typeof filteredModels.value }[] = [];
+  const familyMap = new Map<string, typeof filteredModels.value>();
+  for (const model of filteredModels.value) {
+    const family = model.family || 'Uncategorized';
+    if (!familyMap.has(family)) {
+      familyMap.set(family, []);
+      groups.push({ family, models: familyMap.get(family)! });
+    }
+    familyMap.get(family)!.push(model);
+  }
+  // Sort models within each family by fine-tune lineage:
+  // foundation models first, each followed by its derivatives.
+  for (const group of groups) {
+    group.models.sort((a, b) => {
+      const rootA = a.base_model || a.name;
+      const rootB = b.base_model || b.name;
+      if (rootA !== rootB) return rootA.localeCompare(rootB);
+      // Same root: foundation (no base_model) sorts before derivatives
+      if (!a.base_model && b.base_model) return -1;
+      if (a.base_model && !b.base_model) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+  groups.sort((a, b) => a.family.localeCompare(b.family));
+  return groups;
+});
+
 const detailModel = ref<ModelData | null>(null);
 function openDetail(model: ModelData) {
   detailModel.value = model;
+}
+
+const FAMILY_NAME_OVERRIDES: Record<string, string> = {
+  gpt: 'GPT',
+  glm: 'GLM',
+};
+
+function formatFamilyName(raw: string): string {
+  if (raw === 'Uncategorized') return raw;
+  return raw.split('-').map(w => FAMILY_NAME_OVERRIDES[w] ?? (w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
 }
 
 function formatContext(ctx: number | null): string {
@@ -703,6 +748,37 @@ const creatorDescription = computed(() => {
   font-weight: 700;
   margin: 20px 0 12px;
 }
+
+.cd-empty {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.cd-family-group {
+  margin-bottom: 20px;
+}
+.cd-family-name {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--text-secondary);
+}
+.cd-family-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+.cd-family-link:hover { text-decoration: underline; }
+.cd-family-count {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
 .cd-models {
   display: flex;
   flex-direction: column;

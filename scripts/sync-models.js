@@ -630,6 +630,14 @@ const CREATOR_WHITELIST = new Map([
   ['llmgateway', 'LLMGateway'],
   ['novita', 'NovitaAI'],
   ['novitaai', 'NovitaAI'],
+  ['allenai', 'AI2'],
+  ['abacusai', 'Abacus AI'],
+  ['teknium', 'Teknium'],
+  ['openbmb', 'OpenBMB'],
+  ['salesforce', 'Salesforce'],
+  ['sao10k', 'Sao10K'],
+  ['internlm', 'InternLM'],
+  ['kwaipilot', 'Kwaipilot'],
 ]);
 
 function humanizeCreator(raw) {
@@ -1220,6 +1228,13 @@ function normalizeModelSlug(name) {
           ...newZhipu,
         ];
 
+        // Build parent candidate map from existing super_models for derivation detection
+        const { detectDerivationMethod, findImmediateParent } = require('./utils/derivation-detector');
+        const { rows: allSuperRows } = await client.query(
+          'SELECT id, name, slug FROM super_models',
+        );
+        const parentCandidates = new Map(allSuperRows.map((r) => [r.slug, { name: r.name, slug: r.slug }]));
+
         for (const m of allNew) {
           const providerSlug = m.id.split('/')[0];
           const providerId = providerMap.get(providerSlug);
@@ -1235,14 +1250,26 @@ function normalizeModelSlug(name) {
           let creator = modelInstanceKey.includes('/') ? humanizeCreator(modelInstanceKey.split('/')[0]) : null;
           if (!creator) creator = inferCreatorFromName(m.name);
 
+          // Detect derivation method and immediate parent
+          const derivMethod = detectDerivationMethod(m.name);
+          const parentInfo = derivMethod ? findImmediateParent(m.name, parentCandidates) : null;
+
           // Upsert super model
           const { rows: mmRows } = await client.query(
-            `INSERT INTO super_models (name, slug, creator) VALUES ($1, $2, $3)
-             ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, creator = COALESCE(super_models.creator, EXCLUDED.creator)
+            `INSERT INTO super_models (name, slug, creator, derivation_method, base_model)
+             VALUES ($1, $2, $3, $4, $5)
+             ON CONFLICT (slug) DO UPDATE SET
+               name = EXCLUDED.name,
+               creator = COALESCE(super_models.creator, EXCLUDED.creator),
+               derivation_method = COALESCE(super_models.derivation_method, EXCLUDED.derivation_method),
+               base_model = COALESCE(super_models.base_model, EXCLUDED.base_model)
              RETURNING id`,
-            [m.name, superSlug, creator],
+            [m.name, superSlug, creator, derivMethod, parentInfo?.parentSlug || null],
           );
           const superId = mmRows[0].id;
+
+          // Add to candidate map so subsequent models can find this as a parent
+          parentCandidates.set(superSlug, { name: m.name, slug: superSlug });
 
           // Upsert datapoint model
           const limitations = m.limitations || PROVIDER_LIMITATIONS[providerSlug] || null;

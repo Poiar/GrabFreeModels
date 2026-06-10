@@ -6,6 +6,12 @@
     </div>
 
     <div class="cc-controls">
+      <input
+        v-model="searchQuery"
+        type="text"
+        class="search-input"
+        placeholder="Search providers..."
+      />
       <select v-model="sortBy" class="sort-select">
         <option value="name">Sort: Name</option>
         <option value="models">Sort: Models</option>
@@ -13,6 +19,16 @@
         <option value="country">Sort: Country</option>
       </select>
       <button class="sort-dir-btn" @click="sortAsc = !sortAsc" :title="sortAsc ? 'Ascending' : 'Descending'">{{ sortAsc ? '↑' : '↓' }}</button>
+    </div>
+
+    <div class="cc-chip-filters">
+      <button
+        v-for="h in healthChips"
+        :key="h.key"
+        class="cc-chip-btn"
+        :class="{ active: selectedHealth === h.key }"
+        @click="selectedHealth = selectedHealth === h.key ? 'All' : h.key"
+      >{{ h.key === 'All' ? `All (${store.visibleProviderRefs.length})` : `${h.label} (${h.count})` }}</button>
     </div>
 
     <div class="cc-continent-filters">
@@ -100,9 +116,24 @@ import { getCountryForProvider, CONTINENTS } from '@/data/provider-countries';
 
 const store = useModelsStore();
 
+const searchQuery = ref('');
 const sortBy = ref<'name' | 'models' | 'workers' | 'country'>('models');
 const sortAsc = ref(false);
 const selectedContinent = ref('All');
+const selectedHealth = ref('All');
+
+const healthChips = computed(() => {
+  const counts: Record<string, number> = { healthy: 0, degraded: 0, down: 0 };
+  for (const p of store.visibleProviderRefs) {
+    counts[p.health_status] = (counts[p.health_status] || 0) + 1;
+  }
+  return [
+    { key: 'All', label: 'All', count: store.visibleProviderRefs.length },
+    { key: 'healthy', label: 'Healthy', count: counts.healthy || 0 },
+    { key: 'degraded', label: 'Degraded', count: counts.degraded || 0 },
+    { key: 'down', label: 'Down', count: counts.down || 0 },
+  ];
+});
 
 function continentCount(continent: string): number {
   let count = 0;
@@ -113,10 +144,26 @@ function continentCount(continent: string): number {
 }
 
 const filteredProviders = computed(() => {
-  if (selectedContinent.value === 'All') return store.visibleProviderRefs;
-  return store.visibleProviderRefs.filter(
-    (p) => getCountryForProvider(p.slug).continent === selectedContinent.value,
-  );
+  let list = store.visibleProviderRefs;
+
+  const q = searchQuery.value.trim().toLowerCase();
+  if (q) {
+    list = list.filter((p) =>
+      p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q),
+    );
+  }
+
+  if (selectedHealth.value !== 'All') {
+    list = list.filter((p) => p.health_status === selectedHealth.value);
+  }
+
+  if (selectedContinent.value !== 'All') {
+    list = list.filter(
+      (p) => getCountryForProvider(p.slug).continent === selectedContinent.value,
+    );
+  }
+
+  return list;
 });
 
 const sortedProviders = computed(() => {
@@ -178,6 +225,24 @@ async function copyText(text: string) {
   display: flex;
   gap: 8px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.search-input {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: inherit;
+  min-width: 200px;
+  flex: 1;
+  max-width: 320px;
+}
+.search-input::placeholder { color: var(--text-dim); }
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 .sort-select {
   color: var(--text-dim);
@@ -207,6 +272,34 @@ async function copyText(text: string) {
 .sort-dir-btn:hover {
   color: var(--text);
   border-color: var(--text-dim);
+}
+
+.cc-chip-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.cc-chip-btn {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+.cc-chip-btn:hover {
+  color: var(--text);
+  border-color: var(--text-dim);
+}
+.cc-chip-btn.active {
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border-color: var(--accent);
 }
 
 .cc-continent-filters {

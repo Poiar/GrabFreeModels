@@ -1,0 +1,926 @@
+- generic [ref=e3]:
+  - link "Skip to main content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - img [ref=e8]
+      - generic [ref=e16]:
+        - heading "GrabFreeModels" [level=1] [ref=e17]
+        - paragraph [ref=e18]: Free LLM Intelligence
+    - navigation "Main navigation" [ref=e19]:
+      - link "Dashboard" [ref=e20] [cursor=pointer]:
+        - /url: "#/dashboard"
+        - img [ref=e22]
+        - generic [ref=e23]: Dashboard
+      - link "Super Models" [ref=e24] [cursor=pointer]:
+        - /url: "#/supermodels"
+        - img [ref=e26]
+        - generic [ref=e28]: Super Models
+      - link "Model Instances" [ref=e29] [cursor=pointer]:
+        - /url: "#/"
+        - img [ref=e31]
+        - generic [ref=e33]: Model Instances
+      - link "Rankings (Free)" [ref=e34] [cursor=pointer]:
+        - /url: "#/rankings"
+        - img [ref=e36]
+        - generic [ref=e42]: Rankings (Free)
+      - link "Rankings (Paid)" [ref=e43] [cursor=pointer]:
+        - /url: "#/rankings-paid"
+        - img [ref=e45]
+        - generic [ref=e51]: Rankings (Paid)
+      - link "Providers" [ref=e52] [cursor=pointer]:
+        - /url: "#/providers"
+        - img [ref=e54]
+        - generic [ref=e57]: Providers
+      - link "Creators" [ref=e58] [cursor=pointer]:
+        - /url: "#/creators"
+        - img [ref=e60]
+        - generic [ref=e63]: Creators
+      - link "Derivatives" [ref=e64] [cursor=pointer]:
+        - /url: "#/derivatives"
+        - img [ref=e66]
+        - generic [ref=e68]: Derivatives
+      - link "Families" [ref=e69] [cursor=pointer]:
+        - /url: "#/families"
+        - img [ref=e71]
+        - generic [ref=e77]: Families
+      - link "Base Models" [ref=e78] [cursor=pointer]:
+        - /url: "#/base-models"
+        - img [ref=e80]
+        - generic [ref=e83]: Base Models
+      - link "Compare" [ref=e84] [cursor=pointer]:
+        - /url: "#/compare"
+        - img [ref=e86]
+        - generic [ref=e89]: Compare
+      - link "Advanced Search" [ref=e90] [cursor=pointer]:
+        - /url: "#/advanced-search"
+        - img [ref=e92]
+        - generic [ref=e95]: Advanced Search
+    - button "Sources 21" [ref=e1039] [cursor=pointer]:
+      - generic [ref=e98]:
+        - img [ref=e99]
+        - generic [ref=e101]: Sources
+        - generic [ref=e1040]: "21"
+      - img [ref=e102]
+    - generic [ref=e104]:
+      - generic [ref=e107]: Updated just now
+      - generic [ref=e108]:
+        - button "Switch to light mode" [ref=e109] [cursor=pointer]:
+          - img [ref=e110]
+        - button "Refresh" [ref=e116] [cursor=pointer]:
+          - img [ref=e117]
+          - text: Refresh
+      - button "? shortcuts" [ref=e122] [cursor=pointer]:
+        - img [ref=e123]
+        - generic [ref=e125]: "? shortcuts"
+  - main [ref=e126]:
+    - generic [ref=e127]:
+      - generic [ref=e128]:
+        - heading "Creators" [level=2] [ref=e129]
+        - paragraph [ref=e130]: 82 model creators tracked
+      - generic [ref=e131]:
+        - textbox "Search creators..." [ref=e132]
+        - combobox [ref=e133] [cursor=pointer]:
+          - 'option "Sort: Name" [selected]'
+          - 'option "Sort: Models"'
+          - 'option "Sort: Providers"'
+          - 'option "Sort: Country"'
+        - button "↑" [ref=e134] [cursor=pointer]
+      - generic [ref=e135]:
+        - button "All (82)" [ref=e136] [cursor=pointer]
+        - button "Asia (31)" [ref=e137] [cursor=pointer]
+        - button "Europe (4)" [ref=e138] [cursor=pointer]
+        - button "North America (33)" [ref=e139] [cursor=pointer]
+        - button "Other (14)" [ref=e140] [cursor=pointer]
+      - generic [ref=e141]:
+        - 'link "01.AI 19 models 1 provider China yi Top: Yi-1.5-34B" [ref=e142] [cursor=pointer]':
+          - /url: "#/creator/01-ai"
+          - heading "01.AI" [level=3] [ref=e145]
+          - generic [ref=e146]:
+            - generic [ref=e147]: 19 models
+            - generic [ref=e148]: 1 provider
+          - generic [ref=e149]: China
+          - generic [ref=e151]: yi
+          - generic [ref=e152]: "Top: Yi-1.5-34B"
+        - 'link "Abacus AI 11 models 2 providers USA llama mixtral nemotron qwen Top: bigstral-12b-32k" [ref=e153] [cursor=pointer]':
+          - /url: "#/creator/abacus-ai"
+          - generic [ref=e154]:
+            - img [ref=e1041]
+            - heading "Abacus AI" [level=3] [ref=e156]
+          - generic [ref=e157]:
+            - generic [ref=e158]: 11 models
+            - generic [ref=e159]: 2 providers
+          - generic [ref=e160]: USA
+          - generic [ref=e161]:
+            - generic [ref=e162]: llama
+            - generic [ref=e163]: mixtral
+            - generic [ref=e164]: nemotron
+            - generic [ref=e165]: qwen
+          - generic [ref=e166]: "Top: bigstral-12b-32k"
+        - 'link "AI2 15 models 1 provider USA llama olmo Top: Llama-3.1-Tulu-3-70B" [ref=e167] [cursor=pointer]':
+          - /url: "#/creator/ai2"
+          - heading "AI2" [level=3] [ref=e170]
+          - generic [ref=e171]:
+            - generic [ref=e172]: 15 models
+            - generic [ref=e173]: 1 provider
+          - generic [ref=e174]: USA
+          - generic [ref=e175]:
+            - generic [ref=e176]: llama
+            - generic [ref=e177]: olmo
+          - generic [ref=e178]: "Top: Llama-3.1-Tulu-3-70B"
+        - 'link "AI21 Labs 3 models 2 providers Israel jamba Top: AI21 Jamba 1.5 Large" [ref=e179] [cursor=pointer]':
+          - /url: "#/creator/ai21"
+          - heading "AI21 Labs" [level=3] [ref=e182]
+          - generic [ref=e183]:
+            - generic [ref=e184]: 3 models
+            - generic [ref=e185]: 2 providers
+          - generic [ref=e186]: Israel
+          - generic [ref=e188]: jamba
+          - generic [ref=e189]: "Top: AI21 Jamba 1.5 Large"
+        - 'link "Aion Labs 1 model 1 provider Unknown Top: Maestro Reasoning" [ref=e190] [cursor=pointer]':
+          - /url: "#/creator/aion"
+          - generic [ref=e191]:
+            - img [ref=e1054]:
+              - generic [ref=e1056]: A
+            - heading "Aion Labs" [level=3] [ref=e193]
+          - generic [ref=e194]:
+            - generic [ref=e195]: 1 model
+            - generic [ref=e196]: 1 provider
+          - generic [ref=e197]: Unknown
+          - generic [ref=e198]: "Top: Maestro Reasoning"
+        - 'link "Alibaba 188 models 10 providers China llama qwen Top: gte-base" [ref=e199] [cursor=pointer]':
+          - /url: "#/creator/alibaba"
+          - heading "Alibaba" [level=3] [ref=e202]
+          - generic [ref=e203]:
+            - generic [ref=e204]: 188 models
+            - generic [ref=e205]: 10 providers
+          - generic [ref=e206]: China
+          - generic [ref=e207]:
+            - generic [ref=e208]: llama
+            - generic [ref=e209]: qwen
+          - generic [ref=e210]: "Top: gte-base"
+        - 'link "Alibaba 1 model 1 provider Unknown qwen Top: QwQ 32B" [ref=e211] [cursor=pointer]':
+          - /url: "#/creator/qwen"
+          - generic [ref=e212]:
+            - img [ref=e1057]:
+              - generic [ref=e1059]: Q
+            - heading "Alibaba" [level=3] [ref=e214]
+          - generic [ref=e215]:
+            - generic [ref=e216]: 1 model
+            - generic [ref=e217]: 1 provider
+          - generic [ref=e218]: Unknown
+          - generic [ref=e220]: qwen
+          - generic [ref=e221]: "Top: QwQ 32B"
+        - 'link "Amazon 1 model 1 provider USA nova Top: Nova Pro 1.0" [ref=e222] [cursor=pointer]':
+          - /url: "#/creator/amazon"
+          - generic [ref=e223]:
+            - img [ref=e1060]:
+              - generic [ref=e1062]: A
+            - heading "Amazon" [level=3] [ref=e225]
+          - generic [ref=e226]:
+            - generic [ref=e227]: 1 model
+            - generic [ref=e228]: 1 provider
+          - generic [ref=e229]: USA
+          - generic [ref=e231]: nova
+          - generic [ref=e232]: "Top: Nova Pro 1.0"
+        - 'link "Anthropic 20 models 4 providers USA claude Top: Anthropic Claude Haiku Latest" [ref=e233] [cursor=pointer]':
+          - /url: "#/creator/anthropic"
+          - heading "Anthropic" [level=3] [ref=e236]
+          - generic [ref=e237]:
+            - generic [ref=e238]: 20 models
+            - generic [ref=e239]: 4 providers
+          - generic [ref=e240]: USA
+          - generic [ref=e242]: claude
+          - generic [ref=e243]: "Top: Anthropic Claude Haiku Latest"
+        - 'link "Arcee AI 4 models 1 provider USA trinity Top: Coder Large" [ref=e244] [cursor=pointer]':
+          - /url: "#/creator/arcee"
+          - heading "Arcee AI" [level=3] [ref=e247]
+          - generic [ref=e248]:
+            - generic [ref=e249]: 4 models
+            - generic [ref=e250]: 1 provider
+          - generic [ref=e251]: USA
+          - generic [ref=e253]: trinity
+          - generic [ref=e254]: "Top: Coder Large"
+        - 'link "Ascend Tribe 1 model 1 provider China Top: ascend-tribe/pangu-pro-moe" [ref=e255] [cursor=pointer]':
+          - /url: "#/creator/ascend-tribe"
+          - generic [ref=e256]:
+            - img [ref=e1063]:
+              - generic [ref=e1065]: A
+            - heading "Ascend Tribe" [level=3] [ref=e258]
+          - generic [ref=e259]:
+            - generic [ref=e260]: 1 model
+            - generic [ref=e261]: 1 provider
+          - generic [ref=e262]: China
+          - generic [ref=e263]: "Top: ascend-tribe/pangu-pro-moe"
+        - 'link "BAAI 18 models 3 providers China bge gemma llama mistral +2 Top: bge-base-en-v1.5" [ref=e264] [cursor=pointer]':
+          - /url: "#/creator/baai"
+          - heading "BAAI" [level=3] [ref=e267]
+          - generic [ref=e268]:
+            - generic [ref=e269]: 18 models
+            - generic [ref=e270]: 3 providers
+          - generic [ref=e271]: China
+          - generic [ref=e272]:
+            - generic [ref=e273]: bge
+            - generic [ref=e274]: gemma
+            - generic [ref=e275]: llama
+            - generic [ref=e276]: mistral
+            - generic [ref=e277]: "+2"
+          - generic [ref=e278]: "Top: bge-base-en-v1.5"
+        - 'link "Baichuan 1 model 1 provider China minimax Top: baichuan-m2-32b" [ref=e279] [cursor=pointer]':
+          - /url: "#/creator/baichuan"
+          - heading "Baichuan" [level=3] [ref=e282]
+          - generic [ref=e283]:
+            - generic [ref=e284]: 1 model
+            - generic [ref=e285]: 1 provider
+          - generic [ref=e286]: China
+          - generic [ref=e288]: minimax
+          - generic [ref=e289]: "Top: baichuan-m2-32b"
+        - 'link "Baidu 11 models 3 providers China ernie Top: baidu/ERNIE-4.5-300B-A47B" [ref=e290] [cursor=pointer]':
+          - /url: "#/creator/baidu"
+          - heading "Baidu" [level=3] [ref=e293]
+          - generic [ref=e294]:
+            - generic [ref=e295]: 11 models
+            - generic [ref=e296]: 3 providers
+          - generic [ref=e297]: China
+          - generic [ref=e299]: ernie
+          - generic [ref=e300]: "Top: baidu/ERNIE-4.5-300B-A47B"
+        - 'link "Black Forest Labs 13 models 3 providers Germany flux Top: FLUX-1.1-pro" [ref=e301] [cursor=pointer]':
+          - /url: "#/creator/black-forest-labs"
+          - heading "Black Forest Labs" [level=3] [ref=e304]
+          - generic [ref=e305]:
+            - generic [ref=e306]: 13 models
+            - generic [ref=e307]: 3 providers
+          - generic [ref=e308]: Germany
+          - generic [ref=e310]: flux
+          - generic [ref=e311]: "Top: FLUX-1.1-pro"
+        - 'link "Bria 3 models 1 provider Israel bria Top: Bria-3.2" [ref=e312] [cursor=pointer]':
+          - /url: "#/creator/bria"
+          - heading "Bria" [level=3] [ref=e315]
+          - generic [ref=e316]:
+            - generic [ref=e317]: 3 models
+            - generic [ref=e318]: 1 provider
+          - generic [ref=e319]: Israel
+          - generic [ref=e321]: bria
+          - generic [ref=e322]: "Top: Bria-3.2"
+        - 'link "ByteDance 15 models 5 providers China seed Top: Seed 1.6" [ref=e323] [cursor=pointer]':
+          - /url: "#/creator/bytedance"
+          - heading "ByteDance" [level=3] [ref=e326]
+          - generic [ref=e327]:
+            - generic [ref=e328]: 15 models
+            - generic [ref=e329]: 5 providers
+          - generic [ref=e330]: China
+          - generic [ref=e332]: seed
+          - generic [ref=e333]: "Top: Seed 1.6"
+        - 'link "Canopy Labs 3 models 1 provider USA canopylabs Top: Canopy Labs Orpheus Arabic Saudi" [ref=e334] [cursor=pointer]':
+          - /url: "#/creator/canopy-labs"
+          - heading "Canopy Labs" [level=3] [ref=e337]
+          - generic [ref=e338]:
+            - generic [ref=e339]: 3 models
+            - generic [ref=e340]: 1 provider
+          - generic [ref=e341]: USA
+          - generic [ref=e343]: canopylabs
+          - generic [ref=e344]: "Top: Canopy Labs Orpheus Arabic Saudi"
+        - 'link "Cognitive Computations 18 models 1 provider USA gemma llama mistral phi +2 Top: Dolphin 72b" [ref=e345] [cursor=pointer]':
+          - /url: "#/creator/cognitive-computations"
+          - heading "Cognitive Computations" [level=3] [ref=e348]
+          - generic [ref=e349]:
+            - generic [ref=e350]: 18 models
+            - generic [ref=e351]: 1 provider
+          - generic [ref=e352]: USA
+          - generic [ref=e353]:
+            - generic [ref=e354]: gemma
+            - generic [ref=e355]: llama
+            - generic [ref=e356]: mistral
+            - generic [ref=e357]: phi
+            - generic [ref=e358]: "+2"
+          - generic [ref=e359]: "Top: Dolphin 72b"
+        - 'link "Cohere 18 models 2 providers Canada command command-r Top: Aya Expanse 32B" [ref=e360] [cursor=pointer]':
+          - /url: "#/creator/cohere"
+          - heading "Cohere" [level=3] [ref=e363]
+          - generic [ref=e364]:
+            - generic [ref=e365]: 18 models
+            - generic [ref=e366]: 2 providers
+          - generic [ref=e367]: Canada
+          - generic [ref=e368]:
+            - generic [ref=e369]: command
+            - generic [ref=e370]: command-r
+          - generic [ref=e371]: "Top: Aya Expanse 32B"
+        - 'link "Core42 1 model 1 provider UAE jais Top: JAIS 30b Chat" [ref=e372] [cursor=pointer]':
+          - /url: "#/creator/core42"
+          - heading "Core42" [level=3] [ref=e375]
+          - generic [ref=e376]:
+            - generic [ref=e377]: 1 model
+            - generic [ref=e378]: 1 provider
+          - generic [ref=e379]: UAE
+          - generic [ref=e381]: jais
+          - generic [ref=e382]: "Top: JAIS 30b Chat"
+        - 'link "Databricks 6 models 1 provider USA dbrx gemma ministral yi Top: dbrx-base" [ref=e383] [cursor=pointer]':
+          - /url: "#/creator/databricks"
+          - generic [ref=e384]:
+            - img [ref=e1066]
+            - heading "Databricks" [level=3] [ref=e386]
+          - generic [ref=e387]:
+            - generic [ref=e388]: 6 models
+            - generic [ref=e389]: 1 provider
+          - generic [ref=e390]: USA
+          - generic [ref=e391]:
+            - generic [ref=e392]: dbrx
+            - generic [ref=e393]: gemma
+            - generic [ref=e394]: ministral
+            - generic [ref=e395]: yi
+          - generic [ref=e396]: "Top: dbrx-base"
+        - 'link "DeepSeek 41 models 10 providers China deepseek llama Top: community" [ref=e397] [cursor=pointer]':
+          - /url: "#/creator/deepseek"
+          - heading "DeepSeek" [level=3] [ref=e400]
+          - generic [ref=e401]:
+            - generic [ref=e402]: 41 models
+            - generic [ref=e403]: 10 providers
+          - generic [ref=e404]: China
+          - generic [ref=e405]:
+            - generic [ref=e406]: deepseek
+            - generic [ref=e407]: llama
+          - generic [ref=e408]: "Top: community"
+        - 'link "Defog 1 model 1 provider Unknown Top: SQLCoder 7B 2" [ref=e409] [cursor=pointer]':
+          - /url: "#/creator/defog"
+          - generic [ref=e410]:
+            - img [ref=e1070]:
+              - generic [ref=e1072]: D
+            - heading "Defog" [level=3] [ref=e412]
+          - generic [ref=e413]:
+            - generic [ref=e414]: 1 model
+            - generic [ref=e415]: 1 provider
+          - generic [ref=e416]: Unknown
+          - generic [ref=e417]: "Top: SQLCoder 7B 2"
+        - 'link "fishaudio 1 model 1 provider China Top: fish-speech-1.5" [ref=e418] [cursor=pointer]':
+          - /url: "#/creator/fishaudio"
+          - heading "fishaudio" [level=3] [ref=e421]
+          - generic [ref=e422]:
+            - generic [ref=e423]: 1 model
+            - generic [ref=e424]: 1 provider
+          - generic [ref=e425]: China
+          - generic [ref=e426]: "Top: fish-speech-1.5"
+        - 'link "Fun Audio LLM 1 model 1 provider China Top: CosyVoice2-0.5B" [ref=e427] [cursor=pointer]':
+          - /url: "#/creator/fun-audio-llm"
+          - heading "Fun Audio LLM" [level=3] [ref=e430]
+          - generic [ref=e431]:
+            - generic [ref=e432]: 1 model
+            - generic [ref=e433]: 1 provider
+          - generic [ref=e434]: China
+          - generic [ref=e435]: "Top: CosyVoice2-0.5B"
+        - 'link "GitHub Models 2 models 1 provider USA command Top: Cohere Command R" [ref=e436] [cursor=pointer]':
+          - /url: "#/creator/github-models"
+          - heading "GitHub Models" [level=3] [ref=e439]
+          - generic [ref=e440]:
+            - generic [ref=e441]: 2 models
+            - generic [ref=e442]: 1 provider
+          - generic [ref=e443]: USA
+          - generic [ref=e445]: command
+          - generic [ref=e446]: "Top: Cohere Command R"
+        - 'link "Google 95 models 9 providers USA gemini gemini-flash gemini-flash-lite gemma +1 Top: codegemma-1.1-2b" [ref=e447] [cursor=pointer]':
+          - /url: "#/creator/google"
+          - heading "Google" [level=3] [ref=e450]
+          - generic [ref=e451]:
+            - generic [ref=e452]: 95 models
+            - generic [ref=e453]: 9 providers
+          - generic [ref=e454]: USA
+          - generic [ref=e455]:
+            - generic [ref=e456]: gemini
+            - generic [ref=e457]: gemini-flash
+            - generic [ref=e458]: gemini-flash-lite
+            - generic [ref=e459]: gemma
+            - generic [ref=e460]: "+1"
+          - generic [ref=e461]: "Top: codegemma-1.1-2b"
+        - 'link "Groq 3 models 1 provider USA groq Top: compound" [ref=e462] [cursor=pointer]':
+          - /url: "#/creator/groq"
+          - heading "Groq" [level=3] [ref=e465]
+          - generic [ref=e466]:
+            - generic [ref=e467]: 3 models
+            - generic [ref=e468]: 1 provider
+          - generic [ref=e469]: USA
+          - generic [ref=e471]: groq
+          - generic [ref=e472]: "Top: compound"
+        - 'link "Gryphe 1 model 3 providers USA Top: MythoMax-L2-13b" [ref=e473] [cursor=pointer]':
+          - /url: "#/creator/gryphe"
+          - heading "Gryphe" [level=3] [ref=e476]
+          - generic [ref=e477]:
+            - generic [ref=e478]: 1 model
+            - generic [ref=e479]: 3 providers
+          - generic [ref=e480]: USA
+          - generic [ref=e481]: "Top: MythoMax-L2-13b"
+        - 'link "IBM 22 models 2 providers USA granite Top: Granite 4.0 H Micro" [ref=e482] [cursor=pointer]':
+          - /url: "#/creator/ibm"
+          - heading "IBM" [level=3] [ref=e485]
+          - generic [ref=e486]:
+            - generic [ref=e487]: 22 models
+            - generic [ref=e488]: 2 providers
+          - generic [ref=e489]: USA
+          - generic [ref=e491]: granite
+          - generic [ref=e492]: "Top: Granite 4.0 H Micro"
+        - 'link "Inclusion AI 7 models 3 providers China ling Top: inclusionAI/Ling-mini-2.0" [ref=e493] [cursor=pointer]':
+          - /url: "#/creator/inclusion"
+          - heading "Inclusion AI" [level=3] [ref=e496]
+          - generic [ref=e497]:
+            - generic [ref=e498]: 7 models
+            - generic [ref=e499]: 3 providers
+          - generic [ref=e500]: China
+          - generic [ref=e502]: ling
+          - generic [ref=e503]: "Top: inclusionAI/Ling-mini-2.0"
+        - 'link "Index Team 1 model 1 provider USA Top: IndexTTS-2" [ref=e504] [cursor=pointer]':
+          - /url: "#/creator/index-team"
+          - heading "Index Team" [level=3] [ref=e507]
+          - generic [ref=e508]:
+            - generic [ref=e509]: 1 model
+            - generic [ref=e510]: 1 provider
+          - generic [ref=e511]: USA
+          - generic [ref=e512]: "Top: IndexTTS-2"
+        - 'link "InternLM 6 models 1 provider China Top: internlm2_5-1_8b-chat" [ref=e513] [cursor=pointer]':
+          - /url: "#/creator/internlm"
+          - heading "InternLM" [level=3] [ref=e516]
+          - generic [ref=e517]:
+            - generic [ref=e518]: 6 models
+            - generic [ref=e519]: 1 provider
+          - generic [ref=e520]: China
+          - generic [ref=e521]: "Top: internlm2_5-1_8b-chat"
+        - 'link "intfloat 4 models 1 provider China Top: E5 Multi-Lingual Large Embeddings 0.6B" [ref=e522] [cursor=pointer]':
+          - /url: "#/creator/intfloat"
+          - heading "intfloat" [level=3] [ref=e525]
+          - generic [ref=e526]:
+            - generic [ref=e527]: 4 models
+            - generic [ref=e528]: 1 provider
+          - generic [ref=e529]: China
+          - generic [ref=e530]: "Top: E5 Multi-Lingual Large Embeddings 0.6B"
+        - 'link "Kwaipilot 2 models 2 providers China Top: Kat Coder Pro" [ref=e531] [cursor=pointer]':
+          - /url: "#/creator/kwaipilot"
+          - generic [ref=e532]:
+            - img [ref=e1073]:
+              - generic [ref=e1075]: K
+            - heading "Kwaipilot" [level=3] [ref=e534]
+          - generic [ref=e535]:
+            - generic [ref=e536]: 2 models
+            - generic [ref=e537]: 2 providers
+          - generic [ref=e538]: China
+          - generic [ref=e539]: "Top: Kat Coder Pro"
+        - 'link "Liquid AI 2 models 1 provider USA liquid Top: LFM2.5-1.2B-Instruct" [ref=e540] [cursor=pointer]':
+          - /url: "#/creator/liquid"
+          - generic [ref=e541]:
+            - img [ref=e1076]:
+              - generic [ref=e1078]: L
+            - heading "Liquid AI" [level=3] [ref=e543]
+          - generic [ref=e544]:
+            - generic [ref=e545]: 2 models
+            - generic [ref=e546]: 1 provider
+          - generic [ref=e547]: USA
+          - generic [ref=e549]: liquid
+          - generic [ref=e550]: "Top: LFM2.5-1.2B-Instruct"
+        - 'link "LLMGateway 2 models 1 provider Unknown auto Top: Auto Route" [ref=e551] [cursor=pointer]':
+          - /url: "#/creator/llmgateway"
+          - heading "LLMGateway" [level=3] [ref=e554]
+          - generic [ref=e555]:
+            - generic [ref=e556]: 2 models
+            - generic [ref=e557]: 1 provider
+          - generic [ref=e558]: Unknown
+          - generic [ref=e560]: auto
+          - generic [ref=e561]: "Top: Auto Route"
+        - 'link "Meta 60 models 10 providers USA llama vicuna Top: Llama 2 7B Chat (FP16)" [ref=e562] [cursor=pointer]':
+          - /url: "#/creator/meta"
+          - heading "Meta" [level=3] [ref=e565]
+          - generic [ref=e566]:
+            - generic [ref=e567]: 60 models
+            - generic [ref=e568]: 10 providers
+          - generic [ref=e569]: USA
+          - generic [ref=e570]:
+            - generic [ref=e571]: llama
+            - generic [ref=e572]: vicuna
+          - generic [ref=e573]: "Top: Llama 2 7B Chat (FP16)"
+        - 'link "Microsoft 34 models 6 providers USA glm orca phi Top: DialoGPT-medium" [ref=e574] [cursor=pointer]':
+          - /url: "#/creator/microsoft"
+          - heading "Microsoft" [level=3] [ref=e577]
+          - generic [ref=e578]:
+            - generic [ref=e579]: 34 models
+            - generic [ref=e580]: 6 providers
+          - generic [ref=e581]: USA
+          - generic [ref=e582]:
+            - generic [ref=e583]: glm
+            - generic [ref=e584]: orca
+            - generic [ref=e585]: phi
+          - generic [ref=e586]: "Top: DialoGPT-medium"
+        - 'link "MiniMax 13 models 7 providers China minimax minimax-m3-free Top: MiniMax M1" [ref=e587] [cursor=pointer]':
+          - /url: "#/creator/minimax"
+          - heading "MiniMax" [level=3] [ref=e590]
+          - generic [ref=e591]:
+            - generic [ref=e592]: 13 models
+            - generic [ref=e593]: 7 providers
+          - generic [ref=e594]: China
+          - generic [ref=e595]:
+            - generic [ref=e596]: minimax
+            - generic [ref=e597]: minimax-m3-free
+          - generic [ref=e598]: "Top: MiniMax M1"
+        - 'link "Mistral AI 76 models 8 providers France codestral devstral gemma ministral +4 Top: Codestral" [ref=e599] [cursor=pointer]':
+          - /url: "#/creator/mistral"
+          - heading "Mistral AI" [level=3] [ref=e602]
+          - generic [ref=e603]:
+            - generic [ref=e604]: 76 models
+            - generic [ref=e605]: 8 providers
+          - generic [ref=e606]: France
+          - generic [ref=e607]:
+            - generic [ref=e608]: codestral
+            - generic [ref=e609]: devstral
+            - generic [ref=e610]: gemma
+            - generic [ref=e611]: ministral
+            - generic [ref=e612]: "+4"
+          - generic [ref=e613]: "Top: Codestral"
+        - 'link "Moonshot AI 13 models 9 providers China kimi Top: Kimi K2 0905" [ref=e614] [cursor=pointer]':
+          - /url: "#/creator/moonshot"
+          - generic [ref=e615]:
+            - img [ref=e1079]
+            - heading "Moonshot AI" [level=3] [ref=e617]
+          - generic [ref=e618]:
+            - generic [ref=e619]: 13 models
+            - generic [ref=e620]: 9 providers
+          - generic [ref=e621]: China
+          - generic [ref=e623]: kimi
+          - generic [ref=e624]: "Top: Kimi K2 0905"
+        - 'link "MosaicML 1 model 1 provider USA mpt Top: mpt-7b" [ref=e625] [cursor=pointer]':
+          - /url: "#/creator/mosaicml"
+          - heading "MosaicML" [level=3] [ref=e628]
+          - generic [ref=e629]:
+            - generic [ref=e630]: 1 model
+            - generic [ref=e631]: 1 provider
+          - generic [ref=e632]: USA
+          - generic [ref=e634]: mpt
+          - generic [ref=e635]: "Top: mpt-7b"
+        - 'link "Nex AGI 2 models 2 providers USA deepseek Top: DeepSeek V3.1 Nex N1" [ref=e636] [cursor=pointer]':
+          - /url: "#/creator/nexagi"
+          - heading "Nex AGI" [level=3] [ref=e639]
+          - generic [ref=e640]:
+            - generic [ref=e641]: 2 models
+            - generic [ref=e642]: 2 providers
+          - generic [ref=e643]: USA
+          - generic [ref=e645]: deepseek
+          - generic [ref=e646]: "Top: DeepSeek V3.1 Nex N1"
+        - 'link "Nous Research 31 models 5 providers USA hermes llama mistral mixtral +1 Top: DeepHermes-3-Mistral-24B-Preview" [ref=e647] [cursor=pointer]':
+          - /url: "#/creator/nous"
+          - heading "Nous Research" [level=3] [ref=e650]
+          - generic [ref=e651]:
+            - generic [ref=e652]: 31 models
+            - generic [ref=e653]: 5 providers
+          - generic [ref=e654]: USA
+          - generic [ref=e655]:
+            - generic [ref=e656]: hermes
+            - generic [ref=e657]: llama
+            - generic [ref=e658]: mistral
+            - generic [ref=e659]: mixtral
+            - generic [ref=e660]: "+1"
+          - generic [ref=e661]: "Top: DeepHermes-3-Mistral-24B-Preview"
+        - 'link "Nova 4 models 1 provider USA nova Top: Nova 2 Lite" [ref=e662] [cursor=pointer]':
+          - /url: "#/creator/nova"
+          - heading "Nova" [level=3] [ref=e665]
+          - generic [ref=e666]:
+            - generic [ref=e667]: 4 models
+            - generic [ref=e668]: 1 provider
+          - generic [ref=e669]: USA
+          - generic [ref=e671]: nova
+          - generic [ref=e672]: "Top: Nova 2 Lite"
+        - 'link "Novita AI 1 model 1 provider China ling Top: Ling 2.6 1T" [ref=e673] [cursor=pointer]':
+          - /url: "#/creator/novita-ai"
+          - heading "Novita AI" [level=3] [ref=e676]
+          - generic [ref=e677]:
+            - generic [ref=e678]: 1 model
+            - generic [ref=e679]: 1 provider
+          - generic [ref=e680]: China
+          - generic [ref=e682]: ling
+          - generic [ref=e683]: "Top: Ling 2.6 1T"
+        - 'link "NovitaAI 3 models 1 provider Unknown Top: ai_infer_test_1" [ref=e684] [cursor=pointer]':
+          - /url: "#/creator/novitaai"
+          - heading "NovitaAI" [level=3] [ref=e687]
+          - generic [ref=e688]:
+            - generic [ref=e689]: 3 models
+            - generic [ref=e690]: 1 provider
+          - generic [ref=e691]: Unknown
+          - generic [ref=e692]: "Top: ai_infer_test_1"
+        - 'link "NVIDIA 68 models 7 providers USA bge gemma llama nemotron +2 Top: AceInstruct-1.5B" [ref=e693] [cursor=pointer]':
+          - /url: "#/creator/nvidia"
+          - heading "NVIDIA" [level=3] [ref=e696]
+          - generic [ref=e697]:
+            - generic [ref=e698]: 68 models
+            - generic [ref=e699]: 7 providers
+          - generic [ref=e700]: USA
+          - generic [ref=e701]:
+            - generic [ref=e702]: bge
+            - generic [ref=e703]: gemma
+            - generic [ref=e704]: llama
+            - generic [ref=e705]: nemotron
+            - generic [ref=e706]: "+2"
+          - generic [ref=e707]: "Top: AceInstruct-1.5B"
+        - 'link "OpenAI 57 models 11 providers USA gpt gpt-oss whisper Top: GPT 4.1" [ref=e708] [cursor=pointer]':
+          - /url: "#/creator/openai"
+          - heading "OpenAI" [level=3] [ref=e711]
+          - generic [ref=e712]:
+            - generic [ref=e713]: 57 models
+            - generic [ref=e714]: 11 providers
+          - generic [ref=e715]: USA
+          - generic [ref=e716]:
+            - generic [ref=e717]: gpt
+            - generic [ref=e718]: gpt-oss
+            - generic [ref=e719]: whisper
+          - generic [ref=e720]: "Top: GPT 4.1"
+        - 'link "OpenBMB 1 model 1 provider Unknown llama Top: MiniCPM-S-1B-sft-llama-format" [ref=e721] [cursor=pointer]':
+          - /url: "#/creator/openbmb"
+          - generic [ref=e722]:
+            - img [ref=e1081]:
+              - generic [ref=e1083]: O
+            - heading "OpenBMB" [level=3] [ref=e724]
+          - generic [ref=e725]:
+            - generic [ref=e726]: 1 model
+            - generic [ref=e727]: 1 provider
+          - generic [ref=e728]: Unknown
+          - generic [ref=e730]: llama
+          - generic [ref=e731]: "Top: MiniCPM-S-1B-sft-llama-format"
+        - 'link "openchat 1 model 1 provider USA Top: openchat-7b" [ref=e732] [cursor=pointer]':
+          - /url: "#/creator/openchat"
+          - heading "openchat" [level=3] [ref=e735]
+          - generic [ref=e736]:
+            - generic [ref=e737]: 1 model
+            - generic [ref=e738]: 1 provider
+          - generic [ref=e739]: USA
+          - generic [ref=e740]: "Top: openchat-7b"
+        - 'link "opencode 4 models 4 providers Unknown big-pickle gemini mimo trinity Top: Big Pickle" [ref=e741] [cursor=pointer]':
+          - /url: "#/creator/opencode"
+          - heading "opencode" [level=3] [ref=e744]
+          - generic [ref=e745]:
+            - generic [ref=e746]: 4 models
+            - generic [ref=e747]: 4 providers
+          - generic [ref=e748]: Unknown
+          - generic [ref=e749]:
+            - generic [ref=e750]: big-pickle
+            - generic [ref=e751]: gemini
+            - generic [ref=e752]: mimo
+            - generic [ref=e753]: trinity
+          - generic [ref=e754]: "Top: Big Pickle"
+        - 'link "OpenRouter 4 models 1 provider Unknown Top: bodybuilder" [ref=e755] [cursor=pointer]':
+          - /url: "#/creator/openrouter"
+          - heading "OpenRouter" [level=3] [ref=e758]
+          - generic [ref=e759]:
+            - generic [ref=e760]: 4 models
+            - generic [ref=e761]: 1 provider
+          - generic [ref=e762]: Unknown
+          - generic [ref=e763]: "Top: bodybuilder"
+        - 'link "PaddlePaddle 3 models 2 providers China Top: paddleocr-vl" [ref=e764] [cursor=pointer]':
+          - /url: "#/creator/paddlepaddle"
+          - heading "PaddlePaddle" [level=3] [ref=e767]
+          - generic [ref=e768]:
+            - generic [ref=e769]: 3 models
+            - generic [ref=e770]: 2 providers
+          - generic [ref=e771]: China
+          - generic [ref=e772]: "Top: paddleocr-vl"
+        - 'link "Perplexity 3 models 1 provider USA Top: sonar" [ref=e773] [cursor=pointer]':
+          - /url: "#/creator/perplexity"
+          - heading "Perplexity" [level=3] [ref=e776]
+          - generic [ref=e777]:
+            - generic [ref=e778]: 3 models
+            - generic [ref=e779]: 1 provider
+          - generic [ref=e780]: USA
+          - generic [ref=e781]: "Top: sonar"
+        - 'link "Poolside 2 models 1 provider France Top: Laguna M.1" [ref=e782] [cursor=pointer]':
+          - /url: "#/creator/poolside"
+          - heading "Poolside" [level=3] [ref=e785]
+          - generic [ref=e786]:
+            - generic [ref=e787]: 2 models
+            - generic [ref=e788]: 1 provider
+          - generic [ref=e789]: France
+          - generic [ref=e790]: "Top: Laguna M.1"
+        - 'link "Prime Intellect 1 model 1 provider Unknown Top: INTELLECT-3" [ref=e791] [cursor=pointer]':
+          - /url: "#/creator/primeintellect"
+          - generic [ref=e792]:
+            - img [ref=e1084]:
+              - generic [ref=e1086]: P
+            - heading "Prime Intellect" [level=3] [ref=e794]
+          - generic [ref=e795]:
+            - generic [ref=e796]: 1 model
+            - generic [ref=e797]: 1 provider
+          - generic [ref=e798]: Unknown
+          - generic [ref=e799]: "Top: INTELLECT-3"
+        - 'link "Pruna AI 1 model 1 provider USA Top: p-image" [ref=e800] [cursor=pointer]':
+          - /url: "#/creator/pruna-ai"
+          - heading "Pruna AI" [level=3] [ref=e803]
+          - generic [ref=e804]:
+            - generic [ref=e805]: 1 model
+            - generic [ref=e806]: 1 provider
+          - generic [ref=e807]: USA
+          - generic [ref=e808]: "Top: p-image"
+        - 'link "Resemble AI 2 models 1 provider USA Top: chatterbox-multilingual" [ref=e809] [cursor=pointer]':
+          - /url: "#/creator/resemble-ai"
+          - heading "Resemble AI" [level=3] [ref=e812]
+          - generic [ref=e813]:
+            - generic [ref=e814]: 2 models
+            - generic [ref=e815]: 1 provider
+          - generic [ref=e816]: USA
+          - generic [ref=e817]: "Top: chatterbox-multilingual"
+        - 'link "Ring 1 model 1 provider USA Top: Ring 2.6 1T" [ref=e818] [cursor=pointer]':
+          - /url: "#/creator/ring"
+          - heading "Ring" [level=3] [ref=e821]
+          - generic [ref=e822]:
+            - generic [ref=e823]: 1 model
+            - generic [ref=e824]: 1 provider
+          - generic [ref=e825]: USA
+          - generic [ref=e826]: "Top: Ring 2.6 1T"
+        - 'link "Salesforce 2 models 1 provider Unknown llama Top: LLaMA-3-8B-SFR-Iterative-DPO-R" [ref=e827] [cursor=pointer]':
+          - /url: "#/creator/salesforce"
+          - generic [ref=e828]:
+            - img [ref=e1087]:
+              - generic [ref=e1089]: S
+            - heading "Salesforce" [level=3] [ref=e830]
+          - generic [ref=e831]:
+            - generic [ref=e832]: 2 models
+            - generic [ref=e833]: 1 provider
+          - generic [ref=e834]: Unknown
+          - generic [ref=e836]: llama
+          - generic [ref=e837]: "Top: LLaMA-3-8B-SFR-Iterative-DPO-R"
+        - 'link "Sao10K 6 models 3 providers USA hermes Top: L3-70B-Euryale-v2.1" [ref=e838] [cursor=pointer]':
+          - /url: "#/creator/sao10k"
+          - heading "Sao10K" [level=3] [ref=e841]
+          - generic [ref=e842]:
+            - generic [ref=e843]: 6 models
+            - generic [ref=e844]: 3 providers
+          - generic [ref=e845]: USA
+          - generic [ref=e847]: hermes
+          - generic [ref=e848]: "Top: L3-70B-Euryale-v2.1"
+        - 'link "Sarvam AI 1 model 1 provider India sarvam Top: sarvam-m" [ref=e849] [cursor=pointer]':
+          - /url: "#/creator/sarvam-ai"
+          - generic [ref=e850]:
+            - img [ref=e1090]
+            - heading "Sarvam AI" [level=3] [ref=e852]
+          - generic [ref=e853]:
+            - generic [ref=e854]: 1 model
+            - generic [ref=e855]: 1 provider
+          - generic [ref=e856]: India
+          - generic [ref=e858]: sarvam
+          - generic [ref=e859]: "Top: sarvam-m"
+        - 'link "SDAIA 1 model 1 provider Unknown allam Top: allam-2-7b" [ref=e860] [cursor=pointer]':
+          - /url: "#/creator/sdaia"
+          - generic [ref=e861]:
+            - img [ref=e1094]:
+              - generic [ref=e1096]: S
+            - heading "SDAIA" [level=3] [ref=e863]
+          - generic [ref=e864]:
+            - generic [ref=e865]: 1 model
+            - generic [ref=e866]: 1 provider
+          - generic [ref=e867]: Unknown
+          - generic [ref=e869]: allam
+          - generic [ref=e870]: "Top: allam-2-7b"
+        - 'link "Sentence Transformers 7 models 1 provider USA Top: all-MiniLM-L12-v2" [ref=e871] [cursor=pointer]':
+          - /url: "#/creator/sentence-transformers"
+          - heading "Sentence Transformers" [level=3] [ref=e874]
+          - generic [ref=e875]:
+            - generic [ref=e876]: 7 models
+            - generic [ref=e877]: 1 provider
+          - generic [ref=e878]: USA
+          - generic [ref=e879]: "Top: all-MiniLM-L12-v2"
+        - 'link "sesame 1 model 1 provider USA Top: csm-1b" [ref=e880] [cursor=pointer]':
+          - /url: "#/creator/sesame"
+          - heading "sesame" [level=3] [ref=e883]
+          - generic [ref=e884]:
+            - generic [ref=e885]: 1 model
+            - generic [ref=e886]: 1 provider
+          - generic [ref=e887]: USA
+          - generic [ref=e888]: "Top: csm-1b"
+        - 'link "shibing624 1 model 1 provider China Top: text2vec-base-chinese" [ref=e889] [cursor=pointer]':
+          - /url: "#/creator/shibing624"
+          - heading "shibing624" [level=3] [ref=e892]
+          - generic [ref=e893]:
+            - generic [ref=e894]: 1 model
+            - generic [ref=e895]: 1 provider
+          - generic [ref=e896]: China
+          - generic [ref=e897]: "Top: text2vec-base-chinese"
+        - 'link "Stability AI 9 models 2 providers UK zephyr Top: sdxl-turbo" [ref=e898] [cursor=pointer]':
+          - /url: "#/creator/stability"
+          - heading "Stability AI" [level=3] [ref=e901]
+          - generic [ref=e902]:
+            - generic [ref=e903]: 9 models
+            - generic [ref=e904]: 2 providers
+          - generic [ref=e905]: UK
+          - generic [ref=e907]: zephyr
+          - generic [ref=e908]: "Top: sdxl-turbo"
+        - 'link "StepFun 1 model 3 providers China step Top: Step 3.5 Flash" [ref=e909] [cursor=pointer]':
+          - /url: "#/creator/stepfun"
+          - heading "StepFun" [level=3] [ref=e912]
+          - generic [ref=e913]:
+            - generic [ref=e914]: 1 model
+            - generic [ref=e915]: 3 providers
+          - generic [ref=e916]: China
+          - generic [ref=e918]: step
+          - generic [ref=e919]: "Top: Step 3.5 Flash"
+        - 'link "Teknium 2 models 1 provider Unknown mistral Top: OpenHermes-13B" [ref=e920] [cursor=pointer]':
+          - /url: "#/creator/teknium"
+          - generic [ref=e921]:
+            - img [ref=e1097]:
+              - generic [ref=e1099]: T
+            - heading "Teknium" [level=3] [ref=e923]
+          - generic [ref=e924]:
+            - generic [ref=e925]: 2 models
+            - generic [ref=e926]: 1 provider
+          - generic [ref=e927]: Unknown
+          - generic [ref=e929]: mistral
+          - generic [ref=e930]: "Top: OpenHermes-13B"
+        - 'link "Tencent 4 models 3 providers China auto hunyuan Top: auto" [ref=e931] [cursor=pointer]':
+          - /url: "#/creator/tencent"
+          - heading "Tencent" [level=3] [ref=e934]
+          - generic [ref=e935]:
+            - generic [ref=e936]: 4 models
+            - generic [ref=e937]: 3 providers
+          - generic [ref=e938]: China
+          - generic [ref=e939]:
+            - generic [ref=e940]: auto
+            - generic [ref=e941]: hunyuan
+          - generic [ref=e942]: "Top: auto"
+        - 'link "TII 16 models 1 provider UAE falcon Top: falcon-11B" [ref=e943] [cursor=pointer]':
+          - /url: "#/creator/tii"
+          - heading "TII" [level=3] [ref=e946]
+          - generic [ref=e947]:
+            - generic [ref=e948]: 16 models
+            - generic [ref=e949]: 1 provider
+          - generic [ref=e950]: UAE
+          - generic [ref=e952]: falcon
+          - generic [ref=e953]: "Top: falcon-11B"
+        - 'link "Tongyi MAI 1 model 1 provider China Top: Z-Image-Turbo" [ref=e954] [cursor=pointer]':
+          - /url: "#/creator/tongyi-mai"
+          - heading "Tongyi MAI" [level=3] [ref=e957]
+          - generic [ref=e958]:
+            - generic [ref=e959]: 1 model
+            - generic [ref=e960]: 1 provider
+          - generic [ref=e961]: China
+          - generic [ref=e962]: "Top: Z-Image-Turbo"
+        - 'link "Unidentifyable 2 models 1 provider Unknown Top: elephant" [ref=e963] [cursor=pointer]':
+          - /url: "#/creator/unidentifyable"
+          - generic [ref=e964]:
+            - img [ref=e1100]:
+              - generic [ref=e1102]: U
+            - heading "Unidentifyable" [level=3] [ref=e966]
+          - generic [ref=e967]:
+            - generic [ref=e968]: 2 models
+            - generic [ref=e969]: 1 provider
+          - generic [ref=e970]: Unknown
+          - generic [ref=e971]: "Top: elephant"
+        - 'link "Unknown 2 models 8 providers Unknown gpt-oss Top: Free Models Router" [ref=e972] [cursor=pointer]':
+          - /url: "#/creator/unknown"
+          - generic [ref=e973]:
+            - img [ref=e1103]:
+              - generic [ref=e1105]: U
+            - heading "Unknown" [level=3] [ref=e975]
+          - generic [ref=e976]:
+            - generic [ref=e977]: 2 models
+            - generic [ref=e978]: 8 providers
+          - generic [ref=e979]: Unknown
+          - generic [ref=e981]: gpt-oss
+          - generic [ref=e982]: "Top: Free Models Router"
+        - 'link "Upstage 4 models 2 providers South Korea solar Top: solar-10.7b-instruct" [ref=e983] [cursor=pointer]':
+          - /url: "#/creator/upstage"
+          - heading "Upstage" [level=3] [ref=e986]
+          - generic [ref=e987]:
+            - generic [ref=e988]: 4 models
+            - generic [ref=e989]: 2 providers
+          - generic [ref=e990]: South Korea
+          - generic [ref=e992]: solar
+          - generic [ref=e993]: "Top: solar-10.7b-instruct"
+        - 'link "Wan 3 models 2 providers China Top: Wan2.2-I2V-A14B" [ref=e994] [cursor=pointer]':
+          - /url: "#/creator/wan"
+          - heading "Wan" [level=3] [ref=e997]
+          - generic [ref=e998]:
+            - generic [ref=e999]: 3 models
+            - generic [ref=e1000]: 2 providers
+          - generic [ref=e1001]: China
+          - generic [ref=e1002]: "Top: Wan2.2-I2V-A14B"
+        - 'link "xAI 23 models 4 providers USA grok Top: Grok 3" [ref=e1003] [cursor=pointer]':
+          - /url: "#/creator/xai"
+          - heading "xAI" [level=3] [ref=e1006]
+          - generic [ref=e1007]:
+            - generic [ref=e1008]: 23 models
+            - generic [ref=e1009]: 4 providers
+          - generic [ref=e1010]: USA
+          - generic [ref=e1012]: grok
+          - generic [ref=e1013]: "Top: Grok 3"
+        - 'link "Xiaomi 8 models 5 providers China mimo mimo-v2.5-free Top: MiMo V2 Omni" [ref=e1014] [cursor=pointer]':
+          - /url: "#/creator/xiaomi"
+          - heading "Xiaomi" [level=3] [ref=e1017]
+          - generic [ref=e1018]:
+            - generic [ref=e1019]: 8 models
+            - generic [ref=e1020]: 5 providers
+          - generic [ref=e1021]: China
+          - generic [ref=e1022]:
+            - generic [ref=e1023]: mimo
+            - generic [ref=e1024]: mimo-v2.5-free
+          - generic [ref=e1025]: "Top: MiMo V2 Omni"
+        - 'link "Zhipu AI 43 models 10 providers China glm glm-air glm-flash Top: autoglm-phone-9b-multilingual" [ref=e1026] [cursor=pointer]':
+          - /url: "#/creator/zhipu"
+          - generic [ref=e1027]:
+            - img [ref=e1106]
+            - heading "Zhipu AI" [level=3] [ref=e1029]
+          - generic [ref=e1030]:
+            - generic [ref=e1031]: 43 models
+            - generic [ref=e1032]: 10 providers
+          - generic [ref=e1033]: China
+          - generic [ref=e1034]:
+            - generic [ref=e1035]: glm
+            - generic [ref=e1036]: glm-air
+            - generic [ref=e1037]: glm-flash
+          - generic [ref=e1038]: "Top: autoglm-phone-9b-multilingual"

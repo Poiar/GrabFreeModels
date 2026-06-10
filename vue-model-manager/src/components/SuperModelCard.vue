@@ -15,7 +15,7 @@
         <button class="copy-btn-badge" title="Copy name" @click.stop="copyText(model.name)">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </button>
-        <router-link v-if="model.base_model" :to="`/model/${model.base_model}`" class="sm-finetune-badge" :class="derivationBadgeClass" :title="derivationTitle" @click.stop>
+        <router-link v-if="model.base_model || model.derivation_method" :to="model.base_model ? `/model/${model.base_model}` : ''" class="sm-finetune-badge" :class="derivationBadgeClass" :title="derivationTitle" @click.stop>
           {{ derivationLabel }}
         </router-link>
       </span>
@@ -151,8 +151,8 @@ const derivationMeta = computed(() => {
 
 const derivationLabel = computed(() => {
   const name = baseModelName.value;
-  if (!name) return derivationMeta.value.label;
-  return `${derivationMeta.value.label}: ${name}`;
+  if (!name) return 'Derived';
+  return `Derived from: ${name}`;
 });
 
 const derivationBadgeClass = computed(() => derivationMeta.value.cssClass);
@@ -441,8 +441,8 @@ async function copyText(text: string) {
 .sm-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
+  gap: 5px;
+  padding: 2px 6px;
   font-size: 0.68rem;
   font-weight: 700;
   border-radius: 999px;
@@ -612,9 +612,9 @@ async function copyText(text: string) {
 }
 
 .sm-icon {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
@@ -669,8 +669,8 @@ async function copyText(text: string) {
 .provider-tag {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 1px 5px;
+  gap: 5px;
+  padding: 2px 5px 2px 4px;
   border-radius: 4px;
   font-size: 0.6rem;
   font-weight: 500;

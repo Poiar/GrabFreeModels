@@ -45,7 +45,7 @@
       </div>
       <nav aria-label="Main navigation">
         <!-- Dashboard — overview first -->
-        <router-link to="/dashboard" active-class="active" class="nav-dashboard">
+        <router-link to="/dashboard" :class="{ active: isNavActive('/dashboard') }" class="nav-dashboard">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -68,7 +68,7 @@
           <span>Dashboard</span>
         </router-link>
         <!-- Primary browsing: models -->
-        <router-link to="/supermodels" active-class="active" class="nav-supermodels">
+        <router-link to="/supermodels" :class="{ active: isNavActive('/supermodels') }" class="nav-supermodels">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -89,7 +89,7 @@
           </span>
           <span>Super Models</span>
         </router-link>
-        <router-link to="/" active-class="active" class="nav-instances">
+        <router-link to="/" :class="{ active: isNavActive('/') }" class="nav-instances">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -110,7 +110,7 @@
           <span>Model Instances</span>
         </router-link>
         <!-- Quality signal: rankings -->
-        <router-link to="/rankings" active-class="active" class="nav-rankings">
+        <router-link to="/rankings" :class="{ active: isNavActive('/rankings') }" class="nav-rankings">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -133,7 +133,7 @@
           </span>
           <span>Rankings (Free)</span>
         </router-link>
-        <router-link to="/rankings-paid" active-class="active" class="nav-rankings-paid">
+        <router-link to="/rankings-paid" :class="{ active: isNavActive('/rankings-paid') }" class="nav-rankings-paid">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -157,7 +157,7 @@
           <span>Rankings (Paid)</span>
         </router-link>
         <!-- Infrastructure -->
-        <router-link to="/providers" active-class="active" class="nav-providers">
+        <router-link to="/providers" :class="{ active: isNavActive('/providers') }" class="nav-providers">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -177,7 +177,7 @@
           <span>Providers</span>
         </router-link>
         <!-- Supporting dimensions -->
-        <router-link to="/creators" active-class="active" class="nav-creators">
+        <router-link to="/creators" :class="{ active: isNavActive('/creators') }" class="nav-creators">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -196,7 +196,7 @@
           </span>
           <span>Creators</span>
         </router-link>
-        <router-link to="/derivatives" active-class="active" class="nav-derivatives">
+        <router-link to="/derivatives" :class="{ active: isNavActive('/derivatives') }" class="nav-derivatives">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -215,7 +215,7 @@
           </span>
           <span>Derivatives</span>
         </router-link>
-        <router-link to="/families" active-class="active" class="nav-families">
+        <router-link to="/families" :class="{ active: isNavActive('/families') }" class="nav-families">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -237,7 +237,7 @@
           </span>
           <span>Families</span>
         </router-link>
-        <router-link to="/base-models" active-class="active" class="nav-basemodels">
+        <router-link to="/base-models" :class="{ active: isNavActive('/base-models') }" class="nav-basemodels">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -258,7 +258,7 @@
           <span>Base Models</span>
         </router-link>
         <!-- Utility -->
-        <router-link to="/compare" active-class="active" class="nav-compare">
+        <router-link to="/compare" :class="{ active: isNavActive('/compare') }" class="nav-compare">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -278,7 +278,7 @@
           </span>
           <span>Compare</span>
         </router-link>
-        <router-link to="/advanced-search" active-class="active" class="nav-catalog">
+        <router-link to="/advanced-search" :class="{ active: isNavActive('/advanced-search') }" class="nav-catalog">
           <span class="nav-icon">
             <svg
               aria-hidden="true"
@@ -453,6 +453,20 @@ const { theme, toggle: toggleTheme } = useTheme();
 const { shortcutsModalOpen } = useKeyboardShortcuts();
 
 const mobileDrawerOpen = ref(false);
+
+function isNavActive(navPath: string): boolean {
+  const p = route.path;
+  if (p === navPath) return true;
+  // Handle detail pages whose URL prefix doesn't match the list route
+  if (navPath === '/providers' && p.startsWith('/provider/')) return true;
+  if (navPath === '/creators' && p.startsWith('/creator/')) return true;
+  if (navPath === '/derivatives' && p.startsWith('/derivative/')) return true;
+  if (navPath === '/families' && p.startsWith('/family/')) return true;
+  if (navPath === '/base-models' && p.startsWith('/base-model/')) return true;
+  if (navPath === '/supermodels' && p.startsWith('/model/')) return true;
+  if (navPath === '/' && p.startsWith('/model/')) return true;
+  return false;
+}
 
 // Reactive timestamp so timeAgo updates as time passes
 const now = ref(Date.now());

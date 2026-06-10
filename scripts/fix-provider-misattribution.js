@@ -1,18 +1,21 @@
 // Fix models whose creator field is the hosting provider, not the model maker.
 // Only fixes clear cases: where the creator matches a provider slug (NVIDIA, Together, etc.)
 // and the model name clearly belongs to a different creator.
-// Also fixes non-canonical creator names (Qwen → Alibaba, Z.AI → Zhipu AI).
+// Also fixes non-canonical creator names (Qwen → Alibaba, Z.AI → Zhipu AI, etc.).
+// Loads canonical creators from data/canonical-creators.json (single source of truth).
 const { Pool } = require('pg');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 1, ssl: { rejectUnauthorized: false } });
+const REG = require('../data/canonical-creators.json');
 
-// Canonical creator name overrides (non-provider-related)
-const CANONICAL_CREATOR = {
-  'qwen': 'Alibaba',
-  'z.ai': 'Zhipu AI',
-  'z-ai': 'Zhipu AI',
-};
+// Canonical creator name overrides: raw name → canonical name (only entries that differ)
+const CANONICAL_CREATOR = {};
+for (const [raw, canon] of Object.entries(REG.authorOverrides)) {
+  if (raw !== canon.name.toLowerCase()) {
+    CANONICAL_CREATOR[raw] = canon.name;
+  }
+}
 
 // Model name pattern → correct creator (only checked when creator is a hosting provider)
 const NAME_TO_CREATOR = [
@@ -59,11 +62,8 @@ const NAME_TO_CREATOR = [
 ];
 
 // Provider names that are never the actual creator — they only host other companies' models
-const PROVIDER_AS_CREATOR = new Set([
-  'nvidia', 'deepinfra', 'fireworks', 'together', 'nebius', 'novita',
-  'fal ai', 'groq', 'cerebras', 'sambanova', 'lepton ai', 'scaleway',
-  'hyperbolic', 'kluster', 'lambdalabs', 'deepinfra', 'octoai',
-]);
+// Source: data/canonical-creators.json → hostingProviders
+const PROVIDER_AS_CREATOR = new Set(REG.hostingProviders);
 
 async function main() {
   const client = await pool.connect();

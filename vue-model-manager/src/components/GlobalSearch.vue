@@ -113,7 +113,7 @@ const flatItems = computed<SearchItem[]>(() => {
   // Derivatives
   const derivItems: SearchItem[] = [];
   for (const c of store.creators) {
-    if (!c.models.some((m) => m.base_creator && m.base_creator !== m.creator)) continue;
+    if (!c.models.some((m) => m.base_model && m.base_model !== m.slug)) continue;
     if (match(c.name) || match(c.id)) {
       derivItems.push({
         id: `derivative:${c.id}`,

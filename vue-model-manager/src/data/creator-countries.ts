@@ -28,6 +28,7 @@ const CREATOR_COUNTRY: Record<string, string> = {
   'moonshot-ai': 'CN',
   'nlper': 'CN',
   'novita-ai': 'CN',
+  'qwen': 'CN',
   'paddlepaddle': 'CN',
   'rwkv': 'CN',
   'shibing624': 'CN',
@@ -43,6 +44,7 @@ const CREATOR_COUNTRY: Record<string, string> = {
   'abacus-ai': 'US',
   'adept': 'US',
   'ai2': 'US',
+  'defog': 'US',
   'allenai': 'US',
   'amazon': 'US',
   'anthropic': 'US',
@@ -64,6 +66,7 @@ const CREATOR_COUNTRY: Record<string, string> = {
   'ibm': 'US',
   'ideogram': 'US',
   'index-team': 'US',
+  'inflection': 'US',
   'inflection-ai': 'US',
   'liquid': 'US',
   'liquid-ai': 'US',
@@ -71,6 +74,7 @@ const CREATOR_COUNTRY: Record<string, string> = {
   'luma-ai': 'US',
   'meta': 'US',
   'microsoft': 'US',
+  'morph': 'US',
   'mosaicml': 'US',
   'nano-gpt': 'US',
   'nexagi': 'US',
@@ -84,7 +88,9 @@ const CREATOR_COUNTRY: Record<string, string> = {
   'perplexity': 'US',
   'poe': 'US',
   'prime-intellect': 'US',
+  'primeintellect': 'US',
   'pruna-ai': 'US',
+  'relace': 'US',
   'resemble-ai': 'US',
   'ring': 'US',
   'runway': 'US',
@@ -112,6 +118,7 @@ const CREATOR_COUNTRY: Record<string, string> = {
   // ── Israel ──
   'ai21': 'IL',
   'ai21-labs': 'IL',
+  'aion': 'IL',
   'aion-labs': 'IL',
   'bria': 'IL',
   'deci-ai': 'IL',
@@ -126,6 +133,7 @@ const CREATOR_COUNTRY: Record<string, string> = {
 
   // ── UAE ──
   'core42': 'AE',
+  'inception': 'AE',
   'tii': 'AE',
 
   // ── South Korea ──
@@ -147,16 +155,28 @@ const CREATOR_COUNTRY: Record<string, string> = {
   'bigcode': 'CH',
 
   // ── Individual fine-tuners ──
+  'anthracite': 'UU',
+  'devstral': 'UU',
   'mancer': 'UU',
+  'perceptron': 'UU',
   'rnj': 'UU',
   'thedrummer': 'UU',
   'undi95': 'UU',
 
+  // ── Saudi Arabia ──
+  'sdaia': 'SA',
+
   // ── Routers / aggregators (not model creators, fallback) ──
-  'openrouter': 'XX',
+  'llmgateway': 'XX',
+  'novitaai': 'XX',
   'opencode': 'XX',
+  'openrouter': 'XX',
+  'switchpoint': 'XX',
+  'zai': 'XX',
 
   // ── Unknown / Uncategorized ──
+  'na': 'XX',
+  'unidentifiable': 'XX',
   'unknown': 'XX',
 };
 
@@ -183,6 +203,7 @@ const COUNTRIES: Record<string, CountryInfo> = {
   JP: { code: 'JP', name: 'Japan', continent: 'Asia', color: '#BC002D', text: '#FFFFFF' },
   SG: { code: 'SG', name: 'Singapore', continent: 'Asia', color: '#ED2939', text: '#FFFFFF' },
   CH: { code: 'CH', name: 'Switzerland', continent: 'Europe', color: '#DA291C', text: '#FFFFFF' },
+  SA: { code: 'SA', name: 'Saudi Arabia', continent: 'Asia', color: '#006C35', text: '#FFFFFF' },
   NL: { code: 'NL', name: 'Netherlands', continent: 'Europe', color: '#FF6600', text: '#1A1A1A' },
   UU: { code: 'UU', name: 'User', continent: 'Other', color: '#6366F1', text: '#FFFFFF' },
   XX: { code: 'XX', name: 'Unknown', continent: 'Other', color: '#718096', text: '#FFFFFF' },
