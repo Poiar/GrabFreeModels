@@ -249,7 +249,10 @@ async function buildModelsData(client, pool, options = {}) {
     )
       ? 1.5
       : 0;
-    entry.priority_score = Math.round((ctx_val * 1.0 + toolsBonus + codingTags) * 100) / 100;
+    // Provider-type adjustments to the base priority score
+    const firstPartyBoost = (dm.provider_type === 'inference' && dm.serves_third_party === false) ? 1.5 : 0;
+    const routerPenalty = (dm.provider_type === 'router') ? -1.0 : 0;
+    entry.priority_score = Math.round((ctx_val * 1.0 + toolsBonus + codingTags + firstPartyBoost + routerPenalty) * 100) / 100;
 
     outputModels.push(entry);
     const result = dm.status_result || 'untested';

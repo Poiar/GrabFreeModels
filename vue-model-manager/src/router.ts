@@ -102,6 +102,12 @@ const routes = [
     meta: { title: 'Providers' },
   },
   {
+    path: '/compare-providers',
+    name: 'CompareProviders',
+    component: () => import('@/views/CompareProviders.vue'),
+    meta: { title: 'Compare Providers' },
+  },
+  {
     path: '/families',
     name: 'Families',
     component: () => import('@/views/FamilyList.vue'),

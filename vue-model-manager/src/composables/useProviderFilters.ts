@@ -31,8 +31,6 @@ export interface ProviderFilterResult {
   healthChips: ComputedRef<FilterChip[]>;
   /** Provider type filter chips */
   typeChips: ComputedRef<FilterChip[]>;
-  /** Continent labels keyed by continent name */
-  continents: ComputedRef<string[]>;
   /** Map of label constants shared by the view */
   labels: {
     PROVIDER_TYPE: Record<string, string>;
@@ -88,22 +86,6 @@ export function useProviderFilters(
     return chips;
   });
 
-  const continents = computed((): string[] => {
-    const set = new Set<string>();
-    for (const p of providers.value) {
-      set.add(resolveContinent(p.slug).continent);
-    }
-    return CONTINENTS_ORDER.filter((c) => c === 'All' || set.has(c));
-  });
-
-  function continentCount(continent: string): number {
-    let count = 0;
-    for (const p of providers.value) {
-      if (resolveContinent(p.slug).continent === continent) count++;
-    }
-    return count;
-  }
-
   const filtered = computed((): ProviderReference[] => {
     let list = [...providers.value];
 
@@ -157,7 +139,6 @@ export function useProviderFilters(
     filtered,
     healthChips,
     typeChips,
-    continents,
     labels: { PROVIDER_TYPE: PROVIDER_TYPE_LABELS, CONTINENTS: CONTINENTS_ORDER },
   };
 }

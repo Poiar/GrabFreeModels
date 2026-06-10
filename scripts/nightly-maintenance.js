@@ -91,6 +91,7 @@ const STEP_NAMES = [
   're-rank',
   'detect-ranking-drift',
   'ranking-sanity-check',
+  'check-router-only-models',
   'sync-paid-models',
   'rank-paid-models',
   'check-paid-rankings',
@@ -450,6 +451,47 @@ let pipelineStart = Date.now();
     console.log('Running ranking sanity check...');
     await runStep('ranking-sanity-check', async () => {
       execSync('node scripts/check-rankings.js', { stdio: 'inherit' });
+    });
+
+    // 9b. Detect models only available through routers (no inference provider)
+    console.log('\nChecking for router-only models...');
+    await runStep('check-router-only-models', async () => {
+      const { rows: routerOnly } = await pool.query(`
+        WITH model_providers AS (
+          SELECT sm.slug, sm.name,
+                 array_agg(DISTINCT dp.provider_type::text) AS provider_types,
+                 count(DISTINCT dm.datapoint_provider_id) AS provider_count
+          FROM super_models sm
+          JOIN datapoint_models dm ON dm.super_model_id = sm.id
+          JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
+          WHERE dm.is_removed = false AND dm.is_free = true
+          GROUP BY sm.slug, sm.name
+        )
+        SELECT slug, name, provider_count, provider_types
+        FROM model_providers
+        WHERE NOT ('inference' = ANY(provider_types))
+          AND NOT ('local' = ANY(provider_types))
+          AND ('router' = ANY(provider_types))
+        ORDER BY slug
+      `);
+      const payload = {
+        count: routerOnly.length,
+        models: routerOnly.map((r) => ({ slug: r.slug, name: r.name, provider_count: r.provider_count })),
+        checked_at: new Date().toISOString(),
+      };
+      await pool.query(
+        `INSERT INTO metadata (key, value) VALUES ('_router_only_models', $1::jsonb)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+        [JSON.stringify(payload)],
+      );
+      console.log(`  Router-only models: ${routerOnly.length} (stored in metadata._router_only_models)`);
+      if (routerOnly.length > 0) {
+        console.log(`  Top 5:`);
+        for (const m of routerOnly.slice(0, 5)) {
+          console.log(`    ${m.slug} — via ${m.provider_count} provider(s)`);
+        }
+      }
+      return payload;
     });
 
     // 10. Sync paid models from OpenRouter
