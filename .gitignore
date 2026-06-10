@@ -38,6 +38,9 @@ modelsdev-free-models.json
 
 # Generated scraping output (root only)
 /data/
+!data/canonical-creators.json
+!data/provider-base-urls.json
+!data/provider-descriptions.json
 
 # Nightly summary log
 nightly-summary.log
