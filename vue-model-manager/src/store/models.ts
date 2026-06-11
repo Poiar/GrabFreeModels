@@ -17,7 +17,6 @@ import type {
   ProviderLatencyStats,
   KeyHealthData,
 } from '@/types';
-import { buildIndex, type ModelIndex } from './index-builder';
 
 const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore'] as const;
 type Role = (typeof ROLE_ORDER)[number];
@@ -117,9 +116,6 @@ export const useModelsStore = defineStore('models', () => {
   const paidRankingsLoading = ref(false);
   const paidRankingsError = ref<string | null>(null);
 
-  // Shared index: built once per data load, used by all computed properties
-  const index = ref<ModelIndex | null>(null);
-  const paidIndex = ref<ModelIndex | null>(null);
 
   let staleTimer: ReturnType<typeof setTimeout> | null = null;
   function startStaleTimer() {

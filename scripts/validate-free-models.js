@@ -32,6 +32,12 @@ for (let i = 0; i < args.length; i++) {
   }
 }
 
+// Graceful exit that closes the DB pool
+async function die(code) {
+  try { await DB_POOL.end(); } catch {}
+  process.exit(code);
+}
+
 const PROVIDER_CONFIG = require('./provider-config.json');
 
 /** Check if a model's provider is health-trackable (DB-driven, not hardcoded) */
@@ -645,12 +651,12 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
   await loadHealthTrackableProviders();
 } catch (e) {
   logger.error(`Failed to load from DB: ${e.message}\n${e.stack}`);
-  process.exit(1);
+  await die(1);
 }
 
   if (!json || !Array.isArray(json.models)) {
   logger.error('Failed to load models data');
-  process.exit(1);
+  await die(1);
 }
 logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
 
@@ -727,7 +733,7 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
           logger.info(`  • ${dk.ep}: ${dk.model}`);
         }
         logger.info('Fix expired keys before running full validation.\n');
-        process.exit(1);
+        await die(1);
       }
       if (deadKeys.length > 0) {
         logger.info(`\n⚠ Warning: ${deadKeys.length} dead key(s) detected — proceeding but these providers will fail:`);
@@ -807,7 +813,7 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
 
   if (toTest.length === 0) {
     logger.info('No models to test.');
-    process.exit(0);
+    await die(0);
   }
 
   // 1. Fetch valid model IDs from each provider
@@ -852,7 +858,7 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
 
   if (confirmed.length === 0) {
     logger.info('No valid models to test.');
-    process.exit(0);
+    await die(0);
   }
 
   // Load datapoint_model_ids for observation recording
@@ -1338,7 +1344,7 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
     }
     logger.info('────────────────────────\n');
   }
-})().catch((e) => {
+})().catch(async (e) => {
   logger.error(e.message);
-  process.exit(1);
+  await die(1);
 });
