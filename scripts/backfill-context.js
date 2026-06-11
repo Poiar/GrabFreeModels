@@ -18,6 +18,10 @@ const path = require('path');
 const { Pool } = require('pg');
 
 const APPLY = process.argv.includes('--apply');
+const SINCE = (() => {
+  const idx = process.argv.indexOf('--since');
+  return idx !== -1 && process.argv[idx + 1] ? process.argv[idx + 1] : null;
+})();
 
 const connectionString = process.env.DATABASE_URL;
 const pool = connectionString
@@ -74,6 +78,8 @@ const KNOWN_CONTEXT = JSON.parse(
 (async () => {
   const client = await pool.connect();
   try {
+    const sinceFilter = SINCE ? 'AND dm.updated_at >= $1' : '';
+    const sinceParams = SINCE ? [SINCE] : [];
     const { rows: targets } = await client.query(`
       SELECT dm.id, dm.full_id
       FROM datapoint_models dm
@@ -82,8 +88,9 @@ const KNOWN_CONTEXT = JSON.parse(
         AND dm.is_free = true
         AND dm.status_result = 'working'
         AND dm.is_removed = false
+        ${sinceFilter}
       ORDER BY dm.full_id
-    `);
+    `, sinceParams);
 
 logger.info(`Models with null context_length: ${targets.length}`);
 
