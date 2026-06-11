@@ -11,9 +11,19 @@
  */
 
 const fs = require('fs');
+const path = require('path');
 
 const args = process.argv.slice(2);
-const authPath = 'C:\\Users\\pc\\.local\\share\\opencode\\auth.json';
+
+// Resolve auth file path — respects GFM_AUTH_FILE env var, falls back to XDG
+const authPath =
+  process.env.GFM_AUTH_FILE ||
+  path.join(
+    process.env.XDG_DATA_HOME ||
+      path.join(process.env.HOME || process.env.USERPROFILE || '.', '.local', 'share'),
+    'opencode',
+    'auth.json',
+  );
 
 let raw;
 try {

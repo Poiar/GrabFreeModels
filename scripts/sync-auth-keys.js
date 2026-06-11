@@ -14,6 +14,7 @@
  */
 
 const fs = require('fs');
+const path = require('path');
 
 /**
  * Strip JSONC comments without touching string values.
@@ -61,8 +62,17 @@ function stripJsonc(s) {
   return out;
 }
 
-const AUTH_PATH = 'C:\\Users\\pc\\.local\\share\\opencode\\auth.json';
-const CONFIG_PATH = 'C:\\Users\\pc\\.config\\opencode\\opencode.jsonc';
+// Resolve paths — respects GFM_AUTH_FILE / GFM_CONFIG_FILE env vars, falls back to XDG
+const XDG_DATA = process.env.XDG_DATA_HOME ||
+  path.join(process.env.HOME || process.env.USERPROFILE || '.', '.local', 'share');
+
+const AUTH_PATH =
+  process.env.GFM_AUTH_FILE ||
+  path.join(XDG_DATA, 'opencode', 'auth.json');
+
+const CONFIG_PATH =
+  process.env.GFM_CONFIG_FILE ||
+  path.join(process.env.HOME || process.env.USERPROFILE || '.', '.config', 'opencode', 'opencode.jsonc');
 
 const args = process.argv.slice(2);
 const APPLY = args.includes('--apply');

@@ -8,7 +8,12 @@ const ROOT = path.resolve(__dirname, '../..');
 router.post('/admin/:action', async (req, res) => {
   const { action } = req.params;
   const token = req.headers['x-admin-token'];
-  if (token !== 'gfm-admin-2026') return res.status(401).json({ error: 'Unauthorized' });
+  const expected = process.env.ADMIN_TOKEN;
+  if (!expected) {
+    console.error('[Admin] ADMIN_TOKEN env var not set — rejecting all admin requests');
+    return res.status(500).json({ error: 'Server misconfigured: ADMIN_TOKEN not set' });
+  }
+  if (token !== expected) return res.status(401).json({ error: 'Unauthorized' });
 
   const scripts = {
     sync: { cmd: 'node scripts/sync-models.js --apply', label: 'Sync Models' },
