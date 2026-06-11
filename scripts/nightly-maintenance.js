@@ -281,10 +281,11 @@ let pipelineStart = Date.now();
             WHERE dm.is_free = true AND dm.is_removed = false
               AND (dp.is_health_trackable = true OR dp.is_health_trackable IS NULL)
           )
-          SELECT hs.full_id, hs.status, hs.tested_at
-          FROM model_health_snapshots hs
-          JOIN inference_models im ON im.full_id = hs.full_id
-          ORDER BY hs.full_id, hs.tested_at DESC
+          SELECT tob.full_id, tob.status, tob.tested_at
+          FROM test_observations tob
+          JOIN inference_models im ON im.full_id = tob.full_id
+          WHERE tob.status = 'fail' OR tob.status = 'pass'
+          ORDER BY tob.full_id, tob.tested_at DESC
         `);
 
         // Group by full_id and check health degradation
@@ -299,12 +300,12 @@ let pipelineStart = Date.now();
           if (snapshots.length < 6) continue; // need at least 6 to have 5 working + 1 broken
 
           const mostRecent = snapshots[0];
-          if (mostRecent.status === 'working') continue; // still working, no issue
+          if (mostRecent.status === 'pass') continue; // still working, no issue
 
           // Count consecutive working before the most recent non-working
           let streak = 0;
           for (let i = 1; i < snapshots.length; i++) {
-            if (snapshots[i].status === 'working') streak++;
+            if (snapshots[i].status === 'pass') streak++;
             else break;
           }
 
@@ -328,7 +329,7 @@ let pipelineStart = Date.now();
           }
         }
       } catch (e) {
-        console.log(`  Unable to query model_health_snapshots: ${e.message}`);
+        console.log(`  Unable to query test_observations: ${e.message}`);
       }
     });
 
@@ -432,7 +433,7 @@ let pipelineStart = Date.now();
     await runStep(
       're-rank',
       async () => {
-        execSync('node scripts/rank-models.js --apply', { stdio: 'inherit' });
+        execSync('node scripts/rank.js --apply', { stdio: 'inherit' });
       },
       { critical: true },
     );
@@ -596,7 +597,7 @@ let pipelineStart = Date.now();
     // 11. Rank paid models
     console.log('Ranking paid models...');
     await runStep('rank-paid-models', async () => {
-      execSync('node scripts/rank-paid-models.js --apply', { stdio: 'inherit' });
+      execSync('node scripts/rank.js --paid --apply', { stdio: 'inherit' });
     });
 
     // 12. Check paid rankings
