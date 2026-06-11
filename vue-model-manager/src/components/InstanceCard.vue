@@ -479,11 +479,11 @@ async function copyText(text: string) {
 }
 
 .ic-source-badge.src-api { background: var(--accent-subtle); color: var(--accent); }
-.ic-source-badge.src-hf { background: #fff3cd; color: #856404; }
-.ic-source-badge.src-md { background: #d4edff; color: #004085; }
-.ic-source-badge.src-ms { background: #e2d9f3; color: #563d7c; }
-.ic-source-badge.src-ll { background: #d1f2eb; color: #0d5f4e; }
-.ic-source-badge.src-fr { background: #ffe0cc; color: #7a3800; }
+.ic-source-badge.src-hf { background: var(--badge-hf-bg); color: var(--badge-hf-text); }
+.ic-source-badge.src-md { background: var(--badge-md-bg); color: var(--badge-md-text); }
+.ic-source-badge.src-ms { background: var(--badge-ms-bg); color: var(--badge-ms-text); }
+.ic-source-badge.src-ll { background: var(--badge-ll-bg); color: var(--badge-ll-text); }
+.ic-source-badge.src-fr { background: var(--badge-fr-bg); color: var(--badge-fr-text); }
 .ic-footer {
   display: flex;
   align-items: center;

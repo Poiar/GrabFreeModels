@@ -296,28 +296,28 @@ function quantTitle(q: string): string {
 }
 
 .source-hf {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--badge-hf-bg);
+  color: var(--badge-hf-text);
 }
 
 .source-md {
-  background: #d4edff;
-  color: #004085;
+  background: var(--badge-md-bg);
+  color: var(--badge-md-text);
 }
 
 .source-ms {
-  background: #e2d9f3;
-  color: #563d7c;
+  background: var(--badge-ms-bg);
+  color: var(--badge-ms-text);
 }
 
 .source-ll {
-  background: #d1f2eb;
-  color: #0d5f4e;
+  background: var(--badge-ll-bg);
+  color: var(--badge-ll-text);
 }
 
 .source-fr {
-  background: #ffe0cc;
-  color: #7a3800;
+  background: var(--badge-fr-bg);
+  color: var(--badge-fr-text);
 }
 
 .pb-free-badge {

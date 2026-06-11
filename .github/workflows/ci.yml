@@ -2,20 +2,18 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   secrets-scan:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Run Gitleaks secret scan
+      - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -23,27 +21,66 @@ jobs:
         with:
           config-path: .gitleaks.toml
 
-  test:
-    needs: secrets-scan
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
 
-      - name: Validate available-models.json schema
-        run: node tests/validate-models.js
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --check "**/*.{js,mjs,ts,vue,json,md}"
 
-      - name: Check supports_tools coverage
-        run: |
-          MISSING=$(node -e "
-            const json = JSON.parse(require('fs').readFileSync('available-models.json','utf8'));
-            const missing = json.models.filter(m => m.is_free && m.status.result === 'working' && !('supports_tools' in m));
-            if (missing.length > 0) {
-              console.error('Missing supports_tools on ' + missing.length + ' working free models:');
-              missing.forEach(m => console.error('  ' + m.id));
-              process.exit(1);
-            } else {
-              console.log('All working free models have supports_tools ✓');
-            }
-          ")
-        continue-on-error: true
+  vue-typecheck:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vue-model-manager
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: vue-model-manager/package-lock.json
+      - run: npm ci
+      - run: npx vue-tsc --noEmit
+
+  vue-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vue-model-manager
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: vue-model-manager/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run test:unit
+      - run: npm run test:unit:new

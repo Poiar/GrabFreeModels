@@ -611,12 +611,12 @@ function openDetail(model: ModelData, creatorId: string) {
   padding: 2px 10px;
   border-radius: 999px;
 }
-.bmd-fact-chip.fact-param { background: rgba(99,102,241,0.12); color: #818cf8; }
-.bmd-fact-chip.fact-ctx { background: rgba(52,211,153,0.12); color: #34d399; }
-.bmd-fact-chip.fact-open { background: rgba(52,211,153,0.12); color: #34d399; }
-.bmd-fact-chip.fact-closed { background: rgba(251,191,36,0.12); color: #eab308; }
-.bmd-fact-chip.fact-cutoff { background: rgba(168,85,247,0.12); color: #a855f7; }
-.bmd-fact-chip.fact-creator { background: rgba(236,72,153,0.12); color: #ec4899; }
+.bmd-fact-chip.fact-param { background: rgba(99,102,241,0.12); color: var(--deriv-ft); }
+.bmd-fact-chip.fact-ctx { background: rgba(52,211,153,0.12); color: var(--deriv-lora); }
+.bmd-fact-chip.fact-open { background: rgba(52,211,153,0.12); color: var(--deriv-lora); }
+.bmd-fact-chip.fact-closed { background: rgba(251,191,36,0.12); color: var(--deriv-cpt); }
+.bmd-fact-chip.fact-cutoff { background: rgba(168,85,247,0.12); color: var(--deriv-merge); }
+.bmd-fact-chip.fact-creator { background: rgba(236,72,153,0.12); color: var(--deriv-distill); }
 
 .bmd-description {
   font-size: 0.82rem;
@@ -860,20 +860,20 @@ function openDetail(model: ModelData, creatorId: string) {
   transition: all 0.12s;
 }
 .ml-deriv-chip:hover { border-color: var(--accent); color: var(--accent); }
-.ml-deriv-chip.deriv-ft { border-color: rgba(99, 102, 241, 0.35); color: #818cf8; }
-.ml-deriv-chip.deriv-merge { border-color: rgba(168, 85, 247, 0.35); color: #a855f7; }
-.ml-deriv-chip.deriv-distill { border-color: rgba(236, 72, 153, 0.35); color: #ec4899; }
-.ml-deriv-chip.deriv-dpo { border-color: rgba(34, 211, 238, 0.35); color: #22d3ee; }
-.ml-deriv-chip.deriv-cpt { border-color: rgba(250, 204, 21, 0.35); color: #eab308; }
-.ml-deriv-chip.deriv-lora { border-color: rgba(52, 211, 153, 0.35); color: #34d399; }
+.ml-deriv-chip.deriv-ft { border-color: rgba(99, 102, 241, 0.35); color: var(--deriv-ft); }
+.ml-deriv-chip.deriv-merge { border-color: rgba(168, 85, 247, 0.35); color: var(--deriv-merge); }
+.ml-deriv-chip.deriv-distill { border-color: rgba(236, 72, 153, 0.35); color: var(--deriv-distill); }
+.ml-deriv-chip.deriv-dpo { border-color: rgba(34, 211, 238, 0.35); color: var(--deriv-dpo); }
+.ml-deriv-chip.deriv-cpt { border-color: rgba(250, 204, 21, 0.35); color: var(--deriv-cpt); }
+.ml-deriv-chip.deriv-lora { border-color: rgba(52, 211, 153, 0.35); color: var(--deriv-lora); }
 .ml-deriv-chip.deriv-foundation { border-color: rgba(156, 163, 175, 0.35); color: #9ca3af; }
 .ml-deriv-chip.active { background: var(--accent-subtle); border-color: var(--accent); color: var(--accent); }
-.ml-deriv-chip.deriv-ft.active { background: rgba(99, 102, 241, 0.14); border-color: #818cf8; color: #818cf8; }
-.ml-deriv-chip.deriv-merge.active { background: rgba(168, 85, 247, 0.14); border-color: #a855f7; color: #a855f7; }
-.ml-deriv-chip.deriv-distill.active { background: rgba(236, 72, 153, 0.14); border-color: #ec4899; color: #ec4899; }
-.ml-deriv-chip.deriv-dpo.active { background: rgba(34, 211, 238, 0.14); border-color: #22d3ee; color: #22d3ee; }
-.ml-deriv-chip.deriv-cpt.active { background: rgba(250, 204, 21, 0.14); border-color: #eab308; color: #eab308; }
-.ml-deriv-chip.deriv-lora.active { background: rgba(52, 211, 153, 0.14); border-color: #34d399; color: #34d399; }
+.ml-deriv-chip.deriv-ft.active { background: rgba(99, 102, 241, 0.14); border-color: var(--deriv-ft); color: var(--deriv-ft); }
+.ml-deriv-chip.deriv-merge.active { background: rgba(168, 85, 247, 0.14); border-color: var(--deriv-merge); color: var(--deriv-merge); }
+.ml-deriv-chip.deriv-distill.active { background: rgba(236, 72, 153, 0.14); border-color: var(--deriv-distill); color: var(--deriv-distill); }
+.ml-deriv-chip.deriv-dpo.active { background: rgba(34, 211, 238, 0.14); border-color: var(--deriv-dpo); color: var(--deriv-dpo); }
+.ml-deriv-chip.deriv-cpt.active { background: rgba(250, 204, 21, 0.14); border-color: var(--deriv-cpt); color: var(--deriv-cpt); }
+.ml-deriv-chip.deriv-lora.active { background: rgba(52, 211, 153, 0.14); border-color: var(--deriv-lora); color: var(--deriv-lora); }
 .ml-deriv-chip.deriv-foundation.active { background: rgba(156, 163, 175, 0.14); border-color: #9ca3af; color: #9ca3af; }
 .ml-deriv-count { font-size: 0.6rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; opacity: 0.8; }
 

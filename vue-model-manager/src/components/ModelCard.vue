@@ -437,7 +437,7 @@ function roleLabel(role: string): string {
   font-weight: 700;
   border-radius: 999px;
   background: rgba(99, 102, 241, 0.12);
-  color: #818cf8;
+  color: var(--deriv-ft);
   flex-shrink: 0;
   text-decoration: none;
   cursor: pointer;
@@ -446,17 +446,17 @@ function roleLabel(role: string): string {
 .mc-finetune-badge:hover {
   background: rgba(99, 102, 241, 0.22);
 }
-.mc-finetune-badge.deriv-ft { background: rgba(99, 102, 241, 0.12); color: #818cf8; }
+.mc-finetune-badge.deriv-ft { background: rgba(99, 102, 241, 0.12); color: var(--deriv-ft); }
 .mc-finetune-badge.deriv-ft:hover { background: rgba(99, 102, 241, 0.22); }
-.mc-finetune-badge.deriv-merge { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
+.mc-finetune-badge.deriv-merge { background: rgba(168, 85, 247, 0.12); color: var(--deriv-merge); }
 .mc-finetune-badge.deriv-merge:hover { background: rgba(168, 85, 247, 0.22); }
-.mc-finetune-badge.deriv-distill { background: rgba(236, 72, 153, 0.12); color: #ec4899; }
+.mc-finetune-badge.deriv-distill { background: rgba(236, 72, 153, 0.12); color: var(--deriv-distill); }
 .mc-finetune-badge.deriv-distill:hover { background: rgba(236, 72, 153, 0.22); }
-.mc-finetune-badge.deriv-dpo { background: rgba(34, 211, 238, 0.12); color: #22d3ee; }
+.mc-finetune-badge.deriv-dpo { background: rgba(34, 211, 238, 0.12); color: var(--deriv-dpo); }
 .mc-finetune-badge.deriv-dpo:hover { background: rgba(34, 211, 238, 0.22); }
-.mc-finetune-badge.deriv-cpt { background: rgba(250, 204, 21, 0.12); color: #eab308; }
+.mc-finetune-badge.deriv-cpt { background: rgba(250, 204, 21, 0.12); color: var(--deriv-cpt); }
 .mc-finetune-badge.deriv-cpt:hover { background: rgba(250, 204, 21, 0.22); }
-.mc-finetune-badge.deriv-lora { background: rgba(52, 211, 153, 0.12); color: #34d399; }
+.mc-finetune-badge.deriv-lora { background: rgba(52, 211, 153, 0.12); color: var(--deriv-lora); }
 .mc-finetune-badge.deriv-lora:hover { background: rgba(52, 211, 153, 0.22); }
 .mc-finetune-badge.deriv-unknown { background: rgba(156, 163, 175, 0.12); color: #9ca3af; }
 .mc-finetune-badge.deriv-unknown:hover { background: rgba(156, 163, 175, 0.22); }

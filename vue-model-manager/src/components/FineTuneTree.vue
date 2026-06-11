@@ -245,16 +245,16 @@ export default { name: 'FineTuneTree' };
   padding: 1px 5px;
   border-radius: 3px;
   background: rgba(99, 102, 241, 0.12);
-  color: #818cf8;
+  color: var(--deriv-ft);
   letter-spacing: 0.03em;
   flex-shrink: 0;
   line-height: 1.4;
 }
-.ft-badge.deriv-ft { background: rgba(99, 102, 241, 0.12); color: #818cf8; }
-.ft-badge.deriv-merge { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
-.ft-badge.deriv-distill { background: rgba(236, 72, 153, 0.12); color: #ec4899; }
-.ft-badge.deriv-dpo { background: rgba(34, 211, 238, 0.12); color: #22d3ee; }
-.ft-badge.deriv-cpt { background: rgba(250, 204, 21, 0.12); color: #eab308; }
-.ft-badge.deriv-lora { background: rgba(52, 211, 153, 0.12); color: #34d399; }
+.ft-badge.deriv-ft { background: rgba(99, 102, 241, 0.12); color: var(--deriv-ft); }
+.ft-badge.deriv-merge { background: rgba(168, 85, 247, 0.12); color: var(--deriv-merge); }
+.ft-badge.deriv-distill { background: rgba(236, 72, 153, 0.12); color: var(--deriv-distill); }
+.ft-badge.deriv-dpo { background: rgba(34, 211, 238, 0.12); color: var(--deriv-dpo); }
+.ft-badge.deriv-cpt { background: rgba(250, 204, 21, 0.12); color: var(--deriv-cpt); }
+.ft-badge.deriv-lora { background: rgba(52, 211, 153, 0.12); color: var(--deriv-lora); }
 
 </style>

@@ -119,6 +119,22 @@
   --ls-normal: 0em;
   --ls-wide: 0.04em;
   --ls-wider: 0.08em;
+  /* ── Derivation chip semantic colors ── */
+  --deriv-ft: #818cf8;        /* fine-tune */
+  --deriv-merge: #a855f7;     /* merge */
+  --deriv-distill: #ec4899;   /* distillation */
+  --deriv-dpo: #22d3ee;       /* DPO */
+  --deriv-cpt: #eab308;       /* continued pretraining */
+  --deriv-lora: #34d399;      /* LoRA adapter */
+  --deriv-quant: #9ca3af;     /* quantization */
+  --deriv-foundation: #9ca3af;/* foundation */
+  --deriv-unknown: #9ca3af;   /* unknown */
+  --badge-hf-bg: #fff3cd; --badge-hf-text: #856404;
+  --badge-md-bg: #d4edff; --badge-md-text: #004085;
+  --badge-ms-bg: #e2d9f3; --badge-ms-text: #563d7c;
+  --badge-ll-bg: #d1f2eb; --badge-ll-text: #0d5f4e;
+  --badge-fr-bg: #ffe0cc; --badge-fr-text: #7a3800;
+
 
   /* ── v2: Shadow Elevation Scale ── */
   --shadow-elevation-1: 0 1px 2px rgba(0,0,0,0.20);
