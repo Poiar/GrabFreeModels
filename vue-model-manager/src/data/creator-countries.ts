@@ -157,7 +157,6 @@ const CREATOR_COUNTRY: Record<string, string> = {
 
   // ── Individual fine-tuners ──
   'anthracite': 'UU',
-  'devstral': 'UU',
   'mancer': 'UU',
   'perceptron': 'UU',
   'rnj': 'UU',

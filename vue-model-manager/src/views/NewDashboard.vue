@@ -668,45 +668,6 @@ const newThisWeek = computed(() => {
   return items.slice(0, 15);
 });
 
-// Context Masters — best context-to-params ratio
-const contextMasters = computed(() => {
-  try {
-    const entries: { slug: string; name: string; params: string; context: string; ratio: number; ratio_label: string }[] = [];
-    for (const creator of store.visibleCreators) {
-      for (const model of creator.models) {
-        const ctx = model.best_context;
-        if (!ctx || ctx < 128000) continue;
-        const dps = model.providers.filter(p => !p._removed && p.param_count_b != null);
-        if (dps.length === 0) continue;
-        const minParams = Math.min(...dps.map(p => p.param_count_b!));
-        if (!isFinite(minParams) || minParams === 0) continue;
-        const ratio = ctx / minParams;
-        if (ratio < 1000) continue;
-        entries.push({
-          slug: model.slug,
-          name: model.name,
-          params: fmtParams(minParams),
-          context: fmtCtx(ctx),
-          ratio,
-          ratio_label: `${Math.round(ratio / 1000)}K ctx/B`,
-        });
-      }
-    }
-    return entries.sort((a, b) => b.ratio - a.ratio).slice(0, 8);
-  } catch {
-    return [];
-  }
-});
-
-function fmtCtx(ctx: number): string {
-  if (ctx >= 1_000_000) return (ctx / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M ctx';
-  return Math.round(ctx / 1000) + 'K ctx';
-}
-function fmtParams(b: number): string {
-  if (b >= 1000) return (b / 1000).toFixed(1).replace(/\.0$/, '') + 'T';
-  return b + 'B';
-}
-
 const recentlyActive = computed(() => {
   const items: { dp: { full_id: string; provider: string; last_success: string | null }; model: { slug: string; name: string } }[] = [];
   for (const creator of store.visibleCreators) {

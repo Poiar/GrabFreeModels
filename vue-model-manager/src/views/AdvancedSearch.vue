@@ -226,7 +226,7 @@ import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
 const route = useRoute();
 const router = useRouter();
 const store = useModelsStore();
-const { saved: savedSearches, save, remove: removeSavedSearch, clearHistory: clearSavedSearches, hasSaved } = useSavedSearches();
+const { saved: savedSearches, save, remove: removeSavedSearch, clearHistory: clearSavedSearches } = useSavedSearches();
 
 // ── Search input ──
 const searchQuery = ref('');

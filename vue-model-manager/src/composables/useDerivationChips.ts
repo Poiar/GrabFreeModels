@@ -22,7 +22,14 @@ export const DERIV_CHIPS = Object.entries(DERIV_META)
   .sort((a, b) => a[1].order - b[1].order)
   .map(([key, meta]) => ({ key, ...meta }));
 
-export const PARAM_BUCKETS = [
+interface ParamBucket {
+  readonly label: string;
+  readonly min?: number;
+  readonly max?: number;
+  readonly key: string;
+}
+
+export const PARAM_BUCKETS: ParamBucket[] = [
   { label: '<1B', max: 1, key: 'tiny' },
   { label: '1-7B', min: 1, max: 7, key: 'small' },
   { label: '7-30B', min: 7, max: 30, key: 'medium' },
