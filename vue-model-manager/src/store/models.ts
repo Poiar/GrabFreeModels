@@ -17,6 +17,7 @@ import type {
   ProviderLatencyStats,
   KeyHealthData,
 } from '@/types';
+import { buildIndex, type ModelIndex } from './index-builder';
 
 const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore'] as const;
 type Role = (typeof ROLE_ORDER)[number];
@@ -116,6 +117,10 @@ export const useModelsStore = defineStore('models', () => {
   const paidRankingsLoading = ref(false);
   const paidRankingsError = ref<string | null>(null);
 
+  // Shared index: built once per data load, used by all computed properties
+  const index = ref<ModelIndex | null>(null);
+  const paidIndex = ref<ModelIndex | null>(null);
+
   let staleTimer: ReturnType<typeof setTimeout> | null = null;
   function startStaleTimer() {
     stopStaleTimer();
@@ -154,29 +159,7 @@ export const useModelsStore = defineStore('models', () => {
   const providerRefs = computed((): ProviderReference[] => data.value?.providers ?? []);
 
   // ── Family grouping ──
-  const families = computed((): FamilyData[] => {
-    const familyMap = new Map<string, { models: Map<number, ModelData>; providerSet: Set<string> }>();
-    for (const model of allModels.value) {
-      const familyName = model.family || 'Uncategorized';
-      if (!familyMap.has(familyName)) {
-        familyMap.set(familyName, { models: new Map(), providerSet: new Set() });
-      }
-      const entry = familyMap.get(familyName)!;
-      entry.models.set(model.super_id, model);
-      for (const p of model.providers) entry.providerSet.add(p.provider_slug);
-    }
-    const result: FamilyData[] = [];
-    for (const [name, entry] of familyMap) {
-      const models = Array.from(entry.models.values()).sort((a, b) => a.name.localeCompare(b.name));
-      result.push({ name, model_count: models.length, provider_count: entry.providerSet.size, models });
-    }
-    result.sort((a, b) => {
-      if (a.name === 'Uncategorized') return 1;
-      if (b.name === 'Uncategorized') return -1;
-      return a.name.localeCompare(b.name);
-    });
-    return result;
-  });
+  const families = computed((): FamilyData[] => index.value?.families ?? []);
 
   const visibleFamilies = computed((): FamilyData[] => {
     if (!isSourceFilterActive.value) return families.value;
@@ -204,35 +187,13 @@ export const useModelsStore = defineStore('models', () => {
   });
 
   // ── Flatten all models across all creators ──
-  const allModels = computed((): ModelData[] => {
-    const result: ModelData[] = [];
-    for (const creator of creators.value) {
-      for (const model of creator.models) {
-        result.push(model);
-      }
-    }
-    return result;
-  });
+  const allModels = computed((): ModelData[] => index.value?.allModels ?? []);
 
   // ── Flatten all provider datapoints ──
-  const allDatapoints = computed((): ProviderDatapoint[] => {
-    const result: ProviderDatapoint[] = [];
-    for (const model of allModels.value) {
-      for (const dp of model.providers) {
-        result.push(dp);
-      }
-    }
-    return result;
-  });
+  const allDatapoints = computed((): ProviderDatapoint[] => index.value?.allDatapoints ?? []);
 
   // ── Model lookup by slug ──
-  const modelBySlug = computed((): Map<string, ModelData> => {
-    const map = new Map<string, ModelData>();
-    for (const model of allModels.value) {
-      map.set(model.slug, model);
-    }
-    return map;
-  });
+  const modelBySlug = computed((): Map<string, ModelData> => index.value?.modelBySlug ?? new Map());
 
   // ── Base model lookup (fine-tune parent) ──
   const baseModelParent = computed((): Map<number, ModelData> => {
@@ -247,27 +208,10 @@ export const useModelsStore = defineStore('models', () => {
   });
 
   // ── Derived models (fine-tune children) ──
-  const derivedModels = computed((): Map<string, ModelData[]> => {
-    const map = new Map<string, ModelData[]>();
-    for (const model of allModels.value) {
-      if (model.base_model) {
-        if (!map.has(model.base_model)) map.set(model.base_model, []);
-        map.get(model.base_model)!.push(model);
-      }
-    }
-    return map;
-  });
+  const derivedModels = computed((): Map<string, ModelData[]> => index.value?.derivedModels ?? new Map());
 
   // ── Model lookup by super_id ──
-  const modelBySuperId = computed((): Map<number, { model: ModelData; creator: CreatorData }> => {
-    const map = new Map<number, { model: ModelData; creator: CreatorData }>();
-    for (const creator of creators.value) {
-      for (const model of creator.models) {
-        map.set(model.super_id, { model, creator });
-      }
-    }
-    return map;
-  });
+  const modelBySuperId = computed((): Map<number, { model: ModelData; creator: CreatorData }> => index.value?.modelBySuperId ?? new Map());
 
   // ── Model lookup by id (full_id) ──
   function getModelById(id: string): ModelData | null {
@@ -325,19 +269,19 @@ export const useModelsStore = defineStore('models', () => {
   // ── Filtered model lists ──
   const freeModels = computed(() => allModels.value);
 
-  const workingModels = computed(() =>
-    allModels.value.filter((m) =>
-      m.providers.some((p) => !p._removed && p.status.result === 'working'),
-    ),
-  );
-
-  const brokenModels = computed(() =>
-    allModels.value.filter((m) => m.providers.some((p) => p.status.result === 'broken' || p.status.result === 'not_found')),
-  );
-
-  const rateLimitedModels = computed(() =>
-    allModels.value.filter((m) => m.providers.some((p) => p.status.result === 'rate_limited')),
-  );
+  const workingModels = computed(() => {
+    const ids = new Set((index.value?.workingDatapoints ?? []).map(d => index.value?.datapointById.get(d.full_id)?.model.super_id));
+    return allModels.value.filter(m => ids.has(m.super_id));
+  });
+  const brokenModels = computed(() => {
+    const ids = new Set([...(index.value?.brokenDatapoints ?? []), ...(index.value?.rateLimitedDatapoints ?? [])]
+      .map(d => index.value?.datapointById.get(d.full_id)?.model.super_id));
+    return allModels.value.filter(m => ids.has(m.super_id));
+  });
+  const rateLimitedModels = computed(() => {
+    const ids = new Set((index.value?.rateLimitedDatapoints ?? []).map(d => index.value?.datapointById.get(d.full_id)?.model.super_id));
+    return allModels.value.filter(m => ids.has(m.super_id));
+  });
 
   const untestedModels = computed(() =>
     allModels.value.filter((m) => m.providers.some((p) => p.status.result === 'untested')),
@@ -965,6 +909,7 @@ export const useModelsStore = defineStore('models', () => {
     const cached = loadFromCache(CACHE_KEY);
     if (cached) {
       data.value = cached.data;
+      index.value = buildIndex(cached.data);
       lastLoaded.value = new Date(cached.cachedAt);
       isStale.value = false;
       loading.value = false;
@@ -990,6 +935,7 @@ export const useModelsStore = defineStore('models', () => {
       }
 
       data.value = freshData;
+      index.value = buildIndex(freshData);
       saveToCache(rawJson, CACHE_KEY);
       lastLoaded.value = new Date();
       isStale.value = false;
@@ -1004,6 +950,7 @@ export const useModelsStore = defineStore('models', () => {
         const fallbackRaw = await fallbackResp.text();
         const fallbackData: ModelsData = JSON.parse(fallbackRaw);
         data.value = fallbackData;
+        index.value = buildIndex(fallbackData);
         saveToCache(fallbackRaw, CACHE_KEY);
         lastLoaded.value = new Date();
         isStale.value = false;
@@ -1058,6 +1005,7 @@ export const useModelsStore = defineStore('models', () => {
     const cached = loadFromCache(PAID_CACHE_KEY);
     if (cached) {
       paidData.value = cached.data;
+      paidIndex.value = buildIndex(cached.data);
       paidLastLoaded.value = new Date(cached.cachedAt);
       paidLoading.value = false;
     }
@@ -1079,6 +1027,7 @@ export const useModelsStore = defineStore('models', () => {
       }
 
       paidData.value = freshData;
+      paidIndex.value = buildIndex(freshData);
       saveToCache(rawJson, PAID_CACHE_KEY);
       paidLastLoaded.value = new Date();
     } catch (e: unknown) {
@@ -1089,6 +1038,7 @@ export const useModelsStore = defineStore('models', () => {
         const fallbackRaw = await fallbackResp.text();
         const fallbackData: ModelsData = JSON.parse(fallbackRaw);
         paidData.value = fallbackData;
+        paidIndex.value = buildIndex(fallbackData);
         saveToCache(fallbackRaw, PAID_CACHE_KEY);
         paidLastLoaded.value = new Date();
       } catch (fe: unknown) {
@@ -1424,6 +1374,8 @@ export const useModelsStore = defineStore('models', () => {
     paidCreators,
     paidProviderRefs,
     paidDatapointById,
+    index,
+    paidIndex,
     paidModelScores,
     // Rankings-only data (lightweight)
     rankingsData,

@@ -206,7 +206,7 @@ async function buildModelsData(client, pool, options = {}) {
       output_limit: feat?.output_limit?.[0] ? parseInt(feat.output_limit[0], 10) : null,
       temperature: feat?.temperature?.[0] === undefined ? null : feat.temperature[0] === 'true',
       open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
-      family: dm.super_family || feat?.family?.[0] || null,
+      family: dm.super_family || null,
       base_model: dm.super_base_model || (DERIVATION_BY_SLUG.get(dm.super_slug) || {}).base_model || null,
       derivation_method: dm.super_derivation_method || (DERIVATION_BY_SLUG.get(dm.super_slug) || {}).derivation_method || null,
       knowledge_cutoff: feat?.knowledge_cutoff?.[0] || null,
