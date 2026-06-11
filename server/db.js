@@ -23,10 +23,29 @@ pool.on('error', (err) => {
   console.error('Pool error:', err.message);
 });
 
-if (isNeon) {
+// ── Neon keepalive pings ──
+// Track the interval handle so we don't leak intervals on cache-busting reloads
+let pingInterval = null;
+
+function startPing() {
+  stopPing(); // clear previous interval if module is re-required
   const ping = () => pool.query('SELECT 1').catch(() => {});
-  const interval = setInterval(ping, 60000);
-  interval.unref();
+  if (isNeon) {
+    pingInterval = setInterval(ping, 60000);
+    pingInterval.unref();
+  }
 }
 
+function stopPing() {
+  if (pingInterval) {
+    clearInterval(pingInterval);
+    pingInterval = null;
+  }
+}
+
+startPing();
+
 module.exports = pool;
+module.exports.pool = pool;
+module.exports.startPing = startPing;
+module.exports.stopPing = stopPing;

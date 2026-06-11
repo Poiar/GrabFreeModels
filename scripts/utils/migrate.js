@@ -58,7 +58,7 @@ function listMigrationFiles() {
 // ── Main ──
 async function main() {
   // Lazy-require pool so --help / --status don't need DB
-  const { pool } = require(path.join(ROOT, 'server', 'db'));
+  const pool = require(path.join(ROOT, 'server', 'db'));
 
   const files = listMigrationFiles();
   if (files.length === 0) {
