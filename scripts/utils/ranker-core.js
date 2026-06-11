@@ -339,9 +339,10 @@ function buildBaseRankings(eligible, maxContext, scoreMap, scoreTypeStats) {
 // ── Compute diff between old and new rankings ──
 function diffRankings(oldRankings, newRankings) {
   const diffs = {};
-  for (const role of Object.keys(ROLES)) {
+  const roles = new Set([...Object.keys(oldRankings || {}), ...Object.keys(newRankings || {})]);
+  for (const role of roles) {
     const oldList = oldRankings[role] || [];
-    const newList = newRankings[role];
+    const newList = newRankings[role] || [];
     if (JSON.stringify(oldList) === JSON.stringify(newList)) {
       diffs[role] = { unchanged: true, count: newList.length };
     } else {

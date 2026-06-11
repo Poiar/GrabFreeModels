@@ -357,7 +357,9 @@ async function rankModels() {
 
     // ── Per-source ranking variants ──
     const SOURCES = ['artificial_analysis', 'modelsdev'];
-    const allVariants = { combined: { ...newRankings, _scores: allScores, _meta: allMeta } };
+    // combined variant is NOT stored separately — the base rankings ARE the combined variant.
+    // resolveVariant() in the store falls through to the base r when variant === 'combined'.
+    const allVariants = {};
 
     const SOURCE_DESCRIPTIONS = {
       artificial_analysis: {

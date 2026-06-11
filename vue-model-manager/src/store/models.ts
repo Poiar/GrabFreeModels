@@ -21,6 +21,23 @@ import type {
 const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore'] as const;
 type Role = (typeof ROLE_ORDER)[number];
 
+// ── Rankings-only payload types (lightweight, no creators/models/providers hierarchy) ──
+interface ModelIndexEntry {
+  name: string;
+  slug: string;
+  creator: string;
+  providerSlug: string;
+  providerName: string;
+  providerSlugs: string[];
+  super_id: number;
+}
+
+interface RankingsPayload {
+  _role_rankings: ModelsData['_role_rankings'];
+  _model_scores: ModelsData['_model_scores'] | null;
+  _model_index: Record<string, ModelIndexEntry>;
+}
+
 // ── SessionStorage cache for instant page loads ──
 const CACHE_KEY = 'gf_models_cache';
 const PAID_CACHE_KEY = 'gf_models_cache_paid';
@@ -89,6 +106,15 @@ export const useModelsStore = defineStore('models', () => {
   const paidLoading = ref(false);
   const paidError = ref<string | null>(null);
   const paidLastLoaded = ref<Date | null>(null);
+
+  // ── Rankings-only data (lightweight, no creators/providers/models hierarchy) ──
+  const rankingsData = ref<RankingsPayload | null>(null);
+  const rankingsLoading = ref(false);
+  const rankingsError = ref<string | null>(null);
+
+  const paidRankingsData = ref<RankingsPayload | null>(null);
+  const paidRankingsLoading = ref(false);
+  const paidRankingsError = ref<string | null>(null);
 
   let staleTimer: ReturnType<typeof setTimeout> | null = null;
   function startStaleTimer() {
@@ -414,22 +440,23 @@ export const useModelsStore = defineStore('models', () => {
 
   // ── Metadata ──
   // Free rankings: each role resolved from its own variant
+  // Prefer rankings-only payload when available (avoids loading full 7MB ModelsData)
   const roleRankings = computed(() => {
-    const r = data.value?._role_rankings;
+    const r = rankingsData.value?._role_rankings ?? data.value?._role_rankings;
     if (!r) return {} as Record<Role, string[]>;
     const result = {} as Record<Role, string[]>;
     for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, freeRoleVariants.value).rankings;
     return result;
   });
   const roleScores = computed(() => {
-    const r = data.value?._role_rankings;
+    const r = rankingsData.value?._role_rankings ?? data.value?._role_rankings;
     if (!r) return {} as Record<string, RoleScore[]>;
     const result = {} as Record<string, RoleScore[]>;
     for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, freeRoleVariants.value).scores;
     return result;
   });
   const roleMeta = computed(() => {
-    const r = data.value?._role_rankings;
+    const r = rankingsData.value?._role_rankings ?? data.value?._role_rankings;
     if (!r) return {} as Record<string, RoleMeta>;
     const result = {} as Record<string, RoleMeta>;
     for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, freeRoleVariants.value).meta;
@@ -437,28 +464,29 @@ export const useModelsStore = defineStore('models', () => {
   });
 
   const availableRankingVariants = computed(() => {
-    const variants = data.value?._role_rankings?._variants;
+    const r = rankingsData.value?._role_rankings ?? data.value?._role_rankings;
+    const variants = r?._variants;
     const keys = variants ? Object.keys(variants).filter(k => k !== 'combined') : [];
     return keys.length > 0 ? ['combined', ...keys] : ['combined'];
   });
 
   // ── Paid metadata (per-role variant resolution) ──
   const paidRoleRankings = computed(() => {
-    const r = paidData.value?._role_rankings;
+    const r = paidRankingsData.value?._role_rankings ?? paidData.value?._role_rankings;
     if (!r) return {} as Record<Role, string[]>;
     const result = {} as Record<Role, string[]>;
     for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, paidRoleVariants.value).rankings;
     return result;
   });
   const paidRoleScores = computed(() => {
-    const r = paidData.value?._role_rankings;
+    const r = paidRankingsData.value?._role_rankings ?? paidData.value?._role_rankings;
     if (!r) return {} as Record<string, RoleScore[]>;
     const result = {} as Record<string, RoleScore[]>;
     for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, paidRoleVariants.value).scores;
     return result;
   });
   const paidRoleMeta = computed(() => {
-    const r = paidData.value?._role_rankings;
+    const r = paidRankingsData.value?._role_rankings ?? paidData.value?._role_rankings;
     if (!r) return {} as Record<string, RoleMeta>;
     const result = {} as Record<string, RoleMeta>;
     for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, paidRoleVariants.value).meta;
@@ -480,11 +508,13 @@ export const useModelsStore = defineStore('models', () => {
   }
 
   const freeVariantKeys = computed(() => {
-    const variants = data.value?._role_rankings?._variants;
+    const r = rankingsData.value?._role_rankings ?? data.value?._role_rankings;
+    const variants = r?._variants;
     return variants ? Object.keys(variants).filter(k => k !== 'combined') : [];
   });
   const paidVariantKeys = computed(() => {
-    const variants = paidData.value?._role_rankings?._variants;
+    const r = paidRankingsData.value?._role_rankings ?? paidData.value?._role_rankings;
+    const variants = r?._variants;
     return variants ? Object.keys(variants).filter(k => k !== 'combined') : [];
   });
 
@@ -560,8 +590,8 @@ export const useModelsStore = defineStore('models', () => {
 
   const testSummary = computed(() => data.value?._test_summary ?? null);
   const testSummaryPrevious = computed(() => data.value?._test_summary_previous ?? null);
-  const modelScores = computed(() => data.value?._model_scores ?? null);
-  const paidModelScores = computed(() => paidData.value?._model_scores ?? null);
+  const modelScores = computed(() => rankingsData.value?._model_scores ?? data.value?._model_scores ?? null);
+  const paidModelScores = computed(() => paidRankingsData.value?._model_scores ?? paidData.value?._model_scores ?? null);
   const validationMethod = computed(() => data.value?._validation_method ?? null);
 
   // ── Model health aggregated by super_id (for sparklines) ──
@@ -1069,6 +1099,225 @@ export const useModelsStore = defineStore('models', () => {
     }
   }
 
+  // ── Rankings-only loading ──
+  function buildModelIndex(full: ModelsData): Record<string, ModelIndexEntry> {
+    const modelIndex: Record<string, ModelIndexEntry> = {};
+    for (const creator of (full.creators || [])) {
+      for (const model of creator.models) {
+        const providerSlugs = model.providers
+          .filter((p) => !p._removed)
+          .map((p) => p.provider_slug)
+          .sort();
+        for (const dp of model.providers) {
+          modelIndex[dp.full_id] = {
+            name: model.name,
+            slug: model.slug,
+            creator: creator.name,
+            providerSlug: dp.provider_slug,
+            providerName: dp.provider,
+            providerSlugs,
+            super_id: model.super_id,
+          };
+        }
+      }
+    }
+    return modelIndex;
+  }
+
+  async function loadRankings() {
+    // If rankings already loaded and fresh, skip
+    if (rankingsData.value && lastLoaded.value) {
+      const age = Date.now() - lastLoaded.value.getTime();
+      if (age < CACHE_TTL_MS) return;
+    }
+
+    // If full data is already loaded and fresh, derive rankings from it
+    if (data.value && lastLoaded.value) {
+      const age = Date.now() - lastLoaded.value.getTime();
+      if (age < CACHE_TTL_MS) {
+        if (!rankingsData.value) {
+          rankingsData.value = {
+            _role_rankings: data.value._role_rankings,
+            _model_scores: data.value._model_scores,
+            _model_index: buildModelIndex(data.value),
+          };
+        }
+        return;
+      }
+    }
+
+    rankingsLoading.value = true;
+    rankingsError.value = null;
+
+    try {
+      const resp = await fetchWithRetry('/api/rankings');
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const rawJson = await resp.text();
+      rankingsData.value = JSON.parse(rawJson);
+      lastLoaded.value = new Date();
+    } catch (e: unknown) {
+      if (e instanceof DOMException && e.name === 'AbortError') return;
+      // Fallback: try loading full data if rankings endpoint fails
+      if (!data.value) {
+        try { await loadData(); } catch { /* will use rankingsError below */ }
+      }
+      if (!data.value) {
+        rankingsError.value = e instanceof Error ? e.message : String(e);
+      }
+    } finally {
+      rankingsLoading.value = false;
+    }
+  }
+
+  async function loadPaidRankings() {
+    // If rankings already loaded and fresh, skip
+    if (paidRankingsData.value && paidLastLoaded.value) {
+      const age = Date.now() - paidLastLoaded.value.getTime();
+      if (age < CACHE_TTL_MS) return;
+    }
+
+    // If full paid data is already loaded and fresh, derive rankings from it
+    if (paidData.value && paidLastLoaded.value) {
+      const age = Date.now() - paidLastLoaded.value.getTime();
+      if (age < CACHE_TTL_MS) {
+        if (!paidRankingsData.value) {
+          paidRankingsData.value = {
+            _role_rankings: paidData.value._role_rankings,
+            _model_scores: paidData.value._model_scores,
+            _model_index: buildModelIndex(paidData.value),
+          };
+        }
+        return;
+      }
+    }
+
+    paidRankingsLoading.value = true;
+    paidRankingsError.value = null;
+
+    try {
+      const resp = await fetchWithRetry('/api/rankings/paid');
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const rawJson = await resp.text();
+      paidRankingsData.value = JSON.parse(rawJson);
+      paidLastLoaded.value = new Date();
+    } catch (e: unknown) {
+      if (e instanceof DOMException && e.name === 'AbortError') return;
+      if (!paidData.value) {
+        try { await loadPaidData(); } catch { /* will use rankingsError below */ }
+      }
+      if (!paidData.value) {
+        paidRankingsError.value = e instanceof Error ? e.message : String(e);
+      }
+    } finally {
+      paidRankingsLoading.value = false;
+    }
+  }
+
+  // ── Datapoint resolvers for RankingsExplorer (from lightweight model index) ──
+  function resolveFromIndex(
+    idx: Record<string, ModelIndexEntry> | undefined,
+    id: string,
+  ): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
+    if (!idx || !idx[id]) return undefined;
+    const entry = idx[id];
+    const dp = {
+      full_id: id,
+      provider: entry.providerName,
+      provider_slug: entry.providerSlug,
+      provider_type: null as string | null,
+      serves_third_party: null as boolean | null,
+      hardware: null as string | null,
+      is_openai_compat: null as boolean | null,
+      supports_streaming: null as boolean | null,
+      requires_account_id: null as boolean | null,
+      context_length: null as number | null,
+      quantization: null as string | null,
+      is_free: true,
+      supports_tools: null as boolean | null,
+      supports_reasoning: null as boolean | null,
+      supports_attachment: null as boolean | null,
+      supports_structured_output: null as boolean | null,
+      output_limit: null as number | null,
+      temperature: null as number | null,
+      open_weights: null as boolean | null,
+      tags: [] as string[],
+      best_for: [] as string[],
+      input_types: [] as string[],
+      output_types: [] as string[],
+      model_tier: [] as string[],
+      model_variant: null as string | null,
+      param_count_b: null as number | null,
+      active_param_count_b: null as number | null,
+      expert_count: null as number | null,
+      thinking_variant: false,
+      model_version: null as string | null,
+      release_stage: null as string | null,
+      coding_specialized: false,
+      description: null as string | null,
+      status: { tested: null as string | null, result: 'working' as const, detail: '' },
+      last_success: null as string | null,
+      _removed: false,
+      source_ids: [] as number[],
+      family: null as string | null,
+      base_model: null as string | null,
+      knowledge_cutoff: null as string | null,
+      last_updated: null as string | null,
+      release_date: null as string | null,
+      deprecated_at: null as string | null,
+      failure_category: null as string | null,
+      base_url: null as string | null,
+      npm_package: null as string | null,
+      created_at: null as string | null,
+      priority_score: null as number | null,
+      limitations: null as number | null,
+      notes: null as string | null,
+      max_rpm: null as number | null,
+      max_tpm: null as number | null,
+      max_daily_requests: null as number | null,
+      requires_card: null as boolean | null,
+    } as ProviderDatapoint;
+    return {
+      dp,
+      model: {
+        super_id: entry.super_id,
+        name: entry.name,
+        slug: entry.slug,
+        creator: entry.creator || null,
+        base_creator: null as string | null,
+        family: null as string | null,
+        base_model: null as string | null,
+        derivation_method: null as string | null,
+        best_for: [] as string[],
+        best_context: null as number | null,
+        min_context: null as number | null,
+        role_rankings: {},
+        providers: [dp],
+      } as ModelData,
+      creator: {
+        id: '',
+        name: entry.creator || '',
+        type: 'lab' as const,
+        role: 'Model creator' as const,
+        description: null as string | null,
+        model_count: 0,
+        provider_count: 0,
+        models: [] as ModelData[],
+      } as CreatorData,
+    };
+  }
+
+  function rankingsDatapointById(
+    id: string,
+  ): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
+    return resolveFromIndex(rankingsData.value?._model_index, id) ?? datapointById.value.get(id);
+  }
+
+  function paidRankingsDatapointById(
+    id: string,
+  ): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
+    return resolveFromIndex(paidRankingsData.value?._model_index, id) ?? paidDatapointById.value.get(id);
+  }
+
   const sourcesPanelOpen = ref(false);
 
   function requestSourcesPanel() {
@@ -1176,9 +1425,20 @@ export const useModelsStore = defineStore('models', () => {
     paidProviderRefs,
     paidDatapointById,
     paidModelScores,
+    // Rankings-only data (lightweight)
+    rankingsData,
+    rankingsLoading,
+    rankingsError,
+    paidRankingsData,
+    paidRankingsLoading,
+    paidRankingsError,
+    rankingsDatapointById,
+    paidRankingsDatapointById,
     // Actions
     loadData,
     loadPaidData,
+    loadRankings,
+    loadPaidRankings,
     loadSources,
     toggleSource,
     toggleAllSources,
