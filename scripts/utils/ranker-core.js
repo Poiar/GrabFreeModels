@@ -339,10 +339,11 @@ function buildBaseRankings(eligible, maxContext, scoreMap, scoreTypeStats) {
 // ── Compute diff between old and new rankings ──
 function diffRankings(oldRankings, newRankings) {
   const diffs = {};
-  const roles = new Set([...Object.keys(oldRankings || {}), ...Object.keys(newRankings || {})]);
-  for (const role of roles) {
-    const oldList = oldRankings[role] || [];
-    const newList = newRankings[role] || [];
+  const allKeys = new Set([...Object.keys(oldRankings || {}), ...Object.keys(newRankings || {})]);
+  for (const role of allKeys) {
+    if (role.startsWith('_')) continue; // skip _variants, _scores, _meta
+    const oldList = Array.isArray(oldRankings[role]) ? oldRankings[role] : [];
+    const newList = Array.isArray(newRankings[role]) ? newRankings[role] : [];
     if (JSON.stringify(oldList) === JSON.stringify(newList)) {
       diffs[role] = { unchanged: true, count: newList.length };
     } else {

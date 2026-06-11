@@ -14,7 +14,7 @@
  */
 
 require('dotenv').config();
-const { execSync } = require('child_process');
+const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const pool = require('../server/db');
@@ -27,6 +27,28 @@ const LOAD_SCRIPT = path.join(__dirname, 'load-models.js');
 
 if (!fs.existsSync(SNAPSHOT_DIR)) fs.mkdirSync(SNAPSHOT_DIR, { recursive: true });
 
+// ── Async spawn helper (replaces blocking execSync) ──
+// Uses shell:true so quoted args and variable interpolation work correctly.
+function run(cmd, opts = {}) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(cmd, [], {
+      shell: true,
+      stdio: 'inherit',
+      cwd: REPO_ROOT,
+      env: process.env,
+      windowsHide: true,
+      ...opts,
+    });
+    let stdout = '';
+    if (child.stdout) child.stdout.on('data', d => stdout += d);
+    child.on('close', code => {
+      if (code === 0) resolve(stdout);
+      else reject(new Error(`${cmd} exited with code ${code}`));
+    });
+    child.on('error', reject);
+  });
+}
+
 const today = new Date().toISOString().slice(0, 10);
 const PREV_COPY = path.join(SNAPSHOT_DIR, `available-models-${today}.json`);
 
@@ -38,12 +60,14 @@ const CRITICAL_STEPS = new Set(['validate', 're-rank', 'commit-push']);
 process.chdir(REPO_ROOT);
 
 // Ensure git identity is set
-try {
-  execSync('git config user.email', { stdio: 'pipe' });
-} catch {
-  execSync('git config user.email "nightly@grabfreemodels"');
-  execSync('git config user.name "Nightly Maintenance"');
-}
+(async () => {
+  try {
+    await run('git config user.email');
+  } catch {
+    await run('git config user.email "nightly@grabfreemodels"');
+    await run('git config user.name "Nightly Maintenance"');
+  }
+})();
 
 // Obtain webhook URLs
 let webhookUrl = null;
@@ -64,8 +88,8 @@ if (!webhookUrl) webhookUrl = process.env.WEBHOOK_URL;
 if (webhookUrl) alertEndpoints.push(webhookUrl);
 
 /** Export current DB state to JSON file (for git snapshot) */
-function exportJson() {
-  execSync(`node ${EXPORT_SCRIPT}`, { stdio: 'inherit' });
+async function exportJson() {
+  await run(`node ${EXPORT_SCRIPT}`);
 }
 
 /** Load full models data from DB using the shared pool */
@@ -225,7 +249,7 @@ let pipelineStart = Date.now();
     await runStep(
       'validate',
       async () => {
-        execSync('node scripts/validate-free-models.js --apply', { stdio: 'inherit' });
+        await run('node scripts/validate-free-models.js --apply');
       },
       { critical: true },
     );
@@ -253,7 +277,7 @@ let pipelineStart = Date.now();
     // 1c. Check for creator name splits (e.g., same display name under two creator IDs)
     await runStep('check-creator-consistency', async () => {
       try {
-        execSync('node scripts/check-creator-consistency.js --json', { stdio: 'inherit' });
+        await run('node scripts/check-creator-consistency.js --json');
       } catch (e) {
         // Don't fail the pipeline — consistency issues are surfaced as warnings
         console.log(`  Creator consistency check found issues: ${e.message}`);
@@ -263,7 +287,7 @@ let pipelineStart = Date.now();
     // 1d. Check for degradation (latency spikes, failure rate jumps)
     await runStep('check-degradation', async () => {
       try {
-        execSync('node scripts/check-degradation.js', { stdio: 'inherit' });
+        await run('node scripts/check-degradation.js');
       } catch (e) {
         // Don't fail the pipeline — degradation checks are diagnostic
         console.log(`  Degradation check exited with error: ${e.message}`);
@@ -336,25 +360,25 @@ let pipelineStart = Date.now();
     // 2. Inherit family assignments from base model parents
     console.log('Inheriting family assignments from base model parents...');
     await runStep('inherit-families', async () => {
-      execSync('node scripts/inherit-families.js --apply', { stdio: 'inherit' });
+      await run('node scripts/inherit-families.js --apply');
     });
 
     // 3. Backfill family assignments from model names
     console.log('Backfilling family assignments from model names...');
     await runStep('backfill-family-by-name', async () => {
-      execSync('node scripts/backfill-family-by-name.js --apply', { stdio: 'inherit' });
+      await run('node scripts/backfill-family-by-name.js --apply');
     });
 
     // 3b. Backfill training lineage (derivation_method, base_model) from HF Hub metadata
     console.log('Backfilling training lineage from HF Hub metadata...');
     await runStep('backfill-derivatives', async () => {
-      execSync('node scripts/backfill-derivatives.js --apply', { stdio: 'inherit' });
+      await run('node scripts/backfill-derivatives.js --apply');
     });
 
     // 3c. Backfill quantization from HF Hub tags + model names
     console.log('Backfilling quantization from HF Hub tags...');
     await runStep('backfill-quantization', async () => {
-      execSync('node scripts/backfill-quantization.js --apply', { stdio: 'inherit' });
+      await run('node scripts/backfill-quantization.js --apply');
     });
 
     // 4. Prune stale non-working models from rankings metadata (7-day burn-in)
@@ -413,7 +437,7 @@ let pipelineStart = Date.now();
     // 5. Backfill context_length
     console.log('\nBackfilling context_length...');
     await runStep('backfill-context', async () => {
-      execSync('node scripts/backfill-context.js --apply', { stdio: 'inherit' });
+      await run('node scripts/backfill-context.js --apply');
     });
 
     // 6. Snapshot pre-ranking state for drift detection
@@ -433,7 +457,7 @@ let pipelineStart = Date.now();
     await runStep(
       're-rank',
       async () => {
-        execSync('node scripts/rank.js --apply', { stdio: 'inherit' });
+        await run('node scripts/rank.js --apply');
       },
       { critical: true },
     );
@@ -458,7 +482,7 @@ let pipelineStart = Date.now();
     // 9. Run ranking sanity check (reads from DB)
     console.log('Running ranking sanity check...');
     await runStep('ranking-sanity-check', async () => {
-      execSync('node scripts/check-rankings.js', { stdio: 'inherit' });
+      await run('node scripts/check-rankings.js');
     });
 
     // 9b. Detect models only available through routers (no inference provider)
@@ -591,13 +615,13 @@ let pipelineStart = Date.now();
     // 10. Sync paid models from OpenRouter
     console.log('\nSyncing paid models...');
     await runStep('sync-paid-models', async () => {
-      execSync('node scripts/sync-paid-models.js --apply', { stdio: 'inherit' });
+      await run('node scripts/sync-paid-models.js --apply');
     });
 
     // 11. Rank paid models
     console.log('Ranking paid models...');
     await runStep('rank-paid-models', async () => {
-      execSync('node scripts/rank.js --paid --apply', { stdio: 'inherit' });
+      await run('node scripts/rank.js --paid --apply');
     });
 
     // 12. Check paid rankings
@@ -649,7 +673,7 @@ let pipelineStart = Date.now();
 
     // 14. Generate summary log
     await runStep('generate-summary-log', async () => {
-      const summaryOutput = execSync('node scripts/model-summary.js', { encoding: 'utf8' });
+      const summaryOutput = await run('node scripts/model-summary.js');
       fs.writeFileSync(SUMMARY_LOG, summaryOutput, 'utf8');
       console.log(`Summary written to ${SUMMARY_LOG}`);
     });
@@ -665,7 +689,7 @@ let pipelineStart = Date.now();
       async () => {
         let hasChanges = false;
         try {
-          execSync('git diff --quiet available-models.json', { stdio: 'pipe' });
+          await run('git diff --quiet available-models.json');
         } catch {
           hasChanges = true;
         }
@@ -708,19 +732,17 @@ let pipelineStart = Date.now();
           console.log('  The next export will overwrite the restored JSON with current DB state.');
           if (fs.existsSync(PREV_COPY)) {
             fs.copyFileSync(PREV_COPY, 'available-models.json');
-            execSync('git add available-models.json');
-            execSync(
-              `git commit -m "chore(models): automatic rollback to previous stable state (health ${healthPct}%)"`,
-            );
-            execSync('git push origin master');
+            await run('git add available-models.json');
+            await run(`git commit -m "chore(models): automatic rollback to previous stable state (health ${healthPct}%)"`);
+            await run('git push origin master');
             console.log('Rollback committed and pushed');
           }
           return;
         }
 
-        execSync('git add available-models.json');
-        execSync(`git commit -m "chore(models): nightly validation ${today}"`);
-        execSync('git push origin master');
+        await run('git add available-models.json');
+        await run(`git commit -m "chore(models): nightly validation ${today}"`);
+        await run('git push origin master');
         console.log('Pushed commits');
       },
       { critical: true },
@@ -751,9 +773,8 @@ let pipelineStart = Date.now();
       for (const url of alertEndpoints) {
         for (let attempt = 1; attempt <= 2; attempt++) {
           try {
-            execSync(
+            await run(
               `curl -s -X POST -H 'Content-Type: application/json' -d @'${tmpFile}' '${url}'`,
-              { stdio: 'pipe' },
             );
             console.log(`Alert sent to ${url}`);
             break;
@@ -772,7 +793,7 @@ let pipelineStart = Date.now();
 
     // 18. Nightly summary delivery to Slack/Discord
     await runStep('nightly-summary', async () => {
-      execSync('node scripts/nightly-summary.js', { stdio: 'inherit' });
+      await run('node scripts/nightly-summary.js');
     });
 
     printStepTable(Date.now() - pipelineStart);
