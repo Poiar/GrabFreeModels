@@ -636,7 +636,7 @@ function timeAgo(date: Date, _now: number): string {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--text-muted);
+  color: var(--s-header, var(--text-muted));
   user-select: none;
 }
 
@@ -680,36 +680,42 @@ function timeAgo(date: Date, _now: number): string {
   color: var(--i-hover, var(--text));
 }
 
-/* ── Overview (blue shades) — 1 item ── */
+/* ── Overview (blue) ── */
+.nav-section.overview { --s-header: #93c5fd; }
 .nav-section.overview a:nth-of-type(1) { --i-color: #60a5fa; --i-hover: #93c5fd; --i-active: #bfdbfe; }
 
-/* ── Models (emerald → cyan → green spread) — 5 items ── */
+/* ── Models (emerald → cyan → green spread) ── */
+.nav-section.models { --s-header: #6ee7b7; }
 .nav-section.models a:nth-of-type(1) { --i-color: hsl(160, 75%, 55%); --i-hover: hsl(160, 75%, 72%); --i-active: hsl(160, 70%, 82%); }
 .nav-section.models a:nth-of-type(2) { --i-color: hsl(148, 48%, 50%); --i-hover: hsl(148, 48%, 67%); --i-active: hsl(148, 45%, 78%); }
 .nav-section.models a:nth-of-type(3) { --i-color: hsl(174, 62%, 53%); --i-hover: hsl(174, 62%, 70%); --i-active: hsl(174, 58%, 80%); }
 .nav-section.models a:nth-of-type(4) { --i-color: hsl(136, 42%, 50%); --i-hover: hsl(136, 42%, 67%); --i-active: hsl(136, 40%, 78%); }
 .nav-section.models a:nth-of-type(5) { --i-color: hsl(186, 55%, 55%); --i-hover: hsl(186, 55%, 71%); --i-active: hsl(186, 52%, 80%); }
 
-/* ── Quality (amber → gold → yellow spread) — 3 items ── */
+/* ── Quality (amber → gold → yellow spread) ── */
+.nav-section.quality { --s-header: #fcd34d; }
 .nav-section.quality a:nth-of-type(1) { --i-color: hsl(38, 90%, 53%);  --i-hover: hsl(38, 88%, 70%); --i-active: hsl(38, 85%, 80%); }
 .nav-section.quality a:nth-of-type(2) { --i-color: hsl(24, 72%, 54%);  --i-hover: hsl(24, 70%, 69%); --i-active: hsl(24, 68%, 79%); }
 .nav-section.quality a:nth-of-type(3) { --i-color: hsl(50, 62%, 50%);  --i-hover: hsl(50, 60%, 66%); --i-active: hsl(50, 58%, 77%); }
 
-/* ── Providers (violet → purple → blue-violet spread) — 5 items ── */
+/* ── Providers (violet → purple → blue-violet spread) ── */
+.nav-section.providers { --s-header: #c4b5fd; }
 .nav-section.providers a:nth-of-type(1) { --i-color: hsl(255, 72%, 68%); --i-hover: hsl(255, 72%, 80%); --i-active: hsl(255, 70%, 86%); }
 .nav-section.providers a:nth-of-type(2) { --i-color: hsl(272, 52%, 64%); --i-hover: hsl(272, 52%, 76%); --i-active: hsl(272, 50%, 83%); }
 .nav-section.providers a:nth-of-type(3) { --i-color: hsl(238, 58%, 68%); --i-hover: hsl(238, 58%, 79%); --i-active: hsl(238, 56%, 84%); }
 .nav-section.providers a:nth-of-type(4) { --i-color: hsl(285, 48%, 62%); --i-hover: hsl(285, 48%, 75%); --i-active: hsl(285, 46%, 82%); }
 .nav-section.providers a:nth-of-type(5) { --i-color: hsl(265, 62%, 60%); --i-hover: hsl(265, 62%, 74%); --i-active: hsl(265, 60%, 82%); }
 
-/* ── Catalog (terracotta → copper → warm sand spread) — 5 items ── */
+/* ── Catalog (terracotta → copper → warm sand spread) ── */
+.nav-section.catalog { --s-header: #fca5a5; }
 .nav-section.catalog a:nth-of-type(1) { --i-color: hsl(12, 65%, 58%);  --i-hover: hsl(12, 65%, 72%); --i-active: hsl(12, 62%, 80%); }
 .nav-section.catalog a:nth-of-type(2) { --i-color: hsl(22, 60%, 54%);  --i-hover: hsl(22, 60%, 69%); --i-active: hsl(22, 58%, 78%); }
 .nav-section.catalog a:nth-of-type(3) { --i-color: hsl(32, 55%, 52%);  --i-hover: hsl(32, 55%, 67%); --i-active: hsl(32, 52%, 77%); }
 .nav-section.catalog a:nth-of-type(4) { --i-color: hsl(42, 50%, 49%);  --i-hover: hsl(42, 50%, 64%); --i-active: hsl(42, 48%, 75%); }
 .nav-section.catalog a:nth-of-type(5) { --i-color: hsl(18, 58%, 56%);  --i-hover: hsl(18, 58%, 71%); --i-active: hsl(18, 55%, 79%); }
 
-/* ── Tools (muted slate accents) — 4 items ── */
+/* ── Tools (muted slate accents) ── */
+.nav-section.tools { --s-header: #94a3b8; }
 .nav-section.tools a:nth-of-type(1) { --i-color: hsl(210, 26%, 60%); --i-hover: hsl(210, 26%, 73%); --i-active: hsl(210, 24%, 82%); }
 .nav-section.tools a:nth-of-type(2) { --i-color: hsl(180, 20%, 56%); --i-hover: hsl(180, 20%, 70%); --i-active: hsl(180, 18%, 80%); }
 .nav-section.tools a:nth-of-type(3) { --i-color: hsl(0, 22%, 60%);   --i-hover: hsl(0, 22%, 73%); --i-active: hsl(0, 20%, 82%); }
