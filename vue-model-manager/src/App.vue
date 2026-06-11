@@ -672,26 +672,52 @@ function timeAgo(date: Date, _now: number): string {
   /* container for collapsible section links — no extra styling needed */
 }
 
-/* ── Nav link default (within sections) ── */
+/* ── Nav link color: resolved via --i-color / --i-hover set per nᵗʰ item ── */
 .nav-section a {
-  color: var(--nav-accent);
+  color: var(--i-color, var(--text-dim));
 }
-
 .nav-section a:hover {
-  color: var(--nav-accent-hover);
+  color: var(--i-hover, var(--text));
 }
 
-/* ── Per-section hues ── */
-.nav-section.overview  { --nav-accent: #60a5fa; --nav-accent-hover: #93c5fd; }  /* blue */
-.nav-section.models    { --nav-accent: #34d399; --nav-accent-hover: #6ee7b7; }  /* emerald */
-.nav-section.quality   { --nav-accent: #fbbf24; --nav-accent-hover: #fde68a; }  /* amber */
-.nav-section.providers { --nav-accent: #a78bfa; --nav-accent-hover: #c4b5fd; }  /* violet */
-.nav-section.catalog   { --nav-accent: #818cf8; --nav-accent-hover: #a5b4fc; }  /* indigo */
-.nav-section.tools     { --nav-accent: #94a3b8; --nav-accent-hover: #cbd5e1; }  /* slate */
+/* ── Overview (blue shades) — 1 item ── */
+.nav-section.overview a:nth-of-type(1) { --i-color: #60a5fa; --i-hover: #93c5fd; --i-active: #bfdbfe; }
 
-/* Active always wins over colored hover states */
+/* ── Models (emerald → cyan → green spread) — 5 items ── */
+.nav-section.models a:nth-of-type(1) { --i-color: hsl(160, 75%, 55%); --i-hover: hsl(160, 75%, 72%); --i-active: hsl(160, 70%, 82%); }
+.nav-section.models a:nth-of-type(2) { --i-color: hsl(148, 48%, 50%); --i-hover: hsl(148, 48%, 67%); --i-active: hsl(148, 45%, 78%); }
+.nav-section.models a:nth-of-type(3) { --i-color: hsl(174, 62%, 53%); --i-hover: hsl(174, 62%, 70%); --i-active: hsl(174, 58%, 80%); }
+.nav-section.models a:nth-of-type(4) { --i-color: hsl(136, 42%, 50%); --i-hover: hsl(136, 42%, 67%); --i-active: hsl(136, 40%, 78%); }
+.nav-section.models a:nth-of-type(5) { --i-color: hsl(186, 55%, 55%); --i-hover: hsl(186, 55%, 71%); --i-active: hsl(186, 52%, 80%); }
+
+/* ── Quality (amber → gold → yellow spread) — 3 items ── */
+.nav-section.quality a:nth-of-type(1) { --i-color: hsl(38, 90%, 53%);  --i-hover: hsl(38, 88%, 70%); --i-active: hsl(38, 85%, 80%); }
+.nav-section.quality a:nth-of-type(2) { --i-color: hsl(24, 72%, 54%);  --i-hover: hsl(24, 70%, 69%); --i-active: hsl(24, 68%, 79%); }
+.nav-section.quality a:nth-of-type(3) { --i-color: hsl(50, 62%, 50%);  --i-hover: hsl(50, 60%, 66%); --i-active: hsl(50, 58%, 77%); }
+
+/* ── Providers (violet → purple → blue-violet spread) — 5 items ── */
+.nav-section.providers a:nth-of-type(1) { --i-color: hsl(255, 72%, 68%); --i-hover: hsl(255, 72%, 80%); --i-active: hsl(255, 70%, 86%); }
+.nav-section.providers a:nth-of-type(2) { --i-color: hsl(272, 52%, 64%); --i-hover: hsl(272, 52%, 76%); --i-active: hsl(272, 50%, 83%); }
+.nav-section.providers a:nth-of-type(3) { --i-color: hsl(238, 58%, 68%); --i-hover: hsl(238, 58%, 79%); --i-active: hsl(238, 56%, 84%); }
+.nav-section.providers a:nth-of-type(4) { --i-color: hsl(285, 48%, 62%); --i-hover: hsl(285, 48%, 75%); --i-active: hsl(285, 46%, 82%); }
+.nav-section.providers a:nth-of-type(5) { --i-color: hsl(265, 62%, 60%); --i-hover: hsl(265, 62%, 74%); --i-active: hsl(265, 60%, 82%); }
+
+/* ── Catalog (terracotta → copper → warm sand spread) — 5 items ── */
+.nav-section.catalog a:nth-of-type(1) { --i-color: hsl(12, 65%, 58%);  --i-hover: hsl(12, 65%, 72%); --i-active: hsl(12, 62%, 80%); }
+.nav-section.catalog a:nth-of-type(2) { --i-color: hsl(22, 60%, 54%);  --i-hover: hsl(22, 60%, 69%); --i-active: hsl(22, 58%, 78%); }
+.nav-section.catalog a:nth-of-type(3) { --i-color: hsl(32, 55%, 52%);  --i-hover: hsl(32, 55%, 67%); --i-active: hsl(32, 52%, 77%); }
+.nav-section.catalog a:nth-of-type(4) { --i-color: hsl(42, 50%, 49%);  --i-hover: hsl(42, 50%, 64%); --i-active: hsl(42, 48%, 75%); }
+.nav-section.catalog a:nth-of-type(5) { --i-color: hsl(18, 58%, 56%);  --i-hover: hsl(18, 58%, 71%); --i-active: hsl(18, 55%, 79%); }
+
+/* ── Tools (muted slate accents) — 4 items ── */
+.nav-section.tools a:nth-of-type(1) { --i-color: hsl(210, 26%, 60%); --i-hover: hsl(210, 26%, 73%); --i-active: hsl(210, 24%, 82%); }
+.nav-section.tools a:nth-of-type(2) { --i-color: hsl(180, 20%, 56%); --i-hover: hsl(180, 20%, 70%); --i-active: hsl(180, 18%, 80%); }
+.nav-section.tools a:nth-of-type(3) { --i-color: hsl(0, 22%, 60%);   --i-hover: hsl(0, 22%, 73%); --i-active: hsl(0, 20%, 82%); }
+.nav-section.tools a:nth-of-type(4) { --i-color: hsl(260, 20%, 62%); --i-hover: hsl(260, 20%, 74%); --i-active: hsl(260, 18%, 83%); }
+
+/* Active: lighter tint of the item's own hue */
 .sidebar nav a.active,
 .sidebar nav a.active:hover {
-  color: var(--accent) !important;
+  color: var(--i-active, var(--accent)) !important;
 }
 </style>
