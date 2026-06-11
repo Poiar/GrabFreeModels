@@ -33,11 +33,12 @@ ALTER TABLE datapoint_models
   );
 
 -- feature_type: enumerate all known types from the codebase
--- (family and base_model are excluded — they were promoted to columns)
+-- NOTE: 'family' is included temporarily — it still exists in the DB as a feature
+-- tag (will be removed by Phase 6 cleanup after all scripts use super_models.family)
 ALTER TABLE datapoint_model_features
   ADD CONSTRAINT ck_feature_type CHECK (
     feature_type IN (
-      'best_for', 'tag',
+      'best_for', 'tag', 'family',
       'supports_reasoning', 'supports_attachment', 'supports_structured_output',
       'open_weights',
       'output_limit', 'temperature',
@@ -52,11 +53,11 @@ ALTER TABLE datapoint_model_features
     )
   );
 
--- is_free must be consistent with pricing
-ALTER TABLE datapoint_models
-  ADD CONSTRAINT ck_is_free_pricing CHECK (
-    is_free = true OR input_price_per_million > 0 OR output_price_per_million > 0
-  );
+-- is_free vs pricing: SKIPPED.
+-- 288+ paid models (mostly OpenRouter) have zero pricing because the
+-- provider doesn't expose per-token costs via its API. Zero pricing
+-- on a paid model means "pricing unknown" — not a data error.
+-- A cross-column CHECK here would be incorrect for the real-world data.
 
 -- status_result CHECK (ensure it's a valid enum value)
 -- The model_status enum already enforces this at the type level,

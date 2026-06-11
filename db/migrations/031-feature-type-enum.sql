@@ -38,7 +38,8 @@ INSERT INTO feature_types (slug, description, value_type) VALUES
     ('knowledge_cutoff',            'Training data cutoff date', 'date'),
     ('release_date',                'Model release date', 'date'),
     ('last_updated',                'Last model update date', 'date'),
-    ('weights',                     'Weight format / availability', 'string')
+    ('weights',                     'Weight format / availability', 'string'),
+    ('family',                      'DEPRECATED: model family lineage — now on super_models.family', 'string')
 ON CONFLICT (slug) DO NOTHING;
 
 -- Add FK from features to feature_types
