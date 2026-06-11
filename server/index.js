@@ -3,6 +3,7 @@ const cors = require('cors');
 const compression = require('compression');
 const path = require('path');
 const dataRouter = require('./routes/data');
+const adminRouter = require('./routes/admin');
 const pool = require('./db');
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/data', (req, res, next) => {
 });
 
 app.use('/api', dataRouter);
+app.use('/api', adminRouter);
 
 // Serve static health dashboard at /health
 app.get('/health', (req, res) => {

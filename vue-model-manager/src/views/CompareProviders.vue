@@ -183,7 +183,64 @@
       <div class="cp-cell">{{ provA ? (provA.supports_streaming !== false ? '✓ Yes' : '✗ No') : '' }}</div>
       <div class="cp-cell">{{ provB ? (provB.supports_streaming !== false ? '✓ Yes' : '✗ No') : '' }}</div>
 
+      <div class="cp-sep" />
+
+      <!-- Latency comparison -->
+      <div class="cp-row-header">Avg latency</div>
+      <div class="cp-cell cp-cell-num">
+        <span v-if="latA" class="cp-val">{{ latA.avg_latency_ms }}ms</span>
+        <em class="cp-na" v-else>—</em>
+      </div>
+      <div class="cp-cell cp-cell-num">
+        <span v-if="latB" class="cp-val">{{ latB.avg_latency_ms }}ms</span>
+        <em class="cp-na" v-else>—</em>
+      </div>
+
+      <div class="cp-row-header">P95 latency</div>
+      <div class="cp-cell cp-cell-num">
+        <span v-if="latA" class="cp-val">{{ latA.p95_latency_ms }}ms</span>
+        <em class="cp-na" v-else>—</em>
+      </div>
+      <div class="cp-cell cp-cell-num">
+        <span v-if="latB" class="cp-val">{{ latB.p95_latency_ms }}ms</span>
+        <em class="cp-na" v-else>—</em>
+      </div>
+
       <!-- Description -->
+      <!-- Failure rate -->
+      <div class="cp-row-header">Failure rate</div>
+      <div class="cp-cell">
+        <template v-if="provA">
+          <span class="cp-fail-rate" :class="failClass(failRateA)">{{ failRateA }}%</span>
+          <div class="cp-fail-chips" v-if="failBreakdownA.length">
+            <span v-for="f in failBreakdownA" :key="f.cat" class="cp-fail-chip">{{ f.count }} {{ f.label }}</span>
+          </div>
+        </template>
+      </div>
+      <div class="cp-cell">
+        <template v-if="provB">
+          <span class="cp-fail-rate" :class="failClass(failRateB)">{{ failRateB }}%</span>
+          <div class="cp-fail-chips" v-if="failBreakdownB.length">
+            <span v-for="f in failBreakdownB" :key="f.cat" class="cp-fail-chip">{{ f.count }} {{ f.label }}</span>
+          </div>
+        </template>
+      </div>
+
+      <!-- Tier distribution -->
+      <div class="cp-row-header">Model tiers</div>
+      <div class="cp-cell">
+        <div v-if="provA && tierDistA.length" class="cp-tier-chips">
+          <span v-for="[tier, count] in tierDistA" :key="tier" class="cp-tier-chip">{{ tier }}: {{ count }}</span>
+        </div>
+        <span v-else>—</span>
+      </div>
+      <div class="cp-cell">
+        <div v-if="provB && tierDistB.length" class="cp-tier-chips">
+          <span v-for="[tier, count] in tierDistB" :key="tier" class="cp-tier-chip">{{ tier }}: {{ count }}</span>
+        </div>
+        <span v-else>—</span>
+      </div>
+
       <div class="cp-row-header">Description</div>
       <div class="cp-cell cp-desc">{{ provA?.description || '—' }}</div>
       <div class="cp-cell cp-desc">{{ provB?.description || '—' }}</div>
@@ -210,6 +267,8 @@ const providers = computed((): ProviderReference[] =>
 
 const provA = computed(() => providers.value.find((p) => p.slug === slugA.value) || null);
 const provB = computed(() => providers.value.find((p) => p.slug === slugB.value) || null);
+const latA = computed(() => store.providerLatencies.find(l => l.provider_slug === slugA.value) ?? null);
+const latB = computed(() => store.providerLatencies.find(l => l.provider_slug === slugB.value) ?? null);
 
 function swap() {
   const tmp = slugA.value;
@@ -269,6 +328,57 @@ const uniqueToB = computed(() => {
   if (!slugA.value || !slugB.value || slugA.value === slugB.value) return [];
   const a = new Set(modelsFor(slugA.value).map((m) => m.super_id));
   return modelsFor(slugB.value).filter((m) => !a.has(m.super_id));
+});
+
+// ── Failure rates ──
+const FAILURE_LABELS: Record<string, string> = {
+  timeout: 'Timeout', not_found: 'Not found', auth_error: 'Auth', rate_limited: 'RL', server_error: '5xx', network_error: 'Net', unknown: 'Unknown',
+};
+
+function computeFailStats(slug: string) {
+  let working = 0, broken = 0;
+  const failCats = new Map<string, number>();
+  for (const m of store.allModels) {
+    for (const dp of m.providers) {
+      if (dp.provider_slug !== slug || dp._removed) continue;
+      if (dp.status.result === 'working') working++;
+      else { broken++; failCats.set(dp.failure_category || 'unknown', (failCats.get(dp.failure_category || 'unknown') || 0) + 1); }
+    }
+  }
+  const total = working + broken || 1;
+  return { rate: Math.round((broken / total) * 100), breakdown: [...failCats.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4) };
+}
+
+const failStatsA = computed(() => slugA.value ? computeFailStats(slugA.value) : { rate: 0, breakdown: [] as [string, number][] });
+const failStatsB = computed(() => slugB.value ? computeFailStats(slugB.value) : { rate: 0, breakdown: [] as [string, number][] });
+const failRateA = computed(() => failStatsA.value.rate);
+const failRateB = computed(() => failStatsB.value.rate);
+const failBreakdownA = computed(() => failStatsA.value.breakdown.map(([cat, count]) => ({ cat, count, label: FAILURE_LABELS[cat] || cat })));
+const failBreakdownB = computed(() => failStatsB.value.breakdown.map(([cat, count]) => ({ cat, count, label: FAILURE_LABELS[cat] || cat })));
+function failClass(rate: number) { return rate <= 10 ? 'good' : rate <= 30 ? 'warn' : 'bad'; }
+
+// ── Tier distribution ──
+const tierDistA = computed(() => {
+  if (!slugA.value) return [] as [string, number][];
+  const dist = new Map<string, number>();
+  for (const m of store.allModels) {
+    for (const dp of m.providers) {
+      if (dp.provider_slug !== slugA.value || dp._removed) continue;
+      for (const tier of dp.model_tier || []) { if (tier) dist.set(tier, (dist.get(tier) || 0) + 1); }
+    }
+  }
+  return [...dist.entries()].sort((a, b) => b[1] - a[1]);
+});
+const tierDistB = computed(() => {
+  if (!slugB.value) return [] as [string, number][];
+  const dist = new Map<string, number>();
+  for (const m of store.allModels) {
+    for (const dp of m.providers) {
+      if (dp.provider_slug !== slugB.value || dp._removed) continue;
+      for (const tier of dp.model_tier || []) { if (tier) dist.set(tier, (dist.get(tier) || 0) + 1); }
+    }
+  }
+  return [...dist.entries()].sort((a, b) => b[1] - a[1]);
 });
 </script>
 
@@ -466,6 +576,16 @@ const uniqueToB = computed(() => {
 .cp-model-chip.shared { background: var(--accent-subtle); color: var(--accent); }
 .cp-model-chip.unique { background: rgba(59,130,246,0.12); color: #60A5FA; }
 .cp-model-chip.more { background: var(--bg-hover); color: var(--text-dim); }
+
+.cp-fail-rate { font-size: 0.85rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.cp-fail-rate.good { color: var(--green); }
+.cp-fail-rate.warn { color: var(--orange); }
+.cp-fail-rate.bad { color: var(--red); }
+.cp-fail-chips { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+.cp-fail-chip { font-size: 0.58rem; padding: 1px 5px; border-radius: 3px; color: var(--text-dim); background: var(--bg-elevated); }
+
+.cp-tier-chips { display: flex; flex-wrap: wrap; gap: 3px; }
+.cp-tier-chip { font-size: 0.58rem; padding: 1px 6px; border-radius: 3px; color: var(--accent); background: var(--accent-subtle); font-weight: 600; }
 
 @media (max-width: 768px) {
   .cp-grid { grid-template-columns: 100px 1fr 1fr; }

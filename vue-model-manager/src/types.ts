@@ -84,6 +84,9 @@ export interface ProviderDatapoint {
   release_date: string | null;
   deprecated_at: string | null;
   failure_category: string | null;
+  base_url: string | null;
+  npm_package: string | null;
+  created_at: string | null;
 }
 
 export interface ModelData {
@@ -107,6 +110,7 @@ export interface CreatorData {
   name: string;
   type: 'lab' | 'user' | 'other';
   role: 'Fine-tuner' | 'Model creator';
+  description: string | null;
   model_count: number;
   provider_count: number;
   models: ModelData[];
@@ -176,6 +180,9 @@ export interface ModelsData {
   _provider_routing_graph?: { routers: Record<string, Array<{ backend: string; name: string; type: string; shared_models: number }>>; built_at: string };
   _provider_timeline?: { timeline: Array<{ date: string; added: Array<{ slug: string; name: string; type: string }>; cumulative: number }>; total: number; built_at: string };
   _family_coverage?: { total: number; with_family: number; without_family: number; pct: number; with_base_model_no_family: number };
+  _failure_rates?: { description: string; models: Record<string, FailureRateEntry>; note?: string };
+  _key_health?: KeyHealthData;
+  _failover_suggestions?: { forward: Record<string, string[]>; reverse: Record<string, string[]> };
 }
 
 // EXISTING types (kept for backward compatibility)
@@ -243,6 +250,7 @@ export interface DatapointModel {
   max_daily_requests: number | null;
   requires_card: boolean | null;
   failure_category: string | null;
+  created_at: string | null;
 }
 
 export interface SuperModel {
@@ -353,4 +361,70 @@ export interface SourceInfo {
 
 export interface SourceToggleState {
   [sourceId: number]: boolean;
+}
+
+export interface KeyHealthEntry {
+  provider: string;
+  key_name: string;
+  status: 'valid' | 'expired' | 'rate_limited' | 'unknown';
+  last_checked: string;
+  detail?: string;
+}
+
+export interface KeyHealthData {
+  description: string;
+  checked_at: string;
+  keys: KeyHealthEntry[];
+}
+
+export interface ProviderLatencyStats {
+  provider_slug: string;
+  provider_name: string;
+  avg_latency_ms: number;
+  p50_latency_ms: number;
+  p95_latency_ms: number;
+  sample_count: number;
+  last_measured: string;
+}
+
+export interface OutageEvent {
+  started: string;
+  ended: string | null;
+  duration_hours: number | null;
+  models_affected: number;
+}
+
+export interface FlakyModel {
+  super_id: number;
+  slug: string;
+  name: string;
+  failure_rate_7d: number;
+  samples_7d: number;
+  failures_7d: number;
+  failure_rate_30d: number | null;
+  samples_30d: number;
+  failures_30d: number;
+}
+
+export interface BenchmarkEntry {
+  full_id: string;
+  super_id: number;
+  slug: string;
+  name: string;
+  creator: string | null;
+  provider: string;
+  scores: ModelScore[];
+  intelligence: number | null;
+  speed: number | null;
+  cost: number | null;
+}
+
+export interface FailureRateEntry {
+  full_id: string;
+  failure_rate_7d: number | null;
+  samples_7d: number;
+  failures_7d: number;
+  failure_rate_30d: number | null;
+  samples_30d: number;
+  failures_30d: number;
 }

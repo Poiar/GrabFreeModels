@@ -12,6 +12,10 @@ import type {
   RoleScore,
   RoleMeta,
   ModelHealthHistory,
+  FlakyModel,
+  BenchmarkEntry,
+  ProviderLatencyStats,
+  KeyHealthData,
 } from '@/types';
 
 const ROLE_ORDER = ['model', 'build', 'general', 'small_model', 'explore'] as const;
@@ -510,12 +514,221 @@ export const useModelsStore = defineStore('models', () => {
   const routingGraph = computed(() => data.value?._provider_routing_graph ?? null);
   const providerTimeline = computed(() => data.value?._provider_timeline ?? null);
   const familyCoverage = computed(() => data.value?._family_coverage ?? null);
+  const failoverSuggestions = computed(() => data.value?._failover_suggestions ?? { forward: {}, reverse: {} });
+
+  // ── Cost efficiency: intelligence score / provider_count ──
+  const costEfficiency = computed((): Map<number, number> => {
+    const map = new Map<number, number>();
+    const scores = modelScores.value;
+    if (!scores?.scores) return map;
+    for (const [fullId, scoreList] of Object.entries(scores.scores)) {
+      const intel = scoreList.find(s => s.source === 'artificial_analysis' && s.score_type === 'intelligence');
+      if (!intel?.score_value) continue;
+      const dp = datapointById.value.get(fullId);
+      if (!dp) continue;
+      const provCount = new Set(dp.model.providers.filter(p => !p._removed).map(p => p.provider_slug)).size;
+      if (provCount < 2) continue;
+      const efficiency = Math.round(intel.score_value / provCount * 10) / 10;
+      const existing = map.get(dp.model.super_id);
+      if (!existing || efficiency > existing) map.set(dp.model.super_id, efficiency);
+    }
+    return map;
+  });
+
+  // ── Model of the Day ──
+  const modelOfTheDay = computed(() => {
+    const candidates: { slug: string; name: string; creator: string | null; intel: number; provCount: number; stable: boolean }[] = [];
+    const scores = modelScores.value;
+    for (const model of allModels.value) {
+      const provs = model.providers.filter(p => !p._removed);
+      const working = provs.filter(p => p.status.result === 'working').length;
+      if (working === 0) continue;
+      const provCount = new Set(provs.map(p => p.provider_slug)).size;
+      let intel = 0;
+      for (const dp of provs) {
+        const dpScores = scores?.scores[dp.full_id];
+        if (dpScores) {
+          const s = dpScores.find(sc => sc.source === 'artificial_analysis' && sc.score_type === 'intelligence');
+          if (s?.score_value && s.score_value > intel) intel = s.score_value;
+        }
+      }
+      if (intel > 0 && provCount >= 2) candidates.push({ slug: model.slug, name: model.name, creator: model.creator, intel, provCount, stable: working === provs.length });
+    }
+    candidates.sort((a, b) => (b.intel + b.provCount * 3 + (b.stable ? 5 : 0)) - (a.intel + a.provCount * 3 + (a.stable ? 5 : 0)));
+    return candidates.slice(0, 5);
+  });
 
   const testSummary = computed(() => data.value?._test_summary ?? null);
   const testSummaryPrevious = computed(() => data.value?._test_summary_previous ?? null);
   const modelScores = computed(() => data.value?._model_scores ?? null);
   const paidModelScores = computed(() => paidData.value?._model_scores ?? null);
   const validationMethod = computed(() => data.value?._validation_method ?? null);
+
+  // ── Model health aggregated by super_id (for sparklines) ──
+  const modelHealthBySuperId = computed((): Map<number, ModelHealthHistory> => {
+    const map = new Map<number, ModelHealthHistory>();
+    const mh = data.value?._model_health;
+    if (!mh) return map;
+    for (const [fullId, history] of Object.entries(mh)) {
+      if (typeof history !== 'object' || !history?.snapshots) continue;
+      const dp = datapointById.value.get(fullId);
+      if (!dp) continue;
+      const sid = dp.model.super_id;
+      const existing = map.get(sid);
+      if (!existing || (history as ModelHealthHistory).snapshots.length > existing.snapshots.length) {
+        map.set(sid, history as ModelHealthHistory);
+      }
+    }
+    return map;
+  });
+
+  // ── Flakiest models by 7-day failure rate ──
+  const flakiestModels = computed((): FlakyModel[] => {
+    const fr = data.value?._failure_rates?.models;
+    if (!fr) return [];
+    const result: FlakyModel[] = [];
+    for (const [fullId, entry] of Object.entries(fr)) {
+      if (!entry || entry.failure_rate_7d === null || entry.failure_rate_7d === 0) continue;
+      const dp = datapointById.value.get(fullId);
+      if (!dp) continue;
+      result.push({
+        super_id: dp.model.super_id,
+        slug: dp.model.slug,
+        name: dp.model.name,
+        failure_rate_7d: entry.failure_rate_7d,
+        samples_7d: entry.samples_7d,
+        failures_7d: entry.failures_7d,
+        failure_rate_30d: entry.failure_rate_30d ?? null,
+        samples_30d: entry.samples_30d ?? 0,
+        failures_30d: entry.failures_30d ?? 0,
+      });
+    }
+    // Dedupe by super_id, keep highest failure rate
+    const best = new Map<number, FlakyModel>();
+    for (const f of result) {
+      const e = best.get(f.super_id);
+      if (!e || f.failure_rate_7d > e.failure_rate_7d) best.set(f.super_id, f);
+    }
+    return [...best.values()].sort((a, b) => b.failure_rate_7d - a.failure_rate_7d);
+  });
+
+  // ── Key health ──
+  const keyHealth = computed((): import('@/types').KeyHealthData | null => {
+    const raw = data.value?._key_health;
+    if (!raw) return null;
+    return raw as KeyHealthData;
+  });
+
+  // ── Deprecated model full_ids ──
+  const deprecatedFullIds = computed((): Set<string> => {
+    const s = new Set<string>();
+    for (const dp of allDatapoints.value) {
+      if (dp.deprecated_at) s.add(dp.full_id);
+    }
+    return s;
+  });
+
+  // ── Recently broken: models in current broken list that weren't in previous ──
+  const recentlyBroken = computed((): { full_id: string; name: string; slug: string; provider: string }[] => {
+    const cur = testSummary.value?.results;
+    const prev = testSummaryPrevious.value?.results;
+    if (!cur) return [];
+    const prevSet = new Set(prev?.broken ?? []);
+    const prevNotFound = new Set(prev?.not_found ?? []);
+    const newBroken = (cur.broken ?? []).filter(id => !prevSet.has(id));
+    const newNotFound = (cur.not_found ?? []).filter(id => !prevNotFound.has(id));
+    const result: { full_id: string; name: string; slug: string; provider: string }[] = [];
+    for (const id of [...newBroken, ...newNotFound]) {
+      const dp = datapointById.value.get(id);
+      if (dp) result.push({ full_id: id, name: dp.model.name, slug: dp.model.slug, provider: dp.dp.provider });
+    }
+    return result.slice(0, 10);
+  });
+
+  // ── Recently fixed: models in previous broken that are now working ──
+  const recentlyFixed = computed((): { full_id: string; name: string; slug: string; provider: string }[] => {
+    const cur = testSummary.value?.results;
+    const prev = testSummaryPrevious.value?.results;
+    if (!cur || !prev) return [];
+    const curWorking = new Set(cur.working ?? []);
+    const prevBroken = new Set([...(prev.broken ?? []), ...(prev.not_found ?? [])]);
+    const result: { full_id: string; name: string; slug: string; provider: string }[] = [];
+    for (const id of prevBroken) {
+      if (curWorking.has(id)) {
+        const dp = datapointById.value.get(id);
+        if (dp) result.push({ full_id: id, name: dp.model.name, slug: dp.model.slug, provider: dp.dp.provider });
+      }
+    }
+    return result.slice(0, 10);
+  });
+
+  // ── Benchmark entries (flat list for table view) ──
+  const benchmarkEntries = computed((): BenchmarkEntry[] => {
+    const scores = modelScores.value;
+    if (!scores?.scores) return [];
+    const result: BenchmarkEntry[] = [];
+    for (const [fullId, scoreList] of Object.entries(scores.scores)) {
+      if (!scoreList?.length) continue;
+      const dp = datapointById.value.get(fullId);
+      if (!dp) continue;
+      const intel = scoreList.find(s => s.source === 'artificial_analysis' && s.score_type === 'intelligence');
+      const speed = scoreList.find(s => s.source === 'artificial_analysis' && s.score_type === 'speed');
+      const cost = scoreList.find(s => s.source === 'artificial_analysis' && s.score_type === 'cost_effectiveness');
+      result.push({
+        full_id: fullId,
+        super_id: dp.model.super_id,
+        slug: dp.model.slug,
+        name: dp.model.name,
+        creator: dp.model.creator,
+        provider: dp.dp.provider,
+        scores: scoreList,
+        intelligence: intel?.score_value ?? null,
+        speed: speed?.score_value ?? null,
+        cost: cost?.score_value ?? null,
+      });
+    }
+    // Dedupe by super_id, keep entry with most scores
+    const best = new Map<number, BenchmarkEntry>();
+    for (const e of result) {
+      const existing = best.get(e.super_id);
+      if (!existing || e.scores.length > existing.scores.length) best.set(e.super_id, e);
+    }
+    return [...best.values()];
+  });
+
+  // ── Provider latency stats (from model_health_snapshots) ──
+  const providerLatencies = computed((): ProviderLatencyStats[] => {
+    const mh = data.value?._model_health;
+    if (!mh) return [];
+    // Build from datapoints with last_success latency from snapshots
+    const provMap = new Map<string, { name: string; latencies: number[]; lastMeasured: string }>();
+    for (const [fullId, history] of Object.entries(mh)) {
+      if (typeof history !== 'object' || !history?.snapshots) continue;
+      const dp = datapointById.value.get(fullId);
+      if (!dp) continue;
+      const slug = dp.dp.provider_slug;
+      if (!provMap.has(slug)) provMap.set(slug, { name: dp.dp.provider, latencies: [], lastMeasured: '' });
+      const entry = provMap.get(slug)!;
+      for (const snap of (history as ModelHealthHistory).snapshots) {
+        if (snap.latency_ms != null && snap.status === 'working') {
+          entry.latencies.push(snap.latency_ms);
+          if (!entry.lastMeasured || snap.date > entry.lastMeasured) entry.lastMeasured = snap.date;
+        }
+      }
+    }
+    return [...provMap.entries()].map(([slug, e]) => {
+      const sorted = e.latencies.sort((a, b) => a - b);
+      return {
+        provider_slug: slug,
+        provider_name: e.name,
+        avg_latency_ms: Math.round(sorted.reduce((a, b) => a + b, 0) / sorted.length),
+        p50_latency_ms: sorted[Math.floor(sorted.length * 0.5)] ?? 0,
+        p95_latency_ms: sorted[Math.floor(sorted.length * 0.95)] ?? 0,
+        sample_count: sorted.length,
+        last_measured: e.lastMeasured,
+      };
+    }).sort((a, b) => a.avg_latency_ms - b.avg_latency_ms);
+  });
 
   const providerUsage = computed(() => {
     const raw = data.value?._provider_usage;
@@ -929,10 +1142,22 @@ export const useModelsStore = defineStore('models', () => {
     routingGraph,
     providerTimeline,
     familyCoverage,
+    failoverSuggestions,
+    costEfficiency,
+    modelOfTheDay,
     testSummary,
     testSummaryPrevious,
     modelScores,
     validationMethod,
+    // New features
+    modelHealthBySuperId,
+    flakiestModels,
+    keyHealth,
+    deprecatedFullIds,
+    recentlyBroken,
+    recentlyFixed,
+    benchmarkEntries,
+    providerLatencies,
     // Provider usage
     providerUsage,
     currentMonth,

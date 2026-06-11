@@ -29,39 +29,119 @@
             </button>
           </div>
           <div class="shortcuts-body">
+            <!-- Navigation -->
             <div class="shortcut-group">
               <h3>Navigation</h3>
               <div class="shortcut-row">
-                <kbd>m</kbd>
-                <span>Models</span>
-              </div>
-              <div class="shortcut-row">
                 <kbd>d</kbd>
                 <span>Dashboard</span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>s</kbd>
+                <span>Super Models</span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>m</kbd>
+                <span>Models</span>
               </div>
               <div class="shortcut-row">
                 <kbd>c</kbd>
                 <span>Creators</span>
               </div>
               <div class="shortcut-row">
-                <kbd>i</kbd>
-                <span>Issues</span>
+                <kbd>r</kbd>
+                <span>Rankings (Free)</span>
               </div>
               <div class="shortcut-row">
                 <kbd>o</kbd>
                 <span>Compare</span>
               </div>
               <div class="shortcut-row">
-                <kbd>r</kbd>
-                <span>Rankings (Free)</span>
+                <kbd>i</kbd>
+                <span>Issues</span>
               </div>
               <div class="shortcut-row">
-                <kbd>s</kbd>
-                <span>Super Models</span>
+                <kbd>p</kbd>
+                <span>API Playground <sup class="new-badge">New!</sup></span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>g</kbd>
+                <span>Tag Explorer <sup class="new-badge">New!</sup></span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>l</kbd>
+                <span>Lineage Tree <sup class="new-badge">New!</sup></span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>v</kbd>
+                <span>Activity Feed <sup class="new-badge">New!</sup></span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>k</kbd>
+                <span>Model Picker <sup class="new-badge">New!</sup></span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>x</kbd>
+                <span>Scores Explorer <sup class="new-badge">New!</sup></span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>q</kbd>
+                <span>Rate Limits <sup class="new-badge">New!</sup></span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>n</kbd>
+                <span>Provider Onboarding <sup class="new-badge">New!</sup></span>
               </div>
             </div>
+
+            <!-- Number pad -->
             <div class="shortcut-group">
-              <h3>Actions</h3>
+              <h3>Number Navigation</h3>
+              <div class="shortcut-row">
+                <kbd>1</kbd>
+                <span>Dashboard</span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>2</kbd>
+                <span>Super Models</span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>3</kbd>
+                <span>Providers</span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>4</kbd>
+                <span>Rankings</span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>5</kbd>
+                <span>Creators</span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>6</kbd>
+                <span>Compare</span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>7</kbd>
+                <span>Benchmarks</span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>8</kbd>
+                <span>Families</span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>9</kbd>
+                <span>Advanced Search</span>
+              </div>
+              <div class="shortcut-row">
+                <kbd>0</kbd>
+                <span>Model Instances</span>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="shortcut-group">
+              <h3>Quick Actions</h3>
               <div class="shortcut-row">
                 <kbd>/</kbd>
                 <span>Focus search</span>
@@ -78,11 +158,17 @@
                 <kbd>Enter</kbd>
                 <span>Open selected model</span>
               </div>
-            </div>
-            <div class="shortcut-group">
-              <h3>Theme</h3>
               <div class="shortcut-row">
-                <kbd>t</kbd>
+                <kbd><kbd class="combo-key">Ctrl</kbd>+<kbd>E</kbd></kbd>
+                <span>Export current view as JSON <sup class="new-badge">New!</sup></span>
+              </div>
+            </div>
+
+            <!-- Power Tools -->
+            <div class="shortcut-group">
+              <h3>Power Tools</h3>
+              <div class="shortcut-row">
+                <kbd>T</kbd>
                 <span>Toggle dark/light mode</span>
               </div>
             </div>
@@ -207,15 +293,6 @@ watch(
   gap: 20px;
 }
 
-.shortcut-group h3 {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted, #4d5668);
-  margin: 0 0 10px;
-}
-
 .shortcut-row {
   display: flex;
   align-items: center;
@@ -226,6 +303,15 @@ watch(
 .shortcut-row span {
   font-size: 0.82rem;
   color: var(--text, #e8ecf4);
+}
+
+.shortcut-group h3 {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted, #4d5668);
+  margin: 0 0 10px;
 }
 
 kbd {
@@ -244,6 +330,30 @@ kbd {
   border-bottom-width: 2px;
   border-radius: 5px;
   line-height: 1;
+}
+
+/* Composite key (e.g. Ctrl+E) — inner kbd tags rendered inline */
+.combo-key {
+  border: none;
+  background: transparent;
+  min-width: 0;
+  height: auto;
+  padding: 0 2px;
+  font-size: 0.65rem;
+}
+
+/* "New!" badge */
+.new-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent, #6c63ff);
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: 4px;
+  vertical-align: middle;
+  line-height: 1.3;
 }
 
 .modal-footer {

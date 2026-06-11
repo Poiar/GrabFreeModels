@@ -51,6 +51,12 @@
       >{{ c === 'All' ? `All (${derivatives.length})` : `${c} (${continentCount(c)})` }}</button>
     </div>
 
+    <!-- Export buttons -->
+    <div class="export-bar">
+      <button class="export-btn" @click="handleExportCSV">Down CSV</button>
+      <button class="export-btn" @click="handleExportJSON">Down JSON</button>
+    </div>
+
     <div class="creator-grid">
       <router-link
         v-for="creator in sortedCreators"
@@ -110,6 +116,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useModelsStore } from '@/store/models';
+import { useExport } from '@/composables/useExport';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { getCountryForCreator, CONTINENTS } from '@/data/creator-countries';
 import type { CreatorData } from '@/types';
@@ -300,6 +307,31 @@ function derivTooltip(creator: CreatorData): string {
 function getCountryNameForStyle(_id: string): string {
   return '';
 }
+
+// ── Export ──
+const { exportJSON, exportCSV } = useExport();
+
+function handleExportJSON() {
+  exportJSON(sortedCreators.value, 'derivatives');
+}
+
+function handleExportCSV() {
+  const rows: string[][] = [];
+  for (const c of sortedCreators.value) {
+    rows.push([
+      c.name,
+      c.type,
+      String(c.model_count),
+      String(c.provider_count ?? 0),
+      String(workingCount(c)),
+    ]);
+  }
+  exportCSV(
+    ['name', 'type', 'model_count', 'provider_count', 'working_count'],
+    rows,
+    'derivatives',
+  );
+}
 </script>
 
 <style scoped>
@@ -403,6 +435,10 @@ function getCountryNameForStyle(_id: string): string {
   background: var(--accent-subtle);
   border-color: var(--accent);
 }
+
+.export-bar { display: flex; gap: 6px; margin-top: 12px; justify-content: flex-end; }
+.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
 
 .cc-continent-filters {
   display: flex;

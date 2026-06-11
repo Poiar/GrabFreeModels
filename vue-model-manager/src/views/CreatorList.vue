@@ -26,6 +26,12 @@
       <button class="sort-dir-btn" @click="sortAsc = !sortAsc" :title="sortAsc ? 'Ascending' : 'Descending'">{{ sortAsc ? '↑' : '↓' }}</button>
     </div>
 
+    <!-- Export buttons -->
+    <div class="export-bar">
+      <button class="export-btn" @click="handleExportCSV">Down CSV</button>
+      <button class="export-btn" @click="handleExportJSON">Down JSON</button>
+    </div>
+
     <div class="cc-continent-filters">
       <button
         v-for="c in CONTINENTS"
@@ -153,6 +159,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import { useModelsStore } from '@/store/models';
+import { useExport } from '@/composables/useExport';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { getCountryForCreator, CONTINENTS } from '@/data/creator-countries';
 import type { CreatorData } from '@/types';
@@ -237,6 +244,32 @@ function getFamilies(creator: CreatorData): string[] {
     if (m.family) families.add(m.family);
   }
   return [...families].sort();
+}
+
+// ── Export ──
+const { exportJSON, exportCSV } = useExport();
+
+function handleExportJSON() {
+  exportJSON(allCreators.value, 'creators');
+}
+
+function handleExportCSV() {
+  const rows: string[][] = [];
+  for (const c of allCreators.value) {
+    const working = c.models.filter(m => m.providers.some(p => !p._removed && p.status.result === 'working')).length;
+    rows.push([
+      c.name,
+      c.type,
+      String(c.model_count),
+      String(c.provider_count ?? 0),
+      String(working),
+    ]);
+  }
+  exportCSV(
+    ['name', 'type', 'model_count', 'provider_count', 'working'],
+    rows,
+    'creators',
+  );
 }
 </script>
 
@@ -337,6 +370,10 @@ function getFamilies(creator: CreatorData): string[] {
   color: var(--text);
   border-color: var(--text-dim);
 }
+
+.export-bar { display: flex; gap: 6px; margin-top: 12px; justify-content: flex-end; }
+.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
 
 .cc-continent-filters {
   display: flex;

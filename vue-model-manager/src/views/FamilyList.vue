@@ -19,6 +19,12 @@
       <button class="sort-dir-btn" @click="sortAsc = !sortAsc" :title="sortAsc ? 'Ascending' : 'Descending'">{{ sortAsc ? '↑' : '↓' }}</button>
     </div>
 
+    <!-- Export buttons -->
+    <div class="export-bar">
+      <button class="export-btn" @click="handleExportCSV">Down CSV</button>
+      <button class="export-btn" @click="handleExportJSON">Down JSON</button>
+    </div>
+
     <div class="family-grid">
       <router-link
         v-for="family in sortedFamilies"
@@ -51,6 +57,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useModelsStore } from '@/store/models';
+import { useExport } from '@/composables/useExport';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import type { FamilyData } from '@/types';
 
@@ -110,6 +117,31 @@ const FAMILY_NAME_OVERRIDES: Record<string, string> = {
 function formatFamilyName(raw: string): string {
   if (raw === 'Uncategorized') return raw;
   return raw.split('-').map(w => FAMILY_NAME_OVERRIDES[w] ?? (w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
+}
+
+// ── Export ──
+const { exportJSON, exportCSV } = useExport();
+
+function handleExportJSON() {
+  exportJSON(sortedFamilies.value, 'families');
+}
+
+function handleExportCSV() {
+  const rows: string[][] = [];
+  for (const f of sortedFamilies.value) {
+    const working = f.models.filter(m => m.providers.some(p => !p._removed && p.status.result === 'working')).length;
+    rows.push([
+      f.name,
+      String(f.model_count),
+      String(f.provider_count ?? 0),
+      String(working),
+    ]);
+  }
+  exportCSV(
+    ['name', 'model_count', 'provider_count', 'working'],
+    rows,
+    'families',
+  );
 }
 </script>
 
@@ -187,6 +219,10 @@ function formatFamilyName(raw: string): string {
   color: var(--text);
   border-color: var(--text-muted);
 }
+
+.export-bar { display: flex; gap: 6px; margin-top: 12px; justify-content: flex-end; }
+.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
 
 .family-grid {
   display: grid;

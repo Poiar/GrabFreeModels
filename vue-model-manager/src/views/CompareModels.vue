@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="cm-page">
     <div class="page-header">
       <h2>Compare Models</h2>
@@ -69,6 +69,11 @@
 
     <!-- Comparison content -->
     <template v-if="leftModel && rightModel">
+      <!-- Narrative summary -->
+      <div v-if="diffNarrative" class="cm-narrative glass-card">
+        <p>{{ diffNarrative }}</p>
+      </div>
+
       <!-- Radar chart -->
       <div class="cm-radar-wrap glass-card">
         <h3>Dimension Overview</h3>
@@ -389,6 +394,24 @@ function getRadarValue(model: ModelData, key: string): number {
       return 0;
   }
 }
+
+const diffNarrative = computed(() => {
+  if (!leftModel.value || !rightModel.value) return null;
+  const l = leftModel.value, r = rightModel.value;
+  const parts: string[] = [];
+  const lProvs = activeProviders(l).length, rProvs = activeProviders(r).length;
+  if (lProvs !== rProvs) parts.push(lProvs > rProvs ? `${l.name} is on ${lProvs - rProvs} more provider${lProvs - rProvs !== 1 ? 's' : ''} than ${r.name}` : `${r.name} is on ${rProvs - lProvs} more provider${rProvs - lProvs !== 1 ? 's' : ''} than ${l.name}`);
+  const lCtx = l.best_context || 0, rCtx = r.best_context || 0;
+  if (lCtx && rCtx && Math.abs(lCtx - rCtx) > 10000) {
+    const bigger = lCtx > rCtx ? l.name : r.name;
+    const ratio = Math.max(lCtx, rCtx) / Math.min(lCtx, rCtx);
+    parts.push(`${bigger} has ${ratio.toFixed(1)}× more context`);
+  }
+  const lRank = l.role_rankings?.model, rRank = r.role_rankings?.model;
+  if (lRank && rRank && lRank !== rRank) parts.push(`${lRank < rRank ? l.name : r.name} is ranked higher (model role)`);
+  if (parts.length === 0) parts.push(`${l.name} and ${r.name} are broadly comparable`);
+  return parts.join('. ') + '.';
+});
 
 function polygonPoints(model: ModelData): string {
   return radarAxes
@@ -786,4 +809,6 @@ const rightRadarCoords = computed(() => {
     grid-template-columns: 1fr;
   }
 }
+.cm-narrative { padding: 14px 18px; margin-bottom: 16px; border-left: 3px solid var(--accent); background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); }
+.cm-narrative p { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
 </style>

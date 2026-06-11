@@ -72,6 +72,12 @@ const routes = [
     meta: { title: 'Advanced Search' },
   },
   {
+    path: '/benchmarks',
+    name: 'Benchmarks',
+    component: () => import('@/views/BenchmarksView.vue'),
+    meta: { title: 'Benchmarks' },
+  },
+  {
     path: '/rankings',
     name: 'Rankings',
     component: () => import('@/views/RankingsView.vue'),
@@ -86,7 +92,7 @@ const routes = [
   {
     path: '/model/:slug',
     name: 'ModelDetail',
-    component: () => import('@/views/ModelList.vue'),
+    component: () => import('@/views/ModelDetail.vue'),
     meta: { title: 'Model' },
   },
   {
@@ -94,6 +100,12 @@ const routes = [
     name: 'Models',
     component: () => import('@/views/SuperModels.vue'),
     meta: { title: 'Super Models' },
+  },
+  {
+    path: '/supermodel/:slug',
+    name: 'SuperModelDetail',
+    component: () => import('@/views/SuperModelDetail.vue'),
+    meta: { title: 'Super Model' },
   },
   {
     path: '/providers',
@@ -118,6 +130,66 @@ const routes = [
     name: 'FamilyDetail',
     component: () => import('@/views/FamilyDetail.vue'),
     meta: { title: 'Family' },
+  },
+  {
+    path: '/scores',
+    name: 'Scores',
+    component: () => import('@/views/ScoresExplorer.vue'),
+    meta: { title: 'Model Scores' },
+  },
+  {
+    path: '/providers/onboarding',
+    name: 'ProviderOnboarding',
+    component: () => import('@/views/ProviderOnboarding.vue'),
+    meta: { title: 'Provider Onboarding' },
+  },
+  {
+    path: '/lineage',
+    name: 'Lineage',
+    component: () => import('@/views/LineageTree.vue'),
+    meta: { title: 'Lineage Tree' },
+  },
+  {
+    path: '/playground',
+    name: 'Playground',
+    component: () => import('@/views/ApiPlayground.vue'),
+    meta: { title: 'API Playground' },
+  },
+  {
+    path: '/tags',
+    name: 'Tags',
+    component: () => import('@/views/TagExplorer.vue'),
+    meta: { title: 'Tag Explorer' },
+  },
+  {
+    path: '/activity',
+    name: 'Activity',
+    component: () => import('@/views/ActivityFeed.vue'),
+    meta: { title: 'Activity Feed' },
+  },
+  {
+    path: '/picker',
+    name: 'ModelPicker',
+    component: () => import('@/views/ModelPicker.vue'),
+    meta: { title: 'Model Picker' },
+  },
+  {
+    path: '/rate-limits',
+    name: 'RateLimits',
+    component: () => import('@/views/RateLimitCompare.vue'),
+    meta: { title: 'Rate Limits' },
+  },
+  {
+    path: '/providers/status',
+    name: 'ProviderStatus',
+    component: () => import('@/views/ProviderStatusGrid.vue'),
+    meta: { title: 'Provider Status' },
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('@/views/AdminPanel.vue'),
+    meta: { title: 'Admin' },
   },
   // Redirect old routes
 

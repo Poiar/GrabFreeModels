@@ -52,6 +52,14 @@
         <option value="untested">Untested</option>
         <option value="down">Down</option>
       </select>
+      <select v-model="familyFilter" class="ml-select" aria-label="Filter by family">
+        <option value="">All Families</option>
+        <option v-for="f in availableFamilies" :key="f" :value="f">{{ f }}</option>
+      </select>
+      <select v-model="quantFilter" class="ml-select" aria-label="Filter by quantization">
+        <option value="">All quantizations</option>
+        <option v-for="q in availableQuants" :key="q" :value="q">{{ q }}</option>
+      </select>
       <label class="ml-checkbox" title="Show only models requiring a credit card">
         <input v-model="cardRequiredFilter" type="checkbox" />
         <span>Card req.</span>
@@ -92,10 +100,24 @@
       </button>
     </div>
 
+    <!-- Param-count filter chips -->
+    <div class="ml-param-bar">
+      <button
+        v-for="bucket in PARAM_BUCKETS"
+        :key="bucket.value"
+        class="ml-param-chip"
+        :class="{ active: paramFilter === bucket.value }"
+        @click="paramFilter = bucket.value"
+      >
+        {{ bucket.label }}
+        <span class="ml-param-count">{{ paramCounts[bucket.value] ?? 0 }}</span>
+      </button>
+    </div>
+
     <!-- Export buttons -->
-    <div class="ml-export">
-      <button class="export-btn" @click="exportJSON">Export JSON</button>
-      <button class="export-btn" @click="exportCSV">Export CSV</button>
+    <div class="export-bar">
+      <button class="export-btn" @click="handleExportCSV">Down CSV</button>
+      <button class="export-btn" @click="handleExportJSON">Down JSON</button>
     </div>
 
     <!-- Instance list -->
@@ -142,6 +164,7 @@ import { useRoute, useRouter } from 'vue-router';
 import InstanceCard from '@/components/InstanceCard.vue';
 import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
 import { useModelsStore } from '@/store/models';
+import { useExport } from '@/composables/useExport';
 import type { ModelData, CreatorData, ProviderDatapoint } from '@/types';
 
 const store = useModelsStore();
@@ -158,10 +181,13 @@ const providerFilter = ref(getQueryParam('provider', ''));
 const creatorFilter = ref(getQueryParam('creator', ''));
 const statusFilter = ref(getQueryParam('status', ''));
 const cardRequiredFilter = ref(getQueryParam('card', '') === '1');
+const quantFilter = ref(getQueryParam('quant', ''));
+const familyFilter = ref(getQueryParam('family', ''));
 const sortKey = ref(getQueryParam('sort', 'name'));
 const sortAsc = ref(getQueryParam('asc', 'true') !== 'false');
 const modelFilter = ref<'all' | 'root' | 'finetune'>('all');
 const derivFilter = ref(getQueryParam('deriv', 'all'));
+const paramFilter = ref(getQueryParam('param', 'all'));
 
 const DERIV_META: Record<string, { label: string; cssClass: string }> = {
   finetune: { label: 'FT', cssClass: 'deriv-ft' },
@@ -178,9 +204,19 @@ const DERIV_CHIPS = [
   ...Object.entries(DERIV_META).map(([value, meta]) => ({ value, label: meta.label, cssClass: meta.cssClass })),
 ];
 
+const PARAM_BUCKETS = [
+  { value: 'all', label: 'All params', min: -Infinity, max: Infinity },
+  { value: 'lt3b', label: '<3B', min: -Infinity, max: 2.999 },
+  { value: '3b7b', label: '3B–7B', min: 3, max: 7 },
+  { value: '8b13b', label: '8B–13B', min: 8, max: 13 },
+  { value: '14b34b', label: '14B–34B', min: 14, max: 34 },
+  { value: '35b70b', label: '35B–70B', min: 35, max: 70 },
+  { value: 'gt70b', label: '70B+', min: 70.001, max: Infinity },
+];
+
 // Sync filter state → URL query params
 watch(
-  [searchQuery, providerFilter, creatorFilter, statusFilter, cardRequiredFilter, sortKey, sortAsc, derivFilter],
+  [searchQuery, providerFilter, creatorFilter, statusFilter, cardRequiredFilter, quantFilter, familyFilter, sortKey, sortAsc, derivFilter, paramFilter],
   () => {
     const q: Record<string, string> = {};
     if (searchQuery.value) q.q = searchQuery.value;
@@ -188,9 +224,12 @@ watch(
     if (creatorFilter.value) q.creator = creatorFilter.value;
     if (statusFilter.value) q.status = statusFilter.value;
     if (cardRequiredFilter.value) q.card = '1';
+    if (quantFilter.value) q.quant = quantFilter.value;
+    if (familyFilter.value) q.family = familyFilter.value;
     if (sortKey.value !== 'name') q.sort = sortKey.value;
     if (!sortAsc.value) q.asc = 'false';
     if (derivFilter.value !== 'all') q.deriv = derivFilter.value;
+    if (paramFilter.value !== 'all') q.param = paramFilter.value;
     router.replace({ query: Object.keys(q).length ? q : {} });
   },
 );
@@ -277,9 +316,24 @@ const filteredDatapoints = computed(() => {
         // Card required filter
         if (cardRequiredFilter.value && !(dp.limitations?.requires_card)) continue;
 
+        // Quantization filter
+        if (quantFilter.value && dp.quantization !== quantFilter.value) continue;
+
+        // Family filter
+        if (familyFilter.value && dp.family !== familyFilter.value) continue;
+
         // Root/fine-tune filter
         if (modelFilter.value === 'root' && model.base_model) continue;
         if (modelFilter.value === 'finetune' && !model.base_model) continue;
+
+        // Param-count filter
+        if (paramFilter.value !== 'all') {
+          const bucket = PARAM_BUCKETS.find(b => b.value === paramFilter.value);
+          if (bucket) {
+            const modelHasParam = active.some(p => p.param_count_b != null && p.param_count_b >= bucket.min && p.param_count_b <= bucket.max);
+            if (!modelHasParam) continue;
+          }
+        }
 
         items.push({ dp, model, creator, siblingCount });
       }
@@ -311,6 +365,42 @@ const modelDerivationCounts = computed(() => {
   }
 
   return counts;
+});
+
+const paramCounts = computed(() => {
+  const seenModels = new Set<string>();
+  const counts: Record<string, number> = {};
+  for (const bucket of PARAM_BUCKETS) {
+    counts[bucket.value] = 0;
+  }
+
+  for (const item of filteredDatapoints.value) {
+    if (seenModels.has(item.model.slug)) continue;
+    seenModels.add(item.model.slug);
+
+    counts.all++;
+
+    for (const bucket of PARAM_BUCKETS) {
+      if (bucket.value === 'all') continue;
+      if (item.model.providers.some(p => !p._removed && p.param_count_b != null && p.param_count_b >= bucket.min && p.param_count_b <= bucket.max)) {
+        counts[bucket.value]++;
+      }
+    }
+  }
+
+  return counts;
+});
+
+const availableQuants = computed(() => {
+  const set = new Set<string>();
+  for (const item of filteredDatapoints.value) if (item.dp.quantization) set.add(item.dp.quantization);
+  return [...set].sort();
+});
+
+const availableFamilies = computed(() => {
+  const set = new Set<string>();
+  for (const item of filteredDatapoints.value) if (item.dp.family) set.add(item.dp.family);
+  return [...set].sort();
 });
 
 const filteredAndSortedDatapoints = computed(() => {
@@ -365,7 +455,9 @@ function clearFilters() {
   derivFilter.value = 'all';
 }
 
-function exportJSON() {
+const { exportJSON, exportCSV } = useExport();
+
+function handleExportJSON() {
   const data = filteredAndSortedDatapoints.value.map(({ dp, model, creator }) => ({
     provider: dp.provider,
     model: model.name,
@@ -375,38 +467,29 @@ function exportJSON() {
     status: dp.status.result,
     limitations: dp.limitations,
   }));
-  downloadFile(JSON.stringify(data, null, 2), 'instances.json', 'application/json');
+  exportJSON(data, 'model-instances');
 }
 
-function exportCSV() {
-  const rows = [
-    ['Provider', 'Model', 'Creator', 'Context', 'Tools', 'Status', 'Limitations'],
-  ];
+function handleExportCSV() {
+  const rows: string[][] = [];
   for (const { dp, model, creator } of filteredAndSortedDatapoints.value) {
-    const l = dp.limitations;
-    const limitStr = l ? [l.rate_limit, l.daily_requests ? `${l.daily_requests}/day` : '', l.requires_card ? 'Card req.' : ''].filter(Boolean).join('; ') : '';
     rows.push([
-      dp.provider,
       model.name,
       creator.name,
-      String(dp.context_length || ''),
-      String(!!dp.supports_tools),
-      dp.status.result,
-      limitStr,
+      model.family ?? '',
+      String(dp.param_count_b ?? ''),
+      String(dp.context_length ?? ''),
+      dp.provider,
+      dp.status.result === 'working' ? 'yes' : 'no',
+      model.best_for?.join(', ') ?? '',
+      model.derivation_method ?? '',
     ]);
   }
-  const csv = rows.map((r) => r.map((c) => `"${c}"`).join(',')).join('\n');
-  downloadFile(csv, 'instances.csv', 'text/csv');
-}
-
-function downloadFile(content: string, filename: string, mimeType: string) {
-  const blob = new Blob([content], { type: mimeType });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+  exportCSV(
+    ['name', 'creator', 'family', 'params', 'context', 'providers', 'working', 'best_for', 'derivation_method'],
+    rows,
+    'model-instances',
+  );
 }
 </script>
 
@@ -602,27 +685,51 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   opacity: 0.8;
 }
 
-.ml-export {
+/* Param-count filter chips */
+.ml-param-bar {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 14px;
 }
 
-.export-btn {
-  padding: 6px 14px;
-  font-size: 0.72rem;
+.ml-param-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 11px;
+  font-size: 0.7rem;
   font-weight: 600;
+  border-radius: 999px;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--bg-elevated);
-  color: var(--text);
+  background: transparent;
+  color: var(--text-dim);
   cursor: pointer;
   font-family: inherit;
+  transition: all 0.12s;
 }
-.export-btn:hover {
+
+.ml-param-chip:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
+
+.ml-param-chip.active {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ml-param-count {
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.8;
+}
+
+.export-bar { display: flex; gap: 6px; margin-bottom: 12px; justify-content: flex-end; }
+.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
 
 .ml-list {
   display: grid;

@@ -2,13 +2,17 @@
   <div v-if="creator" class="dd-page">
     <div class="page-header">
       <router-link to="/derivatives" class="back-link">← Derivatives</router-link>
-      <h2>
-        {{ creator.name }}
-        <span
-          class="cd-country"
-          :style="{ color: getCountryForCreator(creator.id).text, background: getCountryForCreator(creator.id).color }"
-        >{{ getCountryForCreator(creator.id).name }}</span>
-      </h2>
+      <div class="dd-header-row">
+        <h2>
+          {{ creator.name }}
+          <span class="cd-country" :style="{ color: getCountryForCreator(creator.id).text, background: getCountryForCreator(creator.id).color }">{{ getCountryForCreator(creator.id).name }}</span>
+        </h2>
+        <div class="dd-header-actions">
+          <button class="dd-copy-btn" @click="copyCreatorAsMarkdown(creator)" title="Copy as Markdown">↓ MD</button>
+          <button class="dd-copy-btn" @click="copyAsJson(creator)" title="Copy as JSON">↓ JSON</button>
+          <span v-if="copied" class="dd-copied-toast">Copied!</span>
+        </div>
+      </div>
       <p class="cd-subtitle">
         {{ creator.model_count }} models · {{ creator.provider_count }} providers
       </p>
@@ -22,6 +26,14 @@
       <!-- Unique-facts chip row -->
       <div class="dd-facts" v-if="derivFacts.length">
         <span v-for="f in derivFacts" :key="f.label" class="dd-fact-chip" :class="f.cls">{{ f.label }}</span>
+      </div>
+      <p v-if="creator.description" class="dd-description">{{ creator.description }}</p>
+
+      <!-- Failure summary chips -->
+      <div v-if="failureSummary.length" class="dd-failure-summary">
+        <span v-for="f in failureSummary" :key="f.cat" class="dd-fail-summary-chip" :class="'fail-sum-' + f.cat">
+          {{ f.count }} {{ f.label }}
+        </span>
       </div>
     </div>
 
@@ -88,6 +100,14 @@
         <span class="cd-stat-value">{{ validationSummary }}</span>
         <span class="cd-stat-label">Validation</span>
       </div>
+      <div class="cd-stat">
+        <span class="cd-stat-value">{{ totalDatapoints }}</span>
+        <span class="cd-stat-label">Datapoints</span>
+      </div>
+      <div class="cd-stat" v-if="paramScalingInfo">
+        <span class="cd-stat-value">{{ paramScalingInfo }}</span>
+        <span class="cd-stat-label">Param scaling vs base</span>
+      </div>
     </div>
 
     <!-- Validation bar -->
@@ -115,6 +135,16 @@
         :to="`/family/${encodeURIComponent(f)}`"
         class="cd-family-tag"
       >{{ f }}</router-link>
+    </div>
+
+    <!-- Model tier distribution -->
+    <div v-if="tierEntries.length > 0" class="dd-tier-section">
+      <h3 class="section-title">Model Tiers</h3>
+      <div class="dd-tier-chips">
+        <span v-for="[tier, count] in tierEntries" :key="tier" class="dd-tier-chip" :class="'tier-' + tier.toLowerCase().replace(/[^a-z0-9]/g, '-')">
+          {{ tier }}: <strong>{{ count }}</strong>
+        </span>
+      </div>
     </div>
 
     <!-- Models grouped by base model -->
@@ -156,7 +186,10 @@ import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useModelsStore } from '@/store/models';
 import { getCountryForCreator } from '@/data/creator-countries';
+import { useCopyModelData } from '@/composables/useCopyModelData';
 import type { ModelData } from '@/types';
+
+const { copied, copyCreatorAsMarkdown, copyAsJson } = useCopyModelData();
 
 const store = useModelsStore();
 const route = useRoute();
@@ -330,6 +363,54 @@ const derivationBreakdown = computed(() => {
     .map(([method, count]) => ({ label: DERIVATION_LABELS[method] || method, count }));
 });
 
+// ── Total datapoints ──
+const totalDatapoints = computed(() => {
+  if (!creator.value) return 0;
+  let count = 0;
+  for (const m of creator.value.models) {
+    count += m.providers.filter(p => !p._removed).length;
+  }
+  return count;
+});
+
+// ── Parameter scaling vs base models ──
+const paramScalingInfo = computed(() => {
+  if (!creator.value) return null;
+  let totalDiffs = 0;
+  let diffCount = 0;
+  for (const m of creator.value.models) {
+    if (!m.base_model) continue;
+    const parent = store.modelBySlug.get(m.base_model);
+    if (!parent) continue;
+    const derivParams = m.providers.find(p => !p._removed && p.param_count_b)?.param_count_b;
+    const baseParams = parent.providers.find(p => !p._removed && p.param_count_b)?.param_count_b;
+    if (derivParams && baseParams) {
+      totalDiffs += derivParams / baseParams;
+      diffCount++;
+    }
+  }
+  if (diffCount === 0) return null;
+  const avgRatio = totalDiffs / diffCount;
+  if (Math.abs(avgRatio - 1) < 0.05) return '~same size';
+  if (avgRatio > 1) return `${avgRatio.toFixed(1)}× larger`;
+  return `${(1 / avgRatio).toFixed(1)}× smaller`;
+});
+
+// ── Model tier distribution ──
+const tierEntries = computed(() => {
+  if (!creator.value) return [];
+  const dist = new Map<string, number>();
+  for (const m of creator.value.models) {
+    for (const dp of m.providers) {
+      if (dp._removed) continue;
+      for (const tier of dp.model_tier || []) {
+        if (tier) dist.set(tier, (dist.get(tier) || 0) + 1);
+      }
+    }
+  }
+  return [...dist.entries()].sort((a, b) => b[1] - a[1]);
+});
+
 const validationSummary = computed(() => {
   const c = valCounts.value;
   const total = c.working + c.broken + c.rate_limited + c.untested + c.not_found;
@@ -453,10 +534,11 @@ const derivFacts = computed(() => {
     chips.push({ label: `Builds on ${baseCreatorList.value.length} ${baseCreatorList.value.length === 1 ? 'creator' : 'creators'}`, cls: 'fact-basecreator' });
   }
 
-  // Most-used derivation method
+  // Most-used derivation method — skip unknown, use first real method
   const db = derivationBreakdown.value;
-  if (db.length > 0) {
-    chips.push({ label: `Mostly ${db[0].label} (${db[0].count})`, cls: 'fact-method' });
+  const realMethod = db.find(d => d.label !== 'Derived');
+  if (realMethod) {
+    chips.push({ label: `Mostly ${realMethod.label} (${realMethod.count})`, cls: 'fact-method' });
   }
 
   // Open-weight count
@@ -470,7 +552,52 @@ const derivFacts = computed(() => {
     chips.push({ label: 'All open weight', cls: 'fact-open' });
   }
 
+  // Rate-limited count
+  let rlCount = 0;
+  for (const m of c.models) {
+    for (const dp of m.providers) {
+      if (!dp._removed && dp.status.result === 'rate_limited') rlCount++;
+    }
+  }
+  if (rlCount > 0) {
+    chips.push({ label: `${rlCount} rate-limited`, cls: 'fact-ratelimit' });
+  }
+
+  // Freshness: most recent release
+  let latest: string | null = null;
+  for (const m of c.models) {
+    for (const dp of m.providers) {
+      if (dp.release_date && (!latest || dp.release_date > latest)) latest = dp.release_date;
+    }
+  }
+  if (latest) {
+    chips.push({ label: `Latest: ${latest.slice(0, 7)}`, cls: 'fact-fresh' });
+  }
+
   return chips;
+});
+
+// ── Failure summary chips ──
+const FAILURE_LABELS: Record<string, string> = {
+  timeout: 'Timeout', not_found: 'Not found', auth_error: 'Auth error',
+  rate_limited: 'Rate limited', server_error: 'Server error', network_error: 'Network error', unknown: 'Unknown',
+};
+
+const failureSummary = computed(() => {
+  const dist = new Map<string, number>();
+  const c = creator.value;
+  if (!c) return [];
+  for (const m of c.models) {
+    for (const dp of m.providers) {
+      if (dp._removed) continue;
+      if (dp.status.result === 'working' || dp.status.result === 'untested') continue;
+      const cat = dp.failure_category || 'unknown';
+      dist.set(cat, (dist.get(cat) || 0) + 1);
+    }
+  }
+  return [...dist.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([cat, count]) => ({ cat, label: FAILURE_LABELS[cat] || cat, count }));
 });
 </script>
 
@@ -526,6 +653,27 @@ const derivFacts = computed(() => {
 .dd-fact-chip.fact-basecreator { background: rgba(168,85,247,0.12); color: #a855f7; }
 .dd-fact-chip.fact-method { background: rgba(245,158,11,0.12); color: #f59e0b; }
 .dd-fact-chip.fact-open { background: rgba(52,211,153,0.12); color: #34d399; }
+.dd-fact-chip.fact-ratelimit { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.dd-fact-chip.fact-fresh { background: rgba(168,85,247,0.12); color: #a855f7; }
+
+/* Failure summary chips */
+.dd-failure-summary { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.dd-fail-summary-chip { font-size: 0.62rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; }
+.dd-fail-summary-chip.fail-sum-timeout { background: rgba(251,191,36,0.12); color: #FBBF24; }
+.dd-fail-summary-chip.fail-sum-not_found { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+.dd-fail-summary-chip.fail-sum-auth_error { background: rgba(239,68,68,0.15); color: #F87171; }
+.dd-fail-summary-chip.fail-sum-rate_limited { background: rgba(245,158,11,0.12); color: #F59E0B; }
+.dd-fail-summary-chip.fail-sum-server_error { background: rgba(239,68,68,0.12); color: #EF4444; }
+.dd-fail-summary-chip.fail-sum-network_error { background: rgba(59,130,246,0.12); color: #60A5FA; }
+.dd-fail-summary-chip.fail-sum-unknown { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+
+.dd-description {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 8px 0 0;
+  max-width: 800px;
+}
 
 .dd-base-line {
   font-size: 0.78rem;
@@ -726,6 +874,25 @@ const derivFacts = computed(() => {
   color: var(--accent);
   background: var(--accent-subtle);
 }
+
+/* Model tier distribution */
+.dd-tier-section { margin: 16px 0 8px; }
+.dd-tier-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dd-tier-chip {
+  padding: 3px 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 999px;
+}
+.dd-tier-chip strong { font-family: 'JetBrains Mono', monospace; }
+.dd-tier-chip.tier-top { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.dd-tier-chip.tier-high { background: rgba(59,130,246,0.12); color: #60a5fa; }
+.dd-tier-chip.tier-mid { background: rgba(99,102,241,0.12); color: #818cf8; }
+.dd-tier-chip.tier-basic { background: rgba(156,163,175,0.12); color: #9CA3AF; }
 
 .dd-group {
   margin-bottom: 16px;

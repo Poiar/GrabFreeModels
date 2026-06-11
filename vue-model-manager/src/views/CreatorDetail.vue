@@ -2,19 +2,31 @@
   <div v-if="creator" class="creator-detail-page">
     <div class="page-header">
       <router-link :to="parentRoute" class="back-link">← {{ parentLabel }}</router-link>
-      <h2>
-        {{ creator.name }}
-        <span
-          class="cd-country"
-          :style="{ color: getCountryForCreator(creator.id).text, background: getCountryForCreator(creator.id).color }"
-        >{{ getCountryForCreator(creator.id).name }}</span>
-      </h2>
+      <div class="cd-header-row">
+        <h2>
+          {{ creator.name }}
+          <span class="cd-country" :style="{ color: getCountryForCreator(creator.id).text, background: getCountryForCreator(creator.id).color }">{{ getCountryForCreator(creator.id).name }}</span>
+        </h2>
+        <div class="cd-header-actions">
+          <button class="cd-copy-btn" @click="copyCreatorAsMarkdown(creator)" title="Copy as Markdown">↓ MD</button>
+          <button class="cd-copy-btn" @click="copyAsJson(creator)" title="Copy as JSON">↓ JSON</button>
+          <span v-if="copied" class="cd-copied-toast">Copied!</span>
+        </div>
+      </div>
       <p class="cd-subtitle">
         {{ creator.model_count }} models · {{ creator.provider_count }} providers
       </p>
       <!-- Unique-facts chip row -->
       <div class="cd-facts" v-if="creatorFacts.length">
         <span v-for="f in creatorFacts" :key="f.label" class="cd-fact-chip" :class="f.cls">{{ f.label }}</span>
+      </div>
+      <p v-if="creator.description" class="cd-description">{{ creator.description }}</p>
+
+      <!-- Failure summary chips -->
+      <div v-if="failureSummary.length" class="cd-failure-summary">
+        <span v-for="f in failureSummary" :key="f.cat" class="cd-fail-summary-chip" :class="'fail-sum-' + f.cat">
+          {{ f.count }} {{ f.label }}
+        </span>
       </div>
     </div>
 
@@ -77,6 +89,18 @@
         <span class="cd-stat-value">{{ validationSummary }}</span>
         <span class="cd-stat-label">Validation</span>
       </div>
+      <div class="cd-stat">
+        <span class="cd-stat-value">{{ totalDatapoints }}</span>
+        <span class="cd-stat-label">Datapoints</span>
+      </div>
+      <div class="cd-stat">
+        <span class="cd-stat-value">{{ avgContext }}</span>
+        <span class="cd-stat-label">Avg context</span>
+      </div>
+      <div class="cd-stat">
+        <span class="cd-stat-value">{{ rateLimitedModels }}</span>
+        <span class="cd-stat-label">Rate limited</span>
+      </div>
     </div>
 
     <!-- Validation bar -->
@@ -104,6 +128,16 @@
         :to="`/family/${encodeURIComponent(f)}`"
         class="cd-family-tag"
       >{{ formatFamilyName(f) }}</router-link>
+    </div>
+
+    <!-- Model tier distribution -->
+    <div v-if="tierEntries.length > 0" class="cd-tier-section">
+      <h3 class="section-title">Model Tiers</h3>
+      <div class="cd-tier-chips">
+        <span v-for="[tier, count] in tierEntries" :key="tier" class="cd-tier-chip" :class="'tier-' + tier.toLowerCase().replace(/[^a-z0-9]/g, '-')">
+          {{ tier }}: <strong>{{ count }}</strong>
+        </span>
+      </div>
     </div>
 
     <!-- Derivation method filter chips -->
@@ -164,7 +198,10 @@ import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useModelsStore } from '@/store/models';
 import { getCountryForCreator } from '@/data/creator-countries';
+import { useCopyModelData } from '@/composables/useCopyModelData';
 import type { ModelData } from '@/types';
+
+const { copied, copyCreatorAsMarkdown, copyAsJson } = useCopyModelData();
 
 const store = useModelsStore();
 const route = useRoute();
@@ -400,6 +437,54 @@ const familyList = computed(() => {
   return [...families].sort();
 });
 
+// ── Additional meta stats ──
+const totalDatapoints = computed(() => {
+  if (!creator.value) return 0;
+  let count = 0;
+  for (const m of creator.value.models) {
+    count += m.providers.filter(p => !p._removed).length;
+  }
+  return count;
+});
+
+const avgContext = computed(() => {
+  if (!creator.value) return '—';
+  const ctxs: number[] = [];
+  for (const m of creator.value.models) {
+    if (m.best_context) ctxs.push(m.best_context);
+  }
+  if (!ctxs.length) return '—';
+  const avg = Math.round(ctxs.reduce((a, b) => a + b, 0) / ctxs.length);
+  if (avg >= 1_000_000) return `${(avg / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+  return `${Math.round(avg / 1000)}K`;
+});
+
+const rateLimitedModels = computed(() => {
+  if (!creator.value) return 0;
+  let count = 0;
+  for (const m of creator.value.models) {
+    for (const dp of m.providers) {
+      if (!dp._removed && dp.status.result === 'rate_limited') { count++; break; }
+    }
+  }
+  return count;
+});
+
+// ── Model tier distribution ──
+const tierEntries = computed(() => {
+  if (!creator.value) return [];
+  const dist = new Map<string, number>();
+  for (const m of creator.value.models) {
+    for (const dp of m.providers) {
+      if (dp._removed) continue;
+      for (const tier of dp.model_tier || []) {
+        if (tier) dist.set(tier, (dist.get(tier) || 0) + 1);
+      }
+    }
+  }
+  return [...dist.entries()].sort((a, b) => b[1] - a[1]);
+});
+
 // ── Top best_for tags across all models ──
 const topBestFor = computed(() => {
   if (!creator.value) return [];
@@ -541,7 +626,75 @@ const creatorFacts = computed(() => {
     chips.push({ label: 'All open weight', cls: 'fact-open' });
   }
 
+  // Top-3 ranking roles (highly distinctive — only 7 creators have these)
+  const bestRankByRole = new Map<string, number>();
+  for (const m of c.models) {
+    for (const [role, rank] of Object.entries(m.role_rankings)) {
+      if (rank <= 3 && (!bestRankByRole.has(role) || rank < bestRankByRole.get(role)!)) {
+        bestRankByRole.set(role, rank);
+      }
+    }
+  }
+  if (bestRankByRole.size > 0) {
+    const RANK_ROLE_LABELS: Record<string, string> = { model: 'coder', build: 'build', general: 'general', small_model: 'small', explore: 'explore' };
+    const parts = [...bestRankByRole].sort((a, b) => a[1] - b[1]).map(([role, rank]) => `#${rank} ${RANK_ROLE_LABELS[role] || role}`);
+    chips.push({ label: parts.join(' · '), cls: 'fact-ranking' });
+  }
+
+  // Knowledge cutoff range
+  const cutoffs = new Set<string>();
+  let modelsWithCutoff = 0;
+  for (const m of c.models) {
+    let hasCutoff = false;
+    for (const dp of m.providers) {
+      if (dp.knowledge_cutoff) { cutoffs.add(dp.knowledge_cutoff); hasCutoff = true; }
+    }
+    if (hasCutoff) modelsWithCutoff++;
+  }
+  if (modelsWithCutoff >= c.models.length / 2) {
+    const cutoffVals = [...cutoffs].sort();
+    if (cutoffVals.length === 1) {
+      chips.push({ label: `Knowledge: ${cutoffVals[0]}`, cls: 'fact-cutoff' });
+    } else if (cutoffVals.length > 1) {
+      chips.push({ label: `Knowledge: ${cutoffVals[0]} – ${cutoffVals[cutoffVals.length - 1]}`, cls: 'fact-cutoff' });
+    }
+  }
+
+  // Rate-limited datapoint count
+  let rlCount = 0;
+  for (const m of c.models) {
+    for (const dp of m.providers) {
+      if (!dp._removed && dp.status.result === 'rate_limited') rlCount++;
+    }
+  }
+  if (rlCount > 0) {
+    chips.push({ label: `${rlCount} rate-limited`, cls: 'fact-ratelimit' });
+  }
+
   return chips;
+});
+
+// ── Failure summary chips ──
+const FAILURE_LABELS: Record<string, string> = {
+  timeout: 'Timeout', not_found: 'Not found', auth_error: 'Auth error',
+  rate_limited: 'Rate limited', server_error: 'Server error', network_error: 'Network error', unknown: 'Unknown',
+};
+
+const failureSummary = computed(() => {
+  const dist = new Map<string, number>();
+  const c = creator.value;
+  if (!c) return [];
+  for (const m of c.models) {
+    for (const dp of m.providers) {
+      if (dp._removed) continue;
+      if (dp.status.result === 'working' || dp.status.result === 'untested') continue;
+      const cat = dp.failure_category || 'unknown';
+      dist.set(cat, (dist.get(cat) || 0) + 1);
+    }
+  }
+  return [...dist.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([cat, count]) => ({ cat, label: FAILURE_LABELS[cat] || cat, count }));
 });
 </script>
 
@@ -556,9 +709,13 @@ const creatorFacts = computed(() => {
   color: var(--accent);
   text-decoration: none;
 }
-.back-link:hover {
-  text-decoration: underline;
-}
+.back-link:hover { text-decoration: underline; }
+.cd-header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.cd-header-row h2 { margin: 0; flex: 1; }
+.cd-header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.cd-copy-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+.cd-copy-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
+.cd-copied-toast { font-size: 0.65rem; font-weight: 600; color: var(--green); }
 .page-header h2 {
   font-size: 1.3rem;
   font-weight: 700;
@@ -702,6 +859,28 @@ const creatorFacts = computed(() => {
 .cd-fact-chip.fact-deriv { background: rgba(236,72,153,0.12); color: #ec4899; }
 .cd-fact-chip.fact-original { background: rgba(59,130,246,0.12); color: #60a5fa; }
 .cd-fact-chip.fact-open { background: rgba(52,211,153,0.12); color: #34d399; }
+.cd-fact-chip.fact-ranking { background: rgba(245,158,11,0.14); color: #f59e0b; font-weight: 700; }
+.cd-fact-chip.fact-cutoff { background: rgba(168,85,247,0.12); color: #a855f7; }
+.cd-fact-chip.fact-ratelimit { background: rgba(245,158,11,0.12); color: #f59e0b; }
+
+/* Failure summary chips */
+.cd-failure-summary { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.cd-fail-summary-chip { font-size: 0.62rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; }
+.cd-fail-summary-chip.fail-sum-timeout { background: rgba(251,191,36,0.12); color: #FBBF24; }
+.cd-fail-summary-chip.fail-sum-not_found { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+.cd-fail-summary-chip.fail-sum-auth_error { background: rgba(239,68,68,0.15); color: #F87171; }
+.cd-fail-summary-chip.fail-sum-rate_limited { background: rgba(245,158,11,0.12); color: #F59E0B; }
+.cd-fail-summary-chip.fail-sum-server_error { background: rgba(239,68,68,0.12); color: #EF4444; }
+.cd-fail-summary-chip.fail-sum-network_error { background: rgba(59,130,246,0.12); color: #60A5FA; }
+.cd-fail-summary-chip.fail-sum-unknown { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+
+.cd-description {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 8px 0 0;
+  max-width: 800px;
+}
 
 .cd-features-row {
   display: flex;
@@ -849,6 +1028,25 @@ const creatorFacts = computed(() => {
   text-align: center;
   color: var(--text-dim);
 }
+
+/* Model tier distribution */
+.cd-tier-section { margin: 16px 0 8px; }
+.cd-tier-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cd-tier-chip {
+  padding: 3px 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 999px;
+}
+.cd-tier-chip strong { font-family: 'JetBrains Mono', monospace; }
+.cd-tier-chip.tier-top { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.cd-tier-chip.tier-high { background: rgba(59,130,246,0.12); color: #60a5fa; }
+.cd-tier-chip.tier-mid { background: rgba(99,102,241,0.12); color: #818cf8; }
+.cd-tier-chip.tier-basic { background: rgba(156,163,175,0.12); color: #9CA3AF; }
 
 @media (max-width: 768px) {
   .creator-detail-page {

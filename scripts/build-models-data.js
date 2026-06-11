@@ -171,7 +171,11 @@ async function buildModelsData(client, pool, options = {}) {
     return null;
   }
 
-  const CTX_NORM = 1048756;
+  // ── CTX normalization: adaptive max from current model population ──
+  const CTX_NORM = Math.max(
+    ...dmRows.map(r => r.context_length || 0).filter(Boolean),
+    1,
+  );
   const outputModels = [];
   const workingIds = [];
   const rateLimitedIds = [];
@@ -247,6 +251,7 @@ async function buildModelsData(client, pool, options = {}) {
       _removed: dm.is_removed || false,
       _removedDate: null,
       notes: null,
+      created_at: dm.created_at || null,
     };
 
     const ctx_val = entry.context_length ? entry.context_length / CTX_NORM : -0.5;
@@ -481,6 +486,20 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
       knowledge_cutoff: dp.knowledge_cutoff || null,
       last_updated: dp.lastUpdated || null,
       release_date: dp.releaseDate || null,
+      quantization: dp.quantization || null,
+      hardware: dp.hardware || null,
+      provider_type: dp.provider_type || null,
+      serves_third_party: dp.serves_third_party,
+      is_openai_compat: dp.is_openai_compat,
+      supports_streaming: dp.supports_streaming,
+      requires_account_id: dp.requires_account_id,
+      max_rpm: dp.max_rpm,
+      max_tpm: dp.max_tpm,
+      max_daily_requests: dp.max_daily_requests,
+      requires_card: dp.requires_card,
+      base_url: dp.base_url || null,
+      npm_package: dp.npm_package || null,
+      created_at: dp.created_at || null,
     });
 
     // Update model-level aggregates
@@ -511,6 +530,10 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
       }
     }
   }
+
+  const PROVIDER_DESCRIPTIONS = require('../data/provider-descriptions.json');
+  const CREATOR_DESCRIPTIONS = require('../data/creator-descriptions.json');
+  const PROVIDER_BASE_URLS = require('../data/provider-base-urls.json');
 
   // Assemble creators array
   const creators = Array.from(creatorMap.values())
@@ -545,6 +568,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
         name: creator.name,
         type: classifyCreatorType(creator.id, providerSet),
         role: deriveCreatorRole(rawModels),
+        description: CREATOR_DESCRIPTIONS[creator.id] || null,
         model_count: models.length,
         provider_count: providerSet.size,
         models,
@@ -582,10 +606,6 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
     ref.model_count++;
     if (dp.status.result === 'working') ref.working_count++;
   }
-
-  const PROVIDER_DESCRIPTIONS = require('../data/provider-descriptions.json');
-
-  const PROVIDER_BASE_URLS = require('../data/provider-base-urls.json');
 
   const providers = Array.from(providerRefMap.values())
     .map((ref) => ({

@@ -72,6 +72,9 @@ async function recommendModels(role, limit = 3) {
       }))
     );
 
+  // ── CTX normalization: adaptive max from current model population ──
+  const CTX_NORM = Math.max(...eligible.map(m => m.context_length || 0).filter(Boolean), 1);
+
   // Score each model
   const scored = eligible.map(m => {
     const tags = m.best_for.map(t => t.toLowerCase());
@@ -85,7 +88,6 @@ async function recommendModels(role, limit = 3) {
       }
     }
 
-    const CTX_NORM = 1048756;
     const ctxScore = m.context_length ? m.context_length / CTX_NORM : -0.5;
     const score = Math.round((ctxScore * 0.8 + tagScore) * 100) / 100;
 

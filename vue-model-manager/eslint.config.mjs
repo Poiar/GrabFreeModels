@@ -140,6 +140,24 @@ export default [
       'no-unused-vars': ['error', { args: 'none' }],
     },
   },
+  // Service Worker
+  {
+    files: ['public/sw.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'script',
+      globals: {
+        self: 'readonly',
+        caches: 'readonly',
+        clients: 'readonly',
+        registration: 'readonly',
+        skipWaiting: 'readonly',
+      },
+    },
+    rules: {
+      'no-empty': ['error', { allowEmptyCatch: true }],
+    },
+  },
   // MJS scripts
   {
     files: ['**/*.mjs'],

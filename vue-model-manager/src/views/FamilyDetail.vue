@@ -2,13 +2,28 @@
   <div v-if="family" class="family-detail-page">
     <div class="page-header">
       <router-link to="/families" class="back-link">← Families</router-link>
-      <h2>{{ formatFamilyName(family.name) }}</h2>
+      <div class="fd-header-row">
+        <h2>{{ formatFamilyName(family.name) }}</h2>
+        <div class="fd-header-actions">
+          <button class="fd-copy-btn" @click="copyFamilyAsMarkdown(family)" title="Copy as Markdown">↓ MD</button>
+          <button class="fd-copy-btn" @click="copyAsJson(family)" title="Copy as JSON">↓ JSON</button>
+          <span v-if="copied" class="fd-copied-toast">Copied!</span>
+        </div>
+      </div>
       <p class="fd-subtitle">
         {{ family.model_count }} models · {{ family.provider_count }} providers
       </p>
       <!-- Unique-facts chip row -->
       <div class="fd-facts" v-if="familyFacts.length">
         <span v-for="f in familyFacts" :key="f.label" class="fd-fact-chip" :class="f.cls">{{ f.label }}</span>
+      </div>
+      <p v-if="familyDescription" class="fd-description">{{ familyDescription }}</p>
+
+      <!-- Failure summary chips -->
+      <div v-if="failureSummary.length" class="fd-failure-summary">
+        <span v-for="f in failureSummary" :key="f.cat" class="fd-fail-summary-chip" :class="'fail-sum-' + f.cat">
+          {{ f.count }} {{ f.label }}
+        </span>
       </div>
     </div>
 
@@ -71,6 +86,14 @@
         <span class="fd-stat-value">{{ validationSummary }}</span>
         <span class="fd-stat-label">Validation</span>
       </div>
+      <div class="fd-stat">
+        <span class="fd-stat-value">{{ totalDatapoints }}</span>
+        <span class="fd-stat-label">Datapoints</span>
+      </div>
+      <div class="fd-stat">
+        <span class="fd-stat-value">{{ paramRangeDetailed }}</span>
+        <span class="fd-stat-label">Param spread</span>
+      </div>
     </div>
 
     <!-- Validation bar -->
@@ -98,6 +121,16 @@
         :to="`/creator/${c.id}`"
         class="fd-creator-tag"
       >{{ c.name }}</router-link>
+    </div>
+
+    <!-- Model tier distribution -->
+    <div v-if="tierEntries.length > 0" class="fd-tier-section">
+      <h3 class="section-title">Model Tiers</h3>
+      <div class="fd-tier-chips">
+        <span v-for="[tier, count] in tierEntries" :key="tier" class="fd-tier-chip" :class="'tier-' + tier.toLowerCase().replace(/[^a-z0-9]/g, '-')">
+          {{ tier }}: <strong>{{ count }}</strong>
+        </span>
+      </div>
     </div>
 
     <!-- Derivation method filter chips -->
@@ -150,7 +183,10 @@ import SuperModelCard from '@/components/SuperModelCard.vue';
 import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useModelsStore } from '@/store/models';
+import { useCopyModelData } from '@/composables/useCopyModelData';
 import type { CreatorData, ModelData } from '@/types';
+
+const { copied, copyFamilyAsMarkdown, copyAsJson } = useCopyModelData();
 
 const store = useModelsStore();
 const route = useRoute();
@@ -241,7 +277,7 @@ function formatContext(ctx: number | null): string {
 
 function creatorFor(model: ModelData): CreatorData {
   const c = store.creators.find((cr) => cr.models.some((m) => m.super_id === model.super_id));
-  return c ?? { id: 'unknown', name: model.creator || 'Unknown', type: 'other' as const, role: 'Model creator' as const, model_count: 0, provider_count: 0, models: [] };
+  return c ?? { id: 'unknown', name: model.creator || 'Unknown', type: 'other' as const, role: 'Model creator' as const, description: null, model_count: 0, provider_count: 0, models: [] };
 }
 
 // ── Validation counts ──
@@ -447,6 +483,56 @@ const familyCreators = computed(() => {
     .sort((a, b) => b.model_count - a.model_count);
 });
 
+// ── Family description (from first model that has one) ──
+const familyDescription = computed(() => {
+  if (!family.value) return null;
+  for (const m of family.value.models) {
+    for (const dp of m.providers) {
+      if (dp.description) return dp.description;
+    }
+  }
+  return null;
+});
+
+// ── Total datapoints ──
+const totalDatapoints = computed(() => {
+  if (!family.value) return 0;
+  let count = 0;
+  for (const m of family.value.models) {
+    count += m.providers.filter(p => !p._removed).length;
+  }
+  return count;
+});
+
+// ── Param range detailed (count of distinct sizes) ──
+const paramRangeDetailed = computed(() => {
+  if (!family.value) return '—';
+  const sizes = new Set<number>();
+  for (const m of family.value.models) {
+    for (const dp of m.providers) {
+      if (dp.param_count_b) sizes.add(dp.param_count_b);
+    }
+  }
+  const vals = [...sizes].sort((a, b) => a - b);
+  if (!vals.length) return '—';
+  return `${vals.length} sizes`;
+});
+
+// ── Model tier distribution ──
+const tierEntries = computed(() => {
+  if (!family.value) return [];
+  const dist = new Map<string, number>();
+  for (const m of family.value.models) {
+    for (const dp of m.providers) {
+      if (dp._removed) continue;
+      for (const tier of dp.model_tier || []) {
+        if (tier) dist.set(tier, (dist.get(tier) || 0) + 1);
+      }
+    }
+  }
+  return [...dist.entries()].sort((a, b) => b[1] - a[1]);
+});
+
 // ── Unique-facts chips ──
 function formatParamSize(b: number): string {
   if (b >= 1000) return (b / 1000).toFixed(1).replace(/\.0$/, '') + 'T';
@@ -473,18 +559,23 @@ const familyFacts = computed(() => {
     chips.push({ label: min === max ? `${min} params` : `${min} – ${max} params`, cls: 'fact-param' });
   }
 
-  // Knowledge cutoff range
+  // Knowledge cutoff range — only show when ≥half the models have cutoff data
   const cutoffs = new Set<string>();
+  let modelsWithCutoff = 0;
   for (const m of f.models) {
+    let hasCutoff = false;
     for (const dp of m.providers) {
-      if (dp.knowledge_cutoff) cutoffs.add(dp.knowledge_cutoff);
+      if (dp.knowledge_cutoff) { cutoffs.add(dp.knowledge_cutoff); hasCutoff = true; }
     }
+    if (hasCutoff) modelsWithCutoff++;
   }
-  const cutoffVals = [...cutoffs].sort();
-  if (cutoffVals.length === 1) {
-    chips.push({ label: `Knowledge cutoff: ${cutoffVals[0]}`, cls: 'fact-cutoff' });
-  } else if (cutoffVals.length > 1) {
-    chips.push({ label: `Knowledge: ${cutoffVals[0]} – ${cutoffVals[cutoffVals.length - 1]}`, cls: 'fact-cutoff' });
+  if (modelsWithCutoff >= f.models.length / 2) {
+    const cutoffVals = [...cutoffs].sort();
+    if (cutoffVals.length === 1) {
+      chips.push({ label: `Knowledge cutoff: ${cutoffVals[0]}`, cls: 'fact-cutoff' });
+    } else if (cutoffVals.length > 1) {
+      chips.push({ label: `Knowledge: ${cutoffVals[0]} – ${cutoffVals[cutoffVals.length - 1]}`, cls: 'fact-cutoff' });
+    }
   }
 
   // Open-weight count
@@ -504,7 +595,52 @@ const familyFacts = computed(() => {
     chips.push({ label: `${creators.length} ${creators.length === 1 ? 'creator' : 'creators'}`, cls: 'fact-creator' });
   }
 
+  // Rate-limited datapoint count
+  let rlCount = 0;
+  for (const m of f.models) {
+    for (const dp of m.providers) {
+      if (!dp._removed && dp.status.result === 'rate_limited') rlCount++;
+    }
+  }
+  if (rlCount > 0) {
+    chips.push({ label: `${rlCount} rate-limited`, cls: 'fact-ratelimit' });
+  }
+
+  // Freshness: most recent release
+  let latest: string | null = null;
+  for (const m of f.models) {
+    for (const dp of m.providers) {
+      if (dp.release_date && (!latest || dp.release_date > latest)) latest = dp.release_date;
+    }
+  }
+  if (latest) {
+    chips.push({ label: `Latest: ${latest.slice(0, 7)}`, cls: 'fact-fresh' });
+  }
+
   return chips;
+});
+
+// ── Failure summary chips ──
+const FAILURE_LABELS: Record<string, string> = {
+  timeout: 'Timeout', not_found: 'Not found', auth_error: 'Auth error',
+  rate_limited: 'Rate limited', server_error: 'Server error', network_error: 'Network error', unknown: 'Unknown',
+};
+
+const failureSummary = computed(() => {
+  const dist = new Map<string, number>();
+  const f = family.value;
+  if (!f) return [];
+  for (const m of f.models) {
+    for (const dp of m.providers) {
+      if (dp._removed) continue;
+      if (dp.status.result === 'working' || dp.status.result === 'untested') continue;
+      const cat = dp.failure_category || 'unknown';
+      dist.set(cat, (dist.get(cat) || 0) + 1);
+    }
+  }
+  return [...dist.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([cat, count]) => ({ cat, label: FAILURE_LABELS[cat] || cat, count }));
 });
 </script>
 
@@ -533,6 +669,14 @@ const familyFacts = computed(() => {
   margin: 0;
 }
 
+.fd-description {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 8px 0 0;
+  max-width: 800px;
+}
+
 /* ── Unique-facts chips ── */
 .fd-facts {
   display: flex;
@@ -550,6 +694,19 @@ const familyFacts = computed(() => {
 .fd-fact-chip.fact-cutoff { background: rgba(168,85,247,0.12); color: #a855f7; }
 .fd-fact-chip.fact-open { background: rgba(52,211,153,0.12); color: #34d399; }
 .fd-fact-chip.fact-creator { background: rgba(236,72,153,0.12); color: #ec4899; }
+.fd-fact-chip.fact-ratelimit { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.fd-fact-chip.fact-fresh { background: rgba(168,85,247,0.12); color: #a855f7; }
+
+/* Failure summary chips */
+.fd-failure-summary { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.fd-fail-summary-chip { font-size: 0.62rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; }
+.fd-fail-summary-chip.fail-sum-timeout { background: rgba(251,191,36,0.12); color: #FBBF24; }
+.fd-fail-summary-chip.fail-sum-not_found { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+.fd-fail-summary-chip.fail-sum-auth_error { background: rgba(239,68,68,0.15); color: #F87171; }
+.fd-fail-summary-chip.fail-sum-rate_limited { background: rgba(245,158,11,0.12); color: #F59E0B; }
+.fd-fail-summary-chip.fail-sum-server_error { background: rgba(239,68,68,0.12); color: #EF4444; }
+.fd-fail-summary-chip.fail-sum-network_error { background: rgba(59,130,246,0.12); color: #60A5FA; }
+.fd-fail-summary-chip.fail-sum-unknown { background: rgba(156,163,175,0.12); color: #9CA3AF; }
 
 /* Features row */
 .fd-features-row {
@@ -780,6 +937,25 @@ const familyFacts = computed(() => {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Model tier distribution */
+.fd-tier-section { margin: 16px 0 8px; }
+.fd-tier-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fd-tier-chip {
+  padding: 3px 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 999px;
+}
+.fd-tier-chip strong { font-family: 'JetBrains Mono', monospace; }
+.fd-tier-chip.tier-top { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.fd-tier-chip.tier-high { background: rgba(59,130,246,0.12); color: #60a5fa; }
+.fd-tier-chip.tier-mid { background: rgba(99,102,241,0.12); color: #818cf8; }
+.fd-tier-chip.tier-basic { background: rgba(156,163,175,0.12); color: #9CA3AF; }
 
 /* Derivation filter chips */
 .ml-deriv-bar {

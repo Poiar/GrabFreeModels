@@ -9,8 +9,10 @@
     <!-- Row 1: Model name (primary identity) + ranking badges -->
     <div class="sm-name-row">
       <span class="sm-model-name">
+        <button class="watch-btn" :class="{ watched: wl.isWatched(model.super_id) }" @click.stop="wl.toggle(model)" :title="(wl.isWatched(model.super_id) ? 'Remove from' : 'Add to') + ' watch list'">{{ wl.isWatched(model.super_id) ? '★' : '☆' }}</button>
         <span class="sm-model-icon-fb">{{ model.name[0] }}</span>
-        {{ model.name }}
+        <span :class="{ 'sm-deprecated-name': isDeprecated }">{{ model.name }}</span>
+        <span v-if="isDeprecated" class="sm-deprecated-tag" title="This model has been deprecated">Deprecated</span>
         <span v-if="isDegraded" class="sm-degraded-warning" title="Stability degraded — was stable, now broken">!</span>
         <button class="copy-btn-badge" title="Copy name" @click.stop="copyText(model.name)">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -56,6 +58,7 @@
       <span v-for="tier in uniqueTiers" :key="'tier-'+tier" class="sm-tier-chip">{{ formatTier(tier) }}</span>
       <span v-if="uniqueVariant" class="sm-variant-chip">{{ formatVariant(uniqueVariant) }}</span>
       <span v-if="sizeLabel" class="sm-size-chip">{{ sizeLabel }}</span>
+      <span v-if="efficiencyBadge" class="sm-eff-chip" :title="efficiencyBadge.title">{{ efficiencyBadge.label }}</span>
       <span v-if="anyThinking" class="sm-thinking-chip">Thinking</span>
       <span v-if="uniqueStage" class="sm-stage-chip" :class="'stage-'+uniqueStage">{{ formatStage(uniqueStage) }}</span>
       <span v-if="anyCoding" class="sm-coder-chip">Coder</span>
@@ -87,6 +90,21 @@
       </template>
     </div>
 
+    <!-- Health sparkline -->
+    <div v-if="healthSpark" class="sm-health-spark" :title="healthSpark.stability + '% stable · ' + healthSpark.streak + 'd streak'">
+      <svg viewBox="0 0 60 14" class="sm-spark-svg">
+        <polyline
+          :points="healthSpark.points.map(p => p.x + ',' + p.y).join(' ')"
+          fill="none"
+          :stroke="healthSpark.stability >= 80 ? 'var(--green)' : healthSpark.stability >= 50 ? 'var(--orange)' : 'var(--red)'"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <span class="sm-spark-label">{{ healthSpark.stability }}% ({{ healthSpark.streak }}d)</span>
+    </div>
+
     <!-- Row 5: Footer — provider tags + source badges -->
     <div class="sm-footer">
       <div class="sm-providers">
@@ -108,6 +126,7 @@ import { computed } from 'vue';
 import type { ModelData, ProviderDatapoint } from '@/types';
 import { useModelsStore } from '@/store/models';
 import { useToast } from '@/composables/useToast';
+import { useWatchList } from '@/composables/useWatchList';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
 
@@ -126,6 +145,7 @@ const emit = defineEmits<{
 
 const store = useModelsStore();
 const { success: toastSuccess } = useToast();
+const wl = useWatchList();
 
 const DERIVATION_META: Record<string, { label: string; cssClass: string }> = {
   finetune: { label: 'FT', cssClass: 'deriv-ft' },
@@ -199,6 +219,11 @@ const sizeLabel = computed(() => {
   const range = minB === maxB ? `${maxB}B` : `${minB}B–${maxB}B`;
   return activeB ? `${range} (${activeB}B active)` : range;
 });
+const efficiencyBadge = computed(() => {
+  const eff = store.costEfficiency.get(props.model.super_id);
+  if (!eff || eff < 10) return null;
+  return { label: `Eff ${eff}`, title: `Cost efficiency: ${eff} (intelligence ÷ provider count). Higher = better quality per provider.` };
+});
 const anyThinking = computed(() => activeDps.value.some((d) => d.thinking_variant));
 const anyCoding = computed(() => activeDps.value.some((d) => d.coding_specialized));
 const uniqueStage = computed(() => {
@@ -210,9 +235,31 @@ const isDegraded = computed(() =>
   activeDps.value.some((d) => store.degradedModels.has(d.full_id)),
 );
 
+const isDeprecated = computed(() =>
+  activeDps.value.some((d) => store.deprecatedFullIds.has(d.full_id)),
+);
+
+// Health sparkline data
+const healthSpark = computed(() => {
+  const mh = store.modelHealthBySuperId.get(props.model.super_id);
+  if (!mh?.snapshots?.length) return null;
+  const recent = mh.snapshots.slice(0, 14).reverse(); // last 14 days, chronological
+  const points: { x: number; y: number; status: string }[] = [];
+  const w = 60;
+  for (let i = 0; i < recent.length; i++) {
+    points.push({
+      x: (i / Math.max(recent.length - 1, 1)) * w,
+      y: recent[i].status === 'working' ? 3 : recent[i].status === 'rate_limited' ? 7 : 11,
+      status: recent[i].status,
+    });
+  }
+  return { points, stability: mh.stability, streak: mh.streak, count: recent.length };
+});
+
 const status = computed(() => {
   const total = activeDps.value.length;
   if (!total) return 'down';
+  if (isDeprecated.value) return 'deprecated';
   if (working.value.length === total) return 'working';
   if (working.value.length > 0) return 'mixed';
   if (broken.value.length > 0) return 'broken';
@@ -354,6 +401,8 @@ async function copyText(text: string) {
 
 .sm-card.card-working { border-left-color: var(--green); }
 .sm-card.card-mixed { border-left-color: var(--orange); }
+.sm-card.card-deprecated { opacity: 0.55; }
+.sm-card.card-deprecated .sm-deprecated-name { text-decoration: line-through; text-decoration-color: var(--text-muted); }
 .sm-card.card-down { border-left-color: var(--border); }
 .sm-card.card-untested { border-left-color: var(--text-muted); }
 .sm-card.card-limited { border-left-color: var(--orange); }
@@ -568,6 +617,15 @@ async function copyText(text: string) {
   background: rgba(167, 139, 250, 0.1);
   color: var(--purple, #a78bfa);
 }
+.sm-eff-chip {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 600;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(52, 211, 153, 0.1);
+  color: #34d399;
+}
 .sm-thinking-chip {
   padding: 1px 6px;
   font-size: 0.58rem;
@@ -729,9 +787,37 @@ async function copyText(text: string) {
   opacity: 1;
 }
 
+/* Health sparkline */
+.sm-health-spark {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+  opacity: 0.7;
+}
+.sm-spark-svg { width: 60px; height: 14px; flex-shrink: 0; }
+.sm-spark-label { font-size: 0.55rem; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+
+/* Deprecated tag */
+.sm-deprecated-tag {
+  padding: 0 4px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  border-radius: 3px;
+  background: rgba(239,68,68,0.15);
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
   .sm-card { padding: 8px 10px; }
   .sm-model-name { font-size: 0.78rem; }
   .sm-header-right { display: none; }
 }
+
+.watch-btn { background: none; border: none; cursor: pointer; font-size: 0.75rem; padding: 0 3px; opacity: 0.5; transition: opacity 0.12s; line-height: 1; }
+.watch-btn:hover { opacity: 1; }
+.watch-btn.watched { opacity: 1; color: #f59e0b; }
 </style>

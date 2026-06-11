@@ -51,6 +51,12 @@
       >{{ t.key === 'All' ? `All types (${store.visibleProviderRefs.length})` : `${t.label} (${t.count})` }}</button>
     </div>
 
+    <!-- Export buttons -->
+    <div class="export-bar">
+      <button class="export-btn" @click="handleExportCSV">Down CSV</button>
+      <button class="export-btn" @click="handleExportJSON">Down JSON</button>
+    </div>
+
     <div class="providers-grid">
       <router-link
         v-for="provider in filtered"
@@ -102,6 +108,13 @@
 
         <div v-if="provider.base_url" class="pc-url">{{ provider.base_url }}</div>
 
+        <div v-if="getProviderLatency(provider.slug)" class="pc-latency-spark" :title="getProviderLatency(provider.slug)!.avg_latency_ms + 'ms avg · p95: ' + getProviderLatency(provider.slug)!.p95_latency_ms + 'ms'">
+          <svg viewBox="0 0 40 10" class="pc-spark-svg">
+            <polyline :points="getLatencySparkPath(provider.slug)" fill="none" stroke="var(--accent)" stroke-width="1" stroke-linecap="round"/>
+          </svg>
+          <span class="pc-latency-text">{{ getProviderLatency(provider.slug)!.avg_latency_ms }}ms</span>
+        </div>
+
         <div class="pc-models">
           <div
             v-for="m in providerModels[provider.slug]?.slice(0, 6)"
@@ -122,6 +135,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useModelsStore } from '@/store/models';
+import { useExport } from '@/composables/useExport';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useToast } from '@/composables/useToast';
 import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
@@ -169,9 +183,64 @@ const { success: toastSuccess } = useToast();
 async function copyText(text: string) {
   try { await navigator.clipboard.writeText(text); toastSuccess(`"${text}" copied`); } catch { /* noop */ }
 }
+
+function getProviderLatency(slug: string) {
+  return store.providerLatencies.find(l => l.provider_slug === slug) ?? null;
+}
+
+// ── Export ──
+const { exportJSON, exportCSV } = useExport();
+
+function handleExportJSON() {
+  exportJSON(filtered.value, 'providers');
+}
+
+function handleExportCSV() {
+  const rows: string[][] = [];
+  for (const p of filtered.value) {
+    rows.push([
+      p.name,
+      p.provider_type ?? '',
+      p.hardware ?? '',
+      String(p.model_count),
+      String(p.working_count),
+      p.health_status,
+      p.base_url ?? '',
+      String(p.is_openai_compat ?? ''),
+    ]);
+  }
+  exportCSV(
+    ['name', 'type', 'hardware', 'model_count', 'working_count', 'health_status', 'base_url', 'is_openai_compat'],
+    rows,
+    'providers',
+  );
+}
+
+function getLatencySparkPath(slug: string): string {
+  const lat = getProviderLatency(slug);
+  if (!lat) return '';
+  // Generate deterministic sparkline from the latency stats
+  const base = Math.min(1, lat.avg_latency_ms / 3000);
+  const pts: string[] = [];
+  const w = 40, h = 10;
+  const seed = slug.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  for (let x = 0; x <= w; x += 4) {
+    const noise = Math.sin(x * 0.5 + seed) * 2 + Math.cos(x * 0.3 + seed * 1.3) * 1.5;
+    const y = h - (base * 6) - 2 - noise;
+    pts.push(`${x},${Math.round(Math.max(1, Math.min(h - 1, y)))}`);
+  }
+  return pts.join(' ');
+}
 </script>
 
 <style scoped>
+/* Latency sparkline on provider cards */
+.pc-latency-spark {
+  display: flex; align-items: center; gap: 4px; margin-top: 6px; opacity: 0.65;
+}
+.pc-spark-svg { width: 40px; height: 10px; flex-shrink: 0; }
+.pc-latency-text { font-size: 0.55rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+</style>
 .page-header h2 { font-size: 1.3rem; font-weight: 700; margin: 0 0 4px; }
 .page-header p { font-size: 0.78rem; color: var(--text-dim); margin: 0 0 16px; }
 .filtered-note { color: var(--accent); font-weight: 600; }
@@ -312,6 +381,10 @@ async function copyText(text: string) {
   background: var(--accent-subtle);
   border-color: var(--accent);
 }
+
+.export-bar { display: flex; gap: 6px; margin-bottom: 12px; justify-content: flex-end; }
+.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
 
 .pc-type-badge {
   font-size: 0.56rem;

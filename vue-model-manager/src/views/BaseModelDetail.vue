@@ -2,7 +2,14 @@
   <div class="bmd-page">
     <div class="page-header">
       <router-link to="/base-models" class="back-link">← Base Models</router-link>
-      <h2>{{ baseModelName }}</h2>
+      <div class="bmd-header-row">
+        <h2>{{ baseModelName }}</h2>
+        <div class="bmd-header-actions">
+          <button class="bmd-copy-btn" @click="copyDerivativesAsMarkdown" title="Copy as Markdown">↓ MD</button>
+          <button class="bmd-copy-btn" @click="copyDerivativesAsJson" title="Copy as JSON">↓ JSON</button>
+          <span v-if="copied" class="bmd-copied-toast">Copied!</span>
+        </div>
+      </div>
       <p class="bmd-subtitle">
         {{ derivatives.length }} derivative{{ derivatives.length !== 1 ? 's' : '' }}
         by {{ derivativeCount }} creator{{ derivativeCount !== 1 ? 's' : '' }}
@@ -12,9 +19,10 @@
       <div class="bmd-facts" v-if="facts.length">
         <span v-for="f in facts" :key="f.label" class="bmd-fact-chip" :class="f.cls">{{ f.label }}</span>
       </div>
+      <p v-if="derivedDescription" class="bmd-description">{{ derivedDescription }}</p>
     </div>
 
-    <!-- Features row: provider icons, capabilities, best-for, families -->
+    <!-- Features row: provider icons, capabilities, best-for, input types, families, rankings -->
     <div class="bmd-features-row" v-if="hasFeatures">
       <div class="bmd-provider-icons" v-if="derivativeProviders.length">
         <ProviderIcon
@@ -41,9 +49,9 @@
       <div class="bmd-input-types" v-if="inputTypes.length">
         <span v-for="t in inputTypes" :key="t" class="bmd-input-type">{{ t }}</span>
       </div>
-      <div class="bmd-family-tags" v-if="familyList.length">
-        <span class="bmd-family-label">Families:</span>
-        <span v-for="f in familyList" :key="f" class="bmd-family-tag">{{ f }}</span>
+      <div class="bmd-rank-highlights" v-if="rankingHighlights.length">
+        <span class="bmd-rank-label">Top 3:</span>
+        <span v-for="r in rankingHighlights" :key="r" class="bmd-rank-tag">{{ r }}</span>
       </div>
     </div>
 
@@ -66,8 +74,16 @@
         <span class="bmd-stat-label">Param range</span>
       </div>
       <div class="bmd-stat">
-        <span class="bmd-stat-value">{{ familyCount }}</span>
-        <span class="bmd-stat-label">Families</span>
+        <span class="bmd-stat-value">{{ contextRange }}</span>
+        <span class="bmd-stat-label">Context range</span>
+      </div>
+      <div class="bmd-stat">
+        <span class="bmd-stat-value">{{ releaseRange }}</span>
+        <span class="bmd-stat-label">Release range</span>
+      </div>
+      <div class="bmd-stat">
+        <span class="bmd-stat-value">{{ derivationBreakdown }}</span>
+        <span class="bmd-stat-label">Derivation methods</span>
       </div>
       <div class="bmd-stat">
         <span class="bmd-stat-value">{{ workingCount }} / {{ derivatives.length }}</span>
@@ -80,20 +96,47 @@
       <div class="val-segment working" :style="{ flex: valFlex.working }" :title="valCounts.working + ' working'"></div>
       <div class="val-segment rate_limited" :style="{ flex: valFlex.rate_limited }" :title="valCounts.rate_limited + ' rate limited'"></div>
       <div class="val-segment broken" :style="{ flex: valFlex.broken }" :title="valCounts.broken + ' broken'"></div>
+      <div class="val-segment not_found" :style="{ flex: valFlex.not_found }" :title="valCounts.not_found + ' not found'"></div>
       <div class="val-segment untested" :style="{ flex: valFlex.untested }" :title="valCounts.untested + ' untested'"></div>
     </div>
     <div class="bmd-val-legend">
       <span v-if="valCounts.working" class="val-legend working">{{ valCounts.working }} working</span>
       <span v-if="valCounts.rate_limited" class="val-legend rate_limited">{{ valCounts.rate_limited }} rate limited</span>
       <span v-if="valCounts.broken" class="val-legend broken">{{ valCounts.broken }} broken</span>
+      <span v-if="valCounts.not_found" class="val-legend not_found">{{ valCounts.not_found }} not found</span>
       <span v-if="valCounts.untested" class="val-legend untested">{{ valCounts.untested }} untested</span>
     </div>
 
-    <div v-if="derivatives.length === 0" class="bmd-empty">
-      <p>No derivatives found for this base model.</p>
+    <!-- Families -->
+    <div v-if="familyList.length" class="bmd-families">
+      <span class="bmd-families-label">Families:</span>
+      <router-link
+        v-for="f in familyList"
+        :key="f"
+        :to="`/family/${encodeURIComponent(f)}`"
+        class="bmd-family-tag"
+      >{{ f }}</router-link>
     </div>
 
-    <div v-for="[creatorName, { creatorId, models }] in groupedByCreator" :key="creatorName" class="bmd-creator-group">
+    <!-- Derivation method filter chips -->
+    <div class="ml-deriv-bar">
+      <button
+        v-for="chip in DERIV_CHIPS"
+        :key="chip.value"
+        class="ml-deriv-chip"
+        :class="[chip.cssClass, { active: derivFilter === chip.value }]"
+        @click="derivFilter = chip.value"
+      >
+        {{ chip.label }}
+        <span class="ml-deriv-count">{{ derivCounts[chip.value] ?? 0 }}</span>
+      </button>
+    </div>
+
+    <div v-if="filteredDerivatives.length === 0" class="bmd-empty">
+      <p>No derivatives match the selected filter.</p>
+    </div>
+
+    <div v-for="[creatorName, { creatorId, models }] in filteredGroupedByCreator" :key="creatorName" class="bmd-creator-group">
       <h3 class="bmd-creator-name">
         <router-link :to="isDerivative(creatorId) ? `/derivative/${creatorId}` : `/creator/${creatorId}`" class="bmd-creator-link">
           {{ creatorName }}
@@ -130,7 +173,43 @@ import SuperModelCard from '@/components/SuperModelCard.vue';
 import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useModelsStore } from '@/store/models';
+import { useCopyModelData } from '@/composables/useCopyModelData';
 import type { CreatorData, ModelData } from '@/types';
+
+const copyUtil = useCopyModelData();
+const copied = copyUtil.copied;
+
+function copyDerivativesAsMarkdown() {
+  const models = derivatives.value.map(d => d.model);
+  let md = `# Derivatives of ${baseModelName.value}\n\n`;
+  md += `**Derivatives:** ${models.length} · **Creators:** ${derivativeCount.value}\n\n`;
+  md += `| Model | Creator | Params | Context | Working |\n`;
+  md += `|-------|---------|--------|---------|--------|\n`;
+  for (const m of models.slice(0, 30)) {
+    const wp = m.providers.filter(p => !p._removed && p.status.result === 'working').length;
+    const tp = m.providers.filter(p => !p._removed).length;
+    md += `| ${m.name} | ${m.creator || '—'} | ${m.providers[0]?.param_count_b || '—'} | ${m.best_context || '—'} | ${wp}/${tp} |\n`;
+  }
+  navigator.clipboard.writeText(md);
+  copyUtil.copyAsJson({});  // just to trigger flash
+}
+
+function copyDerivativesAsJson() {
+  const data = {
+    base_model: baseModelName.value,
+    derivative_count: derivatives.value.length,
+    creator_count: derivativeCount.value,
+    derivatives: derivatives.value.map(d => ({
+      name: d.model.name,
+      slug: d.model.slug,
+      creator: d.creatorName,
+      context: d.model.best_context,
+      working: d.model.providers.filter(p => !p._removed && p.status.result === 'working').length,
+    })),
+  };
+  navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+  copyUtil.copyAsJson({});
+}
 
 const store = useModelsStore();
 const route = useRoute();
@@ -149,9 +228,48 @@ const derivatives = computed(() => {
   return results;
 });
 
-const groupedByCreator = computed(() => {
+// ── Derivation method filter ──
+const derivFilter = ref('all');
+
+const DERIV_META: Record<string, { label: string; cssClass: string }> = {
+  finetune: { label: 'FT', cssClass: 'deriv-ft' },
+  merge: { label: 'Merge', cssClass: 'deriv-merge' },
+  distillation: { label: 'Distill', cssClass: 'deriv-distill' },
+  dpo: { label: 'DPO', cssClass: 'deriv-dpo' },
+  continued_pretraining: { label: 'CPT', cssClass: 'deriv-cpt' },
+  lora_adapter: { label: 'LoRA', cssClass: 'deriv-lora' },
+};
+
+const DERIV_CHIPS = [
+  { value: 'all', label: 'All', cssClass: '' },
+  { value: 'foundation', label: 'Foundation', cssClass: 'deriv-foundation' },
+  ...Object.entries(DERIV_META).map(([value, meta]) => ({ value, label: meta.label, cssClass: meta.cssClass })),
+];
+
+const derivCounts = computed(() => {
+  const counts: Record<string, number> = {};
+  for (const chip of DERIV_CHIPS) counts[chip.value] = 0;
+  const models = derivatives.value.map(d => d.model);
+  for (const m of models) {
+    counts.all++;
+    const method = m.derivation_method;
+    if (method && counts[method] !== undefined) counts[method]++;
+    else counts.foundation++;
+  }
+  return counts;
+});
+
+const filteredDerivatives = computed(() => {
+  if (derivFilter.value === 'all') return derivatives.value;
+  return derivatives.value.filter(d => {
+    if (derivFilter.value === 'foundation') return !d.model.derivation_method;
+    return d.model.derivation_method === derivFilter.value;
+  });
+});
+
+const filteredGroupedByCreator = computed(() => {
   const groups: Record<string, { creatorId: string; models: ModelData[] }> = {};
-  for (const d of derivatives.value) {
+  for (const d of filteredDerivatives.value) {
     if (!groups[d.creatorName]) groups[d.creatorName] = { creatorId: d.creatorId, models: [] };
     groups[d.creatorName].models.push(d.model);
   }
@@ -165,10 +283,19 @@ function isDerivative(creatorId: string): boolean {
   return c ? c.models.some((m) => m.base_model && m.base_model !== m.slug) : false;
 }
 
+// ── Derived description (from first derivative that has one) ──
+const derivedDescription = computed(() => {
+  for (const d of derivatives.value) {
+    for (const dp of d.model.providers) {
+      if (dp.description) return dp.description;
+    }
+  }
+  return null;
+});
+
 // ── Unique-facts chips ──
 const facts = computed(() => {
   const chips: { label: string; cls: string }[] = [];
-
   const models = derivatives.value.map(d => d.model);
   if (!models.length) return chips;
 
@@ -194,6 +321,25 @@ const facts = computed(() => {
     chips.push({ label: minCtx === maxCtx ? formatContext(minCtx) + ' ctx' : formatContext(minCtx) + ' – ' + formatContext(maxCtx) + ' ctx', cls: 'fact-ctx' });
   }
 
+  // Knowledge cutoff range
+  const cutoffs = new Set<string>();
+  let modelsWithCutoff = 0;
+  for (const m of models) {
+    let hasCutoff = false;
+    for (const dp of m.providers) {
+      if (dp.knowledge_cutoff) { cutoffs.add(dp.knowledge_cutoff); hasCutoff = true; }
+    }
+    if (hasCutoff) modelsWithCutoff++;
+  }
+  if (modelsWithCutoff >= models.length / 2) {
+    const cutoffVals = [...cutoffs].sort();
+    if (cutoffVals.length === 1) {
+      chips.push({ label: `Knowledge: ${cutoffVals[0]}`, cls: 'fact-cutoff' });
+    } else if (cutoffVals.length > 1) {
+      chips.push({ label: `Knowledge: ${cutoffVals[0]} – ${cutoffVals[cutoffVals.length - 1]}`, cls: 'fact-cutoff' });
+    }
+  }
+
   // Open-weight count
   let openCount = 0;
   let totalWithData = 0;
@@ -207,6 +353,11 @@ const facts = computed(() => {
   }
   if (totalWithData > 0) {
     chips.push({ label: `${openCount}/${models.length} open`, cls: openCount > models.length / 2 ? 'fact-open' : 'fact-closed' });
+  }
+
+  // Creator count
+  if (derivativeCount.value > 1) {
+    chips.push({ label: `${derivativeCount.value} creators`, cls: 'fact-creator' });
   }
 
   return chips;
@@ -234,7 +385,7 @@ const providerCount = computed(() => {
   return providers.size;
 });
 
-// ── Parameter range for meta grid ──
+// ── Parameter range ──
 const paramRange = computed(() => {
   const params = new Set<number>();
   for (const d of derivatives.value) {
@@ -249,6 +400,52 @@ const paramRange = computed(() => {
   return min === max ? min : `${min} – ${max}`;
 });
 
+// ── Context range ──
+const contextRange = computed(() => {
+  const ctxs = derivatives.value
+    .map(d => d.model.best_context)
+    .filter((c): c is number => c !== null && c > 0);
+  if (!ctxs.length) return '—';
+  const min = Math.min(...ctxs);
+  const max = Math.max(...ctxs);
+  const fmtMin = formatContext(min);
+  const fmtMax = formatContext(max);
+  return min === max ? fmtMax : `${fmtMin} – ${fmtMax}`;
+});
+
+// ── Release range ──
+const releaseRange = computed(() => {
+  let earliest: string | null = null;
+  let latest: string | null = null;
+  for (const d of derivatives.value) {
+    for (const dp of d.model.providers) {
+      if (dp.release_date) {
+        if (!earliest || dp.release_date < earliest) earliest = dp.release_date;
+        if (!latest || dp.release_date > latest) latest = dp.release_date;
+      }
+    }
+  }
+  if (!earliest) return '—';
+  const from = earliest.slice(0, 7);
+  const to = latest!.slice(0, 7);
+  return from === to ? from : `${from} – ${to}`;
+});
+
+// ── Derivation breakdown ──
+const derivationBreakdown = computed(() => {
+  const counts: Record<string, number> = {};
+  for (const d of derivatives.value) {
+    const method = d.model.derivation_method || 'foundation';
+    counts[method] = (counts[method] || 0) + 1;
+  }
+  const parts: string[] = [];
+  for (const [method, count] of Object.entries(counts).sort((a, b) => b[1] - a[1])) {
+    const label = method === 'foundation' ? 'Foundation' : (DERIV_META[method]?.label || method);
+    parts.push(`${label} ${count}`);
+  }
+  return parts.join(' · ') || '—';
+});
+
 // ── Families ──
 const familyList = computed(() => {
   const families = new Set<string>();
@@ -258,13 +455,22 @@ const familyList = computed(() => {
   return [...families].sort();
 });
 
-const familyCount = computed(() => familyList.value.length || '—');
-
 // ── Working count ──
 const workingCount = computed(() => {
   return derivatives.value.filter(d =>
     d.model.providers.some(p => !p._removed && p.status.result === 'working')
   ).length;
+});
+
+// ── Ranking highlights ──
+const rankingHighlights = computed(() => {
+  const roles = new Set<string>();
+  for (const d of derivatives.value) {
+    for (const [role, rank] of Object.entries(d.model.role_rankings)) {
+      if (rank <= 3) roles.add(role);
+    }
+  }
+  return [...roles].sort();
 });
 
 // ── Provider icons ──
@@ -328,18 +534,19 @@ const hasFeatures = computed(() =>
   capabilities.value.some(c => c.has) ||
   topBestFor.value.length > 0 ||
   inputTypes.value.length > 0 ||
-  familyList.value.length > 0
+  rankingHighlights.value.length > 0
 );
 
 // ── Validation counts ──
 const valCounts = computed(() => {
-  const counts = { working: 0, broken: 0, rate_limited: 0, untested: 0 };
+  const counts = { working: 0, broken: 0, rate_limited: 0, untested: 0, not_found: 0 };
   for (const d of derivatives.value) {
     for (const dp of d.model.providers) {
       if (dp._removed) continue;
       const r = dp.status.result;
       if (r === 'working') counts.working++;
-      else if (r === 'broken' || r === 'not_found') counts.broken++;
+      else if (r === 'broken') counts.broken++;
+      else if (r === 'not_found') counts.not_found++;
       else if (r === 'rate_limited') counts.rate_limited++;
       else counts.untested++;
     }
@@ -349,12 +556,13 @@ const valCounts = computed(() => {
 
 const valFlex = computed(() => {
   const c = valCounts.value;
-  const total = c.working + c.broken + c.rate_limited + c.untested || 1;
+  const total = c.working + c.broken + c.rate_limited + c.untested + c.not_found || 1;
   return {
     working: c.working / total,
     rate_limited: c.rate_limited / total,
     broken: c.broken / total,
     untested: c.untested / total,
+    not_found: c.not_found / total,
   };
 });
 
@@ -407,6 +615,16 @@ function openDetail(model: ModelData, creatorId: string) {
 .bmd-fact-chip.fact-ctx { background: rgba(52,211,153,0.12); color: #34d399; }
 .bmd-fact-chip.fact-open { background: rgba(52,211,153,0.12); color: #34d399; }
 .bmd-fact-chip.fact-closed { background: rgba(251,191,36,0.12); color: #eab308; }
+.bmd-fact-chip.fact-cutoff { background: rgba(168,85,247,0.12); color: #a855f7; }
+.bmd-fact-chip.fact-creator { background: rgba(236,72,153,0.12); color: #ec4899; }
+
+.bmd-description {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 8px 0 0;
+  max-width: 800px;
+}
 
 /* ── Features row ── */
 .bmd-features-row {
@@ -468,6 +686,29 @@ function openDetail(model: ModelData, creatorId: string) {
   color: var(--text-dim);
   background: var(--bg-elevated);
   border: 1px solid var(--border);
+}
+
+.bmd-rank-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.bmd-rank-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+}
+.bmd-rank-tag {
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--green) 30%, transparent);
 }
 
 .bmd-family-tags {
@@ -533,6 +774,7 @@ function openDetail(model: ModelData, creatorId: string) {
 .val-segment.rate_limited { background: var(--orange); }
 .val-segment.broken { background: var(--red); }
 .val-segment.untested { background: var(--accent); }
+.val-segment.not_found { background: var(--text-dim); }
 
 .bmd-val-legend {
   display: flex;
@@ -563,6 +805,77 @@ function openDetail(model: ModelData, creatorId: string) {
 .val-legend.broken::before { background: var(--red); }
 .val-legend.untested { color: var(--accent); }
 .val-legend.untested::before { background: var(--accent); }
+.val-legend.not_found { color: var(--text-dim); }
+.val-legend.not_found::before { background: var(--text-dim); }
+
+/* ── Families as router-links ── */
+.bmd-families {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.bmd-families-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bmd-families .bmd-family-tag {
+  font-size: 0.68rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.12s, background 0.12s;
+}
+.bmd-families .bmd-family-tag:hover {
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
+
+/* Derivation filter chips (reused from CreatorDetail) */
+.ml-deriv-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+.ml-deriv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 11px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.ml-deriv-chip:hover { border-color: var(--accent); color: var(--accent); }
+.ml-deriv-chip.deriv-ft { border-color: rgba(99, 102, 241, 0.35); color: #818cf8; }
+.ml-deriv-chip.deriv-merge { border-color: rgba(168, 85, 247, 0.35); color: #a855f7; }
+.ml-deriv-chip.deriv-distill { border-color: rgba(236, 72, 153, 0.35); color: #ec4899; }
+.ml-deriv-chip.deriv-dpo { border-color: rgba(34, 211, 238, 0.35); color: #22d3ee; }
+.ml-deriv-chip.deriv-cpt { border-color: rgba(250, 204, 21, 0.35); color: #eab308; }
+.ml-deriv-chip.deriv-lora { border-color: rgba(52, 211, 153, 0.35); color: #34d399; }
+.ml-deriv-chip.deriv-foundation { border-color: rgba(156, 163, 175, 0.35); color: #9ca3af; }
+.ml-deriv-chip.active { background: var(--accent-subtle); border-color: var(--accent); color: var(--accent); }
+.ml-deriv-chip.deriv-ft.active { background: rgba(99, 102, 241, 0.14); border-color: #818cf8; color: #818cf8; }
+.ml-deriv-chip.deriv-merge.active { background: rgba(168, 85, 247, 0.14); border-color: #a855f7; color: #a855f7; }
+.ml-deriv-chip.deriv-distill.active { background: rgba(236, 72, 153, 0.14); border-color: #ec4899; color: #ec4899; }
+.ml-deriv-chip.deriv-dpo.active { background: rgba(34, 211, 238, 0.14); border-color: #22d3ee; color: #22d3ee; }
+.ml-deriv-chip.deriv-cpt.active { background: rgba(250, 204, 21, 0.14); border-color: #eab308; color: #eab308; }
+.ml-deriv-chip.deriv-lora.active { background: rgba(52, 211, 153, 0.14); border-color: #34d399; color: #34d399; }
+.ml-deriv-chip.deriv-foundation.active { background: rgba(156, 163, 175, 0.14); border-color: #9ca3af; color: #9ca3af; }
+.ml-deriv-count { font-size: 0.6rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; opacity: 0.8; }
 
 .bmd-empty {
   padding: 40px 0;

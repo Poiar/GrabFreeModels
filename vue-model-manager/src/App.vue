@@ -275,6 +275,14 @@
           </span>
           <span>Base Models</span>
         </router-link>
+        <router-link to="/lineage" :class="{ active: isNavActive('/lineage') }" class="nav-lineage">
+          <span class="nav-icon">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+          </span>
+          <span>Lineage</span>
+        </router-link>
         <!-- Utility -->
         <router-link to="/compare" :class="{ active: isNavActive('/compare') }" class="nav-compare">
           <span class="nav-icon">
@@ -296,6 +304,30 @@
           </span>
           <span>Compare Models</span>
         </router-link>
+        <router-link to="/benchmarks" :class="{ active: isNavActive('/benchmarks') }" class="nav-benchmarks">
+          <span class="nav-icon">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+          </span>
+          <span>Benchmarks</span>
+        </router-link>
+        <router-link to="/tags" :class="{ active: isNavActive('/tags') }" class="nav-tags">
+          <span class="nav-icon">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+            </svg>
+          </span>
+          <span>Tags</span>
+        </router-link>
+        <router-link to="/scores" :class="{ active: isNavActive('/scores') }" class="nav-scores">
+          <span class="nav-icon">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
+            </svg>
+          </span>
+          <span>Score Explorer</span>
+        </router-link>
         <router-link to="/advanced-search" :class="{ active: isNavActive('/advanced-search') }" class="nav-catalog">
           <span class="nav-icon">
             <svg
@@ -315,6 +347,30 @@
             </svg>
           </span>
           <span>Advanced Search</span>
+        </router-link>
+        <router-link to="/playground" :class="{ active: isNavActive('/playground') }" class="nav-playground">
+          <span class="nav-icon">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+            </svg>
+          </span>
+          <span>API Playground</span>
+        </router-link>
+        <router-link to="/providers/onboarding" :class="{ active: isNavActive('/providers/onboarding') }" class="nav-onboarding">
+          <span class="nav-icon">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/>
+            </svg>
+          </span>
+          <span>Provider Onboarding</span>
+        </router-link>
+        <router-link to="/activity" :class="{ active: isNavActive('/activity') }" class="nav-activity">
+          <span class="nav-icon">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </span>
+          <span>Activity Feed</span>
         </router-link>
       </nav>
 
@@ -483,6 +539,7 @@ function isNavActive(navPath: string): boolean {
   if (navPath === '/base-models' && p.startsWith('/base-model/')) return true;
   if (navPath === '/supermodels' && p.startsWith('/model/')) return true;
   if (navPath === '/' && p.startsWith('/model/')) return true;
+  if (navPath === '/providers/onboarding' && p.startsWith('/providers/onboarding')) return true;
   return false;
 }
 
@@ -686,6 +743,13 @@ function timeAgo(date: Date, _now: number): string {
 .nav-compare-providers { color: #a78bfa; } /* violet */
 .nav-compare { color: #f472b6; }         /* pink */
 .nav-catalog { color: #2dd4bf; }         /* teal */
+.nav-benchmarks { color: #f59e0b; }      /* amber */
+.nav-lineage { color: #e879f9; }          /* fuchsia */
+.nav-tags { color: #fb923c; }             /* orange */
+.nav-scores { color: #2dd4bf; }           /* teal */
+.nav-playground { color: #10b981; }       /* emerald */
+.nav-onboarding { color: #0ea5e9; }       /* sky */
+.nav-activity { color: #f43f5e; }         /* rose */
 
 /* Active always wins over colored hover states */
 .sidebar nav a.active,
@@ -707,4 +771,11 @@ function timeAgo(date: Date, _now: number): string {
 .nav-basemodels:hover { color: #d8b4fe; }
 .nav-compare:hover { color: #f9a8d4; }
 .nav-catalog:hover { color: #5eead4; }
+.nav-benchmarks:hover { color: #fcd34d; }
+.nav-lineage:hover { color: #f0abfc; }
+.nav-tags:hover { color: #fdba74; }
+.nav-scores:hover { color: #5eead4; }
+.nav-playground:hover { color: #6ee7b7; }
+.nav-onboarding:hover { color: #7dd3fc; }
+.nav-activity:hover { color: #fca5a5; }
 </style>

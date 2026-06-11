@@ -53,6 +53,12 @@
       <div class="sm-count">{{ filteredItems.length }} of {{ superItems.length }} super models</div>
     </div>
 
+    <!-- Export buttons -->
+    <div class="export-bar">
+      <button class="export-btn" @click="handleExportCSV">Down CSV</button>
+      <button class="export-btn" @click="handleExportJSON">Down JSON</button>
+    </div>
+
     <!-- Derivation method filter chips -->
     <div class="ml-deriv-bar">
       <button
@@ -64,6 +70,20 @@
       >
         {{ chip.label }}
         <span class="ml-deriv-count">{{ modelDerivationCounts[chip.value] ?? 0 }}</span>
+      </button>
+    </div>
+
+    <!-- Param-count filter chips -->
+    <div class="ml-param-bar">
+      <button
+        v-for="bucket in PARAM_BUCKETS"
+        :key="bucket.value"
+        class="ml-param-chip"
+        :class="{ active: paramFilter === bucket.value }"
+        @click="paramFilter = bucket.value"
+      >
+        {{ bucket.label }}
+        <span class="ml-param-count">{{ paramCounts[bucket.value] ?? 0 }}</span>
       </button>
     </div>
 
@@ -131,6 +151,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useModelsStore } from '@/store/models';
+import { useExport } from '@/composables/useExport';
 import SuperModelPanel from '@/components/SuperModelPanel.vue';
 import CreatorPanel from '@/components/CreatorPanel.vue';
 import SuperModelCard from '@/components/SuperModelCard.vue';
@@ -216,6 +237,7 @@ const sortDesc = ref(false);
 const viewMode = ref<'flat' | 'tree'>('flat');
 const modelFilter = ref<'all' | 'root' | 'finetune'>('all');
 const derivFilter = ref('all');
+const paramFilter = ref('all');
 
 const DERIV_META: Record<string, { label: string; cssClass: string }> = {
   finetune: { label: 'FT', cssClass: 'deriv-ft' },
@@ -230,6 +252,16 @@ const DERIV_CHIPS = [
   { value: 'all', label: 'All', cssClass: '' },
   { value: 'foundation', label: 'Foundation', cssClass: 'deriv-foundation' },
   ...Object.entries(DERIV_META).map(([value, meta]) => ({ value, label: meta.label, cssClass: meta.cssClass })),
+];
+
+const PARAM_BUCKETS = [
+  { value: 'all', label: 'All params', min: -Infinity, max: Infinity },
+  { value: 'lt3b', label: '<3B', min: -Infinity, max: 2.999 },
+  { value: '3b7b', label: '3B–7B', min: 3, max: 7 },
+  { value: '8b13b', label: '8B–13B', min: 8, max: 13 },
+  { value: '14b34b', label: '14B–34B', min: 14, max: 34 },
+  { value: '35b70b', label: '35B–70B', min: 35, max: 70 },
+  { value: 'gt70b', label: '70B+', min: 70.001, max: Infinity },
 ];
 
 const searchedItems = computed(() => {
@@ -283,6 +315,33 @@ const modelDerivationCounts = computed(() => {
   return counts;
 });
 
+const paramCounts = computed(() => {
+  const seenModels = new Set<string>();
+  const counts: Record<string, number> = {};
+  for (const bucket of PARAM_BUCKETS) {
+    counts[bucket.value] = 0;
+  }
+
+  for (const item of filteredItems.value) {
+    if (seenModels.has(item.slug)) continue;
+    seenModels.add(item.slug);
+
+    counts.all++;
+
+    const m = modelBySlug.value.get(item.slug);
+    if (!m) continue;
+
+    for (const bucket of PARAM_BUCKETS) {
+      if (bucket.value === 'all') continue;
+      if (m.providers.some(p => !p._removed && p.param_count_b != null && p.param_count_b >= bucket.min && p.param_count_b <= bucket.max)) {
+        counts[bucket.value]++;
+      }
+    }
+  }
+
+  return counts;
+});
+
 const filteredItems = computed(() => {
   let items = searchedItems.value;
   if (creatorFilter.value) items = items.filter(i => i.creatorSlug === creatorFilter.value);
@@ -303,6 +362,16 @@ const filteredItems = computed(() => {
       if (derivFilter.value === 'foundation') return !m.derivation_method;
       return m.derivation_method === derivFilter.value;
     });
+  }
+  if (paramFilter.value !== 'all') {
+    const bucket = PARAM_BUCKETS.find(b => b.value === paramFilter.value);
+    if (bucket) {
+      items = items.filter(i => {
+        const m = modelBySlug.value.get(i.slug);
+        if (!m) return false;
+        return m.providers.some(p => !p._removed && p.param_count_b != null && p.param_count_b >= bucket.min && p.param_count_b <= bucket.max);
+      });
+    }
   }
   return items;
 });
@@ -450,6 +519,35 @@ function navigateCreatorPanel(index: number) {
   creatorIndex.value = index;
   panelCreator.value = creator;
 }
+
+// ── Export ──
+const { exportJSON, exportCSV } = useExport();
+
+function handleExportJSON() {
+  exportJSON(filteredItems.value, 'super-models');
+}
+
+function handleExportCSV() {
+  const rows: string[][] = [];
+  for (const m of filteredItems.value) {
+    const model = modelBySlug.value.get(m.slug);
+    rows.push([
+      m.name,
+      m.creator ?? '',
+      m.family ?? '',
+      model?.base_model ?? '',
+      model?.derivation_method ?? '',
+      String(m.best_context_length ?? ''),
+      String(m.providers.length),
+      String(m.workingCount),
+    ]);
+  }
+  exportCSV(
+    ['name', 'creator', 'family', 'base_model', 'derivation', 'best_context', 'provider_count', 'working_count'],
+    rows,
+    'super-models',
+  );
+}
 </script>
 
 <style scoped>
@@ -510,6 +608,10 @@ function navigateCreatorPanel(index: number) {
 }
 
 .sm-count { font-size: 0.68rem; color: var(--text-muted); }
+
+.export-bar { display: flex; gap: 6px; margin-bottom: 12px; justify-content: flex-end; }
+.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
 
 /* Segmented filter buttons */
 .sm-segmented {
@@ -633,6 +735,55 @@ function navigateCreatorPanel(index: number) {
 .ml-deriv-chip.deriv-cpt.active { background: rgba(250, 204, 21, 0.14); border-color: #eab308; color: #eab308; }
 .ml-deriv-chip.deriv-lora.active { background: rgba(52, 211, 153, 0.14); border-color: #34d399; color: #34d399; }
 .ml-deriv-chip.deriv-foundation.active { background: rgba(156, 163, 175, 0.14); border-color: #9ca3af; color: #9ca3af; }
+
+.ml-deriv-count {
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.8;
+}
+
+/* Param-count filter chips */
+.ml-param-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+.ml-param-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 11px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+
+.ml-param-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ml-param-chip.active {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ml-param-count {
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.8;
+}
 
 .ml-deriv-count {
   font-size: 0.6rem;

@@ -2,13 +2,20 @@
   <div v-if="provider" class="pd-page">
     <div class="page-header">
       <router-link to="/providers" class="back-link">← Providers</router-link>
-      <h2>
-        {{ provider.name }}
-        <span
-          class="cd-country"
-          :style="{ color: getCountryForProvider(provider.slug).text, background: getCountryForProvider(provider.slug).color }"
-        >{{ getCountryForProvider(provider.slug).name }}</span>
-      </h2>
+      <div class="md-header-row">
+        <h2>
+          {{ provider.name }}
+          <span
+            class="cd-country"
+            :style="{ color: getCountryForProvider(provider.slug).text, background: getCountryForProvider(provider.slug).color }"
+          >{{ getCountryForProvider(provider.slug).name }}</span>
+        </h2>
+        <div class="md-header-actions">
+          <button class="md-copy-btn" @click="copyProviderAsMarkdown(provider, totalModels)" title="Copy as Markdown">↓ MD</button>
+          <button class="md-copy-btn" @click="copyAsJson(provider)" title="Copy as JSON">↓ JSON</button>
+          <span v-if="copied" class="md-copied-toast">Copied!</span>
+        </div>
+      </div>
       <p class="pd-subtitle">
         {{ totalModels }} models ·
         <span class="pd-health" :class="provider.health_status">{{ provider.health_status }}</span>
@@ -18,6 +25,13 @@
         <span v-for="f in providerFacts" :key="f.label" class="pd-fact-chip" :class="f.cls">{{ f.label }}</span>
       </div>
       <p v-if="provider.description" class="pd-description">{{ provider.description }}</p>
+
+      <!-- Failure summary chips -->
+      <div v-if="failureSummary.length" class="pd-failure-summary">
+        <span v-for="f in failureSummary" :key="f.cat" class="pd-fail-summary-chip" :class="'fail-sum-' + f.cat">
+          {{ f.count }} {{ f.label }}
+        </span>
+      </div>
     </div>
 
     <!-- Provider info -->
@@ -117,6 +131,66 @@
       </div>
     </div>
 
+    <!-- Model tier distribution -->
+    <div v-if="tierEntries.length > 0" class="pd-tier-section">
+      <h3 class="section-title">Model Tiers</h3>
+      <div class="pd-tier-chips">
+        <span v-for="[tier, count] in tierEntries" :key="tier" class="pd-tier-chip" :class="'tier-' + tier.toLowerCase().replace(/[^a-z0-9]/g, '-')">
+          {{ tier }}: <strong>{{ count }}</strong>
+        </span>
+      </div>
+    </div>
+
+    <!-- Input modality distribution -->
+    <div v-if="inputModalityEntries.length > 0" class="pd-modality-section">
+      <h3 class="section-title">Input Modalities</h3>
+      <div class="pd-modality-chips">
+        <span v-for="[mod, count] in inputModalityEntries" :key="mod" class="pd-modality-chip">
+          {{ mod }}: <strong>{{ count }}</strong>
+        </span>
+      </div>
+    </div>
+
+    <!-- Health History -->
+    <div v-if="healthEntries.length" class="health-section">
+      <h3 class="section-title">Health History</h3>
+      <div class="health-grid">
+        <HealthSpark
+          v-for="entry in healthEntries"
+          :key="entry.fullId"
+          :full-id="entry.fullId"
+          :provider-slug="entry.providerSlug"
+        />
+      </div>
+    </div>
+
+    <!-- Latency stats -->
+    <div v-if="providerLatency" class="pd-latency-section">
+      <h3 class="section-title">Latency</h3>
+      <div class="pd-meta-grid">
+        <div class="cd-stat">
+          <span class="cd-stat-value">{{ providerLatency.avg_latency_ms }}ms</span>
+          <span class="cd-stat-label">Avg latency</span>
+        </div>
+        <div class="cd-stat">
+          <span class="cd-stat-value">{{ providerLatency.p50_latency_ms }}ms</span>
+          <span class="cd-stat-label">P50 latency</span>
+        </div>
+        <div class="cd-stat">
+          <span class="cd-stat-value">{{ providerLatency.p95_latency_ms }}ms</span>
+          <span class="cd-stat-label">P95 latency</span>
+        </div>
+        <div class="cd-stat">
+          <span class="cd-stat-value">{{ providerLatency.sample_count }}</span>
+          <span class="cd-stat-label">Samples</span>
+        </div>
+        <div class="cd-stat">
+          <span class="cd-stat-value cd-stat-url">{{ providerLatency.last_measured }}</span>
+          <span class="cd-stat-label">Last measured</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Models grouped by creator -->
     <h3 class="section-title">Models</h3>
     <div v-if="providerCreators.length === 0" class="pd-empty">No models found for this provider.</div>
@@ -157,9 +231,13 @@ import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import SuperModelCard from '@/components/SuperModelCard.vue';
 import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
+import HealthSpark from '@/components/HealthSpark.vue';
 import { useModelsStore } from '@/store/models';
 import { getCountryForProvider } from '@/data/provider-countries';
+import { useCopyModelData } from '@/composables/useCopyModelData';
 import type { CreatorData, ModelData } from '@/types';
+
+const { copied, copyProviderAsMarkdown, copyAsJson } = useCopyModelData();
 
 const PROVIDER_TYPE_LABELS: Record<string, string> = {
   router: 'Router',
@@ -204,6 +282,10 @@ const rateLimitText = computed(() => {
   if (p.max_tpm) parts.push(p.max_tpm >= 1000000 ? `${(p.max_tpm / 1000000).toFixed(1)}M TPM` : `${p.max_tpm?.toLocaleString()} TPM`);
   return parts.join(' / ');
 });
+
+const providerLatency = computed(() =>
+  store.providerLatencies.find(l => l.provider_slug === providerSlug.value) ?? null,
+);
 
 const routerBackends = computed(() => {
   const g = store.routingGraph;
@@ -278,24 +360,30 @@ const providerFacts = computed(() => {
     chips.push({ label: `${families.size} ${families.size === 1 ? 'family' : 'families'}`, cls: 'fact-family' });
   }
 
-  // Number of creators
+  // Number of creators — skip when it's just 1 (obvious from context)
   const creators = providerCreators.value.length;
-  if (creators > 0) {
-    chips.push({ label: `${creators} ${creators === 1 ? 'creator' : 'creators'}`, cls: 'fact-creator' });
+  if (creators > 1) {
+    chips.push({ label: `${creators} creators`, cls: 'fact-creator' });
   }
 
-  // Exclusive models (only available via this provider)
-  const rom = store.routerOnlyModels;
-  if (rom) {
-    const exclusive = rom.models.filter(m => m.provider_count >= 1).length;
-    if (exclusive > 0) {
-      chips.push({ label: `${exclusive} exclusive`, cls: 'fact-exclusive' });
+  // Exclusive models — count models only available via this provider
+  let exclusive = 0;
+  for (const { models } of providerCreators.value) {
+    for (const m of models) {
+      const workingProviders = m.providers.filter(p => !p._removed);
+      if (workingProviders.length === 1 && workingProviders[0].provider_slug === providerSlug.value) {
+        exclusive++;
+      }
     }
   }
+  if (exclusive > 0) {
+    chips.push({ label: `${exclusive} exclusive model${exclusive !== 1 ? 's' : ''}`, cls: 'fact-exclusive' });
+  }
 
-  // Hardware (if non-standard)
-  if (provider.value.hardware && provider.value.hardware !== 'unknown' && provider.value.hardware !== 'gpu') {
-    const hwLabel = provider.value.hardware === 'lpu' ? 'LPU' : provider.value.hardware === 'wafer' ? 'Wafer-scale' : provider.value.hardware === 'tpu' ? 'TPU' : provider.value.hardware.toUpperCase();
+  // Hardware (if non-standard) — read from datapoints since the provider object may not have it
+  const hw = dps.find(dp => dp.hardware && dp.hardware !== 'gpu' && dp.hardware !== 'unknown')?.hardware;
+  if (hw) {
+    const hwLabel = hw === 'lpu' ? 'LPU' : hw === 'wafer' ? 'Wafer-scale' : hw === 'tpu' ? 'TPU' : hw === 'edge' ? 'Edge network' : hw.toUpperCase();
     chips.push({ label: hwLabel, cls: 'fact-hardware' });
   }
 
@@ -304,7 +392,45 @@ const providerFacts = computed(() => {
     chips.push({ label: 'OpenAI-compatible', cls: 'fact-compat' });
   }
 
+  // Streaming support
+  if (provider.value.supports_streaming === true) {
+    chips.push({ label: 'Streaming', cls: 'fact-streaming' });
+  }
+
+  // Account requirements
+  if (provider.value.requires_account_id === true) {
+    chips.push({ label: 'Account required', cls: 'fact-account' });
+  }
+  if (provider.value.requires_card === true) {
+    chips.push({ label: 'Card required', cls: 'fact-card' });
+  }
+
+  // Freshness — most recent release date among models
+  const releaseDates = dps.map((dp: any) => dp.release_date).filter(Boolean).sort();
+  if (releaseDates.length) {
+    const latest = releaseDates[releaseDates.length - 1];
+    chips.push({ label: `Latest: ${latest.slice(0, 7)}`, cls: 'fact-fresh' });
+  }
+
   return chips;
+});
+
+// ── Failure summary chips for degraded providers ──
+const failureSummary = computed(() => {
+  const dist = new Map<string, number>();
+  for (const { models } of providerCreators.value) {
+    for (const m of models) {
+      for (const dp of m.providers) {
+        if (dp.provider_slug !== providerSlug.value || dp._removed) continue;
+        if (dp.status.result === 'working' || dp.status.result === 'untested') continue;
+        const cat = dp.failure_category || 'unknown';
+        dist.set(cat, (dist.get(cat) || 0) + 1);
+      }
+    }
+  }
+  return [...dist.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([cat, count]) => ({ cat, label: FAILURE_LABELS[cat] || cat, count }));
 });
 
 const counts = computed(() => {
@@ -338,6 +464,22 @@ const hbFlex = computed(() => {
 const pctWorking = computed(() => {
   const c = counts.value;
   return c.total ? Math.round((c.working / c.total) * 100) : 0;
+});
+
+// ── Health history entries for this provider ──
+const healthEntries = computed(() => {
+  const entries: { fullId: string; providerSlug: string; modelName: string }[] = [];
+  for (const { models } of providerCreators.value) {
+    for (const m of models) {
+      for (const dp of m.providers) {
+        if (dp.provider_slug !== providerSlug.value || dp._removed) continue;
+        if (store.getModelHealth(dp.full_id)) {
+          entries.push({ fullId: dp.full_id, providerSlug: dp.provider_slug, modelName: m.name });
+        }
+      }
+    }
+  }
+  return entries;
 });
 
 // ── Quantization distribution (#7) ──
@@ -378,6 +520,38 @@ const failureEntries = computed(() => {
   }
   return [...dist.entries()].sort((a, b) => b[1] - a[1]);
 });
+
+// ── Model tier distribution ──
+const tierEntries = computed(() => {
+  const dist = new Map<string, number>();
+  for (const { models } of providerCreators.value) {
+    for (const m of models) {
+      for (const dp of m.providers) {
+        if (dp.provider_slug !== providerSlug.value || dp._removed) continue;
+        for (const tier of dp.model_tier || []) {
+          if (tier) dist.set(tier, (dist.get(tier) || 0) + 1);
+        }
+      }
+    }
+  }
+  return [...dist.entries()].sort((a, b) => b[1] - a[1]);
+});
+
+// ── Input modality distribution ──
+const inputModalityEntries = computed(() => {
+  const dist = new Map<string, number>();
+  for (const { models } of providerCreators.value) {
+    for (const m of models) {
+      for (const dp of m.providers) {
+        if (dp.provider_slug !== providerSlug.value || dp._removed) continue;
+        for (const t of dp.input_types || []) {
+          dist.set(t, (dist.get(t) || 0) + 1);
+        }
+      }
+    }
+  }
+  return [...dist.entries()].sort((a, b) => b[1] - a[1]);
+});
 </script>
 
 <style scoped>
@@ -392,6 +566,12 @@ const failureEntries = computed(() => {
   text-decoration: none;
 }
 .back-link:hover { text-decoration: underline; }
+.md-header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.md-header-row h2 { margin: 0; }
+.md-header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.md-copy-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+.md-copy-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
+.md-copied-toast { font-size: 0.65rem; font-weight: 600; color: var(--green); }
 .page-header h2 {
   font-size: 1.3rem;
   font-weight: 700;
@@ -442,6 +622,31 @@ const failureEntries = computed(() => {
 .pd-fact-chip.fact-exclusive { background: rgba(245,158,11,0.12); color: #f59e0b; }
 .pd-fact-chip.fact-hardware { background: rgba(168,85,247,0.12); color: #a855f7; }
 .pd-fact-chip.fact-compat { background: rgba(59,130,246,0.12); color: #60a5fa; }
+.pd-fact-chip.fact-streaming { background: rgba(52,211,153,0.12); color: #34d399; }
+.pd-fact-chip.fact-account { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.pd-fact-chip.fact-card { background: rgba(239,68,68,0.12); color: #f87171; }
+.pd-fact-chip.fact-fresh { background: rgba(168,85,247,0.12); color: #a855f7; }
+
+/* Failure summary chips */
+.pd-failure-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.pd-fail-summary-chip {
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.pd-fail-summary-chip.fail-sum-timeout { background: rgba(251,191,36,0.12); color: #FBBF24; }
+.pd-fail-summary-chip.fail-sum-not_found { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+.pd-fail-summary-chip.fail-sum-auth_error { background: rgba(239,68,68,0.15); color: #F87171; }
+.pd-fail-summary-chip.fail-sum-rate_limited { background: rgba(245,158,11,0.12); color: #F59E0B; }
+.pd-fail-summary-chip.fail-sum-server_error { background: rgba(239,68,68,0.12); color: #EF4444; }
+.pd-fail-summary-chip.fail-sum-network_error { background: rgba(59,130,246,0.12); color: #60A5FA; }
+.pd-fail-summary-chip.fail-sum-unknown { background: rgba(156,163,175,0.12); color: #9CA3AF; }
 
 .pd-description {
   font-size: 0.82rem;
@@ -578,6 +783,10 @@ const failureEntries = computed(() => {
   font-size: 0.85rem;
 }
 
+/* Health History */
+.health-section { margin-top: 4px; }
+.health-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+
 /* Quantization chips (#7) */
 .pd-quant-section { margin: 16px 0 8px; }
 .pd-quant-chips {
@@ -619,6 +828,44 @@ const failureEntries = computed(() => {
 .pd-fail-chip.fail-server_error { background: rgba(239,68,68,0.12); color: #EF4444; }
 .pd-fail-chip.fail-network_error { background: rgba(59,130,246,0.12); color: #60A5FA; }
 .pd-fail-chip.fail-unknown { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+
+/* Model tier distribution */
+.pd-tier-section { margin: 16px 0 8px; }
+.pd-tier-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pd-tier-chip {
+  padding: 3px 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 999px;
+}
+.pd-tier-chip strong { font-family: 'JetBrains Mono', monospace; }
+.pd-tier-chip.tier-top { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.pd-tier-chip.tier-high { background: rgba(59,130,246,0.12); color: #60a5fa; }
+.pd-tier-chip.tier-mid { background: rgba(99,102,241,0.12); color: #818cf8; }
+.pd-tier-chip.tier-basic { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+.pd-tier-chip.tier-unknown { background: rgba(156,163,175,0.08); color: #9CA3AF; }
+
+/* Input modality distribution */
+.pd-modality-section { margin: 16px 0 8px; }
+.pd-modality-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pd-modality-chip {
+  padding: 3px 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 999px;
+  background: rgba(59,130,246,0.08);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+.pd-modality-chip strong { font-family: 'JetBrains Mono', monospace; color: var(--accent); }
 
 .pd-creator-group {
   margin-bottom: 20px;

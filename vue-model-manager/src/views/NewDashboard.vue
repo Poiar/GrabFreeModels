@@ -69,6 +69,9 @@
       </div>
     </div>
 
+    <!-- Watchlist -->
+    <WatchlistWidget v-if="!store.loading" />
+
     <!-- Critical issues -->
     <div v-if="criticalIssues.length > 0" class="issues-alert-section">
       <div class="card issues-alert-card">
@@ -162,6 +165,15 @@
             </div>
           </div>
         </div>
+        <div v-if="treemapFamilies.length > 0" class="family-dist-section">
+          <div class="ft-subtitle">Family Landscape</div>
+          <div class="treemap-canvas">
+            <router-link v-for="f in treemapFamilies" :key="f.name" :to="`/family/${encodeURIComponent(f.name)}`" class="treemap-cell" :style="{ background: f.color, gridColumn: f.span > 1 ? `span ${f.span}` : '' }">
+              <span class="treemap-cell-name">{{ f.name }}</span>
+              <span class="treemap-cell-count">{{ f.count }} models</span>
+            </router-link>
+          </div>
+        </div>
         <div v-if="topFamilies.length > 0" class="family-dist-section">
           <div class="ft-subtitle">Top Families</div>
           <div class="family-bars">
@@ -246,6 +258,25 @@
       </div>
     </div>
 
+    <!-- New This Week -->
+    <div v-if="newThisWeek.length > 0" class="recent-section">
+      <div class="card">
+        <div class="card-title">New This Week</div>
+        <div class="recent-list">
+          <router-link
+            v-for="entry in newThisWeek"
+            :key="entry.dp.full_id"
+            :to="'/model/' + entry.model.slug"
+            class="recent-row"
+          >
+            <span class="recent-model">{{ entry.model.name }}</span>
+            <span class="recent-provider">via {{ entry.dp.provider }}</span>
+            <span class="recent-time">{{ formatDate(entry.dp.created_at!) }}</span>
+          </router-link>
+        </div>
+      </div>
+    </div>
+
     <!-- Recently Active -->
     <div class="recent-section">
       <div class="card">
@@ -261,6 +292,114 @@
             <span class="recent-provider">via {{ entry.dp.provider }}</span>
             <span class="recent-time">{{ formatTimeAgo(entry.dp.last_success) }}</span>
           </router-link>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Provider speed leaderboard ── -->
+    <div v-if="store.providerLatencies.length > 0" class="speed-section">
+      <div class="card">
+        <div class="card-title">Provider Speed Leaderboard</div>
+        <div class="speed-list">
+          <div v-for="(p, i) in store.providerLatencies.slice(0, 10)" :key="p.provider_slug" class="speed-row">
+            <span class="speed-rank">#{{ i + 1 }}</span>
+            <router-link :to="'/provider/' + p.provider_slug" class="speed-provider">{{ p.provider_name }}</router-link>
+            <span class="speed-avg">{{ p.avg_latency_ms }}ms avg</span>
+            <span class="speed-p95">p95: {{ p.p95_latency_ms }}ms</span>
+            <span class="speed-samples" :title="p.last_measured">{{ p.sample_count }} samples</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Week-over-week validation trend ── -->
+    <div v-if="store.testSummary && store.testSummaryPrevious" class="wow-section">
+      <div class="card wow-card">
+        <div class="card-title">Week-over-Week Trend</div>
+        <p class="wow-summary">
+          <span class="wow-date">{{ store.testSummaryPrevious.date }} → {{ store.testSummary.date }}:</span>
+          <span v-if="workingDelta > 0" class="wow-chunk wow-up">↑{{ workingDelta }} working</span>
+          <span v-else-if="workingDelta < 0" class="wow-chunk wow-down">↓{{ Math.abs(workingDelta) }} working</span>
+          <span v-else class="wow-chunk wow-flat">working steady</span>
+          <span v-if="brokenDelta !== 0" class="wow-sep">·</span>
+          <span v-if="brokenDelta > 0" class="wow-chunk wow-down">↑{{ brokenDelta }} broken</span>
+          <span v-else-if="brokenDelta < 0" class="wow-chunk wow-up">↓{{ Math.abs(brokenDelta) }} broken</span>
+          <span v-if="limitedDelta !== 0" class="wow-sep">·</span>
+          <span v-if="limitedDelta > 0" class="wow-chunk wow-warn">↑{{ limitedDelta }} rate-limited</span>
+          <span v-else-if="limitedDelta < 0" class="wow-chunk wow-up">↓{{ Math.abs(limitedDelta) }} rate-limited</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- ── Flakiest models ── -->
+    <div v-if="store.flakiestModels.length > 0" class="flaky-section">
+      <div class="card">
+        <div class="card-title">Flakiest Models (7d failure rate)</div>
+        <div class="flaky-list">
+          <router-link
+            v-for="f in store.flakiestModels.slice(0, 8)"
+            :key="f.super_id"
+            :to="'/model/' + f.slug"
+            class="flaky-row"
+          >
+            <span class="flaky-name">{{ f.name }}</span>
+            <span class="flaky-rate" :class="f.failure_rate_7d >= 50 ? 'rate-bad' : 'rate-warn'">
+              {{ f.failure_rate_7d }}%
+            </span>
+            <span class="flaky-samples">{{ f.failures_7d }}/{{ f.samples_7d }} failed</span>
+          </router-link>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Recently broken / fixed ── -->
+    <div v-if="store.recentlyBroken.length > 0 || store.recentlyFixed.length > 0" class="recent-deltas">
+      <div v-if="store.recentlyBroken.length > 0" class="card delta-card delta-broken">
+        <div class="card-title">🔴 Newly Broken</div>
+        <div class="delta-list">
+          <router-link v-for="r in store.recentlyBroken" :key="r.full_id" :to="'/model/' + r.slug" class="delta-row">
+            <span class="delta-name">{{ r.name }}</span>
+            <span class="delta-provider">via {{ r.provider }}</span>
+          </router-link>
+        </div>
+      </div>
+      <div v-if="store.recentlyFixed.length > 0" class="card delta-card delta-fixed">
+        <div class="card-title">🟢 Newly Fixed</div>
+        <div class="delta-list">
+          <router-link v-for="r in store.recentlyFixed" :key="r.full_id" :to="'/model/' + r.slug" class="delta-row">
+            <span class="delta-name">{{ r.name }}</span>
+            <span class="delta-provider">via {{ r.provider }}</span>
+          </router-link>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Model of the Day ── -->
+    <div v-if="store.modelOfTheDay.length > 0" class="motd-section">
+      <div class="card motd-card">
+        <div class="card-title">Spotlight Models</div>
+        <p class="motd-subtitle">Top balance of intelligence, availability, and stability</p>
+        <div class="motd-list">
+          <router-link v-for="m in store.modelOfTheDay" :key="m.slug" :to="'/model/' + m.slug" class="motd-row">
+            <span class="motd-name">{{ m.name }}</span>
+            <span class="motd-meta">{{ m.creator || '' }} · {{ m.provCount }} providers · {{ m.intel }} intel{{ m.stable ? ' · all stable' : '' }}</span>
+          </router-link>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Key health ── -->
+    <div v-if="store.keyHealth && store.keyHealth.keys?.length > 0" class="keyhealth-section">
+      <div class="card">
+        <div class="card-title">🔑 API Key Health</div>
+        <p class="card-subtitle">Checked {{ formatDate(store.keyHealth.checked_at) }}</p>
+        <div class="kh-list">
+          <div v-for="k in store.keyHealth.keys" :key="k.provider + k.key_name" class="kh-row">
+            <span class="kh-provider">{{ k.provider }}</span>
+            <span class="kh-name">{{ k.key_name }}</span>
+            <span class="kh-status" :class="'kh-' + k.status">{{ k.status }}</span>
+            <span v-if="k.detail" class="kh-detail">{{ k.detail }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -315,6 +454,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import type { ModelData } from '@/types';
 import { useModelsStore } from '@/store/models';
+import WatchlistWidget from '@/components/WatchlistWidget.vue';
 
 const router = useRouter();
 
@@ -322,22 +462,29 @@ const store = useModelsStore();
 
 // Generate synthetic sparkline points from stats ratios (deterministic decorative patterns)
 const sparkPoints = computed(() => {
-  const w = store.visibleStats.workingRatio;
-  return {
-    working: generateSparkPath(0.6 + w * 0.3, 5),
-    models: generateSparkPath(0.55, 1),
-    datapoints: generateSparkPath(0.5, 3),
-    creators: generateSparkPath(0.65, 4),
-    broken: generateSparkPath(0.3, 2),
-  };
+  try {
+    const w = isFinite(store.visibleStats.workingRatio) ? store.visibleStats.workingRatio : 0.5;
+    return {
+      working: generateSparkPath(0.6 + w * 0.3, 5),
+      models: generateSparkPath(0.55, 1),
+      datapoints: generateSparkPath(0.5, 3),
+      creators: generateSparkPath(0.65, 4),
+      broken: generateSparkPath(0.3, 2),
+    };
+  } catch {
+    return { working: '0,18 60,18', models: '0,18 60,18', datapoints: '0,18 60,18', creators: '0,18 60,18', broken: '0,18 60,18' };
+  }
 });
 
 function generateSparkPath(base: number, seed: number): string {
+  if (!isFinite(base)) return '0,18 60,18';
   const pts: string[] = [];
   for (let x = 0; x <= 60; x += 4) {
     const noise = Math.sin(x * 0.4 + seed) * 3 + Math.cos(x * 0.7 + seed * 2) * 2;
     const y = 18 - (base * 4) - noise;
-    pts.push(`${x},${Math.round(Math.max(1, Math.min(19, y)))}`);
+    const clipped = Math.round(Math.max(1, Math.min(19, y)));
+    if (!isFinite(clipped)) { pts.push(`${x},10`); continue; }
+    pts.push(`${x},${clipped}`);
   }
   return pts.join(' ');
 }
@@ -426,6 +573,27 @@ const topFamilies = computed(() => {
   }));
 });
 
+const FAMILY_COLORS = [
+  '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
+  '#ec4899', '#f43f5e', '#ef4444', '#f97316',
+  '#f59e0b', '#eab308', '#84cc16', '#22c55e',
+  '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
+  '#3b82f6', '#6366f1',
+];
+
+const treemapFamilies = computed(() => {
+  const entries = topFamilies.value.slice(0, 12);
+  if (entries.length === 0) return [];
+  const total = entries.reduce((s, f) => s + f.count, 0);
+  const colors = FAMILY_COLORS;
+  return entries.map((f, i) => ({
+    name: f.name,
+    count: f.count,
+    color: colors[i % colors.length],
+    span: Math.max(1, Math.round((f.count / total) * 6)),
+  }));
+});
+
 // Top-scored by intelligence (artificial_analysis)
 const topScored = computed(() => {
   const scores = store.modelScores;
@@ -475,6 +643,70 @@ const topPerRole = computed(() => {
 });
 
 // Recently active: models with most recent last_success
+// New This Week — models first discovered in the last 7 days
+const newThisWeek = computed(() => {
+  const weekAgo = new Date(Date.now() - 7 * 864e5);
+  const items: { dp: { full_id: string; provider: string; created_at: string | null }; model: { slug: string; name: string } }[] = [];
+  const seen = new Set<string>();
+  for (const creator of store.visibleCreators) {
+    for (const model of creator.models) {
+      for (const dp of model.providers) {
+        if (dp._removed || !dp.created_at) continue;
+        const d = new Date(dp.created_at);
+        if (isNaN(d.getTime()) || d < weekAgo) continue;
+        const key = dp.full_id;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        items.push({
+          dp: { full_id: dp.full_id, provider: dp.provider, created_at: dp.created_at },
+          model: { slug: model.slug, name: model.name },
+        });
+      }
+    }
+  }
+  items.sort((a, b) => new Date(b.dp.created_at!).getTime() - new Date(a.dp.created_at!).getTime());
+  return items.slice(0, 15);
+});
+
+// Context Masters — best context-to-params ratio
+const contextMasters = computed(() => {
+  try {
+    const entries: { slug: string; name: string; params: string; context: string; ratio: number; ratio_label: string }[] = [];
+    for (const creator of store.visibleCreators) {
+      for (const model of creator.models) {
+        const ctx = model.best_context;
+        if (!ctx || ctx < 128000) continue;
+        const dps = model.providers.filter(p => !p._removed && p.param_count_b != null);
+        if (dps.length === 0) continue;
+        const minParams = Math.min(...dps.map(p => p.param_count_b!));
+        if (!isFinite(minParams) || minParams === 0) continue;
+        const ratio = ctx / minParams;
+        if (ratio < 1000) continue;
+        entries.push({
+          slug: model.slug,
+          name: model.name,
+          params: fmtParams(minParams),
+          context: fmtCtx(ctx),
+          ratio,
+          ratio_label: `${Math.round(ratio / 1000)}K ctx/B`,
+        });
+      }
+    }
+    return entries.sort((a, b) => b.ratio - a.ratio).slice(0, 8);
+  } catch {
+    return [];
+  }
+});
+
+function fmtCtx(ctx: number): string {
+  if (ctx >= 1_000_000) return (ctx / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M ctx';
+  return Math.round(ctx / 1000) + 'K ctx';
+}
+function fmtParams(b: number): string {
+  if (b >= 1000) return (b / 1000).toFixed(1).replace(/\.0$/, '') + 'T';
+  return b + 'B';
+}
+
 const recentlyActive = computed(() => {
   const items: { dp: { full_id: string; provider: string; last_success: string | null }; model: { slug: string; name: string } }[] = [];
   for (const creator of store.visibleCreators) {
@@ -503,9 +735,15 @@ function goSearch() {
 }
 
 // Critical issues (high + critical severity)
-const criticalIssues = computed(() =>
-  store.knownIssues.filter(i => i.severity === 'critical' || i.severity === 'high').slice(0, 6),
-);
+const criticalIssues = computed(() => {
+  try {
+    const issues = store.knownIssues;
+    if (!Array.isArray(issues)) return [];
+    return issues.filter(i => i.severity === 'critical' || i.severity === 'high').slice(0, 6);
+  } catch {
+    return [];
+  }
+});
 
 // Timeline visualization
 const timelineBars = computed(() => {
@@ -1086,6 +1324,12 @@ function formatTimeAgo(dateStr: string | null): string {
   width: 60px;
   flex-shrink: 0;
 }
+.tr-detail {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+}
 
 .tr-name {
   font-size: 0.78rem;
@@ -1511,6 +1755,82 @@ function formatTimeAgo(dateStr: string | null): string {
   text-align: left;
   flex-shrink: 0;
 }
+
+/* ── Flakiest models ── */
+.flaky-section { margin-bottom: 20px; }
+.flaky-list { display: flex; flex-direction: column; gap: 2px; }
+.flaky-row {
+  display: flex; align-items: center; gap: 10px; padding: 5px 0;
+  text-decoration: none; border-radius: 4px; transition: background 0.12s;
+}
+.flaky-row:hover { background: var(--bg-elevated); }
+.flaky-name { font-size: 0.78rem; font-weight: 600; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.flaky-rate { font-size: 0.72rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+.flaky-rate.rate-bad { color: var(--red); }
+.flaky-rate.rate-warn { color: var(--orange); }
+.flaky-samples { font-size: 0.62rem; color: var(--text-muted); white-space: nowrap; }
+
+/* ── Recently broken / fixed ── */
+.recent-deltas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.delta-card { border-left: 3px solid var(--border); }
+.delta-card.delta-broken { border-left-color: var(--red); }
+.delta-card.delta-fixed { border-left-color: var(--green); }
+.delta-list { display: flex; flex-direction: column; gap: 2px; }
+.delta-row {
+  display: flex; align-items: center; gap: 8px; padding: 4px 0;
+  text-decoration: none; border-radius: 4px; transition: background 0.12s;
+}
+.delta-row:hover { background: var(--bg-elevated); }
+.delta-name { font-size: 0.75rem; font-weight: 600; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.delta-provider { font-size: 0.62rem; color: var(--text-muted); flex-shrink: 0; }
+
+/* ── Key health ── */
+.keyhealth-section { margin-bottom: 20px; }
+.kh-list { display: flex; flex-direction: column; gap: 4px; }
+.kh-row { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 4px; background: var(--bg-elevated); font-size: 0.7rem; flex-wrap: wrap; }
+.kh-provider { font-weight: 700; color: var(--text); min-width: 100px; }
+.kh-name { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-dim); }
+.kh-status { padding: 1px 6px; font-size: 0.58rem; font-weight: 700; text-transform: uppercase; border-radius: 3px; }
+.kh-status.kh-valid { background: rgba(52,211,153,0.12); color: var(--green); }
+.kh-status.kh-rate_limited { background: rgba(245,158,11,0.12); color: var(--orange); }
+.kh-status.kh-expired { background: rgba(239,68,68,0.12); color: var(--red); }
+.kh-status.kh-unknown { background: rgba(156,163,175,0.12); color: #9ca3af; }
+.kh-detail { font-size: 0.62rem; color: var(--text-muted); flex-basis: 100%; margin-top: 2px; }
+
+/* ── Speed leaderboard ── */
+.speed-section { margin-bottom: 20px; }
+.speed-list { display: flex; flex-direction: column; gap: 3px; }
+.speed-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 0.75rem; }
+.speed-rank { width: 24px; font-size: 0.62rem; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+.speed-provider { font-weight: 600; color: var(--accent); text-decoration: none; min-width: 100px; }
+.speed-provider:hover { text-decoration: underline; }
+.speed-avg { font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text); white-space: nowrap; }
+.speed-p95 { font-size: 0.68rem; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); white-space: nowrap; }
+.speed-samples { font-size: 0.62rem; color: var(--text-dim); margin-left: auto; white-space: nowrap; }
+
+/* ── Week-over-week trend ── */
+.wow-section { margin-bottom: 20px; }
+.wow-card { border-left: 3px solid var(--accent); }
+.wow-summary { font-size: 0.75rem; line-height: 1.5; margin: 0; display: flex; flex-wrap: wrap; gap: 3px 6px; align-items: baseline; }
+.wow-date { color: var(--text-dim); font-size: 0.68rem; }
+.wow-chunk { font-weight: 700; white-space: nowrap; }
+.wow-chunk.wow-up { color: var(--green); }
+.wow-chunk.wow-down { color: var(--red); }
+.wow-chunk.wow-warn { color: var(--orange); }
+.wow-chunk.wow-flat { color: var(--text-muted); }
+.wow-sep { color: var(--text-muted); }
+
+/* ── Family treemap ── */
+.treemap-section { margin-bottom: 20px; }
+.treemap-canvas { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 4px; margin-top: 8px; }
+.treemap-cell {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 8px 4px; border-radius: 6px; text-decoration: none; transition: transform 0.12s, filter 0.12s;
+  min-height: 60px; cursor: pointer;
+}
+.treemap-cell:hover { transform: scale(1.03); filter: brightness(1.15); }
+.treemap-cell-name { font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.95); text-align: center; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal; }
+.treemap-cell-count { font-size: 0.62rem; color: rgba(255,255,255,0.7); margin-top: 2px; }
 
 @media (max-width: 768px) {
   .new-dashboard {
