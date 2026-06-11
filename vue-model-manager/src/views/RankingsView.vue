@@ -26,6 +26,7 @@
       :rankings="store.roleRankings"
       :scores="store.roleScores"
       :meta="store.roleMeta"
+      :datapoint-by-id-fn="resolveFreeDatapoint"
       :role-variants="store.freeRoleVariants"
       :master-variant="store.freeMasterVariant"
       :variant-keys="store.freeVariantKeys"
@@ -130,16 +131,20 @@ const store = useModelsStore();
 const mode = ref<'free' | 'paid'>('free');
 
 onMounted(() => {
-  store.loadData();
+  store.loadRankings();
 });
 
 function switchToPaid() {
   mode.value = 'paid';
-  store.loadPaidData();
+  store.loadPaidRankings();
+}
+
+function resolveFreeDatapoint(id: string): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
+  return store.rankingsDatapointById(id);
 }
 
 function resolvePaidDatapoint(id: string): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
-  return store.paidDatapointById.get(id);
+  return store.paidRankingsDatapointById(id);
 }
 
 // ── Export ──
