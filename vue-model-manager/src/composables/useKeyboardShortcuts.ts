@@ -53,7 +53,6 @@ export function useKeyboardShortcuts() {
         case 'm': router.push('/'); break;
         case 'd': router.push('/dashboard'); break;
         case 'c': router.push('/creators'); break;
-        case 'i': router.push('/issues'); break;
         case 'o': router.push('/compare'); break;
         case 'r': router.push('/rankings'); break;
         case 's': router.push('/supermodels'); break;
@@ -65,6 +64,7 @@ export function useKeyboardShortcuts() {
         case 'k': router.push('/picker'); break;
         case 'x': router.push('/scores'); break;
         case 'q': router.push('/rate-limits'); break;
+        case 'n': router.push('/providers/onboarding'); break;
       }
     }
 

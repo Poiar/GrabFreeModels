@@ -57,40 +57,40 @@
                 <span>Compare</span>
               </div>
               <div class="shortcut-row">
-                <kbd>i</kbd>
-                <span>Issues</span>
+                <kbd>b</kbd>
+                <span>Benchmarks</span>
               </div>
               <div class="shortcut-row">
                 <kbd>p</kbd>
-                <span>API Playground <sup class="new-badge">New!</sup></span>
+                <span>API Playground</span>
               </div>
               <div class="shortcut-row">
                 <kbd>g</kbd>
-                <span>Tag Explorer <sup class="new-badge">New!</sup></span>
+                <span>Tag Explorer</span>
               </div>
               <div class="shortcut-row">
                 <kbd>l</kbd>
-                <span>Lineage Tree <sup class="new-badge">New!</sup></span>
+                <span>Lineage Tree</span>
               </div>
               <div class="shortcut-row">
                 <kbd>v</kbd>
-                <span>Activity Feed <sup class="new-badge">New!</sup></span>
+                <span>Activity Feed</span>
               </div>
               <div class="shortcut-row">
                 <kbd>k</kbd>
-                <span>Model Picker <sup class="new-badge">New!</sup></span>
+                <span>Model Picker</span>
               </div>
               <div class="shortcut-row">
                 <kbd>x</kbd>
-                <span>Scores Explorer <sup class="new-badge">New!</sup></span>
+                <span>Scores Explorer</span>
               </div>
               <div class="shortcut-row">
                 <kbd>q</kbd>
-                <span>Rate Limits <sup class="new-badge">New!</sup></span>
+                <span>Rate Limits</span>
               </div>
               <div class="shortcut-row">
                 <kbd>n</kbd>
-                <span>Provider Onboarding <sup class="new-badge">New!</sup></span>
+                <span>Provider Onboarding</span>
               </div>
             </div>
 
@@ -160,7 +160,7 @@
               </div>
               <div class="shortcut-row">
                 <kbd><kbd class="combo-key">Ctrl</kbd>+<kbd>E</kbd></kbd>
-                <span>Export current view as JSON <sup class="new-badge">New!</sup></span>
+                <span>Export current view as JSON</span>
               </div>
             </div>
 
@@ -340,20 +340,6 @@ kbd {
   height: auto;
   padding: 0 2px;
   font-size: 0.65rem;
-}
-
-/* "New!" badge */
-.new-badge {
-  display: inline-block;
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: #fff;
-  background: var(--accent, #6c63ff);
-  border-radius: 3px;
-  padding: 1px 5px;
-  margin-left: 4px;
-  vertical-align: middle;
-  line-height: 1.3;
 }
 
 .modal-footer {

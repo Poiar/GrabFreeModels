@@ -23,7 +23,7 @@ const routes = [
     path: '/creator/:id',
     name: 'CreatorDetail',
     component: () => import('@/views/CreatorDetail.vue'),
-    meta: { title: 'Creator' },
+    meta: { title: 'Creator', navParent: '/creators' },
   },
   // Redirect old fine-tuner URLs
   { path: '/fine-tuners', redirect: '/derivatives' },
@@ -39,13 +39,13 @@ const routes = [
     path: '/derivative/:id',
     name: 'DerivativeDetail',
     component: () => import('@/views/DerivativeDetail.vue'),
-    meta: { title: 'Derivative' },
+    meta: { title: 'Derivative', navParent: '/derivatives' },
   },
   {
     path: '/provider/:slug',
     name: 'ProviderDetail',
     component: () => import('@/views/ProviderDetail.vue'),
-    meta: { title: 'Provider' },
+    meta: { title: 'Provider', navParent: '/providers' },
   },
   {
     path: '/base-models',
@@ -57,7 +57,7 @@ const routes = [
     path: '/base-model/:name',
     name: 'BaseModelDetail',
     component: () => import('@/views/BaseModelDetail.vue'),
-    meta: { title: 'Base Model' },
+    meta: { title: 'Base Model', navParent: '/base-models' },
   },
   {
     path: '/compare',
@@ -84,16 +84,10 @@ const routes = [
     meta: { title: 'Rankings (Free)' },
   },
   {
-    path: '/rankings-paid',
-    name: 'RankingsPaid',
-    component: () => import('@/views/RankingsPaidView.vue'),
-    meta: { title: 'Rankings (Paid)' },
-  },
-  {
     path: '/model/:slug',
     name: 'ModelDetail',
     component: () => import('@/views/ModelDetail.vue'),
-    meta: { title: 'Model' },
+    meta: { title: 'Model', navParent: '/supermodels' },
   },
   {
     path: '/supermodels',
@@ -105,7 +99,7 @@ const routes = [
     path: '/supermodel/:slug',
     name: 'SuperModelDetail',
     component: () => import('@/views/SuperModelDetail.vue'),
-    meta: { title: 'Super Model' },
+    meta: { title: 'Super Model', navParent: '/supermodels' },
   },
   {
     path: '/providers',
@@ -129,7 +123,7 @@ const routes = [
     path: '/family/:name',
     name: 'FamilyDetail',
     component: () => import('@/views/FamilyDetail.vue'),
-    meta: { title: 'Family' },
+    meta: { title: 'Family', navParent: '/families' },
   },
   {
     path: '/scores',
@@ -141,7 +135,7 @@ const routes = [
     path: '/providers/onboarding',
     name: 'ProviderOnboarding',
     component: () => import('@/views/ProviderOnboarding.vue'),
-    meta: { title: 'Provider Onboarding' },
+    meta: { title: 'Provider Onboarding', navParent: '/providers' },
   },
   {
     path: '/lineage',
@@ -183,7 +177,7 @@ const routes = [
     path: '/providers/status',
     name: 'ProviderStatus',
     component: () => import('@/views/ProviderStatusGrid.vue'),
-    meta: { title: 'Provider Status' },
+    meta: { title: 'Provider Status', navParent: '/providers' },
   },
   {
     path: '/admin',
@@ -192,7 +186,7 @@ const routes = [
     meta: { title: 'Admin' },
   },
   // Redirect old routes
-
+  { path: '/rankings-paid', redirect: '/rankings' },
 { path: '/free', redirect: '/' },
   { path: '/paid', redirect: '/' },
   { path: '/all', redirect: '/' },
