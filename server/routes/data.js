@@ -187,4 +187,90 @@ if (total !== 0) {
   }
 });
 
+// ── Slim rankings helper ──
+// Extracts only rankings + scores + a compact model index from the full ModelsData.
+// Reduces payload from ~7MB to ~200-300KB for network transfer.
+function slimRankings(full) {
+  const r = full._role_rankings || {};
+  const modelIndex = {};
+
+  for (const creator of (full.creators || [])) {
+    for (const model of creator.models) {
+      const providerSlugs = model.providers
+        .filter((p) => !p._removed)
+        .map((p) => p.provider_slug)
+        .sort();
+      for (const dp of model.providers) {
+        modelIndex[dp.full_id] = {
+          name: model.name,
+          slug: model.slug,
+          creator: creator.name,
+          providerSlug: dp.provider_slug,
+          providerName: dp.provider,
+          providerSlugs,
+          super_id: model.super_id,
+        };
+      }
+    }
+  }
+
+  return {
+    _role_rankings: r,
+    _model_scores: full._model_scores || null,
+    _model_index: modelIndex,
+  };
+}
+
+// ── Rankings-only endpoint (free) ──
+let rankingsCache = null;
+let inflightRankingsLoad = null;
+
+router.get('/rankings', async (req, res) => {
+  try {
+    const now = Date.now();
+    if (rankingsCache && (now - rankingsCache.ts) < CACHE_TTL) {
+      res.set('Cache-Control', 'no-cache');
+      return res.json(rankingsCache.data);
+    }
+
+    if (!inflightRankingsLoad) {
+      inflightRankingsLoad = (async () => {
+        const full = await loadModels(pool);
+        return slimRankings(full);
+      })().finally(() => { inflightRankingsLoad = null; });
+    }
+    const result = await inflightRankingsLoad;
+    rankingsCache = { data: result, ts: Date.now() };
+
+    res.set('Cache-Control', 'no-cache');
+    res.json(result);
+  } catch (err) {
+    console.error('Failed to build rankings data:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── Rankings-only endpoint (paid) ──
+let paidRankingsCache = null;
+
+router.get('/rankings/paid', async (req, res) => {
+  try {
+    const now = Date.now();
+    if (paidRankingsCache && (now - paidRankingsCache.ts) < CACHE_TTL) {
+      res.set('Cache-Control', 'no-cache');
+      return res.json(paidRankingsCache.data);
+    }
+
+    const full = await loadModels(pool, { isFree: false });
+    const result = slimRankings(full);
+    paidRankingsCache = { data: result, ts: Date.now() };
+
+    res.set('Cache-Control', 'no-cache');
+    res.json(result);
+  } catch (err) {
+    console.error('Failed to build paid rankings data:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

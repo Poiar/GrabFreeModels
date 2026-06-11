@@ -240,7 +240,7 @@ function getLatencySparkPath(slug: string): string {
 }
 .pc-spark-svg { width: 40px; height: 10px; flex-shrink: 0; }
 .pc-latency-text { font-size: 0.55rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
-</style>
+
 .page-header h2 { font-size: 1.3rem; font-weight: 700; margin: 0 0 4px; }
 .page-header p { font-size: 0.78rem; color: var(--text-dim); margin: 0 0 16px; }
 .filtered-note { color: var(--accent); font-weight: 600; }

@@ -33,11 +33,11 @@ import type { ProviderDatapoint, ModelData, CreatorData } from '@/types';
 const store = useModelsStore();
 
 function resolvePaidDatapoint(id: string): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
-  return store.paidDatapointById.get(id);
+  return store.paidRankingsDatapointById(id);
 }
 
 onMounted(() => {
-  store.loadPaidData();
+  store.loadPaidRankings();
 });
 </script>
 

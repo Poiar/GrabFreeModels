@@ -3,35 +3,26 @@ import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 import { execSync } from 'child_process';
 
-function killPortPlugin(port: number) {
-  let killed = false;
+function warnPortPlugin(port: number) {
+  let warned = false;
   return {
-    name: 'kill-port',
+    name: 'warn-port',
     enforce: 'pre' as const,
     configureServer() {
-      if (killed) return;
-      killed = true;
+      if (warned) return;
+      warned = true;
       try {
         const output = execSync(`netstat -ano | findstr ":${port}"`, {
           encoding: 'utf8',
           stdio: ['pipe', 'pipe', 'ignore'],
         });
-        const pids = new Set<string>();
-        for (const line of output.split('\n')) {
-          const parts = line.trim().split(/\s+/);
-          const pid = parts[parts.length - 1];
-          if (pid) pids.add(pid);
-        }
-        for (const pid of pids) {
-          try {
-            execSync(`taskkill /PID ${pid} /F`, { stdio: 'ignore' });
-            console.log(`[kill-port] Killed process ${pid} on port ${port}`);
-          } catch {
-            /* ignore */
-          }
+        if (output.trim()) {
+          console.warn(`\n[warn-port] Port ${port} is already in use.`);
+          console.warn('[warn-port] Free it manually with: netstat -ano | findstr ":PORT"');
+          console.warn('[warn-port] Then: taskkill /PID <pid> /F\n');
         }
       } catch {
-        // no process found on that port
+        /* no process found on that port — OK */
       }
     },
   };
@@ -40,7 +31,7 @@ function killPortPlugin(port: number) {
 const PORT = parseInt(process.env.VITE_PORT || '5173', 10);
 
 export default defineConfig({
-  plugins: [killPortPlugin(PORT), vue()],
+  plugins: [warnPortPlugin(PORT), vue()],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

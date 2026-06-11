@@ -298,19 +298,27 @@ async function main() {
     }
   }
 
-  // Webhook delivery
+  // Webhook delivery with retry
   if (SHOULD_ALERT && alerts.length > 0) {
     const webhookUrl = getWebhookUrl();
     if (!webhookUrl) {
       console.error('--alert flag set but no webhook URL configured. Set DEGRADATION_WEBHOOK_URL env var or pass --webhook-url.');
       process.exit(1);
     }
-    try {
-      await sendWebhook(webhookUrl, output);
-      console.log('Webhook alert delivered successfully.');
-    } catch (e) {
-      console.error('Webhook delivery failed:', e.message);
+    // Retry up to 3 times with exponential backoff
+    let delivered = false;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        await sendWebhook(webhookUrl, output);
+        console.log('Webhook alert delivered successfully.');
+        delivered = true;
+        break;
+      } catch (e) {
+        console.error(`Webhook delivery attempt ${attempt + 1}/3 failed:`, e.message);
+        if (attempt < 2) await new Promise(r => setTimeout(r, Math.min(1000 * Math.pow(2, attempt), 8000)));
+      }
     }
+    if (!delivered) console.error('Webhook delivery failed after 3 attempts — alert lost');
   }
 
   await pool.end();
