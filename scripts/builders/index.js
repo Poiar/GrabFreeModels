@@ -9,9 +9,10 @@
  *   5. loadScores       — reads model benchmark scores
  *   6. loadRankings     — reads rankings table, builds _role_rankings shape
  *   7. loadHealth       — derives model health from test_observations
- *   8. buildCreators    — builds creator → model → provider hierarchy
- *   9. buildProviders   — builds provider reference list
- *  10. buildFailover    — builds failover suggestions
+ *   8. buildCreators      — builds creator → model → provider hierarchy
+ *   9. buildProviders     — builds provider reference list
+ *  10. buildOrganizations — merges creator + provider into unified orgs
+ *  11. buildFailover      — builds failover suggestions
  *
  * Usage:
  *   const buildModelsData = require('./builders');
@@ -26,6 +27,7 @@ const loadRankings = require('./load-rankings');
 const loadHealth = require('./load-health');
 const buildCreators = require('./build-creators');
 const buildProviders = require('./build-providers');
+const buildOrganizations = require('./build-organizations');
 const buildFailover = require('./build-failover');
 const { computePriorityScores } = require('./compute-priority');
 const { inferCreatorFromName } = require('./name-inference');
@@ -132,11 +134,21 @@ async function buildModelsData(client, pool, options = {}) {
       model_version: feat?.model_version?.[0] || null,
       release_stage: feat?.release_stage?.[0] || null,
       coding_specialized: feat?.coding_specialized?.[0] === 'true' || false,
-      status: {
-        tested: dm.status_tested || null,
-        result: dm.status_result || 'untested',
-        detail: dm.status_detail || null,
-      },
+      // HARD RULE: paid models are ALWAYS presumed working (never tested).
+      // This is the single source of truth — all downstream aggregation
+      // (buildProviders, buildOrganizations, provider_health, frontend)
+      // flows from this normalization.
+      status: dm.is_free
+        ? {
+            tested: dm.status_tested || null,
+            result: dm.status_result || 'untested',
+            detail: dm.status_detail || null,
+          }
+        : {
+            tested: null,
+            result: 'working',
+            detail: 'Presumed working (not tested)',
+          },
       last_success: dm.last_success || null,
       deprecated_at: dm.deprecated_at || null,
       failure_category: dm.failure_category || null,
@@ -183,6 +195,9 @@ async function buildModelsData(client, pool, options = {}) {
 
   // ── 8. Providers ──
   const providers = buildProviders(outputModels);
+
+  // ── 8b. Organizations (unified creator + provider) ──
+  const { organizations } = buildOrganizations(creators, providers);
 
   // ── 9. Failover ──
   const failoverSuggestions = buildFailover(outputModels);
@@ -250,8 +265,11 @@ async function buildModelsData(client, pool, options = {}) {
   }
 
   return {
+    /** @deprecated Use organizations instead */
     creators,
+    /** @deprecated Use organizations instead */
     providers,
+    organizations,
     models: outputModels.filter((m) => !m._removed),
     _test_summary: {
       date: new Date().toISOString().slice(0, 10),

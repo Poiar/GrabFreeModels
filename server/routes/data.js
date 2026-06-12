@@ -11,6 +11,7 @@ let inflightLoad = null;
 const VALID_FIELDS = [
   'creators',
   'providers',
+  'organizations',
   '_test_summary',
   '_role_rankings',
   '_model_scores',

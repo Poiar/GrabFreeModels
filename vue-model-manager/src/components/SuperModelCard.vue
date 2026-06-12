@@ -12,7 +12,9 @@
           {{ wl.isWatched(model.super_id) ? '★' : '☆' }}
         </button>
         <span class="sm-model-icon-fb">{{ model.name[0] }}</span>
-        <span :class="{ 'sm-deprecated-name': isDeprecated }">{{ model.name }}</span>
+        <span class="sm-model-name-text" :class="{ 'sm-deprecated-name': isDeprecated }">{{
+          model.name
+        }}</span>
         <span v-if="isDeprecated" class="sm-deprecated-tag" title="This model has been deprecated"
           >Deprecated</span
         >
@@ -515,6 +517,8 @@ async function copyText(text: string) {
   border-radius: 8px;
   background: var(--bg-card);
   cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
   transition:
     border-color 0.15s,
     border-left-color 0.3s,
@@ -565,6 +569,14 @@ async function copyText(text: string) {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--text);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sm-model-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sm-model-icon-fb {

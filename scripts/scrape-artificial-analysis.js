@@ -267,7 +267,6 @@ async function scrape() {
         }
       }
     }
-    /* eslint-enable no-useless-assignment */
     if (best) {
       matched++;
       const sc = buildScores(aa);

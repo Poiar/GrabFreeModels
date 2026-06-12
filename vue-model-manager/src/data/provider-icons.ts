@@ -801,7 +801,7 @@ export function getProviderIcon(slug: string): { viewBox: string; body: string }
     moonshot: 'moonshotai',
     'sarvam-ai': 'sarvam',
     'umans-ai': 'umans-ai-coding-plan',
-    amazon: 'amazon-bedrock',
+    /* amazon uses /logos/amazon.svg — the classic smile logo */
     'abacus-ai': 'abacus',
     vultr: 'vultr',
     lmstudio: 'lmstudio',

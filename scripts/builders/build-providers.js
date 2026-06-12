@@ -42,7 +42,8 @@ function buildProviders(outputModels) {
     }
     const ref = providerRefMap.get(dp.source);
     ref.model_count++;
-    if (dp.status.result === 'working') ref.working_count++;
+    // Paid models are always presumed working (not tested)
+    if (dp.is_free === false || dp.status.result === 'working') ref.working_count++;
   }
 
   return Array.from(providerRefMap.values())

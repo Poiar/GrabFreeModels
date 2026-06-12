@@ -42,14 +42,16 @@ const routes = [
     meta: { title: 'Derivative', navParent: '/derivatives' },
   },
   {
+    path: '/organizations',
+    name: 'Organizations',
+    component: () => import('@/views/OrganizationList.vue'),
+    meta: { title: 'Organizations' },
+  },
+  {
     path: '/org/:id',
     name: 'OrganizationDetail',
     component: () => import('@/views/OrganizationDetail.vue'),
-    meta: { title: 'Organization' },
-  },
-  {
-    path: '/organizations',
-    redirect: '/providers',
+    meta: { title: 'Organization', navParent: '/organizations' },
   },
   {
     path: '/provider/:slug',
