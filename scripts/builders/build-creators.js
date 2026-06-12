@@ -45,10 +45,12 @@ function buildCreators(outputModels, roleRankingsOutput) {
       creator.modelMap.set(dp.super_id, {
         super_id: dp.super_id,
         name: dp.super_name,
-        slug: (dp.super_name || '')
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-|-$/g, ''),
+        // Use canonical DB slug — the name-derived slug can differ from
+        // super_models.slug (e.g. "DeepSeek-V3.1" name slugifies to
+        // "deepseek-v3-1" but the canonical DB slug is
+        // "deepseek-ai-deepseek-v3-1"). base_model references use the DB
+        // slug, so we MUST match it.
+        slug: dp.super_slug,
         creator: dp.creator || null,
         base_creator: dp.base_creator || null,
         family: dp.family,

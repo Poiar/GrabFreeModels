@@ -78,6 +78,8 @@ const SEQUENTIAL_FAMILIES = [
       ['deepseek-ai-deepseek-v3-2', 'deepseek-ai-deepseek-v3-1'],
       ['deepseek-ai-deepseek-v3-1-terminus', 'deepseek-ai-deepseek-v3-1'],
       ['deepseek-v3-0324', 'deepseek-v3'],
+      ['deepseek-deepseek-v4-pro', 'deepseek-ai-deepseek-v3-2'],
+      ['deepseek-deepseek-v4-flash', 'deepseek-deepseek-v4-pro'],
     ],
   },
   {
@@ -248,7 +250,10 @@ const NULL_OVERRIDES = new Set([
     console.log('--- Null Overrides ---');
     for (const childSlug of NULL_OVERRIDES) {
       const child = slugToModel.get(childSlug);
-      if (!child) { notFound.push({ type: 'null-override', childSlug, reason: 'slug not in DB' }); continue; }
+      if (!child) {
+        notFound.push({ type: 'null-override', childSlug, reason: 'slug not in DB' });
+        continue;
+      }
       if (!child.base_model) continue; // already null
       fixes.push({
         childSlug,
