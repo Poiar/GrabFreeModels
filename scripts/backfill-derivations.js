@@ -13,6 +13,7 @@ const { Pool } = require('pg');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const { detectDerivationMethod, findImmediateParent } = require('./utils/derivation-detector');
+const { wouldCreateCycle } = require('./utils/safe-chain-walker');
 
 let connectionString = process.env.DATABASE_URL;
 if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
@@ -70,6 +71,7 @@ async function main() {
           parentAssignments.push({
             id: model.id,
             name: model.name,
+            slug: model.slug,
             old_base: model.base_model,
             new_base: parentSlug,
             parent_name: parent.parentName,
@@ -126,8 +128,39 @@ async function main() {
       }
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // Cycle guard: filter out parent assignments that would create cycles
+    // ═══════════════════════════════════════════════════════════
+    const existingParentMap = new Map();
+    for (const m of models) {
+      if (m.base_model) existingParentMap.set(m.slug, m.base_model);
+    }
+    // Include pending assignments in the map (only those that won't cycle)
+    const safeParents = [];
+    const cycleRejected = [];
+    for (const a of parentAssignments) {
+      if (a.slug === a.new_base) {
+        cycleRejected.push({ ...a, reason: 'self-reference' });
+        continue;
+      }
+      if (wouldCreateCycle(a.slug, a.new_base, existingParentMap)) {
+        cycleRejected.push({ ...a, reason: 'would create cycle' });
+        continue;
+      }
+      safeParents.push(a);
+      // Add to parent map so subsequent checks in this batch see it
+      existingParentMap.set(a.slug, a.new_base);
+    }
+    if (cycleRejected.length > 0) {
+      console.log(`\n⛔ Cycle guard: rejected ${cycleRejected.length} parent assignments:`);
+      for (const r of cycleRejected.slice(0, 10)) {
+        console.log(`  ${r.name} → ${r.parent_name} (${r.reason})`);
+      }
+      if (cycleRejected.length > 10) console.log(`  ... and ${cycleRejected.length - 10} more`);
+    }
+
     if (!APPLY) {
-      console.log(`\nDry run — use --apply to write ${derivChanges + parentChanges} updates.`);
+      console.log(`\nDry run — use --apply to write ${derivChanges + safeParents.length} updates${cycleRejected.length > 0 ? ` (${cycleRejected.length} rejected by cycle guard)` : ''}.`);
       return;
     }
 
@@ -142,8 +175,8 @@ async function main() {
       updated++;
     }
 
-    // Write parent models
-    for (const a of parentAssignments) {
+    // Write parent models (only safe ones)
+    for (const a of safeParents) {
       await client.query(
         'UPDATE super_models SET base_model = $1 WHERE id = $2 AND base_model IS NULL',
         [a.new_base, a.id],

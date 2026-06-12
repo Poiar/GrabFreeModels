@@ -117,12 +117,16 @@ const derivationTitle = computed(() => {
   return `${method} of ${name} — click to see base model`;
 });
 
+const MAX_DERIVATION_DEPTH = 30;
 const derivationDepth = computed(() => {
   if (!props.model.base_model) return 0;
   let depth = 0;
   let slug: string | null = props.model.base_model;
-  while (slug) {
+  const visited = new Set<string>();
+  while (slug && depth < MAX_DERIVATION_DEPTH) {
     depth++;
+    if (visited.has(slug)) break;
+    visited.add(slug);
     const parent = store.modelBySlug.get(slug);
     slug = parent?.base_model ?? null;
   }

@@ -218,9 +218,10 @@ function handleExportCSV() {
 
 function getLatencySparkPath(slug: string): string {
   const lat = getProviderLatency(slug);
-  if (!lat) return '';
+  if (!lat || !isFinite(lat.avg_latency_ms)) return '';
   // Generate deterministic sparkline from the latency stats
   const base = Math.min(1, lat.avg_latency_ms / 3000);
+  if (!isFinite(base)) return '';
   const pts: string[] = [];
   const w = 40, h = 10;
   const seed = slug.split('').reduce((a, c) => a + c.charCodeAt(0), 0);

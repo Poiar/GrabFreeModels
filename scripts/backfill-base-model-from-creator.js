@@ -14,6 +14,7 @@ const { Pool } = require('pg');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const { findImmediateParent } = require('./utils/derivation-detector');
+const { wouldCreateCycle } = require('./utils/safe-chain-walker');
 
 let connectionString = process.env.DATABASE_URL;
 if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
@@ -55,17 +56,48 @@ async function main() {
     const assignments = [];
     let found = 0;
     let notFound = 0;
+    const skippedCycles = [];
+
+    // Build existing parent map for cycle detection (only models that already have base_model)
+    const existingParentMap = new Map();
+    for (const m of models) {
+      if (m.base_model) existingParentMap.set(m.slug, m.base_model);
+    }
 
     for (const model of models) {
       const parent = findImmediateParent(model.name, candidates);
       if (parent) {
+        // Self-reference guard
+        if (model.slug === parent.parentSlug) {
+          skippedCycles.push({ ...model, reason: 'self-reference' });
+          continue;
+        }
+        // Direction heuristic: if the child appears to be a base/foundation model
+        // and the parent appears to be a fine-tune/instruct/chat variant, the
+        // actual relationship is reversed — the child is the parent in reality.
+        const childLower = model.name.toLowerCase();
+        const parentLower = parent.parentName.toLowerCase();
+        const childIsBase = /\b(base|foundation|pretrain|pre-train)\b/i.test(childLower);
+        const parentIsDerived = /\b(instruct|chat|dpo|sft|rlhf|lora|awq|gguf|quant|fp\d|int\d|imatrix)\b/i.test(parentLower);
+        if (childIsBase && parentIsDerived) {
+          skippedCycles.push({ ...model, reason: 'direction: child is base, parent is fine-tune' });
+          continue;
+        }
+        // Cycle guard
+        if (wouldCreateCycle(model.slug, parent.parentSlug, existingParentMap)) {
+          skippedCycles.push({ ...model, reason: 'would create cycle' });
+          continue;
+        }
         assignments.push({
           id: model.id,
           name: model.name,
+          slug: model.slug,
           base_creator: model.base_creator,
           new_base: parent.parentSlug,
           parent_name: parent.parentName,
         });
+        // Track in the live map so subsequent assignments in this batch don't create cycles
+        existingParentMap.set(model.slug, parent.parentSlug);
         found++;
       } else {
         notFound++;
@@ -74,7 +106,14 @@ async function main() {
 
     // Summary
     console.log(`Found parent for: ${found}`);
-    console.log(`No parent found:  ${notFound}\n`);
+    console.log(`No parent found:  ${notFound}`);
+    if (skippedCycles.length > 0) {
+      console.log(`Cycle guard skipped: ${skippedCycles.length}`);
+      for (const s of skippedCycles.slice(0, 5)) {
+        console.log(`  ⛔ ${s.name} — ${s.reason}`);
+      }
+    }
+    console.log();
 
     // Group by parent
     const parentCounts = {};
@@ -95,7 +134,7 @@ async function main() {
     }
 
     if (!APPLY) {
-      console.log(`\nDry run — use --apply to write ${assignments.length} updates.`);
+      console.log(`\nDry run — use --apply to write ${assignments.length} updates${skippedCycles.length > 0 ? ` (${skippedCycles.length} rejected by cycle guard)` : ''}.`);
       return;
     }
 

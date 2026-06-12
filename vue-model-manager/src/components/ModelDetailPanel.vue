@@ -261,10 +261,16 @@ const dpDescription = computed(() => {
   return null;
 });
 
+const MAX_LINEAGE_DEPTH = 30;
 const lineageChain = computed(() => {
   const chain: { name: string; slug: string | null }[] = [];
   let slug = props.model.base_model;
-  while (slug) {
+  const visited = new Set<string>();
+  let steps = 0;
+  while (slug && steps < MAX_LINEAGE_DEPTH) {
+    steps++;
+    if (visited.has(slug)) break;
+    visited.add(slug);
     const parent = store.modelBySlug.get(slug);
     if (parent) {
       chain.push({ name: parent.name, slug: parent.slug });

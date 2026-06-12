@@ -16,10 +16,19 @@ function warnPortPlugin(port: number) {
           encoding: 'utf8',
           stdio: ['pipe', 'pipe', 'ignore'],
         });
-        if (output.trim()) {
-          console.warn(`\n[warn-port] Port ${port} is already in use.`);
-          console.warn('[warn-port] Free it manually with: netstat -ano | findstr ":PORT"');
-          console.warn('[warn-port] Then: taskkill /PID <pid> /F\n');
+        // Extract PIDs from LISTENING lines and kill them
+        const lines = output.trim().split('\n').filter(l => l.includes('LISTENING'));
+        for (const line of lines) {
+          const parts = line.trim().split(/\s+/);
+          const pid = parts[parts.length - 1];
+          if (pid && /^\d+$/.test(pid)) {
+            try {
+              execSync(`taskkill /PID ${pid} /F`, { stdio: 'ignore' });
+              console.log(`[warn-port] Killed PID ${pid} on port ${port}`);
+            } catch {
+              console.warn(`[warn-port] Could not kill PID ${pid} on port ${port}`);
+            }
+          }
         }
       } catch {
         /* no process found on that port — OK */

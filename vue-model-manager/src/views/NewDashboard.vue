@@ -442,8 +442,51 @@
               </template>
             </span>
           </div>
-          <p v-if="store.validationMethod" class="val-procedure">{{ store.validationMethod.procedure }}</p>
+          <p v-if="store.validationMethod" class="val-procedure">{{ store.validationMethod.procedure }} <span class="val-free-only">(free models only; paid models are presumed working)</span></p>
         </div>
+      </div>
+    </div>
+
+    <!-- ── AI Company Financials (isaiprofitable.com) ── -->
+    <div v-if="store.companyFinancials" class="company-fin-section">
+      <div class="card">
+        <div class="card-title cf-toggle-header" @click="finExpanded = !finExpanded">
+          AI Company Financials
+          <a href="https://isaiprofitable.com" target="_blank" rel="noopener" class="cf-source-link" @click.stop>via isaiprofitable.com ↗</a>
+          <span class="cf-toggle-arrow" :class="{ open: finExpanded }">{{ finExpanded ? '▾' : '▸' }}</span>
+        </div>
+        <p class="cf-summary-line">
+          Industry: <strong>${{ formatT(summary.total_spend) }}</strong> total spend ·
+          <strong>${{ formatT(summary.total_revenue) }}</strong> revenue ·
+          PNL: <strong :class="summary.total_pnl >= 0 ? 'cf-green' : 'cf-red'">{{ summary.total_pnl >= 0 ? '+' : '' }}${{ formatT(summary.total_pnl) }}</strong>
+          · <span class="cf-green">{{ summary.profitable_count }} profitable</span>,
+          <span class="cf-red">{{ summary.unprofitable_count }} unprofitable</span>
+        </p>
+        <!-- PNL trend sparkline -->
+        <div v-if="store.companyFinancialsHistory.length >= 2" class="cf-sparkline-row">
+          <span class="cf-spark-label">PNL trend</span>
+          <svg viewBox="0 0 300 40" class="cf-sparkline">
+            <polyline :points="pnlSparkPoints" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <line x1="0" y1="20" x2="300" y2="20" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,4" />
+          </svg>
+          <span class="cf-spark-end" :class="pnlTrend >= 0 ? 'cf-green' : 'cf-red'">
+            {{ pnlTrend >= 0 ? '↑' : '↓' }} ${{ Math.abs(pnlTrend).toFixed(0) }}B
+          </span>
+        </div>
+        <div v-if="finExpanded" class="cf-list">
+          <div v-for="c in store.companyFinancials.companies" :key="c.name" class="cf-row" :class="{ 'cf-infra': c.isInfrastructure }">
+            <span class="cf-name">{{ c.name }}</span>
+            <span class="cf-subtitle">{{ c.subtitle }}</span>
+            <div class="cf-bar-track">
+              <div class="cf-bar-spend" :style="{ width: spendPct(c) + '%' }"></div>
+              <div v-if="c.revenue > 0" class="cf-bar-rev" :style="{ width: revPct(c) + '%', left: spendPct(c) + '%' }"></div>
+            </div>
+            <span class="cf-pnl" :class="c.pnl >= 0 ? 'cf-green' : 'cf-red'">
+              {{ c.pnl >= 0 ? '+' : '' }}${{ c.pnl >= 100 ? Math.round(c.pnl) : c.pnl.toFixed(1) }}B
+            </span>
+          </div>
+        </div>
+        <p class="cf-updated">Updated {{ formatDate(store.companyFinancials.fetched_at) }}</p>
       </div>
     </div>
   </div>
@@ -531,13 +574,20 @@ const topDerived = computed(() => {
   return entries.slice(0, 6);
 });
 
+const MAX_CHAIN_DEPTH = 20;
 const deepestChains = computed(() => {
+  try {
   const chains: { model: ModelData; depth: number; path: string[] }[] = [];
   for (const model of store.allModels) {
     if (!model.base_model) continue;
     const path: string[] = [];
+    const visited = new Set<string>([model.slug]);
     let slug: string | null = model.base_model;
-    while (slug) {
+    let steps = 0;
+    while (slug && steps < MAX_CHAIN_DEPTH) {
+      steps++;
+      if (visited.has(slug)) break; // cycle detected
+      visited.add(slug);
       const parent = store.modelBySlug.get(slug);
       if (parent) {
         path.push(parent.name);
@@ -553,6 +603,7 @@ const deepestChains = computed(() => {
   }
   chains.sort((a, b) => b.depth - a.depth);
   return chains.slice(0, 5);
+  } catch(e) { console.error('deepestChains error:', e); return []; }
 });
 
 const topFamilies = computed(() => {
@@ -687,6 +738,7 @@ const recentlyActive = computed(() => {
 
 // Quick search
 const searchQuery = ref('');
+const finExpanded = ref(false);
 
 function goSearch() {
   const q = searchQuery.value.trim();
@@ -770,6 +822,51 @@ function formatTimeAgo(dateStr: string | null): string {
   const days = Math.round(hours / 24);
   return `${days}d ago`;
 }
+
+// ── Company financials helpers ──
+const summary = computed(() => store.companyFinancials?.summary ?? { total_spend: 0, total_revenue: 0, total_pnl: 0, profitable_count: 0, unprofitable_count: 0 });
+
+const maxFinancial = computed(() => {
+  if (!store.companyFinancials) return 1;
+  return Math.max(...store.companyFinancials.companies.map(c => c.spend + Math.max(0, c.revenue)), 1);
+});
+
+function spendPct(c: { spend: number; revenue: number }): number {
+  return Math.round((c.spend / maxFinancial.value) * 100);
+}
+
+function revPct(c: { spend: number; revenue: number }): number {
+  if (c.revenue <= 0) return 0;
+  return Math.min(Math.round((c.revenue / maxFinancial.value) * 100), 100 - spendPct(c));
+}
+
+function formatT(billions: number): string {
+  if (billions >= 1000) return (billions / 1000).toFixed(1) + 'T';
+  return Math.round(billions) + 'B';
+}
+
+// ── Financial history sparkline ──
+const pnlSparkPoints = computed(() => {
+  const hist = store.companyFinancialsHistory;
+  if (hist.length < 2) return '0,20 300,20';
+  const pnls = hist.map(h => h.summary.total_pnl);
+  const minPnl = Math.min(...pnls);
+  const maxPnl = Math.max(...pnls, 0);
+  const range = (maxPnl - minPnl) || 1;
+  const pts: string[] = [];
+  for (let i = 0; i < pnls.length; i++) {
+    const x = (i / (pnls.length - 1)) * 300;
+    const y = 40 - ((pnls[i] - minPnl) / range) * 36 - 2;
+    pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+  }
+  return pts.join(' ');
+});
+
+const pnlTrend = computed(() => {
+  const hist = store.companyFinancialsHistory;
+  if (hist.length < 2) return 0;
+  return Math.round((hist[hist.length - 1].summary.total_pnl - hist[0].summary.total_pnl) * 10) / 10;
+});
 </script>
 
 <style scoped>
@@ -1417,6 +1514,11 @@ function formatTimeAgo(dateStr: string | null): string {
   margin: 0;
 }
 
+.val-free-only {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
 /* Card shared styles */
 .card {
   padding: 16px;
@@ -1792,6 +1894,44 @@ function formatTimeAgo(dateStr: string | null): string {
 .treemap-cell:hover { transform: scale(1.03); filter: brightness(1.15); }
 .treemap-cell-name { font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.95); text-align: center; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal; }
 .treemap-cell-count { font-size: 0.62rem; color: rgba(255,255,255,0.7); margin-top: 2px; }
+
+/* ── Company Financials ── */
+.company-fin-section { margin-bottom: 24px; }
+.cf-toggle-header { cursor: pointer; user-select: none; display: flex; align-items: center; }
+.cf-toggle-header:hover { color: var(--accent); }
+.cf-toggle-arrow { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); transition: transform 0.15s; }
+.cf-toggle-arrow.open { color: var(--accent); }
+.cf-source-link {
+  font-size: 0.6rem; font-weight: 400; color: var(--text-dim); text-decoration: none;
+  margin-left: 8px; opacity: 0.7;
+}
+.cf-source-link:hover { opacity: 1; color: var(--accent); }
+.cf-summary-line {
+  font-size: 0.7rem; color: var(--text-muted); margin: 0 0 12px; line-height: 1.5;
+}
+.cf-green { color: var(--green); font-weight: 700; }
+.cf-red { color: var(--red); font-weight: 700; }
+.cf-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.cf-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.72rem; flex-wrap: wrap; }
+.cf-row.cf-infra { opacity: 0.65; }
+.cf-name { font-weight: 700; color: var(--text); min-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-subtitle { font-size: 0.6rem; color: var(--text-dim); min-width: 50px; display: none; }
+.cf-bar-track { flex: 1; height: 10px; background: var(--bg-elevated); border-radius: 3px; position: relative; overflow: hidden; min-width: 60px; }
+.cf-bar-spend { position: absolute; left: 0; top: 0; height: 100%; background: rgba(239, 68, 68, 0.3); border-radius: 3px 0 0 3px; }
+.cf-bar-rev { position: absolute; top: 0; height: 100%; background: rgba(52, 211, 153, 0.5); border-radius: 0 3px 3px 0; }
+.cf-pnl { font-size: 0.68rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; min-width: 70px; text-align: right; white-space: nowrap; }
+.cf-sparkline-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 4px 0; }
+.cf-spark-label { font-size: 0.6rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; min-width: 55px; }
+.cf-sparkline { flex: 1; height: 40px; background: var(--bg-elevated); border-radius: 4px; }
+.cf-spark-end { font-size: 0.62rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; min-width: 70px; text-align: right; }
+.cf-updated { font-size: 0.58rem; color: var(--text-dim); margin: 0; }
+
+@media (max-width: 768px) {
+  .cf-row { gap: 4px; }
+  .cf-name { min-width: 90px; font-size: 0.65rem; }
+  .cf-pnl { min-width: 60px; font-size: 0.62rem; }
+  .cf-bar-track { min-width: 40px; height: 8px; }
+}
 
 @media (max-width: 768px) {
   .new-dashboard {

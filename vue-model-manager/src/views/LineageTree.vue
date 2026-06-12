@@ -32,13 +32,16 @@ interface TreeEdge { key: string; x1: number; y1: number; x2: number; y2: number
 const treeNodes = computed((): TreeNode[] => {
   const result: TreeNode[] = [];
   const seen = new Set<string>();
+  const MAX_TREE_DEPTH = 30;
   let col = 0;
   for (const model of store.allModels) {
     if (!model.base_model || seen.has(model.slug)) continue;
     seen.add(model.slug);
     let rootSlug: string = model.base_model;
     const visited = new Set([model.slug]);
-    while (true) {
+    let steps = 0;
+    while (steps < MAX_TREE_DEPTH) {
+      steps++;
       const parent = store.modelBySlug.get(rootSlug);
       if (!parent?.base_model || visited.has(parent.base_model)) break;
       visited.add(parent.base_model);

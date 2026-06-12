@@ -108,6 +108,7 @@ const STEP_NAMES = [
   'inherit-families',
   'backfill-family-by-name',
   'backfill-derivatives',
+  'check-base-model-cycles',
   'backfill-quantization',
   'prune-stale-rankings',
   'backfill-context',
@@ -121,6 +122,7 @@ const STEP_NAMES = [
   'sync-paid-models',
   'rank-paid-models',
   'check-paid-rankings',
+  'import-financials',
   'regenerate-test-summary',
   'generate-summary-log',
   'export-final-json',
@@ -374,6 +376,11 @@ let pipelineStart = Date.now();
     console.log('Backfilling training lineage from HF Hub metadata...');
     await runStep('backfill-derivatives', async () => {
       await run('node scripts/backfill-derivatives.js --apply');
+    });
+
+    // 3b2. Guard: detect and fix circular base_model chains before any chain-walking
+    await runStep('check-base-model-cycles', async () => {
+      await run('node scripts/check-base-model-cycles.js --apply');
     });
 
     // 3c. Backfill quantization from HF Hub tags + model names
@@ -642,7 +649,13 @@ let pipelineStart = Date.now();
       console.log(`  Total paid ranking entries: ${total}`);
     });
 
-    // 13. Regenerate _test_summary and persist to PG
+    // 13. Import AI company financials from isaiprofitable.com
+    console.log('\nImporting AI company financials...');
+    await runStep('import-financials', async () => {
+      await run('node scripts/import-is-ai-profitable.js --apply');
+    });
+
+    // 14. Regenerate _test_summary and persist to PG
     console.log('Regenerating _test_summary...');
     await runStep('regenerate-test-summary', async () => {
       const summaryData = await loadFromDb();
@@ -672,7 +685,7 @@ let pipelineStart = Date.now();
       );
     });
 
-    // 14. Generate summary log
+    // 15. Generate summary log
     await runStep('generate-summary-log', async () => {
       try {
         const summaryOutput = await run('node scripts/model-summary.js');
@@ -684,12 +697,12 @@ let pipelineStart = Date.now();
       }
     });
 
-    // 15. Export final JSON for git
+    // 16. Export final JSON for git
     await runStep('export-final-json', async () => {
       exportJson();
     });
 
-    // 16. Detect changes and commit
+    // 17. Detect changes and commit
     await runStep(
       'commit-push',
       async () => {
@@ -755,7 +768,7 @@ let pipelineStart = Date.now();
       { critical: true },
     );
 
-    // 17. Alert via webhook – highlight models that recovered to working status
+    // 18. Alert via webhook – highlight models that recovered to working status
     await runStep('webhook-alerts', async () => {
       if (!fs.existsSync(PREV_COPY)) return;
       const prev = JSON.parse(fs.readFileSync(PREV_COPY, 'utf8'));
@@ -798,7 +811,7 @@ let pipelineStart = Date.now();
       fs.unlinkSync(tmpFile);
     });
 
-    // 18. Invalidate API cache so the server serves fresh data immediately
+    // 19. Invalidate API cache so the server serves fresh data immediately
     await runStep('invalidate-api-cache', async () => {
       const apiPort = process.env.API_PORT || 3001;
       const adminToken = process.env.ADMIN_TOKEN;
@@ -816,7 +829,7 @@ let pipelineStart = Date.now();
       }
     });
 
-    // 19. Nightly summary delivery to Slack/Discord
+    // 20. Nightly summary delivery to Slack/Discord
     await runStep('nightly-summary', async () => {
       await run('node scripts/nightly-summary.js');
     });
