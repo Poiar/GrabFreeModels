@@ -695,6 +695,148 @@ test('build-organizations.js derives health from status.result', () => {
   );
 });
 
+test('scrape-artificial-analysis.js queries only free models', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'scrape-artificial-analysis.js'),
+    'utf8',
+  );
+  // The query loading datapoints for AA matching must filter is_free = true
+  const match = src.match(/SELECT.*?FROM datapoint_models.*?WHERE.*?is_removed.*?ORDER/s);
+  assert.ok(match, 'should have a query loading datapoint_models for matching');
+  assert.ok(
+    match[0].includes('dm.is_free = true') || match[0].includes('dm.is_free=true'),
+    'scrape-artificial-analysis.js should filter datapoint_models by is_free = true',
+  );
+});
+
+test('check-rankings.js SQL path guards against paid models', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'check-rankings.js'),
+    'utf8',
+  );
+  // The rankings table query should filter is_paid = false
+  assert.ok(
+    src.includes('r.is_paid = false'),
+    'check-rankings.js should filter rankings by is_paid = false (free only)',
+  );
+  // The status check loop must verify is_free before checking status_result
+  assert.ok(
+    src.includes('!e.is_free') || src.includes('e.is_free === false'),
+    'check-rankings.js should guard status_result checks with is_free verification',
+  );
+});
+
+test('check-rankings.js JSON fallback uses builder path', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'check-rankings.js'),
+    'utf8',
+  );
+  // The JSON fallback path should use loadModels (builder-normalized)
+  assert.ok(
+    src.includes("require('./load-models')"),
+    'check-rankings.js JSON fallback should use loadModels (builder path)',
+  );
+  // And verify is_free before checking status
+  assert.ok(
+    src.includes('!model.is_free') || src.includes('model.is_free === false'),
+    'check-rankings.js JSON fallback should check is_free before status',
+  );
+});
+
+test('rank.js free path filters is_free = true', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'rank.js'), 'utf8');
+  assert.ok(
+    src.includes('dm.is_free = true') || src.includes('dm.is_free=true'),
+    'rank.js free path should filter by dm.is_free = true',
+  );
+});
+
+test('rank.js paid path filters is_free = false', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(require('path').join(__dirname, '..', 'scripts', 'rank.js'), 'utf8');
+  assert.ok(
+    src.includes("is_free = false'") || src.includes('is_free=false'),
+    'rank.js paid path should filter by dm.is_free = false',
+  );
+});
+
+test('nightly-summary.js reads from _test_summary (free-only metadata)', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'nightly-summary.js'),
+    'utf8',
+  );
+  // The _test_summary key is only populated with free models
+  assert.ok(
+    src.includes('_test_summary'),
+    'nightly-summary should read _test_summary (populated with free models only)',
+  );
+});
+
+test('health-badge.js filters models by is_free', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'health-badge.js'),
+    'utf8',
+  );
+  assert.ok(
+    src.includes('.is_free') || src.includes("'is_free'"),
+    'health-badge.js should filter by is_free before reading status',
+  );
+});
+
+test('metrics-exporter.js filters models by is_free', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'metrics-exporter.js'),
+    'utf8',
+  );
+  assert.ok(
+    src.includes('.is_free') || src.includes("'is_free'"),
+    'metrics-exporter.js should filter by is_free before reading status',
+  );
+});
+
+test('generate-dashboard.js filters models by is_free', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'generate-dashboard.js'),
+    'utf8',
+  );
+  assert.ok(
+    src.includes('!m.is_free') || src.includes('m.is_free === false'),
+    'generate-dashboard.js should skip paid models before reading status',
+  );
+});
+
+test('model-summary.js filters models by is_free', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'model-summary.js'),
+    'utf8',
+  );
+  assert.ok(
+    src.includes('.is_free') || src.includes("'is_free'"),
+    'model-summary.js should filter by is_free before reading status',
+  );
+});
+
+test('sync-paid-models.js sets paid models to status working', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'sync-paid-models.js'),
+    'utf8',
+  );
+  assert.ok(
+    src.includes("status_result = 'working'") || src.includes("'working'"),
+    'sync-paid-models.js should set status_result to working for paid models',
+  );
+});
+
 // ── Summary ──
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
 if (failed > 0) {

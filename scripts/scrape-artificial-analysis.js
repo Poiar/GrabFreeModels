@@ -182,9 +182,10 @@ async function scrape() {
       console.log(' ', m.name, 'intel:', m.intelligence, 'price:', m.price, 'ctx:', m.context),
     );
 
-  // Load all datapoints grouped by super_name, prefer working, free first then paid
+  // Load free model datapoints grouped by super_name for matching AA benchmarks.
+  // Paid models excluded — their status is presumed working, not tested.
   const { rows: allRows } = await pool.query(
-    "SELECT dm.id, dm.full_id, mm.name AS super_name, dm.status_result, dm.is_free FROM datapoint_models dm JOIN super_models mm ON mm.id = dm.super_model_id WHERE dm.is_removed = false ORDER BY dm.is_free = true DESC, dm.status_result = 'working' DESC, dm.status_result = 'untested' DESC",
+    "SELECT dm.id, dm.full_id, mm.name AS super_name, dm.status_result, dm.is_free FROM datapoint_models dm JOIN super_models mm ON mm.id = dm.super_model_id WHERE dm.is_removed = false AND dm.is_free = true ORDER BY dm.status_result = 'working' DESC, dm.status_result = 'untested' DESC",
   );
   // Strip vendor prefix like "Anthropic: Claude Opus 4.8" → "Claude Opus 4.8"
   function stripVendor(name) {
