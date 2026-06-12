@@ -395,7 +395,8 @@ const rateLimitText = computed(() => {
 });
 
 // ── Health breakdown ──
-// PAID MODELS ARE ALWAYS PRESUMED WORKING — they are never tested.
+// Paid models are normalized to status.result='working' by builders/index.js
+// (the single source of truth). No is_free guard needed here.
 const modelCountForHealth = computed(() => {
   const o = org.value;
   if (!o) return 0;
@@ -413,10 +414,7 @@ const brokenCount = computed(() => {
   let count = 0;
   for (const m of o.models || []) {
     count += m.providers.filter(
-      (dp) =>
-        !dp._removed &&
-        dp.is_free !== false &&
-        (dp.status.result === 'broken' || dp.status.result === 'not_found'),
+      (dp) => !dp._removed && (dp.status.result === 'broken' || dp.status.result === 'not_found'),
     ).length;
   }
   return count;
@@ -427,9 +425,7 @@ const untestedCount = computed(() => {
   if (!o) return 0;
   let count = 0;
   for (const m of o.models || []) {
-    count += m.providers.filter(
-      (dp) => !dp._removed && dp.is_free !== false && dp.status.result === 'untested',
-    ).length;
+    count += m.providers.filter((dp) => !dp._removed && dp.status.result === 'untested').length;
   }
   return count;
 });

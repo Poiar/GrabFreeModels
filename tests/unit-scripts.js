@@ -603,6 +603,98 @@ test('sendWebhook function exists and creates a valid request', () => {
   assert.ok(src.includes('JSON.stringify'), 'should stringify the payload');
 });
 
+// ═══════════════════════════════════════════════════════════════
+// PAID-MODEL INVARIANT: is_free=false → status.result='working'
+// builders/index.js is the single source of truth. Every downstream
+// consumer (API, frontend, JSON export) gets normalized data.
+// ═══════════════════════════════════════════════════════════════
+
+console.log('\n=== builders/index.js: paid-model status normalization ===');
+
+test('builders/index.js normalizes paid model status to working', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'builders', 'index.js'),
+    'utf8',
+  );
+  // The normalization branch must exist
+  assert.ok(
+    src.includes('dm.is_free'),
+    'source should branch on dm.is_free for status normalization',
+  );
+  assert.ok(
+    src.includes("result: 'working'"),
+    "source should hardcode result:'working' for paid models",
+  );
+  assert.ok(
+    src.includes("'Presumed working (not tested)'"),
+    "source should set detail:'Presumed working (not tested)' for paid models",
+  );
+});
+
+test('builders/index.js comment documents the hard rule', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'builders', 'index.js'),
+    'utf8',
+  );
+  assert.ok(
+    src.includes('PAID MODELS ARE ALWAYS PRESUMED WORKING') ||
+      src.includes('paid models are ALWAYS presumed working'),
+    'source should document the HARD RULE about paid model status',
+  );
+});
+
+test('available-models.json: no paid model has non-working status', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const jsonPath = path.join(__dirname, '..', 'available-models.json');
+  if (!fs.existsSync(jsonPath)) {
+    console.log('        (skipped — available-models.json not found)');
+    return;
+  }
+  const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  const models = data.models || [];
+  const violations = [];
+  for (const m of models) {
+    if (m.is_free === false && m.status?.result !== 'working') {
+      violations.push(`${m.id} → status.result='${m.status?.result}'`);
+    }
+  }
+  if (violations.length > 0) {
+    assert.fail(
+      `Found ${violations.length} paid model(s) with non-working status:\n        ${violations.slice(0, 10).join('\n        ')}${violations.length > 10 ? `\n        ...and ${violations.length - 10} more` : ''}`,
+    );
+  }
+  assert.ok(true);
+});
+
+test('build-providers.js normalizes working_count from status.result', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'builders', 'build-providers.js'),
+    'utf8',
+  );
+  // Counting relies on status.result='working' (paid models normalized upstream)
+  assert.ok(
+    src.includes("dp.status.result === 'working'"),
+    'build-providers should count working from status.result (normalized by builders/index.js)',
+  );
+});
+
+test('build-organizations.js derives health from status.result', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(
+    require('path').join(__dirname, '..', 'scripts', 'builders', 'build-organizations.js'),
+    'utf8',
+  );
+  // Health derivation relies on status.result='working' (paid models normalized upstream)
+  assert.ok(
+    src.includes("dp.status?.result === 'working'"),
+    'build-organizations should derive health from status.result (normalized by builders/index.js)',
+  );
+});
+
 // ── Summary ──
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
 if (failed > 0) {

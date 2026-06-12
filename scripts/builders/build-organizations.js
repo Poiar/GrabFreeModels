@@ -90,15 +90,14 @@ function buildOrganizations(creators, providers) {
       workingCount = provider.working_count;
     } else if (creator) {
       // Derive health from models for creator-only orgs.
-      // PAID MODELS ARE ALWAYS PRESUMED WORKING — they are never tested.
+      // Paid models normalized to status.result='working' by builders/index.js.
       let total = 0;
       let working = 0;
       for (const model of creator.models) {
         for (const dp of model.providers || []) {
           if (dp._removed) continue;
           total++;
-          // Paid models are always working (presumed, not tested)
-          if (dp.is_free === false || dp.status?.result === 'working') working++;
+          if (dp.status?.result === 'working') working++;
         }
       }
       workingCount = working;

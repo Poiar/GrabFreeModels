@@ -156,7 +156,10 @@ router.get('/health/status', async (req, res) => {
     );
     const testSummary = summaryRows.length > 0 ? JSON.parse(summaryRows[0].value) : null;
 
-    // Fetch per-provider counts
+    // Fetch per-provider counts.
+    // FREE MODELS ONLY — paid models are never tested (is_free=false always
+    // normalized to status_result='working' by builders/index.js). Including
+    // them here would show paid providers as permanently "untested".
     const { rows: providerRows } = await pool.query(`
       SELECT dp.name AS provider,
              COUNT(*) AS total,

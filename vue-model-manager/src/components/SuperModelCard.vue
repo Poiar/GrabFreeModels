@@ -359,6 +359,8 @@ const healthSpark = computed(() => {
   return { points, stability: mh.stability, streak: mh.streak, count: recent.length };
 });
 
+// Paid models normalized to status.result='working' by builders/index.js.
+// No is_free guard needed — broken/working/limited derive from status directly.
 const status = computed(() => {
   const total = activeDps.value.length;
   if (!total) return 'down';
