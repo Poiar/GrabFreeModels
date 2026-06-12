@@ -13,7 +13,7 @@ const http = require('http');
 const fs = require('fs');
 const logger = require('./utils/logger');
 const path = require('path');
-const pool = require('../server/db');  // Shared pool — handles Neon SSL automatically
+const pool = require('../server/db'); // Shared pool — handles Neon SSL automatically
 
 const APPLY = process.argv.includes('--apply');
 
@@ -126,7 +126,8 @@ const PROVIDER_LIMITATIONS = {
   },
   modelsdev: {
     rate_limit: 'Varies by model',
-    notes: 'Free inference via Hugging Face community providers. Cold starts and rate limits apply.',
+    notes:
+      'Free inference via Hugging Face community providers. Cold starts and rate limits apply.',
   },
   deepinfra: {
     rate_limit: 'Varies by model',
@@ -182,7 +183,7 @@ const PROVIDER_LIMITATIONS = {
   },
   'umans-ai-coding-plan': {
     rate_limit: 'Varies by model',
-    notes: 'Free tier via Uman\'s AI coding plan. Requires account.',
+    notes: "Free tier via Uman's AI coding plan. Requires account.",
   },
   'kuae-cloud-coding-plan': {
     rate_limit: 'Varies by model',
@@ -408,8 +409,7 @@ async function getGroqModels() {
   const { data } = await httpGet('https://api.groq.com/openai/v1/models', {
     Authorization: `Bearer ${key}`,
   });
-  const excludePattern =
-    /whisper|guard|safeguard|orpheus/i;
+  const excludePattern = /whisper|guard|safeguard|orpheus/i;
   return (data.data || [])
     .filter((m) => {
       if (!m.active) return false;
@@ -624,7 +624,11 @@ function humanizeCreator(raw) {
 
   // Split on hyphens/underscores -> capitalize each word
   if (/[-_]/.test(raw)) {
-    return raw.split(/[-_]/).filter(Boolean).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    return raw
+      .split(/[-_]/)
+      .filter(Boolean)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
   }
 
   // Detect camelCase boundaries in mixed-case names
@@ -643,21 +647,40 @@ function inferCreatorFromName(name) {
   if (slashIdx > 0 && slashIdx < name.length - 1) {
     return humanizeCreator(name.slice(0, slashIdx).trim());
   }
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
   // Exact slug matches
   const bySlug = {
-    'owl-alpha': 'OpenRouter', 'bodybuilder': 'OpenRouter', 'pareto-code': 'OpenRouter',
-    'spotlight': 'OpenRouter', 'coder-large': 'Arcee AI', 'virtuoso-large': 'Arcee AI',
-    'auto-route': 'LLMGateway', 'custom-model': 'LLMGateway',
-    'ai-infer-test-1': 'NovitaAI', 'ai-infer-test-2': 'NovitaAI', 'ai-infer-test-3': 'NovitaAI',
+    'owl-alpha': 'OpenRouter',
+    bodybuilder: 'OpenRouter',
+    'pareto-code': 'OpenRouter',
+    spotlight: 'OpenRouter',
+    'coder-large': 'Arcee AI',
+    'virtuoso-large': 'Arcee AI',
+    'auto-route': 'LLMGateway',
+    'custom-model': 'LLMGateway',
+    'ai-infer-test-1': 'NovitaAI',
+    'ai-infer-test-2': 'NovitaAI',
+    'ai-infer-test-3': 'NovitaAI',
     'maestro-reasoning': 'Aion Labs',
-    'elephant': 'Unidentifyable', 'gt-4p': 'Unidentifyable',
+    elephant: 'Unidentifyable',
+    'gt-4p': 'Unidentifyable',
   };
   if (bySlug[slug]) return bySlug[slug];
   // Prefix matches for model families
-  const byPrefix = { qwq: 'Alibaba', tongyi: 'Alibaba', qianfan: 'Baidu', sonar: 'Perplexity',
-    sqlcoder: 'Defog', allam: 'SDAIA', 'ui-tars': 'ByteDance', intellect: 'Prime Intellect',
-    bunny: 'BAAI' };
+  const byPrefix = {
+    qwq: 'Alibaba',
+    tongyi: 'Alibaba',
+    qianfan: 'Baidu',
+    sonar: 'Perplexity',
+    sqlcoder: 'Defog',
+    allam: 'SDAIA',
+    'ui-tars': 'ByteDance',
+    intellect: 'Prime Intellect',
+    bunny: 'BAAI',
+  };
   for (const [prefix, creator] of Object.entries(byPrefix)) {
     if (slug === prefix || slug.startsWith(prefix + '-')) return creator;
   }
@@ -690,184 +713,295 @@ function normalizeModelSlug(name) {
     `);
     const existingIds = new Set(existingRows.map((r) => r.full_id));
 
-    let newOr, orModels, newCb, cbModels, newNv, nvModels, newGoogle, googleModels, newDs, dsModels, newGroq, newOc, ocModels, newGh, ghModels, newDi, diModels, newCf, cfModels, newNvt, nvtModels, newSf, sfModels, newXai, xaiModels, newZhipu, zhipuModels;
+    let newOr,
+      orModels,
+      newCb,
+      cbModels,
+      newNv,
+      nvModels,
+      newGoogle,
+      googleModels,
+      newDs,
+      dsModels,
+      newGroq,
+      newOc,
+      ocModels,
+      newGh,
+      ghModels,
+      newDi,
+      diModels,
+      newCf,
+      cfModels,
+      newNvt,
+      nvtModels,
+      newSf,
+      sfModels,
+      newXai,
+      xaiModels,
+      newZhipu,
+      zhipuModels;
     let groqModels;
 
     // --- Batch 1: OpenRouter, Cerebras, NVIDIA ---
     async function fetchOpenRouter() {
       logger.info('[OpenRouter] Fetching...');
-      newOr = []; orModels = [];
+      newOr = [];
+      orModels = [];
       try {
         orModels = await getOpenRouterFreeModels();
         logger.info(`  Found ${orModels.length} free models`);
         for (const m of orModels) {
           const id = `openrouter/${m.id}`;
           if (!existingIds.has(id)) {
-            newOr.push({ id, name: m.id, provider: 'openrouter', context_length: m.context_length, pricing: m.pricing });
+            newOr.push({
+              id,
+              name: m.id,
+              provider: 'openrouter',
+              context_length: m.context_length,
+              pricing: m.pricing,
+            });
           }
         }
         logger.info(`  New: ${newOr.length}`);
         for (const n of newOr) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     async function fetchCerebras() {
       logger.info('\n[Cerebras] Fetching...');
-      newCb = []; cbModels = [];
+      newCb = [];
+      cbModels = [];
       try {
         cbModels = await getCerebrasModels();
         logger.info(`  Found ${cbModels.length} models`);
-        for (const m of cbModels) { if (!existingIds.has(m.id)) newCb.push(m); }
+        for (const m of cbModels) {
+          if (!existingIds.has(m.id)) newCb.push(m);
+        }
         logger.info(`  New: ${newCb.length}`);
         for (const n of newCb) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     async function fetchNvidia() {
       logger.info('\n[NVIDIA] Fetching...');
-      newNv = []; nvModels = [];
+      newNv = [];
+      nvModels = [];
       try {
         nvModels = await getNvidiaFreeModels();
         logger.info(`  Found ${nvModels.length} free models`);
         for (const m of nvModels) {
           const storedId = `nvidia/${m.id}`;
           if (!existingIds.has(storedId) && !existingIds.has(m.id)) {
-            newNv.push({ id: storedId, name: m.id, provider: 'nvidia', context_length: m.context_length });
+            newNv.push({
+              id: storedId,
+              name: m.id,
+              provider: 'nvidia',
+              context_length: m.context_length,
+            });
           }
         }
         logger.info(`  New: ${newNv.length}`);
         for (const n of newNv) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     await Promise.allSettled([fetchOpenRouter(), fetchCerebras(), fetchNvidia()]);
 
     // --- Batch 2: Google, DeepSeek ---
     async function fetchGoogle() {
       logger.info('\n[Google] Fetching...');
-      newGoogle = []; googleModels = [];
+      newGoogle = [];
+      googleModels = [];
       try {
         googleModels = await getGoogleModels();
         logger.info(`  Found ${googleModels.length} chat models`);
-        for (const m of googleModels) { if (!existingIds.has(m.id)) newGoogle.push(m); }
+        for (const m of googleModels) {
+          if (!existingIds.has(m.id)) newGoogle.push(m);
+        }
         logger.info(`  New: ${newGoogle.length}`);
         for (const n of newGoogle) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     async function fetchDeepSeek() {
       logger.info('\n[DeepSeek] Fetching...');
-      newDs = []; dsModels = [];
+      newDs = [];
+      dsModels = [];
       try {
         dsModels = await getDeepSeekModels();
         logger.info(`  Found ${dsModels.length} models`);
-        for (const m of dsModels) { if (!existingIds.has(m.id)) newDs.push(m); }
+        for (const m of dsModels) {
+          if (!existingIds.has(m.id)) newDs.push(m);
+        }
         logger.info(`  New: ${newDs.length}`);
         for (const n of newDs) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     await Promise.allSettled([fetchGoogle(), fetchDeepSeek()]);
 
     // --- Batch 3: Groq, OpenCode ---
     async function fetchGroq() {
       logger.info('\n[Groq] Fetching...');
-      newGroq = []; groqModels = [];
+      newGroq = [];
+      groqModels = [];
       try {
         groqModels = await getGroqModels();
         logger.info(`  Found ${groqModels.length} free models`);
-        for (const m of groqModels) { if (!existingIds.has(m.id)) newGroq.push(m); }
+        for (const m of groqModels) {
+          if (!existingIds.has(m.id)) newGroq.push(m);
+        }
         logger.info(`  New: ${newGroq.length}`);
         for (const n of newGroq) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     async function fetchOpenCode() {
       logger.info('\n[OpenCode] Fetching...');
-      newOc = []; ocModels = [];
+      newOc = [];
+      ocModels = [];
       try {
         ocModels = await getOpenCodeModels();
         logger.info(`  Found ${ocModels.length} free models`);
-        for (const m of ocModels) { if (!existingIds.has(m.id)) newOc.push(m); }
+        for (const m of ocModels) {
+          if (!existingIds.has(m.id)) newOc.push(m);
+        }
         logger.info(`  New: ${newOc.length}`);
         for (const n of newOc) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     await Promise.allSettled([fetchGroq(), fetchOpenCode()]);
 
     // --- Batch 4: Deep Infra, Cloudflare, NovitaAI, SiliconFlow, GitHub, xAI, Zhipu ---
     async function fetchDeepInfra() {
       logger.info('\n[DeepInfra] Fetching...');
-      newDi = []; diModels = [];
+      newDi = [];
+      diModels = [];
       try {
         diModels = await getDeepInfraModels();
         logger.info(`  Found ${diModels.length} models`);
-        for (const m of diModels) { if (!existingIds.has(m.id)) newDi.push(m); }
+        for (const m of diModels) {
+          if (!existingIds.has(m.id)) newDi.push(m);
+        }
         logger.info(`  New: ${newDi.length}`);
         for (const n of newDi) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     async function fetchCloudflare() {
       logger.info('\n[Cloudflare] Fetching...');
-      newCf = []; cfModels = [];
+      newCf = [];
+      cfModels = [];
       try {
         cfModels = await getCloudflareModels();
         logger.info(`  Found ${cfModels.length} free models`);
-        for (const m of cfModels) { if (!existingIds.has(m.id)) newCf.push(m); }
+        for (const m of cfModels) {
+          if (!existingIds.has(m.id)) newCf.push(m);
+        }
         logger.info(`  New: ${newCf.length}`);
         for (const n of newCf) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     async function fetchNovita() {
       logger.info('\n[NovitaAI] Fetching...');
-      newNvt = []; nvtModels = [];
+      newNvt = [];
+      nvtModels = [];
       try {
         nvtModels = await getNovitaModels();
         logger.info(`  Found ${nvtModels.length} models`);
-        for (const m of nvtModels) { if (!existingIds.has(m.id)) newNvt.push(m); }
+        for (const m of nvtModels) {
+          if (!existingIds.has(m.id)) newNvt.push(m);
+        }
         logger.info(`  New: ${newNvt.length}`);
         for (const n of newNvt) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     async function fetchSiliconFlow() {
       logger.info('\n[SiliconFlow] Fetching...');
-      newSf = []; sfModels = [];
+      newSf = [];
+      sfModels = [];
       try {
         sfModels = await getSiliconFlowModels();
         logger.info(`  Found ${sfModels.length} models`);
-        for (const m of sfModels) { if (!existingIds.has(m.id)) newSf.push(m); }
+        for (const m of sfModels) {
+          if (!existingIds.has(m.id)) newSf.push(m);
+        }
         logger.info(`  New: ${newSf.length}`);
         for (const n of newSf) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     async function fetchGithub() {
       logger.info('\n[GitHub Models] Fetching...');
-      newGh = []; ghModels = [];
+      newGh = [];
+      ghModels = [];
       try {
         ghModels = await getGithubModels();
         logger.info(`  Found ${ghModels.length} models`);
-        for (const m of ghModels) { if (!existingIds.has(m.id)) newGh.push(m); }
+        for (const m of ghModels) {
+          if (!existingIds.has(m.id)) newGh.push(m);
+        }
         logger.info(`  New: ${newGh.length}`);
         for (const n of newGh) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     async function fetchXai() {
       logger.info('\n[xAI] Fetching...');
-      newXai = []; xaiModels = [];
+      newXai = [];
+      xaiModels = [];
       try {
         xaiModels = await getXaiModels();
         logger.info(`  Found ${xaiModels.length} models`);
-        for (const m of xaiModels) { if (!existingIds.has(m.id)) newXai.push(m); }
+        for (const m of xaiModels) {
+          if (!existingIds.has(m.id)) newXai.push(m);
+        }
         logger.info(`  New: ${newXai.length}`);
         for (const n of newXai) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
     async function fetchZhipuai() {
       logger.info('\n[ZhipuAI] Fetching...');
-      newZhipu = []; zhipuModels = [];
+      newZhipu = [];
+      zhipuModels = [];
       try {
         zhipuModels = await getZhipuaiModels();
         logger.info(`  Found ${zhipuModels.length} models`);
-        for (const m of zhipuModels) { if (!existingIds.has(m.id)) newZhipu.push(m); }
+        for (const m of zhipuModels) {
+          if (!existingIds.has(m.id)) newZhipu.push(m);
+        }
         logger.info(`  New: ${newZhipu.length}`);
         for (const n of newZhipu) logger.info(`    + ${n.id}`);
-      } catch (e) { logger.info(`  ERROR: ${e.message}`); }
+      } catch (e) {
+        logger.info(`  ERROR: ${e.message}`);
+      }
     }
-    await Promise.allSettled([fetchDeepInfra(), fetchCloudflare(), fetchNovita(), fetchSiliconFlow(), fetchGithub(), fetchXai(), fetchZhipuai()]);
+    await Promise.allSettled([
+      fetchDeepInfra(),
+      fetchCloudflare(),
+      fetchNovita(),
+      fetchSiliconFlow(),
+      fetchGithub(),
+      fetchXai(),
+      fetchZhipuai(),
+    ]);
 
     // --- Detect removed models ---
     logger.info('\n[Status Check] Models in DB but no longer in provider listings...');
@@ -893,8 +1027,20 @@ function normalizeModelSlug(name) {
 
     // Only check removal for providers with direct API sync (not community imports)
     const syncedSlugs = new Set([
-      'openrouter', 'cerebras', 'nvidia', 'google',
-      'deepseek', 'groq', 'opencode', 'github-models', 'deepinfra', 'cloudflare', 'novitaai', 'siliconflow', 'xai', 'zhipuai',
+      'openrouter',
+      'cerebras',
+      'nvidia',
+      'google',
+      'deepseek',
+      'groq',
+      'opencode',
+      'github-models',
+      'deepinfra',
+      'cloudflare',
+      'novitaai',
+      'siliconflow',
+      'xai',
+      'zhipuai',
     ]);
 
     // Track providers that returned 0 models -- assume fetch failure, skip removal
@@ -902,18 +1048,32 @@ function normalizeModelSlug(name) {
     const isWeeklyCleanup = new Date().getDay() === 0;
     const providersWithZeroResults = new Set();
     const providerArrays = {
-      openrouter: orModels, cerebras: cbModels, nvidia: nvModels, google: googleModels,
-      deepseek: dsModels, groq: groqModels, opencode: ocModels, 'github-models': ghModels,
-      deepinfra: diModels, cloudflare: cfModels, novitaai: nvtModels, siliconflow: sfModels,
-      xai: xaiModels, zhipuai: zhipuModels,
+      openrouter: orModels,
+      cerebras: cbModels,
+      nvidia: nvModels,
+      google: googleModels,
+      deepseek: dsModels,
+      groq: groqModels,
+      opencode: ocModels,
+      'github-models': ghModels,
+      deepinfra: diModels,
+      cloudflare: cfModels,
+      novitaai: nvtModels,
+      siliconflow: sfModels,
+      xai: xaiModels,
+      zhipuai: zhipuModels,
     };
     for (const [slug, arr] of Object.entries(providerArrays)) {
       if (!arr || arr.length === 0) {
         if (isWeeklyCleanup) {
-          logger.warn('Provider ' + slug + ' returned 0 models -- weekly cleanup, flagging as removed');
+          logger.warn(
+            'Provider ' + slug + ' returned 0 models -- weekly cleanup, flagging as removed',
+          );
         } else {
           providersWithZeroResults.add(slug);
-          logger.warn('Provider ' + slug + ' returned 0 models -- assuming fetch failure, skipping removal');
+          logger.warn(
+            'Provider ' + slug + ' returned 0 models -- assuming fetch failure, skipping removal',
+          );
         }
       }
     }
@@ -1008,7 +1168,11 @@ function normalizeModelSlug(name) {
       if (!dbRow) continue; // Model not in DB yet (will be added as new)
 
       // context_length — flag if changed by >10%
-      if (dbRow.context_length !== null && apiVal.context_length !== null && apiVal.context_length > 0) {
+      if (
+        dbRow.context_length !== null &&
+        apiVal.context_length !== null &&
+        apiVal.context_length > 0
+      ) {
         const oldLen = Number(dbRow.context_length);
         const newLen = apiVal.context_length;
         const pctChange = Math.abs(newLen - oldLen) / oldLen;
@@ -1038,7 +1202,10 @@ function normalizeModelSlug(name) {
       }
 
       // output_price_per_million — flag any change (OpenRouter only)
-      if (apiVal.output_price_per_million !== undefined && dbRow.output_price_per_million !== null) {
+      if (
+        apiVal.output_price_per_million !== undefined &&
+        dbRow.output_price_per_million !== null
+      ) {
         const oldP = Number(dbRow.output_price_per_million);
         if (Math.abs(apiVal.output_price_per_million - oldP) > 0.0001) {
           specChanges.push({
@@ -1074,7 +1241,9 @@ function normalizeModelSlug(name) {
             field: 'supports_reasoning',
             old: dbHasReasoning,
             new: apiVal.supports_reasoning,
-            reason: apiVal.supports_reasoning ? 'reasoning capability added' : 'reasoning capability removed',
+            reason: apiVal.supports_reasoning
+              ? 'reasoning capability added'
+              : 'reasoning capability removed',
           });
         }
       }
@@ -1216,11 +1385,16 @@ function normalizeModelSlug(name) {
         ];
 
         // Build parent candidate map from existing super_models for derivation detection
-        const { detectDerivationMethod, findImmediateParent } = require('./utils/derivation-detector');
+        const {
+          detectDerivationMethod,
+          findImmediateParent,
+        } = require('./utils/derivation-detector');
         const { rows: allSuperRows } = await client.query(
           'SELECT id, name, slug FROM super_models',
         );
-        const parentCandidates = new Map(allSuperRows.map((r) => [r.slug, { name: r.name, slug: r.slug }]));
+        const parentCandidates = new Map(
+          allSuperRows.map((r) => [r.slug, { name: r.name, slug: r.slug }]),
+        );
 
         for (const m of allNew) {
           const providerSlug = m.id.split('/')[0];
@@ -1234,7 +1408,9 @@ function normalizeModelSlug(name) {
           const superSlug = normalizeModelSlug(m.name);
 
           // Extract creator from model ID org prefix, fallback to name inference
-          let creator = modelInstanceKey.includes('/') ? humanizeCreator(modelInstanceKey.split('/')[0]) : null;
+          let creator = modelInstanceKey.includes('/')
+            ? humanizeCreator(modelInstanceKey.split('/')[0])
+            : null;
           if (!creator) creator = inferCreatorFromName(m.name);
 
           // Routers are not model creators — if the inferred creator matches a router
@@ -1266,16 +1442,35 @@ function normalizeModelSlug(name) {
 
           // Upsert datapoint model
           const limitations = m.limitations || PROVIDER_LIMITATIONS[providerSlug] || null;
+          // These three providers require credits even for "free" models — mark as paid
+          const NO_CREDITS_PROVIDERS = new Set(['deepinfra', 'novitaai', 'siliconflow']);
+          const modelIsFree = !NO_CREDITS_PROVIDERS.has(providerSlug);
           const { rows: dmRows } = await client.query(
             `INSERT INTO datapoint_models (super_model_id, datapoint_provider_id, model_instance_key, full_id, context_length, is_free, status_result, status_detail, limitations)
-             VALUES ($1, $2, $3, $4, $5, true, 'untested', 'Auto-discovered by sync script', $6)
+             VALUES ($1, $2, $3, $4, $5, $6, CASE WHEN $6 THEN 'untested' ELSE 'working' END, CASE WHEN $6 THEN 'Auto-discovered by sync script' ELSE 'Presumed working (not tested)' END, $7)
              ON CONFLICT (datapoint_provider_id, model_instance_key) DO UPDATE SET
                context_length = EXCLUDED.context_length,
                limitations = EXCLUDED.limitations,
                is_removed = false,
                updated_at = now()
              RETURNING id`,
-            [superId, providerId, modelInstanceKey, m.id, m.context_length, limitations ? JSON.stringify(limitations) : null],
+            [
+              superId,
+              providerId,
+              modelInstanceKey,
+              m.id,
+              m.context_length,
+              modelIsFree,
+              limitations ? JSON.stringify(limitations) : null,
+            ],
+            [
+              superId,
+              providerId,
+              modelInstanceKey,
+              m.id,
+              m.context_length,
+              limitations ? JSON.stringify(limitations) : null,
+            ],
           );
           const dmId = dmRows[0].id;
 
@@ -1329,10 +1524,13 @@ function normalizeModelSlug(name) {
           let specHistory = [];
           if (existingSpecMeta.length > 0) {
             try {
-              specHistory = typeof existingSpecMeta[0].value === 'string'
-                ? JSON.parse(existingSpecMeta[0].value)
-                : existingSpecMeta[0].value;
-            } catch { specHistory = []; }
+              specHistory =
+                typeof existingSpecMeta[0].value === 'string'
+                  ? JSON.parse(existingSpecMeta[0].value)
+                  : existingSpecMeta[0].value;
+            } catch {
+              specHistory = [];
+            }
           }
           if (!Array.isArray(specHistory)) specHistory = [];
 

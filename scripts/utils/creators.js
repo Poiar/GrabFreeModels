@@ -49,7 +49,9 @@ function humanizeCreator(raw) {
   if (CREATOR_WHITELIST.has(raw)) return CREATOR_WHITELIST.get(raw);
 
   if (/[-_]/.test(raw)) {
-    return raw.split(/[-_]/).filter(Boolean)
+    return raw
+      .split(/[-_]/)
+      .filter(Boolean)
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
   }
@@ -110,9 +112,9 @@ function inferCreatorFromName(name) {
   // Exact slug matches for models with known (often router-based) origins
   const bySlug = {
     'owl-alpha': 'OpenRouter',
-    'bodybuilder': 'OpenRouter',
+    bodybuilder: 'OpenRouter',
     'pareto-code': 'OpenRouter',
-    'spotlight': 'OpenRouter',
+    spotlight: 'OpenRouter',
     'coder-large': 'Arcee AI',
     'virtuoso-large': 'Arcee AI',
     'auto-route': 'LLMGateway',
@@ -121,16 +123,22 @@ function inferCreatorFromName(name) {
     'ai-infer-test-2': 'NovitaAI',
     'ai-infer-test-3': 'NovitaAI',
     'maestro-reasoning': 'Aion Labs',
-    'elephant': 'Unidentifyable',
+    elephant: 'Unidentifyable',
     'gt-4p': 'Unidentifyable',
   };
   if (bySlug[slug]) return bySlug[slug];
 
   // Prefix matches for known model families
   const byPrefix = {
-    qwq: 'Alibaba', tongyi: 'Alibaba', qianfan: 'Baidu',
-    sonar: 'Perplexity', sqlcoder: 'Defog', allam: 'SDAIA',
-    'ui-tars': 'ByteDance', intellect: 'Prime Intellect', bunny: 'BAAI',
+    qwq: 'Alibaba',
+    tongyi: 'Alibaba',
+    qianfan: 'Baidu',
+    sonar: 'Perplexity',
+    sqlcoder: 'Defog',
+    allam: 'SDAIA',
+    'ui-tars': 'ByteDance',
+    intellect: 'Prime Intellect',
+    bunny: 'BAAI',
   };
   for (const [prefix, creator] of Object.entries(byPrefix)) {
     if (slug === prefix || slug.startsWith(prefix + '-')) return creator;

@@ -22,11 +22,23 @@ for (let i = 0; i < args.length; i++) {
   if (args[i] === '--json') jsonOutput = true;
 }
 
-const VALID_ROLES = ['coding', 'writing', 'analysis', 'creative', 'summarization', 'research', 'chat', 'function-calling'];
+const VALID_ROLES = [
+  'coding',
+  'writing',
+  'analysis',
+  'creative',
+  'summarization',
+  'research',
+  'chat',
+  'function-calling',
+];
 
 if (!role || !VALID_ROLES.includes(role)) {
   if (!jsonOutput) console.error(`Role required. Valid roles: ${VALID_ROLES.join(', ')}`);
-  else console.error(JSON.stringify({ error: `Role required. Valid roles: ${VALID_ROLES.join(', ')}` }));
+  else
+    console.error(
+      JSON.stringify({ error: `Role required. Valid roles: ${VALID_ROLES.join(', ')}` }),
+    );
   process.exit(1);
 }
 
@@ -54,30 +66,32 @@ async function recommendModels(role, limit = 3) {
 
   // Filter: free, working, not removed, supports tools
   const eligible = json.creators
-    .flatMap(creator => creator.models)
-    .flatMap(model => model.providers
-      .filter(dp =>
-        dp.is_free &&
-        dp.status.result === 'working' &&
-        !dp._removed &&
-        dp.supports_tools !== false
-      )
-      .map(dp => ({
-        full_id: dp.full_id,
-        name: model.name,
-        provider: dp.provider,
-        provider_slug: dp.provider_slug,
-        context_length: dp.context_length,
-        best_for: dp.best_for || [],
-      }))
+    .flatMap((creator) => creator.models)
+    .flatMap((model) =>
+      model.providers
+        .filter(
+          (dp) =>
+            dp.is_free &&
+            dp.status.result === 'working' &&
+            !dp._removed &&
+            dp.supports_tools !== false,
+        )
+        .map((dp) => ({
+          full_id: dp.full_id,
+          name: model.name,
+          provider: dp.provider,
+          provider_slug: dp.provider_slug,
+          context_length: dp.context_length,
+          best_for: dp.best_for || [],
+        })),
     );
 
   // ── CTX normalization: adaptive max from current model population ──
-  const CTX_NORM = Math.max(...eligible.map(m => m.context_length || 0).filter(Boolean), 1);
+  const CTX_NORM = Math.max(...eligible.map((m) => m.context_length || 0).filter(Boolean), 1);
 
   // Score each model
-  const scored = eligible.map(m => {
-    const tags = m.best_for.map(t => t.toLowerCase());
+  const scored = eligible.map((m) => {
+    const tags = m.best_for.map((t) => t.toLowerCase());
     let tagScore = 0;
     for (const kw of keywords) {
       for (const tag of tags) {
@@ -120,7 +134,7 @@ async function recommendModels(role, limit = 3) {
 // CLI mode
 if (require.main === module) {
   recommendModels(role)
-    .then(result => {
+    .then((result) => {
       if (jsonOutput) {
         console.log(JSON.stringify(result, null, 2));
       } else {
@@ -132,12 +146,14 @@ if (require.main === module) {
               : Math.round(r.context_length / 1000) + 'K'
             : '?';
           const tags = r.best_for.length > 0 ? ` [${r.best_for.join(', ')}]` : '';
-          console.log(`  #${r.rank} ${r.full_id} (score=${r.score.toFixed(2)}, context=${ctx})${tags}`);
+          console.log(
+            `  #${r.rank} ${r.full_id} (score=${r.score.toFixed(2)}, context=${ctx})${tags}`,
+          );
         }
         console.log(`\n  ${result.total_eligible} eligible models considered.`);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err.message);
       process.exit(1);
     });

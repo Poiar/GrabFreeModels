@@ -69,7 +69,13 @@ async function buildModelsData(client, pool, options = {}) {
 
   for (const dm of dmRows) {
     const feat = featMap.get(dm.id);
-    const autoTags = getAutoTags(dm.provider_slug, dm.provider_type, dm.hardware, dm.serves_third_party, dm.is_openai_compat);
+    const autoTags = getAutoTags(
+      dm.provider_slug,
+      dm.provider_type,
+      dm.hardware,
+      dm.serves_third_party,
+      dm.is_openai_compat,
+    );
 
     const entry = {
       id: dm.full_id,
@@ -85,17 +91,28 @@ async function buildModelsData(client, pool, options = {}) {
       is_free: dm.is_free,
       supports_tools: dm.supports_tools,
       limitations: dm.limitations || null,
-      supports_reasoning: feat?.supports_reasoning?.[0] === undefined ? null : feat.supports_reasoning[0] === 'true',
-      supports_attachment: feat?.supports_attachment?.[0] === undefined ? null : feat.supports_attachment[0] === 'true',
-      supports_structured_output: feat?.supports_structured_output?.[0] === undefined ? null : feat.supports_structured_output[0] === 'true',
+      supports_reasoning:
+        feat?.supports_reasoning?.[0] === undefined ? null : feat.supports_reasoning[0] === 'true',
+      supports_attachment:
+        feat?.supports_attachment?.[0] === undefined
+          ? null
+          : feat.supports_attachment[0] === 'true',
+      supports_structured_output:
+        feat?.supports_structured_output?.[0] === undefined
+          ? null
+          : feat.supports_structured_output[0] === 'true',
       output_limit: feat?.output_limit?.[0] ? parseInt(feat.output_limit[0], 10) : null,
       temperature: feat?.temperature?.[0] === undefined ? null : feat.temperature[0] === 'true',
       open_weights: feat?.open_weights?.[0] === undefined ? null : feat.open_weights[0] === 'true',
       family: dm.super_family || null,
       family_id: dm.super_family_id || null,
-      base_model: dm.super_base_model || (DERIVATION_BY_SLUG.get(dm.super_slug) || {}).base_model || null,
+      base_model:
+        dm.super_base_model || (DERIVATION_BY_SLUG.get(dm.super_slug) || {}).base_model || null,
       base_model_id: dm.super_base_model_id || null,
-      derivation_method: dm.super_derivation_method || (DERIVATION_BY_SLUG.get(dm.super_slug) || {}).derivation_method || null,
+      derivation_method:
+        dm.super_derivation_method ||
+        (DERIVATION_BY_SLUG.get(dm.super_slug) || {}).derivation_method ||
+        null,
       knowledge_cutoff: feat?.knowledge_cutoff?.[0] || dm.super_knowledge_cutoff || null,
       releaseDate: feat?.release_date?.[0] || dm.super_release_date || null,
       lastUpdated: feat?.last_updated?.[0] || null,
@@ -107,7 +124,9 @@ async function buildModelsData(client, pool, options = {}) {
       model_tier: feat?.model_tier || [],
       model_variant: feat?.model_variant?.[0] || null,
       param_count_b: feat?.param_count_b?.[0] ? parseInt(feat.param_count_b[0], 10) : null,
-      active_param_count_b: feat?.active_param_count_b?.[0] ? parseInt(feat.active_param_count_b[0], 10) : null,
+      active_param_count_b: feat?.active_param_count_b?.[0]
+        ? parseInt(feat.active_param_count_b[0], 10)
+        : null,
       expert_count: feat?.expert_count?.[0] ? parseInt(feat.expert_count[0], 10) : null,
       thinking_variant: feat?.thinking_variant?.[0] === 'true' || false,
       model_version: feat?.model_version?.[0] || null,
@@ -187,7 +206,8 @@ async function buildModelsData(client, pool, options = {}) {
   const health = {};
   for (const m of outputModels) {
     if (m._removed) continue;
-    if (!health[m.provider]) health[m.provider] = { working: 0, rate_limited: 0, broken: 0, total: 0 };
+    if (!health[m.provider])
+      health[m.provider] = { working: 0, rate_limited: 0, broken: 0, total: 0 };
     health[m.provider].total++;
     if (m.status.result === 'working') health[m.provider].working++;
     else if (m.status.result === 'rate_limited') health[m.provider].rate_limited++;
@@ -195,7 +215,13 @@ async function buildModelsData(client, pool, options = {}) {
   }
 
   // ── Family lineage coverage ──
-  let familyCoverage = { total: 0, with_family: 0, without_family: 0, pct: 0, with_base_model_no_family: 0 };
+  let familyCoverage = {
+    total: 0,
+    with_family: 0,
+    without_family: 0,
+    pct: 0,
+    with_base_model_no_family: 0,
+  };
   try {
     const { rows: fcRows } = await client.query(`
       SELECT
@@ -219,7 +245,9 @@ async function buildModelsData(client, pool, options = {}) {
         with_base_model_no_family: r.with_base_model_no_family,
       };
     }
-  } catch { /* family column may not exist yet */ }
+  } catch {
+    /* family column may not exist yet */
+  }
 
   return {
     creators,

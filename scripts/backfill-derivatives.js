@@ -19,8 +19,15 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
 let connectionString = process.env.DATABASE_URL;
-if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+if (
+  connectionString &&
+  connectionString.includes('sslmode=require') &&
+  !connectionString.includes('uselibpqcompat')
+) {
+  connectionString = connectionString.replace(
+    'sslmode=require',
+    'uselibpqcompat=true&sslmode=require',
+  );
 }
 const pool = new Pool({
   connectionString,
@@ -37,7 +44,7 @@ const METHOD_TAGS = {
   continued_pretraining: 'continued_pretraining',
   'continued-pretraining': 'continued_pretraining',
   lora: 'lora_adapter',
-  'peft': 'lora_adapter',
+  peft: 'lora_adapter',
 };
 
 const BASE_MODEL_TAG_PREFIX = 'base_model:';
@@ -102,7 +109,7 @@ async function main() {
   try {
     // 1. Get the huggingface-hub source ID
     const { rows: srcRows } = await client.query(
-      `SELECT id FROM sources WHERE slug = 'huggingface-hub'`
+      `SELECT id FROM sources WHERE slug = 'huggingface-hub'`,
     );
     if (srcRows.length === 0) {
       console.log('No huggingface-hub source found. Run fetch-huggingface-hub.js first?');
@@ -112,17 +119,20 @@ async function main() {
 
     // 2. Get the huggingface datapoint provider ID
     const { rows: provRows } = await client.query(
-      `SELECT id FROM datapoint_providers WHERE slug = 'huggingface'`
+      `SELECT id FROM datapoint_providers WHERE slug = 'huggingface'`,
     );
     const hfProvId = provRows.length > 0 ? provRows[0].id : null;
 
     // 3. Load all HF external_source_models with their model_limits
-    const { rows: hfModels } = await client.query(`
+    const { rows: hfModels } = await client.query(
+      `
       SELECT esm.model_name, esm.model_limits, esp.mapped_slug AS org_slug
       FROM external_source_models esm
       JOIN external_source_providers esp ON esp.id = esm.external_source_provider_id
       WHERE esm.source_id = $1
-    `, [hfSourceId]);
+    `,
+      [hfSourceId],
+    );
     console.log(`Loaded ${hfModels.length} HF Hub model entries.`);
 
     // 4. Build a map: HF model_name → parsed lineage data
@@ -155,12 +165,15 @@ async function main() {
     // 5. Build a lookup from HF model_name → super_model_id via the huggingface datapoint provider
     const hfNameToSuper = new Map(); // HF model_name → { super_id, slug, creator }
     if (hfProvId) {
-      const { rows: dmRows } = await client.query(`
+      const { rows: dmRows } = await client.query(
+        `
         SELECT dm.model_instance_key, dm.super_model_id, sm.slug, sm.creator
         FROM datapoint_models dm
         JOIN super_models sm ON sm.id = dm.super_model_id
         WHERE dm.datapoint_provider_id = $1 AND NOT dm.is_removed
-      `, [hfProvId]);
+      `,
+        [hfProvId],
+      );
       for (const r of dmRows) {
         hfNameToSuper.set(r.model_instance_key, {
           super_id: r.super_model_id,
@@ -169,7 +182,9 @@ async function main() {
         });
       }
     }
-    console.log(`  Mapped ${hfNameToSuper.size} HF model IDs to super_models via datapoint_models.`);
+    console.log(
+      `  Mapped ${hfNameToSuper.size} HF model IDs to super_models via datapoint_models.`,
+    );
 
     // 6. Also build a slug lookup for fallback name-based matching (include all super_models)
     const { rows: allSuper } = await client.query(`
@@ -202,7 +217,8 @@ async function main() {
       if (!child) {
         // Third attempt: use PG normalize_model_slug() — strips additional prefixes, handles (free) suffixes
         const { rows: normRows } = await client.query(
-          `SELECT normalize_model_slug($1) AS norm_slug`, [hfName]
+          `SELECT normalize_model_slug($1) AS norm_slug`,
+          [hfName],
         );
         if (normRows.length > 0 && normRows[0].norm_slug) {
           const superMatch = slugToSuper.get(normRows[0].norm_slug);
@@ -214,7 +230,7 @@ async function main() {
       if (!child) {
         // Fourth attempt: case-insensitive substring match against super_model name (unambiguous only)
         const hfNameLC = hfName.toLowerCase();
-        const nameMatches = allSuper.filter(s => hfNameLC.includes(s.name.toLowerCase()));
+        const nameMatches = allSuper.filter((s) => hfNameLC.includes(s.name.toLowerCase()));
         if (nameMatches.length === 1) {
           const sm = nameMatches[0];
           child = { super_id: sm.id, slug: sm.slug, creator: sm.creator };
@@ -225,7 +241,7 @@ async function main() {
         // e.g. "HuggingFaceH4/zephyr-7b-alpha" → stripped "zephyr-7b-alpha" → slug ends with "zephyr-7b-alpha"
         const stripped = stripOrg(hfName);
         const slugSuffix = slugify(stripped);
-        const suffixMatches = allSuper.filter(s => s.slug.endsWith(slugSuffix));
+        const suffixMatches = allSuper.filter((s) => s.slug.endsWith(slugSuffix));
         if (suffixMatches.length === 1) {
           const sm = suffixMatches[0];
           child = { super_id: sm.id, slug: sm.slug, creator: sm.creator };
@@ -262,7 +278,8 @@ async function main() {
         if (!baseSlug) {
           // Third attempt: PG normalize_model_slug()
           const { rows: normRows } = await client.query(
-            `SELECT normalize_model_slug($1) AS norm_slug`, [lineage.baseModelId]
+            `SELECT normalize_model_slug($1) AS norm_slug`,
+            [lineage.baseModelId],
           );
           if (normRows.length > 0 && normRows[0].norm_slug) {
             const superMatch = slugToSuper.get(normRows[0].norm_slug);
@@ -275,7 +292,7 @@ async function main() {
         if (!baseSlug) {
           // Fourth attempt: case-insensitive substring match (unambiguous only)
           const bmLC = lineage.baseModelId.toLowerCase();
-          const nameMatches = allSuper.filter(s => bmLC.includes(s.name.toLowerCase()));
+          const nameMatches = allSuper.filter((s) => bmLC.includes(s.name.toLowerCase()));
           if (nameMatches.length === 1) {
             baseSlug = nameMatches[0].slug;
             baseCreator = nameMatches[0].creator;
@@ -306,9 +323,13 @@ async function main() {
           base_slug: baseSlug,
           base_creator: baseCreator,
           derivation_method: method,
-          source: lineage.baseModelFinetuneId ? 'tag(base_model:finetune)' :
-                 lineage.baseModelId ? 'tag(base_model)' :
-                 lineage.cardDataBaseModel ? 'cardData' : 'tag(methodology)',
+          source: lineage.baseModelFinetuneId
+            ? 'tag(base_model:finetune)'
+            : lineage.baseModelId
+              ? 'tag(base_model)'
+              : lineage.cardDataBaseModel
+                ? 'cardData'
+                : 'tag(methodology)',
         });
       } else if (method) {
         // Has methodology tag but no identifiable base model
@@ -346,7 +367,7 @@ async function main() {
 
     // Show examples
     console.log('\nExample assignments:');
-    for (const u of updates.filter(u => u.base_slug).slice(0, 20)) {
+    for (const u of updates.filter((u) => u.base_slug).slice(0, 20)) {
       const methodStr = u.derivation_method ? ` [${u.derivation_method}]` : '';
       console.log(`  ${u.child_name} → ${u.base_slug}${methodStr}  (${u.source})`);
     }
@@ -362,20 +383,26 @@ async function main() {
     await client.query('BEGIN');
     for (const u of updates) {
       if (u.base_slug) {
-        await client.query(`
+        await client.query(
+          `
           UPDATE super_models
           SET base_model = $1,
               base_creator = COALESCE(base_creator, $2),
               derivation_method = COALESCE(derivation_method, $3)
           WHERE id = $4
-        `, [u.base_slug, u.base_creator, u.derivation_method, u.super_id]);
+        `,
+          [u.base_slug, u.base_creator, u.derivation_method, u.super_id],
+        );
         updated++;
       } else if (u.derivation_method) {
-        await client.query(`
+        await client.query(
+          `
           UPDATE super_models
           SET derivation_method = COALESCE(derivation_method, $1)
           WHERE id = $2
-        `, [u.derivation_method, u.super_id]);
+        `,
+          [u.derivation_method, u.super_id],
+        );
         methodOnly++;
       }
     }

@@ -25,14 +25,14 @@ Tries nssm first, falls back to `sc.exe`. Starts automatically on boot.
 
 All gauge type, `text/plain; version=0.0.4`:
 
-| Metric                         | Labels            |
-| ------------------------------ | ----------------- |
-| `model_provider_working`       | `{provider="..."}`|
-| `model_provider_total`         | `{provider="..."}`|
-| `model_provider_rate_limited`  | `{provider="..."}`|
-| `model_provider_broken`        | `{provider="..."}`|
-| `model_overall_working_ratio`  | (none)            |
-| `model_test_timestamp`         | (none)            |
+| Metric                        | Labels             |
+| ----------------------------- | ------------------ |
+| `model_provider_working`      | `{provider="..."}` |
+| `model_provider_total`        | `{provider="..."}` |
+| `model_provider_rate_limited` | `{provider="..."}` |
+| `model_provider_broken`       | `{provider="..."}` |
+| `model_overall_working_ratio` | (none)             |
+| `model_test_timestamp`        | (none)             |
 
 Only `is_free` models counted. Data from `scripts/load-models.js` (same as `GET /api/data`).
 
@@ -43,6 +43,7 @@ Only `is_free` models counted. Data from `scripts/load-models.js` (same as `GET 
 ## Alert Thresholds
 
 No built-in alerting — configure in Prometheus/Grafana:
+
 - `model_overall_working_ratio < 0.7` → warning
 - `model_overall_working_ratio < 0.5` → critical
 - `model_test_timestamp` older than 25h → stale data

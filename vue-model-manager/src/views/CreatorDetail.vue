@@ -5,11 +5,33 @@
       <div class="cd-header-row">
         <h2>
           {{ creator.name }}
-          <span class="cd-country" :style="{ color: getCountryForCreator(creator.id).text, background: getCountryForCreator(creator.id).color }">{{ getCountryForCreator(creator.id).name }}</span>
+          <span
+            class="cd-country"
+            :style="{
+              color: getCountryForCreator(creator.id).text,
+              background: getCountryForCreator(creator.id).color,
+            }"
+            >{{ getCountryForCreator(creator.id).name }}</span
+          >
         </h2>
         <div class="cd-header-actions">
-          <button class="cd-copy-btn" @click="copyCreatorAsMarkdown(creator)" title="Copy as Markdown">↓ MD</button>
-          <button class="cd-copy-btn" @click="copyAsJson(creator)" title="Copy as JSON">↓ JSON</button>
+          <router-link
+            v-if="orgForCreator"
+            :to="`/org/${orgForCreator.id}`"
+            class="cd-org-link"
+            title="View unified organization page"
+            >Org view →</router-link
+          >
+          <button
+            class="cd-copy-btn"
+            @click="copyCreatorAsMarkdown(creator)"
+            title="Copy as Markdown"
+          >
+            ↓ MD
+          </button>
+          <button class="cd-copy-btn" @click="copyAsJson(creator)" title="Copy as JSON">
+            ↓ JSON
+          </button>
           <span v-if="copied" class="cd-copied-toast">Copied!</span>
         </div>
       </div>
@@ -18,13 +40,20 @@
       </p>
       <!-- Unique-facts chip row -->
       <div class="cd-facts" v-if="creatorFacts.length">
-        <span v-for="f in creatorFacts" :key="f.label" class="cd-fact-chip" :class="f.cls">{{ f.label }}</span>
+        <span v-for="f in creatorFacts" :key="f.label" class="cd-fact-chip" :class="f.cls">{{
+          f.label
+        }}</span>
       </div>
       <p v-if="creator.description" class="cd-description">{{ creator.description }}</p>
 
       <!-- Failure summary chips -->
       <div v-if="failureSummary.length" class="cd-failure-summary">
-        <span v-for="f in failureSummary" :key="f.cat" class="cd-fail-summary-chip" :class="'fail-sum-' + f.cat">
+        <span
+          v-for="f in failureSummary"
+          :key="f.cat"
+          class="cd-fail-summary-chip"
+          :class="'fail-sum-' + f.cat"
+        >
           {{ f.count }} {{ f.label }}
         </span>
       </div>
@@ -49,7 +78,8 @@
           class="cd-cap-badge"
           :class="{ active: cap.has }"
           :title="cap.label"
-        >{{ cap.label }}</span>
+          >{{ cap.label }}</span
+        >
       </div>
       <div class="cd-bestfor-tags" v-if="topBestFor.length">
         <span v-for="tag in topBestFor.slice(0, 6)" :key="tag" class="cd-bestfor">{{ tag }}</span>
@@ -105,18 +135,46 @@
 
     <!-- Validation bar -->
     <div class="cd-validation-bar">
-      <div class="val-segment working" :style="{ flex: valFlex.working }" :title="valCounts.working + ' working'"></div>
-      <div class="val-segment rate_limited" :style="{ flex: valFlex.rate_limited }" :title="valCounts.rate_limited + ' rate limited'"></div>
-      <div class="val-segment broken" :style="{ flex: valFlex.broken }" :title="valCounts.broken + ' broken'"></div>
-      <div class="val-segment untested" :style="{ flex: valFlex.untested }" :title="valCounts.untested + ' untested'"></div>
-      <div class="val-segment not_found" :style="{ flex: valFlex.not_found }" :title="valCounts.not_found + ' not found'"></div>
+      <div
+        class="val-segment working"
+        :style="{ flex: valFlex.working }"
+        :title="valCounts.working + ' working'"
+      ></div>
+      <div
+        class="val-segment rate_limited"
+        :style="{ flex: valFlex.rate_limited }"
+        :title="valCounts.rate_limited + ' rate limited'"
+      ></div>
+      <div
+        class="val-segment broken"
+        :style="{ flex: valFlex.broken }"
+        :title="valCounts.broken + ' broken'"
+      ></div>
+      <div
+        class="val-segment untested"
+        :style="{ flex: valFlex.untested }"
+        :title="valCounts.untested + ' untested'"
+      ></div>
+      <div
+        class="val-segment not_found"
+        :style="{ flex: valFlex.not_found }"
+        :title="valCounts.not_found + ' not found'"
+      ></div>
     </div>
     <div class="cd-val-legend">
-      <span v-if="valCounts.working" class="val-legend working">{{ valCounts.working }} working</span>
-      <span v-if="valCounts.rate_limited" class="val-legend rate_limited">{{ valCounts.rate_limited }} rate limited</span>
+      <span v-if="valCounts.working" class="val-legend working"
+        >{{ valCounts.working }} working</span
+      >
+      <span v-if="valCounts.rate_limited" class="val-legend rate_limited"
+        >{{ valCounts.rate_limited }} rate limited</span
+      >
       <span v-if="valCounts.broken" class="val-legend broken">{{ valCounts.broken }} broken</span>
-      <span v-if="valCounts.untested" class="val-legend untested">{{ valCounts.untested }} untested</span>
-      <span v-if="valCounts.not_found" class="val-legend not_found">{{ valCounts.not_found }} not found</span>
+      <span v-if="valCounts.untested" class="val-legend untested"
+        >{{ valCounts.untested }} untested</span
+      >
+      <span v-if="valCounts.not_found" class="val-legend not_found"
+        >{{ valCounts.not_found }} not found</span
+      >
     </div>
 
     <!-- Families -->
@@ -127,14 +185,20 @@
         :key="f"
         :to="`/family/${encodeURIComponent(f)}`"
         class="cd-family-tag"
-      >{{ formatFamilyName(f) }}</router-link>
+        >{{ formatFamilyName(f) }}</router-link
+      >
     </div>
 
     <!-- Model tier distribution -->
     <div v-if="tierEntries.length > 0" class="cd-tier-section">
       <h3 class="section-title">Model Tiers</h3>
       <div class="cd-tier-chips">
-        <span v-for="[tier, count] in tierEntries" :key="tier" class="cd-tier-chip" :class="'tier-' + tier.toLowerCase().replace(/[^a-z0-9]/g, '-')">
+        <span
+          v-for="[tier, count] in tierEntries"
+          :key="tier"
+          class="cd-tier-chip"
+          :class="'tier-' + tier.toLowerCase().replace(/[^a-z0-9]/g, '-')"
+        >
           {{ tier }}: <strong>{{ count }}</strong>
         </span>
       </div>
@@ -156,11 +220,17 @@
 
     <!-- Model list grouped by family -->
     <h3 class="section-title">Models</h3>
-    <div v-if="filteredModels.length === 0" class="cd-empty">No models match the selected filter.</div>
+    <div v-if="filteredModels.length === 0" class="cd-empty">
+      No models match the selected filter.
+    </div>
     <div v-for="{ family, models } in familyGroups" :key="family" class="cd-family-group">
       <h4 class="cd-family-name">
-        <router-link :to="`/family/${encodeURIComponent(family)}`" class="cd-family-link">{{ formatFamilyName(family) }}</router-link>
-        <span class="cd-family-count">{{ models.length }} model{{ models.length !== 1 ? 's' : '' }}</span>
+        <router-link :to="`/family/${encodeURIComponent(family)}`" class="cd-family-link">{{
+          formatFamilyName(family)
+        }}</router-link>
+        <span class="cd-family-count"
+          >{{ models.length }} model{{ models.length !== 1 ? 's' : '' }}</span
+        >
       </h4>
       <div class="cd-models">
         <SuperModelCard
@@ -208,10 +278,11 @@ const route = useRoute();
 
 const creatorId = computed(() => route.params.id as string);
 const creator = computed(() => store.creators.find((c) => c.id === creatorId.value));
+const orgForCreator = computed(() => store.getOrgById(creatorId.value));
 
 const isDerivativeRoute = computed(() => route.path.startsWith('/derivative'));
-const parentRoute = computed(() => isDerivativeRoute.value ? '/derivatives' : '/creators');
-const parentLabel = computed(() => isDerivativeRoute.value ? 'Derivatives' : 'Creators');
+const parentRoute = computed(() => (isDerivativeRoute.value ? '/derivatives' : '/creators'));
+const parentLabel = computed(() => (isDerivativeRoute.value ? 'Derivatives' : 'Creators'));
 
 // ── Derivation method filter ──
 const derivFilter = ref('all');
@@ -228,7 +299,11 @@ const DERIV_META: Record<string, { label: string; cssClass: string }> = {
 const DERIV_CHIPS = [
   { value: 'all', label: 'All', cssClass: '' },
   { value: 'foundation', label: 'Foundation', cssClass: 'deriv-foundation' },
-  ...Object.entries(DERIV_META).map(([value, meta]) => ({ value, label: meta.label, cssClass: meta.cssClass })),
+  ...Object.entries(DERIV_META).map(([value, meta]) => ({
+    value,
+    label: meta.label,
+    cssClass: meta.cssClass,
+  })),
 ];
 
 const modelDerivationCounts = computed(() => {
@@ -305,7 +380,10 @@ const FAMILY_NAME_OVERRIDES: Record<string, string> = {
 
 function formatFamilyName(raw: string): string {
   if (raw === 'Uncategorized') return raw;
-  return raw.split('-').map(w => FAMILY_NAME_OVERRIDES[w] ?? (w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
+  return raw
+    .split('-')
+    .map((w) => FAMILY_NAME_OVERRIDES[w] ?? w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
 }
 
 function formatContext(ctx: number | null): string {
@@ -442,7 +520,7 @@ const totalDatapoints = computed(() => {
   if (!creator.value) return 0;
   let count = 0;
   for (const m of creator.value.models) {
-    count += m.providers.filter(p => !p._removed).length;
+    count += m.providers.filter((p) => !p._removed).length;
   }
   return count;
 });
@@ -464,7 +542,10 @@ const rateLimitedModels = computed(() => {
   let count = 0;
   for (const m of creator.value.models) {
     for (const dp of m.providers) {
-      if (!dp._removed && dp.status.result === 'rate_limited') { count++; break; }
+      if (!dp._removed && dp.status.result === 'rate_limited') {
+        count++;
+        break;
+      }
     }
   }
   return count;
@@ -578,7 +659,12 @@ const creatorFacts = computed(() => {
 
   // Role: lab, user, or other
   if (c.type) {
-    const roleLabel = c.type === 'lab' ? 'Research lab' : c.type === 'user' ? 'Independent creator' : 'Organization';
+    const roleLabel =
+      c.type === 'lab'
+        ? 'Research lab'
+        : c.type === 'user'
+          ? 'Independent creator'
+          : 'Organization';
     chips.push({ label: roleLabel, cls: 'fact-role' });
   }
 
@@ -593,13 +679,19 @@ const creatorFacts = computed(() => {
   if (paramVals.length) {
     const min = formatParamSize(paramVals[0]);
     const max = formatParamSize(paramVals[paramVals.length - 1]);
-    chips.push({ label: min === max ? `${min} params` : `${min} – ${max} params`, cls: 'fact-param' });
+    chips.push({
+      label: min === max ? `${min} params` : `${min} – ${max} params`,
+      cls: 'fact-param',
+    });
   }
 
   // Family count
   const families = familyList.value;
   if (families.length) {
-    chips.push({ label: `${families.length} ${families.length === 1 ? 'family' : 'families'}`, cls: 'fact-family' });
+    chips.push({
+      label: `${families.length} ${families.length === 1 ? 'family' : 'families'}`,
+      cls: 'fact-family',
+    });
   }
 
   // Foundation vs derived split
@@ -618,7 +710,7 @@ const creatorFacts = computed(() => {
   // Open-weight count
   let openCount = 0;
   for (const m of c.models) {
-    if (m.providers.some(p => !p._removed && p.open_weights === true)) openCount++;
+    if (m.providers.some((p) => !p._removed && p.open_weights === true)) openCount++;
   }
   if (openCount > 0 && openCount < c.models.length) {
     chips.push({ label: `${openCount}/${c.model_count} open weight`, cls: 'fact-open' });
@@ -636,8 +728,16 @@ const creatorFacts = computed(() => {
     }
   }
   if (bestRankByRole.size > 0) {
-    const RANK_ROLE_LABELS: Record<string, string> = { model: 'coder', build: 'build', general: 'general', small_model: 'small', explore: 'explore' };
-    const parts = [...bestRankByRole].sort((a, b) => a[1] - b[1]).map(([role, rank]) => `#${rank} ${RANK_ROLE_LABELS[role] || role}`);
+    const RANK_ROLE_LABELS: Record<string, string> = {
+      model: 'coder',
+      build: 'build',
+      general: 'general',
+      small_model: 'small',
+      explore: 'explore',
+    };
+    const parts = [...bestRankByRole]
+      .sort((a, b) => a[1] - b[1])
+      .map(([role, rank]) => `#${rank} ${RANK_ROLE_LABELS[role] || role}`);
     chips.push({ label: parts.join(' · '), cls: 'fact-ranking' });
   }
 
@@ -647,7 +747,10 @@ const creatorFacts = computed(() => {
   for (const m of c.models) {
     let hasCutoff = false;
     for (const dp of m.providers) {
-      if (dp.knowledge_cutoff) { cutoffs.add(dp.knowledge_cutoff); hasCutoff = true; }
+      if (dp.knowledge_cutoff) {
+        cutoffs.add(dp.knowledge_cutoff);
+        hasCutoff = true;
+      }
     }
     if (hasCutoff) modelsWithCutoff++;
   }
@@ -656,7 +759,10 @@ const creatorFacts = computed(() => {
     if (cutoffVals.length === 1) {
       chips.push({ label: `Knowledge: ${cutoffVals[0]}`, cls: 'fact-cutoff' });
     } else if (cutoffVals.length > 1) {
-      chips.push({ label: `Knowledge: ${cutoffVals[0]} – ${cutoffVals[cutoffVals.length - 1]}`, cls: 'fact-cutoff' });
+      chips.push({
+        label: `Knowledge: ${cutoffVals[0]} – ${cutoffVals[cutoffVals.length - 1]}`,
+        cls: 'fact-cutoff',
+      });
     }
   }
 
@@ -676,8 +782,13 @@ const creatorFacts = computed(() => {
 
 // ── Failure summary chips ──
 const FAILURE_LABELS: Record<string, string> = {
-  timeout: 'Timeout', not_found: 'Not found', auth_error: 'Auth error',
-  rate_limited: 'Rate limited', server_error: 'Server error', network_error: 'Network error', unknown: 'Unknown',
+  timeout: 'Timeout',
+  not_found: 'Not found',
+  auth_error: 'Auth error',
+  rate_limited: 'Rate limited',
+  server_error: 'Server error',
+  network_error: 'Network error',
+  unknown: 'Unknown',
 };
 
 const failureSummary = computed(() => {
@@ -709,13 +820,66 @@ const failureSummary = computed(() => {
   color: var(--accent);
   text-decoration: none;
 }
-.back-link:hover { text-decoration: underline; }
-.cd-header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.cd-header-row h2 { margin: 0; flex: 1; }
-.cd-header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.cd-copy-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-elevated); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
-.cd-copy-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
-.cd-copied-toast { font-size: 0.65rem; font-weight: 600; color: var(--green); }
+.back-link:hover {
+  text-decoration: underline;
+}
+.cd-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cd-header-row h2 {
+  margin: 0;
+  flex: 1;
+}
+.cd-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.cd-copy-btn {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.cd-copy-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
+.cd-org-link {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--accent);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  white-space: nowrap;
+  transition: all 0.12s;
+}
+.cd-org-link:hover {
+  background: var(--accent);
+  color: #fff;
+}
+.cd-copied-toast {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--green);
+}
 .page-header h2 {
   font-size: 1.3rem;
   font-weight: 700;
@@ -773,12 +937,25 @@ const failureSummary = computed(() => {
   margin-top: 4px;
   gap: 1px;
 }
-.val-segment { min-width: 2px; transition: flex 0.3s; }
-.val-segment.working { background: var(--green); }
-.val-segment.rate_limited { background: var(--orange); }
-.val-segment.broken { background: var(--red); }
-.val-segment.untested { background: var(--accent); }
-.val-segment.not_found { background: var(--text-dim); }
+.val-segment {
+  min-width: 2px;
+  transition: flex 0.3s;
+}
+.val-segment.working {
+  background: var(--green);
+}
+.val-segment.rate_limited {
+  background: var(--orange);
+}
+.val-segment.broken {
+  background: var(--red);
+}
+.val-segment.untested {
+  background: var(--accent);
+}
+.val-segment.not_found {
+  background: var(--text-dim);
+}
 
 .cd-val-legend {
   display: flex;
@@ -801,16 +978,36 @@ const failureSummary = computed(() => {
   border-radius: 2px;
   flex-shrink: 0;
 }
-.val-legend.working { color: var(--green); }
-.val-legend.working::before { background: var(--green); }
-.val-legend.rate_limited { color: var(--orange); }
-.val-legend.rate_limited::before { background: var(--orange); }
-.val-legend.broken { color: var(--red); }
-.val-legend.broken::before { background: var(--red); }
-.val-legend.untested { color: var(--accent); }
-.val-legend.untested::before { background: var(--accent); }
-.val-legend.not_found { color: var(--text-dim); }
-.val-legend.not_found::before { background: var(--text-dim); }
+.val-legend.working {
+  color: var(--green);
+}
+.val-legend.working::before {
+  background: var(--green);
+}
+.val-legend.rate_limited {
+  color: var(--orange);
+}
+.val-legend.rate_limited::before {
+  background: var(--orange);
+}
+.val-legend.broken {
+  color: var(--red);
+}
+.val-legend.broken::before {
+  background: var(--red);
+}
+.val-legend.untested {
+  color: var(--accent);
+}
+.val-legend.untested::before {
+  background: var(--accent);
+}
+.val-legend.not_found {
+  color: var(--text-dim);
+}
+.val-legend.not_found::before {
+  background: var(--text-dim);
+}
 
 .cd-families {
   display: flex;
@@ -833,7 +1030,9 @@ const failureSummary = computed(() => {
   background: var(--bg-elevated);
   color: var(--text-dim);
   text-decoration: none;
-  transition: color 0.12s, background 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s;
 }
 .cd-family-tag:hover {
   color: var(--accent);
@@ -853,26 +1052,85 @@ const failureSummary = computed(() => {
   padding: 2px 10px;
   border-radius: 999px;
 }
-.cd-fact-chip.fact-role { background: rgba(168,85,247,0.12); color: #a855f7; }
-.cd-fact-chip.fact-param { background: rgba(99,102,241,0.12); color: #818cf8; }
-.cd-fact-chip.fact-family { background: rgba(52,211,153,0.12); color: #34d399; }
-.cd-fact-chip.fact-deriv { background: rgba(236,72,153,0.12); color: #ec4899; }
-.cd-fact-chip.fact-original { background: rgba(59,130,246,0.12); color: #60a5fa; }
-.cd-fact-chip.fact-open { background: rgba(52,211,153,0.12); color: #34d399; }
-.cd-fact-chip.fact-ranking { background: rgba(245,158,11,0.14); color: #f59e0b; font-weight: 700; }
-.cd-fact-chip.fact-cutoff { background: rgba(168,85,247,0.12); color: #a855f7; }
-.cd-fact-chip.fact-ratelimit { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.cd-fact-chip.fact-role {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+}
+.cd-fact-chip.fact-param {
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+}
+.cd-fact-chip.fact-family {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+}
+.cd-fact-chip.fact-deriv {
+  background: rgba(236, 72, 153, 0.12);
+  color: #ec4899;
+}
+.cd-fact-chip.fact-original {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+}
+.cd-fact-chip.fact-open {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+}
+.cd-fact-chip.fact-ranking {
+  background: rgba(245, 158, 11, 0.14);
+  color: #f59e0b;
+  font-weight: 700;
+}
+.cd-fact-chip.fact-cutoff {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+}
+.cd-fact-chip.fact-ratelimit {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
 
 /* Failure summary chips */
-.cd-failure-summary { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.cd-fail-summary-chip { font-size: 0.62rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; }
-.cd-fail-summary-chip.fail-sum-timeout { background: rgba(251,191,36,0.12); color: #FBBF24; }
-.cd-fail-summary-chip.fail-sum-not_found { background: rgba(156,163,175,0.12); color: #9CA3AF; }
-.cd-fail-summary-chip.fail-sum-auth_error { background: rgba(239,68,68,0.15); color: #F87171; }
-.cd-fail-summary-chip.fail-sum-rate_limited { background: rgba(245,158,11,0.12); color: #F59E0B; }
-.cd-fail-summary-chip.fail-sum-server_error { background: rgba(239,68,68,0.12); color: #EF4444; }
-.cd-fail-summary-chip.fail-sum-network_error { background: rgba(59,130,246,0.12); color: #60A5FA; }
-.cd-fail-summary-chip.fail-sum-unknown { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+.cd-failure-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.cd-fail-summary-chip {
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.cd-fail-summary-chip.fail-sum-timeout {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+.cd-fail-summary-chip.fail-sum-not_found {
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+}
+.cd-fail-summary-chip.fail-sum-auth_error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+.cd-fail-summary-chip.fail-sum-rate_limited {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+.cd-fail-summary-chip.fail-sum-server_error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+.cd-fail-summary-chip.fail-sum-network_error {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+}
+.cd-fail-summary-chip.fail-sum-unknown {
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+}
 
 .cd-description {
   font-size: 0.82rem;
@@ -919,7 +1177,10 @@ const failureSummary = computed(() => {
   color: var(--text-dim);
   background: var(--bg-elevated);
   border: 1px solid transparent;
-  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
 }
 .cd-cap-badge.active {
   color: var(--accent);
@@ -1010,7 +1271,9 @@ const failureSummary = computed(() => {
   color: var(--accent);
   text-decoration: none;
 }
-.cd-family-link:hover { text-decoration: underline; }
+.cd-family-link:hover {
+  text-decoration: underline;
+}
 .cd-family-count {
   font-size: 0.65rem;
   color: var(--text-muted);
@@ -1030,7 +1293,9 @@ const failureSummary = computed(() => {
 }
 
 /* Model tier distribution */
-.cd-tier-section { margin: 16px 0 8px; }
+.cd-tier-section {
+  margin: 16px 0 8px;
+}
 .cd-tier-chips {
   display: flex;
   flex-wrap: wrap;
@@ -1042,11 +1307,25 @@ const failureSummary = computed(() => {
   font-weight: 600;
   border-radius: 999px;
 }
-.cd-tier-chip strong { font-family: 'JetBrains Mono', monospace; }
-.cd-tier-chip.tier-top { background: rgba(245,158,11,0.12); color: #f59e0b; }
-.cd-tier-chip.tier-high { background: rgba(59,130,246,0.12); color: #60a5fa; }
-.cd-tier-chip.tier-mid { background: rgba(99,102,241,0.12); color: #818cf8; }
-.cd-tier-chip.tier-basic { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+.cd-tier-chip strong {
+  font-family: 'JetBrains Mono', monospace;
+}
+.cd-tier-chip.tier-top {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+.cd-tier-chip.tier-high {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+}
+.cd-tier-chip.tier-mid {
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+}
+.cd-tier-chip.tier-basic {
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+}
 
 @media (max-width: 768px) {
   .creator-detail-page {
@@ -1086,13 +1365,34 @@ const failureSummary = computed(() => {
   color: var(--accent);
 }
 
-.ml-deriv-chip.deriv-ft { border-color: rgba(99, 102, 241, 0.35); color: #818cf8; }
-.ml-deriv-chip.deriv-merge { border-color: rgba(168, 85, 247, 0.35); color: #a855f7; }
-.ml-deriv-chip.deriv-distill { border-color: rgba(236, 72, 153, 0.35); color: #ec4899; }
-.ml-deriv-chip.deriv-dpo { border-color: rgba(34, 211, 238, 0.35); color: #22d3ee; }
-.ml-deriv-chip.deriv-cpt { border-color: rgba(250, 204, 21, 0.35); color: #eab308; }
-.ml-deriv-chip.deriv-lora { border-color: rgba(52, 211, 153, 0.35); color: #34d399; }
-.ml-deriv-chip.deriv-foundation { border-color: rgba(156, 163, 175, 0.35); color: #9ca3af; }
+.ml-deriv-chip.deriv-ft {
+  border-color: rgba(99, 102, 241, 0.35);
+  color: #818cf8;
+}
+.ml-deriv-chip.deriv-merge {
+  border-color: rgba(168, 85, 247, 0.35);
+  color: #a855f7;
+}
+.ml-deriv-chip.deriv-distill {
+  border-color: rgba(236, 72, 153, 0.35);
+  color: #ec4899;
+}
+.ml-deriv-chip.deriv-dpo {
+  border-color: rgba(34, 211, 238, 0.35);
+  color: #22d3ee;
+}
+.ml-deriv-chip.deriv-cpt {
+  border-color: rgba(250, 204, 21, 0.35);
+  color: #eab308;
+}
+.ml-deriv-chip.deriv-lora {
+  border-color: rgba(52, 211, 153, 0.35);
+  color: #34d399;
+}
+.ml-deriv-chip.deriv-foundation {
+  border-color: rgba(156, 163, 175, 0.35);
+  color: #9ca3af;
+}
 
 .ml-deriv-chip.active {
   background: var(--accent-subtle);
@@ -1100,13 +1400,41 @@ const failureSummary = computed(() => {
   color: var(--accent);
 }
 
-.ml-deriv-chip.deriv-ft.active { background: rgba(99, 102, 241, 0.14); border-color: #818cf8; color: #818cf8; }
-.ml-deriv-chip.deriv-merge.active { background: rgba(168, 85, 247, 0.14); border-color: #a855f7; color: #a855f7; }
-.ml-deriv-chip.deriv-distill.active { background: rgba(236, 72, 153, 0.14); border-color: #ec4899; color: #ec4899; }
-.ml-deriv-chip.deriv-dpo.active { background: rgba(34, 211, 238, 0.14); border-color: #22d3ee; color: #22d3ee; }
-.ml-deriv-chip.deriv-cpt.active { background: rgba(250, 204, 21, 0.14); border-color: #eab308; color: #eab308; }
-.ml-deriv-chip.deriv-lora.active { background: rgba(52, 211, 153, 0.14); border-color: #34d399; color: #34d399; }
-.ml-deriv-chip.deriv-foundation.active { background: rgba(156, 163, 175, 0.14); border-color: #9ca3af; color: #9ca3af; }
+.ml-deriv-chip.deriv-ft.active {
+  background: rgba(99, 102, 241, 0.14);
+  border-color: #818cf8;
+  color: #818cf8;
+}
+.ml-deriv-chip.deriv-merge.active {
+  background: rgba(168, 85, 247, 0.14);
+  border-color: #a855f7;
+  color: #a855f7;
+}
+.ml-deriv-chip.deriv-distill.active {
+  background: rgba(236, 72, 153, 0.14);
+  border-color: #ec4899;
+  color: #ec4899;
+}
+.ml-deriv-chip.deriv-dpo.active {
+  background: rgba(34, 211, 238, 0.14);
+  border-color: #22d3ee;
+  color: #22d3ee;
+}
+.ml-deriv-chip.deriv-cpt.active {
+  background: rgba(250, 204, 21, 0.14);
+  border-color: #eab308;
+  color: #eab308;
+}
+.ml-deriv-chip.deriv-lora.active {
+  background: rgba(52, 211, 153, 0.14);
+  border-color: #34d399;
+  color: #34d399;
+}
+.ml-deriv-chip.deriv-foundation.active {
+  background: rgba(156, 163, 175, 0.14);
+  border-color: #9ca3af;
+  color: #9ca3af;
+}
 
 .ml-deriv-count {
   font-size: 0.6rem;

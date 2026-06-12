@@ -36,7 +36,7 @@ async function rankModels() {
     // ── Load eligible models ──
     const whereClause = PAID
       ? 'WHERE dm.is_free = false AND dm.is_removed = false'
-      : 'WHERE dm.is_free = true AND dm.supports_tools = true AND dm.status_result = \'working\' AND dm.is_removed = false';
+      : "WHERE dm.is_free = true AND dm.supports_tools = true AND dm.status_result = 'working' AND dm.is_removed = false";
 
     const { rows: eligibleRows } = await client.query(`
       SELECT dm.id AS db_id, dm.full_id AS id, mm.name, dm.context_length,
@@ -69,7 +69,7 @@ async function rankModels() {
       FROM datapoint_model_features dmf
       JOIN datapoint_models dm ON dm.id = dmf.datapoint_model_id
       WHERE dmf.feature_type = 'best_for'
-        AND dm.${PAID ? 'is_free = false' : 'status_result = \'working\''}
+        AND dm.${PAID ? 'is_free = false' : "status_result = 'working'"}
     `);
     const bestForMap = new Map();
     for (const r of featureRows) {
@@ -94,10 +94,13 @@ async function rankModels() {
         if (r.feature_type === 'release_date') releaseDateMap.set(r.full_id, r.value);
         if (r.feature_type === 'last_updated') lastUpdatedMap.set(r.full_id, r.value);
       }
-      const { rows: depRows } = await client.query(`
+      const { rows: depRows } = await client.query(
+        `
         SELECT full_id, deprecated_at FROM datapoint_models
         WHERE full_id = ANY($1) AND deprecated_at IS NOT NULL
-      `, [[...eligibleFullIds]]);
+      `,
+        [[...eligibleFullIds]],
+      );
       for (const r of depRows) deprecatedMap.set(r.full_id, r.deprecated_at);
     }
 
@@ -119,9 +122,8 @@ async function rankModels() {
     const eligible = eligibleRows.map((m) => {
       const bestFor = bestForMap.get(m.id) || [];
       // Paid models: fall back to name/description-based tag inference when curated tags are absent
-      const tags = (!PAID || bestFor.length > 0)
-        ? bestFor
-        : inferTags(m.name, descMap.get(m.id) || null);
+      const tags =
+        !PAID || bestFor.length > 0 ? bestFor : inferTags(m.name, descMap.get(m.id) || null);
       return {
         ...m,
         best_for: tags,
@@ -143,30 +145,42 @@ async function rankModels() {
     const scoreMap = new Map();
     let scoredCount = 0;
     if (eligibleDbIds.length > 0) {
-      const { rows: scoreRows } = await client.query(`
+      const { rows: scoreRows } = await client.query(
+        `
         SELECT dm.full_id, ms.source, ms.score_type, ms.score_value, ms.fetched_at
         FROM model_scores ms
         JOIN datapoint_models dm ON dm.id = ms.datapoint_model_id
         WHERE dm.id = ANY($1)
-      `, [eligibleDbIds]);
+      `,
+        [eligibleDbIds],
+      );
       for (const r of scoreRows) {
         if (!scoreMap.has(r.full_id)) scoreMap.set(r.full_id, []);
         scoreMap.get(r.full_id).push({
-          source: r.source, score_type: r.score_type,
-          score_value: Number(r.score_value), fetched_at: r.fetched_at,
+          source: r.source,
+          score_type: r.score_type,
+          score_value: Number(r.score_value),
+          fetched_at: r.fetched_at,
         });
       }
-      scoredCount = new Set(scoreRows.map(r => r.full_id)).size;
+      scoredCount = new Set(scoreRows.map((r) => r.full_id)).size;
     }
 
-    console.log(`Eligible ${MODE} models: ${eligible.length} (${scoredCount} with benchmark scores)\n`);
+    console.log(
+      `Eligible ${MODE} models: ${eligible.length} (${scoredCount} with benchmark scores)\n`,
+    );
 
     // ── Compute stats ──
     const scoreTypeStats = buildScoreTypeStats(scoreMap);
     const maxContext = Math.max(...eligible.map((m) => m.context_length || 0), 1);
 
     // ── Build base rankings ──
-    const { newRankings, allScores, allMeta } = buildBaseRankings(eligible, maxContext, scoreMap, scoreTypeStats);
+    const { newRankings, allScores, allMeta } = buildBaseRankings(
+      eligible,
+      maxContext,
+      scoreMap,
+      scoreTypeStats,
+    );
 
     // Print top 5 per role
     for (const [role] of Object.entries(ROLES)) {
@@ -208,7 +222,8 @@ async function rankModels() {
 
     // ── Diff against previous rankings ──
     const { rows: metaRows } = await client.query(
-      'SELECT value::text FROM metadata WHERE key = $1', [METADATA_KEY],
+      'SELECT value::text FROM metadata WHERE key = $1',
+      [METADATA_KEY],
     );
     const oldRankings = metaRows.length > 0 ? JSON.parse(metaRows[0].value) : {};
     const diffs = diffRankings(oldRankings, newRankings);
@@ -245,10 +260,15 @@ async function rankModels() {
              ON CONFLICT (role, full_id, variant, is_paid)
              DO UPDATE SET rank = EXCLUDED.rank, score = EXCLUDED.score,
                            score_components = EXCLUDED.score_components, computed_at = now()`,
-            [role, fullId, i + 1,
-             scoreDetail?.score ?? null,
-             variantName, PAID,
-             scoreDetail ? JSON.stringify(scoreDetail) : null],
+            [
+              role,
+              fullId,
+              i + 1,
+              scoreDetail?.score ?? null,
+              variantName,
+              PAID,
+              scoreDetail ? JSON.stringify(scoreDetail) : null,
+            ],
           );
         }
       }
@@ -270,14 +290,21 @@ async function rankModels() {
       }
 
       // 3. Dual-write to metadata JSONB (backwards compat)
-      const rankingsWithMeta = { ...newRankings, _variants: allVariants, _scores: allScores, _meta: allMeta };
+      const rankingsWithMeta = {
+        ...newRankings,
+        _variants: allVariants,
+        _scores: allScores,
+        _meta: allMeta,
+      };
       await client.query(
         `INSERT INTO metadata (key, value) VALUES ($1, $2)
          ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
         [METADATA_KEY, JSON.stringify(rankingsWithMeta)],
       );
       await client.query('COMMIT');
-      console.log(`\n${PAID ? 'Paid' : 'Free'} rankings written to rankings table + metadata backup`);
+      console.log(
+        `\n${PAID ? 'Paid' : 'Free'} rankings written to rankings table + metadata backup`,
+      );
 
       // Export JSON for free rankings
       if (!PAID) {

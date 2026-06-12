@@ -79,13 +79,15 @@ function loadPriorFromGit(dateStr) {
 
 function loadDbRankings() {
   const pool = require('../server/db');
-  return pool.query("SELECT value::text FROM metadata WHERE key = '_role_rankings'").then((result) => {
-    if (result.rows.length === 0) {
-      console.error('No _role_rankings found in DB metadata.');
-      process.exit(1);
-    }
-    return pool.end().then(() => JSON.parse(result.rows[0].value));
-  });
+  return pool
+    .query("SELECT value::text FROM metadata WHERE key = '_role_rankings'")
+    .then((result) => {
+      if (result.rows.length === 0) {
+        console.error('No _role_rankings found in DB metadata.');
+        process.exit(1);
+      }
+      return pool.end().then(() => JSON.parse(result.rows[0].value));
+    });
 }
 
 function findInScores(scores, modelId, role) {
@@ -211,12 +213,18 @@ async function main() {
 
   // Output
   if (JSON_OUTPUT) {
-    process.stdout.write(JSON.stringify({
-      generated_at: new Date().toISOString(),
-      old_source: USE_DB ? 'current DB' : args[0] || 'unknown',
-      new_source: USE_DB ? 'DB (_role_rankings)' : args[1] || 'unknown',
-      results,
-    }, null, 2) + '\n');
+    process.stdout.write(
+      JSON.stringify(
+        {
+          generated_at: new Date().toISOString(),
+          old_source: USE_DB ? 'current DB' : args[0] || 'unknown',
+          new_source: USE_DB ? 'DB (_role_rankings)' : args[1] || 'unknown',
+          results,
+        },
+        null,
+        2,
+      ) + '\n',
+    );
   } else {
     console.log('\n=== Ranking Diff ===\n');
     for (const role of allRoles) {
@@ -245,14 +253,31 @@ async function main() {
       if (r.movers.length > 0) {
         console.log('  Movers (rank change >= 3):');
         // Sort by absolute delta
-        const sorted = [...r.movers].sort((a, b) => Math.abs(b.rank_delta) - Math.abs(a.rank_delta));
+        const sorted = [...r.movers].sort(
+          (a, b) => Math.abs(b.rank_delta) - Math.abs(a.rank_delta),
+        );
         for (const m of sorted) {
           const dir = m.rank_delta > 0 ? 'up' : 'down';
           const compStr = m.biggest_change ? ' [' + m.biggest_change + ' changed most]' : '';
-          const scoreStr = m.score_before !== null && m.score_after !== null
-            ? ' score: ' + m.score_before.toFixed(3) + ' -> ' + m.score_after.toFixed(3)
-            : '';
-          console.log('    ~ ' + m.id + ': #' + m.old_rank + ' -> #' + m.new_rank + ' (' + dir + ' ' + Math.abs(m.rank_delta) + ')' + scoreStr + compStr);
+          const scoreStr =
+            m.score_before !== null && m.score_after !== null
+              ? ' score: ' + m.score_before.toFixed(3) + ' -> ' + m.score_after.toFixed(3)
+              : '';
+          console.log(
+            '    ~ ' +
+              m.id +
+              ': #' +
+              m.old_rank +
+              ' -> #' +
+              m.new_rank +
+              ' (' +
+              dir +
+              ' ' +
+              Math.abs(m.rank_delta) +
+              ')' +
+              scoreStr +
+              compStr,
+          );
         }
       }
 

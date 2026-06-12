@@ -16,7 +16,9 @@
       >
         <template v-if="slot.model">
           <span class="slot-name">{{ slot.model.name }}</span>
-          <button class="slot-remove" @click.stop="removeModel(idx)" aria-label="Remove model">&times;</button>
+          <button class="slot-remove" @click.stop="removeModel(idx)" aria-label="Remove model">
+            &times;
+          </button>
         </template>
         <template v-else>
           <span class="slot-empty">+ Add model {{ idx + 1 }}</span>
@@ -71,26 +73,46 @@
       </div>
       <svg viewBox="0 0 400 400" class="radar-svg">
         <!-- Grid rings -->
-        <circle v-for="r in 5" :key="r" :cx="cx" :cy="cy" :r="r * 40" fill="none" stroke="var(--viz-gridline, rgba(255,255,255,0.06))" stroke-width="1" />
+        <circle
+          v-for="r in 5"
+          :key="r"
+          :cx="cx"
+          :cy="cy"
+          :r="r * 40"
+          fill="none"
+          stroke="var(--viz-gridline, rgba(255,255,255,0.06))"
+          stroke-width="1"
+        />
         <!-- Axis lines -->
-        <line v-for="(_a, i) in axes" :key="'al'+i" :x1="cx" :y1="cy" :x2="cx + Math.cos(angle(i) - Math.PI/2) * 200" :y2="cy + Math.sin(angle(i) - Math.PI/2) * 200" stroke="var(--viz-gridline, rgba(255,255,255,0.06))" stroke-width="1" />
+        <line
+          v-for="(_a, i) in axes"
+          :key="'al' + i"
+          :x1="cx"
+          :y1="cy"
+          :x2="cx + Math.cos(angle(i) - Math.PI / 2) * 200"
+          :y2="cy + Math.sin(angle(i) - Math.PI / 2) * 200"
+          stroke="var(--viz-gridline, rgba(255,255,255,0.06))"
+          stroke-width="1"
+        />
         <!-- Axis labels -->
         <text
           v-for="(axis, i) in axes"
-          :key="'albl'+i"
-          :x="cx + Math.cos(angle(i) - Math.PI/2) * 220"
-          :y="cy + Math.sin(angle(i) - Math.PI/2) * 220"
+          :key="'albl' + i"
+          :x="cx + Math.cos(angle(i) - Math.PI / 2) * 220"
+          :y="cy + Math.sin(angle(i) - Math.PI / 2) * 220"
           text-anchor="middle"
           dominant-baseline="central"
           fill="var(--text-dim)"
           font-size="9"
           font-family="Inter, sans-serif"
           font-weight="600"
-        >{{ axis.label }}</text>
+        >
+          {{ axis.label }}
+        </text>
         <!-- Polygons per model -->
         <polygon
           v-for="(model, mi) in selectedModels"
-          :key="'poly'+model.super_id"
+          :key="'poly' + model.super_id"
           :points="polygonPoints(mi)"
           :fill="modelColors[mi]"
           fill-opacity="0.12"
@@ -101,13 +123,17 @@
         />
         <!-- Data points -->
         <circle
-          v-for="(pt, pti) in allPoints.flatMap((pts, mi) => pts.map((p, ai) => ({ cx: p.x, cy: p.y, mi, ai })))"
-          :key="'pt'+pti"
+          v-for="(pt, pti) in allPoints.flatMap((pts, mi) =>
+            pts.map((p, ai) => ({ cx: p.x, cy: p.y, mi, ai })),
+          )"
+          :key="'pt' + pti"
           :cx="pt.cx"
           :cy="pt.cy"
           r="3"
           :fill="modelColors[pt.mi]"
-          :opacity="hoveredModel !== null && hoveredModel !== selectedModels[pt.mi].super_id ? 0.3 : 1"
+          :opacity="
+            hoveredModel !== null && hoveredModel !== selectedModels[pt.mi].super_id ? 0.3 : 1
+          "
           style="transition: opacity 0.2s"
         />
       </svg>
@@ -118,7 +144,11 @@
           <thead>
             <tr>
               <th>Dimension</th>
-              <th v-for="(model, idx) in selectedModels" :key="model.super_id" :style="{ color: modelColors[idx] }">
+              <th
+                v-for="(model, idx) in selectedModels"
+                :key="model.super_id"
+                :style="{ color: modelColors[idx] }"
+              >
                 {{ model.name }}
               </th>
             </tr>
@@ -151,7 +181,9 @@ import type { ModelData } from '@/types';
 const store = useModelsStore();
 
 const MAX_SLOTS = 5;
-const slots = ref<{ model: ModelData | null }[]>(Array.from({ length: MAX_SLOTS }, () => ({ model: null })));
+const slots = ref<{ model: ModelData | null }[]>(
+  Array.from({ length: MAX_SLOTS }, () => ({ model: null })),
+);
 const activeSlot = ref<number | null>(null);
 const searchQuery = ref('');
 const searchInput = ref<HTMLInputElement | null>(null);
@@ -161,6 +193,14 @@ const hoveredModel = ref<number | null>(null);
 const modelColors = ['#6380f7', '#34d399', '#fbbf24', '#f87171', '#a78bfa'];
 
 const selectedModels = computed(() => slots.value.filter((s) => s.model).map((s) => s.model!));
+
+const maxCtxRadar = computed(() => {
+  let max = 0;
+  for (const m of store.allModels) {
+    if (m.best_context && m.best_context > max) max = m.best_context;
+  }
+  return max;
+});
 
 const allModelsList = computed(() => store.allModels);
 
@@ -198,7 +238,8 @@ function getModelAxisValue(model: ModelData, axisKey: string): number {
   switch (axisKey) {
     case 'context': {
       const ctx = model.best_context ?? 0;
-      return Math.min(1, Math.log2(Math.max(ctx, 1024)) / Math.log2(1048576));
+      const ref = Math.max(2097152, maxCtxRadar.value ?? 1048576);
+      return Math.min(1, Math.log2(Math.max(ctx, 1024)) / Math.log2(ref));
     }
     case 'tools':
       return dps.some((p) => p.supports_tools) ? 1 : 0;

@@ -10,10 +10,22 @@ const REG = require('../../data/canonical-creators.json');
 // Routers are not model creators — names that resolve to a router provider
 // should never be used as creator. See db/migrations/022.
 const ROUTER_CREATOR_BLACKLIST = new Set([
-  'openrouter', 'llmgateway', 'opencode', 'huggingface', 'vercel',
-  'OpenRouter', 'LLM Gateway', 'LLMGateway', 'OpenCode Zen', 'OpenCode',
-  'Hugging Face', 'HuggingFace', 'Vercel AI Gateway', 'Vercel',
-  'cloudflare-ai-gateway', 'Cloudflare AI Gateway',
+  'openrouter',
+  'llmgateway',
+  'opencode',
+  'huggingface',
+  'vercel',
+  'OpenRouter',
+  'LLM Gateway',
+  'LLMGateway',
+  'OpenCode Zen',
+  'OpenCode',
+  'Hugging Face',
+  'HuggingFace',
+  'Vercel AI Gateway',
+  'Vercel',
+  'cloudflare-ai-gateway',
+  'Cloudflare AI Gateway',
 ]);
 
 const CREATOR_BY_SLUG = new Map(Object.entries(REG.creatorBySlug));
@@ -36,14 +48,19 @@ function inferCreatorFromName(name) {
     if (!ROUTER_CREATOR_BLACKLIST.has(prefix)) return prefix;
   }
   // Check exact + prefix matches against slugified name
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
   if (CREATOR_BY_SLUG.has(slug)) return CREATOR_BY_SLUG.get(slug);
   for (const [prefix, creator] of CREATOR_BY_PREFIX) {
     if (slug === prefix || slug.startsWith(prefix + '-')) {
       return creator;
     }
   }
-  console.warn(`name-inference: could not infer creator from name "${name}" (slug: "${slug}") — add to CREATOR_BY_PREFIX or CREATOR_BY_SLUG`);
+  console.warn(
+    `name-inference: could not infer creator from name "${name}" (slug: "${slug}") — add to CREATOR_BY_PREFIX or CREATOR_BY_SLUG`,
+  );
   return null;
 }
 
@@ -73,11 +90,7 @@ const LEGAL_SUFFIX_RE = /\s*\b(llc|inc\.?|ltd\.?|corp\.?|pbc|co\.?|group|holding
 
 /** Normalize a raw creator name for lookup. */
 function normalizeCreatorName(raw) {
-  return raw
-    .toLowerCase()
-    .replace(/\./g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+  return raw.toLowerCase().replace(/\./g, '').replace(/\s+/g, ' ').trim();
 }
 
 const AUTHOR_OVERRIDES = REG.authorOverrides;
@@ -100,7 +113,9 @@ function slugifyCreator(raw) {
   const cleaned = lowered.replace(LEGAL_SUFFIX_RE, '').trim();
   const slug = cleaned.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   if (!slug || slug === 'unknown') {
-    console.warn(`name-inference: creator "${trimmed}" mapped to "unknown" — add to AUTHOR_OVERRIDES or CREATOR_BY_PREFIX`);
+    console.warn(
+      `name-inference: creator "${trimmed}" mapped to "unknown" — add to AUTHOR_OVERRIDES or CREATOR_BY_PREFIX`,
+    );
   }
   return { id: slug || 'unknown', name: trimmed, _canonical: false };
 }

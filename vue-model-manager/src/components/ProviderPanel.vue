@@ -6,8 +6,22 @@
           <!-- Header -->
           <div class="prp-header">
             <div class="prp-header-left">
-              <button class="prp-nav-btn" :disabled="!hasPrev" title="Previous provider" @click="goPrev">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button
+                class="prp-nav-btn"
+                :disabled="!hasPrev"
+                title="Previous provider"
+                @click="goPrev"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
@@ -16,12 +30,27 @@
               <span class="prp-slug">{{ provider.slug }}</span>
               <span
                 class="prp-country"
-                :style="{ color: getCountryForProvider(provider.slug).text, background: getCountryForProvider(provider.slug).color }"
-              >{{ getCountryForProvider(provider.slug).name }}</span>
-              <span class="prp-status" :class="provider.health_status">{{ provider.health_status }}</span>
+                :style="{
+                  color: getCountryForProvider(provider.slug).text,
+                  background: getCountryForProvider(provider.slug).color,
+                }"
+                >{{ getCountryForProvider(provider.slug).name }}</span
+              >
+              <span class="prp-status" :class="provider.health_status">{{
+                provider.health_status
+              }}</span>
             </div>
             <button class="prp-close" aria-label="Close panel" @click="close">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
@@ -39,7 +68,9 @@
               <span class="prp-stat-lbl">Working</span>
             </div>
             <div v-if="provider.model_count - provider.working_count > 0" class="prp-stat">
-              <span class="prp-stat-val down">{{ provider.model_count - provider.working_count }}</span>
+              <span class="prp-stat-val down">{{
+                provider.model_count - provider.working_count
+              }}</span>
               <span class="prp-stat-lbl">Down</span>
             </div>
           </div>
@@ -49,7 +80,11 @@
             <div
               class="prp-bar-fill"
               :class="provider.health_status"
-              :style="{ width: provider.model_count ? (provider.working_count / provider.model_count * 100) + '%' : '0%' }"
+              :style="{
+                width: provider.model_count
+                  ? (provider.working_count / provider.model_count) * 100 + '%'
+                  : '0%',
+              }"
             ></div>
           </div>
 
@@ -71,9 +106,7 @@
           </div>
 
           <!-- Next button -->
-          <button v-if="hasNext" class="prp-next-btn" @click="goNext">
-            Next provider →
-          </button>
+          <button v-if="hasNext" class="prp-next-btn" @click="goNext">Next provider →</button>
         </div>
       </div>
     </Transition>
@@ -85,7 +118,7 @@ import { computed, watch } from 'vue';
 import type { ProviderReference } from '@/types';
 import { useModelsStore } from '@/store/models';
 import ProviderIcon from '@/components/ProviderIcon.vue';
-import { getProviderColor } from '@/data/provider-colors';
+import { getProviderColorForeground } from '@/data/provider-colors';
 import { getCountryForProvider } from '@/data/provider-countries';
 import { useToast } from '@/composables/useToast';
 
@@ -102,7 +135,7 @@ const emit = defineEmits<{
 }>();
 
 const store = useModelsStore();
-const providerColor = computed(() => getProviderColor(props.provider.slug));
+const providerColor = computed(() => getProviderColorForeground(props.provider.slug));
 
 function close() {
   emit('close');
@@ -126,7 +159,12 @@ const npmLabel = computed(() => `npm i ${props.provider.npm_package}`);
 const { success: toastSuccess } = useToast();
 
 async function copyNpm() {
-  try { await navigator.clipboard.writeText(npmLabel.value); toastSuccess('npm command copied'); } catch { /* noop */ }
+  try {
+    await navigator.clipboard.writeText(npmLabel.value);
+    toastSuccess('npm command copied');
+  } catch {
+    /* noop */
+  }
 }
 
 const providerModels = computed(() => {
@@ -187,7 +225,9 @@ watch(
 
 .panel-slide-enter-active,
 .panel-slide-leave-active {
-  transition: transform 0.25s ease, opacity 0.2s ease;
+  transition:
+    transform 0.25s ease,
+    opacity 0.2s ease;
 }
 .panel-slide-enter-from {
   transform: translateX(100%);
@@ -233,8 +273,6 @@ watch(
   cursor: default;
 }
 
-
-
 .prp-title {
   font-size: 1.2rem;
   font-weight: 700;
@@ -269,9 +307,18 @@ watch(
   flex-shrink: 0;
 }
 
-.prp-status.healthy { background: rgba(63,185,80,0.12); color: var(--green); }
-.prp-status.degraded { background: rgba(251,191,36,0.12); color: var(--orange); }
-.prp-status.down { background: rgba(248,113,113,0.12); color: var(--red); }
+.prp-status.healthy {
+  background: rgba(63, 185, 80, 0.12);
+  color: var(--green);
+}
+.prp-status.degraded {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--orange);
+}
+.prp-status.down {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--red);
+}
 
 .prp-close {
   padding: 6px;
@@ -307,8 +354,12 @@ watch(
   font-family: 'JetBrains Mono', monospace;
 }
 
-.prp-stat-val.working { color: var(--green); }
-.prp-stat-val.down { color: var(--red); }
+.prp-stat-val.working {
+  color: var(--green);
+}
+.prp-stat-val.down {
+  color: var(--red);
+}
 
 .prp-stat-lbl {
   font-size: 0.65rem;
@@ -319,7 +370,7 @@ watch(
 
 .prp-bar-track {
   height: 4px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 2px;
   margin-bottom: 12px;
   overflow: hidden;
@@ -331,9 +382,15 @@ watch(
   transition: width 0.4s;
 }
 
-.prp-bar-fill.healthy { background: var(--green); }
-.prp-bar-fill.degraded { background: var(--orange); }
-.prp-bar-fill.down { background: var(--red); }
+.prp-bar-fill.healthy {
+  background: var(--green);
+}
+.prp-bar-fill.degraded {
+  background: var(--orange);
+}
+.prp-bar-fill.down {
+  background: var(--red);
+}
 
 .prp-url {
   font-size: 0.65rem;

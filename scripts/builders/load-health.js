@@ -11,7 +11,8 @@ async function loadHealth(client, isFree) {
   let modelHealth = {};
 
   try {
-    const { rows: runRows } = await client.query(`
+    const { rows: runRows } = await client.query(
+      `
       WITH inference_models AS (
         SELECT dm.full_id
         FROM datapoint_models dm
@@ -36,7 +37,9 @@ async function loadHealth(client, isFree) {
         ORDER BY tob.full_id, tested_date DESC
       )
       SELECT * FROM per_run
-    `, [isFree]);
+    `,
+      [isFree],
+    );
 
     // Group by full_id
     const healthMap = new Map();

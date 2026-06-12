@@ -24,8 +24,8 @@ const BASELINE_DAYS = (() => {
   const idx = args.indexOf('--baseline-days');
   return idx !== -1 ? parseInt(args[idx + 1], 10) : 7;
 })();
-const LATENCY_SIGMA_THRESHOLD = 2.0;  // number of sigma above baseline mean
-const FAILURE_RATE_DELTA_THRESHOLD = 20;  // percentage point increase
+const LATENCY_SIGMA_THRESHOLD = 2.0; // number of sigma above baseline mean
+const FAILURE_RATE_DELTA_THRESHOLD = 20; // percentage point increase
 
 function getWebhookUrl() {
   const idx = args.indexOf('--webhook-url');
@@ -48,7 +48,13 @@ function sendWebhook(url, payload) {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: '*Run date:* ' + payload.run_date + '\n*Models checked:* ' + payload.models_checked + '\n*Alerts:* ' + payload.alerts_count,
+            text:
+              '*Run date:* ' +
+              payload.run_date +
+              '\n*Models checked:* ' +
+              payload.models_checked +
+              '\n*Alerts:* ' +
+              payload.alerts_count,
           },
         },
         ...payload.alerts.flatMap((a) => [
@@ -98,9 +104,11 @@ async function main() {
   try {
     await pool.query('SELECT 1 FROM test_observations LIMIT 1');
   } catch {
-    console.log(JSON_OUTPUT
-      ? JSON.stringify({ error: 'test_observations table does not exist' })
-      : 'test_observations table does not exist. Run migration 003 first.');
+    console.log(
+      JSON_OUTPUT
+        ? JSON.stringify({ error: 'test_observations table does not exist' })
+        : 'test_observations table does not exist. Run migration 003 first.',
+    );
     process.exit(0);
   }
 
@@ -123,7 +131,8 @@ async function main() {
   const latestDateStr = latestDate.toISOString().slice(0, 10);
 
   // 2. Get latest-run per-model stats (p95 latency, failure rate)
-  const { rows: latestRows } = await pool.query(`
+  const { rows: latestRows } = await pool.query(
+    `
     SELECT
       full_id,
       provider,
@@ -136,10 +145,14 @@ async function main() {
     FROM test_observations
     WHERE tested_at::date = $1
     GROUP BY full_id, provider
-  `, [latestDateStr]);
+  `,
+    [latestDateStr],
+  );
 
   if (latestRows.length === 0) {
-    console.log(JSON_OUTPUT ? JSON.stringify({ alerts: [] }) : `No observations for ${latestDateStr}.`);
+    console.log(
+      JSON_OUTPUT ? JSON.stringify({ alerts: [] }) : `No observations for ${latestDateStr}.`,
+    );
     await pool.end();
     return;
   }
@@ -149,7 +162,8 @@ async function main() {
   baselineStart.setDate(baselineStart.getDate() - BASELINE_DAYS);
   const baselineStartStr = baselineStart.toISOString().slice(0, 10);
 
-  const { rows: baselineRows } = await pool.query(`
+  const { rows: baselineRows } = await pool.query(
+    `
     SELECT
       full_id,
       ROUND(AVG(latency_ms)::numeric, 1) AS mean_latency_ms,
@@ -164,7 +178,9 @@ async function main() {
     WHERE tested_at::date >= $1
       AND tested_at::date < $2
     GROUP BY full_id
-  `, [baselineStartStr, latestDateStr]);
+  `,
+    [baselineStartStr, latestDateStr],
+  );
 
   // Index baseline by full_id
   const baselineMap = {};
@@ -186,7 +202,11 @@ async function main() {
     }
 
     // Check latency degradation
-    if (latest.p95_ms !== null && baseline.mean_latency_ms !== null && baseline.stddev_latency_ms !== null) {
+    if (
+      latest.p95_ms !== null &&
+      baseline.mean_latency_ms !== null &&
+      baseline.stddev_latency_ms !== null
+    ) {
       const meanLatency = Number(baseline.mean_latency_ms);
       const stddevLatency = Number(baseline.stddev_latency_ms);
       const latestP95 = Number(latest.p95_ms);
@@ -217,7 +237,8 @@ async function main() {
     }
 
     // Check failure rate degradation
-    const latestFailureRate = latest.failure_rate_pct !== null ? Number(latest.failure_rate_pct) : 0;
+    const latestFailureRate =
+      latest.failure_rate_pct !== null ? Number(latest.failure_rate_pct) : 0;
     const baselineFailureRate = Number(baseline.baseline_failure_rate_pct);
     const failureDelta = latestFailureRate - baselineFailureRate;
 
@@ -243,7 +264,7 @@ async function main() {
   }
 
   // 5. Also check for models that were in baseline but completely absent from latest run
-  const latestModelIds = new Set(latestRows.map(r => r.full_id));
+  const latestModelIds = new Set(latestRows.map((r) => r.full_id));
   for (const baseline of baselineRows) {
     if (!latestModelIds.has(baseline.full_id) && parseInt(baseline.baseline_samples, 10) >= 3) {
       alerts.push({
@@ -251,10 +272,12 @@ async function main() {
         provider: baseline.full_id.split('/')[0] || 'unknown',
         run_date: latestDateStr,
         baseline_days: BASELINE_DAYS,
-        alerts: [{
-          type: 'model_not_tested',
-          message: `Model was not tested in latest run (was present in baseline with ${baseline.baseline_samples} samples)`,
-        }],
+        alerts: [
+          {
+            type: 'model_not_tested',
+            message: `Model was not tested in latest run (was present in baseline with ${baseline.baseline_samples} samples)`,
+          },
+        ],
       });
     }
   }
@@ -275,7 +298,9 @@ async function main() {
     process.stdout.write(JSON.stringify(output, null, 2) + '\n');
   } else {
     console.log(`\n─── Degradation Check: ${latestDateStr} vs ${BASELINE_DAYS}-day baseline ───`);
-    console.log(`  Checked ${latestRows.length} models (${baselineRows.length} with baseline data)`);
+    console.log(
+      `  Checked ${latestRows.length} models (${baselineRows.length} with baseline data)`,
+    );
 
     if (alerts.length === 0) {
       console.log('  No degradation detected.');
@@ -284,7 +309,12 @@ async function main() {
       for (const a of alerts) {
         console.log(`  [${a.provider}] ${a.full_id}`);
         for (const alert of a.alerts) {
-          const icon = alert.type === 'latency_degradation' ? 'LATENCY' : alert.type === 'failure_rate_increase' ? 'FAILURE' : 'MISSING';
+          const icon =
+            alert.type === 'latency_degradation'
+              ? 'LATENCY'
+              : alert.type === 'failure_rate_increase'
+                ? 'FAILURE'
+                : 'MISSING';
           console.log(`    ${icon}: ${alert.message}`);
         }
         console.log('');
@@ -302,7 +332,9 @@ async function main() {
   if (SHOULD_ALERT && alerts.length > 0) {
     const webhookUrl = getWebhookUrl();
     if (!webhookUrl) {
-      console.error('--alert flag set but no webhook URL configured. Set DEGRADATION_WEBHOOK_URL env var or pass --webhook-url.');
+      console.error(
+        '--alert flag set but no webhook URL configured. Set DEGRADATION_WEBHOOK_URL env var or pass --webhook-url.',
+      );
       process.exit(1);
     }
     // Retry up to 3 times with exponential backoff
@@ -315,7 +347,8 @@ async function main() {
         break;
       } catch (e) {
         console.error(`Webhook delivery attempt ${attempt + 1}/3 failed:`, e.message);
-        if (attempt < 2) await new Promise(r => setTimeout(r, Math.min(1000 * Math.pow(2, attempt), 8000)));
+        if (attempt < 2)
+          await new Promise((r) => setTimeout(r, Math.min(1000 * Math.pow(2, attempt), 8000)));
       }
     }
     if (!delivered) console.error('Webhook delivery failed after 3 attempts — alert lost');

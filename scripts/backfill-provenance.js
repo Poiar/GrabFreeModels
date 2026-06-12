@@ -125,7 +125,9 @@ const APPLY = process.argv.includes('--apply');
     logger.info(`\nTotal links created: ${totalCreated}`);
 
     // Verify
-    const { rows: verifyRows } = await client.query('SELECT COUNT(*) AS total FROM datapoint_model_sources');
+    const { rows: verifyRows } = await client.query(
+      'SELECT COUNT(*) AS total FROM datapoint_model_sources',
+    );
     logger.info(`Total provenance links in DB: ${verifyRows[0].total}`);
 
     logger.info('\nDone.');

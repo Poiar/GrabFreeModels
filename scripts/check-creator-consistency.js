@@ -21,16 +21,19 @@ require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 function normalizeForCompare(name) {
   return name
     .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, '')  // strip punctuation
-    .replace(/\b(llc|inc|ltd|corp|pbc|co|group|holdings|ai|technologies|research|foundation)\b/g, '')
+    .replace(/[^a-z0-9 ]/g, '') // strip punctuation
+    .replace(
+      /\b(llc|inc|ltd|corp|pbc|co|group|holdings|ai|technologies|research|foundation)\b/g,
+      '',
+    )
     .replace(/\s+/g, ' ')
     .trim();
 }
 
 // ── Configuration ──
-const SMALL_THRESHOLD = 2;    // creators with ≤ N models are "small" and candidates
-const LARGE_THRESHOLD = 3;    // creators with ≥ N models are "large" (merge target)
-const MIN_LENGTH = 4;         // ignore names shorter than this (too many false positives)
+const SMALL_THRESHOLD = 2; // creators with ≤ N models are "small" and candidates
+const LARGE_THRESHOLD = 3; // creators with ≥ N models are "large" (merge target)
+const MIN_LENGTH = 4; // ignore names shorter than this (too many false positives)
 
 function isFuzzyMatch(smallName, largeName) {
   const sn = normalizeForCompare(smallName);
@@ -70,8 +73,8 @@ async function main() {
       ORDER BY model_count DESC
     `);
 
-    const small = rows.filter(r => r.model_count <= SMALL_THRESHOLD);
-    const large = rows.filter(r => r.model_count >= LARGE_THRESHOLD);
+    const small = rows.filter((r) => r.model_count <= SMALL_THRESHOLD);
+    const large = rows.filter((r) => r.model_count >= LARGE_THRESHOLD);
 
     // Check 1: Same normalized display name, different creator key.
     // This catches the original qwen/Alibaba split: both display as "Alibaba"
@@ -109,7 +112,8 @@ async function main() {
       for (const lc of large) {
         if (sc.creator_key === lc.creator_key) continue;
         // Skip if already flagged by same-display-name check
-        if (issues.some(i => i.small_key === sc.creator_key && i.large_key === lc.creator_key)) continue;
+        if (issues.some((i) => i.small_key === sc.creator_key && i.large_key === lc.creator_key))
+          continue;
 
         if (isFuzzyMatch(sc.display_name, lc.display_name)) {
           issues.push({
@@ -142,7 +146,9 @@ async function main() {
     } else {
       console.log(`⚠ Creator consistency check found ${issues.length} potential split(s):\n`);
       for (const iss of issues) {
-        console.log(`  "${iss.small_name}" (${iss.small_count} model${iss.small_count > 1 ? 's' : ''})`);
+        console.log(
+          `  "${iss.small_name}" (${iss.small_count} model${iss.small_count > 1 ? 's' : ''})`,
+        );
         console.log(`    may belong to → "${iss.large_name}" (${iss.large_count} models)`);
         console.log(`    Models: ${iss.small_models.join(', ')}`);
         console.log('');
@@ -156,10 +162,12 @@ async function main() {
       for (const iss of issues) {
         const { rowCount } = await client.query(
           `UPDATE super_models SET creator = $1 WHERE LOWER(TRIM(creator)) = $2`,
-          [iss.large_name, iss.small_key]
+          [iss.large_name, iss.small_key],
         );
         if (rowCount > 0) {
-          console.log(`  ${iss.small_name} → ${iss.large_name}: ${rowCount} model${rowCount > 1 ? 's' : ''} updated`);
+          console.log(
+            `  ${iss.small_name} → ${iss.large_name}: ${rowCount} model${rowCount > 1 ? 's' : ''} updated`,
+          );
         }
         totalUpdated += rowCount;
       }
@@ -176,4 +184,7 @@ async function main() {
   }
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

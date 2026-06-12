@@ -11,6 +11,7 @@ Registration is **automatic** via `TABBY_AGENT_CHAT_TAB_ID`. No manual setup.
 **1. Self** — `~/.claude/scripts/peer-id.ps1` to get your UUID + auto-register your tab. Exclude yourself.
 
 **2. List** — `list_tabs`. For each tab with `claude.exe` that isn't you, report:
+
 - Short name (first 8 chars of UUID, from `peer-tabs.json` or `peer-id-*.txt`)
 - Project (inferred from process cmdlines: e.g. `C:\OC\<X>\node_modules\...` → `C:\OC\<X>`)
 - Registered tab (from `peer-tabs.json`)

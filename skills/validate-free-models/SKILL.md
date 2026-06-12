@@ -11,13 +11,13 @@ description: Use when testing or updating free model statuses. Triggers: "valida
 
 ## API Model ID Resolution
 
-| Provider    | Resolution                                                         |
-| ----------- | ------------------------------------------------------------------ |
-| OpenRouter  | Strip `openrouter/`, try bare ID, then try with `:free` suffix     |
-| NVIDIA      | Strip `nvidia/`, but retry with `nvidia/` prefix if bare fails     |
-| HuggingFace | Strip `huggingface/`, keep remainder (may contain `org/model`)     |
-| Google      | Strip `google/` and `models/` prefix from API responses            |
-| Others      | Strip `provider/`                                                  |
+| Provider    | Resolution                                                     |
+| ----------- | -------------------------------------------------------------- |
+| OpenRouter  | Strip `openrouter/`, try bare ID, then try with `:free` suffix |
+| NVIDIA      | Strip `nvidia/`, but retry with `nvidia/` prefix if bare fails |
+| HuggingFace | Strip `huggingface/`, keep remainder (may contain `org/model`) |
+| Google      | Strip `google/` and `models/` prefix from API responses        |
+| Others      | Strip `provider/`                                              |
 
 ## Edge Cases
 
@@ -37,15 +37,17 @@ description: Use when testing or updating free model statuses. Triggers: "valida
 
 6 requests per model: 3 burst + 3 delayed.
 
-| Phase   | Sleep         | Purpose |
-| --------| ------------- | ------- |
-| Burst   | 300ms         | Catches providers that throttle after first request |
-| Delayed | 5s            | Catches providers with minute-level rate buckets |
+| Phase   | Delay           | Purpose                                             |
+| ------- | --------------- | --------------------------------------------------- |
+| Burst   | ~1.5s (default) | Catches providers that throttle after first request |
+| Delayed | ~3s (default)   | Catches providers with minute-level rate buckets    |
 
 **Execution:** `Promise.all` across endpoints, sequential within each — prevents provider-wide 429s.
 
 **Status determination** (6 total requests):
+
 - All 6 OK → `working`
+- 0 OK, all 401/403 → `broken` (auth error — key expired/revoked)
 - 0 OK, all 429 → `rate_limited`
 - 0 OK, mixed errors → `broken`
 - 4-5 OK → `working` (intermittent)
@@ -57,7 +59,7 @@ description: Use when testing or updating free model statuses. Triggers: "valida
 node scripts/validate-free-models.js --apply          # all models
 node scripts/validate-free-models.js --coding-only --apply
 node scripts/validate-free-models.js --models "id1,id2" --apply
-node scripts/validate-free-models.js --force --apply  # skip 7-day cache
+node scripts/validate-free-models.js --force --apply  # skip 6-day working cache
 ```
 
 ## Key Rules

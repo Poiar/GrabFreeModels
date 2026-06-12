@@ -7,7 +7,9 @@
         <h2>Dashboard</h2>
         <p>
           {{ store.visibleStats.creators }} creators, {{ store.visibleStats.providers }} providers,
-          {{ store.visibleStats.models }} models tracked<template v-if="store.isSourceFilterActive"> <span class="filtered-note"> (filtered)</span></template>
+          {{ store.visibleStats.models }} models tracked<template v-if="store.isSourceFilterActive">
+            <span class="filtered-note"> (filtered)</span></template
+          >
         </p>
       </div>
     </div>
@@ -26,7 +28,14 @@
 
     <!-- Stale banner -->
     <div v-if="store.isStale" class="stale-banner">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
         <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
         <line x1="12" y1="9" x2="12" y2="13" />
         <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -37,13 +46,20 @@
 
     <!-- Hero Stats -->
     <div class="hero-stats">
-<div class="hero-stat-card stat-green">
+      <div class="hero-stat-card stat-green">
         <div class="hsc-top-bar"></div>
         <div class="hsc-value stat-number">{{ store.visibleStats.models }}</div>
         <div class="hsc-label">Super Models</div>
         <div class="hsc-spark">
           <svg viewBox="0 0 60 20" class="sparkline">
-            <polyline :points="sparkPoints.models" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <polyline
+              :points="sparkPoints.models"
+              fill="none"
+              stroke="var(--accent)"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </div>
       </div>
@@ -53,7 +69,14 @@
         <div class="hsc-label">Total Datapoints</div>
         <div class="hsc-spark">
           <svg viewBox="0 0 60 20" class="sparkline">
-            <polyline :points="sparkPoints.datapoints" fill="none" stroke="var(--purple)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <polyline
+              :points="sparkPoints.datapoints"
+              fill="none"
+              stroke="var(--purple)"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </div>
       </div>
@@ -63,7 +86,14 @@
         <div class="hsc-label">Creators</div>
         <div class="hsc-spark">
           <svg viewBox="0 0 60 20" class="sparkline">
-            <polyline :points="sparkPoints.creators" fill="none" stroke="var(--cyan)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <polyline
+              :points="sparkPoints.creators"
+              fill="none"
+              stroke="var(--cyan)"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </div>
       </div>
@@ -77,8 +107,14 @@
       <div class="card issues-alert-card">
         <div class="card-title">Issues Needing Attention</div>
         <div class="issues-alert-list">
-          <div v-for="issue in criticalIssues" :key="issue.model_id + issue.issue" class="issues-alert-row">
-            <span class="ia-severity" :class="'ia-sev-' + issue.severity">{{ issue.severity }}</span>
+          <div
+            v-for="issue in criticalIssues"
+            :key="issue.model_id + issue.issue"
+            class="issues-alert-row"
+          >
+            <span class="ia-severity" :class="'ia-sev-' + issue.severity">{{
+              issue.severity
+            }}</span>
             <span class="ia-model">{{ modelNameForId(issue.model_id) }}</span>
             <span class="ia-text">{{ issue.issue }}</span>
           </div>
@@ -87,16 +123,27 @@
     </div>
 
     <!-- Router-only models alert -->
-    <div v-if="store.routerOnlyModels && store.routerOnlyModels.count > 0" class="router-alert-section">
+    <div
+      v-if="store.routerOnlyModels && store.routerOnlyModels.count > 0"
+      class="router-alert-section"
+    >
       <div class="card router-alert-card">
         <div class="card-title">Router-Only Models</div>
         <p class="router-alert-text">
-          <strong>{{ store.routerOnlyModels.count }}</strong> free models are only accessible via routers — no direct inference provider exists.
-          If a router's API key or quota is exhausted, these models become unreachable.
+          <strong>{{ store.routerOnlyModels.count }}</strong> free models are only accessible via
+          routers — no direct inference provider exists. If a router's API key or quota is
+          exhausted, these models become unreachable.
         </p>
         <div class="router-alert-models">
-          <span v-for="m in store.routerOnlyModels.models.slice(0, 8)" :key="m.slug" class="router-model-chip">{{ m.name }}</span>
-          <span v-if="store.routerOnlyModels.models.length > 8" class="router-model-chip more">+{{ store.routerOnlyModels.models.length - 8 }} more</span>
+          <span
+            v-for="m in store.routerOnlyModels.models.slice(0, 8)"
+            :key="m.slug"
+            class="router-model-chip"
+            >{{ m.name }}</span
+          >
+          <span v-if="store.routerOnlyModels.models.length > 8" class="router-model-chip more"
+            >+{{ store.routerOnlyModels.models.length - 8 }} more</span
+          >
         </div>
       </div>
     </div>
@@ -126,9 +173,26 @@
             <div class="ft-label">Uncategorized</div>
           </div>
         </div>
-        <div v-if="store.familyCoverage && store.familyCoverage.with_base_model_no_family > 0" class="ft-resolvable">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span>{{ store.familyCoverage.with_base_model_no_family }} models have base_model links but no family — run <code>inherit-families</code> to resolve</span>
+        <div
+          v-if="store.familyCoverage && store.familyCoverage.with_base_model_no_family > 0"
+          class="ft-resolvable"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span
+            >{{ store.familyCoverage.with_base_model_no_family }} models have base_model links but
+            no family — run <code>inherit-families</code> to resolve</span
+          >
         </div>
         <div v-if="derivationMethodEntries.length > 0" class="ft-derivation-breakdown">
           <div class="ft-subtitle">By Derivation Method</div>
@@ -138,7 +202,8 @@
               :key="method"
               :to="`/?deriv=${method}`"
               class="ft-deriv-chip dash-deriv-link"
-            >{{ DERIV_LABELS[method] || method }}: {{ count }}</router-link>
+              >{{ DERIV_LABELS[method] || method }}: {{ count }}</router-link
+            >
           </div>
         </div>
         <div v-if="topDerived.length > 0" class="most-derived-section">
@@ -159,7 +224,9 @@
           <div class="ft-subtitle">Deepest Chains</div>
           <div class="chain-list">
             <div v-for="entry in deepestChains" :key="entry.model.super_id" class="chain-row">
-              <router-link :to="`/model/${entry.model.slug}`" class="chain-model-link">{{ entry.model.name }}</router-link>
+              <router-link :to="`/model/${entry.model.slug}`" class="chain-model-link">{{
+                entry.model.name
+              }}</router-link>
               <span class="chain-depth-badge">Depth {{ entry.depth }}</span>
               <span class="chain-path">{{ entry.path.join(' → ') }}</span>
             </div>
@@ -168,7 +235,13 @@
         <div v-if="treemapFamilies.length > 0" class="family-dist-section">
           <div class="ft-subtitle">Family Landscape</div>
           <div class="treemap-canvas">
-            <router-link v-for="f in treemapFamilies" :key="f.name" :to="`/family/${encodeURIComponent(f.name)}`" class="treemap-cell" :style="{ background: f.color, gridColumn: f.span > 1 ? `span ${f.span}` : '' }">
+            <router-link
+              v-for="f in treemapFamilies"
+              :key="f.name"
+              :to="`/family/${encodeURIComponent(f.name)}`"
+              class="treemap-cell"
+              :style="{ background: f.color, gridColumn: f.span > 1 ? `span ${f.span}` : '' }"
+            >
               <span class="treemap-cell-name">{{ f.name }}</span>
               <span class="treemap-cell-count">{{ f.count }} models</span>
             </router-link>
@@ -206,7 +279,10 @@
     <div v-if="store.providerTimeline" class="timeline-section">
       <div class="card">
         <div class="card-title">Provider Ecosystem Growth</div>
-        <p class="card-subtitle">{{ store.providerTimeline.total }} providers tracked across {{ store.providerTimeline.timeline.length }} milestones</p>
+        <p class="card-subtitle">
+          {{ store.providerTimeline.total }} providers tracked across
+          {{ store.providerTimeline.timeline.length }} milestones
+        </p>
         <div class="tl-bar">
           <div
             v-for="entry in timelineBars"
@@ -301,9 +377,15 @@
       <div class="card">
         <div class="card-title">Provider Speed Leaderboard</div>
         <div class="speed-list">
-          <div v-for="(p, i) in store.providerLatencies.slice(0, 10)" :key="p.provider_slug" class="speed-row">
+          <div
+            v-for="(p, i) in store.providerLatencies.slice(0, 10)"
+            :key="p.provider_slug"
+            class="speed-row"
+          >
             <span class="speed-rank">#{{ i + 1 }}</span>
-            <router-link :to="'/provider/' + p.provider_slug" class="speed-provider">{{ p.provider_name }}</router-link>
+            <router-link :to="'/provider/' + p.provider_slug" class="speed-provider">{{
+              p.provider_name
+            }}</router-link>
             <span class="speed-avg">{{ p.avg_latency_ms }}ms avg</span>
             <span class="speed-p95">p95: {{ p.p95_latency_ms }}ms</span>
             <span class="speed-samples" :title="p.last_measured">{{ p.sample_count }} samples</span>
@@ -317,16 +399,26 @@
       <div class="card wow-card">
         <div class="card-title">Week-over-Week Trend</div>
         <p class="wow-summary">
-          <span class="wow-date">{{ store.testSummaryPrevious.date }} → {{ store.testSummary.date }}:</span>
+          <span class="wow-date"
+            >{{ store.testSummaryPrevious.date }} → {{ store.testSummary.date }}:</span
+          >
           <span v-if="workingDelta > 0" class="wow-chunk wow-up">↑{{ workingDelta }} working</span>
-          <span v-else-if="workingDelta < 0" class="wow-chunk wow-down">↓{{ Math.abs(workingDelta) }} working</span>
+          <span v-else-if="workingDelta < 0" class="wow-chunk wow-down"
+            >↓{{ Math.abs(workingDelta) }} working</span
+          >
           <span v-else class="wow-chunk wow-flat">working steady</span>
           <span v-if="brokenDelta !== 0" class="wow-sep">·</span>
           <span v-if="brokenDelta > 0" class="wow-chunk wow-down">↑{{ brokenDelta }} broken</span>
-          <span v-else-if="brokenDelta < 0" class="wow-chunk wow-up">↓{{ Math.abs(brokenDelta) }} broken</span>
+          <span v-else-if="brokenDelta < 0" class="wow-chunk wow-up"
+            >↓{{ Math.abs(brokenDelta) }} broken</span
+          >
           <span v-if="limitedDelta !== 0" class="wow-sep">·</span>
-          <span v-if="limitedDelta > 0" class="wow-chunk wow-warn">↑{{ limitedDelta }} rate-limited</span>
-          <span v-else-if="limitedDelta < 0" class="wow-chunk wow-up">↓{{ Math.abs(limitedDelta) }} rate-limited</span>
+          <span v-if="limitedDelta > 0" class="wow-chunk wow-warn"
+            >↑{{ limitedDelta }} rate-limited</span
+          >
+          <span v-else-if="limitedDelta < 0" class="wow-chunk wow-up"
+            >↓{{ Math.abs(limitedDelta) }} rate-limited</span
+          >
         </p>
       </div>
     </div>
@@ -353,11 +445,19 @@
     </div>
 
     <!-- ── Recently broken / fixed ── -->
-    <div v-if="store.recentlyBroken.length > 0 || store.recentlyFixed.length > 0" class="recent-deltas">
+    <div
+      v-if="store.recentlyBroken.length > 0 || store.recentlyFixed.length > 0"
+      class="recent-deltas"
+    >
       <div v-if="store.recentlyBroken.length > 0" class="card delta-card delta-broken">
         <div class="card-title">🔴 Newly Broken</div>
         <div class="delta-list">
-          <router-link v-for="r in store.recentlyBroken" :key="r.full_id" :to="'/model/' + r.slug" class="delta-row">
+          <router-link
+            v-for="r in store.recentlyBroken"
+            :key="r.full_id"
+            :to="'/model/' + r.slug"
+            class="delta-row"
+          >
             <span class="delta-name">{{ r.name }}</span>
             <span class="delta-provider">via {{ r.provider }}</span>
           </router-link>
@@ -366,7 +466,12 @@
       <div v-if="store.recentlyFixed.length > 0" class="card delta-card delta-fixed">
         <div class="card-title">🟢 Newly Fixed</div>
         <div class="delta-list">
-          <router-link v-for="r in store.recentlyFixed" :key="r.full_id" :to="'/model/' + r.slug" class="delta-row">
+          <router-link
+            v-for="r in store.recentlyFixed"
+            :key="r.full_id"
+            :to="'/model/' + r.slug"
+            class="delta-row"
+          >
             <span class="delta-name">{{ r.name }}</span>
             <span class="delta-provider">via {{ r.provider }}</span>
           </router-link>
@@ -380,9 +485,18 @@
         <div class="card-title">Spotlight Models</div>
         <p class="motd-subtitle">Top balance of intelligence, availability, and stability</p>
         <div class="motd-list">
-          <router-link v-for="m in store.modelOfTheDay" :key="m.slug" :to="'/model/' + m.slug" class="motd-row">
+          <router-link
+            v-for="m in store.modelOfTheDay"
+            :key="m.slug"
+            :to="'/model/' + m.slug"
+            class="motd-row"
+          >
             <span class="motd-name">{{ m.name }}</span>
-            <span class="motd-meta">{{ m.creator || '' }} · {{ m.provCount }} providers · {{ m.intel }} intel{{ m.stable ? ' · all stable' : '' }}</span>
+            <span class="motd-meta"
+              >{{ m.creator || '' }} · {{ m.provCount }} providers · {{ m.intel }} intel{{
+                m.stable ? ' · all stable' : ''
+              }}</span
+            >
           </router-link>
         </div>
       </div>
@@ -420,29 +534,44 @@
             <span class="val-count working">
               {{ store.testSummary.results.working?.length ?? 0 }} working
               <template v-if="store.testSummaryPrevious">
-                <span v-if="workingDelta > 0" class="val-delta val-delta-up">+{{ workingDelta }}</span>
-                <span v-else-if="workingDelta < 0" class="val-delta val-delta-down">{{ workingDelta }}</span>
+                <span v-if="workingDelta > 0" class="val-delta val-delta-up"
+                  >+{{ workingDelta }}</span
+                >
+                <span v-else-if="workingDelta < 0" class="val-delta val-delta-down">{{
+                  workingDelta
+                }}</span>
                 <span v-else class="val-delta val-delta-flat">—</span>
               </template>
             </span>
             <span class="val-count broken">
               {{ store.testSummary.results.broken?.length ?? 0 }} broken
               <template v-if="store.testSummaryPrevious">
-                <span v-if="brokenDelta > 0" class="val-delta val-delta-up">+{{ brokenDelta }}</span>
-                <span v-else-if="brokenDelta < 0" class="val-delta val-delta-down">{{ brokenDelta }}</span>
+                <span v-if="brokenDelta > 0" class="val-delta val-delta-up"
+                  >+{{ brokenDelta }}</span
+                >
+                <span v-else-if="brokenDelta < 0" class="val-delta val-delta-down">{{
+                  brokenDelta
+                }}</span>
                 <span v-else class="val-delta val-delta-flat">—</span>
               </template>
             </span>
             <span class="val-count limited">
               {{ store.testSummary.results.rate_limited?.length ?? 0 }} limited
               <template v-if="store.testSummaryPrevious">
-                <span v-if="limitedDelta > 0" class="val-delta val-delta-up">+{{ limitedDelta }}</span>
-                <span v-else-if="limitedDelta < 0" class="val-delta val-delta-down">{{ limitedDelta }}</span>
+                <span v-if="limitedDelta > 0" class="val-delta val-delta-up"
+                  >+{{ limitedDelta }}</span
+                >
+                <span v-else-if="limitedDelta < 0" class="val-delta val-delta-down">{{
+                  limitedDelta
+                }}</span>
                 <span v-else class="val-delta val-delta-flat">—</span>
               </template>
             </span>
           </div>
-          <p v-if="store.validationMethod" class="val-procedure">{{ store.validationMethod.procedure }} <span class="val-free-only">(free models only; paid models are presumed working)</span></p>
+          <p v-if="store.validationMethod" class="val-procedure">
+            {{ store.validationMethod.procedure }}
+            <span class="val-free-only">(free models only; paid models are presumed working)</span>
+          </p>
         </div>
       </div>
     </div>
@@ -452,13 +581,24 @@
       <div class="card">
         <div class="card-title cf-toggle-header" @click="finExpanded = !finExpanded">
           AI Company Financials
-          <a href="https://isaiprofitable.com" target="_blank" rel="noopener" class="cf-source-link" @click.stop>via isaiprofitable.com ↗</a>
-          <span class="cf-toggle-arrow" :class="{ open: finExpanded }">{{ finExpanded ? '▾' : '▸' }}</span>
+          <a
+            href="https://isaiprofitable.com"
+            target="_blank"
+            rel="noopener"
+            class="cf-source-link"
+            @click.stop
+            >via isaiprofitable.com ↗</a
+          >
+          <span class="cf-toggle-arrow" :class="{ open: finExpanded }">{{
+            finExpanded ? '▾' : '▸'
+          }}</span>
         </div>
         <p class="cf-summary-line">
           Industry: <strong>${{ formatT(summary.total_spend) }}</strong> total spend ·
-          <strong>${{ formatT(summary.total_revenue) }}</strong> revenue ·
-          PNL: <strong :class="summary.total_pnl >= 0 ? 'cf-green' : 'cf-red'">{{ summary.total_pnl >= 0 ? '+' : '' }}${{ formatT(summary.total_pnl) }}</strong>
+          <strong>${{ formatT(summary.total_revenue) }}</strong> revenue · PNL:
+          <strong :class="summary.total_pnl >= 0 ? 'cf-green' : 'cf-red'"
+            >{{ summary.total_pnl >= 0 ? '+' : '' }}${{ formatT(summary.total_pnl) }}</strong
+          >
           · <span class="cf-green">{{ summary.profitable_count }} profitable</span>,
           <span class="cf-red">{{ summary.unprofitable_count }} unprofitable</span>
         </p>
@@ -466,20 +606,44 @@
         <div v-if="store.companyFinancialsHistory.length >= 2" class="cf-sparkline-row">
           <span class="cf-spark-label">PNL trend</span>
           <svg viewBox="0 0 300 40" class="cf-sparkline">
-            <polyline :points="pnlSparkPoints" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-            <line x1="0" y1="20" x2="300" y2="20" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,4" />
+            <polyline
+              :points="pnlSparkPoints"
+              fill="none"
+              stroke="var(--red)"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <line
+              x1="0"
+              y1="20"
+              x2="300"
+              y2="20"
+              stroke="var(--border)"
+              stroke-width="1"
+              stroke-dasharray="4,4"
+            />
           </svg>
           <span class="cf-spark-end" :class="pnlTrend >= 0 ? 'cf-green' : 'cf-red'">
             {{ pnlTrend >= 0 ? '↑' : '↓' }} ${{ Math.abs(pnlTrend).toFixed(0) }}B
           </span>
         </div>
         <div v-if="finExpanded" class="cf-list">
-          <div v-for="c in store.companyFinancials.companies" :key="c.name" class="cf-row" :class="{ 'cf-infra': c.isInfrastructure }">
+          <div
+            v-for="c in store.companyFinancials.companies"
+            :key="c.name"
+            class="cf-row"
+            :class="{ 'cf-infra': c.isInfrastructure }"
+          >
             <span class="cf-name">{{ c.name }}</span>
             <span class="cf-subtitle">{{ c.subtitle }}</span>
             <div class="cf-bar-track">
               <div class="cf-bar-spend" :style="{ width: spendPct(c) + '%' }"></div>
-              <div v-if="c.revenue > 0" class="cf-bar-rev" :style="{ width: revPct(c) + '%', left: spendPct(c) + '%' }"></div>
+              <div
+                v-if="c.revenue > 0"
+                class="cf-bar-rev"
+                :style="{ width: revPct(c) + '%', left: spendPct(c) + '%' }"
+              ></div>
             </div>
             <span class="cf-pnl" :class="c.pnl >= 0 ? 'cf-green' : 'cf-red'">
               {{ c.pnl >= 0 ? '+' : '' }}${{ c.pnl >= 100 ? Math.round(c.pnl) : c.pnl.toFixed(1) }}B
@@ -515,7 +679,13 @@ const sparkPoints = computed(() => {
       broken: generateSparkPath(0.3, 2),
     };
   } catch {
-    return { working: '0,18 60,18', models: '0,18 60,18', datapoints: '0,18 60,18', creators: '0,18 60,18', broken: '0,18 60,18' };
+    return {
+      working: '0,18 60,18',
+      models: '0,18 60,18',
+      datapoints: '0,18 60,18',
+      creators: '0,18 60,18',
+      broken: '0,18 60,18',
+    };
   }
 });
 
@@ -524,27 +694,31 @@ function generateSparkPath(base: number, seed: number): string {
   const pts: string[] = [];
   for (let x = 0; x <= 60; x += 4) {
     const noise = Math.sin(x * 0.4 + seed) * 3 + Math.cos(x * 0.7 + seed * 2) * 2;
-    const y = 18 - (base * 4) - noise;
+    const y = 18 - base * 4 - noise;
     const clipped = Math.round(Math.max(1, Math.min(19, y)));
-    if (!isFinite(clipped)) { pts.push(`${x},10`); continue; }
+    if (!isFinite(clipped)) {
+      pts.push(`${x},10`);
+      continue;
+    }
     pts.push(`${x},${clipped}`);
   }
   return pts.join(' ');
 }
 
 // Fine-tune statistics
-const foundationCount = computed(() =>
-  store.allModels.filter(m => !m.base_model).length,
-);
+const foundationCount = computed(() => store.allModels.filter((m) => !m.base_model).length);
 
 const DERIV_LABELS: Record<string, string> = {
-  finetune: 'Fine-tune', merge: 'Merge', distillation: 'Distillation', dpo: 'DPO',
-  continued_pretraining: 'CPT', lora_adapter: 'LoRA', unknown: 'Unknown',
+  finetune: 'Fine-tune',
+  merge: 'Merge',
+  distillation: 'Distillation',
+  dpo: 'DPO',
+  continued_pretraining: 'CPT',
+  lora_adapter: 'LoRA',
+  unknown: 'Unknown',
 };
 
-const finetuneCount = computed(() =>
-  store.allModels.filter(m => m.base_model).length,
-);
+const finetuneCount = computed(() => store.allModels.filter((m) => m.base_model).length);
 
 const derivationMethodEntries = computed(() => {
   const counts: Record<string, number> = {};
@@ -556,12 +730,12 @@ const derivationMethodEntries = computed(() => {
   return Object.entries(counts).sort((a, b) => b[1] - a[1]);
 });
 
-const uncategorizedCount = computed(() =>
-  store.allModels.filter(m => !m.family || m.family === 'Uncategorized').length,
+const uncategorizedCount = computed(
+  () => store.allModels.filter((m) => !m.family || m.family === 'Uncategorized').length,
 );
 
-const modelsWithFamily = computed(() =>
-  store.allModels.filter(m => m.family && m.family !== 'Uncategorized').length,
+const modelsWithFamily = computed(
+  () => store.allModels.filter((m) => m.family && m.family !== 'Uncategorized').length,
 );
 
 const coveragePct = computed(() =>
@@ -577,33 +751,36 @@ const topDerived = computed(() => {
 const MAX_CHAIN_DEPTH = 20;
 const deepestChains = computed(() => {
   try {
-  const chains: { model: ModelData; depth: number; path: string[] }[] = [];
-  for (const model of store.allModels) {
-    if (!model.base_model) continue;
-    const path: string[] = [];
-    const visited = new Set<string>([model.slug]);
-    let slug: string | null = model.base_model;
-    let steps = 0;
-    while (slug && steps < MAX_CHAIN_DEPTH) {
-      steps++;
-      if (visited.has(slug)) break; // cycle detected
-      visited.add(slug);
-      const parent = store.modelBySlug.get(slug);
-      if (parent) {
-        path.push(parent.name);
-        slug = parent.base_model;
-      } else {
-        path.push(slug);
-        slug = null;
+    const chains: { model: ModelData; depth: number; path: string[] }[] = [];
+    for (const model of store.allModels) {
+      if (!model.base_model) continue;
+      const path: string[] = [];
+      const visited = new Set<string>([model.slug]);
+      let slug: string | null = model.base_model;
+      let steps = 0;
+      while (slug && steps < MAX_CHAIN_DEPTH) {
+        steps++;
+        if (visited.has(slug)) break; // cycle detected
+        visited.add(slug);
+        const parent = store.modelBySlug.get(slug);
+        if (parent) {
+          path.push(parent.name);
+          slug = parent.base_model;
+        } else {
+          path.push(slug);
+          slug = null;
+        }
+      }
+      if (path.length >= 2) {
+        chains.push({ model, depth: path.length, path });
       }
     }
-    if (path.length >= 2) {
-      chains.push({ model, depth: path.length, path });
-    }
+    chains.sort((a, b) => b.depth - a.depth);
+    return chains.slice(0, 5);
+  } catch (e) {
+    console.error('deepestChains error:', e);
+    return [];
   }
-  chains.sort((a, b) => b.depth - a.depth);
-  return chains.slice(0, 5);
-  } catch(e) { console.error('deepestChains error:', e); return []; }
 });
 
 const topFamilies = computed(() => {
@@ -625,11 +802,24 @@ const topFamilies = computed(() => {
 });
 
 const FAMILY_COLORS = [
-  '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
-  '#ec4899', '#f43f5e', '#ef4444', '#f97316',
-  '#f59e0b', '#eab308', '#84cc16', '#22c55e',
-  '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
-  '#3b82f6', '#6366f1',
+  '#6366f1',
+  '#8b5cf6',
+  '#a855f7',
+  '#d946ef',
+  '#ec4899',
+  '#f43f5e',
+  '#ef4444',
+  '#f97316',
+  '#f59e0b',
+  '#eab308',
+  '#84cc16',
+  '#22c55e',
+  '#10b981',
+  '#14b8a6',
+  '#06b6d4',
+  '#0ea5e9',
+  '#3b82f6',
+  '#6366f1',
 ];
 
 const treemapFamilies = computed(() => {
@@ -651,7 +841,9 @@ const topScored = computed(() => {
   if (!scores) return [];
   const entries: { slug: string; name: string; score: number }[] = [];
   for (const [fullId, scoreList] of Object.entries(scores.scores)) {
-    const intel = scoreList.find(s => s.source === 'artificial_analysis' && s.score_type === 'intelligence');
+    const intel = scoreList.find(
+      (s) => s.source === 'artificial_analysis' && s.score_type === 'intelligence',
+    );
     if (!intel || intel.score_value == null) continue;
     const dp = store.datapointById.get(fullId);
     if (!dp) continue;
@@ -697,7 +889,10 @@ const topPerRole = computed(() => {
 // New This Week — models first discovered in the last 7 days
 const newThisWeek = computed(() => {
   const weekAgo = new Date(Date.now() - 7 * 864e5);
-  const items: { dp: { full_id: string; provider: string; created_at: string | null }; model: { slug: string; name: string } }[] = [];
+  const items: {
+    dp: { full_id: string; provider: string; created_at: string | null };
+    model: { slug: string; name: string };
+  }[] = [];
   const seen = new Set<string>();
   for (const creator of store.visibleCreators) {
     for (const model of creator.models) {
@@ -720,7 +915,10 @@ const newThisWeek = computed(() => {
 });
 
 const recentlyActive = computed(() => {
-  const items: { dp: { full_id: string; provider: string; last_success: string | null }; model: { slug: string; name: string } }[] = [];
+  const items: {
+    dp: { full_id: string; provider: string; last_success: string | null };
+    model: { slug: string; name: string };
+  }[] = [];
   for (const creator of store.visibleCreators) {
     for (const model of creator.models) {
       for (const dp of model.providers) {
@@ -732,7 +930,10 @@ const recentlyActive = computed(() => {
       }
     }
   }
-  items.sort((a, b) => { if (!a.dp.last_success || !b.dp.last_success) return 0; return new Date(b.dp.last_success).getTime() - new Date(a.dp.last_success).getTime(); });
+  items.sort((a, b) => {
+    if (!a.dp.last_success || !b.dp.last_success) return 0;
+    return new Date(b.dp.last_success).getTime() - new Date(a.dp.last_success).getTime();
+  });
   return items.slice(0, 5);
 });
 
@@ -752,7 +953,7 @@ const criticalIssues = computed(() => {
   try {
     const issues = store.knownIssues;
     if (!Array.isArray(issues)) return [];
-    return issues.filter(i => i.severity === 'critical' || i.severity === 'high').slice(0, 6);
+    return issues.filter((i) => i.severity === 'critical' || i.severity === 'high').slice(0, 6);
   } catch {
     return [];
   }
@@ -763,23 +964,39 @@ const timelineBars = computed(() => {
   const tl = store.providerTimeline;
   if (!tl?.timeline.length) return [];
   const maxCumulative = Math.max(1, tl.timeline[tl.timeline.length - 1].cumulative);
-  return tl.timeline.map((entry: { date: string; added: Array<{ slug: string }>; cumulative: number; color?: string }) => {
-    const color = entry.added.some((a: { slug: string }) => a.slug === 'openrouter') ? '#A78BFA'
-      : entry.added.length >= 3 ? '#60A5FA'
-      : '#374151';
-    return { ...entry, color, width: Math.max(0.5, (entry.added.length / maxCumulative) * 100) };
-  });
+  return tl.timeline.map(
+    (entry: {
+      date: string;
+      added: Array<{ slug: string }>;
+      cumulative: number;
+      color?: string;
+    }) => {
+      const color = entry.added.some((a: { slug: string }) => a.slug === 'openrouter')
+        ? '#A78BFA'
+        : entry.added.length >= 3
+          ? '#60A5FA'
+          : '#374151';
+      return { ...entry, color, width: Math.max(0.5, (entry.added.length / maxCumulative) * 100) };
+    },
+  );
 });
 
 const timelineLast5 = computed(() => {
   const tl = store.providerTimeline;
   if (!tl?.timeline.length) return [];
-  return tl.timeline.slice(-5).reverse().map(e => ({
-    ...e,
-    color: (e.added as Array<{slug: string}>).some((a: {slug: string}) => a.slug === 'openrouter') ? '#A78BFA'
-      : e.added.length >= 3 ? '#60A5FA'
-      : '#374151',
-  }));
+  return tl.timeline
+    .slice(-5)
+    .reverse()
+    .map((e) => ({
+      ...e,
+      color: (e.added as Array<{ slug: string }>).some(
+        (a: { slug: string }) => a.slug === 'openrouter',
+      )
+        ? '#A78BFA'
+        : e.added.length >= 3
+          ? '#60A5FA'
+          : '#374151',
+    }));
 });
 
 function formatDate(d: string): string {
@@ -824,11 +1041,23 @@ function formatTimeAgo(dateStr: string | null): string {
 }
 
 // ── Company financials helpers ──
-const summary = computed(() => store.companyFinancials?.summary ?? { total_spend: 0, total_revenue: 0, total_pnl: 0, profitable_count: 0, unprofitable_count: 0 });
+const summary = computed(
+  () =>
+    store.companyFinancials?.summary ?? {
+      total_spend: 0,
+      total_revenue: 0,
+      total_pnl: 0,
+      profitable_count: 0,
+      unprofitable_count: 0,
+    },
+);
 
 const maxFinancial = computed(() => {
   if (!store.companyFinancials) return 1;
-  return Math.max(...store.companyFinancials.companies.map(c => c.spend + Math.max(0, c.revenue)), 1);
+  return Math.max(
+    ...store.companyFinancials.companies.map((c) => c.spend + Math.max(0, c.revenue)),
+    1,
+  );
 });
 
 function spendPct(c: { spend: number; revenue: number }): number {
@@ -849,10 +1078,10 @@ function formatT(billions: number): string {
 const pnlSparkPoints = computed(() => {
   const hist = store.companyFinancialsHistory;
   if (hist.length < 2) return '0,20 300,20';
-  const pnls = hist.map(h => h.summary.total_pnl);
+  const pnls = hist.map((h) => h.summary.total_pnl);
   const minPnl = Math.min(...pnls);
   const maxPnl = Math.max(...pnls, 0);
-  const range = (maxPnl - minPnl) || 1;
+  const range = maxPnl - minPnl || 1;
   const pts: string[] = [];
   for (let i = 0; i < pnls.length; i++) {
     const x = (i / (pnls.length - 1)) * 300;
@@ -865,7 +1094,9 @@ const pnlSparkPoints = computed(() => {
 const pnlTrend = computed(() => {
   const hist = store.companyFinancialsHistory;
   if (hist.length < 2) return 0;
-  return Math.round((hist[hist.length - 1].summary.total_pnl - hist[0].summary.total_pnl) * 10) / 10;
+  return (
+    Math.round((hist[hist.length - 1].summary.total_pnl - hist[0].summary.total_pnl) * 10) / 10
+  );
 });
 </script>
 
@@ -983,27 +1214,80 @@ const pnlTrend = computed(() => {
 }
 
 /* Router-only alert */
-.router-alert-section { margin-bottom: 20px; }
-.router-alert-card { border-left: 3px solid #F59E0B; }
-.router-alert-text { font-size: 0.75rem; color: var(--text-secondary); margin: 4px 0 8px; line-height: 1.4; }
-.router-alert-models { display: flex; flex-wrap: wrap; gap: 4px; }
+.router-alert-section {
+  margin-bottom: 20px;
+}
+.router-alert-card {
+  border-left: 3px solid #f59e0b;
+}
+.router-alert-text {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: 4px 0 8px;
+  line-height: 1.4;
+}
+.router-alert-models {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
 .router-model-chip {
-  padding: 1px 6px; font-size: 0.6rem; border-radius: 999px;
-  background: rgba(245,158,11,0.12); color: #F59E0B; white-space: nowrap;
+  padding: 1px 6px;
+  font-size: 0.6rem;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  white-space: nowrap;
 }
 .router-model-chip.more {
-  background: var(--bg-hover); color: var(--text-dim);
+  background: var(--bg-hover);
+  color: var(--text-dim);
 }
 
 /* Provider timeline */
-.timeline-section { margin-bottom: 20px; }
-.tl-bar { display: flex; height: 24px; border-radius: 4px; overflow: hidden; gap: 1px; margin: 12px 0 8px; }
-.tl-bar-seg { min-width: 2px; border-radius: 2px; transition: opacity 0.2s; cursor: default; }
-.tl-bar-seg:hover { opacity: 0.7; }
-.tl-legend { display: flex; flex-wrap: wrap; gap: 10px; }
-.tl-legend-item { display: flex; align-items: center; gap: 4px; font-size: 0.62rem; color: var(--text-dim); }
-.tl-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
-.card-subtitle { font-size: 0.68rem; color: var(--text-dim); margin: 2px 0 0; }
+.timeline-section {
+  margin-bottom: 20px;
+}
+.tl-bar {
+  display: flex;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  gap: 1px;
+  margin: 12px 0 8px;
+}
+.tl-bar-seg {
+  min-width: 2px;
+  border-radius: 2px;
+  transition: opacity 0.2s;
+  cursor: default;
+}
+.tl-bar-seg:hover {
+  opacity: 0.7;
+}
+.tl-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.tl-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.62rem;
+  color: var(--text-dim);
+}
+.tl-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.card-subtitle {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  margin: 2px 0 0;
+}
 
 /* Validation deltas */
 .val-vs {
@@ -1019,9 +1303,15 @@ const pnlTrend = computed(() => {
   margin-left: 2px;
 }
 
-.val-delta-up { color: var(--green); }
-.val-delta-down { color: var(--red); }
-.val-delta-flat { color: var(--text-muted); }
+.val-delta-up {
+  color: var(--green);
+}
+.val-delta-down {
+  color: var(--red);
+}
+.val-delta-flat {
+  color: var(--text-muted);
+}
 
 /* Aurora header */
 .aurora-header {
@@ -1035,9 +1325,9 @@ const pnlTrend = computed(() => {
   position: absolute;
   inset: -40px -40px 0 -40px;
   background:
-    radial-gradient(ellipse 60% 50% at 20% 40%, rgba(107,138,255,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 60% at 70% 30%, rgba(167,139,250,0.05) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 40% at 50% 70%, rgba(52,211,153,0.04) 0%, transparent 60%);
+    radial-gradient(ellipse 60% 50% at 20% 40%, rgba(107, 138, 255, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 70% 30%, rgba(167, 139, 250, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 70%, rgba(52, 211, 153, 0.04) 0%, transparent 60%);
   filter: blur(20px);
   pointer-events: none;
 }
@@ -1078,7 +1368,7 @@ const pnlTrend = computed(() => {
   gap: 8px;
   padding: 10px 14px;
   margin-bottom: 16px;
-  background: rgba(251,191,36,0.1);
+  background: rgba(251, 191, 36, 0.1);
   border: 1px solid var(--orange);
   border-radius: 8px;
   font-size: 0.78rem;
@@ -1142,12 +1432,24 @@ const pnlTrend = computed(() => {
   border-radius: 2px 2px 0 0;
 }
 
-.stat-accent .hsc-top-bar { background: var(--accent-gradient, linear-gradient(135deg, #6b8aff, #a78bfa)); }
-.stat-green .hsc-top-bar { background: var(--green); }
-.stat-purple .hsc-top-bar { background: var(--purple); }
-.stat-creators .hsc-top-bar { background: var(--cyan); }
-.stat-success .hsc-top-bar { background: var(--gradient-green, linear-gradient(135deg, #34d399, #22d3ee)); }
-.stat-broken .hsc-top-bar { background: var(--red-dim); }
+.stat-accent .hsc-top-bar {
+  background: var(--accent-gradient, linear-gradient(135deg, #6b8aff, #a78bfa));
+}
+.stat-green .hsc-top-bar {
+  background: var(--green);
+}
+.stat-purple .hsc-top-bar {
+  background: var(--purple);
+}
+.stat-creators .hsc-top-bar {
+  background: var(--cyan);
+}
+.stat-success .hsc-top-bar {
+  background: var(--gradient-green, linear-gradient(135deg, #34d399, #22d3ee));
+}
+.stat-broken .hsc-top-bar {
+  background: var(--red-dim);
+}
 
 .hsc-value {
   font-size: 2rem;
@@ -1158,8 +1460,12 @@ const pnlTrend = computed(() => {
   position: relative;
 }
 
-.hsc-value.green-val { color: var(--green); }
-.hsc-value.orange-val { color: var(--orange); }
+.hsc-value.green-val {
+  color: var(--green);
+}
+.hsc-value.orange-val {
+  color: var(--orange);
+}
 
 .hsc-unit {
   font-size: 1.1rem;
@@ -1336,9 +1642,15 @@ const pnlTrend = computed(() => {
   transition: width 0.6s var(--ease-emphasis);
 }
 
-.epc-bar-fill.bar-healthy { background: var(--green); }
-.epc-bar-fill.bar-degraded { background: var(--orange); }
-.epc-bar-fill.bar-down { background: var(--red); }
+.epc-bar-fill.bar-healthy {
+  background: var(--green);
+}
+.epc-bar-fill.bar-degraded {
+  background: var(--orange);
+}
+.epc-bar-fill.bar-down {
+  background: var(--red);
+}
 
 /* Top Ranked + Top Scored row */
 .insights-row {
@@ -1370,7 +1682,7 @@ const pnlTrend = computed(() => {
 }
 
 .top-ranked-row:hover {
-  background: var(--bg-elevated, rgba(255,255,255,0.03));
+  background: var(--bg-elevated, rgba(255, 255, 255, 0.03));
 }
 
 .tr-role {
@@ -1420,7 +1732,7 @@ const pnlTrend = computed(() => {
 }
 
 .recent-row:hover {
-  background: var(--bg-elevated, rgba(255,255,255,0.03));
+  background: var(--bg-elevated, rgba(255, 255, 255, 0.03));
 }
 
 .recent-model {
@@ -1466,7 +1778,7 @@ const pnlTrend = computed(() => {
   font-weight: 600;
   background: var(--orange-subtle);
   color: var(--orange);
-  border: 1px solid rgba(251,191,36,0.2);
+  border: 1px solid rgba(251, 191, 36, 0.2);
 }
 
 .used-up-reason {
@@ -1504,9 +1816,15 @@ const pnlTrend = computed(() => {
   font-weight: 600;
 }
 
-.val-count.working { color: var(--green); }
-.val-count.broken { color: var(--red); }
-.val-count.limited { color: var(--orange); }
+.val-count.working {
+  color: var(--green);
+}
+.val-count.broken {
+  color: var(--red);
+}
+.val-count.limited {
+  color: var(--orange);
+}
 
 .val-procedure {
   font-size: 0.72rem;
@@ -1600,7 +1918,7 @@ const pnlTrend = computed(() => {
   transition: background 0.12s;
 }
 .dash-deriv-link:hover {
-  background: var(--accent-subtle-hover, rgba(107,138,255,0.18));
+  background: var(--accent-subtle-hover, rgba(107, 138, 255, 0.18));
 }
 .most-derived-section {
   border-top: 1px solid var(--border);
@@ -1630,7 +1948,7 @@ const pnlTrend = computed(() => {
   border-radius: var(--radius-full);
   font-size: 0.7rem;
   font-weight: 600;
-  background: var(--accent-subtle, rgba(107,138,255,0.1));
+  background: var(--accent-subtle, rgba(107, 138, 255, 0.1));
   color: var(--accent);
   text-decoration: none;
   transition: all var(--dur-standard, 300ms) var(--ease-default);
@@ -1638,8 +1956,8 @@ const pnlTrend = computed(() => {
 }
 
 .ft-chip:hover {
-  background: var(--accent-subtle-hover, rgba(107,138,255,0.18));
-  border-color: var(--accent-dim, rgba(107,138,255,0.3));
+  background: var(--accent-subtle-hover, rgba(107, 138, 255, 0.18));
+  border-color: var(--accent-dim, rgba(107, 138, 255, 0.3));
   transform: translateY(-1px);
 }
 
@@ -1655,7 +1973,7 @@ const pnlTrend = computed(() => {
   font-weight: 700;
   padding: 1px 5px;
   border-radius: var(--radius-full);
-  background: var(--bg-elevated, rgba(255,255,255,0.06));
+  background: var(--bg-elevated, rgba(255, 255, 255, 0.06));
   color: var(--text-dim);
   font-family: 'JetBrains Mono', monospace;
 }
@@ -1744,14 +2062,14 @@ const pnlTrend = computed(() => {
   gap: 6px;
   padding: 6px 10px;
   margin-top: 4px;
-  background: rgba(251,191,36,0.08);
+  background: rgba(251, 191, 36, 0.08);
   border-radius: 6px;
   font-size: 0.65rem;
   color: var(--orange);
 }
 .ft-resolvable code {
   font-size: 0.6rem;
-  background: rgba(251,191,36,0.12);
+  background: rgba(251, 191, 36, 0.12);
   padding: 1px 4px;
   border-radius: 3px;
 }
@@ -1820,117 +2138,458 @@ const pnlTrend = computed(() => {
 }
 
 /* ── Flakiest models ── */
-.flaky-section { margin-bottom: 20px; }
-.flaky-list { display: flex; flex-direction: column; gap: 2px; }
-.flaky-row {
-  display: flex; align-items: center; gap: 10px; padding: 5px 0;
-  text-decoration: none; border-radius: 4px; transition: background 0.12s;
+.flaky-section {
+  margin-bottom: 20px;
 }
-.flaky-row:hover { background: var(--bg-elevated); }
-.flaky-name { font-size: 0.78rem; font-weight: 600; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-.flaky-rate { font-size: 0.72rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
-.flaky-rate.rate-bad { color: var(--red); }
-.flaky-rate.rate-warn { color: var(--orange); }
-.flaky-samples { font-size: 0.62rem; color: var(--text-muted); white-space: nowrap; }
+.flaky-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.flaky-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.12s;
+}
+.flaky-row:hover {
+  background: var(--bg-elevated);
+}
+.flaky-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.flaky-rate {
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+.flaky-rate.rate-bad {
+  color: var(--red);
+}
+.flaky-rate.rate-warn {
+  color: var(--orange);
+}
+.flaky-samples {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
 
 /* ── Recently broken / fixed ── */
-.recent-deltas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-.delta-card { border-left: 3px solid var(--border); }
-.delta-card.delta-broken { border-left-color: var(--red); }
-.delta-card.delta-fixed { border-left-color: var(--green); }
-.delta-list { display: flex; flex-direction: column; gap: 2px; }
-.delta-row {
-  display: flex; align-items: center; gap: 8px; padding: 4px 0;
-  text-decoration: none; border-radius: 4px; transition: background 0.12s;
+.recent-deltas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
 }
-.delta-row:hover { background: var(--bg-elevated); }
-.delta-name { font-size: 0.75rem; font-weight: 600; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.delta-provider { font-size: 0.62rem; color: var(--text-muted); flex-shrink: 0; }
+.delta-card {
+  border-left: 3px solid var(--border);
+}
+.delta-card.delta-broken {
+  border-left-color: var(--red);
+}
+.delta-card.delta-fixed {
+  border-left-color: var(--green);
+}
+.delta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.delta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.12s;
+}
+.delta-row:hover {
+  background: var(--bg-elevated);
+}
+.delta-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.delta-provider {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
 
 /* ── Key health ── */
-.keyhealth-section { margin-bottom: 20px; }
-.kh-list { display: flex; flex-direction: column; gap: 4px; }
-.kh-row { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 4px; background: var(--bg-elevated); font-size: 0.7rem; flex-wrap: wrap; }
-.kh-provider { font-weight: 700; color: var(--text); min-width: 100px; }
-.kh-name { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-dim); }
-.kh-status { padding: 1px 6px; font-size: 0.58rem; font-weight: 700; text-transform: uppercase; border-radius: 3px; }
-.kh-status.kh-valid { background: rgba(52,211,153,0.12); color: var(--green); }
-.kh-status.kh-rate_limited { background: rgba(245,158,11,0.12); color: var(--orange); }
-.kh-status.kh-expired { background: rgba(239,68,68,0.12); color: var(--red); }
-.kh-status.kh-unknown { background: rgba(156,163,175,0.12); color: #9ca3af; }
-.kh-detail { font-size: 0.62rem; color: var(--text-muted); flex-basis: 100%; margin-top: 2px; }
+.keyhealth-section {
+  margin-bottom: 20px;
+}
+.kh-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.kh-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  font-size: 0.7rem;
+  flex-wrap: wrap;
+}
+.kh-provider {
+  font-weight: 700;
+  color: var(--text);
+  min-width: 100px;
+}
+.kh-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+.kh-status {
+  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 3px;
+}
+.kh-status.kh-valid {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green);
+}
+.kh-status.kh-rate_limited {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--orange);
+}
+.kh-status.kh-expired {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--red);
+}
+.kh-status.kh-unknown {
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+}
+.kh-detail {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  flex-basis: 100%;
+  margin-top: 2px;
+}
 
 /* ── Speed leaderboard ── */
-.speed-section { margin-bottom: 20px; }
-.speed-list { display: flex; flex-direction: column; gap: 3px; }
-.speed-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 0.75rem; }
-.speed-rank { width: 24px; font-size: 0.62rem; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
-.speed-provider { font-weight: 600; color: var(--accent); text-decoration: none; min-width: 100px; }
-.speed-provider:hover { text-decoration: underline; }
-.speed-avg { font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text); white-space: nowrap; }
-.speed-p95 { font-size: 0.68rem; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); white-space: nowrap; }
-.speed-samples { font-size: 0.62rem; color: var(--text-dim); margin-left: auto; white-space: nowrap; }
+.speed-section {
+  margin-bottom: 20px;
+}
+.speed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.speed-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 0.75rem;
+}
+.speed-rank {
+  width: 24px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.speed-provider {
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  min-width: 100px;
+}
+.speed-provider:hover {
+  text-decoration: underline;
+}
+.speed-avg {
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+  white-space: nowrap;
+}
+.speed-p95 {
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.speed-samples {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  margin-left: auto;
+  white-space: nowrap;
+}
 
 /* ── Week-over-week trend ── */
-.wow-section { margin-bottom: 20px; }
-.wow-card { border-left: 3px solid var(--accent); }
-.wow-summary { font-size: 0.75rem; line-height: 1.5; margin: 0; display: flex; flex-wrap: wrap; gap: 3px 6px; align-items: baseline; }
-.wow-date { color: var(--text-dim); font-size: 0.68rem; }
-.wow-chunk { font-weight: 700; white-space: nowrap; }
-.wow-chunk.wow-up { color: var(--green); }
-.wow-chunk.wow-down { color: var(--red); }
-.wow-chunk.wow-warn { color: var(--orange); }
-.wow-chunk.wow-flat { color: var(--text-muted); }
-.wow-sep { color: var(--text-muted); }
+.wow-section {
+  margin-bottom: 20px;
+}
+.wow-card {
+  border-left: 3px solid var(--accent);
+}
+.wow-summary {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 6px;
+  align-items: baseline;
+}
+.wow-date {
+  color: var(--text-dim);
+  font-size: 0.68rem;
+}
+.wow-chunk {
+  font-weight: 700;
+  white-space: nowrap;
+}
+.wow-chunk.wow-up {
+  color: var(--green);
+}
+.wow-chunk.wow-down {
+  color: var(--red);
+}
+.wow-chunk.wow-warn {
+  color: var(--orange);
+}
+.wow-chunk.wow-flat {
+  color: var(--text-muted);
+}
+.wow-sep {
+  color: var(--text-muted);
+}
 
 /* ── Family treemap ── */
-.treemap-section { margin-bottom: 20px; }
-.treemap-canvas { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 4px; margin-top: 8px; }
-.treemap-cell {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 8px 4px; border-radius: 6px; text-decoration: none; transition: transform 0.12s, filter 0.12s;
-  min-height: 60px; cursor: pointer;
+.treemap-section {
+  margin-bottom: 20px;
 }
-.treemap-cell:hover { transform: scale(1.03); filter: brightness(1.15); }
-.treemap-cell-name { font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.95); text-align: center; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal; }
-.treemap-cell-count { font-size: 0.62rem; color: rgba(255,255,255,0.7); margin-top: 2px; }
+.treemap-canvas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 4px;
+  margin-top: 8px;
+}
+.treemap-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition:
+    transform 0.12s,
+    filter 0.12s;
+  min-height: 60px;
+  cursor: pointer;
+}
+.treemap-cell:hover {
+  transform: scale(1.03);
+  filter: brightness(1.15);
+}
+.treemap-cell-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  text-align: center;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+}
+.treemap-cell-count {
+  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 2px;
+}
 
 /* ── Company Financials ── */
-.company-fin-section { margin-bottom: 24px; }
-.cf-toggle-header { cursor: pointer; user-select: none; display: flex; align-items: center; }
-.cf-toggle-header:hover { color: var(--accent); }
-.cf-toggle-arrow { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); transition: transform 0.15s; }
-.cf-toggle-arrow.open { color: var(--accent); }
+.company-fin-section {
+  margin-bottom: 24px;
+}
+.cf-toggle-header {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+}
+.cf-toggle-header:hover {
+  color: var(--accent);
+}
+.cf-toggle-arrow {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  transition: transform 0.15s;
+}
+.cf-toggle-arrow.open {
+  color: var(--accent);
+}
 .cf-source-link {
-  font-size: 0.6rem; font-weight: 400; color: var(--text-dim); text-decoration: none;
-  margin-left: 8px; opacity: 0.7;
+  font-size: 0.6rem;
+  font-weight: 400;
+  color: var(--text-dim);
+  text-decoration: none;
+  margin-left: 8px;
+  opacity: 0.7;
 }
-.cf-source-link:hover { opacity: 1; color: var(--accent); }
+.cf-source-link:hover {
+  opacity: 1;
+  color: var(--accent);
+}
 .cf-summary-line {
-  font-size: 0.7rem; color: var(--text-muted); margin: 0 0 12px; line-height: 1.5;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+  line-height: 1.5;
 }
-.cf-green { color: var(--green); font-weight: 700; }
-.cf-red { color: var(--red); font-weight: 700; }
-.cf-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
-.cf-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.72rem; flex-wrap: wrap; }
-.cf-row.cf-infra { opacity: 0.65; }
-.cf-name { font-weight: 700; color: var(--text); min-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cf-subtitle { font-size: 0.6rem; color: var(--text-dim); min-width: 50px; display: none; }
-.cf-bar-track { flex: 1; height: 10px; background: var(--bg-elevated); border-radius: 3px; position: relative; overflow: hidden; min-width: 60px; }
-.cf-bar-spend { position: absolute; left: 0; top: 0; height: 100%; background: rgba(239, 68, 68, 0.3); border-radius: 3px 0 0 3px; }
-.cf-bar-rev { position: absolute; top: 0; height: 100%; background: rgba(52, 211, 153, 0.5); border-radius: 0 3px 3px 0; }
-.cf-pnl { font-size: 0.68rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; min-width: 70px; text-align: right; white-space: nowrap; }
-.cf-sparkline-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 4px 0; }
-.cf-spark-label { font-size: 0.6rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; min-width: 55px; }
-.cf-sparkline { flex: 1; height: 40px; background: var(--bg-elevated); border-radius: 4px; }
-.cf-spark-end { font-size: 0.62rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; min-width: 70px; text-align: right; }
-.cf-updated { font-size: 0.58rem; color: var(--text-dim); margin: 0; }
+.cf-green {
+  color: var(--green);
+  font-weight: 700;
+}
+.cf-red {
+  color: var(--red);
+  font-weight: 700;
+}
+.cf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.cf-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 0.72rem;
+  flex-wrap: wrap;
+}
+.cf-row.cf-infra {
+  opacity: 0.65;
+}
+.cf-name {
+  font-weight: 700;
+  color: var(--text);
+  min-width: 130px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cf-subtitle {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  min-width: 50px;
+  display: none;
+}
+.cf-bar-track {
+  flex: 1;
+  height: 10px;
+  background: var(--bg-elevated);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+  min-width: 60px;
+}
+.cf-bar-spend {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: rgba(239, 68, 68, 0.3);
+  border-radius: 3px 0 0 3px;
+}
+.cf-bar-rev {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: rgba(52, 211, 153, 0.5);
+  border-radius: 0 3px 3px 0;
+}
+.cf-pnl {
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  min-width: 70px;
+  text-align: right;
+  white-space: nowrap;
+}
+.cf-sparkline-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 4px 0;
+}
+.cf-spark-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 55px;
+}
+.cf-sparkline {
+  flex: 1;
+  height: 40px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+}
+.cf-spark-end {
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  min-width: 70px;
+  text-align: right;
+}
+.cf-updated {
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  margin: 0;
+}
 
 @media (max-width: 768px) {
-  .cf-row { gap: 4px; }
-  .cf-name { min-width: 90px; font-size: 0.65rem; }
-  .cf-pnl { min-width: 60px; font-size: 0.62rem; }
-  .cf-bar-track { min-width: 40px; height: 8px; }
+  .cf-row {
+    gap: 4px;
+  }
+  .cf-name {
+    min-width: 90px;
+    font-size: 0.65rem;
+  }
+  .cf-pnl {
+    min-width: 60px;
+    font-size: 0.62rem;
+  }
+  .cf-bar-track {
+    min-width: 40px;
+    height: 8px;
+  }
 }
 
 @media (max-width: 768px) {

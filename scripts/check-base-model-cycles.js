@@ -18,8 +18,15 @@ require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const { detectCycles, validateNoSelfRefs } = require('./utils/safe-chain-walker');
 
 let connectionString = process.env.DATABASE_URL;
-if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+if (
+  connectionString &&
+  connectionString.includes('sslmode=require') &&
+  !connectionString.includes('uselibpqcompat')
+) {
+  connectionString = connectionString.replace(
+    'sslmode=require',
+    'uselibpqcompat=true&sslmode=require',
+  );
 }
 
 const APPLY = process.argv.includes('--apply');
@@ -48,7 +55,7 @@ async function main() {
     if (selfRefs.length > 0) {
       console.log(`⛔ SELF-REFERENCES FOUND: ${selfRefs.length}`);
       console.log('   (These should be blocked by ck_base_model_no_self_ref — investigate!)');
-      selfRefs.slice(0, 10).forEach(s => console.log(`   ${s} → ${s}`));
+      selfRefs.slice(0, 10).forEach((s) => console.log(`   ${s} → ${s}`));
       if (selfRefs.length > 10) console.log(`   ... and ${selfRefs.length - 10} more`);
     } else {
       console.log('✓ No self-references found.');
@@ -82,25 +89,26 @@ async function main() {
         console.log('\nFixing: nullifying base_model for cycle-participating models...');
         let fixed = 0;
         for (const slug of cycleSlugs) {
-          await client.query(
-            'UPDATE super_models SET base_model = NULL WHERE slug = $1',
-            [slug]
-          );
+          await client.query('UPDATE super_models SET base_model = NULL WHERE slug = $1', [slug]);
           fixed++;
         }
         console.log(`Fixed ${fixed} models.`);
       } else {
-        console.log(`\nDry run — use --apply to nullify ${cycleSlugs.length} cycle-causing base_models.`);
+        console.log(
+          `\nDry run — use --apply to nullify ${cycleSlugs.length} cycle-causing base_models.`,
+        );
         process.exitCode = 1; // Signal failure to nightly pipeline
       }
     } else {
       console.log('\n✓ No cycles detected — base_model graph is healthy.');
     }
-
   } finally {
     client.release();
     await pool.end();
   }
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

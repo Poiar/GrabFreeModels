@@ -227,7 +227,9 @@ function normalizeCreator(name) {
   });
   try {
     // Only fill NULL creators — never clear existing ones
-    const { rows: nullCount } = await pool.query('SELECT COUNT(*) AS c FROM super_models WHERE creator IS NULL');
+    const { rows: nullCount } = await pool.query(
+      'SELECT COUNT(*) AS c FROM super_models WHERE creator IS NULL',
+    );
     console.log(`Models with NULL creator before fix: ${nullCount[0].c}`);
 
     // Get unique datapoint full_ids only for NULL-creator super models

@@ -283,11 +283,14 @@ const ARCH_CREATOR = {
 
     // ── Check existing datapoint_models ──
     const superIds = [...new Set(matched.map((r) => r.super_id))];
-    const { rows: existingDps } = await client.query(`
+    const { rows: existingDps } = await client.query(
+      `
       SELECT dm.id, dm.super_model_id, dm.datapoint_provider_id
       FROM datapoint_models dm
       WHERE dm.super_model_id = ANY($1) AND dm.is_removed = false
-    `, [superIds]);
+    `,
+      [superIds],
+    );
 
     const dpByKey = new Map();
     for (const r of existingDps) {
@@ -339,13 +342,16 @@ const ARCH_CREATOR = {
       if (needDp.length > 30) logger.info(`    ... and ${needDp.length - 30} more`);
     }
 
-        // ── Backfill creator on super_models from org/model names ──
+    // ── Backfill creator on super_models from org/model names ──
     // Load architectures for fallback when the org looks like a username
-    const { rows: archRows } = await client.query(`
+    const { rows: archRows } = await client.query(
+      `
       SELECT id, model_limits::jsonb ->> 'architecture' AS arch
       FROM external_source_models
       WHERE id = ANY($1) AND model_limits ~ '^\\\\{'
-    `, [matched.map((m) => m.ext_id)]);
+    `,
+      [matched.map((m) => m.ext_id)],
+    );
     const archByExtId = new Map(archRows.map((r) => [r.id, r.arch]));
 
     const creatorUpdates = [];
@@ -409,12 +415,15 @@ const ARCH_CREATOR = {
         const modelInstanceKey = m.model_name || m.ext_id;
         const fullId = `${m.dp_slug}/${modelInstanceKey}`;
         try {
-          await client.query(`
+          await client.query(
+            `
             INSERT INTO datapoint_models
               (super_model_id, datapoint_provider_id, model_instance_key, full_id, is_free, is_removed)
             VALUES ($1, $2, $3, $4, true, false)
             ON CONFLICT (datapoint_provider_id, model_instance_key) DO NOTHING
-          `, [m.super_id, providerId, modelInstanceKey, fullId]);
+          `,
+            [m.super_id, providerId, modelInstanceKey, fullId],
+          );
           createdDp++;
         } catch (e) {
           logger.error(`  Failed datapoint ${fullId}: ${e.message}`);
@@ -422,11 +431,14 @@ const ARCH_CREATOR = {
       }
 
       // Refresh dp lookup after inserts
-      const { rows: freshDps } = await client.query(`
+      const { rows: freshDps } = await client.query(
+        `
         SELECT dm.id, dm.super_model_id, dm.datapoint_provider_id
         FROM datapoint_models dm
         WHERE dm.super_model_id = ANY($1) AND dm.is_removed = false
-      `, [superIds]);
+      `,
+        [superIds],
+      );
 
       const freshByKey = new Map();
       for (const r of freshDps) {
@@ -436,19 +448,24 @@ const ARCH_CREATOR = {
       // Create source links
       const allNeedsLinks = [
         ...needLink.map((m) => ({ dm_id: m.dm_id, source_id: m.source_id })),
-        ...needDp.map((m) => {
-          const key = `${m.super_id}|${provMap.get(m.dp_slug)}`;
-          return { dm_id: freshByKey.get(key), source_id: m.source_id };
-        }).filter((l) => l.dm_id),
+        ...needDp
+          .map((m) => {
+            const key = `${m.super_id}|${provMap.get(m.dp_slug)}`;
+            return { dm_id: freshByKey.get(key), source_id: m.source_id };
+          })
+          .filter((l) => l.dm_id),
       ];
 
       for (const l of allNeedsLinks) {
         try {
-          const res = await client.query(`
+          const res = await client.query(
+            `
             INSERT INTO datapoint_model_sources (datapoint_model_id, source_id)
             VALUES ($1, $2)
             ON CONFLICT (datapoint_model_id, source_id) DO NOTHING
-          `, [l.dm_id, l.source_id]);
+          `,
+            [l.dm_id, l.source_id],
+          );
           if (res.rowCount > 0) createdLinks++;
         } catch (e) {
           logger.error(`  Failed link dm=${l.dm_id} src=${l.source_id}: ${e.message}`);
@@ -464,7 +481,9 @@ const ARCH_CREATOR = {
     logger.info(`\nCreated ${createdDp} new datapoint_models`);
     logger.info(`Created ${createdLinks} new source links`);
 
-    const { rows: verify } = await client.query('SELECT COUNT(*) AS n FROM datapoint_model_sources');
+    const { rows: verify } = await client.query(
+      'SELECT COUNT(*) AS n FROM datapoint_model_sources',
+    );
     logger.info(`Total provenance links in DB: ${verify[0].n}`);
     logger.info('Done.');
   } finally {

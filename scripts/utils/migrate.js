@@ -42,15 +42,16 @@ function checksum(text) {
 /** Strip SQL comments so checksums are stable across formatting-only changes */
 function stripComments(sql) {
   return sql
-    .replace(/--.*$/gm, '')     // line comments
+    .replace(/--.*$/gm, '') // line comments
     .replace(/\/\*[\s\S]*?\*\//g, '') // block comments
-    .replace(/^\s*\n/gm, '');   // blank lines
+    .replace(/^\s*\n/gm, ''); // blank lines
 }
 
 /** List migration files in natural sort order */
 function listMigrationFiles() {
-  const files = fs.readdirSync(MIGRATIONS_DIR)
-    .filter(f => f.endsWith('.sql'))
+  const files = fs
+    .readdirSync(MIGRATIONS_DIR)
+    .filter((f) => f.endsWith('.sql'))
     .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
   return files;
 }
@@ -80,15 +81,15 @@ async function main() {
 
   // Get already-applied migrations
   const { rows: appliedRows } = await pool.query(
-    'SELECT filename, checksum FROM _migrations ORDER BY filename'
+    'SELECT filename, checksum FROM _migrations ORDER BY filename',
   );
-  const applied = new Map(appliedRows.map(r => [r.filename, r.checksum]));
+  const applied = new Map(appliedRows.map((r) => [r.filename, r.checksum]));
 
   // Determine which files to apply
   let toApply;
   if (REDO) {
     // Find the file matching the redo prefix
-    const match = files.filter(f => f.startsWith(REDO));
+    const match = files.filter((f) => f.startsWith(REDO));
     if (match.length === 0) {
       console.error(`No migration file found matching "${REDO}"`);
       await pool.end();
@@ -97,20 +98,22 @@ async function main() {
     toApply = match;
     console.log(`Re-applying: ${match.join(', ')}`);
   } else {
-    toApply = files.filter(f => !applied.has(f));
+    toApply = files.filter((f) => !applied.has(f));
   }
 
   if (STATUS) {
     console.log(`\n${'─'.repeat(70)}`);
     console.log('Migration Status');
     console.log(`${'─'.repeat(70)}`);
-    let appliedCount = 0, pendingCount = 0;
+    let appliedCount = 0,
+      pendingCount = 0;
     for (const f of files) {
       const isApplied = applied.has(f);
       const chk = applied.get(f) || '';
       const shortChk = chk ? chk.slice(0, 8) : '';
       console.log(`  ${isApplied ? '✓' : '○'}  ${f}  ${shortChk}`);
-      if (isApplied) appliedCount++; else pendingCount++;
+      if (isApplied) appliedCount++;
+      else pendingCount++;
     }
     console.log(`${'─'.repeat(70)}`);
     console.log(`Applied: ${appliedCount}  Pending: ${pendingCount}`);
@@ -141,7 +144,7 @@ async function main() {
 
     // If re-applying, skip checksum check
     if (!REDO && prevChk && prevChk !== chk) {
-      const msg = `Checksum mismatch for ${f}: stored=${prevChk.slice(0,8)} current=${chk.slice(0,8)}`;
+      const msg = `Checksum mismatch for ${f}: stored=${prevChk.slice(0, 8)} current=${chk.slice(0, 8)}`;
       if (STRICT) {
         throw new Error(`${msg}. Use --redo ${f.slice(0, 3)} to re-apply, or --strict to halt.`);
       }
@@ -166,7 +169,7 @@ async function main() {
          VALUES ($1, $2, $3)
          ON CONFLICT (filename) DO UPDATE
            SET checksum = $2, applied_at = now(), duration_ms = $3`,
-        [f, chk, Date.now() - start]
+        [f, chk, Date.now() - start],
       );
       await client.query('COMMIT');
       console.log(`  ✓ ${f}  (${Date.now() - start}ms)`);
@@ -184,7 +187,7 @@ async function main() {
   await pool.end();
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error('Migration failed:', err.message);
   process.exit(1);
 });

@@ -17,8 +17,15 @@ const { findImmediateParent } = require('./utils/derivation-detector');
 const { wouldCreateCycle } = require('./utils/safe-chain-walker');
 
 let connectionString = process.env.DATABASE_URL;
-if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+if (
+  connectionString &&
+  connectionString.includes('sslmode=require') &&
+  !connectionString.includes('uselibpqcompat')
+) {
+  connectionString = connectionString.replace(
+    'sslmode=require',
+    'uselibpqcompat=true&sslmode=require',
+  );
 }
 
 const APPLY = process.argv.includes('--apply');
@@ -78,7 +85,10 @@ async function main() {
         const childLower = model.name.toLowerCase();
         const parentLower = parent.parentName.toLowerCase();
         const childIsBase = /\b(base|foundation|pretrain|pre-train)\b/i.test(childLower);
-        const parentIsDerived = /\b(instruct|chat|dpo|sft|rlhf|lora|awq|gguf|quant|fp\d|int\d|imatrix)\b/i.test(parentLower);
+        const parentIsDerived =
+          /\b(instruct|chat|dpo|sft|rlhf|lora|awq|gguf|quant|fp\d|int\d|imatrix)\b/i.test(
+            parentLower,
+          );
         if (childIsBase && parentIsDerived) {
           skippedCycles.push({ ...model, reason: 'direction: child is base, parent is fine-tune' });
           continue;
@@ -134,7 +144,9 @@ async function main() {
     }
 
     if (!APPLY) {
-      console.log(`\nDry run — use --apply to write ${assignments.length} updates${skippedCycles.length > 0 ? ` (${skippedCycles.length} rejected by cycle guard)` : ''}.`);
+      console.log(
+        `\nDry run — use --apply to write ${assignments.length} updates${skippedCycles.length > 0 ? ` (${skippedCycles.length} rejected by cycle guard)` : ''}.`,
+      );
       return;
     }
 
@@ -154,4 +166,7 @@ async function main() {
   }
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

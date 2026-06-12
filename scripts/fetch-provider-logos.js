@@ -35,17 +35,19 @@ const LOGO_NAME_MAP = {
 
 function httpsGetBuffer(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return resolve(httpsGetBuffer(res.headers.location));
-      }
-      const chunks = [];
-      res.on('data', (chunk) => chunks.push(chunk));
-      res.on('end', () => {
-        const buffer = Buffer.concat(chunks);
-        resolve({ status: res.statusCode, buffer, size: buffer.length });
-      });
-    }).on('error', reject);
+    https
+      .get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          return resolve(httpsGetBuffer(res.headers.location));
+        }
+        const chunks = [];
+        res.on('data', (chunk) => chunks.push(chunk));
+        res.on('end', () => {
+          const buffer = Buffer.concat(chunks);
+          resolve({ status: res.statusCode, buffer, size: buffer.length });
+        });
+      })
+      .on('error', reject);
   });
 }
 
@@ -59,9 +61,7 @@ function httpsGetBuffer(url) {
   });
 
   try {
-    const { rows } = await pool.query(
-      'SELECT slug, name FROM datapoint_providers ORDER BY slug',
-    );
+    const { rows } = await pool.query('SELECT slug, name FROM datapoint_providers ORDER BY slug');
     console.log(`Found ${rows.length} datapoint providers\n`);
 
     // Fetch a known-nonexistent logo to get the default placeholder content.

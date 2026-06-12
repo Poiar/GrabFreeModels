@@ -143,7 +143,10 @@ const NAME_BASE_CREATOR = [
   { patterns: [/^llama/, /^llama-guard/, /^codellama/], creator: 'Meta' },
   { patterns: [/^qwen/], creator: 'Alibaba' },
   { patterns: [/^phi/, /^phi-/, /^phi3/, /^phi-3/], creator: 'Microsoft' },
-  { patterns: [/^mistral/, /^mixtral/, /^ministral/, /^codestral/, /^pixtral/], creator: 'Mistral AI' },
+  {
+    patterns: [/^mistral/, /^mixtral/, /^ministral/, /^codestral/, /^pixtral/],
+    creator: 'Mistral AI',
+  },
   { patterns: [/^gemma/, /^gemini/, /^palm/, /^t5-/], creator: 'Google' },
   { patterns: [/^gemma/, /^recurrentgemma/], creator: 'Google' },
   { patterns: [/^olmo/, /^olmoe/], creator: 'AI2' },
@@ -216,11 +219,14 @@ function extractFromName(name) {
 
     // ── Load datapoint full_ids for these models ──
     const modelIds = nullModels.map((m) => m.id);
-    const { rows: dpRows } = await client.query(`
+    const { rows: dpRows } = await client.query(
+      `
       SELECT dm.super_model_id, dm.full_id
       FROM datapoint_models dm
       WHERE dm.super_model_id = ANY($1) AND dm.is_removed = false
-    `, [modelIds]);
+    `,
+      [modelIds],
+    );
 
     // Group full_ids by super_model_id
     const fullIdsBySuper = new Map();
@@ -315,7 +321,9 @@ function extractFromName(name) {
     // ── Print planned updates ──
     for (const u of updates) {
       const baseStr = u.base_creator ? `, base_creator: "${u.base_creator}"` : '';
-      console.log(`  [${APPLY ? 'apply' : 'dry'}] [${u.source}] ${u.name} → creator: "${u.creator}"${baseStr}`);
+      console.log(
+        `  [${APPLY ? 'apply' : 'dry'}] [${u.source}] ${u.name} → creator: "${u.creator}"${baseStr}`,
+      );
     }
 
     console.log(`\n${updates.length} models to update.`);

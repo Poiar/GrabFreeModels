@@ -5,8 +5,16 @@
       <div class="fd-header-row">
         <h2>{{ formatFamilyName(family.name) }}</h2>
         <div class="fd-header-actions">
-          <button class="fd-copy-btn" @click="copyFamilyAsMarkdown(family)" title="Copy as Markdown">↓ MD</button>
-          <button class="fd-copy-btn" @click="copyAsJson(family)" title="Copy as JSON">↓ JSON</button>
+          <button
+            class="fd-copy-btn"
+            @click="copyFamilyAsMarkdown(family)"
+            title="Copy as Markdown"
+          >
+            ↓ MD
+          </button>
+          <button class="fd-copy-btn" @click="copyAsJson(family)" title="Copy as JSON">
+            ↓ JSON
+          </button>
           <span v-if="copied" class="fd-copied-toast">Copied!</span>
         </div>
       </div>
@@ -15,13 +23,20 @@
       </p>
       <!-- Unique-facts chip row -->
       <div class="fd-facts" v-if="familyFacts.length">
-        <span v-for="f in familyFacts" :key="f.label" class="fd-fact-chip" :class="f.cls">{{ f.label }}</span>
+        <span v-for="f in familyFacts" :key="f.label" class="fd-fact-chip" :class="f.cls">{{
+          f.label
+        }}</span>
       </div>
       <p v-if="familyDescription" class="fd-description">{{ familyDescription }}</p>
 
       <!-- Failure summary chips -->
       <div v-if="failureSummary.length" class="fd-failure-summary">
-        <span v-for="f in failureSummary" :key="f.cat" class="fd-fail-summary-chip" :class="'fail-sum-' + f.cat">
+        <span
+          v-for="f in failureSummary"
+          :key="f.cat"
+          class="fd-fail-summary-chip"
+          :class="'fail-sum-' + f.cat"
+        >
           {{ f.count }} {{ f.label }}
         </span>
       </div>
@@ -46,7 +61,8 @@
           class="fd-cap-badge"
           :class="{ active: cap.has }"
           :title="cap.label"
-        >{{ cap.label }}</span>
+          >{{ cap.label }}</span
+        >
       </div>
       <div class="fd-bestfor-tags" v-if="topBestFor.length">
         <span v-for="tag in topBestFor.slice(0, 6)" :key="tag" class="fd-bestfor">{{ tag }}</span>
@@ -98,18 +114,46 @@
 
     <!-- Validation bar -->
     <div class="fd-validation-bar">
-      <div class="val-segment working" :style="{ flex: valFlex.working }" :title="valCounts.working + ' working'"></div>
-      <div class="val-segment rate_limited" :style="{ flex: valFlex.rate_limited }" :title="valCounts.rate_limited + ' rate limited'"></div>
-      <div class="val-segment broken" :style="{ flex: valFlex.broken }" :title="valCounts.broken + ' broken'"></div>
-      <div class="val-segment untested" :style="{ flex: valFlex.untested }" :title="valCounts.untested + ' untested'"></div>
-      <div class="val-segment not_found" :style="{ flex: valFlex.not_found }" :title="valCounts.not_found + ' not found'"></div>
+      <div
+        class="val-segment working"
+        :style="{ flex: valFlex.working }"
+        :title="valCounts.working + ' working'"
+      ></div>
+      <div
+        class="val-segment rate_limited"
+        :style="{ flex: valFlex.rate_limited }"
+        :title="valCounts.rate_limited + ' rate limited'"
+      ></div>
+      <div
+        class="val-segment broken"
+        :style="{ flex: valFlex.broken }"
+        :title="valCounts.broken + ' broken'"
+      ></div>
+      <div
+        class="val-segment untested"
+        :style="{ flex: valFlex.untested }"
+        :title="valCounts.untested + ' untested'"
+      ></div>
+      <div
+        class="val-segment not_found"
+        :style="{ flex: valFlex.not_found }"
+        :title="valCounts.not_found + ' not found'"
+      ></div>
     </div>
     <div class="fd-val-legend">
-      <span v-if="valCounts.working" class="val-legend working">{{ valCounts.working }} working</span>
-      <span v-if="valCounts.rate_limited" class="val-legend rate_limited">{{ valCounts.rate_limited }} rate limited</span>
+      <span v-if="valCounts.working" class="val-legend working"
+        >{{ valCounts.working }} working</span
+      >
+      <span v-if="valCounts.rate_limited" class="val-legend rate_limited"
+        >{{ valCounts.rate_limited }} rate limited</span
+      >
       <span v-if="valCounts.broken" class="val-legend broken">{{ valCounts.broken }} broken</span>
-      <span v-if="valCounts.untested" class="val-legend untested">{{ valCounts.untested }} untested</span>
-      <span v-if="valCounts.not_found" class="val-legend not_found">{{ valCounts.not_found }} not found</span>
+      <span v-if="valCounts.untested" class="val-legend untested"
+        >{{ valCounts.untested }} untested</span
+      >
+      <span v-if="valCounts.not_found" class="val-legend not_found"
+        >{{ valCounts.not_found }} not found</span
+      >
     </div>
 
     <!-- Creators -->
@@ -120,14 +164,20 @@
         :key="c.id"
         :to="`/creator/${c.id}`"
         class="fd-creator-tag"
-      >{{ c.name }}</router-link>
+        >{{ c.name }}</router-link
+      >
     </div>
 
     <!-- Model tier distribution -->
     <div v-if="tierEntries.length > 0" class="fd-tier-section">
       <h3 class="section-title">Model Tiers</h3>
       <div class="fd-tier-chips">
-        <span v-for="[tier, count] in tierEntries" :key="tier" class="fd-tier-chip" :class="'tier-' + tier.toLowerCase().replace(/[^a-z0-9]/g, '-')">
+        <span
+          v-for="[tier, count] in tierEntries"
+          :key="tier"
+          class="fd-tier-chip"
+          :class="'tier-' + tier.toLowerCase().replace(/[^a-z0-9]/g, '-')"
+        >
           {{ tier }}: <strong>{{ count }}</strong>
         </span>
       </div>
@@ -227,7 +277,11 @@ const DERIV_META: Record<string, { label: string; cssClass: string }> = {
 const DERIV_CHIPS = [
   { value: 'all', label: 'All', cssClass: '' },
   { value: 'foundation', label: 'Foundation', cssClass: 'deriv-foundation' },
-  ...Object.entries(DERIV_META).map(([value, meta]) => ({ value, label: meta.label, cssClass: meta.cssClass })),
+  ...Object.entries(DERIV_META).map(([value, meta]) => ({
+    value,
+    label: meta.label,
+    cssClass: meta.cssClass,
+  })),
 ];
 
 const modelDerivationCounts = computed(() => {
@@ -266,7 +320,10 @@ const filteredModels = computed(() => {
 
 function formatFamilyName(raw: string): string {
   if (raw === 'Uncategorized') return raw;
-  return raw.split('-').map(w => FAMILY_NAME_OVERRIDES[w] ?? (w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
+  return raw
+    .split('-')
+    .map((w) => FAMILY_NAME_OVERRIDES[w] ?? w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
 }
 
 function formatContext(ctx: number | null): string {
@@ -277,7 +334,18 @@ function formatContext(ctx: number | null): string {
 
 function creatorFor(model: ModelData): CreatorData {
   const c = store.creators.find((cr) => cr.models.some((m) => m.super_id === model.super_id));
-  return c ?? { id: 'unknown', name: model.creator || 'Unknown', type: 'other' as const, role: 'Model creator' as const, description: null, model_count: 0, provider_count: 0, models: [] };
+  return (
+    c ?? {
+      id: 'unknown',
+      name: model.creator || 'Unknown',
+      type: 'other' as const,
+      role: 'Model creator' as const,
+      description: null,
+      model_count: 0,
+      provider_count: 0,
+      models: [],
+    }
+  );
 }
 
 // ── Validation counts ──
@@ -499,7 +567,7 @@ const totalDatapoints = computed(() => {
   if (!family.value) return 0;
   let count = 0;
   for (const m of family.value.models) {
-    count += m.providers.filter(p => !p._removed).length;
+    count += m.providers.filter((p) => !p._removed).length;
   }
   return count;
 });
@@ -556,7 +624,10 @@ const familyFacts = computed(() => {
   if (paramVals.length) {
     const min = formatParamSize(paramVals[0]);
     const max = formatParamSize(paramVals[paramVals.length - 1]);
-    chips.push({ label: min === max ? `${min} params` : `${min} – ${max} params`, cls: 'fact-param' });
+    chips.push({
+      label: min === max ? `${min} params` : `${min} – ${max} params`,
+      cls: 'fact-param',
+    });
   }
 
   // Knowledge cutoff range — only show when ≥half the models have cutoff data
@@ -565,7 +636,10 @@ const familyFacts = computed(() => {
   for (const m of f.models) {
     let hasCutoff = false;
     for (const dp of m.providers) {
-      if (dp.knowledge_cutoff) { cutoffs.add(dp.knowledge_cutoff); hasCutoff = true; }
+      if (dp.knowledge_cutoff) {
+        cutoffs.add(dp.knowledge_cutoff);
+        hasCutoff = true;
+      }
     }
     if (hasCutoff) modelsWithCutoff++;
   }
@@ -574,14 +648,17 @@ const familyFacts = computed(() => {
     if (cutoffVals.length === 1) {
       chips.push({ label: `Knowledge cutoff: ${cutoffVals[0]}`, cls: 'fact-cutoff' });
     } else if (cutoffVals.length > 1) {
-      chips.push({ label: `Knowledge: ${cutoffVals[0]} – ${cutoffVals[cutoffVals.length - 1]}`, cls: 'fact-cutoff' });
+      chips.push({
+        label: `Knowledge: ${cutoffVals[0]} – ${cutoffVals[cutoffVals.length - 1]}`,
+        cls: 'fact-cutoff',
+      });
     }
   }
 
   // Open-weight count
   let openCount = 0;
   for (const m of f.models) {
-    if (m.providers.some(p => !p._removed && p.open_weights === true)) openCount++;
+    if (m.providers.some((p) => !p._removed && p.open_weights === true)) openCount++;
   }
   if (openCount > 0 && openCount < f.models.length) {
     chips.push({ label: `${openCount}/${f.model_count} open weight`, cls: 'fact-open' });
@@ -592,7 +669,10 @@ const familyFacts = computed(() => {
   // Creator count
   const creators = familyCreators.value;
   if (creators.length > 0) {
-    chips.push({ label: `${creators.length} ${creators.length === 1 ? 'creator' : 'creators'}`, cls: 'fact-creator' });
+    chips.push({
+      label: `${creators.length} ${creators.length === 1 ? 'creator' : 'creators'}`,
+      cls: 'fact-creator',
+    });
   }
 
   // Rate-limited datapoint count
@@ -622,8 +702,13 @@ const familyFacts = computed(() => {
 
 // ── Failure summary chips ──
 const FAILURE_LABELS: Record<string, string> = {
-  timeout: 'Timeout', not_found: 'Not found', auth_error: 'Auth error',
-  rate_limited: 'Rate limited', server_error: 'Server error', network_error: 'Network error', unknown: 'Unknown',
+  timeout: 'Timeout',
+  not_found: 'Not found',
+  auth_error: 'Auth error',
+  rate_limited: 'Rate limited',
+  server_error: 'Server error',
+  network_error: 'Network error',
+  unknown: 'Unknown',
 };
 
 const failureSummary = computed(() => {
@@ -690,23 +775,72 @@ const failureSummary = computed(() => {
   padding: 2px 10px;
   border-radius: 999px;
 }
-.fd-fact-chip.fact-param { background: rgba(99,102,241,0.12); color: #818cf8; }
-.fd-fact-chip.fact-cutoff { background: rgba(168,85,247,0.12); color: #a855f7; }
-.fd-fact-chip.fact-open { background: rgba(52,211,153,0.12); color: #34d399; }
-.fd-fact-chip.fact-creator { background: rgba(236,72,153,0.12); color: #ec4899; }
-.fd-fact-chip.fact-ratelimit { background: rgba(245,158,11,0.12); color: #f59e0b; }
-.fd-fact-chip.fact-fresh { background: rgba(168,85,247,0.12); color: #a855f7; }
+.fd-fact-chip.fact-param {
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+}
+.fd-fact-chip.fact-cutoff {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+}
+.fd-fact-chip.fact-open {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+}
+.fd-fact-chip.fact-creator {
+  background: rgba(236, 72, 153, 0.12);
+  color: #ec4899;
+}
+.fd-fact-chip.fact-ratelimit {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+.fd-fact-chip.fact-fresh {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+}
 
 /* Failure summary chips */
-.fd-failure-summary { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.fd-fail-summary-chip { font-size: 0.62rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; }
-.fd-fail-summary-chip.fail-sum-timeout { background: rgba(251,191,36,0.12); color: #FBBF24; }
-.fd-fail-summary-chip.fail-sum-not_found { background: rgba(156,163,175,0.12); color: #9CA3AF; }
-.fd-fail-summary-chip.fail-sum-auth_error { background: rgba(239,68,68,0.15); color: #F87171; }
-.fd-fail-summary-chip.fail-sum-rate_limited { background: rgba(245,158,11,0.12); color: #F59E0B; }
-.fd-fail-summary-chip.fail-sum-server_error { background: rgba(239,68,68,0.12); color: #EF4444; }
-.fd-fail-summary-chip.fail-sum-network_error { background: rgba(59,130,246,0.12); color: #60A5FA; }
-.fd-fail-summary-chip.fail-sum-unknown { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+.fd-failure-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.fd-fail-summary-chip {
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.fd-fail-summary-chip.fail-sum-timeout {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+.fd-fail-summary-chip.fail-sum-not_found {
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+}
+.fd-fail-summary-chip.fail-sum-auth_error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+.fd-fail-summary-chip.fail-sum-rate_limited {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+.fd-fail-summary-chip.fail-sum-server_error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+.fd-fail-summary-chip.fail-sum-network_error {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+}
+.fd-fail-summary-chip.fail-sum-unknown {
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+}
 
 /* Features row */
 .fd-features-row {
@@ -746,7 +880,10 @@ const failureSummary = computed(() => {
   color: var(--text-muted);
   background: var(--bg-elevated);
   border: 1px solid transparent;
-  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
 }
 .fd-cap-badge.active {
   color: var(--accent);
@@ -844,12 +981,25 @@ const failureSummary = computed(() => {
   margin-top: 4px;
   gap: 1px;
 }
-.val-segment { min-width: 2px; transition: flex 0.3s; }
-.val-segment.working { background: var(--green); }
-.val-segment.rate_limited { background: var(--orange); }
-.val-segment.broken { background: var(--red); }
-.val-segment.untested { background: var(--accent); }
-.val-segment.not_found { background: var(--text-muted); }
+.val-segment {
+  min-width: 2px;
+  transition: flex 0.3s;
+}
+.val-segment.working {
+  background: var(--green);
+}
+.val-segment.rate_limited {
+  background: var(--orange);
+}
+.val-segment.broken {
+  background: var(--red);
+}
+.val-segment.untested {
+  background: var(--accent);
+}
+.val-segment.not_found {
+  background: var(--text-muted);
+}
 
 .fd-val-legend {
   display: flex;
@@ -872,16 +1022,36 @@ const failureSummary = computed(() => {
   border-radius: 2px;
   flex-shrink: 0;
 }
-.val-legend.working { color: var(--green); }
-.val-legend.working::before { background: var(--green); }
-.val-legend.rate_limited { color: var(--orange); }
-.val-legend.rate_limited::before { background: var(--orange); }
-.val-legend.broken { color: var(--red); }
-.val-legend.broken::before { background: var(--red); }
-.val-legend.untested { color: var(--accent); }
-.val-legend.untested::before { background: var(--accent); }
-.val-legend.not_found { color: var(--text-muted); }
-.val-legend.not_found::before { background: var(--text-muted); }
+.val-legend.working {
+  color: var(--green);
+}
+.val-legend.working::before {
+  background: var(--green);
+}
+.val-legend.rate_limited {
+  color: var(--orange);
+}
+.val-legend.rate_limited::before {
+  background: var(--orange);
+}
+.val-legend.broken {
+  color: var(--red);
+}
+.val-legend.broken::before {
+  background: var(--red);
+}
+.val-legend.untested {
+  color: var(--accent);
+}
+.val-legend.untested::before {
+  background: var(--accent);
+}
+.val-legend.not_found {
+  color: var(--text-muted);
+}
+.val-legend.not_found::before {
+  background: var(--text-muted);
+}
 
 /* Creators */
 .fd-creators {
@@ -905,7 +1075,9 @@ const failureSummary = computed(() => {
   background: var(--bg-elevated);
   color: var(--text-muted);
   text-decoration: none;
-  transition: color 0.12s, background 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s;
 }
 .fd-creator-tag:hover {
   color: var(--accent);
@@ -939,7 +1111,9 @@ const failureSummary = computed(() => {
 }
 
 /* Model tier distribution */
-.fd-tier-section { margin: 16px 0 8px; }
+.fd-tier-section {
+  margin: 16px 0 8px;
+}
 .fd-tier-chips {
   display: flex;
   flex-wrap: wrap;
@@ -951,11 +1125,25 @@ const failureSummary = computed(() => {
   font-weight: 600;
   border-radius: 999px;
 }
-.fd-tier-chip strong { font-family: 'JetBrains Mono', monospace; }
-.fd-tier-chip.tier-top { background: rgba(245,158,11,0.12); color: #f59e0b; }
-.fd-tier-chip.tier-high { background: rgba(59,130,246,0.12); color: #60a5fa; }
-.fd-tier-chip.tier-mid { background: rgba(99,102,241,0.12); color: #818cf8; }
-.fd-tier-chip.tier-basic { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+.fd-tier-chip strong {
+  font-family: 'JetBrains Mono', monospace;
+}
+.fd-tier-chip.tier-top {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+.fd-tier-chip.tier-high {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+}
+.fd-tier-chip.tier-mid {
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+}
+.fd-tier-chip.tier-basic {
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+}
 
 /* Derivation filter chips */
 .ml-deriv-bar {
@@ -986,13 +1174,34 @@ const failureSummary = computed(() => {
   color: var(--accent);
 }
 
-.ml-deriv-chip.deriv-ft { border-color: rgba(99, 102, 241, 0.35); color: #818cf8; }
-.ml-deriv-chip.deriv-merge { border-color: rgba(168, 85, 247, 0.35); color: #a855f7; }
-.ml-deriv-chip.deriv-distill { border-color: rgba(236, 72, 153, 0.35); color: #ec4899; }
-.ml-deriv-chip.deriv-dpo { border-color: rgba(34, 211, 238, 0.35); color: #22d3ee; }
-.ml-deriv-chip.deriv-cpt { border-color: rgba(250, 204, 21, 0.35); color: #eab308; }
-.ml-deriv-chip.deriv-lora { border-color: rgba(52, 211, 153, 0.35); color: #34d399; }
-.ml-deriv-chip.deriv-foundation { border-color: rgba(156, 163, 175, 0.35); color: #9ca3af; }
+.ml-deriv-chip.deriv-ft {
+  border-color: rgba(99, 102, 241, 0.35);
+  color: #818cf8;
+}
+.ml-deriv-chip.deriv-merge {
+  border-color: rgba(168, 85, 247, 0.35);
+  color: #a855f7;
+}
+.ml-deriv-chip.deriv-distill {
+  border-color: rgba(236, 72, 153, 0.35);
+  color: #ec4899;
+}
+.ml-deriv-chip.deriv-dpo {
+  border-color: rgba(34, 211, 238, 0.35);
+  color: #22d3ee;
+}
+.ml-deriv-chip.deriv-cpt {
+  border-color: rgba(250, 204, 21, 0.35);
+  color: #eab308;
+}
+.ml-deriv-chip.deriv-lora {
+  border-color: rgba(52, 211, 153, 0.35);
+  color: #34d399;
+}
+.ml-deriv-chip.deriv-foundation {
+  border-color: rgba(156, 163, 175, 0.35);
+  color: #9ca3af;
+}
 
 .ml-deriv-chip.active {
   background: var(--accent-subtle);
@@ -1000,13 +1209,41 @@ const failureSummary = computed(() => {
   color: var(--accent);
 }
 
-.ml-deriv-chip.deriv-ft.active { background: rgba(99, 102, 241, 0.14); border-color: #818cf8; color: #818cf8; }
-.ml-deriv-chip.deriv-merge.active { background: rgba(168, 85, 247, 0.14); border-color: #a855f7; color: #a855f7; }
-.ml-deriv-chip.deriv-distill.active { background: rgba(236, 72, 153, 0.14); border-color: #ec4899; color: #ec4899; }
-.ml-deriv-chip.deriv-dpo.active { background: rgba(34, 211, 238, 0.14); border-color: #22d3ee; color: #22d3ee; }
-.ml-deriv-chip.deriv-cpt.active { background: rgba(250, 204, 21, 0.14); border-color: #eab308; color: #eab308; }
-.ml-deriv-chip.deriv-lora.active { background: rgba(52, 211, 153, 0.14); border-color: #34d399; color: #34d399; }
-.ml-deriv-chip.deriv-foundation.active { background: rgba(156, 163, 175, 0.14); border-color: #9ca3af; color: #9ca3af; }
+.ml-deriv-chip.deriv-ft.active {
+  background: rgba(99, 102, 241, 0.14);
+  border-color: #818cf8;
+  color: #818cf8;
+}
+.ml-deriv-chip.deriv-merge.active {
+  background: rgba(168, 85, 247, 0.14);
+  border-color: #a855f7;
+  color: #a855f7;
+}
+.ml-deriv-chip.deriv-distill.active {
+  background: rgba(236, 72, 153, 0.14);
+  border-color: #ec4899;
+  color: #ec4899;
+}
+.ml-deriv-chip.deriv-dpo.active {
+  background: rgba(34, 211, 238, 0.14);
+  border-color: #22d3ee;
+  color: #22d3ee;
+}
+.ml-deriv-chip.deriv-cpt.active {
+  background: rgba(250, 204, 21, 0.14);
+  border-color: #eab308;
+  color: #eab308;
+}
+.ml-deriv-chip.deriv-lora.active {
+  background: rgba(52, 211, 153, 0.14);
+  border-color: #34d399;
+  color: #34d399;
+}
+.ml-deriv-chip.deriv-foundation.active {
+  background: rgba(156, 163, 175, 0.14);
+  border-color: #9ca3af;
+  color: #9ca3af;
+}
 
 .ml-deriv-count {
   font-size: 0.6rem;

@@ -2,7 +2,13 @@
   <div class="family-list-page">
     <div class="page-header">
       <h2>Families</h2>
-      <p>{{ store.visibleFamilies.length }} model families tracked<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template></p>
+      <p>
+        {{ store.visibleFamilies.length }} model families tracked<template
+          v-if="store.isSourceFilterActive"
+        >
+          <span class="filtered-note">(filtered)</span></template
+        >
+      </p>
     </div>
 
     <div class="fc-controls">
@@ -16,7 +22,13 @@
         <option value="creator">Sort: Creator</option>
         <option value="family">Sort: Family</option>
       </select>
-      <button class="sort-dir-btn" @click="sortAsc = !sortAsc" :title="sortAsc ? 'Ascending' : 'Descending'">{{ sortAsc ? '↑' : '↓' }}</button>
+      <button
+        class="sort-dir-btn"
+        @click="sortAsc = !sortAsc"
+        :title="sortAsc ? 'Ascending' : 'Descending'"
+      >
+        {{ sortAsc ? '↑' : '↓' }}
+      </button>
     </div>
 
     <!-- Export buttons -->
@@ -33,8 +45,25 @@
         class="family-card"
       >
         <div class="fc-icon-row">
-          <ProviderIcon v-if="creatorSlug(family)" :slug="creatorSlug(family)!" :size="18" cls="fc-icon" />
-          <svg v-else class="fc-icon" aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <ProviderIcon
+            v-if="creatorSlug(family)"
+            :slug="creatorSlug(family)!"
+            :size="18"
+            cls="fc-icon"
+          />
+          <svg
+            v-else
+            class="fc-icon"
+            aria-hidden="true"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <rect x="3" y="3" width="7" height="7" />
             <rect x="14" y="3" width="7" height="7" />
             <rect x="14" y="14" width="7" height="7" />
@@ -45,8 +74,12 @@
           <span class="fc-badge fc-badge-family">{{ formatFamilyName(family.name) }}</span>
         </div>
         <div class="fc-stats">
-          <span class="fc-stat">{{ family.model_count }} model{{ family.model_count !== 1 ? 's' : '' }}</span>
-          <span class="fc-stat">{{ family.provider_count }} provider{{ family.provider_count !== 1 ? 's' : '' }}</span>
+          <span class="fc-stat"
+            >{{ family.model_count }} model{{ family.model_count !== 1 ? 's' : '' }}</span
+          >
+          <span class="fc-stat"
+            >{{ family.provider_count }} provider{{ family.provider_count !== 1 ? 's' : '' }}</span
+          >
         </div>
         <div v-if="family.models.length" class="fc-top">Top: {{ family.models[0].name }}</div>
       </router-link>
@@ -70,9 +103,8 @@ const sortAsc = ref(true);
 const filteredFamilies = computed(() => {
   const q = searchQuery.value.trim().toLowerCase();
   if (!q) return store.visibleFamilies;
-  return store.visibleFamilies.filter((f) =>
-    f.name.toLowerCase().includes(q) ||
-    creatorName(f).toLowerCase().includes(q),
+  return store.visibleFamilies.filter(
+    (f) => f.name.toLowerCase().includes(q) || creatorName(f).toLowerCase().includes(q),
   );
 });
 
@@ -96,7 +128,9 @@ const sortedFamilies = computed(() => {
 function findCreator(family: FamilyData) {
   if (family.models.length === 0) return null;
   const firstModel = family.models[0];
-  return store.creators.find((cr) => cr.models.some((m) => m.super_id === firstModel.super_id)) ?? null;
+  return (
+    store.creators.find((cr) => cr.models.some((m) => m.super_id === firstModel.super_id)) ?? null
+  );
 }
 
 function creatorSlug(family: FamilyData): string | null {
@@ -116,7 +150,10 @@ const FAMILY_NAME_OVERRIDES: Record<string, string> = {
 
 function formatFamilyName(raw: string): string {
   if (raw === 'Uncategorized') return raw;
-  return raw.split('-').map(w => FAMILY_NAME_OVERRIDES[w] ?? (w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
+  return raw
+    .split('-')
+    .map((w) => FAMILY_NAME_OVERRIDES[w] ?? w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
 }
 
 // ── Export ──
@@ -129,19 +166,12 @@ function handleExportJSON() {
 function handleExportCSV() {
   const rows: string[][] = [];
   for (const f of sortedFamilies.value) {
-    const working = f.models.filter(m => m.providers.some(p => !p._removed && p.status.result === 'working')).length;
-    rows.push([
-      f.name,
-      String(f.model_count),
-      String(f.provider_count ?? 0),
-      String(working),
-    ]);
+    const working = f.models.filter((m) =>
+      m.providers.some((p) => !p._removed && p.status.result === 'working'),
+    ).length;
+    rows.push([f.name, String(f.model_count), String(f.provider_count ?? 0), String(working)]);
   }
-  exportCSV(
-    ['name', 'model_count', 'provider_count', 'working'],
-    rows,
-    'families',
-  );
+  exportCSV(['name', 'model_count', 'provider_count', 'working'], rows, 'families');
 }
 </script>
 
@@ -185,7 +215,9 @@ function handleExportCSV() {
   flex: 1;
   max-width: 320px;
 }
-.search-input::placeholder { color: var(--text-muted); }
+.search-input::placeholder {
+  color: var(--text-muted);
+}
 .search-input:focus {
   outline: none;
   border-color: var(--accent);
@@ -220,9 +252,31 @@ function handleExportCSV() {
   border-color: var(--text-muted);
 }
 
-.export-bar { display: flex; gap: 6px; margin-top: 12px; justify-content: flex-end; }
-.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
-.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
+.export-bar {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  justify-content: flex-end;
+}
+.export-btn {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.export-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
 
 .family-grid {
   display: grid;

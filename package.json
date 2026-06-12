@@ -58,11 +58,15 @@
     "migrate": "node scripts/utils/migrate.js",
     "migrate:dry": "node scripts/utils/migrate.js --dry-run",
     "migrate:status": "node scripts/utils/migrate.js --status",
-    "postinstall": "git config core.hooksPath .githooks 2>/dev/null || true",
+    "postinstall": "npx husky",
     "lint": "eslint scripts/ server/ tests/",
     "lint:fix": "eslint scripts/ server/ tests/ --fix",
     "format": "prettier --write \"**/*.{js,mjs,ts,vue,json,md}\"",
-    "api:start": "node -r dotenv/config server/index.js"
+    "format:check": "prettier --check \"**/*.{js,mjs,ts,vue,json,md}\"",
+    "typecheck": "cd vue-model-manager && npx vue-tsc --noEmit",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test:unit && node scripts/build-readme.js",
+    "api:start": "node -r dotenv/config server/index.js",
+    "prepare": "husky"
   },
   "dependencies": {
     "compression": "^1.8.1",
@@ -75,6 +79,7 @@
     "@eslint/js": "^10.0.1",
     "@playwright/mcp": "^0.0.75",
     "eslint": "^10.4.1",
+    "husky": "^9.1.7",
     "playwright": "^1.60.0",
     "prettier": "^3.8.3"
   }

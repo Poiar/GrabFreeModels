@@ -19,10 +19,10 @@ Both webhooks accept Slack-compatible JSON payloads, so the same payload format 
 
 ## Environment variables
 
-| Variable | Used by | Required for |
-|---|---|---|
-| `DEGRADATION_WEBHOOK_URL` | `check-degradation.js` | Sending degradation alerts |
-| `NIGHTLY_WEBHOOK_URL` | `nightly-summary.js` | Sending nightly pipeline summary |
+| Variable                  | Used by                | Required for                     |
+| ------------------------- | ---------------------- | -------------------------------- |
+| `DEGRADATION_WEBHOOK_URL` | `check-degradation.js` | Sending degradation alerts       |
+| `NIGHTLY_WEBHOOK_URL`     | `nightly-summary.js`   | Sending nightly pipeline summary |
 
 Add them to `.env` at the project root:
 
@@ -38,15 +38,28 @@ Or set them as system/user environment variables for the Windows Task Scheduler 
 Both scripts send Slack Block Kit JSON. The payload contains a `text` fallback field and a `blocks` array for rich formatting.
 
 **Degradation alert payload** (`check-degradation.js`):
+
 ```json
 {
   "text": "Degradation Alert: 2 model(s) affected",
   "blocks": [
     { "type": "header", "text": { "type": "plain_text", "text": "Model Degradation Detected" } },
-    { "type": "section", "text": { "type": "mrkdwn", "text": "*Run date:* 2026-06-09\n*Models checked:* 827\n*Alerts:* 2" } },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*Run date:* 2026-06-09\n*Models checked:* 827\n*Alerts:* 2"
+      }
+    },
     { "type": "divider" },
-    { "type": "section", "text": { "type": "mrkdwn", "text": "*openrouter/meta-llama/llama-4* (openrouter)" } },
-    { "type": "section", "text": { "type": "mrkdwn", "text": "Latency increased 3.2 sigma above baseline" } }
+    {
+      "type": "section",
+      "text": { "type": "mrkdwn", "text": "*openrouter/meta-llama/llama-4* (openrouter)" }
+    },
+    {
+      "type": "section",
+      "text": { "type": "mrkdwn", "text": "Latency increased 3.2 sigma above baseline" }
+    }
   ]
 }
 ```

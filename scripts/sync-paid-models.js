@@ -130,7 +130,8 @@ function inferTags(name, description) {
     if (/\breasoning\b|\bdeep.research\b|\bdeep.think\b/i.test(n)) tags.push('reasoning');
     if (/\bthinking\b|\bthink\b/i.test(n)) tags.push('thinking');
     if (/\b(?:pro|plus|max|premier|large)\b/i.test(n)) tags.push('current default');
-    if (/\bvision\b|\bvl\b|\bimage\b|\baudio\b|\bvideo\b|\bmultimodal\b/i.test(n)) tags.push('multimodal');
+    if (/\bvision\b|\bvl\b|\bimage\b|\baudio\b|\bvideo\b|\bmultimodal\b/i.test(n))
+      tags.push('multimodal');
     if (/\bflash\b|\bfast\b|\bturbo\b|\bquick\b/i.test(n)) tags.push('fast');
     if (/\bnano\b|\bmicro\b|\btiny\b/i.test(n)) tags.push('ultra-lightweight');
     if (/\bmini\b|\bsmall\b|\blite\b/i.test(n)) tags.push('lightweight');
@@ -140,20 +141,31 @@ function inferTags(name, description) {
   // Description-based patterns
   if (description) {
     const d = description.toLowerCase();
-    if (/\bcoding\b|\bcoder\b|\bprogramming\b|\bsoftware.engineering\b/i.test(d)) tags.push('coding');
-    if (/\bagentic\b|\bmulti.agent\b|\bautonomous.*agent\b|\bagent.*workflow\b/i.test(d)) tags.push('agentic');
-    if (/\btool.using\b|\bfunction.calling\b|\bsupports.*tools\b|\bthousands.*tool\b/i.test(d)) tags.push('tool use');
-    if (/\breasoning\b/i.test(d) && !/\bnon.reasoning\b|\bnot.reasoning\b/i.test(d)) tags.push('reasoning');
+    if (/\bcoding\b|\bcoder\b|\bprogramming\b|\bsoftware.engineering\b/i.test(d))
+      tags.push('coding');
+    if (/\bagentic\b|\bmulti.agent\b|\bautonomous.*agent\b|\bagent.*workflow\b/i.test(d))
+      tags.push('agentic');
+    if (/\btool.using\b|\bfunction.calling\b|\bsupports.*tools\b|\bthousands.*tool\b/i.test(d))
+      tags.push('tool use');
+    if (/\breasoning\b/i.test(d) && !/\bnon.reasoning\b|\bnot.reasoning\b/i.test(d))
+      tags.push('reasoning');
     if (/\bthinking\b|\bchain.of.thought\b/i.test(d)) tags.push('thinking');
-    if (/\bmultimodal\b|\bvision.language\b|\bimage.*understanding\b/i.test(d)) tags.push('multimodal');
-    if (/\bflagship\b|\bmost capable\b|\bpremier\b|\bhighest.quality\b|\bbest overall\b/i.test(d)) tags.push('current default');
-    if (/\bgeneral purpose\b|\bgeneral.*tasks\b|\bversatile\b|\ball.?around\b/i.test(d)) tags.push('general purpose');
-    if (/\blightweight\b|\bcompact\b|\befficient inference\b|\bsmall.*parameter\b/i.test(d)) tags.push('lightweight');
+    if (/\bmultimodal\b|\bvision.language\b|\bimage.*understanding\b/i.test(d))
+      tags.push('multimodal');
+    if (/\bflagship\b|\bmost capable\b|\bpremier\b|\bhighest.quality\b|\bbest overall\b/i.test(d))
+      tags.push('current default');
+    if (/\bgeneral purpose\b|\bgeneral.*tasks\b|\bversatile\b|\ball.?around\b/i.test(d))
+      tags.push('general purpose');
+    if (/\blightweight\b|\bcompact\b|\befficient inference\b|\bsmall.*parameter\b/i.test(d))
+      tags.push('lightweight');
     if (/\bfast\b|\bhigh.speed\b|\blow.latency\b|\bquick\b|\brapid\b/i.test(d)) tags.push('fast');
-    if (/\bcost.effective\b|\baffordable\b|\bbudget|\bvalue.*money\b/i.test(d)) tags.push('cost-efficient');
-    if (/\bcreative\b|\bwriting\b|\bstorytelling\b|\bcontent.*creation\b/i.test(d)) tags.push('general chat');
+    if (/\bcost.effective\b|\baffordable\b|\bbudget|\bvalue.*money\b/i.test(d))
+      tags.push('cost-efficient');
+    if (/\bcreative\b|\bwriting\b|\bstorytelling\b|\bcontent.*creation\b/i.test(d))
+      tags.push('general chat');
     if (/\bresearch\b|\bscience\b|\bscientific\b|\bacademia\b/i.test(d)) tags.push('complex tasks');
-    if (/\btranslation\b|\bmultilingual\b|\blanguage.*support\b/i.test(d)) tags.push('multilingual');
+    if (/\btranslation\b|\bmultilingual\b|\blanguage.*support\b/i.test(d))
+      tags.push('multilingual');
     if (/\bpreview\b|\bexp\b|\bexperimental\b|\balpha\b/i.test(d)) tags.push('new');
   }
 
@@ -185,8 +197,10 @@ async function main() {
         newModels.push(m);
       } else {
         const ctxChanged = existing.context_length !== m.context_length;
-        const inputChanged = parseFloat(existing.input_price_per_million ?? 0) !== m.input_price_per_million;
-        const outputChanged = parseFloat(existing.output_price_per_million ?? 0) !== m.output_price_per_million;
+        const inputChanged =
+          parseFloat(existing.input_price_per_million ?? 0) !== m.input_price_per_million;
+        const outputChanged =
+          parseFloat(existing.output_price_per_million ?? 0) !== m.output_price_per_million;
         if (ctxChanged || inputChanged || outputChanged) {
           updatedModels.push(m);
         } else {
@@ -211,7 +225,9 @@ async function main() {
     if (newModels.length > 0) {
       console.log('\nNew models:');
       for (const m of newModels.slice(0, 30)) {
-        console.log(`  + ${m.id}  ctx=${m.context_length ?? '?'}  in=$${m.input_price_per_million}  out=$${m.output_price_per_million}`);
+        console.log(
+          `  + ${m.id}  ctx=${m.context_length ?? '?'}  in=$${m.input_price_per_million}  out=$${m.output_price_per_million}`,
+        );
       }
       if (newModels.length > 30) console.log(`  ... and ${newModels.length - 30} more`);
     }
@@ -225,14 +241,17 @@ async function main() {
     if (potentiallyRemoved.length > 0) {
       console.log('\nPotentially removed:');
       for (const id of potentiallyRemoved.slice(0, 30)) console.log(`  - ${id}`);
-      if (potentiallyRemoved.length > 30) console.log(`  ... and ${potentiallyRemoved.length - 30} more`);
+      if (potentiallyRemoved.length > 30)
+        console.log(`  ... and ${potentiallyRemoved.length - 30} more`);
     }
 
     // Tag inference coverage report
     const allModels = [...newModels, ...updatedModels, ...unchangedModels];
     const withDesc = allModels.filter((m) => m.description).length;
     const withNameTags = allModels.filter((m) => inferTags(m.name, null).length > 0).length;
-    const withDescTags = allModels.filter((m) => m.description && inferTags(null, m.description).length > 0).length;
+    const withDescTags = allModels.filter(
+      (m) => m.description && inferTags(null, m.description).length > 0,
+    ).length;
     const withAnyTags = allModels.filter((m) => inferTags(m.name, m.description).length > 0).length;
     console.log(`\n── Tag Inference Coverage ──`);
     console.log(`  With description: ${withDesc}/${allModels.length}`);
@@ -242,10 +261,12 @@ async function main() {
     console.log(`  No tags at all:   ${allModels.length - withAnyTags}`);
     // Show sample inferences for notable models
     console.log(`\n  Sample inferences:`);
-    const samples = allModels.filter((m) => {
-      const tags = inferTags(m.name, m.description);
-      return tags.length > 0;
-    }).slice(0, 8);
+    const samples = allModels
+      .filter((m) => {
+        const tags = inferTags(m.name, m.description);
+        return tags.length > 0;
+      })
+      .slice(0, 8);
     for (const m of samples) {
       const tags = inferTags(m.name, m.description);
       console.log(`    ${m.id.split('/').pop()} → [${tags.join(', ')}]`);
@@ -278,9 +299,9 @@ async function main() {
        ON CONFLICT (slug) DO UPDATE SET datapoint_provider_id = EXCLUDED.datapoint_provider_id`,
       [sourceSlug, providerId],
     );
-    const { rows: srcRows } = await client.query(
-      `SELECT id FROM sources WHERE slug = $1`, [sourceSlug],
-    );
+    const { rows: srcRows } = await client.query(`SELECT id FROM sources WHERE slug = $1`, [
+      sourceSlug,
+    ]);
     const srcId = srcRows[0]?.id;
 
     let inserted = 0;
@@ -291,17 +312,17 @@ async function main() {
 
       // Upsert super model — handle both slug and name uniqueness
       let superId;
-      const { rows: bySlug } = await client.query(
-        'SELECT id FROM super_models WHERE slug = $1', [superSlug],
-      );
+      const { rows: bySlug } = await client.query('SELECT id FROM super_models WHERE slug = $1', [
+        superSlug,
+      ]);
       if (bySlug.length > 0) {
         superId = bySlug[0].id;
         // Update name if the slug match exists
         await client.query('UPDATE super_models SET name = $1 WHERE id = $2', [m.name, superId]);
       } else {
-        const { rows: byName } = await client.query(
-          'SELECT id FROM super_models WHERE name = $1', [m.name],
-        );
+        const { rows: byName } = await client.query('SELECT id FROM super_models WHERE name = $1', [
+          m.name,
+        ]);
         if (byName.length > 0) {
           // Name already exists under a different slug — reuse it (same underlying model)
           superId = byName[0].id;
@@ -331,8 +352,15 @@ async function main() {
            is_removed = false,
            updated_at = now()
          RETURNING id`,
-        [superId, providerId, modelInstanceKey, m.id, m.context_length,
-         m.input_price_per_million, m.output_price_per_million],
+        [
+          superId,
+          providerId,
+          modelInstanceKey,
+          m.id,
+          m.context_length,
+          m.input_price_per_million,
+          m.output_price_per_million,
+        ],
       );
       const dmId = dmRows[0].id;
 
@@ -398,7 +426,9 @@ async function main() {
   } catch (err) {
     console.error('Sync failed:', err.message);
     if (APPLY) {
-      try { await client.query('ROLLBACK'); } catch {}
+      try {
+        await client.query('ROLLBACK');
+      } catch {}
     }
     process.exitCode = 1;
   } finally {

@@ -5,9 +5,7 @@
  * then by super_model, and assembles the nested structure.
  */
 
-const {
-  slugifyCreator, classifyCreatorType, deriveCreatorRole,
-} = require('./name-inference');
+const { slugifyCreator, classifyCreatorType, deriveCreatorRole } = require('./name-inference');
 
 const CREATOR_DESCRIPTIONS = require('../../data/creator-descriptions.json');
 
@@ -47,7 +45,10 @@ function buildCreators(outputModels, roleRankingsOutput) {
       creator.modelMap.set(dp.super_id, {
         super_id: dp.super_id,
         name: dp.super_name,
-        slug: (dp.super_name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+        slug: (dp.super_name || '')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, ''),
         creator: dp.creator || null,
         base_creator: dp.base_creator || null,
         family: dp.family,
@@ -68,7 +69,10 @@ function buildCreators(outputModels, roleRankingsOutput) {
     if (dp.creator && dp.creator.length > (model.creator || '').length) {
       model.creator = dp.creator;
     }
-    if (dp.base_creator && (!model.base_creator || dp.base_creator.length > model.base_creator.length)) {
+    if (
+      dp.base_creator &&
+      (!model.base_creator || dp.base_creator.length > model.base_creator.length)
+    ) {
       model.base_creator = dp.base_creator;
     }
     if (dp.derivation_method && !model.derivation_method) {

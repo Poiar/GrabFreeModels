@@ -35,7 +35,7 @@ const pool = require('../server/db');
 
     // Load used-up providers from metadata
     const { rows: usageRows } = await client.query(
-      "SELECT value::text FROM metadata WHERE key = '_provider_usage'"
+      "SELECT value::text FROM metadata WHERE key = '_provider_usage'",
     );
     if (usageRows.length > 0) {
       const usage = JSON.parse(usageRows[0].value);
@@ -92,7 +92,9 @@ const pool = require('../server/db');
       // Check ordering: ranks should be 1,2,3,... without gaps
       for (let i = 0; i < entries.length; i++) {
         if (entries[i].rank !== i + 1) {
-          fail(`Rank gap at position ${i + 1}: expected rank ${i + 1}, got ${entries[i].rank} (${entries[i].full_id})`);
+          fail(
+            `Rank gap at position ${i + 1}: expected rank ${i + 1}, got ${entries[i].rank} (${entries[i].full_id})`,
+          );
         }
       }
 
@@ -163,9 +165,12 @@ const pool = require('../server/db');
         if (model) {
           if (model._removed) fail(`Model '${id}' is removed in ${role}`);
           if (!model.is_free) fail(`Model '${id}' is not free in ${role}`);
-          if (model.status.result === 'broken') fail(`Model '${id}' has status 'broken' in ${role}`);
-          if (model.status.result === 'rate_limited') fail(`Model '${id}' has status 'rate_limited' in ${role}`);
-          if (model.supports_tools !== true) fail(`Model '${id}' lacks supports_tools=true in ${role}`);
+          if (model.status.result === 'broken')
+            fail(`Model '${id}' has status 'broken' in ${role}`);
+          if (model.status.result === 'rate_limited')
+            fail(`Model '${id}' has status 'rate_limited' in ${role}`);
+          if (model.supports_tools !== true)
+            fail(`Model '${id}' lacks supports_tools=true in ${role}`);
         }
       }
 

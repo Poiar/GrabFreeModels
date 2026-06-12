@@ -5,15 +5,36 @@ const { Pool } = require('pg');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 let connectionString = process.env.DATABASE_URL;
-if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+if (
+  connectionString &&
+  connectionString.includes('sslmode=require') &&
+  !connectionString.includes('uselibpqcompat')
+) {
+  connectionString = connectionString.replace(
+    'sslmode=require',
+    'uselibpqcompat=true&sslmode=require',
+  );
 }
 const pool = new Pool({ connectionString, max: 1, ssl: { rejectUnauthorized: false } });
 
 const EXCLUDED_WORDS = new Set([
-  'small', 'large', 'mini', 'fast', 'pro', 'lite',
-  'free', 'chat', 'vision', 'reasoning', 'tool', 'use',
-  'model', 'models', 'open', 'source', 'weights',
+  'small',
+  'large',
+  'mini',
+  'fast',
+  'pro',
+  'lite',
+  'free',
+  'chat',
+  'vision',
+  'reasoning',
+  'tool',
+  'use',
+  'model',
+  'models',
+  'open',
+  'source',
+  'weights',
 ]);
 
 function familyMatchesName(family, modelName) {
@@ -24,7 +45,10 @@ function familyMatchesName(family, modelName) {
   for (let i = 0; i <= modelTokens.length - familyTokens.length; i++) {
     let match = true;
     for (let j = 0; j < familyTokens.length; j++) {
-      if (modelTokens[i + j] !== familyTokens[j]) { match = false; break; }
+      if (modelTokens[i + j] !== familyTokens[j]) {
+        match = false;
+        break;
+      }
     }
     if (match) return true;
   }
@@ -53,7 +77,7 @@ async function main() {
     }
     console.log('');
 
-    const families = familyRows.map(r => r.family);
+    const families = familyRows.map((r) => r.family);
 
     // Load all active super_models
     const { rows: allModels } = await client.query(`
@@ -73,11 +97,11 @@ async function main() {
       FROM super_models
       WHERE family IS NOT NULL
     `);
-    const existingFamilies = new Map(existingFamilyRows.map(r => [r.super_model_id, r.family]));
+    const existingFamilies = new Map(existingFamilyRows.map((r) => [r.super_model_id, r.family]));
     console.log(`Loaded ${existingFamilies.size} super_models with existing family.\n`);
 
     // Find models without family
-    const noFamily = allModels.filter(m => !existingFamilies.has(m.id));
+    const noFamily = allModels.filter((m) => !existingFamilies.has(m.id));
     console.log(`Models without family: ${noFamily.length}`);
 
     if (noFamily.length === 0) {
@@ -86,7 +110,7 @@ async function main() {
     }
 
     // Build family prevalence lookup for tie-breaking
-    const familyPrevalence = new Map(familyRows.map(r => [r.family.toLowerCase(), r.cnt]));
+    const familyPrevalence = new Map(familyRows.map((r) => [r.family.toLowerCase(), r.cnt]));
 
     // Match each model without family against known families
     const assignments = []; // { child_id, child_name, family }
@@ -136,7 +160,7 @@ async function main() {
       // Show up to 15 examples, sampling from different families
       const examples = [];
       for (const [f] of sortedFamilies) {
-        const famExamples = assignments.filter(a => a.family === f);
+        const famExamples = assignments.filter((a) => a.family === f);
         const take = Math.max(1, Math.round(15 * (famExamples.length / assignments.length)));
         for (const ex of famExamples.slice(0, take)) {
           examples.push(ex);
@@ -157,17 +181,19 @@ async function main() {
     const dryRun = !process.argv.includes('--apply');
 
     if (dryRun) {
-      console.log(`\nDry run — use --apply to insert family features for ${assignments.length} super_models.`);
+      console.log(
+        `\nDry run — use --apply to insert family features for ${assignments.length} super_models.`,
+      );
       return;
     }
 
     // Apply: update super_models.family directly
     let updated = 0;
     for (const a of assignments) {
-      await client.query(
-        'UPDATE super_models SET family = $1 WHERE id = $2 AND family IS NULL',
-        [a.family, a.child_id]
-      );
+      await client.query('UPDATE super_models SET family = $1 WHERE id = $2 AND family IS NULL', [
+        a.family,
+        a.child_id,
+      ]);
       updated++;
     }
 
@@ -188,4 +214,7 @@ async function main() {
   }
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

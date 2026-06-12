@@ -27,23 +27,28 @@ const SHOW_SUMMARY = args.includes('--summary') || args.length === 0;
 const SHOW_MISMATCHES = args.includes('--mismatches') || args.includes('--all');
 const SHOW_MISSING = args.includes('--missing') || args.includes('--all');
 const SHOW_ALL = args.includes('--all');
-const JSON_OUT = (() => { const i = args.indexOf('--json'); return i >= 0 ? args[i + 1] : null; })();
+const JSON_OUT = (() => {
+  const i = args.indexOf('--json');
+  return i >= 0 ? args[i + 1] : null;
+})();
 
 // --- Helpers ---
 
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return resolve(httpsGet(res.headers.location));
-      }
-      let data = '';
-      res.on('data', (chunk) => (data += chunk));
-      res.on('end', () => {
-        if (res.statusCode >= 400) reject(new Error(`HTTP ${res.statusCode}`));
-        else resolve(JSON.parse(data));
-      });
-    }).on('error', reject);
+    https
+      .get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          return resolve(httpsGet(res.headers.location));
+        }
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          if (res.statusCode >= 400) reject(new Error(`HTTP ${res.statusCode}`));
+          else resolve(JSON.parse(data));
+        });
+      })
+      .on('error', reject);
   });
 }
 
@@ -69,9 +74,10 @@ function normalizeName(name) {
 
 function stripCreatorPrefix(name) {
   // Strip "Creator: " or "Creator/" prefix from models.dev names
-  return name.replace(/^[A-Za-z][A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*:\s*/i, '')
-             .replace(/^[a-z][a-z0-9-]*\/(?=[A-Z])/, '')
-             .trim();
+  return name
+    .replace(/^[A-Za-z][A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*:\s*/i, '')
+    .replace(/^[a-z][a-z0-9-]*\/(?=[A-Z])/, '')
+    .trim();
 }
 
 function isSlugLike(name) {
@@ -132,7 +138,10 @@ function buildReverseProviderMap() {
   }
 
   const providers = catalog.providers || {};
-  const totalMdModels = Object.values(providers).reduce((s, p) => s + Object.keys(p.models || {}).length, 0);
+  const totalMdModels = Object.values(providers).reduce(
+    (s, p) => s + Object.keys(p.models || {}).length,
+    0,
+  );
   console.error(`Got ${totalMdModels} models across ${Object.keys(providers).length} providers\n`);
 
   // 2. Build models.dev lookups
@@ -227,8 +236,8 @@ function buildReverseProviderMap() {
 
     for (const sm of superModels) {
       const dps = sm.datapoints || [];
-      const mdDp = dps.find(d => d.provider_slug === 'modelsdev');
-      const nonMdDps = dps.filter(d => d.provider_slug && d.provider_slug !== 'modelsdev');
+      const mdDp = dps.find((d) => d.provider_slug === 'modelsdev');
+      const nonMdDps = dps.filter((d) => d.provider_slug && d.provider_slug !== 'modelsdev');
 
       let bestMatch = null;
       let matchMethod = 'none';
@@ -244,7 +253,7 @@ function buildReverseProviderMap() {
           matchMethod = 'modelsdev-datapoint';
         } else if (candidates.length > 1) {
           // Pick the one whose providerId matches the modelId prefix, or first
-          const prefixed = candidates.find(c => mdModelId.startsWith(c.providerId + '/'));
+          const prefixed = candidates.find((c) => mdModelId.startsWith(c.providerId + '/'));
           bestMatch = prefixed || candidates[0];
           matchMethod = 'modelsdev-datapoint';
         }
@@ -260,10 +269,17 @@ function buildReverseProviderMap() {
           // Prefer candidate whose provider maps to one of our providers
           for (const dp of nonMdDps) {
             const mdProvs = reverseProviderMap[dp.provider_slug] || [];
-            const matched = candidates.find(c => mdProvs.includes(c.providerId));
-            if (matched) { bestMatch = matched; matchMethod = 'slug+provider'; break; }
+            const matched = candidates.find((c) => mdProvs.includes(c.providerId));
+            if (matched) {
+              bestMatch = matched;
+              matchMethod = 'slug+provider';
+              break;
+            }
           }
-          if (!bestMatch) { bestMatch = candidates[0]; matchMethod = 'slug'; }
+          if (!bestMatch) {
+            bestMatch = candidates[0];
+            matchMethod = 'slug';
+          }
         }
       }
 
@@ -277,10 +293,17 @@ function buildReverseProviderMap() {
         } else if (candidates && candidates.length > 1) {
           for (const dp of nonMdDps) {
             const mdProvs = reverseProviderMap[dp.provider_slug] || [];
-            const matched = candidates.find(c => mdProvs.includes(c.providerId));
-            if (matched) { bestMatch = matched; matchMethod = 'name+provider'; break; }
+            const matched = candidates.find((c) => mdProvs.includes(c.providerId));
+            if (matched) {
+              bestMatch = matched;
+              matchMethod = 'name+provider';
+              break;
+            }
           }
-          if (!bestMatch) { bestMatch = candidates[0]; matchMethod = 'name'; }
+          if (!bestMatch) {
+            bestMatch = candidates[0];
+            matchMethod = 'name';
+          }
         }
       }
 
@@ -308,7 +331,10 @@ function buildReverseProviderMap() {
               const keySlug = slugify(key);
               const provEntries = [];
               for (const [k, v] of mdByProviderModel) {
-                if (k.startsWith(mdProv + '/') && slugify(k.split('/').slice(1).join('/')) === keySlug) {
+                if (
+                  k.startsWith(mdProv + '/') &&
+                  slugify(k.split('/').slice(1).join('/')) === keySlug
+                ) {
                   provEntries.push(v);
                 }
               }
@@ -330,13 +356,15 @@ function buildReverseProviderMap() {
         our_name: sm.name,
         our_slug: sm.slug,
         our_creator: sm.creator,
-        providers: dps.map(d => d.provider_slug).filter(Boolean),
+        providers: dps.map((d) => d.provider_slug).filter(Boolean),
         match_method: matchMethod,
       };
 
       if (!bestMatch) {
         // Check if model has any provider that maps to models.dev
-        const hasMappedProvider = nonMdDps.some(dp => reverseProviderMap[dp.provider_slug]?.length > 0);
+        const hasMappedProvider = nonMdDps.some(
+          (dp) => reverseProviderMap[dp.provider_slug]?.length > 0,
+        );
         if (!hasMappedProvider && nonMdDps.length > 0) {
           result.category = 'unmapped_provider';
           results.unmapped_provider.push(result);
@@ -377,12 +405,15 @@ function buildReverseProviderMap() {
 
     // 5. Output
     const total = superModels.length;
-    const matched = results.exact_match.length + results.close_match.length + results.name_mismatch.length;
+    const matched =
+      results.exact_match.length + results.close_match.length + results.name_mismatch.length;
 
     if (SHOW_SUMMARY || SHOW_ALL) {
       console.log('=== Cross-Reference Summary ===\n');
       console.log(`Super models total:            ${total}`);
-      console.log(`Matched to models.dev:          ${matched} (${(matched/total*100).toFixed(1)}%)`);
+      console.log(
+        `Matched to models.dev:          ${matched} (${((matched / total) * 100).toFixed(1)}%)`,
+      );
       console.log(`  Exact name match:             ${results.exact_match.length}`);
       console.log(`  Close match (fmt diff only):  ${results.close_match.length}`);
       console.log(`  Name mismatch:                ${results.name_mismatch.length}`);
@@ -397,7 +428,9 @@ function buildReverseProviderMap() {
       for (const r of results.name_mismatch) {
         console.log(`  Our name:   ${r.our_name}`);
         console.log(`  MD name:    ${r.md_name}`);
-        console.log(`  MD id:      ${r.md_provider}/${r.md_model_id}  (matched by: ${r.match_method})`);
+        console.log(
+          `  MD id:      ${r.md_provider}/${r.md_model_id}  (matched by: ${r.match_method})`,
+        );
         console.log();
       }
     }

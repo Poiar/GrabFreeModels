@@ -28,9 +28,16 @@ function detectDerivationMethod(name) {
   }
 
   // 3. DPO / preference optimization variants
-  if (/\bdpo\b/.test(n) || /\borpo\b/.test(n) || /\brdpo\b/.test(n) ||
-      /\bsimpo\b/.test(n) || /\bcpo\b/.test(n) || /\bkto\b/.test(n) ||
-      /\bipo\b/.test(n) || /\bspo\b/.test(n)) {
+  if (
+    /\bdpo\b/.test(n) ||
+    /\borpo\b/.test(n) ||
+    /\brdpo\b/.test(n) ||
+    /\bsimpo\b/.test(n) ||
+    /\bcpo\b/.test(n) ||
+    /\bkto\b/.test(n) ||
+    /\bipo\b/.test(n) ||
+    /\bspo\b/.test(n)
+  ) {
     return 'dpo';
   }
 
@@ -45,8 +52,13 @@ function detectDerivationMethod(name) {
   }
 
   // 6. Fine-tune (most common, check last)
-  if (/instruct/i.test(n) || /\bchat\b/.test(n) || /\bsft\b/.test(n) ||
-      /\bft\b/.test(n) || /fine.tun/i.test(n)) {
+  if (
+    /instruct/i.test(n) ||
+    /\bchat\b/.test(n) ||
+    /\bsft\b/.test(n) ||
+    /\bft\b/.test(n) ||
+    /fine.tun/i.test(n)
+  ) {
     return 'finetune';
   }
 
@@ -143,21 +155,64 @@ function findBestSubstringMatch(childLower, childSlug, candidates) {
  * Strips common derivation words and separators.
  */
 const DERIVATION_TOKENS = new Set([
-  'instruct', 'chat', 'base', 'sft', 'ft', 'dpo', 'orpo', 'rdpo', 'simpo',
-  'cpo', 'kto', 'ipo', 'spo', 'merge', 'slerp', 'distill', 'distil', 'lora',
-  'cpt', 'fine', 'tune', 'tuned', 'finetune', 'finetuned', 'continued',
-  'pretraining', 'pretrain', 'adapter', 'model', 'weights', 'gguf', 'gptq',
-  'awq', 'bnb', 'fp16', 'fp32', 'bf16', 'fp8', 'int4', 'int8', 'quantized',
-  'quant', 'v0', 'v1', 'v2', 'v3', 'v4', 'v5',
+  'instruct',
+  'chat',
+  'base',
+  'sft',
+  'ft',
+  'dpo',
+  'orpo',
+  'rdpo',
+  'simpo',
+  'cpo',
+  'kto',
+  'ipo',
+  'spo',
+  'merge',
+  'slerp',
+  'distill',
+  'distil',
+  'lora',
+  'cpt',
+  'fine',
+  'tune',
+  'tuned',
+  'finetune',
+  'finetuned',
+  'continued',
+  'pretraining',
+  'pretrain',
+  'adapter',
+  'model',
+  'weights',
+  'gguf',
+  'gptq',
+  'awq',
+  'bnb',
+  'fp16',
+  'fp32',
+  'bf16',
+  'fp8',
+  'int4',
+  'int8',
+  'quantized',
+  'quant',
+  'v0',
+  'v1',
+  'v2',
+  'v3',
+  'v4',
+  'v5',
 ]);
 
 function tokenizeForMatching(name) {
   if (!name) return [];
-  const tokens = name.toLowerCase()
+  const tokens = name
+    .toLowerCase()
     .replace(/[()]/g, ' ')
     .split(/[\s\-_/,]+/)
     .filter(Boolean);
-  return tokens.filter(t => !DERIVATION_TOKENS.has(t) && t.length >= 2);
+  return tokens.filter((t) => !DERIVATION_TOKENS.has(t) && t.length >= 2);
 }
 
 /**
@@ -191,9 +246,10 @@ function findImmediateParentByTokens(childName, candidates) {
       const isNumeric = /\d/.test(ct);
       totalWeight += isNumeric ? 2 : 1; // numeric tokens are strong signals
       for (const childT of childTokens) {
-        if (ct === childT ||
-            (ct.length >= 3 && childT.length >= 3 &&
-             (ct.startsWith(childT) || childT.startsWith(ct)))) {
+        if (
+          ct === childT ||
+          (ct.length >= 3 && childT.length >= 3 && (ct.startsWith(childT) || childT.startsWith(ct)))
+        ) {
           matched += isNumeric ? 2 : 1;
           break;
         }
@@ -204,10 +260,12 @@ function findImmediateParentByTokens(childName, candidates) {
 
     // Require strong match: >= 60% token overlap, and at least one
     // numeric token must match if the candidate has any digits.
-    const hasNumeric = candTokens.some(t => /\d/.test(t));
-    const numericMatched = !hasNumeric || candTokens.filter(t => /\d/.test(t)).some(ct =>
-      childTokens.some(childT => ct === childT)
-    );
+    const hasNumeric = candTokens.some((t) => /\d/.test(t));
+    const numericMatched =
+      !hasNumeric ||
+      candTokens
+        .filter((t) => /\d/.test(t))
+        .some((ct) => childTokens.some((childT) => ct === childT));
 
     if (score >= 0.6 && numericMatched && matched >= 2) {
       // Prefer candidates with more tokens (more specific match)
@@ -223,7 +281,10 @@ function findImmediateParentByTokens(childName, candidates) {
 }
 
 function nameToSlug(name) {
-  return (name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return (name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 module.exports = { detectDerivationMethod, findImmediateParent, nameToSlug };

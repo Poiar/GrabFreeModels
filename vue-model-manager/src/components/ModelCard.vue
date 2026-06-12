@@ -1,5 +1,9 @@
 <template>
-  <div class="model-card" :class="[`card-${status}`, { 'card-expanded': expanded }]" @click="handleCardClick">
+  <div
+    class="model-card"
+    :class="[`card-${status}`, { 'card-expanded': expanded }]"
+    @click="handleCardClick"
+  >
     <!-- Header -->
     <div class="mc-header">
       <div class="mc-header-left">
@@ -7,13 +11,41 @@
           <ProviderIcon :slug="creator.id" :size="16" cls="mc-creator-icon" />
           <span v-else class="mc-creator-icon-fb">{{ (creator.name || '?')[0] }}</span>
           {{ creator.name }}
-          <button class="copy-btn-badge" title="Copy creator" @click.stop="copyText(creator.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          <button class="copy-btn-badge" title="Copy creator" @click.stop="copyText(creator.name)">
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          </button>
         </span>
         <span class="mc-badge-sep">/</span>
         <span class="mc-badge mc-badge-model">
           <span class="mc-model-icon-fb">{{ model.name[0] }}</span>
           {{ model.name }}
-          <button class="copy-btn-badge" title="Copy name" @click.stop="copyText(model.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          <button class="copy-btn-badge" title="Copy name" @click.stop="copyText(model.name)">
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          </button>
         </span>
       </div>
       <div class="mc-header-right">
@@ -34,16 +66,37 @@
       >
       <span v-if="sourceSummaryText" class="mc-stat-divider">|</span>
       <span v-if="sourceSummaryText" class="mc-stat mc-source-line">{{ sourceSummaryText }}</span>
-      <router-link v-if="model.base_model" :to="`/model/${model.base_model}`" class="mc-finetune-badge" :class="derivationBadgeClass" :title="derivationTitle" @click.stop>
+      <router-link
+        v-if="model.base_model"
+        :to="`/model/${model.base_model}`"
+        class="mc-finetune-badge"
+        :class="derivationBadgeClass"
+        :title="derivationTitle"
+        @click.stop
+      >
         {{ derivationLabel }}
       </router-link>
       <span v-if="derivationDepth >= 2" class="mc-depth-badge">Gen {{ derivationDepth }}</span>
       <span v-else-if="baseCreatorLabel" class="mc-base-creator-badge">{{ baseCreatorLabel }}</span>
-      <span v-if="limitBadges.card" class="mc-limit-warn" title="Credit card required by some providers">Card</span>
+      <span
+        v-if="limitBadges.card"
+        class="mc-limit-warn"
+        title="Credit card required by some providers"
+        >Card</span
+      >
       <span v-if="limitBadges.sub" class="mc-limit-warn" :title="limitBadges.sub">Sub</span>
-      <span v-if="limitBadges.daily" class="mc-limit-info" :title="limitBadges.daily">~{{ limitBadges.daily }}/day</span>
-      <span v-if="limitBadges.tokenDay" class="mc-limit-info" :title="limitBadges.tokenDay">~{{ limitBadges.tokenDay }}/day</span>
-      <span v-if="limitBadges.expires" class="mc-limit-info" :title="'Expires: ' + limitBadges.expires">Exp.</span>
+      <span v-if="limitBadges.daily" class="mc-limit-info" :title="limitBadges.daily"
+        >~{{ limitBadges.daily }}/day</span
+      >
+      <span v-if="limitBadges.tokenDay" class="mc-limit-info" :title="limitBadges.tokenDay"
+        >~{{ limitBadges.tokenDay }}/day</span
+      >
+      <span
+        v-if="limitBadges.expires"
+        class="mc-limit-info"
+        :title="'Expires: ' + limitBadges.expires"
+        >Exp.</span
+      >
       <span v-if="limitBadges.rate" class="mc-limit-info" :title="limitBadges.rate">Rate</span>
       <span class="mc-status-pulse" :class="`pulse-${status}`"></span>
     </div>
@@ -170,7 +223,10 @@ const status = computed(() => {
   const active = props.model.providers.filter((p) => !p._removed);
   if (!active.length) return 'down';
 
-  let working = 0, broken = 0, limited = 0, untested = 0;
+  let working = 0,
+    broken = 0,
+    limited = 0,
+    untested = 0;
   for (const p of active) {
     const result = p.status.result;
     if (result === 'working') working++;
@@ -197,11 +253,25 @@ const limitBadges = computed(() => {
     if (l.subscription_required && !badges.sub) badges.sub = l.subscription_required;
     if (l.expires && !badges.expires) badges.expires = l.expires;
     if (l.rate_limit && !badges.rate) badges.rate = l.rate_limit;
-    if (l.daily_requests !== undefined && (!badges.daily || l.daily_requests < parseInt(badges.daily))) {
-      badges.daily = String(l.daily_requests >= 1000 ? `${(l.daily_requests / 1000).toFixed(1).replace(/\.0$/, '')}K` : l.daily_requests);
+    if (
+      l.daily_requests !== undefined &&
+      (!badges.daily || l.daily_requests < parseInt(badges.daily))
+    ) {
+      badges.daily = String(
+        l.daily_requests >= 1000
+          ? `${(l.daily_requests / 1000).toFixed(1).replace(/\.0$/, '')}K`
+          : l.daily_requests,
+      );
     }
-    if (l.daily_tokens !== undefined && (!badges.tokenDay || l.daily_tokens < parseInt(badges.tokenDay))) {
-      badges.tokenDay = String(l.daily_tokens >= 1000 ? `${(l.daily_tokens / 1000).toFixed(1).replace(/\.0$/, '')}K` : l.daily_tokens);
+    if (
+      l.daily_tokens !== undefined &&
+      (!badges.tokenDay || l.daily_tokens < parseInt(badges.tokenDay))
+    ) {
+      badges.tokenDay = String(
+        l.daily_tokens >= 1000
+          ? `${(l.daily_tokens / 1000).toFixed(1).replace(/\.0$/, '')}K`
+          : l.daily_tokens,
+      );
     }
   }
   return badges;
@@ -221,15 +291,24 @@ const topRankings = computed(() => {
 
 function handleCardClick(e: MouseEvent) {
   const target = e.target as HTMLElement;
-  if (target.closest('.provider-block') || target.closest('.provider-strip-more') || target.closest('.copy-btn-badge')) return;
+  if (
+    target.closest('.provider-block') ||
+    target.closest('.provider-strip-more') ||
+    target.closest('.copy-btn-badge')
+  )
+    return;
   emit('model-click');
 }
-
 
 const { success: toastSuccess } = useToast();
 
 async function copyText(text: string) {
-  try { await navigator.clipboard.writeText(text); toastSuccess(`"${text}" copied`); } catch { /* noop */ }
+  try {
+    await navigator.clipboard.writeText(text);
+    toastSuccess(`"${text}" copied`);
+  } catch {
+    /* noop */
+  }
 }
 
 function handleProviderClick(dp: ProviderDatapoint) {
@@ -450,20 +529,55 @@ function roleLabel(role: string): string {
 .mc-finetune-badge:hover {
   background: rgba(99, 102, 241, 0.22);
 }
-.mc-finetune-badge.deriv-ft { background: rgba(99, 102, 241, 0.12); color: var(--deriv-ft); }
-.mc-finetune-badge.deriv-ft:hover { background: rgba(99, 102, 241, 0.22); }
-.mc-finetune-badge.deriv-merge { background: rgba(168, 85, 247, 0.12); color: var(--deriv-merge); }
-.mc-finetune-badge.deriv-merge:hover { background: rgba(168, 85, 247, 0.22); }
-.mc-finetune-badge.deriv-distill { background: rgba(236, 72, 153, 0.12); color: var(--deriv-distill); }
-.mc-finetune-badge.deriv-distill:hover { background: rgba(236, 72, 153, 0.22); }
-.mc-finetune-badge.deriv-dpo { background: rgba(34, 211, 238, 0.12); color: var(--deriv-dpo); }
-.mc-finetune-badge.deriv-dpo:hover { background: rgba(34, 211, 238, 0.22); }
-.mc-finetune-badge.deriv-cpt { background: rgba(250, 204, 21, 0.12); color: var(--deriv-cpt); }
-.mc-finetune-badge.deriv-cpt:hover { background: rgba(250, 204, 21, 0.22); }
-.mc-finetune-badge.deriv-lora { background: rgba(52, 211, 153, 0.12); color: var(--deriv-lora); }
-.mc-finetune-badge.deriv-lora:hover { background: rgba(52, 211, 153, 0.22); }
-.mc-finetune-badge.deriv-unknown { background: rgba(156, 163, 175, 0.12); color: #9ca3af; }
-.mc-finetune-badge.deriv-unknown:hover { background: rgba(156, 163, 175, 0.22); }
+.mc-finetune-badge.deriv-ft {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--deriv-ft);
+}
+.mc-finetune-badge.deriv-ft:hover {
+  background: rgba(99, 102, 241, 0.22);
+}
+.mc-finetune-badge.deriv-merge {
+  background: rgba(168, 85, 247, 0.12);
+  color: var(--deriv-merge);
+}
+.mc-finetune-badge.deriv-merge:hover {
+  background: rgba(168, 85, 247, 0.22);
+}
+.mc-finetune-badge.deriv-distill {
+  background: rgba(236, 72, 153, 0.12);
+  color: var(--deriv-distill);
+}
+.mc-finetune-badge.deriv-distill:hover {
+  background: rgba(236, 72, 153, 0.22);
+}
+.mc-finetune-badge.deriv-dpo {
+  background: rgba(34, 211, 238, 0.12);
+  color: var(--deriv-dpo);
+}
+.mc-finetune-badge.deriv-dpo:hover {
+  background: rgba(34, 211, 238, 0.22);
+}
+.mc-finetune-badge.deriv-cpt {
+  background: rgba(250, 204, 21, 0.12);
+  color: var(--deriv-cpt);
+}
+.mc-finetune-badge.deriv-cpt:hover {
+  background: rgba(250, 204, 21, 0.22);
+}
+.mc-finetune-badge.deriv-lora {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--deriv-lora);
+}
+.mc-finetune-badge.deriv-lora:hover {
+  background: rgba(52, 211, 153, 0.22);
+}
+.mc-finetune-badge.deriv-unknown {
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+}
+.mc-finetune-badge.deriv-unknown:hover {
+  background: rgba(156, 163, 175, 0.22);
+}
 
 .mc-base-creator-badge {
   padding: 1px 6px;

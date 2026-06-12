@@ -1,5 +1,9 @@
 <template>
-  <span class="pi-wrap" :class="[`pi-${size}`, cls]" :style="{ '--pi-color': color }">
+  <span
+    class="pi-wrap"
+    :class="[`pi-${size}`, cls]"
+    :style="{ '--pi-color': color, '--pi-fg': fgColor }"
+  >
     <img
       v-if="imgSrc"
       :src="imgSrc"
@@ -12,6 +16,7 @@
     <svg
       v-else
       class="pi-svg"
+      :style="{ color: fgColor }"
       :viewBox="icon.viewBox"
       v-html="icon.body"
       :aria-label="alt"
@@ -22,7 +27,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { getProviderIcon } from '@/data/provider-icons';
-import { getProviderColorMuted } from '@/data/provider-colors';
+import { getProviderColorMuted, getProviderColorForeground } from '@/data/provider-colors';
 
 const props = withDefaults(
   defineProps<{
@@ -41,6 +46,7 @@ const props = withDefaults(
 const tried = ref(new Set<string>());
 const icon = computed(() => getProviderIcon(props.slug));
 const color = computed(() => getProviderColorMuted(props.slug));
+const fgColor = computed(() => getProviderColorForeground(props.slug));
 
 const CANDIDATES = ['.svg', '.png', '.jpg', '.jpeg'];
 
@@ -75,7 +81,6 @@ function onImgError() {
   display: inline-block;
   width: v-bind('`${size}px`');
   height: v-bind('`${size}px`');
-  color: var(--text-dim);
 }
 
 .pi-img {

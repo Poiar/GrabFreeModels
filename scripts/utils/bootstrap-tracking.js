@@ -22,8 +22,9 @@ async function main() {
   console.log('Tracking table ready');
 
   // Mark pre-existing migrations (001-027) as applied
-  const files = fs.readdirSync(path.join(ROOT, 'db', 'migrations'))
-    .filter(f => f.endsWith('.sql'))
+  const files = fs
+    .readdirSync(path.join(ROOT, 'db', 'migrations'))
+    .filter((f) => f.endsWith('.sql'))
     .sort();
 
   for (const f of files) {
@@ -31,7 +32,7 @@ async function main() {
     if (num <= 27) {
       await pool.query(
         'INSERT INTO _migrations (filename, checksum) VALUES ($1, $2) ON CONFLICT (filename) DO NOTHING',
-        [f, 'pre-existing']
+        [f, 'pre-existing'],
       );
       console.log('  marked: ' + f);
     }
@@ -42,4 +43,7 @@ async function main() {
   await pool.end();
 }
 
-main().catch(e => { console.error(e.message); process.exit(1); });
+main().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

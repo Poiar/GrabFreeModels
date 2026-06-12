@@ -5,9 +5,7 @@
  */
 
 async function loadMetadata(client) {
-  const { rows } = await client.query(
-    'SELECT key, value::text FROM metadata ORDER BY key',
-  );
+  const { rows } = await client.query('SELECT key, value::text FROM metadata ORDER BY key');
   const meta = {};
   for (const r of rows) {
     try {

@@ -65,7 +65,9 @@ function parseCheahjs(markdown) {
   const providers = [];
 
   // Find the free providers section
-  const freeSection = markdown.match(/## Free API Providers\n\n([\s\S]*?)(?=## Providers with trial credits|$)/);
+  const freeSection = markdown.match(
+    /## Free API Providers\n\n([\s\S]*?)(?=## Providers with trial credits|$)/,
+  );
   const content = freeSection ? freeSection[1] : markdown;
 
   // Parse each ### section
@@ -92,10 +94,10 @@ function parseCheahjs(markdown) {
         let tdMatch;
         while ((tdMatch = tdRegex.exec(rowMatch[1])) !== null) {
           let text = tdMatch[1]
-            .replace(/<br\s*\/?>/gi, '; ')  // replace <br> with semicolon
-            .replace(/<[^>]+>/g, '')        // strip remaining HTML tags
+            .replace(/<br\s*\/?>/gi, '; ') // replace <br> with semicolon
+            .replace(/<[^>]+>/g, '') // strip remaining HTML tags
             .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // strip markdown links
-            .replace(/\*\*/g, '')            // strip bold
+            .replace(/\*\*/g, '') // strip bold
             .replace(/&amp;/g, '&')
             .replace(/&lt;/g, '<')
             .replace(/&gt;/g, '>')
@@ -283,9 +285,11 @@ async function fetchSource(source) {
             );
           }
         }
-        logger.info(`  Normalized ${r.parsed.length} providers into external_source_providers/models`);
-        }
-      } catch (err) {
+        logger.info(
+          `  Normalized ${r.parsed.length} providers into external_source_providers/models`,
+        );
+      }
+    } catch (err) {
       logger.error(`DB error: ${err.message}`);
       process.exitCode = 1;
     } finally {

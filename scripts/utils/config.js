@@ -10,7 +10,8 @@ const path = require('path');
 // ── Auth file resolution ──
 function resolveAuthFile() {
   if (process.env.GFM_AUTH_FILE) return process.env.GFM_AUTH_FILE;
-  const xdgData = process.env.XDG_DATA_HOME ||
+  const xdgData =
+    process.env.XDG_DATA_HOME ||
     path.join(process.env.HOME || process.env.USERPROFILE || '.', '.local', 'share');
   return path.join(xdgData, 'opencode', 'auth.json');
 }
@@ -19,14 +20,16 @@ function resolveConfigFile() {
   if (process.env.GFM_CONFIG_FILE) return process.env.GFM_CONFIG_FILE;
   return path.join(
     process.env.HOME || process.env.USERPROFILE || '.',
-    '.config', 'opencode', 'opencode.jsonc'
+    '.config',
+    'opencode',
+    'opencode.jsonc',
   );
 }
 
 // ── Pipeline timing ──
 const BURN_IN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days — models with failures within this window are excluded
-const TEST_AGAIN_AFTER_DAYS = 7;             // re-test models after this many days
-const HEALTH_THRESHOLD = 70;                  // percentage — below this triggers health alerts
+const TEST_AGAIN_AFTER_DAYS = 7; // re-test models after this many days
+const HEALTH_THRESHOLD = 70; // percentage — below this triggers health alerts
 
 // ── Validation ──
 const KEY_CHECK_MAX_FAILURES = 3; // abort validation if N+ providers have dead keys
@@ -88,9 +91,15 @@ const PROVIDER_LIMITATIONS = {
 
 // ── Known patterns for models that DON'T support tools ──
 const TOOLS_FALSE_PATTERNS = [
-  /chat.*small/i, /tiny/i, /nano/i,
-  /embed/i, /rerank/i, /classif/i,
-  /whisper/i, /tts/i, /speech/i,
+  /chat.*small/i,
+  /tiny/i,
+  /nano/i,
+  /embed/i,
+  /rerank/i,
+  /classif/i,
+  /whisper/i,
+  /tts/i,
+  /speech/i,
   /vision(?!.*tool)/i,
 ];
 

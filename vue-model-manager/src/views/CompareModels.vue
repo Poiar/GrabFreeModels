@@ -2,7 +2,16 @@
   <div class="cm-page">
     <div class="page-header">
       <h2>Compare Models</h2>
-      <p>Select two models to compare side-by-side across capabilities, coverage, rankings, and benchmarks</p>
+      <p>
+        Select two models to compare side-by-side across capabilities, coverage, rankings, and
+        benchmarks
+      </p>
+      <div class="cm-header-actions">
+        <button v-if="leftModel && rightModel" class="cm-copy-btn" @click="copyComparisonMd">
+          ↓ Copy MD
+        </button>
+        <span v-if="copied" class="cm-copied-toast">Copied!</span>
+      </div>
     </div>
 
     <!-- Two-column model selectors -->
@@ -45,8 +54,22 @@
     </div>
 
     <!-- Swap button -->
-    <button v-if="leftModel && rightModel" class="cm-swap-btn" @click="swapModels" title="Swap models">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <button
+      v-if="leftModel && rightModel"
+      class="cm-swap-btn"
+      @click="swapModels"
+      title="Swap models"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
         <polyline points="17 1 21 5 17 9" />
         <path d="M3 11V9a4 4 0 0 1 4-4h14" />
         <polyline points="7 23 3 19 7 15" />
@@ -58,7 +81,17 @@
     <!-- Empty state -->
     <div v-if="!leftModel && !rightModel" class="cm-empty">
       <div class="cm-empty-icon">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.3">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          opacity="0.3"
+        >
           <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
           <line x1="12" y1="22" x2="12" y2="15.5" />
           <polyline points="22 8.5 12 15.5 2 8.5" />
@@ -78,21 +111,86 @@
       <div class="cm-radar-wrap glass-card">
         <h3>Dimension Overview</h3>
         <svg viewBox="0 0 400 400" class="cm-radar-svg">
-          <circle v-for="r in 5" :key="r" :cx="200" :cy="200" :r="r * 36" fill="none" stroke="var(--viz-gridline, rgba(255,255,255,0.06))" stroke-width="1" />
-          <line v-for="(_a, i) in radarAxes" :key="'al'+i" :x1="200" :y1="200" :x2="200 + Math.cos(radarAngle(i) - Math.PI/2) * 180" :y2="200 + Math.sin(radarAngle(i) - Math.PI/2) * 180" stroke="var(--viz-gridline, rgba(255,255,255,0.06))" stroke-width="1" />
-          <text v-for="(axis, i) in radarAxes" :key="'albl'+i" :x="200 + Math.cos(radarAngle(i) - Math.PI/2) * 200" :y="200 + Math.sin(radarAngle(i) - Math.PI/2) * 200" text-anchor="middle" dominant-baseline="central" fill="var(--text-dim)" font-size="8" font-family="Inter, sans-serif" font-weight="600">{{ axis.label }}</text>
+          <circle
+            v-for="r in 5"
+            :key="r"
+            :cx="200"
+            :cy="200"
+            :r="r * 36"
+            fill="none"
+            stroke="var(--viz-gridline, rgba(255,255,255,0.06))"
+            stroke-width="1"
+          />
+          <line
+            v-for="(_a, i) in radarAxes"
+            :key="'al' + i"
+            :x1="200"
+            :y1="200"
+            :x2="200 + Math.cos(radarAngle(i) - Math.PI / 2) * 180"
+            :y2="200 + Math.sin(radarAngle(i) - Math.PI / 2) * 180"
+            stroke="var(--viz-gridline, rgba(255,255,255,0.06))"
+            stroke-width="1"
+          />
+          <text
+            v-for="(axis, i) in radarAxes"
+            :key="'albl' + i"
+            :x="200 + Math.cos(radarAngle(i) - Math.PI / 2) * 200"
+            :y="200 + Math.sin(radarAngle(i) - Math.PI / 2) * 200"
+            text-anchor="middle"
+            dominant-baseline="central"
+            fill="var(--text-dim)"
+            font-size="8"
+            font-family="Inter, sans-serif"
+            font-weight="600"
+          >
+            {{ axis.label }}
+          </text>
           <!-- Left model -->
-          <polygon v-if="leftRadarPoints" :points="leftRadarPoints" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-width="1.5" />
+          <polygon
+            v-if="leftRadarPoints"
+            :points="leftRadarPoints"
+            fill="var(--accent)"
+            fill-opacity="0.12"
+            stroke="var(--accent)"
+            stroke-width="1.5"
+          />
           <!-- Right model -->
-          <polygon v-if="rightRadarPoints" :points="rightRadarPoints" fill="var(--green)" fill-opacity="0.12" stroke="var(--green)" stroke-width="1.5" />
+          <polygon
+            v-if="rightRadarPoints"
+            :points="rightRadarPoints"
+            fill="var(--green)"
+            fill-opacity="0.12"
+            stroke="var(--green)"
+            stroke-width="1.5"
+          />
           <!-- Dots for left -->
-          <circle v-for="(pt, i) in leftRadarCoords" :key="'lpt'+i" :cx="pt.x" :cy="pt.y" r="3" fill="var(--accent)" />
+          <circle
+            v-for="(pt, i) in leftRadarCoords"
+            :key="'lpt' + i"
+            :cx="pt.x"
+            :cy="pt.y"
+            r="3"
+            fill="var(--accent)"
+          />
           <!-- Dots for right -->
-          <circle v-for="(pt, i) in rightRadarCoords" :key="'rpt'+i" :cx="pt.x" :cy="pt.y" r="3" fill="var(--green)" />
+          <circle
+            v-for="(pt, i) in rightRadarCoords"
+            :key="'rpt' + i"
+            :cx="pt.x"
+            :cy="pt.y"
+            r="3"
+            fill="var(--green)"
+          />
         </svg>
         <div class="cm-radar-legend">
-          <span class="cm-legend-item"><span class="legend-dot" style="background:var(--accent)"></span>{{ leftModel.name }}</span>
-          <span class="cm-legend-item"><span class="legend-dot" style="background:var(--green)"></span>{{ rightModel.name }}</span>
+          <span class="cm-legend-item"
+            ><span class="legend-dot" style="background: var(--accent)"></span
+            >{{ leftModel.name }}</span
+          >
+          <span class="cm-legend-item"
+            ><span class="legend-dot" style="background: var(--green)"></span
+            >{{ rightModel.name }}</span
+          >
         </div>
       </div>
 
@@ -108,37 +206,104 @@
           </thead>
           <tbody>
             <!-- Overview section -->
-            <tr class="cm-section-row"><td colspan="3">Overview</td></tr>
-            <tr><td class="cm-dim">Creator</td><td>{{ leftModel.creator || '—' }}</td><td>{{ rightModel.creator || '—' }}</td></tr>
-            <tr><td class="cm-dim">Family</td><td>{{ leftModel.family || '—' }}</td><td>{{ rightModel.family || '—' }}</td></tr>
-            <tr><td class="cm-dim">Base Model</td><td>{{ leftModel.base_model || '—' }}</td><td>{{ rightModel.base_model || '—' }}</td></tr>
+            <tr class="cm-section-row">
+              <td colspan="3">Overview</td>
+            </tr>
+            <tr>
+              <td class="cm-dim">Creator</td>
+              <td>{{ leftModel.creator || '—' }}</td>
+              <td>{{ rightModel.creator || '—' }}</td>
+            </tr>
+            <tr>
+              <td class="cm-dim">Family</td>
+              <td>{{ leftModel.family || '—' }}</td>
+              <td>{{ rightModel.family || '—' }}</td>
+            </tr>
+            <tr>
+              <td class="cm-dim">Base Model</td>
+              <td>{{ leftModel.base_model || '—' }}</td>
+              <td>{{ rightModel.base_model || '—' }}</td>
+            </tr>
 
             <!-- Capabilities section -->
-            <tr class="cm-section-row"><td colspan="3">Capabilities</td></tr>
-            <tr><td class="cm-dim">Best Context</td><td>{{ formatContext(leftModel.best_context) }}</td><td>{{ formatContext(rightModel.best_context) }}</td></tr>
-            <tr><td class="cm-dim">Tools</td><td>{{ formatYesNo(anyProvider(leftModel, 'supports_tools')) }}</td><td>{{ formatYesNo(anyProvider(rightModel, 'supports_tools')) }}</td></tr>
-            <tr><td class="cm-dim">Reasoning</td><td>{{ formatYesNo(anyProvider(leftModel, 'supports_reasoning')) }}</td><td>{{ formatYesNo(anyProvider(rightModel, 'supports_reasoning')) }}</td></tr>
-            <tr><td class="cm-dim">Structured Output</td><td>{{ formatYesNo(anyProvider(leftModel, 'supports_structured_output')) }}</td><td>{{ formatYesNo(anyProvider(rightModel, 'supports_structured_output')) }}</td></tr>
-            <tr><td class="cm-dim">Attachments</td><td>{{ formatYesNo(anyProvider(leftModel, 'supports_attachment')) }}</td><td>{{ formatYesNo(anyProvider(rightModel, 'supports_attachment')) }}</td></tr>
-            <tr><td class="cm-dim">Open Weights</td><td>{{ formatYesNo(anyProvider(leftModel, 'open_weights')) }}</td><td>{{ formatYesNo(anyProvider(rightModel, 'open_weights')) }}</td></tr>
+            <tr class="cm-section-row">
+              <td colspan="3">Capabilities</td>
+            </tr>
+            <tr>
+              <td class="cm-dim">Best Context</td>
+              <td>{{ formatContext(leftModel.best_context) }}</td>
+              <td>{{ formatContext(rightModel.best_context) }}</td>
+            </tr>
+            <tr>
+              <td class="cm-dim">Tools</td>
+              <td>{{ formatYesNo(anyProvider(leftModel, 'supports_tools')) }}</td>
+              <td>{{ formatYesNo(anyProvider(rightModel, 'supports_tools')) }}</td>
+            </tr>
+            <tr>
+              <td class="cm-dim">Reasoning</td>
+              <td>{{ formatYesNo(anyProvider(leftModel, 'supports_reasoning')) }}</td>
+              <td>{{ formatYesNo(anyProvider(rightModel, 'supports_reasoning')) }}</td>
+            </tr>
+            <tr>
+              <td class="cm-dim">Structured Output</td>
+              <td>{{ formatYesNo(anyProvider(leftModel, 'supports_structured_output')) }}</td>
+              <td>{{ formatYesNo(anyProvider(rightModel, 'supports_structured_output')) }}</td>
+            </tr>
+            <tr>
+              <td class="cm-dim">Attachments</td>
+              <td>{{ formatYesNo(anyProvider(leftModel, 'supports_attachment')) }}</td>
+              <td>{{ formatYesNo(anyProvider(rightModel, 'supports_attachment')) }}</td>
+            </tr>
+            <tr>
+              <td class="cm-dim">Open Weights</td>
+              <td>{{ formatYesNo(anyProvider(leftModel, 'open_weights')) }}</td>
+              <td>{{ formatYesNo(anyProvider(rightModel, 'open_weights')) }}</td>
+            </tr>
 
             <!-- Input/Output Types -->
-            <tr><td class="cm-dim">Input Types</td><td>{{ formatTypes(inputTypes(leftModel)) }}</td><td>{{ formatTypes(inputTypes(rightModel)) }}</td></tr>
-            <tr><td class="cm-dim">Output Types</td><td>{{ formatTypes(outputTypes(leftModel)) }}</td><td>{{ formatTypes(outputTypes(rightModel)) }}</td></tr>
+            <tr>
+              <td class="cm-dim">Input Types</td>
+              <td>{{ formatTypes(inputTypes(leftModel)) }}</td>
+              <td>{{ formatTypes(inputTypes(rightModel)) }}</td>
+            </tr>
+            <tr>
+              <td class="cm-dim">Output Types</td>
+              <td>{{ formatTypes(outputTypes(leftModel)) }}</td>
+              <td>{{ formatTypes(outputTypes(rightModel)) }}</td>
+            </tr>
 
             <!-- Coverage section -->
-            <tr class="cm-section-row"><td colspan="3">Coverage</td></tr>
-            <tr><td class="cm-dim">Provider Count</td><td>{{ activeProviders(leftModel).length }}</td><td>{{ activeProviders(rightModel).length }}</td></tr>
-            <tr><td class="cm-dim">Data Points</td><td>{{ activeProviders(leftModel).length }}</td><td>{{ activeProviders(rightModel).length }}</td></tr>
+            <tr class="cm-section-row">
+              <td colspan="3">Coverage</td>
+            </tr>
+            <tr>
+              <td class="cm-dim">Provider Count</td>
+              <td>{{ activeProviders(leftModel).length }}</td>
+              <td>{{ activeProviders(rightModel).length }}</td>
+            </tr>
+            <tr>
+              <td class="cm-dim">Data Points</td>
+              <td>{{ activeProviders(leftModel).length }}</td>
+              <td>{{ activeProviders(rightModel).length }}</td>
+            </tr>
 
             <!-- best_for tags -->
-            <tr v-if="leftModel.best_for.length || rightModel.best_for.length"><td class="cm-dim">Best For</td>
-              <td><span v-for="tag in leftModel.best_for" :key="tag" class="cm-tag">{{ tag }}</span><span v-if="!leftModel.best_for.length" class="cm-na">—</span></td>
-              <td><span v-for="tag in rightModel.best_for" :key="tag" class="cm-tag">{{ tag }}</span><span v-if="!rightModel.best_for.length" class="cm-na">—</span></td>
+            <tr v-if="leftModel.best_for.length || rightModel.best_for.length">
+              <td class="cm-dim">Best For</td>
+              <td>
+                <span v-for="tag in leftModel.best_for" :key="tag" class="cm-tag">{{ tag }}</span
+                ><span v-if="!leftModel.best_for.length" class="cm-na">—</span>
+              </td>
+              <td>
+                <span v-for="tag in rightModel.best_for" :key="tag" class="cm-tag">{{ tag }}</span
+                ><span v-if="!rightModel.best_for.length" class="cm-na">—</span>
+              </td>
             </tr>
 
             <!-- Rankings section -->
-            <tr class="cm-section-row"><td colspan="3">Role Rankings</td></tr>
+            <tr class="cm-section-row">
+              <td colspan="3">Role Rankings</td>
+            </tr>
             <tr v-for="role in roleKeys" :key="role">
               <td class="cm-dim">{{ formatRoleLabel(role) }}</td>
               <td><RankingBadge :rank="leftModel.role_rankings[role]" /></td>
@@ -146,7 +311,9 @@
             </tr>
 
             <!-- Benchmark scores -->
-            <tr class="cm-section-row" v-if="hasScores"><td colspan="3">Benchmark Scores</td></tr>
+            <tr class="cm-section-row" v-if="hasScores">
+              <td colspan="3">Benchmark Scores</td>
+            </tr>
             <tr v-for="(score, idx) in mergedScores" :key="idx">
               <td class="cm-dim">{{ score.label }}</td>
               <td>{{ score.left !== null ? score.left : '—' }}</td>
@@ -160,26 +327,38 @@
       <div class="cm-breakdowns">
         <div class="cm-breakdown-col">
           <h4>{{ leftModel.name }} — Providers</h4>
-          <div v-if="activeProviders(leftModel).length === 0" class="cm-no-providers">No active providers</div>
+          <div v-if="activeProviders(leftModel).length === 0" class="cm-no-providers">
+            No active providers
+          </div>
           <div v-for="dp in sortedProviders(leftModel)" :key="dp.full_id" class="cm-provider-row">
             <div class="cm-provider-name">
               <span class="provider-status-dot" :class="dp.status.result"></span>
               {{ dp.provider }}
             </div>
             <div class="cm-provider-detail">{{ formatContext(dp.context_length) }} ctx</div>
-            <div class="cm-provider-detail">{{ dp.supports_tools ? 'Tools' : '' }}{{ dp.supports_tools && dp.supports_reasoning ? ' · ' : '' }}{{ dp.supports_reasoning ? 'Reasoning' : '' }}</div>
+            <div class="cm-provider-detail">
+              {{ dp.supports_tools ? 'Tools' : ''
+              }}{{ dp.supports_tools && dp.supports_reasoning ? ' · ' : ''
+              }}{{ dp.supports_reasoning ? 'Reasoning' : '' }}
+            </div>
           </div>
         </div>
         <div class="cm-breakdown-col">
           <h4>{{ rightModel.name }} — Providers</h4>
-          <div v-if="activeProviders(rightModel).length === 0" class="cm-no-providers">No active providers</div>
+          <div v-if="activeProviders(rightModel).length === 0" class="cm-no-providers">
+            No active providers
+          </div>
           <div v-for="dp in sortedProviders(rightModel)" :key="dp.full_id" class="cm-provider-row">
             <div class="cm-provider-name">
               <span class="provider-status-dot" :class="dp.status.result"></span>
               {{ dp.provider }}
             </div>
             <div class="cm-provider-detail">{{ formatContext(dp.context_length) }} ctx</div>
-            <div class="cm-provider-detail">{{ dp.supports_tools ? 'Tools' : '' }}{{ dp.supports_tools && dp.supports_reasoning ? ' · ' : '' }}{{ dp.supports_reasoning ? 'Reasoning' : '' }}</div>
+            <div class="cm-provider-detail">
+              {{ dp.supports_tools ? 'Tools' : ''
+              }}{{ dp.supports_tools && dp.supports_reasoning ? ' · ' : ''
+              }}{{ dp.supports_reasoning ? 'Reasoning' : '' }}
+            </div>
           </div>
         </div>
       </div>
@@ -202,6 +381,7 @@ const store = useModelsStore();
 // ── URL-serialized state ──
 const leftSlug = ref<string | null>(null);
 const rightSlug = ref<string | null>(null);
+const copied = ref(false);
 
 function syncFromRoute() {
   const l = route.query.left;
@@ -235,13 +415,13 @@ const rightModel = computed(() => {
 
 const availableForLeft = computed(() => {
   return rightSlug.value
-    ? allModelsList.value.filter(m => m.slug !== rightSlug.value)
+    ? allModelsList.value.filter((m) => m.slug !== rightSlug.value)
     : allModelsList.value;
 });
 
 const availableForRight = computed(() => {
   return leftSlug.value
-    ? allModelsList.value.filter(m => m.slug !== leftSlug.value)
+    ? allModelsList.value.filter((m) => m.slug !== leftSlug.value)
     : allModelsList.value;
 });
 
@@ -268,9 +448,46 @@ function swapModels() {
   syncToRoute();
 }
 
+async function copyComparisonMd() {
+  const l = leftModel.value;
+  const r = rightModel.value;
+  if (!l || !r) return;
+  const lDps = activeProviders(l);
+  const rDps = activeProviders(r);
+  const lines = [
+    `## ${l.name} vs ${r.name}`,
+    '',
+    '|  | ' + l.name + ' | ' + r.name + ' |',
+    '|---|---|---|',
+    `| Creator | ${l.creator || '—'} | ${r.creator || '—'} |`,
+    `| Family | ${l.family || '—'} | ${r.family || '—'} |`,
+    `| Context | ${formatContext(l.best_context)} | ${formatContext(r.best_context)} |`,
+    `| Providers | ${lDps.length} (${lDps.filter((d) => d.status.result === 'working').length} working) | ${rDps.length} (${rDps.filter((d) => d.status.result === 'working').length} working) |`,
+    `| Tools | ${formatYesNo(lDps.some((d) => d.supports_tools))} | ${formatYesNo(rDps.some((d) => d.supports_tools))} |`,
+    `| Reasoning | ${formatYesNo(lDps.some((d) => d.supports_reasoning))} | ${formatYesNo(rDps.some((d) => d.supports_reasoning))} |`,
+    `| Structured Output | ${formatYesNo(lDps.some((d) => d.supports_structured_output))} | ${formatYesNo(rDps.some((d) => d.supports_structured_output))} |`,
+    '',
+  ];
+  try {
+    await navigator.clipboard.writeText(lines.join('\n'));
+    copied.value = true;
+    setTimeout(() => (copied.value = false), 1500);
+  } catch {
+    /* noop */
+  }
+}
+
 // ── Data helpers ──
+const maxContextInStore = computed(() => {
+  let max = 0;
+  for (const m of store.allModels) {
+    if (m.best_context && m.best_context > max) max = m.best_context;
+  }
+  return max;
+});
+
 function activeProviders(model: ModelData): ProviderDatapoint[] {
-  return model.providers.filter(p => !p._removed);
+  return model.providers.filter((p) => !p._removed);
 }
 
 function sortedProviders(model: ModelData): ProviderDatapoint[] {
@@ -278,7 +495,7 @@ function sortedProviders(model: ModelData): ProviderDatapoint[] {
 }
 
 function anyProvider(model: ModelData, field: keyof ProviderDatapoint): boolean {
-  return activeProviders(model).some(p => p[field] === true);
+  return activeProviders(model).some((p) => p[field] === true);
 }
 
 function inputTypes(model: ModelData): string[] {
@@ -310,14 +527,14 @@ function formatYesNo(val: boolean): string {
 
 function formatTypes(types: string[]): string {
   if (!types.length) return '—';
-  return types.map(t => t.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())).join(', ');
+  return types.map((t) => t.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())).join(', ');
 }
 
 // ── Role rankings ──
 const roleKeys = ['model', 'build', 'general', 'small_model', 'explore'] as const;
 
 function formatRoleLabel(role: string): string {
-  return role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  return role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 // ── Benchmark scores ──
@@ -336,18 +553,24 @@ const mergedScores = computed(() => {
     for (const s of ms.scores[rightSlug.value]) allKeys.add(`${s.source}/${s.score_type}`);
   }
   const result: { label: string; source: string; left: string | null; right: string | null }[] = [];
-  const leftScores = leftSlug.value ? ms.scores[leftSlug.value] ?? [] : [];
-  const rightScores = rightSlug.value ? ms.scores[rightSlug.value] ?? [] : [];
-  const leftMap = new Map(leftScores.map(s => [`${s.source}/${s.score_type}`, s]));
-  const rightMap = new Map(rightScores.map(s => [`${s.source}/${s.score_type}`, s]));
+  const leftScores = leftSlug.value ? (ms.scores[leftSlug.value] ?? []) : [];
+  const rightScores = rightSlug.value ? (ms.scores[rightSlug.value] ?? []) : [];
+  const leftMap = new Map(leftScores.map((s) => [`${s.source}/${s.score_type}`, s]));
+  const rightMap = new Map(rightScores.map((s) => [`${s.source}/${s.score_type}`, s]));
   for (const key of allKeys) {
     const l = leftMap.get(key);
     const r = rightMap.get(key);
     result.push({
       label: key.replace(/^[^/]+\//, ''),
       source: key.split('/')[0],
-      left: l?.score_value !== null && l?.score_value !== undefined ? String(Number(l.score_value).toFixed(2)) : null,
-      right: r?.score_value !== null && r?.score_value !== undefined ? String(Number(r.score_value).toFixed(2)) : null,
+      left:
+        l?.score_value !== null && l?.score_value !== undefined
+          ? String(Number(l.score_value).toFixed(2))
+          : null,
+      right:
+        r?.score_value !== null && r?.score_value !== undefined
+          ? String(Number(r.score_value).toFixed(2))
+          : null,
     });
   }
   return result;
@@ -372,14 +595,17 @@ function getRadarValue(model: ModelData, key: string): number {
   switch (key) {
     case 'context': {
       const ctx = model.best_context ?? 0;
-      return Math.min(1, Math.log2(Math.max(ctx, 1024)) / Math.log2(1048576));
+      // Adaptive: reference is max(2M tokens, observed max) so the scale
+      // stays meaningful as context windows grow beyond 1M tokens
+      const ref = Math.max(2097152, maxContextInStore.value ?? 1048576);
+      return Math.min(1, Math.log2(Math.max(ctx, 1024)) / Math.log2(ref));
     }
     case 'tools':
-      return dps.some(p => p.supports_tools) ? 1 : 0;
+      return dps.some((p) => p.supports_tools) ? 1 : 0;
     case 'reasoning':
-      return dps.some(p => p.supports_reasoning) ? 1 : 0;
+      return dps.some((p) => p.supports_reasoning) ? 1 : 0;
     case 'output': {
-      const maxOut = Math.max(...dps.map(p => p.output_limit ?? 0));
+      const maxOut = Math.max(...dps.map((p) => p.output_limit ?? 0));
       return Math.min(1, maxOut / 65536);
     }
     case 'providers':
@@ -397,18 +623,28 @@ function getRadarValue(model: ModelData, key: string): number {
 
 const diffNarrative = computed(() => {
   if (!leftModel.value || !rightModel.value) return null;
-  const l = leftModel.value, r = rightModel.value;
+  const l = leftModel.value,
+    r = rightModel.value;
   const parts: string[] = [];
-  const lProvs = activeProviders(l).length, rProvs = activeProviders(r).length;
-  if (lProvs !== rProvs) parts.push(lProvs > rProvs ? `${l.name} is on ${lProvs - rProvs} more provider${lProvs - rProvs !== 1 ? 's' : ''} than ${r.name}` : `${r.name} is on ${rProvs - lProvs} more provider${rProvs - lProvs !== 1 ? 's' : ''} than ${l.name}`);
-  const lCtx = l.best_context || 0, rCtx = r.best_context || 0;
+  const lProvs = activeProviders(l).length,
+    rProvs = activeProviders(r).length;
+  if (lProvs !== rProvs)
+    parts.push(
+      lProvs > rProvs
+        ? `${l.name} is on ${lProvs - rProvs} more provider${lProvs - rProvs !== 1 ? 's' : ''} than ${r.name}`
+        : `${r.name} is on ${rProvs - lProvs} more provider${rProvs - lProvs !== 1 ? 's' : ''} than ${l.name}`,
+    );
+  const lCtx = l.best_context || 0,
+    rCtx = r.best_context || 0;
   if (lCtx && rCtx && Math.abs(lCtx - rCtx) > 10000) {
     const bigger = lCtx > rCtx ? l.name : r.name;
     const ratio = Math.max(lCtx, rCtx) / Math.min(lCtx, rCtx);
     parts.push(`${bigger} has ${ratio.toFixed(1)}× more context`);
   }
-  const lRank = l.role_rankings?.model, rRank = r.role_rankings?.model;
-  if (lRank && rRank && lRank !== rRank) parts.push(`${lRank < rRank ? l.name : r.name} is ranked higher (model role)`);
+  const lRank = l.role_rankings?.model,
+    rRank = r.role_rankings?.model;
+  if (lRank && rRank && lRank !== rRank)
+    parts.push(`${lRank < rRank ? l.name : r.name} is ranked higher (model role)`);
   if (parts.length === 0) parts.push(`${l.name} and ${r.name} are broadly comparable`);
   return parts.join('. ') + '.';
 });
@@ -425,8 +661,10 @@ function polygonPoints(model: ModelData): string {
     .join(' ');
 }
 
-const leftRadarPoints = computed(() => leftModel.value ? polygonPoints(leftModel.value) : null);
-const rightRadarPoints = computed(() => rightModel.value ? polygonPoints(rightModel.value) : null);
+const leftRadarPoints = computed(() => (leftModel.value ? polygonPoints(leftModel.value) : null));
+const rightRadarPoints = computed(() =>
+  rightModel.value ? polygonPoints(rightModel.value) : null,
+);
 
 const leftRadarCoords = computed(() => {
   if (!leftModel.value) return [];
@@ -809,6 +1047,18 @@ const rightRadarCoords = computed(() => {
     grid-template-columns: 1fr;
   }
 }
-.cm-narrative { padding: 14px 18px; margin-bottom: 16px; border-left: 3px solid var(--accent); background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); }
-.cm-narrative p { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
+.cm-narrative {
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  border-left: 3px solid var(--accent);
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.cm-narrative p {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
 </style>

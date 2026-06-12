@@ -15,28 +15,28 @@ const DRY_RUN = process.argv.includes('--dry-run');
 // Our creator slug → HF org/user slug to check
 const HF_SLUG_MAP = {
   '01-ai': '01-ai',
-  'ai2': 'allenai',
-  'baai': 'BAAI',
-  'baichuan': 'baichuan-inc',
+  ai2: 'allenai',
+  baai: 'BAAI',
+  baichuan: 'baichuan-inc',
   'black-forest-labs': 'black-forest-labs',
-  'bria': 'briaai',
+  bria: 'briaai',
   'cognitive-computations': 'cognitivecomputations',
-  'fishaudio': 'fishaudio',
-  'gryphe': 'Gryphe',
-  'inclusion': 'AI4Inclusion',
-  'internlm': 'internlm',
-  'intfloat': 'intfloat',
-  'mosaicml': 'mosaicml',
-  'nous': 'NousResearch',
-  'openchat': 'openchat',
-  'paddlepaddle': 'PaddlePaddle',
+  fishaudio: 'fishaudio',
+  gryphe: 'Gryphe',
+  inclusion: 'AI4Inclusion',
+  internlm: 'internlm',
+  intfloat: 'intfloat',
+  mosaicml: 'mosaicml',
+  nous: 'NousResearch',
+  openchat: 'openchat',
+  paddlepaddle: 'PaddlePaddle',
   'pruna-ai': 'prunaai',
-  'sao10k': 'Sao10K',
+  sao10k: 'Sao10K',
   'sentence-transformers': 'sentence-transformers',
-  'sesame': 'sesame',
-  'shibing624': 'shibing624',
-  'stability': 'stabilityai',
-  'unknown': null,
+  sesame: 'sesame',
+  shibing624: 'shibing624',
+  stability: 'stabilityai',
+  unknown: null,
 };
 
 const AUTO_TRY_SLUGS = [
@@ -68,12 +68,14 @@ function autoVariations(slug) {
 /** Fetch full HTML page as string */
 function fetchHTML(url) {
   return new Promise((resolve) => {
-    https.get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
-      if (res.statusCode !== 200) return resolve(null);
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
-      res.on('end', () => resolve(data));
-    }).on('error', () => resolve(null));
+    https
+      .get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
+        if (res.statusCode !== 200) return resolve(null);
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => resolve(data));
+      })
+      .on('error', () => resolve(null));
   });
 }
 
@@ -86,7 +88,9 @@ function extractAvatar(html) {
   m = html.match(/"avatarUrl"\s*:\s*"(\/avatars\/[^"]+)"/);
   if (m) return 'https://huggingface.co' + m[1];
   // Try HTML-encoded quotes (&quot;)
-  m = html.match(/avatarUrl&quot;\s*:\s*&quot;(https:\/\/cdn-avatars\.huggingface\.co\/[^&]+)&quot;/);
+  m = html.match(
+    /avatarUrl&quot;\s*:\s*&quot;(https:\/\/cdn-avatars\.huggingface\.co\/[^&]+)&quot;/,
+  );
   if (m) return m[1];
   m = html.match(/avatarUrl&quot;\s*:\s*&quot;(\/avatars\/[^&]+)&quot;/);
   if (m) return 'https://huggingface.co' + m[1];
@@ -109,19 +113,28 @@ function extractInfo(html) {
 function downloadFile(url, destPath) {
   return new Promise((resolve) => {
     const file = fs.createWriteStream(destPath);
-    https.get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
-      if (res.statusCode !== 200) {
+    https
+      .get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
+        if (res.statusCode !== 200) {
+          file.close();
+          try {
+            fs.unlinkSync(destPath);
+          } catch {}
+          return resolve(false);
+        }
+        res.pipe(file);
+        file.on('finish', () => {
+          file.close();
+          resolve(true);
+        });
+      })
+      .on('error', () => {
         file.close();
-        try { fs.unlinkSync(destPath); } catch {}
-        return resolve(false);
-      }
-      res.pipe(file);
-      file.on('finish', () => { file.close(); resolve(true); });
-    }).on('error', () => {
-      file.close();
-      try { fs.unlinkSync(destPath); } catch {}
-      resolve(false);
-    });
+        try {
+          fs.unlinkSync(destPath);
+        } catch {}
+        resolve(false);
+      });
   });
 }
 
@@ -135,9 +148,7 @@ async function tryFetchFromPage(hfSlug) {
 }
 
 async function processSlug(ourSlug, hfSlug, results) {
-  const existing = fs.readdirSync(LOGOS_DIR).find(f =>
-    f.startsWith(ourSlug.toLowerCase() + '.')
-  );
+  const existing = fs.readdirSync(LOGOS_DIR).find((f) => f.startsWith(ourSlug.toLowerCase() + '.'));
   if (existing) {
     console.log(`  ✓ ${ourSlug} already has logo, skipping`);
     return;
@@ -168,15 +179,16 @@ async function main() {
 
   // Process mapped slugs
   for (const [ourSlug, hfSlug] of Object.entries(HF_SLUG_MAP)) {
-    if (!hfSlug) { results.skipped.push(ourSlug); continue; }
+    if (!hfSlug) {
+      results.skipped.push(ourSlug);
+      continue;
+    }
     await processSlug(ourSlug, hfSlug, results);
   }
 
   // Process auto-try slugs
   for (const slug of AUTO_TRY_SLUGS) {
-    const existing = fs.readdirSync(LOGOS_DIR).find(f =>
-      f.startsWith(slug.toLowerCase() + '.')
-    );
+    const existing = fs.readdirSync(LOGOS_DIR).find((f) => f.startsWith(slug.toLowerCase() + '.'));
     if (existing) {
       console.log(`  ✓ ${slug} already has logo, skipping`);
       continue;
@@ -207,7 +219,9 @@ async function main() {
   }
 
   console.log(`\n---`);
-  console.log(`Results: ${results.fetched.length} fetched, ${results.failed.length} failed, ${results.skipped.length} skipped`);
+  console.log(
+    `Results: ${results.fetched.length} fetched, ${results.failed.length} failed, ${results.skipped.length} skipped`,
+  );
   if (results.failed.length) console.log(`Failed: ${results.failed.join(', ')}`);
   if (DRY_RUN) console.log('(dry run — no files downloaded)');
 }

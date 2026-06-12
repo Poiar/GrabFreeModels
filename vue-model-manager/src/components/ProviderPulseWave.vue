@@ -39,7 +39,9 @@ const waveformData = computed((): WaveformBand[] => {
   const models = store.allModels;
   return store.providerRefs
     .map((prov) => {
-      let working = 0, broken = 0, rateLimited = 0;
+      let working = 0,
+        broken = 0,
+        rateLimited = 0;
       for (const m of models) {
         for (const dp of m.providers) {
           if (dp.provider_slug === prov.slug && !dp._removed) {
@@ -117,7 +119,12 @@ function draw() {
     ctx.lineTo(0, centerY + band.amplitude);
     ctx.closePath();
 
-    const fillGrad = ctx.createLinearGradient(0, centerY - band.amplitude, 0, centerY + band.amplitude);
+    const fillGrad = ctx.createLinearGradient(
+      0,
+      centerY - band.amplitude,
+      0,
+      centerY + band.amplitude,
+    );
     if (workingRatio >= 0.7) {
       fillGrad.addColorStop(0, 'rgba(52,211,153,0.15)');
       fillGrad.addColorStop(1, 'rgba(52,211,153,0.02)');
@@ -178,7 +185,10 @@ onMounted(() => {
   resize();
   draw();
 
-  resizeObs = new ResizeObserver(() => { resize(); draw(); });
+  resizeObs = new ResizeObserver(() => {
+    resize();
+    draw();
+  });
   if (containerRef.value) resizeObs.observe(containerRef.value);
 });
 
@@ -223,7 +233,7 @@ onUnmounted(() => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--text-dim, rgba(232,236,244,0.5));
+  color: var(--text-dim, rgba(232, 236, 244, 0.5));
   text-shadow: 0 0 6px var(--depth-0, #080a10);
 }
 
@@ -234,9 +244,18 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-.pulse-label-dot.healthy { background: var(--green); box-shadow: 0 0 4px var(--green-glow); }
-.pulse-label-dot.degraded { background: var(--orange); box-shadow: 0 0 4px var(--orange-glow); }
-.pulse-label-dot.down { background: var(--red); box-shadow: 0 0 4px var(--red-glow); }
+.pulse-label-dot.healthy {
+  background: var(--green);
+  box-shadow: 0 0 4px var(--green-glow);
+}
+.pulse-label-dot.degraded {
+  background: var(--orange);
+  box-shadow: 0 0 4px var(--orange-glow);
+}
+.pulse-label-dot.down {
+  background: var(--red);
+  box-shadow: 0 0 4px var(--red-glow);
+}
 
 .pulse-empty {
   display: flex;
@@ -248,7 +267,11 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
-  .pulse-wave { height: 130px; }
-  .pulse-label { font-size: 0.55rem; }
+  .pulse-wave {
+    height: 130px;
+  }
+  .pulse-label {
+    font-size: 0.55rem;
+  }
 }
 </style>

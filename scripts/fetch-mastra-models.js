@@ -35,27 +35,29 @@ function httpsGet(url, headers = {}) {
   return new Promise((resolve, reject) => {
     const u = new URL(url);
     const mod = u.protocol === 'https:' ? https : require('http');
-    mod.get(
-      {
-        hostname: u.hostname,
-        path: u.pathname + u.search,
-        headers: { 'User-Agent': 'GrabFreeModels/1.0', ...headers },
-      },
-      (res) => {
-        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-          return resolve(httpsGet(res.headers.location, headers));
-        }
-        let data = '';
-        res.on('data', (chunk) => (data += chunk));
-        res.on('end', () => {
-          if (res.statusCode >= 400) {
-            reject(new Error(`HTTP ${res.statusCode} from ${url}`));
-          } else {
-            resolve(data);
+    mod
+      .get(
+        {
+          hostname: u.hostname,
+          path: u.pathname + u.search,
+          headers: { 'User-Agent': 'GrabFreeModels/1.0', ...headers },
+        },
+        (res) => {
+          if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+            return resolve(httpsGet(res.headers.location, headers));
           }
-        });
-      },
-    ).on('error', reject);
+          let data = '';
+          res.on('data', (chunk) => (data += chunk));
+          res.on('end', () => {
+            if (res.statusCode >= 400) {
+              reject(new Error(`HTTP ${res.statusCode} from ${url}`));
+            } else {
+              resolve(data);
+            }
+          });
+        },
+      )
+      .on('error', reject);
   });
 }
 
@@ -75,7 +77,9 @@ async function fetchProviderFiles() {
     (f) => f.name.endsWith('.mdx') && f.name !== 'index.mdx' && f.name !== '_meta.ts',
   );
 
-  logger.info(`  Found ${mdxFiles.length} provider .mdx files (skipped index.mdx, _meta.ts, non-mdx)`);
+  logger.info(
+    `  Found ${mdxFiles.length} provider .mdx files (skipped index.mdx, _meta.ts, non-mdx)`,
+  );
   return mdxFiles;
 }
 
@@ -294,7 +298,9 @@ async function fetchProviderMdx(file) {
     }
 
     await client.query('COMMIT');
-    logger.info(`  Stored ${mappedResults.length} providers with ${totalInsertedModels} models to DB`);
+    logger.info(
+      `  Stored ${mappedResults.length} providers with ${totalInsertedModels} models to DB`,
+    );
   } catch (err) {
     await client.query('ROLLBACK');
     logger.error(`DB error: ${err.message}`);

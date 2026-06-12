@@ -7,12 +7,7 @@
 
     <!-- Search / filter -->
     <div class="rl-toolbar">
-      <input
-        v-model="searchQuery"
-        class="rl-search"
-        type="text"
-        placeholder="Search models..."
-      />
+      <input v-model="searchQuery" class="rl-search" type="text" placeholder="Search models..." />
       <select v-model="providerFilter" class="rl-select">
         <option value="">All providers</option>
         <option v-for="p in allProviders" :key="p.slug" :value="p.slug">
@@ -35,8 +30,12 @@
             :class="{ 'rl-lb-gold': i === 0 }"
           >
             <span class="rl-lb-rank">{{ i + 1 }}</span>
-            <router-link :to="'/provider/' + entry.slug" class="rl-lb-name">{{ entry.name }}</router-link>
-            <span class="rl-lb-val" :class="limitClass(entry.max_rpm)">{{ formatLimit(entry.max_rpm) }}</span>
+            <router-link :to="'/provider/' + entry.slug" class="rl-lb-name">{{
+              entry.name
+            }}</router-link>
+            <span class="rl-lb-val" :class="limitClass(entry.max_rpm)">{{
+              formatLimit(entry.max_rpm)
+            }}</span>
           </div>
         </div>
         <div class="rl-lb-col">
@@ -48,8 +47,12 @@
             :class="{ 'rl-lb-gold': i === 0 }"
           >
             <span class="rl-lb-rank">{{ i + 1 }}</span>
-            <router-link :to="'/provider/' + entry.slug" class="rl-lb-name">{{ entry.name }}</router-link>
-            <span class="rl-lb-val" :class="limitClass(entry.max_tpm)">{{ formatLimit(entry.max_tpm) }}</span>
+            <router-link :to="'/provider/' + entry.slug" class="rl-lb-name">{{
+              entry.name
+            }}</router-link>
+            <span class="rl-lb-val" :class="limitClass(entry.max_tpm)">{{
+              formatLimit(entry.max_tpm)
+            }}</span>
           </div>
         </div>
         <div class="rl-lb-col">
@@ -61,8 +64,12 @@
             :class="{ 'rl-lb-gold': i === 0 }"
           >
             <span class="rl-lb-rank">{{ i + 1 }}</span>
-            <router-link :to="'/provider/' + entry.slug" class="rl-lb-name">{{ entry.name }}</router-link>
-            <span class="rl-lb-val" :class="limitClass(entry.max_daily_requests)">{{ formatLimit(entry.max_daily_requests) }}</span>
+            <router-link :to="'/provider/' + entry.slug" class="rl-lb-name">{{
+              entry.name
+            }}</router-link>
+            <span class="rl-lb-val" :class="limitClass(entry.max_daily_requests)">{{
+              formatLimit(entry.max_daily_requests)
+            }}</span>
           </div>
         </div>
       </div>
@@ -71,7 +78,9 @@
     <!-- Model-anchored view -->
     <section class="rl-section">
       <h3 class="rl-section-title">Model Provider Breakdown</h3>
-      <p class="rl-section-subtitle">Select a model to see its providers sorted by rate limit generosity</p>
+      <p class="rl-section-subtitle">
+        Select a model to see its providers sorted by rate limit generosity
+      </p>
       <select v-model="selectedModelSlug" class="rl-select rl-model-select">
         <option value="">— Pick a model —</option>
         <option v-for="m in filteredModels" :key="m.slug" :value="m.slug">
@@ -100,7 +109,9 @@
               </td>
               <td :class="limitClass(dp.max_rpm)">{{ formatLimit(dp.max_rpm) }}</td>
               <td :class="limitClass(dp.max_tpm)">{{ formatLimit(dp.max_tpm) }}</td>
-              <td :class="limitClass(dp.max_daily_requests)">{{ formatLimit(dp.max_daily_requests) }}</td>
+              <td :class="limitClass(dp.max_daily_requests)">
+                {{ formatLimit(dp.max_daily_requests) }}
+              </td>
               <td>
                 <span v-if="dp.requires_account_id" class="rl-badge rl-badge-yes">Yes</span>
                 <span v-else class="rl-badge rl-badge-no">No</span>
@@ -138,14 +149,26 @@
           <tbody>
             <tr v-for="pr in providerRankings" :key="pr.slug">
               <td>
-                <router-link :to="'/provider/' + pr.slug" class="rl-prov-link">{{ pr.name }}</router-link>
+                <router-link :to="'/provider/' + pr.slug" class="rl-prov-link">{{
+                  pr.name
+                }}</router-link>
               </td>
               <td class="rl-cell-num">{{ pr.modelCount }}</td>
-              <td :class="limitClass(pr.avgRpm)" class="rl-cell-num">{{ formatLimit(pr.avgRpm) }}</td>
-              <td :class="limitClass(pr.maxRpm)" class="rl-cell-num">{{ formatLimit(pr.maxRpm) }}</td>
-              <td :class="limitClass(pr.avgTpm)" class="rl-cell-num">{{ formatLimit(pr.avgTpm) }}</td>
-              <td :class="limitClass(pr.maxTpm)" class="rl-cell-num">{{ formatLimit(pr.maxTpm) }}</td>
-              <td :class="limitClass(pr.dailyCap)" class="rl-cell-num">{{ formatLimit(pr.dailyCap) }}</td>
+              <td :class="limitClass(pr.avgRpm)" class="rl-cell-num">
+                {{ formatLimit(pr.avgRpm) }}
+              </td>
+              <td :class="limitClass(pr.maxRpm)" class="rl-cell-num">
+                {{ formatLimit(pr.maxRpm) }}
+              </td>
+              <td :class="limitClass(pr.avgTpm)" class="rl-cell-num">
+                {{ formatLimit(pr.avgTpm) }}
+              </td>
+              <td :class="limitClass(pr.maxTpm)" class="rl-cell-num">
+                {{ formatLimit(pr.maxTpm) }}
+              </td>
+              <td :class="limitClass(pr.dailyCap)" class="rl-cell-num">
+                {{ formatLimit(pr.dailyCap) }}
+              </td>
               <td>
                 <span v-if="pr.requiresCard" class="rl-badge rl-badge-yes">Card</span>
                 <span v-else-if="pr.requiresAccount" class="rl-badge rl-badge-warn">Account</span>
@@ -160,16 +183,14 @@
     <!-- Best value highlights -->
     <section class="rl-section">
       <h3 class="rl-section-title">Best Value Models</h3>
-      <p class="rl-section-subtitle">Models available on 3+ providers with at least one offering high limits</p>
+      <p class="rl-section-subtitle">
+        Models available on 3+ providers with at least one offering high limits
+      </p>
       <div v-if="bestValueModels.length === 0" class="rl-prompt">
         <p>No models match the criteria.</p>
       </div>
       <div v-else class="rl-bv-grid">
-        <div
-          v-for="entry in bestValueModels"
-          :key="entry.model.slug"
-          class="rl-bv-card"
-        >
+        <div v-for="entry in bestValueModels" :key="entry.model.slug" class="rl-bv-card">
           <div class="rl-bv-name">
             <router-link :to="'/model/' + entry.model.slug" class="rl-prov-link">
               {{ entry.model.name }}
@@ -183,10 +204,18 @@
           </div>
           <div class="rl-bv-detail">
             <div v-for="dp in entry.model.providers" :key="dp.full_id" class="rl-bv-dp">
-              <router-link :to="'/provider/' + dp.provider_slug" class="rl-bv-dp-prov">{{ dp.provider }}</router-link>
-              <span :class="limitClass(dp.max_rpm)" class="rl-bv-dp-limit">{{ formatLimit(dp.max_rpm) }} RPM</span>
-              <span :class="limitClass(dp.max_tpm)" class="rl-bv-dp-limit">{{ formatLimit(dp.max_tpm) }} TPM</span>
-              <span :class="limitClass(dp.max_daily_requests)" class="rl-bv-dp-limit">{{ formatLimit(dp.max_daily_requests) }}/d</span>
+              <router-link :to="'/provider/' + dp.provider_slug" class="rl-bv-dp-prov">{{
+                dp.provider
+              }}</router-link>
+              <span :class="limitClass(dp.max_rpm)" class="rl-bv-dp-limit"
+                >{{ formatLimit(dp.max_rpm) }} RPM</span
+              >
+              <span :class="limitClass(dp.max_tpm)" class="rl-bv-dp-limit"
+                >{{ formatLimit(dp.max_tpm) }} TPM</span
+              >
+              <span :class="limitClass(dp.max_daily_requests)" class="rl-bv-dp-limit"
+                >{{ formatLimit(dp.max_daily_requests) }}/d</span
+              >
             </div>
           </div>
         </div>
@@ -237,7 +266,7 @@ const topDaily = computed(() => providersWithLimit('max_daily_requests'));
 // ── Model-anchored providers ──
 const selectedModel = computed(() =>
   selectedModelSlug.value
-    ? store.allModels.find((m) => m.slug === selectedModelSlug.value) ?? null
+    ? (store.allModels.find((m) => m.slug === selectedModelSlug.value) ?? null)
     : null,
 );
 
@@ -259,7 +288,16 @@ const providerRankings = computed(() => {
   // Aggregate per provider across datapoints
   const map = new Map<
     string,
-    { name: string; slug: string; rpms: number[]; tpms: number[]; dailys: number[]; modelCount: number; requiresCard: boolean | null; requiresAccount: boolean | null }
+    {
+      name: string;
+      slug: string;
+      rpms: number[];
+      tpms: number[];
+      dailys: number[];
+      modelCount: number;
+      requiresCard: boolean | null;
+      requiresAccount: boolean | null;
+    }
   >();
   for (const model of store.allModels) {
     for (const dp of model.providers) {
@@ -305,9 +343,11 @@ const providerRankings = computed(() => {
       name: e.name,
       slug: e.slug,
       modelCount: e.modelCount,
-      avgRpm: e.rpms.length > 0 ? Math.round(e.rpms.reduce((a, b) => a + b, 0) / e.rpms.length) : null,
+      avgRpm:
+        e.rpms.length > 0 ? Math.round(e.rpms.reduce((a, b) => a + b, 0) / e.rpms.length) : null,
       maxRpm: e.rpms.length > 0 ? Math.max(...e.rpms) : null,
-      avgTpm: e.tpms.length > 0 ? Math.round(e.tpms.reduce((a, b) => a + b, 0) / e.tpms.length) : null,
+      avgTpm:
+        e.tpms.length > 0 ? Math.round(e.tpms.reduce((a, b) => a + b, 0) / e.tpms.length) : null,
       maxTpm: e.tpms.length > 0 ? Math.max(...e.tpms) : null,
       dailyCap: e.dailys.length > 0 ? Math.max(...e.dailys) : null,
       requiresCard: e.requiresCard === true,
@@ -353,12 +393,26 @@ function limitClass(val: number | null): string {
 </script>
 
 <style scoped>
-.rl-page { max-width: 1100px; margin: 0 auto; padding: 20px; }
-.page-header h2 { font-size: 1.3rem; font-weight: 700; margin: 0 0 4px; }
-.page-header p { font-size: 0.78rem; color: var(--text-dim); margin: 0 0 20px; }
+.rl-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.page-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+.page-header p {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin: 0 0 20px;
+}
 
 /* Sections */
-.rl-section { margin-bottom: 32px; }
+.rl-section {
+  margin-bottom: 32px;
+}
 .rl-section-title {
   font-size: 1rem;
   font-weight: 700;
@@ -386,7 +440,10 @@ function limitClass(val: number | null): string {
   color: var(--text);
   font-family: inherit;
 }
-.rl-search:focus { outline: none; border-color: var(--accent); }
+.rl-search:focus {
+  outline: none;
+  border-color: var(--accent);
+}
 .rl-select {
   font-size: 0.82rem;
   padding: 7px 10px;
@@ -397,8 +454,14 @@ function limitClass(val: number | null): string {
   font-family: inherit;
   min-width: 180px;
 }
-.rl-select:focus { outline: none; border-color: var(--accent); }
-.rl-model-select { min-width: 320px; margin-bottom: 14px; }
+.rl-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.rl-model-select {
+  min-width: 320px;
+  margin-bottom: 14px;
+}
 
 /* Leaderboard */
 .rl-leaderboard {
@@ -430,8 +493,12 @@ function limitClass(val: number | null): string {
   font-size: 0.78rem;
   border-bottom: 1px solid var(--border);
 }
-.rl-lb-row:last-child { border-bottom: none; }
-.rl-lb-gold { background: rgba(251,191,36,0.06); }
+.rl-lb-row:last-child {
+  border-bottom: none;
+}
+.rl-lb-gold {
+  background: rgba(251, 191, 36, 0.06);
+}
 .rl-lb-rank {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.65rem;
@@ -450,7 +517,9 @@ function limitClass(val: number | null): string {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.rl-lb-name:hover { text-decoration: underline; }
+.rl-lb-name:hover {
+  text-decoration: underline;
+}
 .rl-lb-val {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.78rem;
@@ -487,22 +556,40 @@ function limitClass(val: number | null): string {
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
-.rl-table tr:last-child td { border-bottom: none; }
-.rl-table tr:hover td { background: var(--bg-hover); }
-.rl-cell-num { text-align: right; font-family: 'JetBrains Mono', monospace; }
+.rl-table tr:last-child td {
+  border-bottom: none;
+}
+.rl-table tr:hover td {
+  background: var(--bg-hover);
+}
+.rl-cell-num {
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+}
 
 .rl-prov-link {
   color: var(--accent);
   text-decoration: none;
   font-weight: 600;
 }
-.rl-prov-link:hover { text-decoration: underline; }
+.rl-prov-link:hover {
+  text-decoration: underline;
+}
 
 /* Limit colors */
-.rl-limit-high { color: var(--green, #34D399); }
-.rl-limit-mid { color: var(--orange, #FBBF24); }
-.rl-limit-low { color: var(--red, #F87171); }
-.rl-limit-none { color: var(--text-dim); font-style: italic; }
+.rl-limit-high {
+  color: var(--green, #34d399);
+}
+.rl-limit-mid {
+  color: var(--orange, #fbbf24);
+}
+.rl-limit-low {
+  color: var(--red, #f87171);
+}
+.rl-limit-none {
+  color: var(--text-dim);
+  font-style: italic;
+}
 
 /* Status badges */
 .rl-status {
@@ -514,11 +601,26 @@ function limitClass(val: number | null): string {
   border-radius: 999px;
   letter-spacing: 0.03em;
 }
-.rl-status.working { background: rgba(63,185,80,0.12); color: var(--green); }
-.rl-status.broken { background: rgba(248,113,113,0.12); color: var(--red); }
-.rl-status.rate_limited { background: rgba(251,191,36,0.12); color: var(--orange); }
-.rl-status.untested { background: rgba(156,163,175,0.12); color: var(--text-dim); }
-.rl-status.not_found { background: rgba(248,113,113,0.12); color: var(--red); }
+.rl-status.working {
+  background: rgba(63, 185, 80, 0.12);
+  color: var(--green);
+}
+.rl-status.broken {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--red);
+}
+.rl-status.rate_limited {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--orange);
+}
+.rl-status.untested {
+  background: rgba(156, 163, 175, 0.12);
+  color: var(--text-dim);
+}
+.rl-status.not_found {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--red);
+}
 
 /* Auth badges */
 .rl-badge {
@@ -530,9 +632,18 @@ function limitClass(val: number | null): string {
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
-.rl-badge-yes { background: rgba(248,113,113,0.12); color: var(--red); }
-.rl-badge-no { background: rgba(63,185,80,0.12); color: var(--green); }
-.rl-badge-warn { background: rgba(251,191,36,0.12); color: var(--orange); }
+.rl-badge-yes {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--red);
+}
+.rl-badge-no {
+  background: rgba(63, 185, 80, 0.12);
+  color: var(--green);
+}
+.rl-badge-warn {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--orange);
+}
 
 /* Prompt */
 .rl-prompt {
@@ -572,7 +683,7 @@ function limitClass(val: number | null): string {
   font-weight: 600;
 }
 .rl-bv-prov {
-  background: rgba(63,185,80,0.12);
+  background: rgba(63, 185, 80, 0.12);
   color: var(--green);
   font-weight: 700;
   padding: 1px 6px;
@@ -599,7 +710,9 @@ function limitClass(val: number | null): string {
   font-weight: 600;
   min-width: 90px;
 }
-.rl-bv-dp-prov:hover { text-decoration: underline; }
+.rl-bv-dp-prov:hover {
+  text-decoration: underline;
+}
 .rl-bv-dp-limit {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.65rem;
@@ -607,8 +720,14 @@ function limitClass(val: number | null): string {
 }
 
 @media (max-width: 768px) {
-  .rl-toolbar { flex-direction: column; }
-  .rl-leaderboard { grid-template-columns: 1fr; }
-  .rl-bv-grid { grid-template-columns: 1fr; }
+  .rl-toolbar {
+    flex-direction: column;
+  }
+  .rl-leaderboard {
+    grid-template-columns: 1fr;
+  }
+  .rl-bv-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

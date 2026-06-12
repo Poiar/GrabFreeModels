@@ -7,6 +7,7 @@ import type {
   ModelData,
   ProviderDatapoint,
   ProviderReference,
+  Organization,
   SourceInfo,
   SourceToggleState,
   RoleScore,
@@ -73,14 +74,18 @@ function saveToCache(rawJson: string, key: string = CACHE_KEY) {
   }
 }
 
-async function fetchWithRetry(url: string, signal?: AbortSignal, maxRetries = 3): Promise<Response> {
+async function fetchWithRetry(
+  url: string,
+  signal?: AbortSignal,
+  maxRetries = 3,
+): Promise<Response> {
   let lastError: unknown;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const resp = await fetch(url, { signal });
       if (resp.status === 429 && attempt < maxRetries) {
         // Exponential backoff: 1s, 2s, 4s
-        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+        await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt)));
         continue;
       }
       return resp;
@@ -88,7 +93,7 @@ async function fetchWithRetry(url: string, signal?: AbortSignal, maxRetries = 3)
       if (e instanceof DOMException && e.name === 'AbortError') throw e;
       lastError = e;
       if (attempt < maxRetries) {
-        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+        await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt)));
       }
     }
   }
@@ -121,7 +126,6 @@ export const useModelsStore = defineStore('models', () => {
   const index = ref<ModelIndex | null>(null);
   const paidIndex = ref<ModelIndex | null>(null);
 
-
   let staleTimer: ReturnType<typeof setTimeout> | null = null;
   function startStaleTimer() {
     stopStaleTimer();
@@ -145,26 +149,42 @@ export const useModelsStore = defineStore('models', () => {
     try {
       const raw = localStorage.getItem('gf_source_toggles');
       if (raw) toggleState.value = JSON.parse(raw);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
   loadToggleState();
 
   function saveToggleState() {
     try {
       localStorage.setItem('gf_source_toggles', JSON.stringify(toggleState.value));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
 
   // ── Hierarchical data access ──
   const creators = computed((): CreatorData[] => data.value?.creators ?? []);
   const providerRefs = computed((): ProviderReference[] => data.value?.providers ?? []);
+  const organizations = computed((): Organization[] => data.value?.organizations ?? []);
+
+  // ── Organization helpers ──
+  function getOrgById(id: string): Organization | null {
+    return organizations.value.find((o) => o.id === id) || null;
+  }
+  function getOrgByProviderSlug(slug: string): Organization | null {
+    return organizations.value.find((o) => o.provider_slugs.includes(slug)) || null;
+  }
 
   // ── Family grouping ──
   const families = computed((): FamilyData[] => index.value?.families ?? []);
 
   const visibleFamilies = computed((): FamilyData[] => {
     if (!isSourceFilterActive.value) return families.value;
-    const familyMap = new Map<string, { models: Map<number, ModelData>; providerSet: Set<string> }>();
+    const familyMap = new Map<
+      string,
+      { models: Map<number, ModelData>; providerSet: Set<string> }
+    >();
     for (const model of visibleModels.value) {
       const familyName = model.family || 'Uncategorized';
       if (!familyMap.has(familyName)) {
@@ -177,7 +197,12 @@ export const useModelsStore = defineStore('models', () => {
     const result: FamilyData[] = [];
     for (const [name, entry] of familyMap) {
       const models = Array.from(entry.models.values()).sort((a, b) => a.name.localeCompare(b.name));
-      result.push({ name, model_count: models.length, provider_count: entry.providerSet.size, models });
+      result.push({
+        name,
+        model_count: models.length,
+        provider_count: entry.providerSet.size,
+        models,
+      });
     }
     result.sort((a, b) => {
       if (a.name === 'Uncategorized') return 1;
@@ -209,10 +234,15 @@ export const useModelsStore = defineStore('models', () => {
   });
 
   // ── Derived models (fine-tune children) ──
-  const derivedModels = computed((): Map<string, ModelData[]> => index.value?.derivedModels ?? new Map());
+  const derivedModels = computed(
+    (): Map<string, ModelData[]> => index.value?.derivedModels ?? new Map(),
+  );
 
   // ── Model lookup by super_id ──
-  const modelBySuperId = computed((): Map<number, { model: ModelData; creator: CreatorData }> => index.value?.modelBySuperId ?? new Map());
+  const modelBySuperId = computed(
+    (): Map<number, { model: ModelData; creator: CreatorData }> =>
+      index.value?.modelBySuperId ?? new Map(),
+  );
 
   // ── Model lookup by id (full_id) ──
   function getModelById(id: string): ModelData | null {
@@ -271,17 +301,28 @@ export const useModelsStore = defineStore('models', () => {
   const freeModels = computed(() => allModels.value);
 
   const workingModels = computed(() => {
-    const ids = new Set((index.value?.workingDatapoints ?? []).map(d => index.value?.datapointById.get(d.full_id)?.model.super_id));
-    return allModels.value.filter(m => ids.has(m.super_id));
+    const ids = new Set(
+      (index.value?.workingDatapoints ?? []).map(
+        (d) => index.value?.datapointById.get(d.full_id)?.model.super_id,
+      ),
+    );
+    return allModels.value.filter((m) => ids.has(m.super_id));
   });
   const brokenModels = computed(() => {
-    const ids = new Set([...(index.value?.brokenDatapoints ?? []), ...(index.value?.rateLimitedDatapoints ?? [])]
-      .map(d => index.value?.datapointById.get(d.full_id)?.model.super_id));
-    return allModels.value.filter(m => ids.has(m.super_id));
+    const ids = new Set(
+      [...(index.value?.brokenDatapoints ?? []), ...(index.value?.rateLimitedDatapoints ?? [])].map(
+        (d) => index.value?.datapointById.get(d.full_id)?.model.super_id,
+      ),
+    );
+    return allModels.value.filter((m) => ids.has(m.super_id));
   });
   const rateLimitedModels = computed(() => {
-    const ids = new Set((index.value?.rateLimitedDatapoints ?? []).map(d => index.value?.datapointById.get(d.full_id)?.model.super_id));
-    return allModels.value.filter(m => ids.has(m.super_id));
+    const ids = new Set(
+      (index.value?.rateLimitedDatapoints ?? []).map(
+        (d) => index.value?.datapointById.get(d.full_id)?.model.super_id,
+      ),
+    );
+    return allModels.value.filter((m) => ids.has(m.super_id));
   });
 
   const untestedModels = computed(() =>
@@ -298,7 +339,9 @@ export const useModelsStore = defineStore('models', () => {
     if (activeProviders.length === 0) return 'down';
     const working = activeProviders.filter((p) => p.status.result === 'working').length;
     const untested = activeProviders.filter((p) => p.status.result === 'untested').length;
-    const broken = activeProviders.filter((p) => p.status.result === 'broken' || p.status.result === 'not_found').length;
+    const broken = activeProviders.filter(
+      (p) => p.status.result === 'broken' || p.status.result === 'not_found',
+    ).length;
     if (working === activeProviders.length) return 'working';
     if (untested === activeProviders.length) return 'untested';
     if (working > 0) return 'mixed';
@@ -313,8 +356,11 @@ export const useModelsStore = defineStore('models', () => {
   // Per-role variant overrides. When all roles agree, the master dropdown
   // shows that variant. When they differ, master shows "Custom".
   const DEFAULT_ROLE_VARIANTS: Record<string, string> = {
-    model: '_benchmarks', build: '_benchmarks', general: '_benchmarks',
-    small_model: '_benchmarks', explore: '_benchmarks',
+    model: '_benchmarks',
+    build: '_benchmarks',
+    general: '_benchmarks',
+    small_model: '_benchmarks',
+    explore: '_benchmarks',
   };
   const paidRoleVariants = ref<Record<string, string>>({ ...DEFAULT_ROLE_VARIANTS });
   const freeRoleVariants = ref<Record<string, string>>({ ...DEFAULT_ROLE_VARIANTS });
@@ -390,28 +436,31 @@ export const useModelsStore = defineStore('models', () => {
     const r = rankingsData.value?._role_rankings ?? data.value?._role_rankings;
     if (!r) return {} as Record<Role, string[]>;
     const result = {} as Record<Role, string[]>;
-    for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, freeRoleVariants.value).rankings;
+    for (const role of ROLE_ORDER)
+      result[role] = resolveRoleData(r, role, freeRoleVariants.value).rankings;
     return result;
   });
   const roleScores = computed(() => {
     const r = rankingsData.value?._role_rankings ?? data.value?._role_rankings;
     if (!r) return {} as Record<string, RoleScore[]>;
     const result = {} as Record<string, RoleScore[]>;
-    for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, freeRoleVariants.value).scores;
+    for (const role of ROLE_ORDER)
+      result[role] = resolveRoleData(r, role, freeRoleVariants.value).scores;
     return result;
   });
   const roleMeta = computed(() => {
     const r = rankingsData.value?._role_rankings ?? data.value?._role_rankings;
     if (!r) return {} as Record<string, RoleMeta>;
     const result = {} as Record<string, RoleMeta>;
-    for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, freeRoleVariants.value).meta;
+    for (const role of ROLE_ORDER)
+      result[role] = resolveRoleData(r, role, freeRoleVariants.value).meta;
     return result;
   });
 
   const availableRankingVariants = computed(() => {
     const r = rankingsData.value?._role_rankings ?? data.value?._role_rankings;
     const variants = r?._variants;
-    const keys = variants ? Object.keys(variants).filter(k => k !== 'combined') : [];
+    const keys = variants ? Object.keys(variants).filter((k) => k !== 'combined') : [];
     return keys.length > 0 ? ['combined', ...keys] : ['combined'];
   });
 
@@ -420,47 +469,50 @@ export const useModelsStore = defineStore('models', () => {
     const r = paidRankingsData.value?._role_rankings ?? paidData.value?._role_rankings;
     if (!r) return {} as Record<Role, string[]>;
     const result = {} as Record<Role, string[]>;
-    for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, paidRoleVariants.value).rankings;
+    for (const role of ROLE_ORDER)
+      result[role] = resolveRoleData(r, role, paidRoleVariants.value).rankings;
     return result;
   });
   const paidRoleScores = computed(() => {
     const r = paidRankingsData.value?._role_rankings ?? paidData.value?._role_rankings;
     if (!r) return {} as Record<string, RoleScore[]>;
     const result = {} as Record<string, RoleScore[]>;
-    for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, paidRoleVariants.value).scores;
+    for (const role of ROLE_ORDER)
+      result[role] = resolveRoleData(r, role, paidRoleVariants.value).scores;
     return result;
   });
   const paidRoleMeta = computed(() => {
     const r = paidRankingsData.value?._role_rankings ?? paidData.value?._role_rankings;
     if (!r) return {} as Record<string, RoleMeta>;
     const result = {} as Record<string, RoleMeta>;
-    for (const role of ROLE_ORDER) result[role] = resolveRoleData(r, role, paidRoleVariants.value).meta;
+    for (const role of ROLE_ORDER)
+      result[role] = resolveRoleData(r, role, paidRoleVariants.value).meta;
     return result;
   });
 
   // Variant options filtered by role — Models.dev only applies to Build
   const ROLE_VARIANT_OPTIONS: Record<string, string[]> = {
-    model:    ['combined', 'artificial_analysis', '_benchmarks'],
-    build:    ['combined', 'artificial_analysis', 'modelsdev', '_benchmarks'],
-    general:  ['combined', 'artificial_analysis', '_benchmarks'],
+    model: ['combined', 'artificial_analysis', '_benchmarks'],
+    build: ['combined', 'artificial_analysis', 'modelsdev', '_benchmarks'],
+    general: ['combined', 'artificial_analysis', '_benchmarks'],
     small_model: ['combined', 'artificial_analysis', '_benchmarks'],
-    explore:  ['combined', 'artificial_analysis', '_benchmarks'],
+    explore: ['combined', 'artificial_analysis', '_benchmarks'],
   };
 
   function roleVariantOptions(role: string, availableKeys: string[]): string[] {
     const base = ROLE_VARIANT_OPTIONS[role] ?? ['combined'];
-    return base.filter(v => v === 'combined' || availableKeys.includes(v));
+    return base.filter((v) => v === 'combined' || availableKeys.includes(v));
   }
 
   const freeVariantKeys = computed(() => {
     const r = rankingsData.value?._role_rankings ?? data.value?._role_rankings;
     const variants = r?._variants;
-    return variants ? Object.keys(variants).filter(k => k !== 'combined') : [];
+    return variants ? Object.keys(variants).filter((k) => k !== 'combined') : [];
   });
   const paidVariantKeys = computed(() => {
     const r = paidRankingsData.value?._role_rankings ?? paidData.value?._role_rankings;
     const variants = r?._variants;
-    return variants ? Object.keys(variants).filter(k => k !== 'combined') : [];
+    return variants ? Object.keys(variants).filter((k) => k !== 'combined') : [];
   });
 
   const paidAvailableRankingVariants = computed(() => {
@@ -489,7 +541,11 @@ export const useModelsStore = defineStore('models', () => {
   const routingGraph = computed(() => data.value?._provider_routing_graph ?? null);
   const providerTimeline = computed(() => data.value?._provider_timeline ?? null);
   const familyCoverage = computed(() => data.value?._family_coverage ?? null);
-  const failoverSuggestions = computed(() => data.value?._failover_suggestions ?? { forward: {}, reverse: {} });
+  const companyFinancials = computed(() => data.value?._company_financials ?? null);
+  const companyFinancialsHistory = computed(() => data.value?._company_financials_history ?? []);
+  const failoverSuggestions = computed(
+    () => data.value?._failover_suggestions ?? { forward: {}, reverse: {} },
+  );
 
   // ── Cost efficiency: intelligence score / provider_count ──
   const costEfficiency = computed((): Map<number, number> => {
@@ -497,13 +553,17 @@ export const useModelsStore = defineStore('models', () => {
     const scores = modelScores.value;
     if (!scores?.scores) return map;
     for (const [fullId, scoreList] of Object.entries(scores.scores)) {
-      const intel = scoreList.find(s => s.source === 'artificial_analysis' && s.score_type === 'intelligence');
+      const intel = scoreList.find(
+        (s) => s.source === 'artificial_analysis' && s.score_type === 'intelligence',
+      );
       if (!intel?.score_value) continue;
       const dp = datapointById.value.get(fullId);
       if (!dp) continue;
-      const provCount = new Set(dp.model.providers.filter(p => !p._removed).map(p => p.provider_slug)).size;
+      const provCount = new Set(
+        dp.model.providers.filter((p) => !p._removed).map((p) => p.provider_slug),
+      ).size;
       if (provCount < 2) continue;
-      const efficiency = Math.round(intel.score_value / provCount * 10) / 10;
+      const efficiency = Math.round((intel.score_value / provCount) * 10) / 10;
       const existing = map.get(dp.model.super_id);
       if (!existing || efficiency > existing) map.set(dp.model.super_id, efficiency);
     }
@@ -512,31 +572,58 @@ export const useModelsStore = defineStore('models', () => {
 
   // ── Model of the Day ──
   const modelOfTheDay = computed(() => {
-    const candidates: { slug: string; name: string; creator: string | null; intel: number; provCount: number; stable: boolean }[] = [];
+    const candidates: {
+      slug: string;
+      name: string;
+      creator: string | null;
+      intel: number;
+      provCount: number;
+      stable: boolean;
+    }[] = [];
     const scores = modelScores.value;
     for (const model of allModels.value) {
-      const provs = model.providers.filter(p => !p._removed);
-      const working = provs.filter(p => p.status.result === 'working').length;
+      const provs = model.providers.filter((p) => !p._removed);
+      const working = provs.filter((p) => p.status.result === 'working').length;
       if (working === 0) continue;
-      const provCount = new Set(provs.map(p => p.provider_slug)).size;
+      const provCount = new Set(provs.map((p) => p.provider_slug)).size;
       let intel = 0;
       for (const dp of provs) {
         const dpScores = scores?.scores[dp.full_id];
         if (dpScores) {
-          const s = dpScores.find(sc => sc.source === 'artificial_analysis' && sc.score_type === 'intelligence');
+          const s = dpScores.find(
+            (sc) => sc.source === 'artificial_analysis' && sc.score_type === 'intelligence',
+          );
           if (s?.score_value && s.score_value > intel) intel = s.score_value;
         }
       }
-      if (intel > 0 && provCount >= 2) candidates.push({ slug: model.slug, name: model.name, creator: model.creator, intel, provCount, stable: working === provs.length });
+      if (intel > 0 && provCount >= 2)
+        candidates.push({
+          slug: model.slug,
+          name: model.name,
+          creator: model.creator,
+          intel,
+          provCount,
+          stable: working === provs.length,
+        });
     }
-    candidates.sort((a, b) => (b.intel + b.provCount * 3 + (b.stable ? 5 : 0)) - (a.intel + a.provCount * 3 + (a.stable ? 5 : 0)));
+    candidates.sort(
+      (a, b) =>
+        b.intel +
+        b.provCount * 3 +
+        (b.stable ? 5 : 0) -
+        (a.intel + a.provCount * 3 + (a.stable ? 5 : 0)),
+    );
     return candidates.slice(0, 5);
   });
 
   const testSummary = computed(() => data.value?._test_summary ?? null);
   const testSummaryPrevious = computed(() => data.value?._test_summary_previous ?? null);
-  const modelScores = computed(() => rankingsData.value?._model_scores ?? data.value?._model_scores ?? null);
-  const paidModelScores = computed(() => paidRankingsData.value?._model_scores ?? paidData.value?._model_scores ?? null);
+  const modelScores = computed(
+    () => rankingsData.value?._model_scores ?? data.value?._model_scores ?? null,
+  );
+  const paidModelScores = computed(
+    () => paidRankingsData.value?._model_scores ?? paidData.value?._model_scores ?? null,
+  );
   const validationMethod = computed(() => data.value?._validation_method ?? null);
 
   // ── Model health aggregated by super_id (for sparklines) ──
@@ -550,7 +637,10 @@ export const useModelsStore = defineStore('models', () => {
       if (!dp) continue;
       const sid = dp.model.super_id;
       const existing = map.get(sid);
-      if (!existing || (history as ModelHealthHistory).snapshots.length > existing.snapshots.length) {
+      if (
+        !existing ||
+        (history as ModelHealthHistory).snapshots.length > existing.snapshots.length
+      ) {
         map.set(sid, history as ModelHealthHistory);
       }
     }
@@ -604,38 +694,54 @@ export const useModelsStore = defineStore('models', () => {
   });
 
   // ── Recently broken: models in current broken list that weren't in previous ──
-  const recentlyBroken = computed((): { full_id: string; name: string; slug: string; provider: string }[] => {
-    const cur = testSummary.value?.results;
-    const prev = testSummaryPrevious.value?.results;
-    if (!cur) return [];
-    const prevSet = new Set(prev?.broken ?? []);
-    const prevNotFound = new Set(prev?.not_found ?? []);
-    const newBroken = (cur.broken ?? []).filter(id => !prevSet.has(id));
-    const newNotFound = (cur.not_found ?? []).filter(id => !prevNotFound.has(id));
-    const result: { full_id: string; name: string; slug: string; provider: string }[] = [];
-    for (const id of [...newBroken, ...newNotFound]) {
-      const dp = datapointById.value.get(id);
-      if (dp) result.push({ full_id: id, name: dp.model.name, slug: dp.model.slug, provider: dp.dp.provider });
-    }
-    return result.slice(0, 10);
-  });
+  const recentlyBroken = computed(
+    (): { full_id: string; name: string; slug: string; provider: string }[] => {
+      const cur = testSummary.value?.results;
+      const prev = testSummaryPrevious.value?.results;
+      if (!cur) return [];
+      const prevSet = new Set(prev?.broken ?? []);
+      const prevNotFound = new Set(prev?.not_found ?? []);
+      const newBroken = (cur.broken ?? []).filter((id) => !prevSet.has(id));
+      const newNotFound = (cur.not_found ?? []).filter((id) => !prevNotFound.has(id));
+      const result: { full_id: string; name: string; slug: string; provider: string }[] = [];
+      for (const id of [...newBroken, ...newNotFound]) {
+        const dp = datapointById.value.get(id);
+        if (dp)
+          result.push({
+            full_id: id,
+            name: dp.model.name,
+            slug: dp.model.slug,
+            provider: dp.dp.provider,
+          });
+      }
+      return result.slice(0, 10);
+    },
+  );
 
   // ── Recently fixed: models in previous broken that are now working ──
-  const recentlyFixed = computed((): { full_id: string; name: string; slug: string; provider: string }[] => {
-    const cur = testSummary.value?.results;
-    const prev = testSummaryPrevious.value?.results;
-    if (!cur || !prev) return [];
-    const curWorking = new Set(cur.working ?? []);
-    const prevBroken = new Set([...(prev.broken ?? []), ...(prev.not_found ?? [])]);
-    const result: { full_id: string; name: string; slug: string; provider: string }[] = [];
-    for (const id of prevBroken) {
-      if (curWorking.has(id)) {
-        const dp = datapointById.value.get(id);
-        if (dp) result.push({ full_id: id, name: dp.model.name, slug: dp.model.slug, provider: dp.dp.provider });
+  const recentlyFixed = computed(
+    (): { full_id: string; name: string; slug: string; provider: string }[] => {
+      const cur = testSummary.value?.results;
+      const prev = testSummaryPrevious.value?.results;
+      if (!cur || !prev) return [];
+      const curWorking = new Set(cur.working ?? []);
+      const prevBroken = new Set([...(prev.broken ?? []), ...(prev.not_found ?? [])]);
+      const result: { full_id: string; name: string; slug: string; provider: string }[] = [];
+      for (const id of prevBroken) {
+        if (curWorking.has(id)) {
+          const dp = datapointById.value.get(id);
+          if (dp)
+            result.push({
+              full_id: id,
+              name: dp.model.name,
+              slug: dp.model.slug,
+              provider: dp.dp.provider,
+            });
+        }
       }
-    }
-    return result.slice(0, 10);
-  });
+      return result.slice(0, 10);
+    },
+  );
 
   // ── Benchmark entries (flat list for table view) ──
   const benchmarkEntries = computed((): BenchmarkEntry[] => {
@@ -646,9 +752,15 @@ export const useModelsStore = defineStore('models', () => {
       if (!scoreList?.length) continue;
       const dp = datapointById.value.get(fullId);
       if (!dp) continue;
-      const intel = scoreList.find(s => s.source === 'artificial_analysis' && s.score_type === 'intelligence');
-      const speed = scoreList.find(s => s.source === 'artificial_analysis' && s.score_type === 'speed');
-      const cost = scoreList.find(s => s.source === 'artificial_analysis' && s.score_type === 'cost_effectiveness');
+      const intel = scoreList.find(
+        (s) => s.source === 'artificial_analysis' && s.score_type === 'intelligence',
+      );
+      const speed = scoreList.find(
+        (s) => s.source === 'artificial_analysis' && s.score_type === 'speed',
+      );
+      const cost = scoreList.find(
+        (s) => s.source === 'artificial_analysis' && s.score_type === 'cost_effectiveness',
+      );
       result.push({
         full_id: fullId,
         super_id: dp.model.super_id,
@@ -682,7 +794,8 @@ export const useModelsStore = defineStore('models', () => {
       const dp = datapointById.value.get(fullId);
       if (!dp) continue;
       const slug = dp.dp.provider_slug;
-      if (!provMap.has(slug)) provMap.set(slug, { name: dp.dp.provider, latencies: [], lastMeasured: '' });
+      if (!provMap.has(slug))
+        provMap.set(slug, { name: dp.dp.provider, latencies: [], lastMeasured: '' });
       const entry = provMap.get(slug)!;
       for (const snap of (history as ModelHealthHistory).snapshots) {
         if (snap.latency_ms != null && snap.status === 'working') {
@@ -691,18 +804,20 @@ export const useModelsStore = defineStore('models', () => {
         }
       }
     }
-    return [...provMap.entries()].map(([slug, e]) => {
-      const sorted = e.latencies.sort((a, b) => a - b);
-      return {
-        provider_slug: slug,
-        provider_name: e.name,
-        avg_latency_ms: Math.round(sorted.reduce((a, b) => a + b, 0) / sorted.length),
-        p50_latency_ms: sorted[Math.floor(sorted.length * 0.5)] ?? 0,
-        p95_latency_ms: sorted[Math.floor(sorted.length * 0.95)] ?? 0,
-        sample_count: sorted.length,
-        last_measured: e.lastMeasured,
-      };
-    }).sort((a, b) => a.avg_latency_ms - b.avg_latency_ms);
+    return [...provMap.entries()]
+      .map(([slug, e]) => {
+        const sorted = e.latencies.sort((a, b) => a - b);
+        return {
+          provider_slug: slug,
+          provider_name: e.name,
+          avg_latency_ms: Math.round(sorted.reduce((a, b) => a + b, 0) / sorted.length),
+          p50_latency_ms: sorted[Math.floor(sorted.length * 0.5)] ?? 0,
+          p95_latency_ms: sorted[Math.floor(sorted.length * 0.95)] ?? 0,
+          sample_count: sorted.length,
+          last_measured: e.lastMeasured,
+        };
+      })
+      .sort((a, b) => a.avg_latency_ms - b.avg_latency_ms);
   });
 
   const providerUsage = computed(() => {
@@ -740,7 +855,7 @@ export const useModelsStore = defineStore('models', () => {
   });
 
   const isSourceFilterActive = computed((): boolean => {
-    return sources.value.some(s => toggleState.value[s.id] === false);
+    return sources.value.some((s) => toggleState.value[s.id] === false);
   });
 
   // Derive provider slugs from disabled API provider source slugs.
@@ -759,8 +874,8 @@ export const useModelsStore = defineStore('models', () => {
 
   const superApiEnabled = computed({
     get: (): boolean => {
-      const apiSources = sources.value.filter(s => s.source_type === 'api_provider');
-      return apiSources.every(s => toggleState.value[s.id] !== false);
+      const apiSources = sources.value.filter((s) => s.source_type === 'api_provider');
+      return apiSources.every((s) => toggleState.value[s.id] !== false);
     },
     set: (val: boolean) => {
       for (const s of sources.value) {
@@ -781,13 +896,13 @@ export const useModelsStore = defineStore('models', () => {
     for (const creator of creators.value) {
       const filteredModels: ModelData[] = [];
       for (const model of creator.models) {
-        const filteredProviders = model.providers.filter(dp => {
+        const filteredProviders = model.providers.filter((dp) => {
           // No provenance — always visible
           if (dp.source_ids.length === 0) return true;
           // API provider explicitly disabled — hide this datapoint
           if (disabledProviders.has(dp.provider_slug)) return false;
           // Visible if any source is still enabled
-          return dp.source_ids.some(id => enabledSourceIds.value.has(id));
+          return dp.source_ids.some((id) => enabledSourceIds.value.has(id));
         });
         if (filteredProviders.length > 0) {
           filteredModels.push({ ...model, providers: filteredProviders });
@@ -798,7 +913,9 @@ export const useModelsStore = defineStore('models', () => {
           ...creator,
           models: filteredModels,
           model_count: filteredModels.length,
-          provider_count: new Set(filteredModels.flatMap(m => m.providers.map(p => p.provider_slug))).size,
+          provider_count: new Set(
+            filteredModels.flatMap((m) => m.providers.map((p) => p.provider_slug)),
+          ).size,
         });
       }
     }
@@ -816,25 +933,66 @@ export const useModelsStore = defineStore('models', () => {
   const visibleProviderRefs = computed((): ProviderReference[] => {
     if (!isSourceFilterActive.value) return providerRefs.value;
     // Pre-index all provider metadata from the full provider list for source-filtering path
-    const baseUrlMap = new Map(providerRefs.value.map(p => [p.slug, p.base_url]));
-    const npmPackageMap = new Map(providerRefs.value.map(p => [p.slug, p.npm_package]));
-    const providerTypeMap = new Map(providerRefs.value.map(p => [p.slug, p.provider_type]));
-    const servesThirdPartyMap = new Map(providerRefs.value.map(p => [p.slug, p.serves_third_party]));
-    const hardwareMap = new Map(providerRefs.value.map(p => [p.slug, p.hardware]));
-    const compatMap = new Map(providerRefs.value.map(p => [p.slug, p.is_openai_compat]));
-    const streamingMap = new Map(providerRefs.value.map(p => [p.slug, p.supports_streaming]));
-    const accountIdMap = new Map(providerRefs.value.map(p => [p.slug, p.requires_account_id]));
-    const maxRpmMap = new Map(providerRefs.value.map(p => [p.slug, p.max_rpm]));
-    const maxTpmMap = new Map(providerRefs.value.map(p => [p.slug, p.max_tpm]));
-    const maxDailyMap = new Map(providerRefs.value.map(p => [p.slug, p.max_daily_requests]));
-    const requiresCardMap = new Map(providerRefs.value.map(p => [p.slug, p.requires_card]));
-    const descriptionMap = new Map(providerRefs.value.map(p => [p.slug, p.description]));
-    const map = new Map<string, { working: number; total: number; name: string; slug: string; base_url: string; npm_package: string | null; provider_type: string | null; serves_third_party: boolean | null; hardware: string | null; is_openai_compat: boolean | null; supports_streaming: boolean | null; requires_account_id: boolean | null; max_rpm: number | null; max_tpm: number | null; max_daily_requests: number | null; requires_card: boolean | null; description: string | null }>();
+    const baseUrlMap = new Map(providerRefs.value.map((p) => [p.slug, p.base_url]));
+    const npmPackageMap = new Map(providerRefs.value.map((p) => [p.slug, p.npm_package]));
+    const providerTypeMap = new Map(providerRefs.value.map((p) => [p.slug, p.provider_type]));
+    const servesThirdPartyMap = new Map(
+      providerRefs.value.map((p) => [p.slug, p.serves_third_party]),
+    );
+    const hardwareMap = new Map(providerRefs.value.map((p) => [p.slug, p.hardware]));
+    const compatMap = new Map(providerRefs.value.map((p) => [p.slug, p.is_openai_compat]));
+    const streamingMap = new Map(providerRefs.value.map((p) => [p.slug, p.supports_streaming]));
+    const accountIdMap = new Map(providerRefs.value.map((p) => [p.slug, p.requires_account_id]));
+    const maxRpmMap = new Map(providerRefs.value.map((p) => [p.slug, p.max_rpm]));
+    const maxTpmMap = new Map(providerRefs.value.map((p) => [p.slug, p.max_tpm]));
+    const maxDailyMap = new Map(providerRefs.value.map((p) => [p.slug, p.max_daily_requests]));
+    const requiresCardMap = new Map(providerRefs.value.map((p) => [p.slug, p.requires_card]));
+    const descriptionMap = new Map(providerRefs.value.map((p) => [p.slug, p.description]));
+    const map = new Map<
+      string,
+      {
+        working: number;
+        total: number;
+        name: string;
+        slug: string;
+        base_url: string;
+        npm_package: string | null;
+        provider_type: string | null;
+        serves_third_party: boolean | null;
+        hardware: string | null;
+        is_openai_compat: boolean | null;
+        supports_streaming: boolean | null;
+        requires_account_id: boolean | null;
+        max_rpm: number | null;
+        max_tpm: number | null;
+        max_daily_requests: number | null;
+        requires_card: boolean | null;
+        description: string | null;
+      }
+    >();
     for (const model of visibleModels.value) {
       for (const dp of model.providers) {
         const slug = dp.provider_slug;
         if (!map.has(slug)) {
-          map.set(slug, { working: 0, total: 0, name: dp.provider, slug, base_url: baseUrlMap.get(slug) || '', npm_package: npmPackageMap.get(slug) || null, provider_type: providerTypeMap.get(slug) || null, serves_third_party: servesThirdPartyMap.get(slug) ?? null, hardware: hardwareMap.get(slug) || null, is_openai_compat: compatMap.get(slug) ?? null, supports_streaming: streamingMap.get(slug) ?? null, requires_account_id: accountIdMap.get(slug) ?? null, max_rpm: maxRpmMap.get(slug) ?? null, max_tpm: maxTpmMap.get(slug) ?? null, max_daily_requests: maxDailyMap.get(slug) ?? null, requires_card: requiresCardMap.get(slug) ?? null, description: descriptionMap.get(slug) || null });
+          map.set(slug, {
+            working: 0,
+            total: 0,
+            name: dp.provider,
+            slug,
+            base_url: baseUrlMap.get(slug) || '',
+            npm_package: npmPackageMap.get(slug) || null,
+            provider_type: providerTypeMap.get(slug) || null,
+            serves_third_party: servesThirdPartyMap.get(slug) ?? null,
+            hardware: hardwareMap.get(slug) || null,
+            is_openai_compat: compatMap.get(slug) ?? null,
+            supports_streaming: streamingMap.get(slug) ?? null,
+            requires_account_id: accountIdMap.get(slug) ?? null,
+            max_rpm: maxRpmMap.get(slug) ?? null,
+            max_tpm: maxTpmMap.get(slug) ?? null,
+            max_daily_requests: maxDailyMap.get(slug) ?? null,
+            requires_card: requiresCardMap.get(slug) ?? null,
+            description: descriptionMap.get(slug) || null,
+          });
         }
         const entry = map.get(slug)!;
         entry.total++;
@@ -864,17 +1022,52 @@ export const useModelsStore = defineStore('models', () => {
     }));
   });
 
+  const visibleOrganizations = computed((): Organization[] => {
+    if (!isSourceFilterActive.value) return organizations.value;
+    const disabledProviders = disabledApiProviders.value;
+    return organizations.value
+      .map((org) => {
+        // For provider-only orgs, hide if all their provider slugs are disabled
+        if (org.kind === 'provider') {
+          const visible = org.provider_slugs.some((s) => !disabledProviders.has(s));
+          return visible ? org : null;
+        }
+        // For creator or both: filter models' providers
+        const filteredModels = org.models
+          .map((model) => ({
+            ...model,
+            providers: model.providers.filter((dp) => {
+              if (dp.source_ids.length === 0) return true;
+              if (disabledProviders.has(dp.provider_slug)) return false;
+              return dp.source_ids.some((id) => enabledSourceIds.value.has(id));
+            }),
+          }))
+          .filter((m) => m.providers.length > 0);
+        if (filteredModels.length === 0 && org.kind === 'creator') return null;
+        // For 'both', still show even with 0 visible models (provider facet still relevant)
+        if (filteredModels.length === 0 && org.kind === 'both') {
+          const providerVisible = org.provider_slugs.some((s) => !disabledProviders.has(s));
+          if (!providerVisible) return null;
+        }
+        return { ...org, models: filteredModels, model_count: filteredModels.length };
+      })
+      .filter(Boolean) as Organization[];
+  });
+
   const visibleStats = computed(() => {
     const models = visibleModels.value;
-    const datapoints = models.flatMap(m => m.providers);
-    const working = datapoints.filter(d => d.status.result === 'working').length;
+    const datapoints = models.flatMap((m) => m.providers);
+    const working = datapoints.filter((d) => d.status.result === 'working').length;
     return {
+      orgs: visibleOrganizations.value.length,
       creators: visibleCreators.value.length,
       models: models.length,
       datapoints: datapoints.length,
       providers: visibleProviderRefs.value.length,
       working,
-      broken: datapoints.filter(d => d.status.result === 'broken' || d.status.result === 'not_found').length,
+      broken: datapoints.filter(
+        (d) => d.status.result === 'broken' || d.status.result === 'not_found',
+      ).length,
       workingRatio: datapoints.length > 0 ? Math.round((working / datapoints.length) * 100) : 0,
     };
   });
@@ -884,9 +1077,12 @@ export const useModelsStore = defineStore('models', () => {
     const totalModels = allModels.value.length;
     const totalDatapoints = allDatapoints.value.length;
     const workingCount = allDatapoints.value.filter((d) => d.status.result === 'working').length;
-    const brokenCount = allDatapoints.value.filter((d) => d.status.result === 'broken' || d.status.result === 'not_found').length;
+    const brokenCount = allDatapoints.value.filter(
+      (d) => d.status.result === 'broken' || d.status.result === 'not_found',
+    ).length;
 
     return {
+      orgs: organizations.value.length,
       creators: creators.value.length,
       models: totalModels,
       datapoints: totalDatapoints,
@@ -922,7 +1118,8 @@ export const useModelsStore = defineStore('models', () => {
     try {
       let resp = await fetchWithRetry('/api/data', signal);
       const ct = resp.headers.get('content-type') || '';
-      if (!resp.ok || !ct.includes('application/json')) resp = await fetch('/available-models.json', { signal });
+      if (!resp.ok || !ct.includes('application/json'))
+        resp = await fetch('/available-models.json', { signal });
       const rawJson = await resp.text();
       const freshData: ModelsData = JSON.parse(rawJson);
 
@@ -1014,7 +1211,8 @@ export const useModelsStore = defineStore('models', () => {
     try {
       let resp = await fetchWithRetry('/api/data/paid');
       const ct = resp.headers.get('content-type') || '';
-      if (!resp.ok || !ct.includes('application/json')) resp = await fetch('/available-models-paid.json');
+      if (!resp.ok || !ct.includes('application/json'))
+        resp = await fetch('/available-models-paid.json');
       const rawJson = await resp.text();
       const freshData: ModelsData = JSON.parse(rawJson);
 
@@ -1053,7 +1251,7 @@ export const useModelsStore = defineStore('models', () => {
   // ── Rankings-only loading ──
   function buildModelIndex(full: ModelsData): Record<string, ModelIndexEntry> {
     const modelIndex: Record<string, ModelIndexEntry> = {};
-    for (const creator of (full.creators || [])) {
+    for (const creator of full.creators || []) {
       for (const model of creator.models) {
         const providerSlugs = model.providers
           .filter((p) => !p._removed)
@@ -1110,7 +1308,11 @@ export const useModelsStore = defineStore('models', () => {
       if (e instanceof DOMException && e.name === 'AbortError') return;
       // Fallback: try loading full data if rankings endpoint fails
       if (!data.value) {
-        try { await loadData(); } catch { /* will use rankingsError below */ }
+        try {
+          await loadData();
+        } catch {
+          /* will use rankingsError below */
+        }
       }
       if (!data.value) {
         rankingsError.value = e instanceof Error ? e.message : String(e);
@@ -1154,7 +1356,11 @@ export const useModelsStore = defineStore('models', () => {
     } catch (e: unknown) {
       if (e instanceof DOMException && e.name === 'AbortError') return;
       if (!paidData.value) {
-        try { await loadPaidData(); } catch { /* will use rankingsError below */ }
+        try {
+          await loadPaidData();
+        } catch {
+          /* will use rankingsError below */
+        }
       }
       if (!paidData.value) {
         paidRankingsError.value = e instanceof Error ? e.message : String(e);
@@ -1266,7 +1472,9 @@ export const useModelsStore = defineStore('models', () => {
   function paidRankingsDatapointById(
     id: string,
   ): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
-    return resolveFromIndex(paidRankingsData.value?._model_index, id) ?? paidDatapointById.value.get(id);
+    return (
+      resolveFromIndex(paidRankingsData.value?._model_index, id) ?? paidDatapointById.value.get(id)
+    );
   }
 
   const sourcesPanelOpen = ref(false);
@@ -1290,8 +1498,12 @@ export const useModelsStore = defineStore('models', () => {
     visibleCreators,
     visibleModels,
     visibleProviderRefs,
+    visibleOrganizations,
     visibleStats,
     // Hierarchical access
+    organizations,
+    getOrgById,
+    getOrgByProviderSlug,
     creators,
     providerRefs,
     families,
@@ -1342,6 +1554,8 @@ export const useModelsStore = defineStore('models', () => {
     routingGraph,
     providerTimeline,
     familyCoverage,
+    companyFinancials,
+    companyFinancialsHistory,
     failoverSuggestions,
     costEfficiency,
     modelOfTheDay,

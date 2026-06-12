@@ -6,8 +6,22 @@
           <!-- Header -->
           <div class="smp-header">
             <div class="smp-header-left">
-              <button class="smp-nav-btn" :disabled="!hasPrev" title="Previous super model" @click="goPrev">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button
+                class="smp-nav-btn"
+                :disabled="!hasPrev"
+                title="Previous super model"
+                @click="goPrev"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
@@ -15,7 +29,16 @@
               <span class="smp-creator-badge">{{ creatorName }}</span>
             </div>
             <button class="smp-close" aria-label="Close panel" @click="close">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
@@ -25,12 +48,23 @@
           <!-- Meta -->
           <div class="smp-meta">
             <span v-if="model.family" class="smp-meta-item">Family: {{ model.family }}</span>
-            <span v-if="model.best_for.length" class="smp-meta-item">Best for: {{ model.best_for.join(', ') }}</span>
+            <span v-if="model.best_for.length" class="smp-meta-item"
+              >Best for: {{ model.best_for.join(', ') }}</span
+            >
             <span class="smp-meta-item">Context: {{ panelContextLabel }}</span>
             <span v-if="bestKnowledge" class="smp-meta-item">Knowledge: {{ bestKnowledge }}</span>
-            <span class="smp-meta-item">{{ activeCount }} working / {{ totalCount }} providers</span>
-            <span v-if="anyAttachment" class="smp-cap-badge smp-cap-attach" title="Attachment">Attach</span>
-            <span v-if="anyStructuredOutput" class="smp-cap-badge smp-cap-struct" title="Structured output">Struct</span>
+            <span class="smp-meta-item"
+              >{{ activeCount }} working / {{ totalCount }} providers</span
+            >
+            <span v-if="anyAttachment" class="smp-cap-badge smp-cap-attach" title="Attachment"
+              >Attach</span
+            >
+            <span
+              v-if="anyStructuredOutput"
+              class="smp-cap-badge smp-cap-struct"
+              title="Structured output"
+              >Struct</span
+            >
           </div>
 
           <!-- Role rankings -->
@@ -53,7 +87,9 @@
           <div v-if="modelIssues.length" class="smp-issues">
             <h3 class="smp-section-title">Known Issues</h3>
             <div v-for="issue in modelIssues" :key="issue.issue" class="smp-issue">
-              <span class="smp-issue-severity" :class="`severity-${issue.severity}`">{{ issue.severity }}</span>
+              <span class="smp-issue-severity" :class="`severity-${issue.severity}`">{{
+                issue.severity
+              }}</span>
               <p class="smp-issue-text">{{ issue.issue }}</p>
             </div>
           </div>
@@ -67,9 +103,7 @@
           </div>
 
           <!-- Next button -->
-          <button v-if="hasNext" class="smp-next-btn" @click="goNext">
-            Next super model →
-          </button>
+          <button v-if="hasNext" class="smp-next-btn" @click="goNext">Next super model →</button>
         </div>
       </div>
     </Transition>
@@ -116,7 +150,7 @@ function goNext() {
 
 const creatorName = computed(() => {
   for (const c of store.visibleCreators) {
-    if (c.models.some(m => m.super_id === props.model.super_id)) return c.name;
+    if (c.models.some((m) => m.super_id === props.model.super_id)) return c.name;
   }
   return 'Unknown';
 });
@@ -135,25 +169,23 @@ const panelContextLabel = computed(() => {
   return `${formatContext(minCtx)}–${formatContext(maxCtx!)}`;
 });
 
-const activeCount = computed(() =>
-  props.model.providers.filter(p => !p._removed && p.status.result === 'working').length,
+const activeCount = computed(
+  () => props.model.providers.filter((p) => !p._removed && p.status.result === 'working').length,
 );
-const totalCount = computed(() => props.model.providers.filter(p => !p._removed).length);
+const totalCount = computed(() => props.model.providers.filter((p) => !p._removed).length);
 
 const bestKnowledge = computed(() => {
   const dates = props.model.providers
-    .map(p => p.knowledge_cutoff)
+    .map((p) => p.knowledge_cutoff)
     .filter((k): k is string => !!k)
     .sort()
     .reverse();
   return dates.length > 0 ? dates[0].slice(0, 7) : null;
 });
 
-const anyAttachment = computed(() =>
-  props.model.providers.some(p => p.supports_attachment),
-);
+const anyAttachment = computed(() => props.model.providers.some((p) => p.supports_attachment));
 const anyStructuredOutput = computed(() =>
-  props.model.providers.some(p => p.supports_structured_output),
+  props.model.providers.some((p) => p.supports_structured_output),
 );
 
 function roleLabel(role: string): string {
@@ -171,8 +203,8 @@ function roleLabel(role: string): string {
 const modelIssues = computed((): KnownIssue[] => {
   const issues = store.knownIssues;
   if (!issues.length) return [];
-  const providerIds = new Set(props.model.providers.map(p => p.full_id));
-  return issues.filter(i => providerIds.has(i.model_id));
+  const providerIds = new Set(props.model.providers.map((p) => p.full_id));
+  return issues.filter((i) => providerIds.has(i.model_id));
 });
 
 const allTags = computed(() => {
@@ -227,7 +259,9 @@ watch(
 
 .panel-slide-enter-active,
 .panel-slide-leave-active {
-  transition: transform 0.25s ease, opacity 0.2s ease;
+  transition:
+    transform 0.25s ease,
+    opacity 0.2s ease;
 }
 .panel-slide-enter-from {
   transform: translateX(100%);

@@ -28,7 +28,8 @@
               class="pt-source-badge"
               :class="b.cssClass"
               :title="b.title"
-            >{{ b.label }}</span>
+              >{{ b.label }}</span
+            >
             <span v-if="getSourceBadges(dp).length === 0" class="dash">—</span>
           </td>
           <td class="pt-cell">{{ formatContext(dp.context_length) }}</td>
@@ -95,7 +96,9 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+              <path
+                d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+              />
             </svg>
             <span v-else class="dash">—</span>
           </td>
@@ -118,7 +121,9 @@
           </td>
           <td class="pt-cell pt-limits">
             <span v-if="!dp.limitations" class="dash">—</span>
-            <span v-else class="pt-limit-text" :title="dp.limitations.notes">{{ limitSummary(dp) }}</span>
+            <span v-else class="pt-limit-text" :title="dp.limitations.notes">{{
+              limitSummary(dp)
+            }}</span>
           </td>
           <td class="pt-cell pt-status">
             <span class="status-badge" :class="`badge-${dp.status.result}`">{{
@@ -171,7 +176,9 @@ const SOURCE_ABBREVIATIONS: Record<string, { label: string; cssClass: string }> 
   'free-llm-api-resources': { label: 'FR', cssClass: 'source-fr' },
 };
 
-function getSourceBadges(dp: ProviderDatapoint): { key: string; label: string; title: string; cssClass: string }[] {
+function getSourceBadges(
+  dp: ProviderDatapoint,
+): { key: string; label: string; title: string; cssClass: string }[] {
   const ids = dp.source_ids || [];
   if (ids.length === 0) return [];
   const sourceById: Record<number, { slug: string; name: string; source_type: string }> = {};

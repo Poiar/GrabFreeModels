@@ -2,15 +2,17 @@
   <div class="creator-list-page">
     <div class="page-header">
       <h2>Creators</h2>
-      <p>{{ allCreators.length }} model creators tracked<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template></p>
+      <p>
+        {{ allCreators.length }} model creators tracked<template v-if="store.isSourceFilterActive">
+          <span class="filtered-note">(filtered)</span></template
+        >
+      </p>
     </div>
 
     <div class="cc-controls">
-      <button
-        class="cc-paid-toggle"
-        :class="{ active: showPaid }"
-        @click="showPaid = !showPaid"
-      >{{ showPaid ? 'Paid · Free' : 'Free · Paid' }}</button>
+      <button class="cc-paid-toggle" :class="{ active: showPaid }" @click="showPaid = !showPaid">
+        {{ showPaid ? 'Paid · Free' : 'Free · Paid' }}
+      </button>
       <input
         v-model="searchQuery"
         type="text"
@@ -23,7 +25,13 @@
         <option value="providers">Sort: Providers</option>
         <option value="country">Sort: Country</option>
       </select>
-      <button class="sort-dir-btn" @click="sortAsc = !sortAsc" :title="sortAsc ? 'Ascending' : 'Descending'">{{ sortAsc ? '↑' : '↓' }}</button>
+      <button
+        class="sort-dir-btn"
+        @click="sortAsc = !sortAsc"
+        :title="sortAsc ? 'Ascending' : 'Descending'"
+      >
+        {{ sortAsc ? '↑' : '↓' }}
+      </button>
     </div>
 
     <!-- Export buttons -->
@@ -39,14 +47,20 @@
         class="cc-continent-btn"
         :class="{ active: selectedContinent === c }"
         @click="selectedContinent = c"
-      >{{ c === 'All' ? `All (${allCreators.length})` : `${c} (${continentCount(c)})` }}</button>
+      >
+        {{ c === 'All' ? `All (${allCreators.length})` : `${c} (${continentCount(c)})` }}
+      </button>
     </div>
 
     <!-- Labs section -->
     <div v-if="sortedLabCreators.length" class="cc-section">
       <div class="cc-section-header">
         <h3 class="cc-section-title">Labs</h3>
-        <span class="cc-section-count">{{ sortedLabCreators.length }} creator{{ sortedLabCreators.length !== 1 ? 's' : '' }}</span>
+        <span class="cc-section-count"
+          >{{ sortedLabCreators.length }} creator{{
+            sortedLabCreators.length !== 1 ? 's' : ''
+          }}</span
+        >
       </div>
       <div class="creator-grid">
         <router-link
@@ -71,13 +85,22 @@
           </div>
           <span
             class="cc-country"
-            :style="{ color: getCountryForCreator(creator.id).text, background: getCountryForCreator(creator.id).color }"
-          >{{ getCountryForCreator(creator.id).name }}</span>
+            :style="{
+              color: getCountryForCreator(creator.id).text,
+              background: getCountryForCreator(creator.id).color,
+            }"
+            >{{ getCountryForCreator(creator.id).name }}</span
+          >
           <div v-if="getFamilies(creator).length" class="cc-families">
-            <span v-for="f in getFamilies(creator).slice(0, 4)" :key="f" class="cc-family-tag">{{ f }}</span>
-            <span v-if="getFamilies(creator).length > 4" class="cc-family-tag cc-family-more">+{{ getFamilies(creator).length - 4 }}</span>
+            <span v-for="f in getFamilies(creator).slice(0, 4)" :key="f" class="cc-family-tag">{{
+              f
+            }}</span>
+            <span v-if="getFamilies(creator).length > 4" class="cc-family-tag cc-family-more"
+              >+{{ getFamilies(creator).length - 4 }}</span
+            >
           </div>
           <div v-if="creator.models.length" class="cc-top">Top: {{ creator.models[0].name }}</div>
+          <span class="cc-org-link" @click.stop="goToOrg(creator.id)">Org →</span>
         </router-link>
       </div>
     </div>
@@ -86,7 +109,11 @@
     <div v-if="sortedUserCreators.length" class="cc-section">
       <div class="cc-section-header">
         <h3 class="cc-section-title">Users</h3>
-        <span class="cc-section-count">{{ sortedUserCreators.length }} creator{{ sortedUserCreators.length !== 1 ? 's' : '' }}</span>
+        <span class="cc-section-count"
+          >{{ sortedUserCreators.length }} creator{{
+            sortedUserCreators.length !== 1 ? 's' : ''
+          }}</span
+        >
       </div>
       <div class="creator-grid">
         <router-link
@@ -111,10 +138,15 @@
           </div>
           <span class="cc-role-badge">{{ creator.role }}</span>
           <div v-if="getFamilies(creator).length" class="cc-families">
-            <span v-for="f in getFamilies(creator).slice(0, 4)" :key="f" class="cc-family-tag">{{ f }}</span>
-            <span v-if="getFamilies(creator).length > 4" class="cc-family-tag cc-family-more">+{{ getFamilies(creator).length - 4 }}</span>
+            <span v-for="f in getFamilies(creator).slice(0, 4)" :key="f" class="cc-family-tag">{{
+              f
+            }}</span>
+            <span v-if="getFamilies(creator).length > 4" class="cc-family-tag cc-family-more"
+              >+{{ getFamilies(creator).length - 4 }}</span
+            >
           </div>
           <div v-if="creator.models.length" class="cc-top">Top: {{ creator.models[0].name }}</div>
+          <span class="cc-org-link" @click.stop="goToOrg(creator.id)">Org →</span>
         </router-link>
       </div>
     </div>
@@ -123,7 +155,11 @@
     <div v-if="sortedOtherCreators.length" class="cc-section">
       <div class="cc-section-header">
         <h3 class="cc-section-title">Other</h3>
-        <span class="cc-section-count">{{ sortedOtherCreators.length }} placeholder{{ sortedOtherCreators.length !== 1 ? 's' : '' }}</span>
+        <span class="cc-section-count"
+          >{{ sortedOtherCreators.length }} placeholder{{
+            sortedOtherCreators.length !== 1 ? 's' : ''
+          }}</span
+        >
       </div>
       <div class="creator-grid">
         <router-link
@@ -147,9 +183,14 @@
             >
           </div>
           <div v-if="getFamilies(creator).length" class="cc-families">
-            <span v-for="f in getFamilies(creator).slice(0, 4)" :key="f" class="cc-family-tag">{{ f }}</span>
-            <span v-if="getFamilies(creator).length > 4" class="cc-family-tag cc-family-more">+{{ getFamilies(creator).length - 4 }}</span>
+            <span v-for="f in getFamilies(creator).slice(0, 4)" :key="f" class="cc-family-tag">{{
+              f
+            }}</span>
+            <span v-if="getFamilies(creator).length > 4" class="cc-family-tag cc-family-more"
+              >+{{ getFamilies(creator).length - 4 }}</span
+            >
           </div>
+          <span class="cc-org-link" @click.stop="goToOrg(creator.id)">Org →</span>
         </router-link>
       </div>
     </div>
@@ -158,12 +199,19 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useModelsStore } from '@/store/models';
 import { useExport } from '@/composables/useExport';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { getCountryForCreator, CONTINENTS } from '@/data/creator-countries';
 import type { CreatorData } from '@/types';
 const store = useModelsStore();
+const router = useRouter();
+
+function goToOrg(creatorId: string) {
+  const org = store.getOrgById(creatorId);
+  if (org) router.push(`/org/${org.id}`);
+}
 
 const searchQuery = ref('');
 const sortBy = ref<'name' | 'models' | 'providers' | 'country'>('name');
@@ -172,11 +220,15 @@ const selectedContinent = ref('All');
 const showPaid = ref(false);
 
 // Source list — free or paid creators, with type/role from the data builder
-const allCreators = computed(() => showPaid.value ? store.paidCreators : store.visibleCreators);
+const allCreators = computed(() => (showPaid.value ? store.paidCreators : store.visibleCreators));
 
 // Lazy-load paid data when toggling
-watch(showPaid, (val) => { if (val) store.loadPaidData(); });
-onMounted(() => { store.loadPaidData(); });
+watch(showPaid, (val) => {
+  if (val) store.loadPaidData();
+});
+onMounted(() => {
+  store.loadPaidData();
+});
 
 function continentCount(continent: string): number {
   let count = 0;
@@ -195,9 +247,7 @@ const filteredCreators = computed(() => {
   }
 
   if (selectedContinent.value !== 'All') {
-    list = list.filter(
-      (c) => getCountryForCreator(c.id).continent === selectedContinent.value,
-    );
+    list = list.filter((c) => getCountryForCreator(c.id).continent === selectedContinent.value);
   }
 
   return list;
@@ -218,8 +268,9 @@ function sortCreatorList(list: CreatorData[]): CreatorData[] {
         cmp = b.provider_count - a.provider_count;
         break;
       case 'country':
-        cmp = getCountryForCreator(a.id).name.localeCompare(getCountryForCreator(b.id).name)
-           || a.name.localeCompare(b.name);
+        cmp =
+          getCountryForCreator(a.id).name.localeCompare(getCountryForCreator(b.id).name) ||
+          a.name.localeCompare(b.name);
         break;
     }
     return cmp * dir;
@@ -256,7 +307,9 @@ function handleExportJSON() {
 function handleExportCSV() {
   const rows: string[][] = [];
   for (const c of allCreators.value) {
-    const working = c.models.filter(m => m.providers.some(p => !p._removed && p.status.result === 'working')).length;
+    const working = c.models.filter((m) =>
+      m.providers.some((p) => !p._removed && p.status.result === 'working'),
+    ).length;
     rows.push([
       c.name,
       c.type,
@@ -265,11 +318,7 @@ function handleExportCSV() {
       String(working),
     ]);
   }
-  exportCSV(
-    ['name', 'type', 'model_count', 'provider_count', 'working'],
-    rows,
-    'creators',
-  );
+  exportCSV(['name', 'type', 'model_count', 'provider_count', 'working'], rows, 'creators');
 }
 </script>
 
@@ -306,7 +355,9 @@ function handleExportCSV() {
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
-  transition: color 0.12s, border-color 0.12s;
+  transition:
+    color 0.12s,
+    border-color 0.12s;
 }
 .cc-paid-toggle:hover {
   color: var(--text);
@@ -336,7 +387,9 @@ function handleExportCSV() {
   flex: 1;
   max-width: 320px;
 }
-.search-input::placeholder { color: var(--text-dim); }
+.search-input::placeholder {
+  color: var(--text-dim);
+}
 .search-input:focus {
   outline: none;
   border-color: var(--accent);
@@ -371,9 +424,31 @@ function handleExportCSV() {
   border-color: var(--text-dim);
 }
 
-.export-bar { display: flex; gap: 6px; margin-top: 12px; justify-content: flex-end; }
-.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
-.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
+.export-bar {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  justify-content: flex-end;
+}
+.export-btn {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.export-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
 
 .cc-continent-filters {
   display: flex;
@@ -391,7 +466,10 @@ function handleExportCSV() {
   color: var(--text-dim);
   cursor: pointer;
   font-family: inherit;
-  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
 }
 .cc-continent-btn:hover {
   color: var(--text);
@@ -535,6 +613,20 @@ function handleExportCSV() {
 .cc-top {
   font-size: 0.72rem;
   color: var(--accent);
+}
+
+.cc-org-link {
+  font-size: 0.65rem;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border-thin);
+  align-self: flex-start;
+}
+.cc-org-link:hover {
+  background: var(--accent);
+  color: #fff;
 }
 
 @media (max-width: 768px) {

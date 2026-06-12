@@ -28,7 +28,7 @@ node scripts/export-from-pg.js && node scripts/validate-free-models.js --apply
 | models.dev                    | DB field                                   | Notes                     |
 | ----------------------------- | ------------------------------------------ | ------------------------- |
 | `providerId`                  | `datapoint_providers.slug`                 | e.g. `openrouter`         |
-| `modelId`                     | `datapoint_models.model_instance_key`               | e.g. `openai/gpt-4o-mini` |
+| `modelId`                     | `datapoint_models.model_instance_key`      | e.g. `openai/gpt-4o-mini` |
 | `modelName`                   | `super_models.name`                        | Strip `(free)` suffix     |
 | `toolCall`                    | `supports_tools`                           | boolean                   |
 | `reasoning`                   | `supports_reasoning`                       | boolean                   |
@@ -44,4 +44,4 @@ node scripts/export-from-pg.js && node scripts/validate-free-models.js --apply
 - **Dots vs hyphens** — `claude-haiku-4.5` (provider) vs `claude-haiku-4-5` (models.dev). #1 matching failure.
 - **`full_id` = `providerId/modelId`** — namespace included (e.g. `openrouter/openai/gpt-4o-mini`).
 - **Synthetic entries** use `{slug}-master` model_instance_key to avoid unique constraint collisions.
-- **No author** — `author_id = NULL` for models.dev imports.
+- **No creator** — `creator = NULL` for models.dev imports if not resolved.

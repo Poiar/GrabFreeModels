@@ -5,15 +5,27 @@ description: Use for running or debugging the nightly validation pipeline. Trigg
 
 # Nightly Maintenance Pipeline
 
-Runs the full validation pipeline. See `scripts/nightly-maintenance.js` for flags and webhook configuration.
+28-step orchestrator in `scripts/nightly-maintenance.js`. 3 critical steps (validate, re-rank, commit-push) — failure on these aborts the pipeline. Non-critical step failures are logged but don't stop execution.
 
-## Pipeline Steps
+## Quick Run
 
-1. **Snapshot** — exports DB → `available-models.json`, saves copy to `snapshots/`
-2. **Validate** — re-tests rate-limited and untested models
-3. **Prune stale** — removes models non-working for >7 days
-4. **Backfill context** — fetches `context_length` for null entries
-5. **Re-rank** — rebuilds all role rankings
-6. **Check rankings** — sanity-checks all `_role_rankings`
-7. **Commit & push** — auto-rollback if health drops
-8. **Alert** — webhook notifications for recovered models
+```bash
+npm run nightly          # Full pipeline
+npm run nightly:dry      # No DB writes, no commits
+# Run a single step:
+node scripts/nightly-maintenance.js --step re-rank
+# Continue from a step through the rest:
+node scripts/nightly-maintenance.js --step re-rank --continue
+```
+
+## Pipeline Flow
+
+Snapshot → **validate** (critical) → health checks → backfills (families, derivations, quantization, context) → prune stale → snapshot pre-rank → **re-rank** (critical) → drift detection → sanity check → routing/timeline checks → sync paid → rank paid → import financials → regenerate summary → export JSON → **commit-push** (critical, auto-rollback) → webhook alerts → invalidate cache → summary
+
+## Rollback
+
+Commit-push auto-rollbacks if working model count drops or overall health falls below 70%. Rollback only restores the JSON snapshot, not the PostgreSQL database.
+
+## Trigger
+
+Windows Task Scheduler, daily at 2 AM.

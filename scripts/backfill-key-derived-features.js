@@ -18,8 +18,15 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
 let connectionString = process.env.DATABASE_URL;
-if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+if (
+  connectionString &&
+  connectionString.includes('sslmode=require') &&
+  !connectionString.includes('uselibpqcompat')
+) {
+  connectionString = connectionString.replace(
+    'sslmode=require',
+    'uselibpqcompat=true&sslmode=require',
+  );
 }
 const pool = new Pool({
   connectionString,
@@ -30,22 +37,38 @@ const pool = new Pool({
 // ── Pattern definitions ──
 
 const TIER_WORDS = new Set([
-  'flash', 'pro', 'lite', 'nano', 'mini', 'turbo', 'plus', 'max', 'ultra', 'large', 'small', 'omni',
+  'flash',
+  'pro',
+  'lite',
+  'nano',
+  'mini',
+  'turbo',
+  'plus',
+  'max',
+  'ultra',
+  'large',
+  'small',
+  'omni',
 ]);
 
 const VARIANT_WORDS = new Set(['instruct', 'chat', 'base']);
 
 const STAGE_WORDS = new Set([
-  'preview', 'experimental', 'exp', 'latest', 'dev', 'stable', 'beta', 'alpha',
+  'preview',
+  'experimental',
+  'exp',
+  'latest',
+  'dev',
+  'stable',
+  'beta',
+  'alpha',
 ]);
 
 function extractFeatures(key) {
   if (!key) return {};
 
   // Normalize: handle :thinking, :free colon suffixes by also treating : as separator
-  const workingKey = key
-    .replace(/:free$/i, '')
-    .replace(/:thinking$/i, '-thinking');
+  const workingKey = key.replace(/:free$/i, '').replace(/:thinking$/i, '-thinking');
 
   // Get the model name part (after last /)
   const slashIdx = workingKey.lastIndexOf('/');
@@ -53,7 +76,7 @@ function extractFeatures(key) {
 
   // Split into segments
   const segments = modelName.split(/[-._]/).filter(Boolean);
-  const segsLower = segments.map(s => s.toLowerCase());
+  const segsLower = segments.map((s) => s.toLowerCase());
 
   const result = {};
 
@@ -169,7 +192,7 @@ async function main() {
       `SELECT dm.id, dm.full_id, dm.model_instance_key
        FROM datapoint_models dm
        WHERE dm.is_removed = false
-       ORDER BY dm.id`
+       ORDER BY dm.id`,
     );
     console.log(`\nLoaded ${rows.length} datapoint_models\n`);
 
@@ -222,26 +245,34 @@ async function main() {
     if (apply) {
       // Delete all existing key-derived features
       const KEY_DERIVED_TYPES = [
-        'model_tier', 'model_variant', 'param_count_b', 'active_param_count_b',
-        'expert_count', 'thinking_variant', 'model_version', 'release_stage',
-        'coding_specialized', 'modality_vision', 'modality_video', 'modality_audio',
+        'model_tier',
+        'model_variant',
+        'param_count_b',
+        'active_param_count_b',
+        'expert_count',
+        'thinking_variant',
+        'model_version',
+        'release_stage',
+        'coding_specialized',
+        'modality_vision',
+        'modality_video',
+        'modality_audio',
       ];
-      await client.query(
-        `DELETE FROM datapoint_model_features WHERE feature_type = ANY($1)`,
-        [KEY_DERIVED_TYPES]
-      );
+      await client.query(`DELETE FROM datapoint_model_features WHERE feature_type = ANY($1)`, [
+        KEY_DERIVED_TYPES,
+      ]);
       console.log(`\n🗑️  Deleted existing key-derived features`);
 
       // Use unnest to avoid Neon parameter-count limits and type-inference issues
       if (toInsert.length > 0) {
-        const dmIds = toInsert.map(x => x.dmId);
-        const types = toInsert.map(x => x.type);
-        const vals = toInsert.map(x => x.val);
+        const dmIds = toInsert.map((x) => x.dmId);
+        const types = toInsert.map((x) => x.type);
+        const vals = toInsert.map((x) => x.val);
 
         await client.query(
           `INSERT INTO datapoint_model_features (datapoint_model_id, feature_type, value)
            SELECT * FROM unnest($1::int[], $2::text[], $3::text[])`,
-          [dmIds, types, vals]
+          [dmIds, types, vals],
         );
         console.log(`✅ Inserted ${toInsert.length} feature rows`);
       }

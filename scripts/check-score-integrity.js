@@ -57,7 +57,10 @@ async function main() {
 
   if (allScores.length === 0) {
     if (JSON_OUTPUT) {
-      process.stdout.write(JSON.stringify({ outliers: [], deltas: [], summary: { total_scores: 0, score_types: 0 } }) + '\n');
+      process.stdout.write(
+        JSON.stringify({ outliers: [], deltas: [], summary: { total_scores: 0, score_types: 0 } }) +
+          '\n',
+      );
     } else {
       console.log('No scores found in model_scores table.');
     }
@@ -143,18 +146,24 @@ async function main() {
   const scoreTypes = Object.keys(scoreTypeStats).sort();
 
   if (JSON_OUTPUT) {
-    process.stdout.write(JSON.stringify({
-      generated_at: new Date().toISOString(),
-      summary: {
-        total_scores: allScores.length,
-        score_types: scoreTypes.length,
-        outliers_found: outliers.length,
-        large_deltas_found: deltas.length,
-      },
-      score_type_stats: scoreTypeStats,
-      outliers,
-      deltas,
-    }, null, 2) + '\n');
+    process.stdout.write(
+      JSON.stringify(
+        {
+          generated_at: new Date().toISOString(),
+          summary: {
+            total_scores: allScores.length,
+            score_types: scoreTypes.length,
+            outliers_found: outliers.length,
+            large_deltas_found: deltas.length,
+          },
+          score_type_stats: scoreTypeStats,
+          outliers,
+          deltas,
+        },
+        null,
+        2,
+      ) + '\n',
+    );
   } else {
     console.log('\n--- Score Integrity Check ---');
     console.log('Total scores: ' + allScores.length + ' across ' + scoreTypes.length + ' types\n');
@@ -162,13 +171,35 @@ async function main() {
     console.log('Score type statistics:');
     for (const type of scoreTypes) {
       const st = scoreTypeStats[type];
-      console.log('  ' + type + ': mean=' + st.mean.toFixed(2) + ' stddev=' + st.stddev.toFixed(2) + ' n=' + st.count);
+      console.log(
+        '  ' +
+          type +
+          ': mean=' +
+          st.mean.toFixed(2) +
+          ' stddev=' +
+          st.stddev.toFixed(2) +
+          ' n=' +
+          st.count,
+      );
     }
 
     if (outliers.length > 0) {
       console.log('\nOutliers (>3 sigma from type mean):');
       for (const o of outliers) {
-        console.log('  [' + o.score_type + '] ' + o.full_id + ' (' + o.source + '): value=' + o.score_value + ' mean=' + o.type_mean.toFixed(2) + ' sigma=' + o.sigma_above.toFixed(2));
+        console.log(
+          '  [' +
+            o.score_type +
+            '] ' +
+            o.full_id +
+            ' (' +
+            o.source +
+            '): value=' +
+            o.score_value +
+            ' mean=' +
+            o.type_mean.toFixed(2) +
+            ' sigma=' +
+            o.sigma_above.toFixed(2),
+        );
       }
     } else {
       console.log('\nNo statistical outliers detected.');
@@ -177,14 +208,30 @@ async function main() {
     if (deltas.length > 0) {
       console.log('\nLarge score deltas (>50% change between imports):');
       for (const d of deltas) {
-        console.log('  [' + d.score_type + '] ' + d.full_id + ' (' + d.source + '): ' + d.previous_value + ' -> ' + d.latest_value + ' (' + d.pct_change + '%)');
+        console.log(
+          '  [' +
+            d.score_type +
+            '] ' +
+            d.full_id +
+            ' (' +
+            d.source +
+            '): ' +
+            d.previous_value +
+            ' -> ' +
+            d.latest_value +
+            ' (' +
+            d.pct_change +
+            '%)',
+        );
       }
     } else {
       console.log('\nNo large score deltas between imports.');
     }
 
     if (hadIssues) {
-      console.log('\nIssues found: ' + outliers.length + ' outlier(s), ' + deltas.length + ' large delta(s)');
+      console.log(
+        '\nIssues found: ' + outliers.length + ' outlier(s), ' + deltas.length + ' large delta(s)',
+      );
     } else {
       console.log('\nAll scores pass integrity checks.');
     }

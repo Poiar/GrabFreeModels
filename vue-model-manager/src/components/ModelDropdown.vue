@@ -54,7 +54,9 @@ const filtered = computed(() => {
   const q = query.value.toLowerCase().trim();
   if (!q) return props.models.slice(0, 100);
   return props.models
-    .filter(m => m.name.toLowerCase().includes(q) || (m.creator && m.creator.toLowerCase().includes(q)))
+    .filter(
+      (m) => m.name.toLowerCase().includes(q) || (m.creator && m.creator.toLowerCase().includes(q)),
+    )
     .slice(0, 100);
 });
 

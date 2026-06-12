@@ -14,8 +14,14 @@
       >
         <h3 class="bml-name">{{ item.baseName }}</h3>
         <div class="bml-stats">
-          <span class="bml-stat">{{ item.derivativeCount }} derivative{{ item.derivativeCount !== 1 ? 's' : '' }}</span>
-          <span class="bml-stat">{{ item.derivativeCreatorCount }} derivative creator{{ item.derivativeCreatorCount !== 1 ? 's' : '' }}</span>
+          <span class="bml-stat"
+            >{{ item.derivativeCount }} derivative{{ item.derivativeCount !== 1 ? 's' : '' }}</span
+          >
+          <span class="bml-stat"
+            >{{ item.derivativeCreatorCount }} derivative creator{{
+              item.derivativeCreatorCount !== 1 ? 's' : ''
+            }}</span
+          >
         </div>
         <div class="bml-top">Top derivative creator: {{ item.topDerivativeCreator }}</div>
       </router-link>
@@ -84,7 +90,9 @@ const baseModelGroups = computed(() => {
   background: var(--bg-card);
   text-decoration: none;
   color: var(--text);
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 .bml-card:hover {
   border-color: var(--accent);
@@ -112,7 +120,11 @@ const baseModelGroups = computed(() => {
 }
 
 @media (max-width: 768px) {
-  .bml-page { padding: 12px; }
-  .bml-grid { grid-template-columns: repeat(2, 1fr); }
+  .bml-page {
+    padding: 12px;
+  }
+  .bml-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>

@@ -47,31 +47,59 @@
               >Best for: {{ model.best_for.join(', ') }}</span
             >
             <span v-if="lineageChain.length > 0" class="dp-meta-item">
-              <span v-if="model.derivation_method" class="dp-deriv-badge">{{ derivationLabel }}</span>
+              <span v-if="model.derivation_method" class="dp-deriv-badge">{{
+                derivationLabel
+              }}</span>
               Based on:
               <template v-for="(ancestor, i) in lineageChain" :key="i">
-                <router-link v-if="ancestor.slug" :to="`/model/${ancestor.slug}`" class="dp-meta-link">{{ ancestor.name }}</router-link>
+                <router-link
+                  v-if="ancestor.slug"
+                  :to="`/model/${ancestor.slug}`"
+                  class="dp-meta-link"
+                  >{{ ancestor.name }}</router-link
+                >
                 <span v-else>{{ ancestor.name }}</span>
                 <span v-if="i < lineageChain.length - 1"> → </span>
               </template>
               <span class="dp-depth-badge">Depth: {{ lineageChain.length }}</span>
             </span>
-            <span v-else-if="model.base_creator && model.base_creator !== model.creator" class="dp-meta-item">
+            <span
+              v-else-if="model.base_creator && model.base_creator !== model.creator"
+              class="dp-meta-item"
+            >
               Based on: {{ model.base_creator }} architecture
             </span>
             <span class="dp-meta-item">Context: up to {{ formatContext(model.best_context) }}</span>
-            <span class="dp-meta-item"
-              >{{ activeCount }} working / {{ totalCount }} providers</span
-            >
+            <span class="dp-meta-item">{{ activeCount }} working / {{ totalCount }} providers</span>
           </div>
 
           <!-- Key-derived features -->
-          <div v-if="dpTiers.length || dpVariant || dpSize || dpThinking || dpCoding || dpStage || dpVersion || dpDescription" class="dp-derived-tags">
-            <span v-for="tier in dpTiers" :key="'tier-'+tier" class="sm-tier-chip">{{ tier.charAt(0).toUpperCase() + tier.slice(1) }}</span>
-            <span v-if="dpVariant" class="sm-variant-chip">{{ dpVariant.charAt(0).toUpperCase() + dpVariant.slice(1) }}</span>
+          <div
+            v-if="
+              dpTiers.length ||
+              dpVariant ||
+              dpSize ||
+              dpThinking ||
+              dpCoding ||
+              dpStage ||
+              dpVersion ||
+              dpDescription
+            "
+            class="dp-derived-tags"
+          >
+            <span v-for="tier in dpTiers" :key="'tier-' + tier" class="sm-tier-chip">{{
+              tier.charAt(0).toUpperCase() + tier.slice(1)
+            }}</span>
+            <span v-if="dpVariant" class="sm-variant-chip">{{
+              dpVariant.charAt(0).toUpperCase() + dpVariant.slice(1)
+            }}</span>
             <span v-if="dpSize" class="sm-size-chip">{{ dpSize }}</span>
             <span v-if="dpThinking" class="sm-thinking-chip">Thinking</span>
-            <span v-if="dpStage" class="sm-stage-chip" :class="'stage-'+dpStage">{{ dpStage === 'experimental' ? 'Exp' : dpStage.charAt(0).toUpperCase() + dpStage.slice(1) }}</span>
+            <span v-if="dpStage" class="sm-stage-chip" :class="'stage-' + dpStage">{{
+              dpStage === 'experimental'
+                ? 'Exp'
+                : dpStage.charAt(0).toUpperCase() + dpStage.slice(1)
+            }}</span>
             <span v-if="dpCoding" class="sm-coder-chip">Coder</span>
             <span v-if="dpVersion" class="sm-version-chip">v{{ dpVersion }}</span>
             <span v-if="dpDescription" class="dp-description-text">{{ dpDescription }}</span>
@@ -202,14 +230,18 @@ function formatContext(ctx: number | null): string {
   return `${Math.round(ctx / 1000)}K`;
 }
 
-const activeCount = computed(() =>
-  props.model.providers.filter((p) => !p._removed && p.status.result === 'working').length,
+const activeCount = computed(
+  () => props.model.providers.filter((p) => !p._removed && p.status.result === 'working').length,
 );
 const totalCount = computed(() => props.model.providers.filter((p) => !p._removed).length);
 
 const DERIV_LABELS_PANEL: Record<string, string> = {
-  finetune: 'Fine-tune', merge: 'Merge', distillation: 'Distillation', dpo: 'DPO',
-  continued_pretraining: 'Continued PT', lora_adapter: 'LoRA',
+  finetune: 'Fine-tune',
+  merge: 'Merge',
+  distillation: 'Distillation',
+  dpo: 'DPO',
+  continued_pretraining: 'Continued PT',
+  lora_adapter: 'LoRA',
 };
 
 const derivationLabel = computed(() => {
@@ -221,15 +253,20 @@ const derivationLabel = computed(() => {
 // ── Key-derived aggregates across all providers ──
 const dpTiers = computed(() => {
   const set = new Set<string>();
-  for (const dp of props.model.providers) if (!dp._removed) for (const t of (dp.model_tier || [])) set.add(t);
+  for (const dp of props.model.providers)
+    if (!dp._removed) for (const t of dp.model_tier || []) set.add(t);
   return [...set].sort();
 });
 const dpVariant = computed(() => {
-  for (const dp of props.model.providers) if (!dp._removed && dp.model_variant) return dp.model_variant;
+  for (const dp of props.model.providers)
+    if (!dp._removed && dp.model_variant) return dp.model_variant;
   return null;
 });
 const dpSize = computed(() => {
-  let minB = Infinity; let maxB = 0; let activeB: number | null = null; let experts: number | null = null;
+  let minB = Infinity;
+  let maxB = 0;
+  let activeB: number | null = null;
+  let experts: number | null = null;
   for (const dp of props.model.providers) {
     if (dp._removed) continue;
     if (dp.param_count_b) {
@@ -246,14 +283,20 @@ const dpSize = computed(() => {
   if (experts) parts.push(`${experts} experts`);
   return parts.join(' · ');
 });
-const dpThinking = computed(() => props.model.providers.some(dp => !dp._removed && dp.thinking_variant));
-const dpCoding = computed(() => props.model.providers.some(dp => !dp._removed && dp.coding_specialized));
+const dpThinking = computed(() =>
+  props.model.providers.some((dp) => !dp._removed && dp.thinking_variant),
+);
+const dpCoding = computed(() =>
+  props.model.providers.some((dp) => !dp._removed && dp.coding_specialized),
+);
 const dpStage = computed(() => {
-  for (const dp of props.model.providers) if (!dp._removed && dp.release_stage) return dp.release_stage;
+  for (const dp of props.model.providers)
+    if (!dp._removed && dp.release_stage) return dp.release_stage;
   return null;
 });
 const dpVersion = computed(() => {
-  for (const dp of props.model.providers) if (!dp._removed && dp.model_version) return dp.model_version;
+  for (const dp of props.model.providers)
+    if (!dp._removed && dp.model_version) return dp.model_version;
   return null;
 });
 const dpDescription = computed(() => {
@@ -347,7 +390,11 @@ function stabilityClass(stability: number): string {
 
 function snapTooltip(snap: HealthSnapshot): string {
   const date = new Date(snap.date);
-  const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const dateStr = date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
   let text = `${dateStr}: ${snap.status}`;
   if (snap.detail) text += ` — ${snap.detail}`;
   if (snap.latency_ms !== null) text += ` (${snap.latency_ms}ms)`;

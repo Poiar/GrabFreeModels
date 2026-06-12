@@ -34,7 +34,7 @@ async function main() {
     process.exit(1);
   }
 
-  const conditions = ['tested_at >= now() - interval \'1 day\' * $1'];
+  const conditions = ["tested_at >= now() - interval '1 day' * $1"];
   const params = [DAYS];
 
   if (SINGLE_MODEL) {
@@ -45,7 +45,8 @@ async function main() {
   const whereClause = conditions.join(' AND ');
 
   // Per-model daily percentile query using PostgreSQL percentile_cont
-  const { rows } = await pool.query(`
+  const { rows } = await pool.query(
+    `
     SELECT
       full_id,
       provider,
@@ -63,7 +64,9 @@ async function main() {
     WHERE ${whereClause}
     GROUP BY full_id, provider, tested_at::date
     ORDER BY full_id, day
-  `, params);
+  `,
+    params,
+  );
 
   if (rows.length === 0) {
     console.log('No observations found for the given criteria.');
@@ -103,7 +106,8 @@ async function main() {
   }
 
   // Compute aggregate percentiles across all observations in the period
-  const { rows: aggRows } = await pool.query(`
+  const { rows: aggRows } = await pool.query(
+    `
     SELECT
       full_id,
       provider,
@@ -121,7 +125,9 @@ async function main() {
       AND latency_ms IS NOT NULL
     GROUP BY full_id, provider
     ORDER BY full_id
-  `, [DAYS]);
+  `,
+    [DAYS],
+  );
 
   for (const a of aggRows) {
     if (modelSummary[a.full_id]) {
@@ -149,7 +155,9 @@ async function main() {
   } else {
     // Human-readable table
     console.log(`\n─── Latency Percentiles (last ${DAYS} days) ───`);
-    console.log(`  ${'Model'.padEnd(44)} ${'Provider'.padEnd(14)} ${'Days'.padEnd(5)} ${'Samples'.padEnd(8)} ${'Fail%'.padEnd(7)} ${'p50'.padEnd(8)} ${'p95'.padEnd(8)} ${'p99'.padEnd(8)}`);
+    console.log(
+      `  ${'Model'.padEnd(44)} ${'Provider'.padEnd(14)} ${'Days'.padEnd(5)} ${'Samples'.padEnd(8)} ${'Fail%'.padEnd(7)} ${'p50'.padEnd(8)} ${'p95'.padEnd(8)} ${'p99'.padEnd(8)}`,
+    );
     console.log('  ' + '─'.repeat(110));
     for (const m of output.models) {
       const agg = m.aggregate || {};

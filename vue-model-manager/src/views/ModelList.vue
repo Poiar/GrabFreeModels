@@ -24,7 +24,13 @@
     <div class="ml-header">
       <h2>Instances</h2>
       <p class="ml-subtitle">
-        {{ filteredAndSortedDatapoints.length }} instance{{ filteredAndSortedDatapoints.length !== 1 ? 's' : '' }} across {{ providerCount }} provider{{ providerCount !== 1 ? 's' : '' }}<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template>
+        {{ filteredAndSortedDatapoints.length }} instance{{
+          filteredAndSortedDatapoints.length !== 1 ? 's' : ''
+        }}
+        across {{ providerCount }} provider{{ providerCount !== 1 ? 's' : ''
+        }}<template v-if="store.isSourceFilterActive">
+          <span class="filtered-note">(filtered)</span></template
+        >
       </p>
     </div>
 
@@ -39,7 +45,9 @@
       />
       <select v-model="providerFilter" class="ml-select" aria-label="Filter by provider">
         <option value="">All Providers</option>
-        <option v-for="p in store.visibleProviderRefs" :key="p.slug" :value="p.slug">{{ p.name }}</option>
+        <option v-for="p in store.visibleProviderRefs" :key="p.slug" :value="p.slug">
+          {{ p.name }}
+        </option>
       </select>
       <select v-model="creatorFilter" class="ml-select" aria-label="Filter by creator">
         <option value="">All Creators</option>
@@ -66,8 +74,12 @@
       </label>
       <div class="ml-segmented" role="group" aria-label="Model type filter">
         <button :class="{ active: modelFilter === 'all' }" @click="modelFilter = 'all'">All</button>
-        <button :class="{ active: modelFilter === 'root' }" @click="modelFilter = 'root'">Root</button>
-        <button :class="{ active: modelFilter === 'finetune' }" @click="modelFilter = 'finetune'">Fine</button>
+        <button :class="{ active: modelFilter === 'root' }" @click="modelFilter = 'root'">
+          Root
+        </button>
+        <button :class="{ active: modelFilter === 'finetune' }" @click="modelFilter = 'finetune'">
+          Fine
+        </button>
       </div>
       <div class="ml-sort">
         <select v-model="sortKey" class="ml-select" aria-label="Sort by">
@@ -141,7 +153,10 @@
     </div>
 
     <!-- Empty state -->
-    <div v-if="!store.error && filteredAndSortedDatapoints.length === 0 && !store.loading" class="ml-empty">
+    <div
+      v-if="!store.error && filteredAndSortedDatapoints.length === 0 && !store.loading"
+      class="ml-empty"
+    >
       <p>No instances match your filters.</p>
       <button class="refresh-btn" @click="clearFilters">Clear filters</button>
     </div>
@@ -201,7 +216,11 @@ const DERIV_META: Record<string, { label: string; cssClass: string }> = {
 const DERIV_CHIPS = [
   { value: 'all', label: 'All', cssClass: '' },
   { value: 'foundation', label: 'Foundation', cssClass: 'deriv-foundation' },
-  ...Object.entries(DERIV_META).map(([value, meta]) => ({ value, label: meta.label, cssClass: meta.cssClass })),
+  ...Object.entries(DERIV_META).map(([value, meta]) => ({
+    value,
+    label: meta.label,
+    cssClass: meta.cssClass,
+  })),
 ];
 
 const PARAM_BUCKETS = [
@@ -216,7 +235,19 @@ const PARAM_BUCKETS = [
 
 // Sync filter state → URL query params
 watch(
-  [searchQuery, providerFilter, creatorFilter, statusFilter, cardRequiredFilter, quantFilter, familyFilter, sortKey, sortAsc, derivFilter, paramFilter],
+  [
+    searchQuery,
+    providerFilter,
+    creatorFilter,
+    statusFilter,
+    cardRequiredFilter,
+    quantFilter,
+    familyFilter,
+    sortKey,
+    sortAsc,
+    derivFilter,
+    paramFilter,
+  ],
   () => {
     const q: Record<string, string> = {};
     if (searchQuery.value) q.q = searchQuery.value;
@@ -314,7 +345,7 @@ const filteredDatapoints = computed(() => {
         if (statusFilter.value && dp.status.result !== statusFilter.value) continue;
 
         // Card required filter
-        if (cardRequiredFilter.value && !(dp.limitations?.requires_card)) continue;
+        if (cardRequiredFilter.value && !dp.limitations?.requires_card) continue;
 
         // Quantization filter
         if (quantFilter.value && dp.quantization !== quantFilter.value) continue;
@@ -328,9 +359,14 @@ const filteredDatapoints = computed(() => {
 
         // Param-count filter
         if (paramFilter.value !== 'all') {
-          const bucket = PARAM_BUCKETS.find(b => b.value === paramFilter.value);
+          const bucket = PARAM_BUCKETS.find((b) => b.value === paramFilter.value);
           if (bucket) {
-            const modelHasParam = active.some(p => p.param_count_b != null && p.param_count_b >= bucket.min && p.param_count_b <= bucket.max);
+            const modelHasParam = active.some(
+              (p) =>
+                p.param_count_b != null &&
+                p.param_count_b >= bucket.min &&
+                p.param_count_b <= bucket.max,
+            );
             if (!modelHasParam) continue;
           }
         }
@@ -382,7 +418,15 @@ const paramCounts = computed(() => {
 
     for (const bucket of PARAM_BUCKETS) {
       if (bucket.value === 'all') continue;
-      if (item.model.providers.some(p => !p._removed && p.param_count_b != null && p.param_count_b >= bucket.min && p.param_count_b <= bucket.max)) {
+      if (
+        item.model.providers.some(
+          (p) =>
+            !p._removed &&
+            p.param_count_b != null &&
+            p.param_count_b >= bucket.min &&
+            p.param_count_b <= bucket.max,
+        )
+      ) {
         counts[bucket.value]++;
       }
     }
@@ -393,7 +437,8 @@ const paramCounts = computed(() => {
 
 const availableQuants = computed(() => {
   const set = new Set<string>();
-  for (const item of filteredDatapoints.value) if (item.dp.quantization) set.add(item.dp.quantization);
+  for (const item of filteredDatapoints.value)
+    if (item.dp.quantization) set.add(item.dp.quantization);
   return [...set].sort();
 });
 
@@ -486,7 +531,17 @@ function handleExportCSV() {
     ]);
   }
   exportCSV(
-    ['name', 'creator', 'family', 'params', 'context', 'providers', 'working', 'best_for', 'derivation_method'],
+    [
+      'name',
+      'creator',
+      'family',
+      'params',
+      'context',
+      'providers',
+      'working',
+      'best_for',
+      'derivation_method',
+    ],
     rows,
     'model-instances',
   );
@@ -617,15 +672,21 @@ function handleExportCSV() {
   padding: 8px 12px;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.12s, color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s;
 }
-.ml-segmented button:last-child { border-right: none; }
+.ml-segmented button:last-child {
+  border-right: none;
+}
 .ml-segmented button.active {
   background: var(--accent-subtle);
   color: var(--accent);
   font-weight: 600;
 }
-.ml-segmented button:hover:not(.active) { background: var(--bg-hover); }
+.ml-segmented button:hover:not(.active) {
+  background: var(--bg-hover);
+}
 
 /* Derivation filter chips */
 .ml-deriv-bar {
@@ -656,13 +717,34 @@ function handleExportCSV() {
   color: var(--accent);
 }
 
-.ml-deriv-chip.deriv-ft { border-color: rgba(99, 102, 241, 0.35); color: var(--deriv-ft); }
-.ml-deriv-chip.deriv-merge { border-color: rgba(168, 85, 247, 0.35); color: var(--deriv-merge); }
-.ml-deriv-chip.deriv-distill { border-color: rgba(236, 72, 153, 0.35); color: var(--deriv-distill); }
-.ml-deriv-chip.deriv-dpo { border-color: rgba(34, 211, 238, 0.35); color: var(--deriv-dpo); }
-.ml-deriv-chip.deriv-cpt { border-color: rgba(250, 204, 21, 0.35); color: var(--deriv-cpt); }
-.ml-deriv-chip.deriv-lora { border-color: rgba(52, 211, 153, 0.35); color: var(--deriv-lora); }
-.ml-deriv-chip.deriv-foundation { border-color: rgba(156, 163, 175, 0.35); color: #9ca3af; }
+.ml-deriv-chip.deriv-ft {
+  border-color: rgba(99, 102, 241, 0.35);
+  color: var(--deriv-ft);
+}
+.ml-deriv-chip.deriv-merge {
+  border-color: rgba(168, 85, 247, 0.35);
+  color: var(--deriv-merge);
+}
+.ml-deriv-chip.deriv-distill {
+  border-color: rgba(236, 72, 153, 0.35);
+  color: var(--deriv-distill);
+}
+.ml-deriv-chip.deriv-dpo {
+  border-color: rgba(34, 211, 238, 0.35);
+  color: var(--deriv-dpo);
+}
+.ml-deriv-chip.deriv-cpt {
+  border-color: rgba(250, 204, 21, 0.35);
+  color: var(--deriv-cpt);
+}
+.ml-deriv-chip.deriv-lora {
+  border-color: rgba(52, 211, 153, 0.35);
+  color: var(--deriv-lora);
+}
+.ml-deriv-chip.deriv-foundation {
+  border-color: rgba(156, 163, 175, 0.35);
+  color: #9ca3af;
+}
 
 .ml-deriv-chip.active {
   background: var(--accent-subtle);
@@ -670,13 +752,41 @@ function handleExportCSV() {
   color: var(--accent);
 }
 
-.ml-deriv-chip.deriv-ft.active { background: rgba(99, 102, 241, 0.14); border-color: var(--deriv-ft); color: var(--deriv-ft); }
-.ml-deriv-chip.deriv-merge.active { background: rgba(168, 85, 247, 0.14); border-color: var(--deriv-merge); color: var(--deriv-merge); }
-.ml-deriv-chip.deriv-distill.active { background: rgba(236, 72, 153, 0.14); border-color: var(--deriv-distill); color: var(--deriv-distill); }
-.ml-deriv-chip.deriv-dpo.active { background: rgba(34, 211, 238, 0.14); border-color: var(--deriv-dpo); color: var(--deriv-dpo); }
-.ml-deriv-chip.deriv-cpt.active { background: rgba(250, 204, 21, 0.14); border-color: var(--deriv-cpt); color: var(--deriv-cpt); }
-.ml-deriv-chip.deriv-lora.active { background: rgba(52, 211, 153, 0.14); border-color: var(--deriv-lora); color: var(--deriv-lora); }
-.ml-deriv-chip.deriv-foundation.active { background: rgba(156, 163, 175, 0.14); border-color: #9ca3af; color: #9ca3af; }
+.ml-deriv-chip.deriv-ft.active {
+  background: rgba(99, 102, 241, 0.14);
+  border-color: var(--deriv-ft);
+  color: var(--deriv-ft);
+}
+.ml-deriv-chip.deriv-merge.active {
+  background: rgba(168, 85, 247, 0.14);
+  border-color: var(--deriv-merge);
+  color: var(--deriv-merge);
+}
+.ml-deriv-chip.deriv-distill.active {
+  background: rgba(236, 72, 153, 0.14);
+  border-color: var(--deriv-distill);
+  color: var(--deriv-distill);
+}
+.ml-deriv-chip.deriv-dpo.active {
+  background: rgba(34, 211, 238, 0.14);
+  border-color: var(--deriv-dpo);
+  color: var(--deriv-dpo);
+}
+.ml-deriv-chip.deriv-cpt.active {
+  background: rgba(250, 204, 21, 0.14);
+  border-color: var(--deriv-cpt);
+  color: var(--deriv-cpt);
+}
+.ml-deriv-chip.deriv-lora.active {
+  background: rgba(52, 211, 153, 0.14);
+  border-color: var(--deriv-lora);
+  color: var(--deriv-lora);
+}
+.ml-deriv-chip.deriv-foundation.active {
+  background: rgba(156, 163, 175, 0.14);
+  border-color: #9ca3af;
+  color: #9ca3af;
+}
 
 .ml-deriv-count {
   font-size: 0.6rem;
@@ -727,9 +837,31 @@ function handleExportCSV() {
   opacity: 0.8;
 }
 
-.export-bar { display: flex; gap: 6px; margin-bottom: 12px; justify-content: flex-end; }
-.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
-.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
+.export-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  justify-content: flex-end;
+}
+.export-btn {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.export-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
 
 .ml-list {
   display: grid;

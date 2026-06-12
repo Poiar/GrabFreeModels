@@ -45,11 +45,21 @@ const APPLY = process.argv.includes('--apply');
         if (!dateMap.has(r.full_id)) dateMap.set(r.full_id, {});
         dateMap.get(r.full_id)[r.feature_type] = r.value;
       }
-    } catch { /* features table may not exist */ }
+    } catch {
+      /* features table may not exist */
+    }
 
     // ── Compute scores (mirrors build-models-data.js algorithm) ──
-    const CTX_NORM = Math.max(...rows.map(r => r.context_length || 0).filter(Boolean), 1);
-    const hwSpeedBonus = { lpu: 2.0, wafer: 1.0, tpu: 0.5, gpu: 0, edge: -0.5, local: -1.0, unknown: 0 };
+    const CTX_NORM = Math.max(...rows.map((r) => r.context_length || 0).filter(Boolean), 1);
+    const hwSpeedBonus = {
+      lpu: 2.0,
+      wafer: 1.0,
+      tpu: 0.5,
+      gpu: 0,
+      edge: -0.5,
+      local: -1.0,
+      unknown: 0,
+    };
 
     const updates = [];
     for (const dm of rows) {
@@ -60,8 +70,9 @@ const APPLY = process.argv.includes('--apply');
       // Auto-tags
       let codingScore = 0;
       // (simplified — full auto-tag logic is complex; this captures the main components)
-      const firstPartyBoost = (dm.provider_type === 'inference' && dm.serves_third_party === false) ? 1.5 : 0;
-      const routerPenalty = (dm.provider_type === 'router') ? -1.0 : 0;
+      const firstPartyBoost =
+        dm.provider_type === 'inference' && dm.serves_third_party === false ? 1.5 : 0;
+      const routerPenalty = dm.provider_type === 'router' ? -1.0 : 0;
       const hwBonus = hwSpeedBonus[dm.hardware] || 0;
 
       // Freshness
@@ -85,7 +96,17 @@ const APPLY = process.argv.includes('--apply');
         }
       }
 
-      const score = Math.round((ctxVal * 1.0 + toolsBonus + codingScore + firstPartyBoost + routerPenalty + hwBonus + freshnessScore) * 100) / 100;
+      const score =
+        Math.round(
+          (ctxVal * 1.0 +
+            toolsBonus +
+            codingScore +
+            firstPartyBoost +
+            routerPenalty +
+            hwBonus +
+            freshnessScore) *
+            100,
+        ) / 100;
       updates.push({ db_id: dm.db_id, full_id: dm.full_id, score });
     }
 

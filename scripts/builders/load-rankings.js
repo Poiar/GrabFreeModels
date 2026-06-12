@@ -53,14 +53,16 @@ async function loadRankings(client, isFree, metadata) {
   }
 
   // Fallback: metadata JSONB
-  return metadata[roleRankingsKey] || {
-    description: '',
-    model: [],
-    build: [],
-    general: [],
-    small_model: [],
-    explore: [],
-  };
+  return (
+    metadata[roleRankingsKey] || {
+      description: '',
+      model: [],
+      build: [],
+      general: [],
+      small_model: [],
+      explore: [],
+    }
+  );
 }
 
 module.exports = loadRankings;

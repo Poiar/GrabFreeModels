@@ -55,7 +55,9 @@ The reply uses the exact same send mechanism — write to their inbox, ping thei
 ## Correction
 
 If you receive a `[correct]` message:
+
 ```
 ~/.claude/scripts/peer-correct.ps1 -WrongUuid <old> -CorrectUuid <real>
 ```
+
 Then re-send.

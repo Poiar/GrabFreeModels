@@ -3,7 +3,11 @@
 const { Pool } = require('pg');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 1, ssl: { rejectUnauthorized: false } });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 1,
+  ssl: { rejectUnauthorized: false },
+});
 
 // Model name pattern → family slug. First match wins.
 const FAMILY_PATTERNS = [
@@ -195,7 +199,7 @@ const FAMILY_PATTERNS = [
   { pattern: /bria/i, family: 'bria' },
 
   // Alibaba
-  { pattern: /qwen/i, family: 'qwen' },  // double-check catch
+  { pattern: /qwen/i, family: 'qwen' }, // double-check catch
 ];
 
 async function main() {
@@ -252,10 +256,10 @@ async function main() {
 
     let updated = 0;
     for (const a of assignments) {
-      await client.query(
-        'UPDATE super_models SET family = $1 WHERE id = $2 AND family IS NULL',
-        [a.family, a.id]
-      );
+      await client.query('UPDATE super_models SET family = $1 WHERE id = $2 AND family IS NULL', [
+        a.family,
+        a.id,
+      ]);
       updated++;
     }
 
@@ -266,4 +270,7 @@ async function main() {
   }
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

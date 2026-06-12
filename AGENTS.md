@@ -94,7 +94,7 @@ All scripts live in `scripts/`. Some have corresponding skills with additional w
 | `load-models.js`                   | Shared module: builds full models data from PG (same shape as `/api/data`)                                                                                          |
 | `export-from-pg.js`                | Export PostgreSQL → `available-models.json` (for git history snapshots)                                                                                             |
 | `import-modelsdev.js`              | Import models.dev → super_models + datapoint_models (see `import-modelsdev` skill)                                                                                  |
-| `import-modelsdev-backfill.js`     | Fuzzy-match remaining supers to modelsdev by model_instance_key normalization                                                                                                |
+| `import-modelsdev-backfill.js`     | Fuzzy-match remaining supers to modelsdev by model_instance_key normalization                                                                                       |
 | `sync-models.js`                   | Fetch latest free models from providers (OpenRouter, Cerebras, NVIDIA, HuggingFace, Google, DeepSeek, Groq), diff against DB. `--apply` inserts new + flags removed |
 | `validate-free-models.js`          | Read/write DB. Tests models against APIs, auto re-ranks on `--apply`                                                                                                |
 | `rank-models.js`                   | Read/write DB metadata. Rebuilds `_role_rankings` via tag+ctx scoring                                                                                               |

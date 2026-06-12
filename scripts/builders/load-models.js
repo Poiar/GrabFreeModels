@@ -7,7 +7,8 @@
 async function loadModels(client, options = {}) {
   const { isFree = true } = options;
 
-  const { rows: dmRows } = await client.query(`
+  const { rows: dmRows } = await client.query(
+    `
     SELECT dm.*, mm.name AS super_name, mm.slug AS super_slug, mm.creator AS super_creator,
            mm.base_creator AS super_base_creator, mm.family AS super_family,
            mm.family_id AS super_family_id, mm.base_model AS super_base_model,
@@ -27,18 +28,23 @@ async function loadModels(client, options = {}) {
     JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
     WHERE dm.is_free = $1 AND dm.is_removed = false
     ORDER BY mm.name, dp.name
-  `, [isFree]);
+  `,
+    [isFree],
+  );
 
   const dmIds = dmRows.map((r) => r.id);
 
   // Batch-fetch provenance (source_ids per datapoint_model)
   const sourceIdsByDm = new Map();
   if (dmIds.length > 0) {
-    const { rows: provRows } = await client.query(`
+    const { rows: provRows } = await client.query(
+      `
       SELECT datapoint_model_id, source_id
       FROM datapoint_model_sources
       WHERE datapoint_model_id = ANY($1)
-    `, [dmIds]);
+    `,
+      [dmIds],
+    );
     for (const r of provRows) {
       if (!sourceIdsByDm.has(r.datapoint_model_id)) sourceIdsByDm.set(r.datapoint_model_id, []);
       sourceIdsByDm.get(r.datapoint_model_id).push(r.source_id);

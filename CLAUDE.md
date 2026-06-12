@@ -2,6 +2,25 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⛔ HARD RULE — READ THIS FIRST ⛔
+
+**ONLY FREE MODELS ARE TESTED. PAID MODELS ARE ALWAYS PRESUMED WORKING.**
+
+- `is_free = true` → tested via `validate-free-models.js`. Can be `working`, `broken`, `rate_limited`, or `untested`.
+- `is_free = false` → NEVER tested. ALWAYS shown as `working` with detail `"Presumed working (not tested)"`. Paid models CANNOT be broken. Paid models CANNOT be dead. If you see a paid model with any status other than `working`, that's a data bug — fix the data, not the model.
+- \*\*Before recommending "fix this provider's broken models" or "rotate this key" or "test these models" — FIRST check `is_free`. If the models are paid, the answer is: they're presumed working, do nothing.
+- **Before running ANY query about model health/status — ALWAYS add `WHERE is_free = true`.** Paid models are excluded from all health metrics. They're fine. They don't need attention. They don't need keys.
+
+### ⛔ NO-CREDITS PROVIDERS — NEVER TOUCH THESE ⛔
+
+These free-model providers have API keys but **zero account credits**. The key is valid. Auth works. The models are NOT broken. They just can't be tested until credits are added. **Never recommend testing, fixing, rotating keys, or touching these providers in any way:**
+
+- **deepinfra** — 155 free models, all server_error. Account has no credits.
+- **novitaai** — 135 free models, all server_error. Account has no credits.
+- **siliconflow** — 121 free models, all server_error. Account has no credits.
+
+If you see these providers come up in any context, the only correct answer is: "Account has no credits — nothing to do here."
+
 ## Project overview
 
 GrabFreeModels discovers, tests, ranks, and syncs free LLM models across 18+ providers (OpenRouter, NVIDIA, Cerebras, HuggingFace, Google, DeepSeek, Groq, Mistral, Together, etc.). The primary data store is Neon Serverless Postgres (schema v2), served through an Express API and visualized in a Vue 3 + Pinia SPA.
@@ -16,9 +35,8 @@ npm run dev              # Start Vue dev server only (port 5173, proxies /api �
 npm run build            # Type-check + production build Vue app → dist/
 
 # Testing
-npm test                 # Run all tests (validate-models.js + unit-scripts.js)
+npm test                 # Run all unit tests
 npm run test:unit        # Unit tests only (logic isolation, no DB/API needed)
-node tests/validate-models.js   # Integration tests (hits /api/data)
 
 # Type checking (Vue project)
 cd vue-model-manager && npx vue-tsc --noEmit
@@ -32,13 +50,26 @@ npm run sync             # Dry-run: diff free models from providers vs DB
 npm run sync:apply       # Apply: insert new + flag removed models
 npm run validate         # Dry-run: test model API endpoints
 npm run validate:apply   # Apply: write test results + auto re-rank
-npm run rank             # Dry-run: rebuild _role_rankings
-npm run rank:apply       # Apply: write rankings to DB metadata
-npm run re-rank          # Full re-rank pipeline: backfill context → rank → backfill metadata → check
-npm run nightly          # Full nightly: snapshot → validate → backfill → re-rank → check → commit → alert
+npm run rank             # Dry-run: rebuild role rankings (free)
+npm run rank:apply       # Apply: write rankings to DB
+npm run rank:paid        # Dry-run: rebuild role rankings (paid)
+npm run rank:paid:apply  # Apply: write paid rankings to DB
+npm run re-rank          # Full re-rank: backfill context → rank → backfill metadata → check
+npm run nightly          # Full 28-step nightly pipeline (sync, validate, rank, financials, export, commit)
 npm run nightly:dry      # Nightly without DB writes
+npm run financials       # Scrape AI company financials from isaiprofitable.com
+npm run financials:apply # ... and write to DB
 npm run summary          # Text overview of model counts and ranking sizes
+npm run build-readme     # Dry-run: update auto-sections in README.md from codebase
+npm run build-readme:apply # Apply: write README.md in-place
+npm run check            # Full pre-push suite: lint + format-check + typecheck + tests + build-readme
+npm run format           # Auto-format all files with Prettier
+npm run lint:fix         # Auto-fix ESLint issues
 ```
+
+## Quality gate
+
+**Before pushing or declaring work done, run `npm run check`.** It runs lint, format-check, type-check, unit tests, and README sync check. The `.husky/pre-push` hook runs this automatically on `git push` and blocks the push if anything fails. There is no pre-commit hook — lint/format are checked only at push time to avoid wasting tokens on trivial iterations.
 
 ## Architecture
 
@@ -56,28 +87,28 @@ npm run summary          # Text overview of model counts and ranking sizes
 ┌─────────┐    ┌──────────────┐    ┌──────────────┐
 │ Express │    │ scripts/     │    │ metrics-     │
 │ API     │    │ (Node.js)    │    │ exporter.js  │
-│ :3001   │    │              │    │ :9090        │
+│ :3001   │    │              │    │ :9180        │
 └────┬────┘    └──────┬───────┘    └──────┬───────┘
      │                │                   │
      ▼                ▼                   ▼
-┌──────────┐   ┌───────────┐      ┌────────────┐
-│ Vue 3    │   │ Git       │      │ Prometheus  │
-│ SPA      │   │ snapshots │      │ + Grafana   │
-│ :5173    │   │ + JSON    │      └────────────┘
-└──────────┘   └───────────┘
+┌──────────┐   ┌───────────┐      ┌──────────────┐
+│ Vue 3    │   │ Git       │      │ metrics-     │
+│ SPA      │   │ snapshots │      │ exporter.js  │
+│ :5173    │   │ + JSON    │      │ :9180        │
+└──────────┘   └───────────┘      └──────────────┘
 ```
 
 **Data model (v2):** `super_models` holds the canonical identity (name, slug, author). Each provider's specific version lives in `datapoint_models` (model_instance_key, pricing, context_length, status, etc.), joined via `datapoint_providers`. Feature tags (best_for, family, open_weights, etc.) are normalized into `datapoint_model_features` as key-value rows. Role rankings are stored as JSONB in the `metadata` table.
 
 **Shared data builder:** `scripts/build-models-data.js` is the single source of truth for constructing the full `ModelsData` object from PG. Used by both the API (`server/routes/data.js` → `GET /api/data`) and every script. `scripts/load-models.js` wraps it with pool management for CLI use.
 
-**Server:** `server/index.js` — thin Express app with two routes: `GET /api/data` (full models payload) and `GET /api/health`. The DB pool lives in `server/db.js` (Neon-aware: max 3 connections, 60s keepalive pings). CORS is open.
+**Server:** `server/index.js` — thin Express app with 8 routes (`/api/data`, `/api/data/paid`, `/api/rankings`, `/api/rankings/paid`, `/api/sources`, `/api/health`, `/api/health/status`, `/api/cache/invalidate`). The DB pool lives in `server/db.js` (Neon-aware: max 3 connections, 60s keepalive pings). CORS is open.
 
-**Vue frontend:** `vue-model-manager/` — Vue 3 + Vite + Pinia + vue-router + vue-virtual-scroller. Hash-mode routing. The Pinia store (`src/store/models.ts`) fetches from `/api/data`, computes derived state (super model grouping, provider health, role rankings, stats). Vite proxies `/api` to `localhost:3001`. Routes: Dashboard, SuperModels, SuperModel detail, All, Free, Paid, Issues, Author, Family.
+**Vue frontend:** `vue-model-manager/` — Vue 3 + Vite + Pinia + vue-router + vue-virtual-scroller. Hash-mode routing. The Pinia store (`src/store/models.ts`) fetches from `/api/data`, computes derived state (super model grouping, provider health, role rankings, stats). Vite proxies `/api` to `localhost:3001`. 27 routes including Dashboard, Models, Rankings, Compare, Benchmark, Picker, Admin, and more.
 
 **Scripts pattern:** Most scripts follow a two-phase pattern: `--dry-run` (default) reads DB and prints a diff, `--apply` writes changes. `scripts/sync-models.js` and `scripts/validate-free-models.js` are the most critical — they keep the DB in sync with provider reality.
 
-**Nightly pipeline:** `scripts/nightly-maintenance.js` orchestrates: validate → re-rank → check rankings → generate dashboard → export JSON → git commit → snapshot. Triggered by Windows Task Scheduler daily at 2 AM.
+**Nightly pipeline:** `scripts/nightly-maintenance.js` orchestrates 28 steps (3 critical): validate → backfill families/quantization/context → re-rank → sync paid → rank paid → import financials → regenerate summary → export JSON → git commit → invalidate cache → alert. Triggered by Windows Task Scheduler daily at 2 AM.
 
 ## Important conventions
 
@@ -94,21 +125,22 @@ npm run summary          # Text overview of model counts and ranking sizes
 
 ## Key files
 
-| File                                    | Role                                                  |
-| --------------------------------------- | ----------------------------------------------------- |
-| `db/schema.sql`                         | Canonical schema + seed data (v2)                     |
-| `scripts/build-models-data.js`          | Shared data builder — builds ModelsData from PG       |
-| `scripts/sync-models.js`                | Fetch free models from providers, diff against DB     |
-| `scripts/validate-free-models.js`       | Test models against live APIs                         |
-| `scripts/rank-models.js`                | Deterministic role ranking algorithm (free)           |
-| `scripts/rank-paid-models.js`           | Deterministic role ranking algorithm (paid)           |
-| `scripts/backfill-base-models.js`       | Detect fine-tune lineage via substring matching       |
-| `scripts/inherit-families.js`           | Walk base_model chains to inherit family assignments  |
-| `scripts/nightly-maintenance.js`        | Full nightly pipeline orchestrator                    |
-| `db/migrations/`                        | Ordered schema migrations                             |
-| `server/db.js`                          | Postgres pool (Neon-aware)                            |
-| `server/routes/data.js`                 | API routes (`/api/data`, `/api/health`)               |
-| `vue-model-manager/src/store/models.ts` | Pinia store — fetches + derives all model data        |
-| `vue-model-manager/src/types.ts`        | TypeScript interfaces matching the API response shape |
-| `vue-model-manager/vite.config.ts`      | Vite config with `/api` proxy + port-kill plugin      |
-| `package.json`                          | Root scripts — most operations have npm run wrappers  |
+| File                                    | Role                                                            |
+| --------------------------------------- | --------------------------------------------------------------- |
+| `db/schema.sql`                         | Canonical schema + seed data (v2)                               |
+| `scripts/build-models-data.js`          | Shared data builder — builds ModelsData from PG                 |
+| `scripts/sync-models.js`                | Fetch free models from providers, diff against DB               |
+| `scripts/validate-free-models.js`       | Test models against live APIs                                   |
+| `scripts/rank.js`                       | Deterministic role ranking algorithm (free + paid, --paid flag) |
+| `scripts/backfill-base-models.js`       | Detect fine-tune lineage via substring matching                 |
+| `scripts/inherit-families.js`           | Walk base_model chains to inherit family assignments            |
+| `scripts/import-is-ai-profitable.js`    | Scrape AI company financials from isaiprofitable.com            |
+| `scripts/utils/ranker-core.js`          | Scoring engine: quality, context, tag bonus, freshness          |
+| `scripts/nightly-maintenance.js`        | Full nightly pipeline orchestrator                              |
+| `db/migrations/`                        | Ordered schema migrations                                       |
+| `server/db.js`                          | Postgres pool (Neon-aware)                                      |
+| `server/routes/data.js`                 | API routes (`/api/data`, `/api/health`)                         |
+| `vue-model-manager/src/store/models.ts` | Pinia store — fetches + derives all model data                  |
+| `vue-model-manager/src/types.ts`        | TypeScript interfaces matching the API response shape           |
+| `vue-model-manager/vite.config.ts`      | Vite config with `/api` proxy + port-kill plugin                |
+| `package.json`                          | Root scripts — most operations have npm run wrappers            |

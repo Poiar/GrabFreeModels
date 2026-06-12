@@ -35,7 +35,7 @@ function buildProviders(outputModels) {
         max_tpm: dp.max_tpm,
         max_daily_requests: dp.max_daily_requests,
         requires_card: dp.requires_card,
-        description: dp.provider_description || null,   // from DB (migration 043)
+        description: dp.provider_description || null, // from DB (migration 043)
         model_count: 0,
         working_count: 0,
       });

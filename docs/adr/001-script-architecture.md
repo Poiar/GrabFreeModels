@@ -6,10 +6,12 @@
 ## Context
 
 The project had two nearly identical ranking scripts:
+
 - `rank-models.js` (529 lines) — ranked free models
 - `rank-paid-models.js` (507 lines) — ranked paid models
 
 ~90% of code was duplicated: scoring functions, role definitions, variant builders, diff output. Only differences:
+
 - Free models require `supports_tools=true AND status_result='working'`
 - Paid models require `is_free=false AND is_removed=false`
 - Different metadata keys (`_role_rankings` vs `_role_rankings_paid`)

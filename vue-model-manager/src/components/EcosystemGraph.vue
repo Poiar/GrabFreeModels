@@ -9,7 +9,12 @@
     <canvas ref="canvasRef" class="eco-canvas"></canvas>
     <div v-if="hovered && hoveredType === 'star'" class="eco-tooltip" :style="tooltipStyle">
       <span class="eco-tt-name">{{ (hovered as ProviderStar).name }}</span>
-      <span class="eco-tt-count">{{ (hovered as ProviderStar).workingCount }}/{{ (hovered as ProviderStar).totalCount }} working</span>
+      <span class="eco-tt-count"
+        >{{ (hovered as ProviderStar).workingCount }}/{{
+          (hovered as ProviderStar).totalCount
+        }}
+        working</span
+      >
     </div>
     <div v-if="hovered && hoveredType === 'moon'" class="eco-tooltip" :style="tooltipStyle">
       <span class="eco-tt-name">{{ (hovered as ModelMoon).name }}</span>
@@ -99,7 +104,9 @@ function getModelStatus(model: ModelData): ModelMoon['status'] {
   const working = active.filter((p) => p.status.result === 'working').length;
   if (working === active.length) return 'working';
   if (working > 0) return 'rate_limited';
-  const broken = active.filter((p) => p.status.result === 'broken' || p.status.result === 'not_found').length;
+  const broken = active.filter(
+    (p) => p.status.result === 'broken' || p.status.result === 'not_found',
+  ).length;
   if (broken === active.length) return 'broken';
   return 'untested';
 }
@@ -113,15 +120,11 @@ function getPrimaryProvider(model: ModelData): string {
 }
 
 function getProviderSlugsForModel(model: ModelData): string[] {
-  return model.providers
-    .filter((p) => !p._removed)
-    .map((p) => p.provider_slug);
+  return model.providers.filter((p) => !p._removed).map((p) => p.provider_slug);
 }
 
 function buildLayout() {
-  const models = store.allModels
-    .filter(m => m.providers.some(p => !p._removed))
-    .slice(0, 220);
+  const models = store.allModels.filter((m) => m.providers.some((p) => !p._removed)).slice(0, 220);
   const provs = store.providerRefs.filter((p) => p.model_count > 0);
 
   if (!provs.length || !width || !height) return;
@@ -156,7 +159,13 @@ function buildLayout() {
 
   moons = [];
   const usedNames = new Set<string>();
-  const statusPriority: Record<string, number> = { working: 0, rate_limited: 1, untested: 2, broken: 3, down: 4 };
+  const statusPriority: Record<string, number> = {
+    working: 0,
+    rate_limited: 1,
+    untested: 2,
+    broken: 3,
+    down: 4,
+  };
   const sortedModels = [...models].sort((a, b) => {
     const pa = statusPriority[getModelStatus(a)] ?? 99;
     const pb = statusPriority[getModelStatus(b)] ?? 99;
@@ -231,7 +240,8 @@ function draw() {
   for (const moon of moons) {
     const dimmed = selectedSlug && moon.parentSlug !== selectedSlug;
     const alpha = dimmed ? 0.15 : 1;
-    const hoveredMoon = hovered.value && hoveredType.value === 'moon' && (hovered.value as ModelMoon).id === moon.id;
+    const hoveredMoon =
+      hovered.value && hoveredType.value === 'moon' && (hovered.value as ModelMoon).id === moon.id;
     const r = hoveredMoon ? moon.radius * 1.6 : moon.radius;
 
     // Glow
@@ -273,14 +283,20 @@ function draw() {
   for (const star of stars) {
     const dimmed = selectedSlug && star.slug !== selectedSlug;
     const alpha = dimmed ? 0.25 : 1;
-    const hoveredStar = hovered.value && hoveredType.value === 'star' && (hovered.value as ProviderStar).slug === star.slug;
+    const hoveredStar =
+      hovered.value &&
+      hoveredType.value === 'star' &&
+      (hovered.value as ProviderStar).slug === star.slug;
     const r = hoveredStar ? star.radius * 1.2 : star.radius;
 
     // Outer glow
     const outerGlow = ctx.createRadialGradient(star.x, star.y, r * 0.5, star.x, star.y, r * 3);
-    const glowColor = star.healthRatio >= 0.7
-      ? 'rgba(52,211,153,0.25)' : star.healthRatio >= 0.3
-      ? 'rgba(251,191,36,0.25)' : 'rgba(248,113,113,0.2)';
+    const glowColor =
+      star.healthRatio >= 0.7
+        ? 'rgba(52,211,153,0.25)'
+        : star.healthRatio >= 0.3
+          ? 'rgba(251,191,36,0.25)'
+          : 'rgba(248,113,113,0.2)';
     outerGlow.addColorStop(0, glowColor);
     outerGlow.addColorStop(1, 'transparent');
     ctx.globalAlpha = alpha;
@@ -290,7 +306,14 @@ function draw() {
     ctx.fill();
 
     // Star body
-    const bodyGrad = ctx.createRadialGradient(star.x - r * 0.2, star.y - r * 0.2, 0, star.x, star.y, r);
+    const bodyGrad = ctx.createRadialGradient(
+      star.x - r * 0.2,
+      star.y - r * 0.2,
+      0,
+      star.x,
+      star.y,
+      r,
+    );
     bodyGrad.addColorStop(0, 'rgba(200,210,240,0.9)');
     bodyGrad.addColorStop(0.6, 'rgba(99,128,247,0.6)');
     bodyGrad.addColorStop(1, 'rgba(99,128,247,0.1)');
@@ -309,7 +332,8 @@ function draw() {
     if (hoveredStar || star.slug === selectedSlug) {
       ctx.beginPath();
       ctx.arc(star.x, star.y, r + 3, 0, Math.PI * 2);
-      ctx.strokeStyle = star.slug === selectedSlug ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)';
+      ctx.strokeStyle =
+        star.slug === selectedSlug ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)';
       ctx.lineWidth = star.slug === selectedSlug ? 1.5 : 1;
       ctx.stroke();
     }
@@ -326,7 +350,10 @@ function draw() {
   ctx.globalAlpha = 1;
 }
 
-function hitTest(px: number, py: number): { type: 'star'; item: ProviderStar } | { type: 'moon'; item: ModelMoon } | null {
+function hitTest(
+  px: number,
+  py: number,
+): { type: 'star'; item: ProviderStar } | { type: 'moon'; item: ModelMoon } | null {
   for (const star of stars) {
     const dx = px - star.x;
     const dy = py - star.y;
@@ -464,15 +491,15 @@ onUnmounted(() => {
   position: absolute;
   pointer-events: none;
   z-index: 10;
-  background: var(--glass-bg, rgba(22,27,38,0.85));
+  background: var(--glass-bg, rgba(22, 27, 38, 0.85));
   backdrop-filter: blur(6px);
-  border: 1px solid var(--glass-border-light, rgba(255,255,255,0.06));
+  border: 1px solid var(--glass-border-light, rgba(255, 255, 255, 0.06));
   border-radius: var(--radius-sm, 4px);
   padding: 4px 10px;
   display: flex;
   flex-direction: column;
   gap: 1px;
-  box-shadow: var(--shadow-elevation-2, 0 4px 16px rgba(0,0,0,0.4));
+  box-shadow: var(--shadow-elevation-2, 0 4px 16px rgba(0, 0, 0, 0.4));
 }
 
 .eco-tt-name {

@@ -112,7 +112,9 @@ test('getGroqModels call is awaited', () => {
     'utf8',
   );
   // Find the line that assigns groqModels — must include await
-  const groqAssign = src.match(/(?:const|let)\s+groqModels\s*=|groqModels\s*=\s*await\s+getGroqModels/);
+  const groqAssign = src.match(
+    /(?:const|let)\s+groqModels\s*=|groqModels\s*=\s*await\s+getGroqModels/,
+  );
   assert.ok(groqAssign, 'groqModels awaited assignment found');
   // The actual await call is on the reassignment to the let variable
   assert.ok(
@@ -302,9 +304,9 @@ test('uses row.super_id (not masterId) for INSERT', () => {
   // The INSERT should reference row.super_id
   const insertMatch = src.match(/VALUES \(\$1,\$2,\$3,\$4,\$5[^)]+\)/);
   assert.ok(insertMatch, 'INSERT VALUES found');
-  // Check the parameter array references row.super_id
-  const paramLines = src.match(/\[row\.super_id[^\]]*\]/);
-  assert.ok(paramLines, 'Should reference row.super_id in INSERT params');
+  // Check the parameter array references row.super_id (may span lines after formatting)
+  const paramMatch = src.match(/\[\s*row\.super_id[, \n]*provId/);
+  assert.ok(paramMatch, 'Should reference row.super_id in INSERT params');
 });
 
 // ── check-score-integrity.js: mean ──

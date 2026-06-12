@@ -34,20 +34,26 @@ const SOURCE_TYPE = 'community_list';
 
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return resolve(httpsGet(res.headers.location));
-      }
-      let data = '';
-      res.on('data', (chunk) => (data += chunk));
-      res.on('end', () => {
-        if (res.statusCode >= 400) {
-          reject(new Error(`HTTP ${res.statusCode} from ${url}`));
-        } else {
-          try { resolve(JSON.parse(data)); } catch (e) { reject(new Error(`Invalid JSON: ${e.message}`)); }
+    https
+      .get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          return resolve(httpsGet(res.headers.location));
         }
-      });
-    }).on('error', reject);
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          if (res.statusCode >= 400) {
+            reject(new Error(`HTTP ${res.statusCode} from ${url}`));
+          } else {
+            try {
+              resolve(JSON.parse(data));
+            } catch (e) {
+              reject(new Error(`Invalid JSON: ${e.message}`));
+            }
+          }
+        });
+      })
+      .on('error', reject);
   });
 }
 
@@ -89,47 +95,47 @@ async function fetchAllRows() {
 // Well-known labs map to direct providers; community orgs default to huggingface
 function mapOrgToProvider(org) {
   const DIRECT = {
-    'google': 'google',
+    google: 'google',
     'google-deepmind': 'google',
-    'mistralai': 'mistral',
+    mistralai: 'mistral',
     'mistral-community': 'mistral',
     'deepseek-ai': 'deepseek',
-    'nvidia': 'nvidia',
-    'cohere': 'cohere',
-    'CohereForAI': 'cohere',
-    'openai': 'openai',
-    'togethercomputer': 'together',
+    nvidia: 'nvidia',
+    cohere: 'cohere',
+    CohereForAI: 'cohere',
+    openai: 'openai',
+    togethercomputer: 'together',
     'meta-llama': 'openrouter',
-    'Qwen': 'openrouter',
+    Qwen: 'openrouter',
     '01-ai': 'openrouter',
-    'NousResearch': 'openrouter',
-    'cognitivecomputations': 'openrouter',
-    'allenai': 'openrouter',
-    'microsoft': 'openrouter',
+    NousResearch: 'openrouter',
+    cognitivecomputations: 'openrouter',
+    allenai: 'openrouter',
+    microsoft: 'openrouter',
     'ibm-granite': 'openrouter',
-    'THUDM': 'openrouter',
-    'tiiuae': 'openrouter',
-    'ai21labs': 'openrouter',
+    THUDM: 'openrouter',
+    tiiuae: 'openrouter',
+    ai21labs: 'openrouter',
     'baichuan-inc': 'openrouter',
-    'internlm': 'openrouter',
-    'upstage': 'openrouter',
-    'Writer': 'openrouter',
-    'databricks': 'openrouter',
+    internlm: 'openrouter',
+    upstage: 'openrouter',
+    Writer: 'openrouter',
+    databricks: 'openrouter',
     'xai-org': 'openrouter',
-    'Salesforce': 'openrouter',
-    'BAAI': 'openrouter',
-    'inclusionai': 'openrouter',
-    'abacusai': 'openrouter',
-    'openbmb': 'openrouter',
+    Salesforce: 'openrouter',
+    BAAI: 'openrouter',
+    inclusionai: 'openrouter',
+    abacusai: 'openrouter',
+    openbmb: 'openrouter',
     'shenzhi-wang': 'openrouter',
     'AIDC-AI': 'openrouter',
-    'mosaicml': 'openrouter',
-    'stabilityai': 'openrouter',
+    mosaicml: 'openrouter',
+    stabilityai: 'openrouter',
     'deci-ai': 'openrouter',
     'h2o-ai': 'openrouter',
-    'teknium': 'openrouter',
-    'lmsys': 'openrouter',
-    'argilla': 'openrouter',
+    teknium: 'openrouter',
+    lmsys: 'openrouter',
+    argilla: 'openrouter',
     'nomic-ai': 'openrouter',
   };
   if (DIRECT[org]) return DIRECT[org];
@@ -155,7 +161,7 @@ function mapOrgToProvider(org) {
     if (r.Flagged) continue;
     const name = r.fullname;
     if (!name) continue;
-    if (!byModel[name] || (r['Submission Date'] > byModel[name]['Submission Date'])) {
+    if (!byModel[name] || r['Submission Date'] > byModel[name]['Submission Date']) {
       byModel[name] = r;
     }
   }
@@ -177,7 +183,9 @@ function mapOrgToProvider(org) {
   }
 
   const mappedTotal = Object.values(byProvider).reduce((s, a) => s + a.length, 0);
-  logger.info(`  Mapped to providers: ${mappedTotal} models across ${Object.keys(byProvider).length} providers`);
+  logger.info(
+    `  Mapped to providers: ${mappedTotal} models across ${Object.keys(byProvider).length} providers`,
+  );
   logger.info(`  Unmapped: ${unmappedCount}`);
 
   if (!APPLY) {
@@ -190,7 +198,9 @@ function mapOrgToProvider(org) {
     logger.info('\nSample entries:');
     for (const [slug, models] of sorted.slice(0, 3)) {
       for (const m of models.slice(0, 3)) {
-        logger.info(`  ${slug}/${m.name} — Avg: ${m.row['Average ⬆️']?.toFixed(2)}, Params: ${m.row['#Params (B)']}B`);
+        logger.info(
+          `  ${slug}/${m.name} — Avg: ${m.row['Average ⬆️']?.toFixed(2)}, Params: ${m.row['#Params (B)']}B`,
+        );
       }
     }
     process.exit(0);
@@ -198,8 +208,15 @@ function mapOrgToProvider(org) {
 
   // --apply: persist to DB
   let connectionString = process.env.DATABASE_URL;
-  if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-    connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+  if (
+    connectionString &&
+    connectionString.includes('sslmode=require') &&
+    !connectionString.includes('uselibpqcompat')
+  ) {
+    connectionString = connectionString.replace(
+      'sslmode=require',
+      'uselibpqcompat=true&sslmode=require',
+    );
   }
 
   const pool = new Pool({ connectionString, ssl: { rejectUnauthorized: false }, max: 3 });
@@ -271,7 +288,9 @@ function mapOrgToProvider(org) {
     }
 
     await client.query('COMMIT');
-    logger.info(`  Stored ${Object.keys(byProvider).length} provider mappings with ${totalInserted} models`);
+    logger.info(
+      `  Stored ${Object.keys(byProvider).length} provider mappings with ${totalInserted} models`,
+    );
   } catch (err) {
     await client.query('ROLLBACK');
     logger.error(`DB error: ${err.message}`);
@@ -280,4 +299,7 @@ function mapOrgToProvider(org) {
     client.release();
     await pool.end();
   }
-})().catch((e) => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

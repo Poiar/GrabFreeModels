@@ -27,18 +27,26 @@ function formatJson(level, msg, data) {
 }
 
 function write(level, msg, data) {
-  const line = JSON_MODE
-    ? formatJson(level, msg, data)
-    : formatPlain(level, msg, data);
+  const line = JSON_MODE ? formatJson(level, msg, data) : formatPlain(level, msg, data);
 
   switch (level) {
-    case 'ERROR': console.error(line); break;
-    case 'WARN': console.warn(line); break;
-    default: console.log(line); break;
+    case 'ERROR':
+      console.error(line);
+      break;
+    case 'WARN':
+      console.warn(line);
+      break;
+    default:
+      console.log(line);
+      break;
   }
 
   if (LOG_FILE) {
-    try { fs.appendFileSync(LOG_FILE, line + '\n'); } catch { /* ignore */ }
+    try {
+      fs.appendFileSync(LOG_FILE, line + '\n');
+    } catch {
+      /* ignore */
+    }
   }
 }
 
@@ -46,5 +54,7 @@ module.exports = {
   info: (msg, data) => write('INFO', msg, data),
   warn: (msg, data) => write('WARN', msg, data),
   error: (msg, data) => write('ERROR', msg, data),
-  debug: (msg, data) => { if (process.env.GFM_DEBUG) write('DEBUG', msg, data); },
+  debug: (msg, data) => {
+    if (process.env.GFM_DEBUG) write('DEBUG', msg, data);
+  },
 };

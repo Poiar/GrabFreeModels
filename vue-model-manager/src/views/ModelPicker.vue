@@ -31,7 +31,10 @@
             :key="t.id"
             class="mp-task-card"
             :class="{ selected: selections.task === t.id }"
-            @click="selections.task = t.id; nextStep()"
+            @click="
+              selections.task = t.id;
+              nextStep();
+            "
           >
             <span class="mp-task-icon" v-html="t.icon"></span>
             <span class="mp-task-label">{{ t.label }}</span>
@@ -136,21 +139,29 @@
     <div v-if="results.length > 0" class="mp-results">
       <div class="mp-results-header">
         <h3>{{ results.length }} recommendation{{ results.length !== 1 ? 's' : '' }}</h3>
-        <button class="mp-btn mp-btn-outline" @click="copyAsMarkdown" :title="copyTooltip">
-          Copy as Markdown
-        </button>
+        <div class="mp-results-actions">
+          <button v-if="results.length >= 2" class="mp-btn mp-btn-accent" @click="compareTopTwo">
+            Compare top 2
+          </button>
+          <button class="mp-btn mp-btn-outline" @click="copyAsMarkdown" :title="copyTooltip">
+            Copy as Markdown
+          </button>
+        </div>
       </div>
       <div class="mp-result-list">
         <div v-for="r in results" :key="r.model.super_id" class="mp-result-card">
           <div class="mp-result-top">
             <div class="mp-result-info">
-              <router-link
-                :to="`/supermodel/${r.model.slug}`"
-                class="mp-result-name"
-              >{{ r.model.name }}</router-link>
+              <router-link :to="`/supermodel/${r.model.slug}`" class="mp-result-name">{{
+                r.model.name
+              }}</router-link>
               <span class="mp-result-creator">{{ r.model.creator }}</span>
-              <span v-if="r.model.best_context" class="mp-result-ctx">{{ formatContext(r.model.best_context) }}</span>
-              <span v-if="paramSize(r.model)" class="mp-result-params">{{ paramSize(r.model) }}</span>
+              <span v-if="r.model.best_context" class="mp-result-ctx">{{
+                formatContext(r.model.best_context)
+              }}</span>
+              <span v-if="paramSize(r.model)" class="mp-result-params">{{
+                paramSize(r.model)
+              }}</span>
             </div>
             <div class="mp-result-score" :title="'Relevance score: ' + r.score.toFixed(1)">
               <span class="mp-score-value">{{ r.score.toFixed(1) }}</span>
@@ -171,13 +182,14 @@
           </div>
 
           <div class="mp-result-tags" v-if="r.model.best_for?.length">
-            <span v-for="tag in r.model.best_for.slice(0, 5)" :key="tag" class="mp-tag">{{ tag }}</span>
+            <span v-for="tag in r.model.best_for.slice(0, 5)" :key="tag" class="mp-tag">{{
+              tag
+            }}</span>
           </div>
 
-          <router-link
-            :to="`/supermodel/${r.model.slug}`"
-            class="mp-result-detail-link"
-          >View details &rarr;</router-link>
+          <router-link :to="`/supermodel/${r.model.slug}`" class="mp-result-detail-link"
+            >View details &rarr;</router-link
+          >
         </div>
       </div>
     </div>
@@ -193,10 +205,12 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
 import { useModelsStore } from '@/store/models';
 import type { ModelData, ProviderDatapoint } from '@/types';
 
 const store = useModelsStore();
+const router = useRouter();
 
 // ── Step definitions ──
 const steps = [
@@ -249,7 +263,11 @@ const capabilityOptions = [
   { id: 'tools', label: 'Tool use', desc: 'Function calling and external tool integration' },
   { id: 'reasoning', label: 'Reasoning / Thinking', desc: 'Chain-of-thought and deep reasoning' },
   { id: 'vision', label: 'Vision / Image input', desc: 'Process images and visual content' },
-  { id: 'structured_output', label: 'Structured JSON output', desc: 'Reliable JSON mode / structured generation' },
+  {
+    id: 'structured_output',
+    label: 'Structured JSON output',
+    desc: 'Reliable JSON mode / structured generation',
+  },
   { id: 'streaming', label: 'Streaming required', desc: 'Real-time token-by-token output' },
 ];
 
@@ -328,7 +346,7 @@ function computeBestForOverlap(model: ModelData): number {
   let matches = 0;
   for (const tag of tags) {
     const lower = tag.toLowerCase();
-    if (keywords.some(k => lower.includes(k))) matches++;
+    if (keywords.some((k) => lower.includes(k))) matches++;
   }
   return tags.length > 0 ? matches / Math.max(keywords.length, tags.length) : 0;
 }
@@ -338,11 +356,11 @@ function computeCapabilityScore(model: ModelData): number {
   if (wanted.size === 0) return 1;
 
   // Aggregate across all providers: a super model has a capability if any provider supports it
-  const hasTool = model.providers.some(p => p.supports_tools === true);
-  const hasReasoning = model.providers.some(p => p.supports_reasoning === true);
-  const hasVision = model.providers.some(p => p.supports_attachment === true);
-  const hasStructured = model.providers.some(p => p.supports_structured_output === true);
-  const hasStreaming = model.providers.some(p => p.supports_streaming === true);
+  const hasTool = model.providers.some((p) => p.supports_tools === true);
+  const hasReasoning = model.providers.some((p) => p.supports_reasoning === true);
+  const hasVision = model.providers.some((p) => p.supports_attachment === true);
+  const hasStructured = model.providers.some((p) => p.supports_structured_output === true);
+  const hasStreaming = model.providers.some((p) => p.supports_streaming === true);
 
   const capMap: Record<string, boolean> = {
     tools: hasTool,
@@ -372,8 +390,8 @@ function computeContextScore(model: ModelData): number {
 }
 
 function computeProviderScore(model: ModelData): number {
-  const active = model.providers.filter(p => !p._removed);
-  const working = active.filter(p => p.status.result === 'working');
+  const active = model.providers.filter((p) => !p._removed);
+  const working = active.filter((p) => p.status.result === 'working');
   const minReq = selections.minWorkingProviders;
   if (minReq > 0 && working.length < minReq) return 0;
   // Score grows with working providers, up to 5
@@ -382,7 +400,7 @@ function computeProviderScore(model: ModelData): number {
 
 function getTopProviders(model: ModelData): ProviderDatapoint[] {
   const working = model.providers
-    .filter(p => !p._removed && p.status.result === 'working')
+    .filter((p) => !p._removed && p.status.result === 'working')
     .sort((a, b) => {
       // Prefer higher context, then alphabetically
       const ctxA = a.context_length || 0;
@@ -393,7 +411,7 @@ function getTopProviders(model: ModelData): ProviderDatapoint[] {
   // Also pull in any rate_limited if not enough working
   if (working.length < 3) {
     const others = model.providers
-      .filter(p => !p._removed && p.status.result !== 'working')
+      .filter((p) => !p._removed && p.status.result !== 'working')
       .sort((a, b) => a.provider.localeCompare(b.provider));
     return [...working, ...others].slice(0, 3);
   }
@@ -401,7 +419,7 @@ function getTopProviders(model: ModelData): ProviderDatapoint[] {
 }
 
 function countWorkingProviders(model: ModelData): number {
-  return model.providers.filter(p => !p._removed && p.status.result === 'working').length;
+  return model.providers.filter((p) => !p._removed && p.status.result === 'working').length;
 }
 
 function computeScore(model: ModelData): PickerResult | null {
@@ -424,11 +442,7 @@ function computeScore(model: ModelData): PickerResult | null {
 
   // Composite: rank is most important, then task match, then capabilities, then context, then providers
   const score =
-    rankScore * 0.30 +
-    bestForScore * 0.25 +
-    capScore * 0.20 +
-    ctxScore * 0.15 +
-    providerScore * 0.10;
+    rankScore * 0.3 + bestForScore * 0.25 + capScore * 0.2 + ctxScore * 0.15 + providerScore * 0.1;
 
   return {
     model,
@@ -441,13 +455,19 @@ function computeScore(model: ModelData): PickerResult | null {
 
 function modelPassesFilters(model: ModelData): boolean {
   // Free only
-  if (selections.freeOnly && !model.providers.some(p => !p._removed && p.is_free)) return false;
+  if (selections.freeOnly && !model.providers.some((p) => !p._removed && p.is_free)) return false;
   // Open weights only
-  if (selections.openWeightsOnly && !model.providers.some(p => !p._removed && p.open_weights === true)) return false;
+  if (
+    selections.openWeightsOnly &&
+    !model.providers.some((p) => !p._removed && p.open_weights === true)
+  )
+    return false;
   // Context minimum
   if (model.best_context && model.best_context < selections.minContext) return false;
   // Min working providers
-  const working = model.providers.filter(p => !p._removed && p.status.result === 'working').length;
+  const working = model.providers.filter(
+    (p) => !p._removed && p.status.result === 'working',
+  ).length;
   if (working < selections.minWorkingProviders) return false;
   return true;
 }
@@ -505,15 +525,23 @@ function resetAll() {
   selections.minWorkingProviders = 1;
 }
 
+// ── Compare top two ──
+function compareTopTwo() {
+  if (results.value.length < 2) return;
+  const left = results.value[0].model.slug;
+  const right = results.value[1].model.slug;
+  router.push({ path: '/compare', query: { left, right } });
+}
+
 // ── Copy as Markdown ──
 async function copyAsMarkdown() {
   const lines: string[] = [
     `# Model Recommendations (${new Date().toISOString().split('T')[0]})`,
     '',
-    `**Task:** ${taskOptions.find(t => t.id === selections.task)?.label || selections.task}`,
-    `**Min context:** ${contextOptions.find(c => c.value === selections.minContext)?.label || selections.minContext}`,
+    `**Task:** ${taskOptions.find((t) => t.id === selections.task)?.label || selections.task}`,
+    `**Min context:** ${contextOptions.find((c) => c.value === selections.minContext)?.label || selections.minContext}`,
     selections.capabilities.size > 0
-      ? `**Capabilities:** ${[...selections.capabilities].map(c => capabilityOptions.find(o => o.id === c)?.label || c).join(', ')}`
+      ? `**Capabilities:** ${[...selections.capabilities].map((c) => capabilityOptions.find((o) => o.id === c)?.label || c).join(', ')}`
       : '',
     '',
     '| # | Model | Creator | Score | Context | Providers |',
@@ -521,14 +549,18 @@ async function copyAsMarkdown() {
   ];
 
   results.value.forEach((r, i) => {
-    const provs = r.topProviders.map(p => p.provider).join(', ');
-    lines.push(`| ${i + 1} | ${r.model.name} | ${r.model.creator || '—'} | ${r.score.toFixed(1)} | ${formatContext(r.model.best_context)} | ${provs} |`);
+    const provs = r.topProviders.map((p) => p.provider).join(', ');
+    lines.push(
+      `| ${i + 1} | ${r.model.name} | ${r.model.creator || '—'} | ${r.score.toFixed(1)} | ${formatContext(r.model.best_context)} | ${provs} |`,
+    );
   });
 
   try {
-    await navigator.clipboard.writeText(lines.filter(l => l !== '').join('\n'));
+    await navigator.clipboard.writeText(lines.filter((l) => l !== '').join('\n'));
     copyTooltip.value = 'Copied!';
-    setTimeout(() => { copyTooltip.value = 'Copy recommended list as Markdown'; }, 2000);
+    setTimeout(() => {
+      copyTooltip.value = 'Copy recommended list as Markdown';
+    }, 2000);
   } catch {
     copyTooltip.value = 'Copy failed';
   }
@@ -542,8 +574,16 @@ async function copyAsMarkdown() {
   padding: 20px;
 }
 
-.page-header h2 { font-size: 1.3rem; font-weight: 700; margin: 0 0 4px; }
-.page-header p { font-size: 0.78rem; color: var(--text-muted); margin: 0 0 20px; }
+.page-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+.page-header p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
 
 /* ── Progress indicator ── */
 .mp-progress {
@@ -803,7 +843,7 @@ async function copyAsMarkdown() {
   cursor: pointer;
 }
 
-.mp-pref-item input[type="checkbox"] {
+.mp-pref-item input[type='checkbox'] {
   margin-top: 3px;
   accent-color: var(--accent);
   cursor: pointer;
@@ -1043,10 +1083,18 @@ async function copyAsMarkdown() {
   opacity: 0.8;
 }
 
-.status-ok .mp-provider-status { color: #22c55e; }
-.status-warn .mp-provider-status { color: #eab308; }
-.status-err .mp-provider-status { color: #ef4444; }
-.status-unk .mp-provider-status { color: var(--text-muted); }
+.status-ok .mp-provider-status {
+  color: #22c55e;
+}
+.status-warn .mp-provider-status {
+  color: #eab308;
+}
+.status-err .mp-provider-status {
+  color: #ef4444;
+}
+.status-unk .mp-provider-status {
+  color: var(--text-muted);
+}
 
 /* ── Tags ── */
 .mp-result-tags {
@@ -1097,14 +1145,33 @@ async function copyAsMarkdown() {
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .mp-page { padding: 12px; }
-  .mp-task-grid { grid-template-columns: 1fr 1fr; }
-  .mp-task-card { padding: 14px 10px; }
-  .mp-ctx-buttons { flex-wrap: wrap; }
-  .mp-ctx-btn { flex: 1; min-width: 80px; }
-  .mp-progress-step:not(:last-child)::after { width: 20px; }
-  .mp-progress-label { display: none; }
-  .mp-cap-grid { max-width: 100%; }
-  .mp-prefs { max-width: 100%; }
+  .mp-page {
+    padding: 12px;
+  }
+  .mp-task-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .mp-task-card {
+    padding: 14px 10px;
+  }
+  .mp-ctx-buttons {
+    flex-wrap: wrap;
+  }
+  .mp-ctx-btn {
+    flex: 1;
+    min-width: 80px;
+  }
+  .mp-progress-step:not(:last-child)::after {
+    width: 20px;
+  }
+  .mp-progress-label {
+    display: none;
+  }
+  .mp-cap-grid {
+    max-width: 100%;
+  }
+  .mp-prefs {
+    max-width: 100%;
+  }
 }
 </style>

@@ -264,3 +264,8 @@ INSERT INTO sources (slug, name, source_type, source_url)
 VALUES ('free-llm-api-resources', 'Free LLM API Resources (community list)', 'community_list',
         'https://raw.githubusercontent.com/cheahjs/free-llm-api-resources/main/README.md')
 ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO sources (slug, name, source_type, source_url)
+VALUES ('is-ai-profitable', 'Is AI Profitable Yet?', 'community_list',
+        'https://isaiprofitable.com')
+ON CONFLICT (slug) DO NOTHING;

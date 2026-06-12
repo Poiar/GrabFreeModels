@@ -18,6 +18,7 @@ cp .env.example .env
 ```
 
 Required:
+
 - `DATABASE_URL` — Neon Postgres connection string (pooler endpoint)
 - `ADMIN_TOKEN` — random 64-char hex for the admin API (generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
 - `GFM_AUTH_FILE` — path to your opencode `auth.json` (falls back to XDG `~/.local/share/opencode/auth.json`)
@@ -126,12 +127,14 @@ Unit tests import and execute actual modules — no regex-grep on source files.
 ## Commit messages
 
 Follow conventional commits:
+
 - `feat:` — new feature
 - `fix:` — bug fix
 - `chore:` — maintenance, deps
 - `docs:` — documentation
 
 End each commit with:
+
 ```
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```

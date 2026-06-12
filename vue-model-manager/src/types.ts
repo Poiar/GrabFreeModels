@@ -145,9 +145,43 @@ export interface ProviderReference {
   health_status: string;
 }
 
+export interface Organization {
+  id: string;
+  name: string;
+  kind: 'creator' | 'provider' | 'both';
+  // Shared
+  description: string | null;
+  provider_description: string | null;
+  provider_slugs: string[];
+  // Creator facet
+  creator_type: 'lab' | 'user' | 'other' | null;
+  creator_role: string | null;
+  models: ModelData[];
+  model_count: number;
+  provider_count: number;
+  // Provider facet
+  base_url: string | null;
+  npm_package: string | null;
+  provider_type: string | null;
+  serves_third_party: boolean | null;
+  hardware: string | null;
+  is_openai_compat: boolean | null;
+  supports_streaming: boolean | null;
+  requires_account_id: boolean | null;
+  max_rpm: number | null;
+  max_tpm: number | null;
+  max_daily_requests: number | null;
+  requires_card: boolean | null;
+  health_status: string | null;
+  working_count: number;
+}
+
 export interface ModelsData {
+  /** @deprecated Use organizations instead */
   creators: CreatorData[];
+  /** @deprecated Use organizations instead */
   providers: ProviderReference[];
+  organizations: Organization[];
   models: DatapointModel[];
   provider_health: Record<string, ProviderHealth>;
   _test_summary: TestSummary;
@@ -162,27 +196,88 @@ export interface ModelsData {
     explore: string[];
     _scores?: Record<string, RoleScore[]>;
     _meta?: Record<string, RoleMeta>;
-    _variants?: Record<string, {
-      model: string[];
-      build: string[];
-      general: string[];
-      small_model: string[];
-      explore: string[];
-      _scores?: Record<string, RoleScore[]>;
-      _meta?: Record<string, RoleMeta>;
-    }>;
+    _variants?: Record<
+      string,
+      {
+        model: string[];
+        build: string[];
+        general: string[];
+        small_model: string[];
+        explore: string[];
+        _scores?: Record<string, RoleScore[]>;
+        _meta?: Record<string, RoleMeta>;
+      }
+    >;
   };
   _model_scores: ModelScoresData;
   _provider_usage: { description: string; [provider: string]: ProviderUsage | string };
   _known_issues: { description: string; issues: KnownIssue[] };
   _validation_method: ValidationMethod;
-  _router_only_models?: { count: number; models: Array<{ slug: string; name: string; provider_count: number }>; checked_at: string };
-  _provider_routing_graph?: { routers: Record<string, Array<{ backend: string; name: string; type: string; shared_models: number }>>; built_at: string };
-  _provider_timeline?: { timeline: Array<{ date: string; added: Array<{ slug: string; name: string; type: string }>; cumulative: number }>; total: number; built_at: string };
-  _family_coverage?: { total: number; with_family: number; without_family: number; pct: number; with_base_model_no_family: number };
+  _router_only_models?: {
+    count: number;
+    models: Array<{ slug: string; name: string; provider_count: number }>;
+    checked_at: string;
+  };
+  _provider_routing_graph?: {
+    routers: Record<
+      string,
+      Array<{ backend: string; name: string; type: string; shared_models: number }>
+    >;
+    built_at: string;
+  };
+  _provider_timeline?: {
+    timeline: Array<{
+      date: string;
+      added: Array<{ slug: string; name: string; type: string }>;
+      cumulative: number;
+    }>;
+    total: number;
+    built_at: string;
+  };
+  _family_coverage?: {
+    total: number;
+    with_family: number;
+    without_family: number;
+    pct: number;
+    with_base_model_no_family: number;
+  };
   _failure_rates?: { description: string; models: Record<string, FailureRateEntry>; note?: string };
   _key_health?: KeyHealthData;
   _failover_suggestions?: { forward: Record<string, string[]>; reverse: Record<string, string[]> };
+  _company_financials?: CompanyFinancials;
+  _company_financials_history?: FinancialSnapshot[];
+}
+
+export interface CompanyFinancialEntry {
+  name: string;
+  subtitle: string;
+  spend: number;
+  revenue: number;
+  annualBurn: number;
+  isInfrastructure: boolean;
+  hasLogo: boolean;
+  pnl: number;
+  pnlLabel: 'profitable' | 'unprofitable';
+}
+
+export interface CompanyFinancials {
+  description: string;
+  fetched_at: string;
+  source_url: string;
+  companies: CompanyFinancialEntry[];
+  summary: {
+    total_spend: number;
+    total_revenue: number;
+    total_pnl: number;
+    profitable_count: number;
+    unprofitable_count: number;
+  };
+}
+
+export interface FinancialSnapshot {
+  date: string;
+  summary: CompanyFinancials['summary'];
+  fetched_at: string;
 }
 
 // EXISTING types (kept for backward compatibility)

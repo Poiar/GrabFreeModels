@@ -26,7 +26,10 @@ const VALID_FIELDS = [
 router.get('/data', async (req, res) => {
   try {
     if (req.query.fields) {
-      const requested = req.query.fields.split(',').map((f) => f.trim()).filter(Boolean);
+      const requested = req.query.fields
+        .split(',')
+        .map((f) => f.trim())
+        .filter(Boolean);
       const selected = [];
       for (const reqField of requested) {
         const match = VALID_FIELDS.find((vf) => vf.toLowerCase() === reqField.toLowerCase());
@@ -48,13 +51,15 @@ router.get('/data', async (req, res) => {
     }
 
     const now = Date.now();
-    if (dataCache && (now - dataCache.ts) < CACHE_TTL) {
+    if (dataCache && now - dataCache.ts < CACHE_TTL) {
       res.set('Cache-Control', 'no-cache');
       return res.json(paginateResult(dataCache.data, req.query));
     }
 
     if (!inflightLoad) {
-      inflightLoad = loadModels(pool).finally(() => { inflightLoad = null; });
+      inflightLoad = loadModels(pool).finally(() => {
+        inflightLoad = null;
+      });
     }
     const result = await inflightLoad;
     dataCache = { data: result, ts: Date.now() };
@@ -72,22 +77,23 @@ router.get('/data', async (req, res) => {
 // Appends a _pagination metadata block with offset, limit, total.
 function paginateResult(data, query) {
   const offset = Math.max(0, parseInt(query.offset, 10) || 0);
-  const limit = query.limit !== undefined
-    ? Math.min(500, Math.max(1, parseInt(query.limit, 10) || 50))
-    : null;
+  const limit =
+    query.limit !== undefined ? Math.min(500, Math.max(1, parseInt(query.limit, 10) || 50)) : null;
 
   if (limit === null) return data;
 
   const total = data.models.length;
   const paginated = { ...data };
   paginated.models = data.models.slice(offset, offset + limit);
-  paginated.creators = data.creators.map((creator) => ({
-    ...creator,
-    models: creator.models.filter((model) => {
-      // Keep creators whose models are in the paginated slice
-      return paginated.models.some((m) => m.super_id === model.super_id);
-    }),
-  })).filter((creator) => creator.models.length > 0);
+  paginated.creators = data.creators
+    .map((creator) => ({
+      ...creator,
+      models: creator.models.filter((model) => {
+        // Keep creators whose models are in the paginated slice
+        return paginated.models.some((m) => m.super_id === model.super_id);
+      }),
+    }))
+    .filter((creator) => creator.models.length > 0);
   paginated._pagination = { offset, limit, total };
   return paginated;
 }
@@ -98,7 +104,7 @@ let paidDataCache = null; // { data, ts }
 router.get('/data/paid', async (req, res) => {
   try {
     const now = Date.now();
-    if (paidDataCache && (now - paidDataCache.ts) < CACHE_TTL) {
+    if (paidDataCache && now - paidDataCache.ts < CACHE_TTL) {
       res.set('Cache-Control', 'no-cache');
       return res.json(paidDataCache.data);
     }
@@ -167,17 +173,17 @@ router.get('/health/status', async (req, res) => {
     `);
 
     const providers = providerRows.map((r) => {
-        const total = parseInt(r.total, 10);
+      const total = parseInt(r.total, 10);
       const working = parseInt(r.working, 10);
       const rateLimited = parseInt(r.rate_limited, 10);
       const broken = parseInt(r.broken, 10);
       const passRate = total > 0 ? Math.round((working / total) * 100) : 0;
-let status = 'unknown';
-if (total !== 0) {
-  if (passRate >= 80) status = 'up';
-  else if (passRate >= 50) status = 'degraded';
-  else status = 'down';
-}
+      let status = 'unknown';
+      if (total !== 0) {
+        if (passRate >= 80) status = 'up';
+        else if (passRate >= 50) status = 'degraded';
+        else status = 'down';
+      }
 
       return {
         name: r.provider,
@@ -198,7 +204,10 @@ if (total !== 0) {
 
     res.json({
       overall: {
-        status: totalFree > 0 && Math.round((totalWorking / totalFree) * 100) >= 50 ? 'healthy' : 'degraded',
+        status:
+          totalFree > 0 && Math.round((totalWorking / totalFree) * 100) >= 50
+            ? 'healthy'
+            : 'degraded',
         total_free: totalFree,
         total_working: totalWorking,
         overall_pass_rate: totalFree > 0 ? Math.round((totalWorking / totalFree) * 100) : 0,
@@ -219,7 +228,7 @@ function slimRankings(full) {
   const r = full._role_rankings || {};
   const modelIndex = {};
 
-  for (const creator of (full.creators || [])) {
+  for (const creator of full.creators || []) {
     for (const model of creator.models) {
       const providerSlugs = model.providers
         .filter((p) => !p._removed)
@@ -253,7 +262,7 @@ let inflightRankingsLoad = null;
 router.get('/rankings', async (req, res) => {
   try {
     const now = Date.now();
-    if (rankingsCache && (now - rankingsCache.ts) < CACHE_TTL) {
+    if (rankingsCache && now - rankingsCache.ts < CACHE_TTL) {
       res.set('Cache-Control', 'no-cache');
       return res.json(rankingsCache.data);
     }
@@ -262,7 +271,9 @@ router.get('/rankings', async (req, res) => {
       inflightRankingsLoad = (async () => {
         const full = await loadModels(pool);
         return slimRankings(full);
-      })().finally(() => { inflightRankingsLoad = null; });
+      })().finally(() => {
+        inflightRankingsLoad = null;
+      });
     }
     const result = await inflightRankingsLoad;
     rankingsCache = { data: result, ts: Date.now() };
@@ -281,7 +292,7 @@ let paidRankingsCache = null;
 router.get('/rankings/paid', async (req, res) => {
   try {
     const now = Date.now();
-    if (paidRankingsCache && (now - paidRankingsCache.ts) < CACHE_TTL) {
+    if (paidRankingsCache && now - paidRankingsCache.ts < CACHE_TTL) {
       res.set('Cache-Control', 'no-cache');
       return res.json(paidRankingsCache.data);
     }

@@ -1,7 +1,7 @@
 ---
 name: research-litellm
-description: "LiteLLM architectural patterns — provider abstraction, cost map, auth, health checking, fallback routing"
-metadata: 
+description: 'LiteLLM architectural patterns — provider abstraction, cost map, auth, health checking, fallback routing'
+metadata:
   node_type: memory
   type: reference
   originSessionId: 44d00769-02b1-4e82-9bad-40385a18dbea
@@ -16,6 +16,7 @@ Source: github.com/BerriAI/litellm — researched 2026-06-09
 ### Three-tier registration system
 
 **Tier A: Python class-based** (for providers with unique API formats)
+
 - Each provider implements a Config class extending `BaseConfig`
 - `transform_request()` — converts OpenAI-format → provider-specific
 - `transform_response()` — converts provider response → OpenAI-format ModelResponse
@@ -23,7 +24,9 @@ Source: github.com/BerriAI/litellm — researched 2026-06-09
 - `get_error_class()` — maps HTTP errors to LiteLLM exception types
 
 **Tier B: JSON-based** (for OpenAI-compatible providers) — MOST RELEVANT
+
 - Declarative `providers.json` with per-provider entries:
+
 ```json
 {
   "provider_name": {
@@ -41,18 +44,22 @@ Source: github.com/BerriAI/litellm — researched 2026-06-09
 ```
 
 **Tier C: Model-to-provider resolution** via name patterns + cost map lookup
+
 - `get_llm_provider()` checks prefixes (`openai/gpt-4o`), regex patterns (`claude-*`), cost map
 - `PatternMatchRouter` supports wildcard routing (`openai/*`)
 
 ## 2. Auth, Error Handling, Rate Limiting
 
 ### Auth model
+
 - Typed `CredentialLiteLLMParams` with optional fields: api_key, api_base, api_version, vertex_project, vertex_location, aws_access_key_id, etc.
 - Per-provider env var convention (e.g., `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
 - Custom headers with `{api_key}` template variable
 
 ### Error classification
+
 Standard exception hierarchy:
+
 - `AuthenticationError` — 401
 - `RateLimitError` — 429 + heuristic string matching ("rate limit", "rate_limit", "service tier capacity exceeded")
 - `ContextWindowExceededError` — string matching ("exceed context limit", etc.)
@@ -60,6 +67,7 @@ Standard exception hierarchy:
 - `BaseLLMException` stores status_code, message, headers, request, response, body
 
 ### Cooldown decision tree
+
 ```python
 def _is_cooldown_required(exception_status, exception_str):
     # 429 → cooldown
@@ -70,29 +78,32 @@ def _is_cooldown_required(exception_status, exception_str):
     # 5xx → cooldown
     # APIConnectionError → NO cooldown (transient)
 ```
+
 - `CooldownCache` with TTL, stored per deployment ID
 - v2 logic: also cooldowns if failure rate > ALLOWED_FAILURE_RATE_PER_MINUTE
 
 ## 3. Model Cost Map
 
 Single JSON file (1.5MB, 2762 entries, 114 providers). Each entry:
+
 ```json
 {
   "litellm_provider": "openai",
   "mode": "chat",
-  "input_cost_per_token": 2.5e-06,
-  "output_cost_per_token": 1e-05,
+  "input_cost_per_token": 2.5e-6,
+  "output_cost_per_token": 1e-5,
   "max_input_tokens": 128000,
   "max_output_tokens": 16384,
   "supports_function_calling": true,
   "supports_vision": true,
   "supports_prompt_caching": true,
   "supports_reasoning": true,
-  "cache_read_input_token_cost": 1.25e-06,
+  "cache_read_input_token_cost": 1.25e-6,
   "tiered_pricing": true,
   "deprecation_date": "2026-06-01"
 }
 ```
+
 - 50+ boolean feature capability flags
 - Tiered pricing (above_128k, batch, flex, cache tiers)
 - Multimodal costs (per image, per audio token, per video second)
@@ -102,17 +113,20 @@ Single JSON file (1.5MB, 2762 entries, 114 providers). Each entry:
 ## 4. Health Checking & Fallback Routing
 
 ### Health state cache
+
 ```python
 class DeploymentHealthStateValue:
     is_healthy: bool
     timestamp: float
     reason: str
 ```
+
 - **"Stale means healthy"** — entries older than staleness_threshold assumed healthy
 - Continuous background health check via APScheduler, results cached in DualCache (in-memory + Redis)
 - Prevents cascading failures from stale negative data
 
 ### Fallback routing
+
 - Multiple fallback types: generic, context_window, content_policy
 - `max_fallbacks` depth limit (default 5)
 - Typed fallback categories: `context_window_fallbacks`, `content_policy_fallbacks`
@@ -124,6 +138,7 @@ class DeploymentHealthStateValue:
 - `enable_pre_call_checks` for TPM/RPM check before routing
 
 ### Fallback execution
+
 ```python
 async def run_async_fallback(router, fallback_model_group, original_model_group,
     original_exception, max_fallbacks, fallback_depth, **kwargs):
@@ -136,14 +151,14 @@ async def run_async_fallback(router, fallback_model_group, original_model_group,
 
 ## Summary: Patterns to borrow
 
-| Pattern | What to borrow |
-|---|---|
-| Provider config | Declarative JSON: base_url, api_key_env, param_mappings, special_handling |
-| Model cost map | Centralized JSON with per-model pricing, capacity, 50+ boolean features |
-| Provider resolution | String patterns + cost map lookup |
-| Auth model | Typed params + per-provider env var convention |
-| Error classification | String-matching heuristics → typed exception hierarchy |
-| Cooldown | Decision tree by HTTP status; failure-rate-based cooldown; TTL cache |
-| Health state | TTL-based with stale=healthy (fail-open) semantics |
-| Fallback routing | Error-category-specific fallback lists with max depth |
-| Routing strategy | Plugable strategy interface (least busy, lowest cost, lowest latency) |
+| Pattern              | What to borrow                                                            |
+| -------------------- | ------------------------------------------------------------------------- |
+| Provider config      | Declarative JSON: base_url, api_key_env, param_mappings, special_handling |
+| Model cost map       | Centralized JSON with per-model pricing, capacity, 50+ boolean features   |
+| Provider resolution  | String patterns + cost map lookup                                         |
+| Auth model           | Typed params + per-provider env var convention                            |
+| Error classification | String-matching heuristics → typed exception hierarchy                    |
+| Cooldown             | Decision tree by HTTP status; failure-rate-based cooldown; TTL cache      |
+| Health state         | TTL-based with stale=healthy (fail-open) semantics                        |
+| Fallback routing     | Error-category-specific fallback lists with max depth                     |
+| Routing strategy     | Plugable strategy interface (least busy, lowest cost, lowest latency)     |

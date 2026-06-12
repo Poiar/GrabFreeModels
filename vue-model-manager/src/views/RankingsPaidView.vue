@@ -16,7 +16,9 @@
       :master-variant="store.paidMasterVariant"
       :variant-keys="store.paidVariantKeys"
       :model-scores="store.paidModelScores"
-      @update:role-variant="(role: string, variant: string) => store.paidRoleVariants[role] = variant"
+      @update:role-variant="
+        (role: string, variant: string) => (store.paidRoleVariants[role] = variant)
+      "
       @update:master-variant="(variant: string) => store.setPaidMaster(variant)"
       title="Role Rankings (Paid)"
       subtitle="See how paid models rank for each role and explore their score breakdowns"
@@ -32,7 +34,9 @@ import type { ProviderDatapoint, ModelData, CreatorData } from '@/types';
 
 const store = useModelsStore();
 
-function resolvePaidDatapoint(id: string): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
+function resolvePaidDatapoint(
+  id: string,
+): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
   return store.paidRankingsDatapointById(id);
 }
 

@@ -74,13 +74,13 @@ const KNOWN_CONTEXT = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'data', 'known-context.json'), 'utf8'),
 );
 
-
 (async () => {
   const client = await pool.connect();
   try {
     const sinceFilter = SINCE ? 'AND dm.updated_at >= $1' : '';
     const sinceParams = SINCE ? [SINCE] : [];
-    const { rows: targets } = await client.query(`
+    const { rows: targets } = await client.query(
+      `
       SELECT dm.id, dm.full_id
       FROM datapoint_models dm
       JOIN super_models mm ON mm.id = dm.super_model_id
@@ -90,9 +90,11 @@ const KNOWN_CONTEXT = JSON.parse(
         AND dm.is_removed = false
         ${sinceFilter}
       ORDER BY dm.full_id
-    `, sinceParams);
+    `,
+      sinceParams,
+    );
 
-logger.info(`Models with null context_length: ${targets.length}`);
+    logger.info(`Models with null context_length: ${targets.length}`);
 
     /* eslint-disable no-unused-vars */
     let auth;

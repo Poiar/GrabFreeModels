@@ -1,7 +1,7 @@
 ---
 name: third-party-projects
-description: "Third-party projects worth studying for ranking methodology, provider abstraction, monitoring, and data modeling improvements"
-metadata: 
+description: 'Third-party projects worth studying for ranking methodology, provider abstraction, monitoring, and data modeling improvements'
+metadata:
   node_type: memory
   type: reference
   originSessionId: 44d00769-02b1-4e82-9bad-40385a18dbea

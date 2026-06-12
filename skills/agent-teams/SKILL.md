@@ -34,18 +34,18 @@ When in doubt, team up. The cost of a small team for a medium task is near zero.
 
 Match the agent to the work. Read-only agents (`Explore`, `Plan`) do research in parallel with implementation.
 
-| Domain | Agent type |
-|--------|-----------|
-| Architecture, design, trade-offs | `architect` |
-| API, server, routes, middleware | `backend-engineer` |
-| Database, schema, queries, pipelines | `data-engineer` |
-| CI/CD, deploy, monitoring | `devops-engineer` |
-| UI/UX review, accessibility | `ui-ux-reviewer` |
-| Performance, optimization | `performance` |
-| Code review, refactoring, naming | `code-quality` |
-| Test planning, edge cases | `qa` |
-| Security review, vulnerabilities | `security` |
-| Scraping, Playwright, data extraction | `scraping` |
+| Domain                                | Agent type         |
+| ------------------------------------- | ------------------ |
+| Architecture, design, trade-offs      | `architect`        |
+| API, server, routes, middleware       | `backend-engineer` |
+| Database, schema, queries, pipelines  | `data-engineer`    |
+| CI/CD, deploy, monitoring             | `devops-engineer`  |
+| UI/UX review, accessibility           | `ui-ux-reviewer`   |
+| Performance, optimization             | `performance`      |
+| Code review, refactoring, naming      | `code-quality`     |
+| Test planning, edge cases             | `qa`               |
+| Security review, vulnerabilities      | `security`         |
+| Scraping, Playwright, data extraction | `scraping`         |
 
 ## Tips
 

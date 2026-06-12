@@ -32,7 +32,13 @@ async function main() {
     await pool.query('SELECT 1 FROM test_observations LIMIT 1');
   } catch {
     if (JSON_OUTPUT) {
-      process.stdout.write(JSON.stringify({ error: 'test_observations table does not exist. Run migration 003 first.', days: DAYS, generated_at: new Date().toISOString() }) + '\n');
+      process.stdout.write(
+        JSON.stringify({
+          error: 'test_observations table does not exist. Run migration 003 first.',
+          days: DAYS,
+          generated_at: new Date().toISOString(),
+        }) + '\n',
+      );
     } else {
       console.error('test_observations table does not exist. Run migration 003 first.');
     }
@@ -40,7 +46,7 @@ async function main() {
     return;
   }
 
-  const conditions = ['tested_at >= now() - interval \'1 day\' * $1'];
+  const conditions = ["tested_at >= now() - interval '1 day' * $1"];
   const params = [DAYS];
 
   if (SINGLE_PROVIDER) {
@@ -51,7 +57,8 @@ async function main() {
   const whereClause = conditions.join(' AND ');
 
   // Daily: working model count, pass rate, and latency percentiles
-  const { rows: dailyRows } = await pool.query(`
+  const { rows: dailyRows } = await pool.query(
+    `
     SELECT
       tested_at::date AS day,
       COUNT(*) AS total_samples,
@@ -68,10 +75,13 @@ async function main() {
     WHERE ${whereClause}
     GROUP BY tested_at::date
     ORDER BY day
-  `, params);
+  `,
+    params,
+  );
 
   // Daily per-provider health
-  const { rows: providerDailyRows } = await pool.query(`
+  const { rows: providerDailyRows } = await pool.query(
+    `
     SELECT
       tested_at::date AS day,
       provider,
@@ -86,11 +96,23 @@ async function main() {
     WHERE ${whereClause}
     GROUP BY tested_at::date, provider
     ORDER BY day, provider
-  `, params);
+  `,
+    params,
+  );
 
   if (dailyRows.length === 0 && providerDailyRows.length === 0) {
     if (JSON_OUTPUT) {
-      process.stdout.write(JSON.stringify({ description: `Historical trends over the last ${DAYS} days`, days: DAYS, generated_at: new Date().toISOString(), provider: SINGLE_PROVIDER, daily: [], provider_daily: [], note: 'No observations found for the given criteria.' }) + '\n');
+      process.stdout.write(
+        JSON.stringify({
+          description: `Historical trends over the last ${DAYS} days`,
+          days: DAYS,
+          generated_at: new Date().toISOString(),
+          provider: SINGLE_PROVIDER,
+          daily: [],
+          provider_daily: [],
+          note: 'No observations found for the given criteria.',
+        }) + '\n',
+      );
     } else {
       console.log(`\nNo observations found for the last ${DAYS} days.`);
     }
@@ -112,7 +134,9 @@ async function main() {
   }
 
   const daily = dailyRows.map((r) => {
-    const dayStr = r.day.toISOString ? r.day.toISOString().slice(0, 10) : String(r.day).slice(0, 10);
+    const dayStr = r.day.toISOString
+      ? r.day.toISOString().slice(0, 10)
+      : String(r.day).slice(0, 10);
     return {
       day: dayStr,
       total_samples: parseInt(r.total_samples, 10),
@@ -128,7 +152,8 @@ async function main() {
   });
 
   // Aggregate overall stats
-  const { rows: aggRows } = await pool.query(`
+  const { rows: aggRows } = await pool.query(
+    `
     SELECT
       COUNT(DISTINCT full_id) AS total_unique_models,
       COUNT(DISTINCT full_id) FILTER (WHERE status = 'pass') AS total_working_unique,
@@ -139,7 +164,9 @@ async function main() {
       COUNT(DISTINCT provider) AS provider_count
     FROM test_observations
     WHERE ${whereClause}
-  `, params);
+  `,
+    params,
+  );
 
   const output = {
     description: `Historical trends over the last ${DAYS} days`,
@@ -150,8 +177,12 @@ async function main() {
     aggregate: {
       total_unique_models: parseInt(aggRows[0]?.total_unique_models || 0, 10),
       total_working_unique: parseInt(aggRows[0]?.total_working_unique || 0, 10),
-      overall_pass_rate_pct: aggRows[0]?.overall_pass_rate_pct !== null ? Number(aggRows[0].overall_pass_rate_pct) : null,
-      avg_latency_ms: aggRows[0]?.avg_latency_ms !== null ? Number(aggRows[0].avg_latency_ms) : null,
+      overall_pass_rate_pct:
+        aggRows[0]?.overall_pass_rate_pct !== null
+          ? Number(aggRows[0].overall_pass_rate_pct)
+          : null,
+      avg_latency_ms:
+        aggRows[0]?.avg_latency_ms !== null ? Number(aggRows[0].avg_latency_ms) : null,
       provider_count: parseInt(aggRows[0]?.provider_count || 0, 10),
     },
   };
@@ -174,7 +205,7 @@ function bar(value, max, width) {
   const fullBars = (value / max) * width;
   const result = [];
   for (let i = 0; i < width; i++) {
-    const coverage = Math.min(Math.max((fullBars - i), 0), 1);
+    const coverage = Math.min(Math.max(fullBars - i, 0), 1);
     const idx = Math.round(coverage * (BAR_CHARS.length - 1));
     result.push(BAR_CHARS[idx]);
   }
@@ -208,8 +239,10 @@ function printCharts(output) {
 
   const header = SINGLE_PROVIDER ? ` provider: ${SINGLE_PROVIDER}` : ' all providers';
   console.log(`\n─── Historical Trends (last ${output.days} days,${header}) ───`);
-  console.log(`Aggregate: ${aggregate.total_working_unique}/${aggregate.total_unique_models} models working, ` +
-    `${aggregate.overall_pass_rate_pct}% pass rate, ${aggregate.avg_latency_ms}ms avg latency`);
+  console.log(
+    `Aggregate: ${aggregate.total_working_unique}/${aggregate.total_unique_models} models working, ` +
+      `${aggregate.overall_pass_rate_pct}% pass rate, ${aggregate.avg_latency_ms}ms avg latency`,
+  );
 
   // Working models bar chart
   console.log(`\nWorking Models (per day, max=${maxWorking}):`);

@@ -36,8 +36,8 @@ const REMOTE_ID_OVERRIDES = {
   'openai/gpt-4o-2024-05-13': 'openai/gpt-4o',
   'openai/gpt-4o-2024-08-06': 'openai/gpt-4o',
   'openai/gpt-4o-2024-11-20': 'openai/gpt-4o',
-  'openai/gpt-4-turbo': null,  // no modelsdev entry
-  'openai/gpt-4': null,       // no modelsdev entry
+  'openai/gpt-4-turbo': null, // no modelsdev entry
+  'openai/gpt-4': null, // no modelsdev entry
   'openai/gpt-3.5-turbo': null, // no modelsdev entry
   'openai/gpt-5-codex': 'openai-gpt-5',
   'openai/gpt-5.2-codex': 'openai-gpt-5',
@@ -69,20 +69,22 @@ const CATALOG_URL = 'https://models.dev/catalog.json';
 
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return resolve(httpsGet(res.headers.location));
-      }
-      let data = '';
-      res.on('data', (chunk) => (data += chunk));
-      res.on('end', () => {
-        if (res.statusCode >= 400) {
-          reject(new Error(`HTTP ${res.statusCode} from ${url}`));
-        } else {
-          resolve(JSON.parse(data));
+    https
+      .get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          return resolve(httpsGet(res.headers.location));
         }
-      });
-    }).on('error', reject);
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          if (res.statusCode >= 400) {
+            reject(new Error(`HTTP ${res.statusCode} from ${url}`));
+          } else {
+            resolve(JSON.parse(data));
+          }
+        });
+      })
+      .on('error', reject);
   });
 }
 
@@ -114,9 +116,7 @@ async function buildModelsdevLookup(client) {
       lookup.set(namePart, r);
     }
     // Key by normalized name: dots to hyphens, strip master suffix
-    const normalized = r.model_instance_key
-      .replace(/\./g, '-')
-      .replace(/-master$/, '');
+    const normalized = r.model_instance_key.replace(/\./g, '-').replace(/-master$/, '');
     if (normalized !== r.model_instance_key && !lookup.has(normalized)) {
       lookup.set(normalized, r);
     }
@@ -143,12 +143,21 @@ async function buildModelsdevLookup(client) {
   }
   logger.info(`  ${Object.keys(catalog.models).length} total models`);
   logger.info(`  ${benchmarkModels.length} models with benchmarks`);
-  logger.info(`  ${benchmarkModels.reduce((s, m) => s + m.benchmarks.length, 0)} total benchmark entries`);
+  logger.info(
+    `  ${benchmarkModels.reduce((s, m) => s + m.benchmarks.length, 0)} total benchmark entries`,
+  );
 
   // --- DB connection ---
   let connectionString = process.env.DATABASE_URL;
-  if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-    connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+  if (
+    connectionString &&
+    connectionString.includes('sslmode=require') &&
+    !connectionString.includes('uselibpqcompat')
+  ) {
+    connectionString = connectionString.replace(
+      'sslmode=require',
+      'uselibpqcompat=true&sslmode=require',
+    );
   }
 
   const pool = new Pool({ connectionString, ssl: { rejectUnauthorized: false }, max: 3 });
@@ -190,7 +199,8 @@ async function buildModelsdevLookup(client) {
       // Strategy 4: normalize (dots to hyphens, strip dates)
       if (!dm) {
         const normalized = catId
-          .split('/').pop()
+          .split('/')
+          .pop()
           .replace(/-latest$/, '')
           .replace(/-\d{8}$/, '')
           .replace(/-\d{6}$/, '');
@@ -235,7 +245,7 @@ async function buildModelsdevLookup(client) {
       'SWE-Atlas Codebase QnA': 'swe-atlas-codebase-qna',
       'SWE-Atlas Refactoring': 'swe-atlas-refactoring',
       'SWE-Atlas Test Writing': 'swe-atlas-test-writing',
-      'SciCode': 'scicode',
+      SciCode: 'scicode',
       'Terminal-Bench': 'terminal-bench',
       'Terminal-Bench Hard': 'terminal-bench-hard',
       'Terminal Bench 2.0': 'terminal-bench-2.0',
@@ -245,10 +255,12 @@ async function buildModelsdevLookup(client) {
     let updated = 0;
     for (const { dm, benchmarks } of matched) {
       for (const b of benchmarks) {
-        const scoreType = SCORE_TYPE_MAP[b.name] || b.name
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-|-$/g, '');
+        const scoreType =
+          SCORE_TYPE_MAP[b.name] ||
+          b.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '');
 
         const rawData = JSON.stringify({
           metric: b.metric,
@@ -257,14 +269,17 @@ async function buildModelsdevLookup(client) {
           benchmark_name: b.name,
         });
 
-        await client.query(`
+        await client.query(
+          `
           INSERT INTO model_scores (datapoint_model_id, source, score_type, score_value, raw_data, fetched_at)
           VALUES ($1, 'modelsdev', $2, $3, $4, NOW())
           ON CONFLICT (datapoint_model_id, source, score_type)
           DO UPDATE SET score_value = EXCLUDED.score_value,
                         raw_data = EXCLUDED.raw_data,
                         fetched_at = NOW()
-        `, [dm.id, scoreType, b.score, rawData]);
+        `,
+          [dm.id, scoreType, b.score, rawData],
+        );
 
         updated++;
       }
@@ -273,7 +288,6 @@ async function buildModelsdevLookup(client) {
 
     await client.query('COMMIT');
     logger.info(`\n  Imported ${inserted} models with ${updated} benchmark scores`);
-
   } catch (err) {
     await client.query('ROLLBACK');
     logger.error(`DB error: ${err.message}`);

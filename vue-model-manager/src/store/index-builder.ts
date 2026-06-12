@@ -7,13 +7,7 @@
  * per-update cost from O(N × C) to O(N + C) where N = models and C = computeds.
  */
 
-import type {
-  ModelsData,
-  CreatorData,
-  ModelData,
-  ProviderDatapoint,
-  FamilyData,
-} from '@/types';
+import type { ModelsData, CreatorData, ModelData, ProviderDatapoint, FamilyData } from '@/types';
 
 export interface ModelIndex {
   /** All models flat across all creators */
@@ -37,7 +31,15 @@ export interface ModelIndex {
   /** Rate-limited datapoints */
   rateLimitedDatapoints: ProviderDatapoint[];
   /** Provider refs aggregated from working models */
-  providerRefs: Map<string, { provider_slug: string; provider: string; model_count: number; models: { model: ModelData; creator: CreatorData }[] }>;
+  providerRefs: Map<
+    string,
+    {
+      provider_slug: string;
+      provider: string;
+      model_count: number;
+      models: { model: ModelData; creator: CreatorData }[];
+    }
+  >;
   /** Model scores index */
   modelScores: NonNullable<ModelsData['_model_scores']>;
 }
@@ -51,15 +53,26 @@ export function buildIndex(data: ModelsData): ModelIndex {
   const allDatapoints: ProviderDatapoint[] = [];
   const modelBySlug = new Map<string, ModelData>();
   const modelBySuperId = new Map<number, { model: ModelData; creator: CreatorData }>();
-  const datapointById = new Map<string, { dp: ProviderDatapoint; model: ModelData; creator: CreatorData }>();
+  const datapointById = new Map<
+    string,
+    { dp: ProviderDatapoint; model: ModelData; creator: CreatorData }
+  >();
   const derivedModels = new Map<string, ModelData[]>();
   const workingDatapoints: ProviderDatapoint[] = [];
   const brokenDatapoints: ProviderDatapoint[] = [];
   const rateLimitedDatapoints: ProviderDatapoint[] = [];
-  const providerRefs = new Map<string, { provider_slug: string; provider: string; model_count: number; models: { model: ModelData; creator: CreatorData }[] }>();
+  const providerRefs = new Map<
+    string,
+    {
+      provider_slug: string;
+      provider: string;
+      model_count: number;
+      models: { model: ModelData; creator: CreatorData }[];
+    }
+  >();
 
   // Single pass over creators → models → providers
-  for (const creator of (data.creators || [])) {
+  for (const creator of data.creators || []) {
     for (const model of creator.models) {
       allModels.push(model);
       modelBySlug.set(model.slug, model);
@@ -80,9 +93,15 @@ export function buildIndex(data: ModelsData): ModelIndex {
         // Status bucketing
         if (!dp._removed) {
           switch (dp.status?.result) {
-            case 'working': workingDatapoints.push(dp); break;
-            case 'broken': brokenDatapoints.push(dp); break;
-            case 'rate_limited': rateLimitedDatapoints.push(dp); break;
+            case 'working':
+              workingDatapoints.push(dp);
+              break;
+            case 'broken':
+              brokenDatapoints.push(dp);
+              break;
+            case 'rate_limited':
+              rateLimitedDatapoints.push(dp);
+              break;
           }
         }
 
@@ -90,7 +109,12 @@ export function buildIndex(data: ModelsData): ModelIndex {
         if (!dp._removed && dp.status?.result === 'working') {
           let ref = providerRefs.get(dp.provider_slug);
           if (!ref) {
-            ref = { provider_slug: dp.provider_slug, provider: dp.provider, model_count: 0, models: [] };
+            ref = {
+              provider_slug: dp.provider_slug,
+              provider: dp.provider,
+              model_count: 0,
+              models: [],
+            };
             providerRefs.set(dp.provider_slug, ref);
           }
           ref.model_count++;
@@ -101,7 +125,13 @@ export function buildIndex(data: ModelsData): ModelIndex {
   }
 
   // Build families
-  const familyMap = new Map<string, { models: Map<number, { model: ModelData; providers: ProviderDatapoint[] }>; providerSet: Set<string> }>();
+  const familyMap = new Map<
+    string,
+    {
+      models: Map<number, { model: ModelData; providers: ProviderDatapoint[] }>;
+      providerSet: Set<string>;
+    }
+  >();
   for (const model of allModels) {
     const familyName = model.family || 'Uncategorized';
     if (!familyMap.has(familyName)) {
@@ -110,7 +140,7 @@ export function buildIndex(data: ModelsData): ModelIndex {
     const entry = familyMap.get(familyName)!;
     entry.models.set(model.super_id, {
       model,
-      providers: model.providers.filter(p => !p._removed && p.status?.result === 'working'),
+      providers: model.providers.filter((p) => !p._removed && p.status?.result === 'working'),
     });
     for (const p of model.providers) {
       if (!p._removed && p.status?.result === 'working') {
@@ -121,10 +151,15 @@ export function buildIndex(data: ModelsData): ModelIndex {
   const families: FamilyData[] = [];
   for (const [name, entry] of familyMap) {
     const models = Array.from(entry.models.values())
-      .filter(e => e.providers.length > 0)
-      .map(e => e.model)
+      .filter((e) => e.providers.length > 0)
+      .map((e) => e.model)
       .sort((a, b) => a.name.localeCompare(b.name));
-    families.push({ name, model_count: models.length, provider_count: entry.providerSet.size, models });
+    families.push({
+      name,
+      model_count: models.length,
+      provider_count: entry.providerSet.size,
+      models,
+    });
   }
   families.sort((a, b) => {
     if (a.name === 'Uncategorized') return 1;

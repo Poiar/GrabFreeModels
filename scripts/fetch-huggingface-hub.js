@@ -35,24 +35,26 @@ function sleep(ms) {
 
 function httpsGetWithHeaders(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return resolve(httpsGetWithHeaders(res.headers.location));
-      }
-      let data = '';
-      res.on('data', (chunk) => (data += chunk));
-      res.on('end', () => {
-        if (res.statusCode >= 400) {
-          reject(new Error(`HTTP ${res.statusCode} from ${url}`));
-        } else {
-          try {
-            resolve({ data: JSON.parse(data), link: res.headers.link || null });
-          } catch (e) {
-            reject(new Error(`Invalid JSON: ${e.message}`));
-          }
+    https
+      .get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          return resolve(httpsGetWithHeaders(res.headers.location));
         }
-      });
-    }).on('error', reject);
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          if (res.statusCode >= 400) {
+            reject(new Error(`HTTP ${res.statusCode} from ${url}`));
+          } else {
+            try {
+              resolve({ data: JSON.parse(data), link: res.headers.link || null });
+            } catch (e) {
+              reject(new Error(`Invalid JSON: ${e.message}`));
+            }
+          }
+        });
+      })
+      .on('error', reject);
   });
 }
 
@@ -103,41 +105,41 @@ async function fetchModels(limit) {
 function mapAuthorToProvider(author) {
   const MAP = {
     'meta-llama': 'openrouter',
-    'mistralai': 'mistral',
+    mistralai: 'mistral',
     'deepseek-ai': 'deepseek',
-    'google': 'google',
-    'Qwen': 'openrouter',
+    google: 'google',
+    Qwen: 'openrouter',
     '01-ai': 'openrouter',
-    'NousResearch': 'openrouter',
-    'cognitivecomputations': 'openrouter',
-    'HuggingFaceH4': 'huggingface',
-    'CohereForAI': 'cohere',
-    'microsoft': 'openrouter',
-    'nvidia': 'nvidia',
+    NousResearch: 'openrouter',
+    cognitivecomputations: 'openrouter',
+    HuggingFaceH4: 'huggingface',
+    CohereForAI: 'cohere',
+    microsoft: 'openrouter',
+    nvidia: 'nvidia',
     'ibm-granite': 'openrouter',
-    'THUDM': 'openrouter',
-    'tiiuae': 'openrouter',
-    'bigscience': 'huggingface',
-    'EleutherAI': 'huggingface',
-    'ai21labs': 'openrouter',
+    THUDM: 'openrouter',
+    tiiuae: 'openrouter',
+    bigscience: 'huggingface',
+    EleutherAI: 'huggingface',
+    ai21labs: 'openrouter',
     'baichuan-inc': 'openrouter',
-    'internlm': 'openrouter',
-    'togethercomputer': 'together',
-    'Writer': 'openrouter',
-    'HuggingFaceTB': 'huggingface',
-    'databricks': 'openrouter',
-    'openbmb': 'openrouter',
-    'Salesforce': 'openrouter',
-    'upstage': 'openrouter',
-    'BAAI': 'openrouter',
+    internlm: 'openrouter',
+    togethercomputer: 'together',
+    Writer: 'openrouter',
+    HuggingFaceTB: 'huggingface',
+    databricks: 'openrouter',
+    openbmb: 'openrouter',
+    Salesforce: 'openrouter',
+    upstage: 'openrouter',
+    BAAI: 'openrouter',
     'mistral-community': 'mistral',
     'llama-community': 'openrouter',
-    'openai': 'openai',
+    openai: 'openai',
     'xai-org': 'openrouter',
-    'Gryphe': 'openrouter',
-    'Undi95': 'openrouter',
-    'Sao10K': 'openrouter',
-    'TheDrummer': 'openrouter',
+    Gryphe: 'openrouter',
+    Undi95: 'openrouter',
+    Sao10K: 'openrouter',
+    TheDrummer: 'openrouter',
     'Arcee-Vision': 'openrouter',
     'anthracite-org': 'openrouter',
   };
@@ -249,7 +251,9 @@ function mapAuthorToProvider(author) {
     }
 
     await client.query('COMMIT');
-    logger.info(`  Stored ${totalInserted} models across ${Object.keys(byProvider).length} providers`);
+    logger.info(
+      `  Stored ${totalInserted} models across ${Object.keys(byProvider).length} providers`,
+    );
   } catch (err) {
     await client.query('ROLLBACK');
     logger.error(`DB error: ${err.message}`);
@@ -258,4 +262,7 @@ function mapAuthorToProvider(author) {
     client.release();
     await pool.end();
   }
-})().catch((e) => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

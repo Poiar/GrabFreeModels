@@ -97,7 +97,11 @@ async function withRetry(fn, maxRetries) {
     } catch (err) {
       lastErr = err;
       // Only retry network errors and 5xx
-      if (err.message?.includes('timeout') || err.message?.includes('ECONN') || err.message?.includes('ETIMEDOUT')) {
+      if (
+        err.message?.includes('timeout') ||
+        err.message?.includes('ECONN') ||
+        err.message?.includes('ETIMEDOUT')
+      ) {
         if (attempt < maxRetries) {
           await sleep(Math.min(1000 * Math.pow(2, attempt), 8000));
         }

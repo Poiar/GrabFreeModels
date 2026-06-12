@@ -20,8 +20,15 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
 let connectionString = process.env.DATABASE_URL;
-if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+if (
+  connectionString &&
+  connectionString.includes('sslmode=require') &&
+  !connectionString.includes('uselibpqcompat')
+) {
+  connectionString = connectionString.replace(
+    'sslmode=require',
+    'uselibpqcompat=true&sslmode=require',
+  );
 }
 const pool = new Pool({
   connectionString,
@@ -131,7 +138,7 @@ function parseQuantFromName(name) {
 const CARD_QUANT_KEYWORDS = [
   // Direct quantization claims
   { keyword: '"quantization":', value: null }, // special: extract value from JSON
-  { keyword: '"quantized":', value: null },    // special: extract bool
+  { keyword: '"quantized":', value: null }, // special: extract bool
   { keyword: '"fp8"', value: 'fp8' },
   { keyword: '"fp4"', value: 'fp4' },
   { keyword: '"int8"', value: 'int8' },
@@ -188,7 +195,7 @@ async function main() {
   try {
     // Get the huggingface-hub source ID
     const { rows: srcRows } = await client.query(
-      `SELECT id FROM sources WHERE slug = 'huggingface-hub'`
+      `SELECT id FROM sources WHERE slug = 'huggingface-hub'`,
     );
     const hfSourceId = srcRows.length > 0 ? srcRows[0].id : null;
 
@@ -196,15 +203,22 @@ async function main() {
     const hfQuantMap = new Map(); // HF model_name → quantization
     const hfCardDataMap = new Map(); // HF model_name → cardData text (for card text parsing)
     if (hfSourceId) {
-      const { rows: hfModels } = await client.query(`
+      const { rows: hfModels } = await client.query(
+        `
         SELECT esm.model_name, esm.model_limits
         FROM external_source_models esm
         WHERE esm.source_id = $1
-      `, [hfSourceId]);
+      `,
+        [hfSourceId],
+      );
 
       for (const row of hfModels) {
         let limits;
-        try { limits = JSON.parse(row.model_limits); } catch { continue; }
+        try {
+          limits = JSON.parse(row.model_limits);
+        } catch {
+          continue;
+        }
         const tags = limits.tags || [];
         const quant = parseQuantFromTags(tags);
         if (quant) {
@@ -289,7 +303,7 @@ async function main() {
     for (const u of updates) {
       await client.query(
         `UPDATE datapoint_models SET quantization = $1 WHERE full_id = $2 AND quantization IS NULL`,
-        [u.quantization, u.full_id]
+        [u.quantization, u.full_id],
       );
       updated++;
     }

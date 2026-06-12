@@ -7,38 +7,39 @@
 
 // ── Family name overrides ──
 const FAMILY_OVERRIDES: Record<string, string> = {
-  'llama': 'Llama',
-  'gpt': 'GPT',
-  'gemini': 'Gemini',
-  'grok': 'Grok',
-  'qwq': 'QwQ',
-  'qwen': 'Qwen',
-  'mistral': 'Mistral',
-  'mixtral': 'Mixtral',
-  'deepseek': 'DeepSeek',
-  'gemma': 'Gemma',
-  'phi': 'Phi',
-  'claude': 'Claude',
-  'command': 'Command',
-  'wizardlm': 'WizardLM',
-  'codellama': 'Code Llama',
-  'yi': 'Yi',
-  'nemotron': 'Nemotron',
-  'c4ai': 'C4AI',
-  'aya': 'Aya',
-  'olmo': 'OLMo',
-  'dbrx': 'DBRX',
-  'falcon': 'Falcon',
-  'mamba': 'Mamba',
-  'jamba': 'Jamba',
-  'reka': 'Reka',
-  'striped': 'StripedHyena',
+  llama: 'Llama',
+  gpt: 'GPT',
+  gemini: 'Gemini',
+  grok: 'Grok',
+  qwq: 'QwQ',
+  qwen: 'Qwen',
+  mistral: 'Mistral',
+  mixtral: 'Mixtral',
+  deepseek: 'DeepSeek',
+  gemma: 'Gemma',
+  phi: 'Phi',
+  claude: 'Claude',
+  command: 'Command',
+  wizardlm: 'WizardLM',
+  codellama: 'Code Llama',
+  yi: 'Yi',
+  nemotron: 'Nemotron',
+  c4ai: 'C4AI',
+  aya: 'Aya',
+  olmo: 'OLMo',
+  dbrx: 'DBRX',
+  falcon: 'Falcon',
+  mamba: 'Mamba',
+  jamba: 'Jamba',
+  reka: 'Reka',
+  striped: 'StripedHyena',
 };
 
 export function formatFamily(raw: string): string {
   if (raw === 'Uncategorized') return raw;
-  return raw.split('-')
-    .map(w => FAMILY_OVERRIDES[w] ?? (w.charAt(0).toUpperCase() + w.slice(1)))
+  return raw
+    .split('-')
+    .map((w) => FAMILY_OVERRIDES[w] ?? w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
 }
 
@@ -96,8 +97,18 @@ export function formatKnowledge(k: string | null): string {
   const m = k.match(/^(\d{4})-(\d{2})/);
   if (!m) return k;
   const month = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ][parseInt(m[2]) - 1];
   return `${month} ${m[1]}`;
 }

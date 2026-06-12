@@ -18,31 +18,43 @@ const APPLY = process.argv.includes('--apply');
 
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location)
-        return resolve(httpsGet(res.headers.location));
-      let data = '';
-      res.on('data', (chunk) => (data += chunk));
-      res.on('end', () => {
-        if (res.statusCode >= 400) reject(new Error(`HTTP ${res.statusCode}`));
-        else resolve(JSON.parse(data));
-      });
-    }).on('error', reject);
+    https
+      .get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location)
+          return resolve(httpsGet(res.headers.location));
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          if (res.statusCode >= 400) reject(new Error(`HTTP ${res.statusCode}`));
+          else resolve(JSON.parse(data));
+        });
+      })
+      .on('error', reject);
   });
 }
 
 function slugify(name) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').replace(/-{2,}/g, '-');
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .replace(/-{2,}/g, '-');
 }
 
 function stripCreatorPrefix(name) {
-  return name.replace(/^[A-Za-z][A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*:\s*/i, '')
-             .replace(/^[a-z][a-z0-9-]*\/(?=[A-Z])/, '').trim();
+  return name
+    .replace(/^[A-Za-z][A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*:\s*/i, '')
+    .replace(/^[a-z][a-z0-9-]*\/(?=[A-Z])/, '')
+    .trim();
 }
 
 function cleanMdName(mdName) {
   let name = stripCreatorPrefix(mdName);
-  name = name.replace(/\s*\(free\)\s*$/i, '').replace(/\s*\(latest\)\s*$/i, '').replace(/\s+Free$/i, '').trim();
+  name = name
+    .replace(/\s*\(free\)\s*$/i, '')
+    .replace(/\s*\(latest\)\s*$/i, '')
+    .replace(/\s+Free$/i, '')
+    .trim();
   return name;
 }
 
@@ -76,11 +88,16 @@ function cleanMdName(mdName) {
   }
 
   const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) { console.error('DATABASE_URL not set'); process.exit(1); }
+  if (!connectionString) {
+    console.error('DATABASE_URL not set');
+    process.exit(1);
+  }
   const pool = new Pool({
     connectionString: connectionString.includes('uselibpqcompat')
-      ? connectionString : connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require'),
-    ssl: { rejectUnauthorized: false }, max: 3,
+      ? connectionString
+      : connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require'),
+    ssl: { rejectUnauthorized: false },
+    max: 3,
   });
   const client = await pool.connect();
 
@@ -104,8 +121,8 @@ function cleanMdName(mdName) {
 
     for (const sm of slugSupers) {
       const dps = sm.datapoints || [];
-      const mdDp = dps.find(d => d.provider_slug === 'modelsdev');
-      const nonMdDps = dps.filter(d => d.provider_slug && d.provider_slug !== 'modelsdev');
+      const mdDp = dps.find((d) => d.provider_slug === 'modelsdev');
+      const nonMdDps = dps.filter((d) => d.provider_slug && d.provider_slug !== 'modelsdev');
 
       let mdEntry = null;
 
@@ -114,7 +131,9 @@ function cleanMdName(mdName) {
         const candidates = mdBySlug.get(slugify(mdDp.model_instance_key)) || [];
         if (candidates.length === 1) mdEntry = candidates[0];
         else if (candidates.length > 1) {
-          mdEntry = candidates.find(c => mdDp.model_instance_key.startsWith(c.providerId + '/')) || candidates[0];
+          mdEntry =
+            candidates.find((c) => mdDp.model_instance_key.startsWith(c.providerId + '/')) ||
+            candidates[0];
         }
       }
       if (!mdEntry) {
@@ -123,8 +142,11 @@ function cleanMdName(mdName) {
         else if (candidates && candidates.length > 1) {
           for (const dp of nonMdDps) {
             const mdProvs = reverseProviderMap[dp.provider_slug] || [];
-            const m = candidates.find(c => mdProvs.includes(c.providerId));
-            if (m) { mdEntry = m; break; }
+            const m = candidates.find((c) => mdProvs.includes(c.providerId));
+            if (m) {
+              mdEntry = m;
+              break;
+            }
           }
           if (!mdEntry) mdEntry = candidates[0];
         }
@@ -133,18 +155,20 @@ function cleanMdName(mdName) {
 
       // Get the display name from models.dev
       const mdDisplayName = cleanMdName(mdEntry.name);
-      if (mdDisplayName === sm.name) continue;  // Same — no rename needed
+      if (mdDisplayName === sm.name) continue; // Same — no rename needed
 
       // Check if another super already has this display name
-      const { rows: [existing] } = await client.query(
+      const {
+        rows: [existing],
+      } = await client.query(
         'SELECT id, name, slug FROM super_models WHERE name = $1 AND id != $2',
-        [mdDisplayName, sm.id]
+        [mdDisplayName, sm.id],
       );
-      if (!existing) continue;  // No collision — rename would succeed
+      if (!existing) continue; // No collision — rename would succeed
 
       // Found a duplicate pair: source=sm, target=existing
       // Verify they're the same model by checking they match the same models.dev entry
-      const alreadyIn = merges.find(m => m.source_id === sm.id || m.source_id === existing.id);
+      const alreadyIn = merges.find((m) => m.source_id === sm.id || m.source_id === existing.id);
       if (alreadyIn) {
         // If existing is already a target and sm is different, add sm as another source
         if (alreadyIn.target_id === existing.id && sm.id !== alreadyIn.source_id) {
@@ -154,8 +178,12 @@ function cleanMdName(mdName) {
       }
 
       merges.push({
-        source_id: sm.id, source_name: sm.name, source_slug: sm.slug,
-        target_id: existing.id, target_name: existing.name, target_slug: existing.slug,
+        source_id: sm.id,
+        source_name: sm.name,
+        source_slug: sm.slug,
+        target_id: existing.id,
+        target_name: existing.name,
+        target_slug: existing.slug,
         reason: `models.dev: ${mdEntry.providerId}/${mdEntry.modelId} → "${mdDisplayName}"`,
       });
     }
@@ -168,19 +196,28 @@ function cleanMdName(mdName) {
     `);
     for (const cps of creatorPrefixSupers) {
       const stripped = cps.name.replace(/^[A-Z][a-zA-Z0-9.-]+: /, '');
-      const { rows: [existing] } = await client.query(
+      const {
+        rows: [existing],
+      } = await client.query(
         'SELECT id, name, slug FROM super_models WHERE name = $1 AND id != $2',
-        [stripped, cps.id]
+        [stripped, cps.id],
       );
       if (!existing) continue;
-      const alreadyIn = merges.find(m =>
-        (m.source_id === cps.id || m.target_id === cps.id ||
-         m.source_id === existing.id || m.target_id === existing.id)
+      const alreadyIn = merges.find(
+        (m) =>
+          m.source_id === cps.id ||
+          m.target_id === cps.id ||
+          m.source_id === existing.id ||
+          m.target_id === existing.id,
       );
       if (alreadyIn) continue;
       merges.push({
-        source_id: cps.id, source_name: cps.name, source_slug: cps.slug,
-        target_id: existing.id, target_name: existing.name, target_slug: existing.slug,
+        source_id: cps.id,
+        source_name: cps.name,
+        source_slug: cps.slug,
+        target_id: existing.id,
+        target_name: existing.name,
+        target_slug: existing.slug,
         reason: 'strip creator prefix: ' + stripped,
       });
     }
@@ -202,9 +239,12 @@ function cleanMdName(mdName) {
            OR (s2.name !~ '[A-Z]' AND s2.name ~ '-' AND s1.name ~ '[A-Z]' AND s1.name ~ ' ')
       `);
       for (const sp of slugPairs) {
-        const alreadyIn = merges.find(m =>
-          (m.source_id === sp.id_a || m.source_id === sp.id_b ||
-           m.target_id === sp.id_a || m.target_id === sp.id_b)
+        const alreadyIn = merges.find(
+          (m) =>
+            m.source_id === sp.id_a ||
+            m.source_id === sp.id_b ||
+            m.target_id === sp.id_a ||
+            m.target_id === sp.id_b,
         );
         if (alreadyIn) continue;
         // Display name = target
@@ -226,20 +266,25 @@ function cleanMdName(mdName) {
     if (!APPLY) {
       console.log('Dry-run. Would merge:');
       for (const m of merges) {
-        console.log(`  "${m.source_name}" (id=${m.source_id}) → "${m.target_name}" (id=${m.target_id})`);
+        console.log(
+          `  "${m.source_name}" (id=${m.source_id}) → "${m.target_name}" (id=${m.target_id})`,
+        );
         console.log(`    reason: ${m.reason}`);
       }
       console.log(`\nUse --apply to execute ${merges.length} merges.`);
       return;
     }
 
-    let merged = 0, skipped = 0, errors = 0;
+    let merged = 0,
+      skipped = 0,
+      errors = 0;
     for (const m of merges) {
       try {
         await client.query('BEGIN');
 
         // Move non-conflicting datapoints from source to target
-        await client.query(`
+        await client.query(
+          `
           UPDATE datapoint_models dm
           SET super_model_id = $2
           WHERE super_model_id = $1
@@ -249,7 +294,9 @@ function cleanMdName(mdName) {
                 AND dm2.datapoint_provider_id = dm.datapoint_provider_id
                 AND dm2.model_instance_key = dm.model_instance_key
             )
-        `, [m.source_id, m.target_id]);
+        `,
+          [m.source_id, m.target_id],
+        );
 
         // Delete remaining source datapoints (duplicates on target)
         await client.query('DELETE FROM datapoint_models WHERE super_model_id = $1', [m.source_id]);
@@ -275,4 +322,7 @@ function cleanMdName(mdName) {
     client.release();
     await pool.end();
   }
-})().catch((e) => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

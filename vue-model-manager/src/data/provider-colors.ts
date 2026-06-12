@@ -186,27 +186,69 @@ function hashColor(slug: string): string {
   return `hsl(${hue}, 55%, 48%)`;
 }
 
+// ── Color utilities ──
+
+/** Parse a hex color string into {r,g,b} (0-255) */
+function parseHex(hex: string): { r: number; g: number; b: number } {
+  return {
+    r: parseInt(hex.slice(1, 3), 16),
+    g: parseInt(hex.slice(3, 5), 16),
+    b: parseInt(hex.slice(5, 7), 16),
+  };
+}
+
+/** Relative luminance (WCAG) — 0 (darkest) to 1 (brightest) */
+function luminance(r: number, g: number, b: number): number {
+  const toLinear = (c: number) => {
+    c /= 255;
+    return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+}
+
+/** Ensure a color has at least `minLum` relative luminance by lightening it.
+ *  Returns a hex string. */
+function ensureMinLuminance(hex: string, minLum: number): string {
+  let { r, g, b } = parseHex(hex);
+  if (luminance(r, g, b) >= minLum) return hex;
+  // Lighten by mixing with white until threshold is met
+  for (let i = 0; i < 100; i++) {
+    r = Math.min(255, r + 12);
+    g = Math.min(255, g + 12);
+    b = Math.min(255, b + 12);
+    if (luminance(r, g, b) >= minLum) break;
+  }
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+// Minimum luminance for a color to be visible on a dark (#121212) background.
+// ~0.25 is roughly #555 which is visible but dim; we use 0.30 for safe visibility.
+const MIN_CONTRAST_LUM = 0.3;
+
 /** Returns a hex color for the given provider slug */
 export function getProviderColor(slug: string): string {
   const key = slug.toLowerCase();
   return BRAND_COLORS[key] ?? hashColor(key);
 }
 
-/** Returns a muted, background-safe variant (lower opacity / lighter) for the given slug */
-export function getProviderColorMuted(slug: string): string {
+/** Returns a foreground-safe hex color — brightens dark brand colors so they
+ *  don't disappear into the dark background. Use for text, icons, borders. */
+export function getProviderColorForeground(slug: string): string {
   const hex = getProviderColor(slug);
-  // Convert hex to rgba with 0.12 alpha
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},0.12)`;
+  return ensureMinLuminance(hex, MIN_CONTRAST_LUM);
+}
+
+/** Returns a muted, background-safe variant for the given slug.
+ *  Uses 0.18 alpha for visibility and ensures the base color isn't too dark. */
+export function getProviderColorMuted(slug: string): string {
+  const hex = ensureMinLuminance(getProviderColor(slug), MIN_CONTRAST_LUM);
+  const { r, g, b } = parseHex(hex);
+  return `rgba(${r},${g},${b},0.18)`;
 }
 
 /** Returns a glow/shadow color for the provider */
 export function getProviderColorGlow(slug: string): string {
   const hex = getProviderColor(slug);
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
+  const { r, g, b } = parseHex(hex);
   return `rgba(${r},${g},${b},0.4)`;
 }

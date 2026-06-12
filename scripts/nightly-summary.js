@@ -63,8 +63,10 @@ function buildSlackPayload(stats) {
   // Determine overall color
   let color = '#36a64f'; // green
   const hasErrors = validation.workingCount > 0 && validation.workingRate < 0.7;
-  const hasWarnings = degradation.alerts_count > 0 || Object.keys(rankings.changes || {}).length > 0;
-  if (hasErrors) color = '#dc3545'; // red
+  const hasWarnings =
+    degradation.alerts_count > 0 || Object.keys(rankings.changes || {}).length > 0;
+  if (hasErrors)
+    color = '#dc3545'; // red
   else if (hasWarnings) color = '#ffc107'; // yellow
 
   const blocks = [
@@ -76,7 +78,13 @@ function buildSlackPayload(stats) {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: validation.workingCount + ' working / ' + validation.totalFree + ' free models (' + validation.workingRateText + ')',
+        text:
+          validation.workingCount +
+          ' working / ' +
+          validation.totalFree +
+          ' free models (' +
+          validation.workingRateText +
+          ')',
       },
     },
     { type: 'divider' },
@@ -100,7 +108,8 @@ function buildSlackPayload(stats) {
     'Not found: ' + validation.notFoundCount,
   ];
 
-  const healthEmoji = validation.workingRate >= 0.9 ? '✅' : validation.workingRate >= 0.7 ? '⚠️' : '❌';
+  const healthEmoji =
+    validation.workingRate >= 0.9 ? '✅' : validation.workingRate >= 0.7 ? '⚠️' : '❌';
   vLines.push(healthEmoji + ' Health: ' + validation.workingRateText);
 
   blocks.push({
@@ -115,7 +124,22 @@ function buildSlackPayload(stats) {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: '*New Models Discovered*: ' + newModels.count + ' new' + (newModels.examples.length > 0 ? '\n' + newModels.examples.slice(0, 5).map(function (id) { return '• ' + id; }).join('\n') : '') + (newModels.examples.length > 5 ? '\n... and ' + (newModels.examples.length - 5) + ' more' : ''),
+        text:
+          '*New Models Discovered*: ' +
+          newModels.count +
+          ' new' +
+          (newModels.examples.length > 0
+            ? '\n' +
+              newModels.examples
+                .slice(0, 5)
+                .map(function (id) {
+                  return '• ' + id;
+                })
+                .join('\n')
+            : '') +
+          (newModels.examples.length > 5
+            ? '\n... and ' + (newModels.examples.length - 5) + ' more'
+            : ''),
       },
     });
   }
@@ -127,7 +151,12 @@ function buildSlackPayload(stats) {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: '*Degradation Alerts*: ' + degradation.alerts_count + ' model(s)' + '\nRun date: ' + degradation.run_date,
+        text:
+          '*Degradation Alerts*: ' +
+          degradation.alerts_count +
+          ' model(s)' +
+          '\nRun date: ' +
+          degradation.run_date,
       },
     });
 
@@ -145,7 +174,10 @@ function buildSlackPayload(stats) {
     if (degradation.alerts.length > 10) {
       blocks.push({
         type: 'section',
-        text: { type: 'mrkdwn', text: '... and ' + (degradation.alerts.length - 10) + ' more alerts' },
+        text: {
+          type: 'mrkdwn',
+          text: '... and ' + (degradation.alerts.length - 10) + ' more alerts',
+        },
       });
     }
   }
@@ -155,7 +187,8 @@ function buildSlackPayload(stats) {
   var rankingKeys = Object.keys(rankingChanges);
   var totalRankingChanges = 0;
   for (var r = 0; r < rankingKeys.length; r++) {
-    totalRankingChanges += rankingChanges[rankingKeys[r]].added.length + rankingChanges[rankingKeys[r]].removed.length;
+    totalRankingChanges +=
+      rankingChanges[rankingKeys[r]].added.length + rankingChanges[rankingKeys[r]].removed.length;
   }
 
   if (totalRankingChanges > 0) {
@@ -198,7 +231,14 @@ function buildSlackPayload(stats) {
   }
 
   return {
-    text: 'Nightly Pipeline — ' + date + ' (' + validation.workingCount + '/' + validation.totalFree + ' working)',
+    text:
+      'Nightly Pipeline — ' +
+      date +
+      ' (' +
+      validation.workingCount +
+      '/' +
+      validation.totalFree +
+      ' working)',
     attachments: [
       {
         color: color,
@@ -261,8 +301,16 @@ async function main() {
       stats.validation.rateLimitedCount = (results.rate_limited || []).length;
       stats.validation.untestedCount = (results.untested || []).length;
       stats.validation.notFoundCount = (results.not_found || []).length;
-      stats.validation.totalFree = stats.validation.workingCount + stats.validation.brokenCount + stats.validation.rateLimitedCount + stats.validation.untestedCount + stats.validation.notFoundCount;
-      stats.validation.workingRate = stats.validation.totalFree > 0 ? stats.validation.workingCount / stats.validation.totalFree : 0;
+      stats.validation.totalFree =
+        stats.validation.workingCount +
+        stats.validation.brokenCount +
+        stats.validation.rateLimitedCount +
+        stats.validation.untestedCount +
+        stats.validation.notFoundCount;
+      stats.validation.workingRate =
+        stats.validation.totalFree > 0
+          ? stats.validation.workingCount / stats.validation.totalFree
+          : 0;
       stats.validation.workingRateText = Math.round(stats.validation.workingRate * 100) + '%';
     }
   } catch (e) {
@@ -276,7 +324,9 @@ async function main() {
       [today],
     );
     stats.newModels.count = newResult.rows.length;
-    stats.newModels.examples = newResult.rows.map(function (r) { return r.full_id; });
+    stats.newModels.examples = newResult.rows.map(function (r) {
+      return r.full_id;
+    });
   } catch (e) {
     console.log('Warning: could not query new models: ' + e.message);
   }
@@ -311,7 +361,11 @@ async function main() {
     var yesterdayStr = yesterday.toISOString().slice(0, 10);
 
     var diffOutput = execSync(
-      'node ' + path.join(__dirname, 'diff-rankings.js') + ' --db --prior ' + yesterdayStr + ' --json',
+      'node ' +
+        path.join(__dirname, 'diff-rankings.js') +
+        ' --db --prior ' +
+        yesterdayStr +
+        ' --json',
       { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024, timeout: 30000 },
     );
 

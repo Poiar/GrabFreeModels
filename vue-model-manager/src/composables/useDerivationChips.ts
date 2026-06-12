@@ -54,24 +54,24 @@ export interface ParamCount {
  * Count active models grouped by derivation method.
  * @param models Array of models with a derivation_method field
  */
-export function modelDerivationCounts(models: { derivation_method?: string | null }[]): DerivationCount[] {
+export function modelDerivationCounts(
+  models: { derivation_method?: string | null }[],
+): DerivationCount[] {
   const counts = new Map<string, number>();
   for (const m of models) {
     const method = m.derivation_method || 'unknown';
     counts.set(method, (counts.get(method) || 0) + 1);
   }
-  return DERIV_CHIPS
-    .map(chip => ({ ...chip, count: counts.get(chip.key) || 0 }))
-    .filter(c => c.count > 0);
+  return DERIV_CHIPS.map((chip) => ({ ...chip, count: counts.get(chip.key) || 0 })).filter(
+    (c) => c.count > 0,
+  );
 }
 
 /**
  * Count active models grouped by parameter size bucket.
  * @param models Array of models with a param_count_b field
  */
-export function paramCounts(
-  models: { param_count_b?: number | null }[],
-): ParamCount[] {
+export function paramCounts(models: { param_count_b?: number | null }[]): ParamCount[] {
   const counts: Record<string, number> = {};
   for (const bucket of PARAM_BUCKETS) counts[bucket.key] = 0;
 
@@ -88,7 +88,9 @@ export function paramCounts(
     }
   }
 
-  return PARAM_BUCKETS
-    .map(b => ({ key: b.key, label: b.label, count: counts[b.key] || 0 }))
-    .filter(c => c.count > 0);
+  return PARAM_BUCKETS.map((b) => ({
+    key: b.key,
+    label: b.label,
+    count: counts[b.key] || 0,
+  })).filter((c) => c.count > 0);
 }

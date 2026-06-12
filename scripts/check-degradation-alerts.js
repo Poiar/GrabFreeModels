@@ -17,14 +17,17 @@ async function checkDegradation() {
   try {
     // Get current test summary
     const { rows: curRows } = await client.query(
-      "SELECT value FROM metadata WHERE key = '_test_summary'"
+      "SELECT value FROM metadata WHERE key = '_test_summary'",
     );
     const current = curRows.length > 0 ? JSON.parse(curRows[0].value) : null;
-    if (!current) { console.log('No current test summary found'); return; }
+    if (!current) {
+      console.log('No current test summary found');
+      return;
+    }
 
     // Get previous test summary
     const { rows: prevRows } = await client.query(
-      "SELECT value FROM metadata WHERE key = '_test_summary_previous'"
+      "SELECT value FROM metadata WHERE key = '_test_summary_previous'",
     );
     const previous = prevRows.length > 0 ? JSON.parse(prevRows[0].value) : null;
 
@@ -41,8 +44,15 @@ async function checkDegradation() {
         WHERE to2.tested_at >= now() - interval '7 days'
         GROUP BY dp.slug
       `);
-      for (const r of fr) prov7d[r.slug] = { total: parseInt(r.total), failures: parseInt(r.failures), rate: parseFloat(r.rate) };
-    } catch { console.log('test_observations table not available for degradation check'); }
+      for (const r of fr)
+        prov7d[r.slug] = {
+          total: parseInt(r.total),
+          failures: parseInt(r.failures),
+          rate: parseFloat(r.rate),
+        };
+    } catch {
+      console.log('test_observations table not available for degradation check');
+    }
 
     // Get per-provider p95 latency from test_observations (past 7d vs prior 7d)
     // Replaced model_health_snapshots with test_observations (migration 041).
@@ -75,10 +85,16 @@ async function checkDegradation() {
       `);
       for (const r of lm) {
         if (r.prior_p95 > 0 && r.recent_p95 > r.prior_p95 * 1.5) {
-          latencyAlerts.push({ provider: r.slug, recent_p95: Math.round(r.recent_p95), prior_p95: Math.round(r.prior_p95) });
+          latencyAlerts.push({
+            provider: r.slug,
+            recent_p95: Math.round(r.recent_p95),
+            prior_p95: Math.round(r.prior_p95),
+          });
         }
       }
-    } catch { /* test_observations table may not be available */ }
+    } catch {
+      /* test_observations table may not be available */
+    }
 
     // Build alert report
     const alerts = [];
@@ -101,8 +117,8 @@ async function checkDegradation() {
       const prevNotFound = new Set(previous.results.not_found || []);
       const curBroken = new Set(current.results.broken || []);
       const curNotFound = new Set(current.results.not_found || []);
-      const newBroken = [...curBroken].filter(id => !prevBroken.has(id)).length;
-      const newNotFound = [...curNotFound].filter(id => !prevNotFound.has(id)).length;
+      const newBroken = [...curBroken].filter((id) => !prevBroken.has(id)).length;
+      const newNotFound = [...curNotFound].filter((id) => !prevNotFound.has(id)).length;
       if (newBroken + newNotFound > 10) {
         alerts.push({
           type: 'volume_spike',
@@ -125,7 +141,9 @@ async function checkDegradation() {
 
     console.log(`\nDegradation Alerts: ${alerts.length} found\n`);
     for (const a of alerts) {
-      console.log(`  [${a.severity.toUpperCase()}] ${a.type}${a.provider ? ' on ' + a.provider : ''}: ${a.detail}`);
+      console.log(
+        `  [${a.severity.toUpperCase()}] ${a.type}${a.provider ? ' on ' + a.provider : ''}: ${a.detail}`,
+      );
     }
 
     if (APPLY && alerts.length > 0) {
@@ -138,7 +156,7 @@ async function checkDegradation() {
       await client.query(
         `INSERT INTO metadata (key, value) VALUES ('_degradation_alerts', $1::jsonb)
          ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
-        [val]
+        [val],
       );
       console.log('\nAlerts written to metadata._degradation_alerts');
     } else if (alerts.length === 0) {
@@ -152,4 +170,7 @@ async function checkDegradation() {
   }
 }
 
-checkDegradation().catch(err => { console.error(err.message); process.exit(1); });
+checkDegradation().catch((err) => {
+  console.error(err.message);
+  process.exit(1);
+});

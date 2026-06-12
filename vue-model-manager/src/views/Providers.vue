@@ -2,7 +2,14 @@
   <div>
     <div class="page-header">
       <h2>Providers</h2>
-      <p>{{ store.visibleProviderRefs.length }} API provider{{ store.visibleProviderRefs.length !== 1 ? 's' : '' }} hosting free models<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template></p>
+      <p>
+        {{ store.visibleProviderRefs.length }} API provider{{
+          store.visibleProviderRefs.length !== 1 ? 's' : ''
+        }}
+        hosting free models<template v-if="store.isSourceFilterActive">
+          <span class="filtered-note">(filtered)</span></template
+        >
+      </p>
     </div>
 
     <div class="cc-controls">
@@ -18,7 +25,13 @@
         <option value="workers">Sort: Workers</option>
         <option value="country">Sort: Country</option>
       </select>
-      <button class="sort-dir-btn" @click="sortAsc = !sortAsc" :title="sortAsc ? 'Ascending' : 'Descending'">{{ sortAsc ? '↑' : '↓' }}</button>
+      <button
+        class="sort-dir-btn"
+        @click="sortAsc = !sortAsc"
+        :title="sortAsc ? 'Ascending' : 'Descending'"
+      >
+        {{ sortAsc ? '↑' : '↓' }}
+      </button>
     </div>
 
     <div class="cc-chip-filters">
@@ -28,7 +41,11 @@
         class="cc-chip-btn"
         :class="{ active: selectedHealth === h.key }"
         @click="selectedHealth = selectedHealth === h.key ? 'All' : h.key"
-      >{{ h.key === 'All' ? `All (${store.visibleProviderRefs.length})` : `${h.label} (${h.count})` }}</button>
+      >
+        {{
+          h.key === 'All' ? `All (${store.visibleProviderRefs.length})` : `${h.label} (${h.count})`
+        }}
+      </button>
     </div>
 
     <div class="cc-continent-filters">
@@ -38,7 +55,11 @@
         class="cc-continent-btn"
         :class="{ active: selectedContinent === c }"
         @click="selectedContinent = c"
-      >{{ c === 'All' ? `All (${store.visibleProviderRefs.length})` : `${c} (${continentCount(c)})` }}</button>
+      >
+        {{
+          c === 'All' ? `All (${store.visibleProviderRefs.length})` : `${c} (${continentCount(c)})`
+        }}
+      </button>
     </div>
 
     <div class="cc-type-filters">
@@ -48,7 +69,13 @@
         class="cc-type-btn"
         :class="{ active: selectedType === t.key }"
         @click="selectedType = selectedType === t.key ? 'All' : t.key"
-      >{{ t.key === 'All' ? `All types (${store.visibleProviderRefs.length})` : `${t.label} (${t.count})` }}</button>
+      >
+        {{
+          t.key === 'All'
+            ? `All types (${store.visibleProviderRefs.length})`
+            : `${t.label} (${t.count})`
+        }}
+      </button>
     </div>
 
     <!-- Export buttons -->
@@ -63,18 +90,42 @@
         :key="provider.slug"
         :to="`/provider/${provider.slug}`"
         class="provider-card glass-card"
-        :style="{ '--pc-color-muted': getProviderColorMuted(provider.slug), '--pc-color': getProviderColor(provider.slug) }"
+        :style="{
+          '--pc-color-muted': getProviderColorMuted(provider.slug),
+          '--pc-color': getProviderColorForeground(provider.slug),
+        }"
       >
         <div class="pc-header">
           <ProviderIcon :slug="provider.slug" :size="32" />
           <div class="pc-name-group">
-            <h3 class="pc-name">{{ provider.name }}<button class="copy-btn-sm" title="Copy name" @click.stop="copyText(provider.name)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></h3>
+            <h3 class="pc-name">
+              {{ provider.name
+              }}<button class="copy-btn-sm" title="Copy name" @click.stop="copyText(provider.name)">
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+              </button>
+            </h3>
             <span class="pc-slug">{{ provider.slug }}</span>
           </div>
           <span
             class="pc-country"
-            :style="{ color: getCountryForProvider(provider.slug).text, background: getCountryForProvider(provider.slug).color }"
-          >{{ getCountryForProvider(provider.slug).name }}</span>
+            :style="{
+              color: getCountryForProvider(provider.slug).text,
+              background: getCountryForProvider(provider.slug).color,
+            }"
+            >{{ getCountryForProvider(provider.slug).name }}</span
+          >
           <span class="pc-status" :class="provider.health_status">
             {{ provider.health_status }}
           </span>
@@ -102,17 +153,38 @@
           <div
             class="pc-bar-fill"
             :class="provider.health_status"
-            :style="{ width: provider.model_count ? (provider.working_count / provider.model_count * 100) + '%' : '0%' }"
+            :style="{
+              width: provider.model_count
+                ? (provider.working_count / provider.model_count) * 100 + '%'
+                : '0%',
+            }"
           ></div>
         </div>
 
         <div v-if="provider.base_url" class="pc-url">{{ provider.base_url }}</div>
 
-        <div v-if="getProviderLatency(provider.slug)" class="pc-latency-spark" :title="getProviderLatency(provider.slug)!.avg_latency_ms + 'ms avg · p95: ' + getProviderLatency(provider.slug)!.p95_latency_ms + 'ms'">
+        <div
+          v-if="getProviderLatency(provider.slug)"
+          class="pc-latency-spark"
+          :title="
+            getProviderLatency(provider.slug)!.avg_latency_ms +
+            'ms avg · p95: ' +
+            getProviderLatency(provider.slug)!.p95_latency_ms +
+            'ms'
+          "
+        >
           <svg viewBox="0 0 40 10" class="pc-spark-svg">
-            <polyline :points="getLatencySparkPath(provider.slug)" fill="none" stroke="var(--accent)" stroke-width="1" stroke-linecap="round"/>
+            <polyline
+              :points="getLatencySparkPath(provider.slug)"
+              fill="none"
+              stroke="var(--accent)"
+              stroke-width="1"
+              stroke-linecap="round"
+            />
           </svg>
-          <span class="pc-latency-text">{{ getProviderLatency(provider.slug)!.avg_latency_ms }}ms</span>
+          <span class="pc-latency-text"
+            >{{ getProviderLatency(provider.slug)!.avg_latency_ms }}ms</span
+          >
         </div>
 
         <div class="pc-models">
@@ -127,6 +199,7 @@
             +{{ (providerModels[provider.slug]?.length || 0) - 6 }} more
           </div>
         </div>
+        <span class="pc-org-link" @click.stop="goToOrg(provider.slug)">Org →</span>
       </router-link>
     </div>
   </div>
@@ -134,15 +207,22 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useModelsStore } from '@/store/models';
 import { useExport } from '@/composables/useExport';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useToast } from '@/composables/useToast';
-import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
+import { getProviderColorMuted, getProviderColorForeground } from '@/data/provider-colors';
 import { getCountryForProvider, CONTINENTS } from '@/data/provider-countries';
 import { useProviderFilters, PROVIDER_TYPE_LABELS } from '@/composables/useProviderFilters';
 
 const store = useModelsStore();
+const router = useRouter();
+
+function goToOrg(providerSlug: string) {
+  const org = store.getOrgByProviderSlug(providerSlug);
+  if (org) router.push(`/org/${org.id}`);
+}
 
 const { filters, filtered, healthChips, typeChips } = useProviderFilters(
   computed(() => store.visibleProviderRefs),
@@ -181,11 +261,16 @@ const providerModels = computed(() => {
 const { success: toastSuccess } = useToast();
 
 async function copyText(text: string) {
-  try { await navigator.clipboard.writeText(text); toastSuccess(`"${text}" copied`); } catch { /* noop */ }
+  try {
+    await navigator.clipboard.writeText(text);
+    toastSuccess(`"${text}" copied`);
+  } catch {
+    /* noop */
+  }
 }
 
 function getProviderLatency(slug: string) {
-  return store.providerLatencies.find(l => l.provider_slug === slug) ?? null;
+  return store.providerLatencies.find((l) => l.provider_slug === slug) ?? null;
 }
 
 // ── Export ──
@@ -210,7 +295,16 @@ function handleExportCSV() {
     ]);
   }
   exportCSV(
-    ['name', 'type', 'hardware', 'model_count', 'working_count', 'health_status', 'base_url', 'is_openai_compat'],
+    [
+      'name',
+      'type',
+      'hardware',
+      'model_count',
+      'working_count',
+      'health_status',
+      'base_url',
+      'is_openai_compat',
+    ],
     rows,
     'providers',
   );
@@ -223,11 +317,12 @@ function getLatencySparkPath(slug: string): string {
   const base = Math.min(1, lat.avg_latency_ms / 3000);
   if (!isFinite(base)) return '';
   const pts: string[] = [];
-  const w = 40, h = 10;
+  const w = 40,
+    h = 10;
   const seed = slug.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
   for (let x = 0; x <= w; x += 4) {
     const noise = Math.sin(x * 0.5 + seed) * 2 + Math.cos(x * 0.3 + seed * 1.3) * 1.5;
-    const y = h - (base * 6) - 2 - noise;
+    const y = h - base * 6 - 2 - noise;
     pts.push(`${x},${Math.round(Math.max(1, Math.min(h - 1, y)))}`);
   }
   return pts.join(' ');
@@ -237,14 +332,38 @@ function getLatencySparkPath(slug: string): string {
 <style scoped>
 /* Latency sparkline on provider cards */
 .pc-latency-spark {
-  display: flex; align-items: center; gap: 4px; margin-top: 6px; opacity: 0.65;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  opacity: 0.65;
 }
-.pc-spark-svg { width: 40px; height: 10px; flex-shrink: 0; }
-.pc-latency-text { font-size: 0.55rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+.pc-spark-svg {
+  width: 40px;
+  height: 10px;
+  flex-shrink: 0;
+}
+.pc-latency-text {
+  font-size: 0.55rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
 
-.page-header h2 { font-size: 1.3rem; font-weight: 700; margin: 0 0 4px; }
-.page-header p { font-size: 0.78rem; color: var(--text-dim); margin: 0 0 16px; }
-.filtered-note { color: var(--accent); font-weight: 600; }
+.page-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+.page-header p {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin: 0 0 16px;
+}
+.filtered-note {
+  color: var(--accent);
+  font-weight: 600;
+}
 
 .cc-controls {
   display: flex;
@@ -264,7 +383,9 @@ function getLatencySparkPath(slug: string): string {
   flex: 1;
   max-width: 320px;
 }
-.search-input::placeholder { color: var(--text-dim); }
+.search-input::placeholder {
+  color: var(--text-dim);
+}
 .search-input:focus {
   outline: none;
   border-color: var(--accent);
@@ -315,7 +436,10 @@ function getLatencySparkPath(slug: string): string {
   color: var(--text-dim);
   cursor: pointer;
   font-family: inherit;
-  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
 }
 .cc-chip-btn:hover {
   color: var(--text);
@@ -343,7 +467,10 @@ function getLatencySparkPath(slug: string): string {
   color: var(--text-dim);
   cursor: pointer;
   font-family: inherit;
-  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
 }
 .cc-continent-btn:hover {
   color: var(--text);
@@ -371,7 +498,10 @@ function getLatencySparkPath(slug: string): string {
   color: var(--text-dim);
   cursor: pointer;
   font-family: inherit;
-  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
 }
 .cc-type-btn:hover {
   color: var(--text);
@@ -383,9 +513,31 @@ function getLatencySparkPath(slug: string): string {
   border-color: var(--accent);
 }
 
-.export-bar { display: flex; gap: 6px; margin-bottom: 12px; justify-content: flex-end; }
-.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
-.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
+.export-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  justify-content: flex-end;
+}
+.export-btn {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.export-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
 
 .pc-type-badge {
   font-size: 0.56rem;
@@ -396,11 +548,26 @@ function getLatencySparkPath(slug: string): string {
   letter-spacing: 0.03em;
   flex-shrink: 0;
 }
-.pc-type-badge.router { background: rgba(139,92,246,0.12); color: #A78BFA; }
-.pc-type-badge.inference { background: rgba(59,130,246,0.12); color: #60A5FA; }
-.pc-type-badge.local { background: rgba(16,185,129,0.12); color: #34D399; }
-.pc-type-badge.discovery { background: rgba(245,158,11,0.12); color: #FBBF24; }
-.pc-type-badge.unknown { background: rgba(156,163,175,0.12); color: #9CA3AF; }
+.pc-type-badge.router {
+  background: rgba(139, 92, 246, 0.12);
+  color: #a78bfa;
+}
+.pc-type-badge.inference {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+}
+.pc-type-badge.local {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+}
+.pc-type-badge.discovery {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+}
+.pc-type-badge.unknown {
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+}
 
 .providers-grid {
   display: grid;
@@ -466,7 +633,9 @@ function getLatencySparkPath(slug: string): string {
   border-radius: 2px;
   flex-shrink: 0;
   opacity: 0;
-  transition: opacity 0.12s, color 0.12s;
+  transition:
+    opacity 0.12s,
+    color 0.12s;
 }
 
 .pc-name:hover .copy-btn-sm,
@@ -503,9 +672,18 @@ function getLatencySparkPath(slug: string): string {
   flex-shrink: 0;
 }
 
-.pc-status.healthy { background: rgba(63,185,80,0.12); color: var(--green); }
-.pc-status.degraded { background: rgba(251,191,36,0.12); color: var(--orange); }
-.pc-status.down { background: rgba(248,113,113,0.12); color: var(--red); }
+.pc-status.healthy {
+  background: rgba(63, 185, 80, 0.12);
+  color: var(--green);
+}
+.pc-status.degraded {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--orange);
+}
+.pc-status.down {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--red);
+}
 
 .pc-stats {
   display: flex;
@@ -526,9 +704,15 @@ function getLatencySparkPath(slug: string): string {
   font-family: 'JetBrains Mono', monospace;
 }
 
-.pc-stat-val.working { color: var(--green); }
-.pc-stat-val.free { color: var(--accent); }
-.pc-stat-val.down { color: var(--red); }
+.pc-stat-val.working {
+  color: var(--green);
+}
+.pc-stat-val.free {
+  color: var(--accent);
+}
+.pc-stat-val.down {
+  color: var(--red);
+}
 
 .pc-stat-lbl {
   font-size: 0.62rem;
@@ -539,7 +723,7 @@ function getLatencySparkPath(slug: string): string {
 
 .pc-bar-track {
   height: 3px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 2px;
   margin-bottom: 10px;
   overflow: hidden;
@@ -551,9 +735,15 @@ function getLatencySparkPath(slug: string): string {
   transition: width 0.4s;
 }
 
-.pc-bar-fill.healthy { background: var(--green); }
-.pc-bar-fill.degraded { background: var(--orange); }
-.pc-bar-fill.down { background: var(--red); }
+.pc-bar-fill.healthy {
+  background: var(--green);
+}
+.pc-bar-fill.degraded {
+  background: var(--orange);
+}
+.pc-bar-fill.down {
+  background: var(--red);
+}
 
 .pc-url {
   font-size: 0.58rem;
@@ -584,6 +774,20 @@ function getLatencySparkPath(slug: string): string {
 .pc-model-chip.more {
   background: var(--bg-hover);
   color: var(--text-dim);
+}
+
+.pc-org-link {
+  font-size: 0.62rem;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid var(--border-thin);
+  align-self: flex-start;
+}
+.pc-org-link:hover {
+  background: var(--accent);
+  color: #fff;
 }
 
 @media (max-width: 768px) {

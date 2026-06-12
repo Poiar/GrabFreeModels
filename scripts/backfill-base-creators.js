@@ -18,7 +18,10 @@ const PATTERNS = [
   { patterns: [/^llama/, /^llama-guard/, /^codellama/], creator: 'Meta' },
   { patterns: [/^qwen/], creator: 'Alibaba' },
   { patterns: [/^phi/, /^phi-/, /^phi3/, /^phi-3/], creator: 'Microsoft' },
-  { patterns: [/^mistral/, /^mixtral/, /^ministral/, /^codestral/, /^pixtral/], creator: 'Mistral AI' },
+  {
+    patterns: [/^mistral/, /^mixtral/, /^ministral/, /^codestral/, /^pixtral/],
+    creator: 'Mistral AI',
+  },
   { patterns: [/^gemma/, /^gemini/, /^palm/, /^t5-/], creator: 'Google' },
   { patterns: [/^recurrentgemma/], creator: 'Google' },
   { patterns: [/^olmo/, /^olmoe/], creator: 'AI2' },
@@ -111,4 +114,7 @@ function infer(slug) {
     client.release();
     await pool.end();
   }
-})().catch((e) => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

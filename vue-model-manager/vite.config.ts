@@ -17,7 +17,10 @@ function warnPortPlugin(port: number) {
           stdio: ['pipe', 'pipe', 'ignore'],
         });
         // Extract PIDs from LISTENING lines and kill them
-        const lines = output.trim().split('\n').filter(l => l.includes('LISTENING'));
+        const lines = output
+          .trim()
+          .split('\n')
+          .filter((l) => l.includes('LISTENING'));
         for (const line of lines) {
           const parts = line.trim().split(/\s+/);
           const pid = parts[parts.length - 1];

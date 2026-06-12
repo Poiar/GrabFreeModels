@@ -8,15 +8,35 @@
     <!-- Search + Filters -->
     <div class="sm-controls">
       <div class="sm-search">
-        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input v-model="searchQuery" type="text" placeholder="Search by name, provider, or tag…" spellcheck="false" />
+        <svg
+          aria-hidden="true"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search by name, provider, or tag…"
+          spellcheck="false"
+        />
         <button v-if="searchQuery" class="search-clear" @click="searchQuery = ''">&times;</button>
       </div>
       <div class="sm-filters">
         <div class="filter-dropdowns">
           <select v-model="creatorFilter" class="sm-select" aria-label="Filter by creator">
             <option value="">All Creators</option>
-            <option v-for="c in filteredCreatorOptions" :key="c.id" :value="c.id">{{ c.name }}</option>
+            <option v-for="c in filteredCreatorOptions" :key="c.id" :value="c.id">
+              {{ c.name }}
+            </option>
           </select>
           <select v-model="familyFilter" class="sm-select" aria-label="Filter by family">
             <option value="">All Families</option>
@@ -31,9 +51,18 @@
             <span>2+ Providers</span>
           </label>
           <div class="sm-segmented" role="group" aria-label="Model type filter">
-            <button :class="{ active: modelFilter === 'all' }" @click="modelFilter = 'all'">All</button>
-            <button :class="{ active: modelFilter === 'root' }" @click="modelFilter = 'root'">Root</button>
-            <button :class="{ active: modelFilter === 'finetune' }" @click="modelFilter = 'finetune'">Fine</button>
+            <button :class="{ active: modelFilter === 'all' }" @click="modelFilter = 'all'">
+              All
+            </button>
+            <button :class="{ active: modelFilter === 'root' }" @click="modelFilter = 'root'">
+              Root
+            </button>
+            <button
+              :class="{ active: modelFilter === 'finetune' }"
+              @click="modelFilter = 'finetune'"
+            >
+              Fine
+            </button>
           </div>
         </div>
         <div class="sm-sort">
@@ -46,8 +75,20 @@
             <option value="status">Sort: Status</option>
             <option value="tools">Sort: Tools</option>
           </select>
-          <button class="sort-dir-btn" @click="sortDesc = !sortDesc" :title="sortDesc ? 'Descending' : 'Ascending'">{{ sortDesc ? '↓' : '↑' }}</button>
-          <button class="view-toggle-btn" @click="viewMode = viewMode === 'flat' ? 'tree' : 'flat'" :title="viewMode === 'flat' ? 'Group by parent model' : 'Flat list'">{{ viewMode === 'flat' ? '⤵ Tree' : '≡ Flat' }}</button>
+          <button
+            class="sort-dir-btn"
+            @click="sortDesc = !sortDesc"
+            :title="sortDesc ? 'Descending' : 'Ascending'"
+          >
+            {{ sortDesc ? '↓' : '↑' }}
+          </button>
+          <button
+            class="view-toggle-btn"
+            @click="viewMode = viewMode === 'flat' ? 'tree' : 'flat'"
+            :title="viewMode === 'flat' ? 'Group by parent model' : 'Flat list'"
+          >
+            {{ viewMode === 'flat' ? '⤵ Tree' : '≡ Flat' }}
+          </button>
         </div>
       </div>
       <div class="sm-count">{{ filteredItems.length }} of {{ superItems.length }} super models</div>
@@ -118,7 +159,17 @@
 
     <!-- Empty state -->
     <div v-else class="empty-state">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <svg
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
       <h3>No super models found</h3>
       <p>No super models match your current search or filters.</p>
       <button class="clear-btn" @click="clearAllFilters">Clear all filters</button>
@@ -195,7 +246,9 @@ const superItems = computed<SuperItem[]>(() => {
     const providers = [...providerSet.entries()].map(([slug, name]) => ({ slug, name }));
     const dps = m.providers.filter((p) => !p._removed);
     const working = dps.filter((d) => d.status.result === 'working');
-    const broken = dps.filter((d) => d.status.result === 'broken' || d.status.result === 'not_found');
+    const broken = dps.filter(
+      (d) => d.status.result === 'broken' || d.status.result === 'not_found',
+    );
     const rateLimited = dps.filter((d) => d.status.result === 'rate_limited');
     const untested = dps.filter((d) => d.status.result === 'untested');
     const allTags = [...new Set(dps.flatMap((d) => [...d.tags, ...d.best_for]))];
@@ -251,7 +304,11 @@ const DERIV_META: Record<string, { label: string; cssClass: string }> = {
 const DERIV_CHIPS = [
   { value: 'all', label: 'All', cssClass: '' },
   { value: 'foundation', label: 'Foundation', cssClass: 'deriv-foundation' },
-  ...Object.entries(DERIV_META).map(([value, meta]) => ({ value, label: meta.label, cssClass: meta.cssClass })),
+  ...Object.entries(DERIV_META).map(([value, meta]) => ({
+    value,
+    label: meta.label,
+    cssClass: meta.cssClass,
+  })),
 ];
 
 const PARAM_BUCKETS = [
@@ -267,10 +324,11 @@ const PARAM_BUCKETS = [
 const searchedItems = computed(() => {
   const q = searchQuery.value.trim().toLowerCase();
   if (!q) return superItems.value;
-  return superItems.value.filter((m) =>
-    m.name.toLowerCase().includes(q) ||
-    m.providers.some((p) => p.name.toLowerCase().includes(q)) ||
-    m.allTags.some((t) => t.toLowerCase().includes(q)),
+  return superItems.value.filter(
+    (m) =>
+      m.name.toLowerCase().includes(q) ||
+      m.providers.some((p) => p.name.toLowerCase().includes(q)) ||
+      m.allTags.some((t) => t.toLowerCase().includes(q)),
   );
 });
 
@@ -287,7 +345,7 @@ const filteredCreatorOptions = computed(() => {
   for (const item of searchedItems.value) {
     if (item.creator) activeCreators.add(item.creator);
   }
-  return store.visibleCreators.filter(c => activeCreators.has(c.name));
+  return store.visibleCreators.filter((c) => activeCreators.has(c.name));
 });
 
 const modelDerivationCounts = computed(() => {
@@ -333,7 +391,15 @@ const paramCounts = computed(() => {
 
     for (const bucket of PARAM_BUCKETS) {
       if (bucket.value === 'all') continue;
-      if (m.providers.some(p => !p._removed && p.param_count_b != null && p.param_count_b >= bucket.min && p.param_count_b <= bucket.max)) {
+      if (
+        m.providers.some(
+          (p) =>
+            !p._removed &&
+            p.param_count_b != null &&
+            p.param_count_b >= bucket.min &&
+            p.param_count_b <= bucket.max,
+        )
+      ) {
         counts[bucket.value]++;
       }
     }
@@ -344,19 +410,19 @@ const paramCounts = computed(() => {
 
 const filteredItems = computed(() => {
   let items = searchedItems.value;
-  if (creatorFilter.value) items = items.filter(i => i.creatorSlug === creatorFilter.value);
-  if (familyFilter.value) items = items.filter(i => i.family === familyFilter.value);
-  if (toolsFilter.value) items = items.filter(i => i.any_tools);
-  if (multiProviderFilter.value) items = items.filter(i => i.datapointsCount >= 2);
+  if (creatorFilter.value) items = items.filter((i) => i.creatorSlug === creatorFilter.value);
+  if (familyFilter.value) items = items.filter((i) => i.family === familyFilter.value);
+  if (toolsFilter.value) items = items.filter((i) => i.any_tools);
+  if (multiProviderFilter.value) items = items.filter((i) => i.datapointsCount >= 2);
   if (modelFilter.value !== 'all') {
-    items = items.filter(i => {
+    items = items.filter((i) => {
       const m = modelBySlug.value.get(i.slug);
       if (!m) return modelFilter.value === 'root';
       return modelFilter.value === 'root' ? !m.base_model : !!m.base_model;
     });
   }
   if (derivFilter.value !== 'all') {
-    items = items.filter(i => {
+    items = items.filter((i) => {
       const m = modelBySlug.value.get(i.slug);
       if (!m) return false;
       if (derivFilter.value === 'foundation') return !m.derivation_method;
@@ -364,12 +430,18 @@ const filteredItems = computed(() => {
     });
   }
   if (paramFilter.value !== 'all') {
-    const bucket = PARAM_BUCKETS.find(b => b.value === paramFilter.value);
+    const bucket = PARAM_BUCKETS.find((b) => b.value === paramFilter.value);
     if (bucket) {
-      items = items.filter(i => {
+      items = items.filter((i) => {
         const m = modelBySlug.value.get(i.slug);
         if (!m) return false;
-        return m.providers.some(p => !p._removed && p.param_count_b != null && p.param_count_b >= bucket.min && p.param_count_b <= bucket.max);
+        return m.providers.some(
+          (p) =>
+            !p._removed &&
+            p.param_count_b != null &&
+            p.param_count_b >= bucket.min &&
+            p.param_count_b <= bucket.max,
+        );
       });
     }
   }
@@ -387,15 +459,27 @@ const sortedItems = computed(() => {
         else if (!b.creator) cmp = -1;
         else cmp = a.creator.localeCompare(b.creator);
         break;
-      case 'name': cmp = a.name.localeCompare(b.name); break;
-      case 'providers': cmp = b.providers.length - a.providers.length; break;
-      case 'instances': cmp = b.datapointsCount - a.datapointsCount; break;
-      case 'context': cmp = (b.best_context_length ?? 0) - (a.best_context_length ?? 0); break;
+      case 'name':
+        cmp = a.name.localeCompare(b.name);
+        break;
+      case 'providers':
+        cmp = b.providers.length - a.providers.length;
+        break;
+      case 'instances':
+        cmp = b.datapointsCount - a.datapointsCount;
+        break;
+      case 'context':
+        cmp = (b.best_context_length ?? 0) - (a.best_context_length ?? 0);
+        break;
       case 'status': {
-        const score = (i: SuperItem) => (i.workingCount > 0 ? 3 : i.rateLimitedCount > 0 ? 2 : i.brokenCount > 0 ? 1 : 0);
-        cmp = score(b) - score(a); break;
+        const score = (i: SuperItem) =>
+          i.workingCount > 0 ? 3 : i.rateLimitedCount > 0 ? 2 : i.brokenCount > 0 ? 1 : 0;
+        cmp = score(b) - score(a);
+        break;
       }
-      case 'tools': cmp = (b.any_tools ? 1 : 0) - (a.any_tools ? 1 : 0); break;
+      case 'tools':
+        cmp = (b.any_tools ? 1 : 0) - (a.any_tools ? 1 : 0);
+        break;
     }
     return sortDesc.value ? -cmp : cmp;
   });
@@ -404,7 +488,7 @@ const sortedItems = computed(() => {
 
 const treeItems = computed(() => {
   const flat = sortedItems.value;
-  const visibleSlugs = new Set(flat.map(i => i.slug));
+  const visibleSlugs = new Set(flat.map((i) => i.slug));
   const childItems = new Map<string, SuperItem[]>();
   const isChildSlug = new Set<string>();
 
@@ -427,7 +511,7 @@ const treeItems = computed(() => {
   for (const item of flat) {
     if (isChildSlug.has(item.slug)) continue;
     result.push({ item, depth: 0 });
-    for (const child of (childItems.get(item.slug) || [])) {
+    for (const child of childItems.get(item.slug) || []) {
       result.push({ item: child, depth: 1 });
     }
   }
@@ -437,7 +521,10 @@ const treeItems = computed(() => {
 const FAMILY_OVERRIDES: Record<string, string> = { gpt: 'GPT', glm: 'GLM', llm: 'LLM' };
 
 function formatFamily(raw: string): string {
-  return raw.split('-').map(w => FAMILY_OVERRIDES[w] ?? (w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
+  return raw
+    .split('-')
+    .map((w) => FAMILY_OVERRIDES[w] ?? w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
 }
 
 function clearAllFilters() {
@@ -456,21 +543,21 @@ const panelModel = ref<ModelData | null>(null);
 const panelIndex = ref(0);
 
 const panelModelList = computed((): ModelData[] => {
-  const sortedSlugs = new Set(sortedItems.value.map(i => i.slug));
+  const sortedSlugs = new Set(sortedItems.value.map((i) => i.slug));
   const result: ModelData[] = [];
   for (const m of store.visibleModels) {
     if (sortedSlugs.has(m.slug)) result.push(m);
   }
   result.sort((a, b) => {
-    const ai = sortedItems.value.findIndex(i => i.slug === a.slug);
-    const bi = sortedItems.value.findIndex(i => i.slug === b.slug);
+    const ai = sortedItems.value.findIndex((i) => i.slug === a.slug);
+    const bi = sortedItems.value.findIndex((i) => i.slug === b.slug);
     return ai - bi;
   });
   return result;
 });
 
 function openPanel(item: SuperItem) {
-  const idx = panelModelList.value.findIndex(m => m.slug === item.slug);
+  const idx = panelModelList.value.findIndex((m) => m.slug === item.slug);
   if (idx === -1) return;
   const model = panelModelList.value[idx];
   if (!model) return;
@@ -507,7 +594,7 @@ const creatorList = computed((): CreatorData[] => {
 });
 
 function openCreatorPanel(creatorName: string) {
-  const idx = creatorList.value.findIndex(c => c.name === creatorName);
+  const idx = creatorList.value.findIndex((c) => c.name === creatorName);
   if (idx === -1) return;
   creatorIndex.value = idx;
   panelCreator.value = creatorList.value[idx];
@@ -543,7 +630,16 @@ function handleExportCSV() {
     ]);
   }
   exportCSV(
-    ['name', 'creator', 'family', 'base_model', 'derivation', 'best_context', 'provider_count', 'working_count'],
+    [
+      'name',
+      'creator',
+      'family',
+      'base_model',
+      'derivation',
+      'best_context',
+      'provider_count',
+      'working_count',
+    ],
     rows,
     'super-models',
   );
@@ -557,61 +653,158 @@ function handleExportCSV() {
   padding: 20px;
 }
 
-.page-header h2 { font-size: 1.3rem; font-weight: 700; margin: 0 0 4px; }
-.page-header p { font-size: 0.78rem; color: var(--text-muted); margin: 0 0 20px; }
+.page-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+.page-header p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
 
 /* Controls */
-.sm-controls { margin-bottom: 12px; }
+.sm-controls {
+  margin-bottom: 12px;
+}
 .sm-search {
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 10px 14px;
   background: var(--bg-elevated, var(--bg-card));
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   margin-bottom: 10px;
 }
-.sm-search svg { color: var(--text-muted); flex-shrink: 0; }
-.sm-search input {
-  flex: 1; background: none; border: none; color: var(--text);
-  font-size: 0.82rem; outline: none; padding: 0;
+.sm-search svg {
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
-.sm-search input::placeholder { color: var(--text-muted); }
-.search-clear { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 2px; font-size: 0.85rem; }
-.search-clear:hover { color: var(--text); }
+.sm-search input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 0.82rem;
+  outline: none;
+  padding: 0;
+}
+.sm-search input::placeholder {
+  color: var(--text-muted);
+}
+.search-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  font-size: 0.85rem;
+}
+.search-clear:hover {
+  color: var(--text);
+}
 
-.sm-filters { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
-.filter-dropdowns { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.sm-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.filter-dropdowns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
 .sm-select {
-  background: var(--bg-elevated, var(--bg-card)); border: 1px solid var(--border);
-  color: var(--text); font-size: 0.72rem; padding: 5px 8px;
-  border-radius: var(--radius-sm); cursor: pointer; outline: none;
+  background: var(--bg-elevated, var(--bg-card));
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.72rem;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  outline: none;
   font-family: inherit;
 }
 .sm-checkbox {
-  display: flex; align-items: center; gap: 4px;
-  padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px;
-  background: var(--bg-elevated, var(--bg-card)); font-size: 0.68rem;
-  color: var(--text-muted); cursor: pointer; font-family: inherit; white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-elevated, var(--bg-card));
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
 }
-.sm-checkbox input { cursor: pointer; accent-color: var(--accent); }
+.sm-checkbox input {
+  cursor: pointer;
+  accent-color: var(--accent);
+}
 
-.sm-sort { display: flex; align-items: center; gap: 6px; }
+.sm-sort {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 .sort-select {
-  background: var(--bg-elevated, var(--bg-card)); border: 1px solid var(--border);
-  color: var(--text); font-size: 0.72rem; padding: 5px 8px;
-  border-radius: var(--radius-sm); cursor: pointer; outline: none;
+  background: var(--bg-elevated, var(--bg-card));
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.72rem;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  outline: none;
 }
 .sort-dir-btn {
-  background: var(--bg-elevated, var(--bg-card)); border: 1px solid var(--border);
-  color: var(--text); padding: 5px 8px; border-radius: var(--radius-sm);
-  cursor: pointer; font-family: monospace;
+  background: var(--bg-elevated, var(--bg-card));
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: monospace;
 }
 
-.sm-count { font-size: 0.68rem; color: var(--text-muted); }
+.sm-count {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
 
-.export-bar { display: flex; gap: 6px; margin-bottom: 12px; justify-content: flex-end; }
-.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
-.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
+.export-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  justify-content: flex-end;
+}
+.export-btn {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.export-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
 
 /* Segmented filter buttons */
 .sm-segmented {
@@ -630,15 +823,21 @@ function handleExportCSV() {
   padding: 5px 10px;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.12s, color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s;
 }
-.sm-segmented button:last-child { border-right: none; }
+.sm-segmented button:last-child {
+  border-right: none;
+}
 .sm-segmented button.active {
   background: var(--accent-subtle);
   color: var(--accent);
   font-weight: 600;
 }
-.sm-segmented button:hover:not(.active) { background: var(--bg-hover); }
+.sm-segmented button:hover:not(.active) {
+  background: var(--bg-hover);
+}
 
 /* View toggle */
 .view-toggle-btn {
@@ -652,7 +851,10 @@ function handleExportCSV() {
   font-size: 0.72rem;
   white-space: nowrap;
 }
-.view-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+.view-toggle-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 
 /* Tree view */
 .sm-tree {
@@ -660,8 +862,12 @@ function handleExportCSV() {
   flex-direction: column;
   gap: 4px;
 }
-.tree-entry { position: relative; }
-.tree-child { margin-left: 20px; }
+.tree-entry {
+  position: relative;
+}
+.tree-child {
+  margin-left: 20px;
+}
 .tree-child :deep(.sm-card) {
   border-left-color: var(--text-muted);
   padding-top: 6px;
@@ -676,13 +882,28 @@ function handleExportCSV() {
 }
 
 /* Empty */
-.empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
-.empty-state h3 { font-size: 1rem; margin: 12px 0 4px; color: var(--text); }
-.empty-state p { font-size: 0.78rem; margin-bottom: 16px; }
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--text-muted);
+}
+.empty-state h3 {
+  font-size: 1rem;
+  margin: 12px 0 4px;
+  color: var(--text);
+}
+.empty-state p {
+  font-size: 0.78rem;
+  margin-bottom: 16px;
+}
 .clear-btn {
-  background: var(--accent-subtle); border: 1px solid var(--accent);
-  color: var(--accent); padding: 6px 14px; border-radius: var(--radius-sm);
-  cursor: pointer; font-size: 0.75rem;
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.75rem;
 }
 
 /* Derivation filter chips */
@@ -714,13 +935,34 @@ function handleExportCSV() {
   color: var(--accent);
 }
 
-.ml-deriv-chip.deriv-ft { border-color: rgba(99, 102, 241, 0.35); color: var(--deriv-ft); }
-.ml-deriv-chip.deriv-merge { border-color: rgba(168, 85, 247, 0.35); color: var(--deriv-merge); }
-.ml-deriv-chip.deriv-distill { border-color: rgba(236, 72, 153, 0.35); color: var(--deriv-distill); }
-.ml-deriv-chip.deriv-dpo { border-color: rgba(34, 211, 238, 0.35); color: var(--deriv-dpo); }
-.ml-deriv-chip.deriv-cpt { border-color: rgba(250, 204, 21, 0.35); color: var(--deriv-cpt); }
-.ml-deriv-chip.deriv-lora { border-color: rgba(52, 211, 153, 0.35); color: var(--deriv-lora); }
-.ml-deriv-chip.deriv-foundation { border-color: rgba(156, 163, 175, 0.35); color: var(--deriv-foundation); }
+.ml-deriv-chip.deriv-ft {
+  border-color: rgba(99, 102, 241, 0.35);
+  color: var(--deriv-ft);
+}
+.ml-deriv-chip.deriv-merge {
+  border-color: rgba(168, 85, 247, 0.35);
+  color: var(--deriv-merge);
+}
+.ml-deriv-chip.deriv-distill {
+  border-color: rgba(236, 72, 153, 0.35);
+  color: var(--deriv-distill);
+}
+.ml-deriv-chip.deriv-dpo {
+  border-color: rgba(34, 211, 238, 0.35);
+  color: var(--deriv-dpo);
+}
+.ml-deriv-chip.deriv-cpt {
+  border-color: rgba(250, 204, 21, 0.35);
+  color: var(--deriv-cpt);
+}
+.ml-deriv-chip.deriv-lora {
+  border-color: rgba(52, 211, 153, 0.35);
+  color: var(--deriv-lora);
+}
+.ml-deriv-chip.deriv-foundation {
+  border-color: rgba(156, 163, 175, 0.35);
+  color: var(--deriv-foundation);
+}
 
 .ml-deriv-chip.active {
   background: var(--accent-subtle);
@@ -728,13 +970,41 @@ function handleExportCSV() {
   color: var(--accent);
 }
 
-.ml-deriv-chip.deriv-ft.active { background: rgba(99, 102, 241, 0.14); border-color: var(--deriv-ft); color: var(--deriv-ft); }
-.ml-deriv-chip.deriv-merge.active { background: rgba(168, 85, 247, 0.14); border-color: var(--deriv-merge); color: var(--deriv-merge); }
-.ml-deriv-chip.deriv-distill.active { background: rgba(236, 72, 153, 0.14); border-color: var(--deriv-distill); color: var(--deriv-distill); }
-.ml-deriv-chip.deriv-dpo.active { background: rgba(34, 211, 238, 0.14); border-color: var(--deriv-dpo); color: var(--deriv-dpo); }
-.ml-deriv-chip.deriv-cpt.active { background: rgba(250, 204, 21, 0.14); border-color: var(--deriv-cpt); color: var(--deriv-cpt); }
-.ml-deriv-chip.deriv-lora.active { background: rgba(52, 211, 153, 0.14); border-color: var(--deriv-lora); color: var(--deriv-lora); }
-.ml-deriv-chip.deriv-foundation.active { background: rgba(156, 163, 175, 0.14); border-color: var(--deriv-foundation); color: var(--deriv-foundation); }
+.ml-deriv-chip.deriv-ft.active {
+  background: rgba(99, 102, 241, 0.14);
+  border-color: var(--deriv-ft);
+  color: var(--deriv-ft);
+}
+.ml-deriv-chip.deriv-merge.active {
+  background: rgba(168, 85, 247, 0.14);
+  border-color: var(--deriv-merge);
+  color: var(--deriv-merge);
+}
+.ml-deriv-chip.deriv-distill.active {
+  background: rgba(236, 72, 153, 0.14);
+  border-color: var(--deriv-distill);
+  color: var(--deriv-distill);
+}
+.ml-deriv-chip.deriv-dpo.active {
+  background: rgba(34, 211, 238, 0.14);
+  border-color: var(--deriv-dpo);
+  color: var(--deriv-dpo);
+}
+.ml-deriv-chip.deriv-cpt.active {
+  background: rgba(250, 204, 21, 0.14);
+  border-color: var(--deriv-cpt);
+  color: var(--deriv-cpt);
+}
+.ml-deriv-chip.deriv-lora.active {
+  background: rgba(52, 211, 153, 0.14);
+  border-color: var(--deriv-lora);
+  color: var(--deriv-lora);
+}
+.ml-deriv-chip.deriv-foundation.active {
+  background: rgba(156, 163, 175, 0.14);
+  border-color: var(--deriv-foundation);
+  color: var(--deriv-foundation);
+}
 
 .ml-deriv-count {
   font-size: 0.6rem;
@@ -793,15 +1063,42 @@ function handleExportCSV() {
 }
 
 @media (max-width: 768px) {
-  .sm-page { padding: 12px; }
-  .sm-search { padding: 10px 12px; }
-  .sm-search input { font-size: 0.85rem; min-height: 44px; }
-  .sm-filters { flex-direction: column; align-items: stretch; gap: 8px; }
-  .filter-dropdowns { flex-wrap: wrap; gap: 4px; }
-  .sm-select { min-height: 44px; }
-  .sm-checkbox { min-height: 40px; padding: 8px 12px; }
-  .sort-select { min-height: 44px; width: 100%; }
-  .sort-dir-btn { min-height: 44px; padding: 8px 16px; }
-  .sm-count { text-align: right; }
+  .sm-page {
+    padding: 12px;
+  }
+  .sm-search {
+    padding: 10px 12px;
+  }
+  .sm-search input {
+    font-size: 0.85rem;
+    min-height: 44px;
+  }
+  .sm-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .filter-dropdowns {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .sm-select {
+    min-height: 44px;
+  }
+  .sm-checkbox {
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+  .sort-select {
+    min-height: 44px;
+    width: 100%;
+  }
+  .sort-dir-btn {
+    min-height: 44px;
+    padding: 8px 16px;
+  }
+  .sm-count {
+    text-align: right;
+  }
 }
 </style>

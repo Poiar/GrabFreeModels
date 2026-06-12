@@ -83,14 +83,19 @@ const PROVIDERS = [
           if (m.id.endsWith(':free')) return true;
           const p = m.pricing || {};
           if (typeof p === 'string') return p === '0';
-          return parseFloat(p.prompt ?? p.input) === 0 && parseFloat(p.completion ?? p.output) === 0;
+          return (
+            parseFloat(p.prompt ?? p.input) === 0 && parseFloat(p.completion ?? p.output) === 0
+          );
         })
         .map((m) => {
           const p = m.pricing || {};
-          const pricing = typeof p === 'string' ? { prompt: 0, completion: 0 } : {
-            prompt: parseFloat(p.prompt ?? p.input ?? 0),
-            completion: parseFloat(p.completion ?? p.output ?? 0),
-          };
+          const pricing =
+            typeof p === 'string'
+              ? { prompt: 0, completion: 0 }
+              : {
+                  prompt: parseFloat(p.prompt ?? p.input ?? 0),
+                  completion: parseFloat(p.completion ?? p.output ?? 0),
+                };
           return {
             id: m.id,
             context_length: m.context_length ?? m.max_context_length ?? null,
@@ -105,12 +110,17 @@ const PROVIDERS = [
     url: 'https://integrate.api.nvidia.com/v1/models',
     authPath: 'nvidia.key',
     parse: (json) => {
-      const excludePattern = /embed|reward|detector|translate|clip|neva|vila|kosmos|riva|gliner|ising|calibration|nemoguard|nemoretriever|content-safety|parse/i;
+      const excludePattern =
+        /embed|reward|detector|translate|clip|neva|vila|kosmos|riva|gliner|ising|calibration|nemoguard|nemoretriever|content-safety|parse/i;
       return (json.data || [])
         .filter((m) => {
           if (m.object !== 'model') return false;
-          if (m.task && m.task !== 'chat' && m.task !== 'text-generation' && m.type !== 'chat') return false;
-          const isFree = !m.pricing || m.pricing === '0' || (m.pricing?.input === '0' && m.pricing?.output === '0');
+          if (m.task && m.task !== 'chat' && m.task !== 'text-generation' && m.type !== 'chat')
+            return false;
+          const isFree =
+            !m.pricing ||
+            m.pricing === '0' ||
+            (m.pricing?.input === '0' && m.pricing?.output === '0');
           if (!isFree) return false;
           if (excludePattern.test(m.id)) return false;
           return true;
@@ -196,7 +206,11 @@ const PROVIDERS = [
       return (json.data || []).map((m) => ({
         id: m.id,
         context_length: m.context_length ?? m.max_context_length ?? null,
-        pricing: m.pricing ? (m.pricing === '0' || (m.pricing.input === '0' && m.pricing.output === '0') ? 'free' : m.pricing) : null,
+        pricing: m.pricing
+          ? m.pricing === '0' || (m.pricing.input === '0' && m.pricing.output === '0')
+            ? 'free'
+            : m.pricing
+          : null,
       }));
     },
   },
@@ -394,24 +408,28 @@ async function getExistingModelIds() {
     : PROVIDERS;
 
   if (SINGLE_PROVIDER && providersToCheck.length === 0) {
-    logger.error(`Unknown provider "${SINGLE_PROVIDER}". Valid providers: ${PROVIDERS.map(p => p.slug).join(', ')}`);
+    logger.error(
+      `Unknown provider "${SINGLE_PROVIDER}". Valid providers: ${PROVIDERS.map((p) => p.slug).join(', ')}`,
+    );
     process.exit(1);
   }
 
   logger.info('=== Model Discovery ===\n');
 
   // Fetch from all providers in parallel
-  const results = await Promise.allSettled(
-    providersToCheck.map((p) => fetchProvider(p)),
-  );
+  const results = await Promise.allSettled(providersToCheck.map((p) => fetchProvider(p)));
 
-  const providerResults = results.map((r) => (r.status === 'fulfilled' ? r.value : {
-    slug: 'unknown',
-    name: 'Unknown',
-    models: [],
-    error: r.reason?.message || 'Unknown error',
-    skipped: false,
-  }));
+  const providerResults = results.map((r) =>
+    r.status === 'fulfilled'
+      ? r.value
+      : {
+          slug: 'unknown',
+          name: 'Unknown',
+          models: [],
+          error: r.reason?.message || 'Unknown error',
+          skipped: false,
+        },
+  );
 
   // Get existing DB model IDs
   let existingIds;
@@ -452,7 +470,8 @@ async function getExistingModelIds() {
         logger.info(`[${pr.name}] ${pr.models.length} models, ${newModels.length} new`);
         for (const n of newModels.slice(0, 20)) {
           const ctx = n.context_length ? ` [ctx: ${n.context_length}]` : '';
-          const pricing = n.pricing && n.pricing !== 'free' ? ` [pricing: ${JSON.stringify(n.pricing)}]` : '';
+          const pricing =
+            n.pricing && n.pricing !== 'free' ? ` [pricing: ${JSON.stringify(n.pricing)}]` : '';
           logger.info(`  + ${n.full_id}${ctx}${pricing}`);
         }
         if (newModels.length > 20) {

@@ -50,28 +50,60 @@ export function useKeyboardShortcuts() {
     // Single-letter navigation shortcuts
     if (!e.ctrlKey && !e.metaKey) {
       switch (e.key) {
-        case 'm': router.push('/'); break;
-        case 'd': router.push('/dashboard'); break;
-        case 'c': router.push('/creators'); break;
-        case 'o': router.push('/compare'); break;
-        case 'r': router.push('/rankings'); break;
-        case 's': router.push('/supermodels'); break;
-        case 'b': router.push('/benchmarks'); break;
-        case 'p': router.push('/playground'); break;
-        case 'g': router.push('/tags'); break;
-        case 'l': router.push('/lineage'); break;
-        case 'v': router.push('/activity'); break;
-        case 'k': router.push('/picker'); break;
-        case 'x': router.push('/scores'); break;
-        case 'q': router.push('/rate-limits'); break;
-        case 'n': router.push('/providers/onboarding'); break;
+        case 'm':
+          router.push('/');
+          break;
+        case 'd':
+          router.push('/dashboard');
+          break;
+        case 'c':
+          router.push('/creators');
+          break;
+        case 'o':
+          router.push('/compare');
+          break;
+        case 'r':
+          router.push('/rankings');
+          break;
+        case 's':
+          router.push('/supermodels');
+          break;
+        case 'b':
+          router.push('/benchmarks');
+          break;
+        case 'p':
+          router.push('/playground');
+          break;
+        case 'g':
+          router.push('/tags');
+          break;
+        case 'l':
+          router.push('/lineage');
+          break;
+        case 'v':
+          router.push('/activity');
+          break;
+        case 'k':
+          router.push('/picker');
+          break;
+        case 'x':
+          router.push('/scores');
+          break;
+        case 'q':
+          router.push('/rate-limits');
+          break;
+        case 'n':
+          router.push('/providers/onboarding');
+          break;
       }
     }
 
     // / focuses search
     if (e.key === '/' && !e.shiftKey) {
       e.preventDefault();
-      const searchInput = document.querySelector('.jql-input, .dash-search-input, .search-input') as HTMLInputElement | null;
+      const searchInput = document.querySelector(
+        '.jql-input, .dash-search-input, .search-input',
+      ) as HTMLInputElement | null;
       if (searchInput) searchInput.focus();
       return;
     }

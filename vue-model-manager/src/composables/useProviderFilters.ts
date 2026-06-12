@@ -45,7 +45,15 @@ export const PROVIDER_TYPE_LABELS: Record<string, string> = {
   discovery: 'Discovery',
 };
 
-export const CONTINENTS_ORDER = ['All', 'North America', 'Asia', 'Europe', 'South America', 'Africa', 'Oceania'];
+export const CONTINENTS_ORDER = [
+  'All',
+  'North America',
+  'Asia',
+  'Europe',
+  'South America',
+  'Africa',
+  'Oceania',
+];
 
 export function useProviderFilters(
   providers: ComputedRef<ProviderReference[]>,
@@ -77,9 +85,7 @@ export function useProviderFilters(
       const t = p.provider_type || 'unknown';
       counts[t] = (counts[t] || 0) + 1;
     }
-    const chips: FilterChip[] = [
-      { key: 'All', label: 'All types', count: providers.value.length },
-    ];
+    const chips: FilterChip[] = [{ key: 'All', label: 'All types', count: providers.value.length }];
     for (const [type, count] of Object.entries(counts).sort(([a], [b]) => a.localeCompare(b))) {
       chips.push({ key: type, label: PROVIDER_TYPE_LABELS[type] || type, count });
     }
@@ -91,8 +97,8 @@ export function useProviderFilters(
 
     const q = searchQuery.value.trim().toLowerCase();
     if (q) {
-      list = list.filter((p) =>
-        p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q),
+      list = list.filter(
+        (p) => p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q),
       );
     }
 
@@ -101,9 +107,7 @@ export function useProviderFilters(
     }
 
     if (selectedContinent.value !== 'All') {
-      list = list.filter(
-        (p) => resolveContinent(p.slug).continent === selectedContinent.value,
-      );
+      list = list.filter((p) => resolveContinent(p.slug).continent === selectedContinent.value);
     }
 
     if (selectedType.value !== 'All') {
@@ -124,8 +128,9 @@ export function useProviderFilters(
           cmp = b.working_count - a.working_count;
           break;
         case 'country':
-          cmp = resolveContinent(a.slug).name.localeCompare(resolveContinent(b.slug).name)
-             || a.name.localeCompare(b.name);
+          cmp =
+            resolveContinent(a.slug).name.localeCompare(resolveContinent(b.slug).name) ||
+            a.name.localeCompare(b.name);
           break;
       }
       return cmp * dir;

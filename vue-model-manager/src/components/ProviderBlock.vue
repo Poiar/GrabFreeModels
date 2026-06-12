@@ -1,7 +1,10 @@
 <template>
   <div
     class="provider-block"
-    :style="{ '--pb-color': getProviderColorMuted(dp.provider_slug), '--pb-color-main': getProviderColor(dp.provider_slug) }"
+    :style="{
+      '--pb-color': getProviderColorMuted(dp.provider_slug),
+      '--pb-color-main': getProviderColorForeground(dp.provider_slug),
+    }"
     :class="{
       expanded,
       'status-working': dp.status.result === 'working',
@@ -19,12 +22,15 @@
           :class="b.cssClass"
           :title="b.title"
           @click.stop="openSources"
-        >{{ b.label }}</span>
+          >{{ b.label }}</span
+        >
       </span>
       <span class="pb-status-dot" :class="`dot-${dp.status.result}`"></span>
     </div>
     <div class="pb-stats">
-      <span v-if="dp.quantization" class="pb-quant" :title="quantTitle(dp.quantization)">{{ dp.quantization.toUpperCase() }}</span>
+      <span v-if="dp.quantization" class="pb-quant" :title="quantTitle(dp.quantization)">{{
+        dp.quantization.toUpperCase()
+      }}</span>
       <span class="pb-context">{{ formatContext(dp.context_length) }}</span>
       <span v-if="dp.supports_tools" class="pb-tools" title="Tools supported">
         <svg
@@ -42,12 +48,32 @@
       </span>
       <span v-else class="pb-tools pb-tools-none" title="No tools">—</span>
       <span v-if="dp.supports_attachment" class="pb-cap" title="Attachment supported">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+          />
         </svg>
       </span>
       <span v-if="dp.supports_structured_output" class="pb-cap" title="Structured output supported">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="M16 18l6-6-6-6" />
           <path d="M8 6l-6 6 6 6" />
         </svg>
@@ -56,16 +82,76 @@
     <div class="pb-limits">
       <span class="pb-free-badge">Free</span>
       <span v-if="dp.limitations?.requires_card" class="pb-limit-icon" title="Requires credit card">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="1" y="4" width="22" height="16" rx="2" />
+          <line x1="1" y1="10" x2="23" y2="10" />
+        </svg>
       </span>
-      <span v-if="dp.limitations?.daily_requests || dp.limitations?.daily_tokens" class="pb-limit-icon" title="Daily limit applies">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+      <span
+        v-if="dp.limitations?.daily_requests || dp.limitations?.daily_tokens"
+        class="pb-limit-icon"
+        title="Daily limit applies"
+      >
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
       </span>
       <span v-if="dp.limitations?.rate_limit" class="pb-limit-icon" title="Rate limited">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><path d="M16 21h5v-5" /></svg>
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+          <path d="M16 21h5v-5" />
+        </svg>
       </span>
-      <span v-if="dp.limitations?.expires" class="pb-limit-icon" title="Expires: {{ dp.limitations.expires }}">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+      <span
+        v-if="dp.limitations?.expires"
+        class="pb-limit-icon"
+        title="Expires: {{ dp.limitations.expires }}"
+      >
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
       </span>
     </div>
   </div>
@@ -75,7 +161,7 @@
 import { computed } from 'vue';
 import type { ProviderDatapoint } from '@/types';
 import { useModelsStore } from '@/store/models';
-import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
+import { getProviderColorMuted, getProviderColorForeground } from '@/data/provider-colors';
 
 const props = defineProps<{
   dp: ProviderDatapoint;
@@ -144,7 +230,6 @@ const QUANT_TITLES: Record<string, string> = {
 function quantTitle(q: string): string {
   return QUANT_TITLES[q] || `${q.toUpperCase()} quantized weights`;
 }
-
 </script>
 
 <style scoped>

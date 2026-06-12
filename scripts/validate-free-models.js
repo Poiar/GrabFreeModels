@@ -34,7 +34,9 @@ for (let i = 0; i < args.length; i++) {
 
 // Graceful exit that closes the DB pool
 async function die(code) {
-  try { await DB_POOL.end(); } catch {}
+  try {
+    await DB_POOL.end();
+  } catch {}
   process.exit(code);
 }
 
@@ -54,11 +56,35 @@ function categorizeFailure(status, detail) {
   if (status === 'working' || status === 'untested') return null;
   const d = (detail || '').toLowerCase();
   if (status === 'not_found' || d.includes('not found') || d.includes('404')) return 'not_found';
-  if (d.includes('timeout') || d.includes('timed out') || d.includes('ETIMEDOUT') || status === 'timeout') return 'timeout';
-  if (d.includes('401') || d.includes('403') || d.includes('unauthorized') || d.includes('forbidden') || d.includes('auth') || d.includes('key') || d.includes('expired')) return 'auth_error';
-  if (status === 'rate_limited' || d.includes('429') || d.includes('rate limit')) return 'rate_limited';
-  if (d.includes('500') || d.includes('502') || d.includes('503') || d.includes('server error')) return 'server_error';
-  if (d.includes('ECONNREFUSED') || d.includes('ECONNRESET') || d.includes('ENOTFOUND') || d.includes('network') || d.includes('DNS')) return 'network_error';
+  if (
+    d.includes('timeout') ||
+    d.includes('timed out') ||
+    d.includes('ETIMEDOUT') ||
+    status === 'timeout'
+  )
+    return 'timeout';
+  if (
+    d.includes('401') ||
+    d.includes('403') ||
+    d.includes('unauthorized') ||
+    d.includes('forbidden') ||
+    d.includes('auth') ||
+    d.includes('key') ||
+    d.includes('expired')
+  )
+    return 'auth_error';
+  if (status === 'rate_limited' || d.includes('429') || d.includes('rate limit'))
+    return 'rate_limited';
+  if (d.includes('500') || d.includes('502') || d.includes('503') || d.includes('server error'))
+    return 'server_error';
+  if (
+    d.includes('ECONNREFUSED') ||
+    d.includes('ECONNRESET') ||
+    d.includes('ENOTFOUND') ||
+    d.includes('network') ||
+    d.includes('DNS')
+  )
+    return 'network_error';
   return 'unknown';
 }
 
@@ -120,10 +146,12 @@ async function loadFromDb() {
 async function loadHealthTrackableProviders() {
   try {
     const { rows } = await DB_POOL.query(
-      `SELECT slug FROM datapoint_providers WHERE is_health_trackable = true OR is_health_trackable IS NULL`
+      `SELECT slug FROM datapoint_providers WHERE is_health_trackable = true OR is_health_trackable IS NULL`,
     );
     healthTrackableProviders = new Set(rows.map((r) => r.slug));
-    logger.info(`Health-trackable providers: ${rows.length} (${[...healthTrackableProviders].join(', ')})`);
+    logger.info(
+      `Health-trackable providers: ${rows.length} (${[...healthTrackableProviders].join(', ')})`,
+    );
   } catch (e) {
     // Fallback to empty set if column doesn't exist yet
     logger.warn(`Could not load health-trackable providers: ${e.message}`);
@@ -147,8 +175,14 @@ async function saveToDbAndExport(observations = [], healthSnapshots = []) {
            status_result = $1, status_tested = $2, status_detail = $3, last_success = $4,
            failure_category = $6
          WHERE full_id = $5`,
-        [m.status.result, m.status.tested, m.status.detail, m.last_success || null, m.id,
-         categorizeFailure(m.status.result, m.status.detail)],
+        [
+          m.status.result,
+          m.status.tested,
+          m.status.detail,
+          m.last_success || null,
+          m.id,
+          categorizeFailure(m.status.result, m.status.detail),
+        ],
       );
     }
     await client.query(
@@ -187,7 +221,9 @@ async function saveToDbAndExport(observations = [], healthSnapshots = []) {
           const params = [];
           let idx = 1;
           for (const obs of batch) {
-            placeholders.push(`($${idx}, $${idx + 1}, $${idx + 2}, $${idx + 3}, $${idx + 4}, $${idx + 5}, $${idx + 6}, $${idx + 7})`);
+            placeholders.push(
+              `($${idx}, $${idx + 1}, $${idx + 2}, $${idx + 3}, $${idx + 4}, $${idx + 5}, $${idx + 6}, $${idx + 7})`,
+            );
             params.push(
               obs.datapoint_model_id,
               obs.full_id,
@@ -211,7 +247,11 @@ async function saveToDbAndExport(observations = [], healthSnapshots = []) {
       }
     }
   } catch (e) {
-    try { await client.query('ROLLBACK'); } catch { /* ignore rollback error */ }
+    try {
+      await client.query('ROLLBACK');
+    } catch {
+      /* ignore rollback error */
+    }
     throw e;
   } finally {
     client.release();
@@ -338,7 +378,9 @@ function loadCooldownState() {
         if (val.until > now) cooldownState.set(ep, val);
       }
     }
-  } catch { /* cooldown file is advisory */ }
+  } catch {
+    /* cooldown file is advisory */
+  }
 }
 
 function saveCooldownState() {
@@ -351,19 +393,31 @@ function saveCooldownState() {
     if (Object.keys(obj).length > 0) {
       fs.writeFileSync(COOLDOWN_FILE, JSON.stringify(obj, null, 2));
     } else {
-      try { fs.unlinkSync(COOLDOWN_FILE); } catch { /* ignore */ }
+      try {
+        fs.unlinkSync(COOLDOWN_FILE);
+      } catch {
+        /* ignore */
+      }
     }
-  } catch { /* cooldown persistence is best-effort */ }
+  } catch {
+    /* cooldown persistence is best-effort */
+  }
 }
 
 function cooldownTTL(errorType) {
   switch (errorType) {
-    case 'auth': return 30 * 60 * 1000;       // 30 min — broken key
-    case 'rate_limited': return 60 * 1000;     // 1 min — back off
-    case 'server_error': return 5 * 60 * 1000; // 5 min — transient
-    case 'timeout': return 2 * 60 * 1000;      // 2 min — network blip
-    case 'network_error': return 10 * 60 * 1000; // 10 min — connectivity
-    default: return 0;  // no cooldown
+    case 'auth_error':
+      return 30 * 60 * 1000; // 30 min — broken key
+    case 'rate_limited':
+      return 60 * 1000; // 1 min — back off
+    case 'server_error':
+      return 5 * 60 * 1000; // 5 min — transient
+    case 'timeout':
+      return 2 * 60 * 1000; // 2 min — network blip
+    case 'network_error':
+      return 10 * 60 * 1000; // 10 min — connectivity
+    default:
+      return 0; // no cooldown
   }
 }
 
@@ -593,7 +647,13 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
         obs = {
           status: isOk ? 'OK' : String(res.status),
           latencyMs,
-          errorType: isOk ? null : (res.status === 429 ? 'rate_limited' : res.status >= 500 ? 'server_error' : 'client_error'),
+          errorType: isOk
+            ? null
+            : res.status === 429
+              ? 'rate_limited'
+              : res.status >= 500
+                ? 'server_error'
+                : 'client_error',
         };
         break;
       } catch (e) {
@@ -608,7 +668,11 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
         obs = {
           status: isTimeout ? 'TIMEOUT' : 'ERR',
           latencyMs: isTimeout ? 30000 : null,
-          errorType: isTimeout ? 'timeout' : (e.code === 'ECONNRESET' ? 'network_error' : 'client_error'),
+          errorType: isTimeout
+            ? 'timeout'
+            : e.code === 'ECONNRESET'
+              ? 'network_error'
+              : 'client_error',
         };
         break;
       }
@@ -623,20 +687,20 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
 // --- Load from DB ---
 (async () => {
   try {
-  auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
-  loadCooldownState(); // Load persisted cooldown state (Item 9)
-  await loadFromDb();
-  await loadHealthTrackableProviders();
-} catch (e) {
-  logger.error(`Failed to load from DB: ${e.message}\n${e.stack}`);
-  await die(1);
-}
+    auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
+    loadCooldownState(); // Load persisted cooldown state (Item 9)
+    await loadFromDb();
+    await loadHealthTrackableProviders();
+  } catch (e) {
+    logger.error(`Failed to load from DB: ${e.message}\n${e.stack}`);
+    await die(1);
+  }
 
   if (!json || !Array.isArray(json.models)) {
-  logger.error('Failed to load models data');
-  await die(1);
-}
-logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
+    logger.error('Failed to load models data');
+    await die(1);
+  }
+  logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
 
   // ── Pre-validation key health check (#5) ──
   // Test one known-working model per provider before running the full suite.
@@ -650,13 +714,17 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
     for (const ep of Object.keys(ENDPOINT_CONFIG)) {
       const cfg = ENDPOINT_CONFIG[ep];
       let key;
-      try { key = cfg.key(); } catch { key = null; }
+      try {
+        key = cfg.key();
+      } catch {
+        key = null;
+      }
       if (!key) {
         logger.info(`  ${ep}: no API key configured — skipping pre-check`);
         continue;
       }
       // Find a model that's currently marked as working for this endpoint
-      const workingModel = json.models.find(m => {
+      const workingModel = json.models.find((m) => {
         if (!m.is_free || m._removed) return false;
         const modelEp = getEndpoint(m.id);
         return modelEp === ep && m.status.result === 'working';
@@ -681,9 +749,9 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
         logger.info(`  [${ep}] checking key with ${model.id} → ${apiId}`);
         try {
           const results = await testModel(apiId, 'pre-check', cfg.key(), cfg.url, 0, 0);
-          const ok = results.filter(r => r.status === 'OK').length;
-          const authErrors = results.filter(r => r.status === '401' || r.status === '403').length;
-          const rateLimited = results.filter(r => r.status === '429').length;
+          const ok = results.filter((r) => r.status === 'OK').length;
+          const authErrors = results.filter((r) => r.status === '401' || r.status === '403').length;
+          const rateLimited = results.filter((r) => r.status === '429').length;
 
           if (authErrors > 0) {
             logger.info(`    ⚠ KEY DEAD: auth errors`);
@@ -695,7 +763,7 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
             logger.info(`    ⚐ rate limited — key likely valid`);
             preCheckResults.push({ ep, status: 'rate_limited', model: model.id });
           } else {
-            logger.info(`    ? unexpected: ${results.map(r => r.status).join(', ')}`);
+            logger.info(`    ? unexpected: ${results.map((r) => r.status).join(', ')}`);
             preCheckResults.push({ ep, status: 'unknown', model: model.id });
           }
         } catch (e) {
@@ -704,9 +772,11 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
         }
       }
 
-      const deadKeys = preCheckResults.filter(r => r.status === 'dead');
+      const deadKeys = preCheckResults.filter((r) => r.status === 'dead');
       if (deadKeys.length >= KEY_CHECK_MAX_FAILURES) {
-        logger.info(`\n⛔ ABORTING: ${deadKeys.length} providers have dead API keys (threshold: ${KEY_CHECK_MAX_FAILURES})`);
+        logger.info(
+          `\n⛔ ABORTING: ${deadKeys.length} providers have dead API keys (threshold: ${KEY_CHECK_MAX_FAILURES})`,
+        );
         for (const dk of deadKeys) {
           logger.info(`  • ${dk.ep}: ${dk.model}`);
         }
@@ -714,7 +784,9 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
         await die(1);
       }
       if (deadKeys.length > 0) {
-        logger.info(`\n⚠ Warning: ${deadKeys.length} dead key(s) detected — proceeding but these providers will fail:`);
+        logger.info(
+          `\n⚠ Warning: ${deadKeys.length} dead key(s) detected — proceeding but these providers will fail:`,
+        );
         for (const dk of deadKeys) {
           logger.info(`  • ${dk.ep}: ${dk.model}`);
         }
@@ -844,7 +916,7 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
   try {
     const { rows: dmIdRows } = await DB_POOL.query(
       'SELECT id, full_id FROM datapoint_models WHERE full_id = ANY($1)',
-      [confirmed.map(m => m.id)]
+      [confirmed.map((m) => m.id)],
     );
     for (const r of dmIdRows) dmIdByFullId[r.full_id] = r.id;
   } catch (e) {
@@ -886,12 +958,17 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
         observations: [],
       };
     }
-    logger.info(`  Burst:   ${burst.map(r => r.status).join(', ')}`);
-    logger.info(`  Delayed: ${delayed.map(r => r.status).join(', ')}`);
+    logger.info(`  Burst:   ${burst.map((r) => r.status).join(', ')}`);
+    logger.info(`  Delayed: ${delayed.map((r) => r.status).join(', ')}`);
 
     // Track HTTP-level errors for key health monitoring
     for (const r of [...burst, ...delayed]) {
-      if (r.status !== 'OK' && r.status !== 'TIMEOUT' && r.status !== 'ERR' && !isNaN(parseInt(r.status))) {
+      if (
+        r.status !== 'OK' &&
+        r.status !== 'TIMEOUT' &&
+        r.status !== 'ERR' &&
+        !isNaN(parseInt(r.status))
+      ) {
         recordEndpointHttpError(ep, r.status);
       }
     }
@@ -947,7 +1024,10 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
 
     // Apply cooldown based on observed error types (Item 9)
     const nonOkErrorTypes = new Set(
-      all.filter((r) => r.status !== 'OK').map((r) => r.errorType).filter(Boolean),
+      all
+        .filter((r) => r.status !== 'OK')
+        .map((r) => r.errorType)
+        .filter(Boolean),
     );
     for (const et of nonOkErrorTypes) applyCooldown(ep, et);
 
@@ -968,7 +1048,9 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
     const rl = getRateLimit(ep);
     const burstDelayMs = Math.ceil(rl.delayMs * 0.5);
     const normalDelayMs = rl.delayMs;
-    logger.info(`  [${ep}] rate limit: ${rl.rpm ? rl.rpm + ' RPM' : 'default'} → burst ${burstDelayMs}ms, normal ${normalDelayMs}ms`);
+    logger.info(
+      `  [${ep}] rate limit: ${rl.rpm ? rl.rpm + ' RPM' : 'default'} → burst ${burstDelayMs}ms, normal ${normalDelayMs}ms`,
+    );
 
     const models = byEp[ep] || [];
     for (let i = 0; i < models.length; i++) {
@@ -1084,7 +1166,18 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
   // Print key health overview
   logger.info('─── API Key Health ───');
   for (const [ep, kh] of Object.entries(keyHealth).sort()) {
-    const icon = kh.status === 'healthy' ? '' : kh.status === 'expired' ? ' (KEY MAY BE EXPIRED)' : kh.status === 'rate_limited' ? ' (RATE LIMITED)' : kh.status === 'degraded' ? ' (DEGRADED)' : kh.status === 'down' ? ' (DOWN)' : '';
+    const icon =
+      kh.status === 'healthy'
+        ? ''
+        : kh.status === 'expired'
+          ? ' (KEY MAY BE EXPIRED)'
+          : kh.status === 'rate_limited'
+            ? ' (RATE LIMITED)'
+            : kh.status === 'degraded'
+              ? ' (DEGRADED)'
+              : kh.status === 'down'
+                ? ' (DOWN)'
+                : '';
     logger.info(`  ${ep.padEnd(16)} ${kh.status}${icon}`);
     // Distinguish "model is dead" from "key expired" — print HTTP error breakdown for degraded endpoints
     if (kh.status !== 'healthy' && kh.status !== 'unknown' && kh.status !== 'cooldown_skipped') {
@@ -1211,18 +1304,24 @@ logger.info(`Loaded ${json.models.length} models from PostgreSQL`);
       }
 
       // Detect actual changes in any status bucket
-      const workingAdded = [...curWorking].filter(id => !prevWorking.has(id));
-      const workingDropped = [...prevWorking].filter(id =>
-        curBroken.has(id) || curRateLimited.has(id)
+      const workingAdded = [...curWorking].filter((id) => !prevWorking.has(id));
+      const workingDropped = [...prevWorking].filter(
+        (id) => curBroken.has(id) || curRateLimited.has(id),
       );
-      const brokenAdded = [...curBroken].filter(id => !prevBroken.has(id) && prevWorking.has(id));
-      const rateLimitedAdded = [...curRateLimited].filter(id => !prevRateLimited.has(id) && prevWorking.has(id));
-      const brokenResolved = [...prevBroken].filter(id => curWorking.has(id));
-      const rateLimitedResolved = [...prevRateLimited].filter(id => curWorking.has(id));
+      const brokenAdded = [...curBroken].filter((id) => !prevBroken.has(id) && prevWorking.has(id));
+      const rateLimitedAdded = [...curRateLimited].filter(
+        (id) => !prevRateLimited.has(id) && prevWorking.has(id),
+      );
+      const brokenResolved = [...prevBroken].filter((id) => curWorking.has(id));
+      const rateLimitedResolved = [...prevRateLimited].filter((id) => curWorking.has(id));
 
-      workingChanged = workingAdded.length > 0 || workingDropped.length > 0 ||
-                       brokenAdded.length > 0 || rateLimitedAdded.length > 0 ||
-                       brokenResolved.length > 0 || rateLimitedResolved.length > 0;
+      workingChanged =
+        workingAdded.length > 0 ||
+        workingDropped.length > 0 ||
+        brokenAdded.length > 0 ||
+        rateLimitedAdded.length > 0 ||
+        brokenResolved.length > 0 ||
+        rateLimitedResolved.length > 0;
     } else {
       // No previous summary — first run, re-rank if we have any results
       workingChanged = allResults.length > 0;

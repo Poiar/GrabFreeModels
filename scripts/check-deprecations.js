@@ -74,9 +74,7 @@ function httpGet(url, headers = {}) {
 async function getOpenRouterDeprecated() {
   const { data } = await httpGet('https://openrouter.ai/api/v1/models');
   const models = data.data || [];
-  return models
-    .filter((m) => m.deprecated === true)
-    .map((m) => `openrouter/${m.id}`);
+  return models.filter((m) => m.deprecated === true).map((m) => `openrouter/${m.id}`);
 }
 
 /**
@@ -187,13 +185,16 @@ async function getNvidiaDeprecated() {
     // ── Find matches in our DB ──
     logger.info(`\nCross-referencing ${deprecatedFullIds.size} deprecated models against DB...`);
 
-    const { rows: dbModels } = await client.query(`
+    const { rows: dbModels } = await client.query(
+      `
       SELECT dm.id, dm.full_id, dm.deprecated_at
       FROM datapoint_models dm
       WHERE dm.full_id = ANY($1)
         AND dm.is_removed = false
       ORDER BY dm.full_id
-    `, [[...deprecatedFullIds]]);
+    `,
+      [[...deprecatedFullIds]],
+    );
 
     logger.info(`  ${dbModels.length} deprecated models found in DB`);
 

@@ -54,7 +54,10 @@ const NAME_OVERRIDES = {
 };
 
 function normalizeName(n) {
-  return n.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return n
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
 }
 
 async function propagate() {
@@ -145,7 +148,9 @@ async function propagate() {
       byPaid.get(m.paid_dp_id).scores.push(m);
     }
 
-    console.log(`Scored free models: ${new Set(scored.map(s => s.free_name)).size} (${scored.length} score rows)`);
+    console.log(
+      `Scored free models: ${new Set(scored.map((s) => s.free_name)).size} (${scored.length} score rows)`,
+    );
     console.log(`Paid models: ${paid.length}`);
     console.log(`Matched paid models: ${byPaid.size}`);
     console.log(`Score rows to propagate: ${matches.length}\n`);
@@ -164,7 +169,7 @@ async function propagate() {
       console.log('\nDry-run mode. Use --apply to persist.');
       console.log('\nPaid models that would get scores:');
       for (const [, info] of byPaid) {
-        const types = [...new Set(info.scores.map(s => s.score_type))];
+        const types = [...new Set(info.scores.map((s) => s.score_type))];
         console.log(`  ${info.full_id} → ${types.join(', ')} (${info.scores.length} scores)`);
       }
       if (unmatched.length > 0) {
@@ -179,14 +184,17 @@ async function propagate() {
     let inserted = 0;
     for (const [paidDpId, info] of byPaid) {
       for (const s of info.scores) {
-        await client.query(`
+        await client.query(
+          `
           INSERT INTO model_scores (datapoint_model_id, source, score_type, score_value, raw_data, fetched_at)
           VALUES ($1, $2, $3, $4, $5, NOW())
           ON CONFLICT (datapoint_model_id, source, score_type)
           DO UPDATE SET score_value = EXCLUDED.score_value,
                         raw_data = EXCLUDED.raw_data,
                         fetched_at = NOW()
-        `, [paidDpId, s.source, s.score_type, s.score_value, s.raw_data]);
+        `,
+          [paidDpId, s.source, s.score_type, s.score_value, s.raw_data],
+        );
         inserted++;
       }
     }
@@ -201,7 +209,7 @@ async function propagate() {
   }
 }
 
-propagate().catch(e => {
+propagate().catch((e) => {
   console.error(e.message);
   process.exit(1);
 });

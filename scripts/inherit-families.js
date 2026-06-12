@@ -5,13 +5,23 @@ const { Pool } = require('pg');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 let connectionString = process.env.DATABASE_URL;
-if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+if (
+  connectionString &&
+  connectionString.includes('sslmode=require') &&
+  !connectionString.includes('uselibpqcompat')
+) {
+  connectionString = connectionString.replace(
+    'sslmode=require',
+    'uselibpqcompat=true&sslmode=require',
+  );
 }
 const pool = new Pool({ connectionString, max: 1, ssl: { rejectUnauthorized: false } });
 
 function nameToSlug(name) {
-  return (name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return (name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 async function main() {
@@ -31,7 +41,7 @@ async function main() {
     console.log(`Loaded ${allModels.length} active super_models.\n`);
 
     // Build parent lookups
-    const modelByDbSlug = new Map();   // slug in DB → model
+    const modelByDbSlug = new Map(); // slug in DB → model
     const modelByNormSlug = new Map(); // nameToSlug(name) → model[]
     for (const m of allModels) {
       modelByDbSlug.set(m.slug, m);
@@ -75,14 +85,14 @@ async function main() {
       FROM super_models
       WHERE family IS NOT NULL
     `);
-    const familyMap = new Map(familyRows.map(r => [r.super_model_id, r.family]));
+    const familyMap = new Map(familyRows.map((r) => [r.super_model_id, r.family]));
     console.log(`Loaded ${familyMap.size} super_models with family.\n`);
 
     const dryRun = !process.argv.includes('--apply');
 
     // Multi-pass inheritance: each pass may resolve new assignments that
     // enable further resolutions in subsequent passes (handles 3-4 deep chains).
-    let currentFamilyMap = new Map(familyRows.map(r => [r.super_model_id, r.family]));
+    let currentFamilyMap = new Map(familyRows.map((r) => [r.super_model_id, r.family]));
     let pass = 0;
     const allPassAssignments = [];
 
@@ -90,7 +100,7 @@ async function main() {
       pass++;
 
       // Find models WITHOUT family in the current state
-      const noFamily = allModels.filter(m => !currentFamilyMap.has(m.id));
+      const noFamily = allModels.filter((m) => !currentFamilyMap.has(m.id));
       if (noFamily.length === 0) {
         console.log(`Pass ${pass}: All models have family.`);
         break;
@@ -141,7 +151,9 @@ async function main() {
       }
 
       if (inheritAssignments.length === 0) {
-        console.log(`Pass ${pass}: No new family assignments. ${noFamily.length} models still unresolvable.\n`);
+        console.log(
+          `Pass ${pass}: No new family assignments. ${noFamily.length} models still unresolvable.\n`,
+        );
         break;
       }
 
@@ -180,10 +192,10 @@ async function main() {
       // Update super_models.family
       let updated = 0;
       for (const a of inheritAssignments) {
-        await client.query(
-          'UPDATE super_models SET family = $1 WHERE id = $2 AND family IS NULL',
-          [a.family, a.child_id]
-        );
+        await client.query('UPDATE super_models SET family = $1 WHERE id = $2 AND family IS NULL', [
+          a.family,
+          a.child_id,
+        ]);
         updated++;
       }
 
@@ -193,10 +205,16 @@ async function main() {
     // Final summary
     const totalAssignments = allPassAssignments.reduce((s, p) => s + p.assignments.length, 0);
     if (dryRun) {
-      const uncovered = allModels.filter(m => !currentFamilyMap.has(m.id)).length;
-      const couldStillUse = allModels.filter(m => !currentFamilyMap.has(m.id) && baseModelMap.has(m.id)).length;
-      console.log(`\nDry run — total across ${pass} passes: ${totalAssignments} models would inherit family.`);
-      console.log(`Models still without family: ${uncovered} (${couldStillUse} of those have base_model links — may resolve once parents get family).`);
+      const uncovered = allModels.filter((m) => !currentFamilyMap.has(m.id)).length;
+      const couldStillUse = allModels.filter(
+        (m) => !currentFamilyMap.has(m.id) && baseModelMap.has(m.id),
+      ).length;
+      console.log(
+        `\nDry run — total across ${pass} passes: ${totalAssignments} models would inherit family.`,
+      );
+      console.log(
+        `Models still without family: ${uncovered} (${couldStillUse} of those have base_model links — may resolve once parents get family).`,
+      );
       console.log('Use --apply to update super_models.family.');
     } else {
       // Verify: how many still don't have family?
@@ -218,7 +236,9 @@ async function main() {
         AND sm.family IS NULL
         AND sm.base_model IS NOT NULL
       `);
-      console.log(`\nModels still without family: ${uncovered} (${couldStillUse[0].cnt} of those have base_model links — may resolve once parents get family).`);
+      console.log(
+        `\nModels still without family: ${uncovered} (${couldStillUse[0].cnt} of those have base_model links — may resolve once parents get family).`,
+      );
     }
   } finally {
     client.release();
@@ -226,4 +246,7 @@ async function main() {
   }
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

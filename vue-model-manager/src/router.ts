@@ -42,6 +42,16 @@ const routes = [
     meta: { title: 'Derivative', navParent: '/derivatives' },
   },
   {
+    path: '/org/:id',
+    name: 'OrganizationDetail',
+    component: () => import('@/views/OrganizationDetail.vue'),
+    meta: { title: 'Organization' },
+  },
+  {
+    path: '/organizations',
+    redirect: '/providers',
+  },
+  {
     path: '/provider/:slug',
     name: 'ProviderDetail',
     component: () => import('@/views/ProviderDetail.vue'),
@@ -135,7 +145,7 @@ const routes = [
     path: '/providers/onboarding',
     name: 'ProviderOnboarding',
     component: () => import('@/views/ProviderOnboarding.vue'),
-    meta: { title: 'Provider Onboarding', navParent: '/providers' },
+    meta: { title: 'Provider Onboarding' },
   },
   {
     path: '/lineage',
@@ -177,7 +187,7 @@ const routes = [
     path: '/providers/status',
     name: 'ProviderStatus',
     component: () => import('@/views/ProviderStatusGrid.vue'),
-    meta: { title: 'Provider Status', navParent: '/providers' },
+    meta: { title: 'Provider Status' },
   },
   {
     path: '/admin',
@@ -187,7 +197,7 @@ const routes = [
   },
   // Redirect old routes
   { path: '/rankings-paid', redirect: '/rankings' },
-{ path: '/free', redirect: '/' },
+  { path: '/free', redirect: '/' },
   { path: '/paid', redirect: '/' },
   { path: '/all', redirect: '/' },
   { path: '/models', redirect: '/' },
@@ -201,6 +211,34 @@ const router = createRouter({
   routes,
   scrollBehavior: () => ({ top: 0, left: 0 }),
 });
+
+// ── Background chunk preload (eliminates FOUC on lazy routes) ──
+// After the router is ready, prefetch all lazy route components so their
+// CSS is injected before the user navigates.  Staggered with small delays
+// to avoid flooding the dev server.
+let preloadTimer: ReturnType<typeof setTimeout> | null = null;
+function schedulePreload() {
+  if (preloadTimer) clearTimeout(preloadTimer);
+  preloadTimer = setTimeout(async () => {
+    const lazyLoaders: (() => Promise<any>)[] = [];
+    for (const route of router.getRoutes()) {
+      for (const comp of Object.values(route.components || {})) {
+        if (typeof comp === 'function') lazyLoaders.push(comp as () => Promise<any>);
+      }
+    }
+    // Preload in small batches to keep the dev server responsive
+    const BATCH = 4;
+    for (let i = 0; i < lazyLoaders.length; i += BATCH) {
+      await Promise.allSettled(lazyLoaders.slice(i, i + BATCH).map((l) => l()));
+      await new Promise((r) => setTimeout(r, 200));
+    }
+  }, 2000);
+}
+
+// Trigger preload after the initial route resolves
+router.isReady().then(() => schedulePreload());
+// Also re-trigger on any navigation (in case a new chunk was added)
+router.afterEach(() => schedulePreload());
 
 const BASE_TITLE = 'GrabFreeModels';
 router.afterEach((to) => {

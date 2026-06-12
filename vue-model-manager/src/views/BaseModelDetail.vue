@@ -5,19 +5,25 @@
       <div class="bmd-header-row">
         <h2>{{ baseModelName }}</h2>
         <div class="bmd-header-actions">
-          <button class="bmd-copy-btn" @click="copyDerivativesAsMarkdown" title="Copy as Markdown">↓ MD</button>
-          <button class="bmd-copy-btn" @click="copyDerivativesAsJson" title="Copy as JSON">↓ JSON</button>
+          <button class="bmd-copy-btn" @click="copyDerivativesAsMarkdown" title="Copy as Markdown">
+            ↓ MD
+          </button>
+          <button class="bmd-copy-btn" @click="copyDerivativesAsJson" title="Copy as JSON">
+            ↓ JSON
+          </button>
           <span v-if="copied" class="bmd-copied-toast">Copied!</span>
         </div>
       </div>
       <p class="bmd-subtitle">
-        {{ derivatives.length }} derivative{{ derivatives.length !== 1 ? 's' : '' }}
-        by {{ derivativeCount }} creator{{ derivativeCount !== 1 ? 's' : '' }}
+        {{ derivatives.length }} derivative{{ derivatives.length !== 1 ? 's' : '' }} by
+        {{ derivativeCount }} creator{{ derivativeCount !== 1 ? 's' : '' }}
       </p>
 
       <!-- Unique-facts chip row -->
       <div class="bmd-facts" v-if="facts.length">
-        <span v-for="f in facts" :key="f.label" class="bmd-fact-chip" :class="f.cls">{{ f.label }}</span>
+        <span v-for="f in facts" :key="f.label" class="bmd-fact-chip" :class="f.cls">{{
+          f.label
+        }}</span>
       </div>
       <p v-if="derivedDescription" class="bmd-description">{{ derivedDescription }}</p>
     </div>
@@ -41,7 +47,8 @@
           class="bmd-cap-badge"
           :class="{ active: cap.has }"
           :title="cap.label"
-        >{{ cap.label }}</span>
+          >{{ cap.label }}</span
+        >
       </div>
       <div class="bmd-bestfor-tags" v-if="topBestFor.length">
         <span v-for="tag in topBestFor.slice(0, 6)" :key="tag" class="bmd-bestfor">{{ tag }}</span>
@@ -93,18 +100,46 @@
 
     <!-- Validation bar -->
     <div class="bmd-validation-bar">
-      <div class="val-segment working" :style="{ flex: valFlex.working }" :title="valCounts.working + ' working'"></div>
-      <div class="val-segment rate_limited" :style="{ flex: valFlex.rate_limited }" :title="valCounts.rate_limited + ' rate limited'"></div>
-      <div class="val-segment broken" :style="{ flex: valFlex.broken }" :title="valCounts.broken + ' broken'"></div>
-      <div class="val-segment not_found" :style="{ flex: valFlex.not_found }" :title="valCounts.not_found + ' not found'"></div>
-      <div class="val-segment untested" :style="{ flex: valFlex.untested }" :title="valCounts.untested + ' untested'"></div>
+      <div
+        class="val-segment working"
+        :style="{ flex: valFlex.working }"
+        :title="valCounts.working + ' working'"
+      ></div>
+      <div
+        class="val-segment rate_limited"
+        :style="{ flex: valFlex.rate_limited }"
+        :title="valCounts.rate_limited + ' rate limited'"
+      ></div>
+      <div
+        class="val-segment broken"
+        :style="{ flex: valFlex.broken }"
+        :title="valCounts.broken + ' broken'"
+      ></div>
+      <div
+        class="val-segment not_found"
+        :style="{ flex: valFlex.not_found }"
+        :title="valCounts.not_found + ' not found'"
+      ></div>
+      <div
+        class="val-segment untested"
+        :style="{ flex: valFlex.untested }"
+        :title="valCounts.untested + ' untested'"
+      ></div>
     </div>
     <div class="bmd-val-legend">
-      <span v-if="valCounts.working" class="val-legend working">{{ valCounts.working }} working</span>
-      <span v-if="valCounts.rate_limited" class="val-legend rate_limited">{{ valCounts.rate_limited }} rate limited</span>
+      <span v-if="valCounts.working" class="val-legend working"
+        >{{ valCounts.working }} working</span
+      >
+      <span v-if="valCounts.rate_limited" class="val-legend rate_limited"
+        >{{ valCounts.rate_limited }} rate limited</span
+      >
       <span v-if="valCounts.broken" class="val-legend broken">{{ valCounts.broken }} broken</span>
-      <span v-if="valCounts.not_found" class="val-legend not_found">{{ valCounts.not_found }} not found</span>
-      <span v-if="valCounts.untested" class="val-legend untested">{{ valCounts.untested }} untested</span>
+      <span v-if="valCounts.not_found" class="val-legend not_found"
+        >{{ valCounts.not_found }} not found</span
+      >
+      <span v-if="valCounts.untested" class="val-legend untested"
+        >{{ valCounts.untested }} untested</span
+      >
     </div>
 
     <!-- Families -->
@@ -115,7 +150,8 @@
         :key="f"
         :to="`/family/${encodeURIComponent(f)}`"
         class="bmd-family-tag"
-      >{{ f }}</router-link>
+        >{{ f }}</router-link
+      >
     </div>
 
     <!-- Derivation method filter chips -->
@@ -136,12 +172,21 @@
       <p>No derivatives match the selected filter.</p>
     </div>
 
-    <div v-for="[creatorName, { creatorId, models }] in filteredGroupedByCreator" :key="creatorName" class="bmd-creator-group">
+    <div
+      v-for="[creatorName, { creatorId, models }] in filteredGroupedByCreator"
+      :key="creatorName"
+      class="bmd-creator-group"
+    >
       <h3 class="bmd-creator-name">
-        <router-link :to="isDerivative(creatorId) ? `/derivative/${creatorId}` : `/creator/${creatorId}`" class="bmd-creator-link">
+        <router-link
+          :to="isDerivative(creatorId) ? `/derivative/${creatorId}` : `/creator/${creatorId}`"
+          class="bmd-creator-link"
+        >
           {{ creatorName }}
         </router-link>
-        <span class="bmd-creator-count">{{ models.length }} model{{ models.length !== 1 ? 's' : '' }}</span>
+        <span class="bmd-creator-count"
+          >{{ models.length }} model{{ models.length !== 1 ? 's' : '' }}</span
+        >
       </h3>
       <div class="bmd-models">
         <SuperModelCard
@@ -180,18 +225,18 @@ const copyUtil = useCopyModelData();
 const copied = copyUtil.copied;
 
 function copyDerivativesAsMarkdown() {
-  const models = derivatives.value.map(d => d.model);
+  const models = derivatives.value.map((d) => d.model);
   let md = `# Derivatives of ${baseModelName.value}\n\n`;
   md += `**Derivatives:** ${models.length} · **Creators:** ${derivativeCount.value}\n\n`;
   md += `| Model | Creator | Params | Context | Working |\n`;
   md += `|-------|---------|--------|---------|--------|\n`;
   for (const m of models.slice(0, 30)) {
-    const wp = m.providers.filter(p => !p._removed && p.status.result === 'working').length;
-    const tp = m.providers.filter(p => !p._removed).length;
+    const wp = m.providers.filter((p) => !p._removed && p.status.result === 'working').length;
+    const tp = m.providers.filter((p) => !p._removed).length;
     md += `| ${m.name} | ${m.creator || '—'} | ${m.providers[0]?.param_count_b || '—'} | ${m.best_context || '—'} | ${wp}/${tp} |\n`;
   }
   navigator.clipboard.writeText(md);
-  copyUtil.copyAsJson({});  // just to trigger flash
+  copyUtil.copyAsJson({}); // just to trigger flash
 }
 
 function copyDerivativesAsJson() {
@@ -199,12 +244,12 @@ function copyDerivativesAsJson() {
     base_model: baseModelName.value,
     derivative_count: derivatives.value.length,
     creator_count: derivativeCount.value,
-    derivatives: derivatives.value.map(d => ({
+    derivatives: derivatives.value.map((d) => ({
       name: d.model.name,
       slug: d.model.slug,
       creator: d.creatorName,
       context: d.model.best_context,
-      working: d.model.providers.filter(p => !p._removed && p.status.result === 'working').length,
+      working: d.model.providers.filter((p) => !p._removed && p.status.result === 'working').length,
     })),
   };
   navigator.clipboard.writeText(JSON.stringify(data, null, 2));
@@ -243,13 +288,17 @@ const DERIV_META: Record<string, { label: string; cssClass: string }> = {
 const DERIV_CHIPS = [
   { value: 'all', label: 'All', cssClass: '' },
   { value: 'foundation', label: 'Foundation', cssClass: 'deriv-foundation' },
-  ...Object.entries(DERIV_META).map(([value, meta]) => ({ value, label: meta.label, cssClass: meta.cssClass })),
+  ...Object.entries(DERIV_META).map(([value, meta]) => ({
+    value,
+    label: meta.label,
+    cssClass: meta.cssClass,
+  })),
 ];
 
 const derivCounts = computed(() => {
   const counts: Record<string, number> = {};
   for (const chip of DERIV_CHIPS) counts[chip.value] = 0;
-  const models = derivatives.value.map(d => d.model);
+  const models = derivatives.value.map((d) => d.model);
   for (const m of models) {
     counts.all++;
     const method = m.derivation_method;
@@ -261,7 +310,7 @@ const derivCounts = computed(() => {
 
 const filteredDerivatives = computed(() => {
   if (derivFilter.value === 'all') return derivatives.value;
-  return derivatives.value.filter(d => {
+  return derivatives.value.filter((d) => {
     if (derivFilter.value === 'foundation') return !d.model.derivation_method;
     return d.model.derivation_method === derivFilter.value;
   });
@@ -296,7 +345,7 @@ const derivedDescription = computed(() => {
 // ── Unique-facts chips ──
 const facts = computed(() => {
   const chips: { label: string; cls: string }[] = [];
-  const models = derivatives.value.map(d => d.model);
+  const models = derivatives.value.map((d) => d.model);
   if (!models.length) return chips;
 
   // Parameter range
@@ -310,15 +359,24 @@ const facts = computed(() => {
   if (paramVals.length) {
     const min = formatParams(paramVals[0]);
     const max = formatParams(paramVals[paramVals.length - 1]);
-    chips.push({ label: min === max ? `${min} params` : `${min} – ${max} params`, cls: 'fact-param' });
+    chips.push({
+      label: min === max ? `${min} params` : `${min} – ${max} params`,
+      cls: 'fact-param',
+    });
   }
 
   // Context range
-  const ctxs = models.map(m => m.best_context).filter((c): c is number => c !== null && c > 0);
+  const ctxs = models.map((m) => m.best_context).filter((c): c is number => c !== null && c > 0);
   if (ctxs.length) {
     const minCtx = Math.min(...ctxs);
     const maxCtx = Math.max(...ctxs);
-    chips.push({ label: minCtx === maxCtx ? formatContext(minCtx) + ' ctx' : formatContext(minCtx) + ' – ' + formatContext(maxCtx) + ' ctx', cls: 'fact-ctx' });
+    chips.push({
+      label:
+        minCtx === maxCtx
+          ? formatContext(minCtx) + ' ctx'
+          : formatContext(minCtx) + ' – ' + formatContext(maxCtx) + ' ctx',
+      cls: 'fact-ctx',
+    });
   }
 
   // Knowledge cutoff range
@@ -327,7 +385,10 @@ const facts = computed(() => {
   for (const m of models) {
     let hasCutoff = false;
     for (const dp of m.providers) {
-      if (dp.knowledge_cutoff) { cutoffs.add(dp.knowledge_cutoff); hasCutoff = true; }
+      if (dp.knowledge_cutoff) {
+        cutoffs.add(dp.knowledge_cutoff);
+        hasCutoff = true;
+      }
     }
     if (hasCutoff) modelsWithCutoff++;
   }
@@ -336,7 +397,10 @@ const facts = computed(() => {
     if (cutoffVals.length === 1) {
       chips.push({ label: `Knowledge: ${cutoffVals[0]}`, cls: 'fact-cutoff' });
     } else if (cutoffVals.length > 1) {
-      chips.push({ label: `Knowledge: ${cutoffVals[0]} – ${cutoffVals[cutoffVals.length - 1]}`, cls: 'fact-cutoff' });
+      chips.push({
+        label: `Knowledge: ${cutoffVals[0]} – ${cutoffVals[cutoffVals.length - 1]}`,
+        cls: 'fact-cutoff',
+      });
     }
   }
 
@@ -352,7 +416,10 @@ const facts = computed(() => {
     if (modelHasOpen) openCount++;
   }
   if (totalWithData > 0) {
-    chips.push({ label: `${openCount}/${models.length} open`, cls: openCount > models.length / 2 ? 'fact-open' : 'fact-closed' });
+    chips.push({
+      label: `${openCount}/${models.length} open`,
+      cls: openCount > models.length / 2 ? 'fact-open' : 'fact-closed',
+    });
   }
 
   // Creator count
@@ -403,7 +470,7 @@ const paramRange = computed(() => {
 // ── Context range ──
 const contextRange = computed(() => {
   const ctxs = derivatives.value
-    .map(d => d.model.best_context)
+    .map((d) => d.model.best_context)
     .filter((c): c is number => c !== null && c > 0);
   if (!ctxs.length) return '—';
   const min = Math.min(...ctxs);
@@ -440,7 +507,7 @@ const derivationBreakdown = computed(() => {
   }
   const parts: string[] = [];
   for (const [method, count] of Object.entries(counts).sort((a, b) => b[1] - a[1])) {
-    const label = method === 'foundation' ? 'Foundation' : (DERIV_META[method]?.label || method);
+    const label = method === 'foundation' ? 'Foundation' : DERIV_META[method]?.label || method;
     parts.push(`${label} ${count}`);
   }
   return parts.join(' · ') || '—';
@@ -457,8 +524,8 @@ const familyList = computed(() => {
 
 // ── Working count ──
 const workingCount = computed(() => {
-  return derivatives.value.filter(d =>
-    d.model.providers.some(p => !p._removed && p.status.result === 'working')
+  return derivatives.value.filter((d) =>
+    d.model.providers.some((p) => !p._removed && p.status.result === 'working'),
   ).length;
 });
 
@@ -493,12 +560,15 @@ const capabilities = computed(() => {
     { key: 'supports_structured_output', label: 'structured JSON' },
     { key: 'open_weights', label: 'open weights' },
   ];
-  return caps.map(cap => {
+  return caps.map((cap) => {
     let has = false;
     for (const d of derivatives.value) {
       for (const dp of d.model.providers) {
         if (dp._removed) continue;
-        if ((dp as any)[cap.key] === true) { has = true; break; }
+        if ((dp as any)[cap.key] === true) {
+          has = true;
+          break;
+        }
       }
       if (has) break;
     }
@@ -514,7 +584,9 @@ const topBestFor = computed(() => {
       counts[tag] = (counts[tag] || 0) + 1;
     }
   }
-  return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([tag]) => tag);
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([tag]) => tag);
 });
 
 // ── Input types ──
@@ -529,12 +601,13 @@ const inputTypes = computed(() => {
   return [...types].sort();
 });
 
-const hasFeatures = computed(() =>
-  derivativeProviders.value.length > 0 ||
-  capabilities.value.some(c => c.has) ||
-  topBestFor.value.length > 0 ||
-  inputTypes.value.length > 0 ||
-  rankingHighlights.value.length > 0
+const hasFeatures = computed(
+  () =>
+    derivativeProviders.value.length > 0 ||
+    capabilities.value.some((c) => c.has) ||
+    topBestFor.value.length > 0 ||
+    inputTypes.value.length > 0 ||
+    rankingHighlights.value.length > 0,
 );
 
 // ── Validation counts ──
@@ -585,7 +658,9 @@ function openDetail(model: ModelData, creatorId: string) {
   color: var(--accent);
   text-decoration: none;
 }
-.back-link:hover { text-decoration: underline; }
+.back-link:hover {
+  text-decoration: underline;
+}
 .page-header h2 {
   font-size: 1.3rem;
   font-weight: 700;
@@ -611,12 +686,30 @@ function openDetail(model: ModelData, creatorId: string) {
   padding: 2px 10px;
   border-radius: 999px;
 }
-.bmd-fact-chip.fact-param { background: rgba(99,102,241,0.12); color: var(--deriv-ft); }
-.bmd-fact-chip.fact-ctx { background: rgba(52,211,153,0.12); color: var(--deriv-lora); }
-.bmd-fact-chip.fact-open { background: rgba(52,211,153,0.12); color: var(--deriv-lora); }
-.bmd-fact-chip.fact-closed { background: rgba(251,191,36,0.12); color: var(--deriv-cpt); }
-.bmd-fact-chip.fact-cutoff { background: rgba(168,85,247,0.12); color: var(--deriv-merge); }
-.bmd-fact-chip.fact-creator { background: rgba(236,72,153,0.12); color: var(--deriv-distill); }
+.bmd-fact-chip.fact-param {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--deriv-ft);
+}
+.bmd-fact-chip.fact-ctx {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--deriv-lora);
+}
+.bmd-fact-chip.fact-open {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--deriv-lora);
+}
+.bmd-fact-chip.fact-closed {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--deriv-cpt);
+}
+.bmd-fact-chip.fact-cutoff {
+  background: rgba(168, 85, 247, 0.12);
+  color: var(--deriv-merge);
+}
+.bmd-fact-chip.fact-creator {
+  background: rgba(236, 72, 153, 0.12);
+  color: var(--deriv-distill);
+}
 
 .bmd-description {
   font-size: 0.82rem;
@@ -644,9 +737,15 @@ function openDetail(model: ModelData, creatorId: string) {
   opacity: 0.8;
   transition: opacity 0.12s;
 }
-.bmd-prov-icon:hover { opacity: 1; }
+.bmd-prov-icon:hover {
+  opacity: 1;
+}
 
-.bmd-caps { display: flex; flex-wrap: wrap; gap: 5px; }
+.bmd-caps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
 .bmd-cap-badge {
   font-size: 0.62rem;
   font-weight: 600;
@@ -657,7 +756,10 @@ function openDetail(model: ModelData, creatorId: string) {
   color: var(--text-dim);
   background: var(--bg-elevated);
   border: 1px solid transparent;
-  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
 }
 .bmd-cap-badge.active {
   color: var(--accent);
@@ -665,7 +767,11 @@ function openDetail(model: ModelData, creatorId: string) {
   border-color: var(--accent);
 }
 
-.bmd-bestfor-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.bmd-bestfor-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
 .bmd-bestfor {
   font-size: 0.65rem;
   padding: 2px 8px;
@@ -675,7 +781,11 @@ function openDetail(model: ModelData, creatorId: string) {
   font-weight: 500;
 }
 
-.bmd-input-types { display: flex; flex-wrap: wrap; gap: 4px; }
+.bmd-input-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
 .bmd-input-type {
   font-size: 0.62rem;
   font-weight: 600;
@@ -769,12 +879,25 @@ function openDetail(model: ModelData, creatorId: string) {
   margin-top: 4px;
   gap: 1px;
 }
-.val-segment { min-width: 2px; transition: flex 0.3s; }
-.val-segment.working { background: var(--green); }
-.val-segment.rate_limited { background: var(--orange); }
-.val-segment.broken { background: var(--red); }
-.val-segment.untested { background: var(--accent); }
-.val-segment.not_found { background: var(--text-dim); }
+.val-segment {
+  min-width: 2px;
+  transition: flex 0.3s;
+}
+.val-segment.working {
+  background: var(--green);
+}
+.val-segment.rate_limited {
+  background: var(--orange);
+}
+.val-segment.broken {
+  background: var(--red);
+}
+.val-segment.untested {
+  background: var(--accent);
+}
+.val-segment.not_found {
+  background: var(--text-dim);
+}
 
 .bmd-val-legend {
   display: flex;
@@ -797,16 +920,36 @@ function openDetail(model: ModelData, creatorId: string) {
   border-radius: 2px;
   flex-shrink: 0;
 }
-.val-legend.working { color: var(--green); }
-.val-legend.working::before { background: var(--green); }
-.val-legend.rate_limited { color: var(--orange); }
-.val-legend.rate_limited::before { background: var(--orange); }
-.val-legend.broken { color: var(--red); }
-.val-legend.broken::before { background: var(--red); }
-.val-legend.untested { color: var(--accent); }
-.val-legend.untested::before { background: var(--accent); }
-.val-legend.not_found { color: var(--text-dim); }
-.val-legend.not_found::before { background: var(--text-dim); }
+.val-legend.working {
+  color: var(--green);
+}
+.val-legend.working::before {
+  background: var(--green);
+}
+.val-legend.rate_limited {
+  color: var(--orange);
+}
+.val-legend.rate_limited::before {
+  background: var(--orange);
+}
+.val-legend.broken {
+  color: var(--red);
+}
+.val-legend.broken::before {
+  background: var(--red);
+}
+.val-legend.untested {
+  color: var(--accent);
+}
+.val-legend.untested::before {
+  background: var(--accent);
+}
+.val-legend.not_found {
+  color: var(--text-dim);
+}
+.val-legend.not_found::before {
+  background: var(--text-dim);
+}
 
 /* ── Families as router-links ── */
 .bmd-families {
@@ -830,7 +973,9 @@ function openDetail(model: ModelData, creatorId: string) {
   background: var(--bg-elevated);
   color: var(--text-dim);
   text-decoration: none;
-  transition: color 0.12s, background 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s;
 }
 .bmd-families .bmd-family-tag:hover {
   color: var(--accent);
@@ -859,23 +1004,84 @@ function openDetail(model: ModelData, creatorId: string) {
   font-family: inherit;
   transition: all 0.12s;
 }
-.ml-deriv-chip:hover { border-color: var(--accent); color: var(--accent); }
-.ml-deriv-chip.deriv-ft { border-color: rgba(99, 102, 241, 0.35); color: var(--deriv-ft); }
-.ml-deriv-chip.deriv-merge { border-color: rgba(168, 85, 247, 0.35); color: var(--deriv-merge); }
-.ml-deriv-chip.deriv-distill { border-color: rgba(236, 72, 153, 0.35); color: var(--deriv-distill); }
-.ml-deriv-chip.deriv-dpo { border-color: rgba(34, 211, 238, 0.35); color: var(--deriv-dpo); }
-.ml-deriv-chip.deriv-cpt { border-color: rgba(250, 204, 21, 0.35); color: var(--deriv-cpt); }
-.ml-deriv-chip.deriv-lora { border-color: rgba(52, 211, 153, 0.35); color: var(--deriv-lora); }
-.ml-deriv-chip.deriv-foundation { border-color: rgba(156, 163, 175, 0.35); color: #9ca3af; }
-.ml-deriv-chip.active { background: var(--accent-subtle); border-color: var(--accent); color: var(--accent); }
-.ml-deriv-chip.deriv-ft.active { background: rgba(99, 102, 241, 0.14); border-color: var(--deriv-ft); color: var(--deriv-ft); }
-.ml-deriv-chip.deriv-merge.active { background: rgba(168, 85, 247, 0.14); border-color: var(--deriv-merge); color: var(--deriv-merge); }
-.ml-deriv-chip.deriv-distill.active { background: rgba(236, 72, 153, 0.14); border-color: var(--deriv-distill); color: var(--deriv-distill); }
-.ml-deriv-chip.deriv-dpo.active { background: rgba(34, 211, 238, 0.14); border-color: var(--deriv-dpo); color: var(--deriv-dpo); }
-.ml-deriv-chip.deriv-cpt.active { background: rgba(250, 204, 21, 0.14); border-color: var(--deriv-cpt); color: var(--deriv-cpt); }
-.ml-deriv-chip.deriv-lora.active { background: rgba(52, 211, 153, 0.14); border-color: var(--deriv-lora); color: var(--deriv-lora); }
-.ml-deriv-chip.deriv-foundation.active { background: rgba(156, 163, 175, 0.14); border-color: #9ca3af; color: #9ca3af; }
-.ml-deriv-count { font-size: 0.6rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; opacity: 0.8; }
+.ml-deriv-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.ml-deriv-chip.deriv-ft {
+  border-color: rgba(99, 102, 241, 0.35);
+  color: var(--deriv-ft);
+}
+.ml-deriv-chip.deriv-merge {
+  border-color: rgba(168, 85, 247, 0.35);
+  color: var(--deriv-merge);
+}
+.ml-deriv-chip.deriv-distill {
+  border-color: rgba(236, 72, 153, 0.35);
+  color: var(--deriv-distill);
+}
+.ml-deriv-chip.deriv-dpo {
+  border-color: rgba(34, 211, 238, 0.35);
+  color: var(--deriv-dpo);
+}
+.ml-deriv-chip.deriv-cpt {
+  border-color: rgba(250, 204, 21, 0.35);
+  color: var(--deriv-cpt);
+}
+.ml-deriv-chip.deriv-lora {
+  border-color: rgba(52, 211, 153, 0.35);
+  color: var(--deriv-lora);
+}
+.ml-deriv-chip.deriv-foundation {
+  border-color: rgba(156, 163, 175, 0.35);
+  color: #9ca3af;
+}
+.ml-deriv-chip.active {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.ml-deriv-chip.deriv-ft.active {
+  background: rgba(99, 102, 241, 0.14);
+  border-color: var(--deriv-ft);
+  color: var(--deriv-ft);
+}
+.ml-deriv-chip.deriv-merge.active {
+  background: rgba(168, 85, 247, 0.14);
+  border-color: var(--deriv-merge);
+  color: var(--deriv-merge);
+}
+.ml-deriv-chip.deriv-distill.active {
+  background: rgba(236, 72, 153, 0.14);
+  border-color: var(--deriv-distill);
+  color: var(--deriv-distill);
+}
+.ml-deriv-chip.deriv-dpo.active {
+  background: rgba(34, 211, 238, 0.14);
+  border-color: var(--deriv-dpo);
+  color: var(--deriv-dpo);
+}
+.ml-deriv-chip.deriv-cpt.active {
+  background: rgba(250, 204, 21, 0.14);
+  border-color: var(--deriv-cpt);
+  color: var(--deriv-cpt);
+}
+.ml-deriv-chip.deriv-lora.active {
+  background: rgba(52, 211, 153, 0.14);
+  border-color: var(--deriv-lora);
+  color: var(--deriv-lora);
+}
+.ml-deriv-chip.deriv-foundation.active {
+  background: rgba(156, 163, 175, 0.14);
+  border-color: #9ca3af;
+  color: #9ca3af;
+}
+.ml-deriv-count {
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.8;
+}
 
 .bmd-empty {
   padding: 40px 0;
@@ -900,7 +1106,9 @@ function openDetail(model: ModelData, creatorId: string) {
   color: var(--accent);
   text-decoration: none;
 }
-.bmd-creator-link:hover { text-decoration: underline; }
+.bmd-creator-link:hover {
+  text-decoration: underline;
+}
 .bmd-creator-count {
   font-size: 0.65rem;
   color: var(--text-muted);
@@ -914,7 +1122,11 @@ function openDetail(model: ModelData, creatorId: string) {
 }
 
 @media (max-width: 768px) {
-  .bmd-page { padding: 12px; }
-  .bmd-meta-grid { grid-template-columns: repeat(2, 1fr); }
+  .bmd-page {
+    padding: 12px;
+  }
+  .bmd-meta-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>

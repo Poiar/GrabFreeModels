@@ -6,7 +6,11 @@
 const { Pool } = require('pg');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 1, ssl: { rejectUnauthorized: false } });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 1,
+  ssl: { rejectUnauthorized: false },
+});
 const REG = require('../data/canonical-creators.json');
 
 // Canonical creator name overrides: raw name → canonical name (only entries that differ)
@@ -86,7 +90,12 @@ async function main() {
 
       // Check 1: Non-canonical creator name
       if (CANONICAL_CREATOR[creatorLower] && CANONICAL_CREATOR[creatorLower] !== model.creator) {
-        updates.push({ id: model.id, name: model.name, oldCreator: model.creator, newCreator: CANONICAL_CREATOR[creatorLower] });
+        updates.push({
+          id: model.id,
+          name: model.name,
+          oldCreator: model.creator,
+          newCreator: CANONICAL_CREATOR[creatorLower],
+        });
         continue;
       }
 
@@ -95,7 +104,12 @@ async function main() {
         for (const rule of NAME_TO_CREATOR) {
           if (rule.pattern.test(nameLower)) {
             if (model.creator !== rule.creator) {
-              updates.push({ id: model.id, name: model.name, oldCreator: model.creator, newCreator: rule.creator });
+              updates.push({
+                id: model.id,
+                name: model.name,
+                oldCreator: model.creator,
+                newCreator: rule.creator,
+              });
             }
             break; // First match wins
           }
@@ -130,7 +144,10 @@ async function main() {
 
     let changed = 0;
     for (const u of updates) {
-      await client.query('UPDATE super_models SET creator = $1 WHERE id = $2', [u.newCreator, u.id]);
+      await client.query('UPDATE super_models SET creator = $1 WHERE id = $2', [
+        u.newCreator,
+        u.id,
+      ]);
       changed++;
     }
 
@@ -141,4 +158,7 @@ async function main() {
   }
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

@@ -2,7 +2,11 @@
   <div class="deriv-list-page">
     <div class="page-header">
       <h2>Derivatives</h2>
-      <p>{{ derivatives.length }} derivatives tracked<template v-if="store.isSourceFilterActive"> <span class="filtered-note">(filtered)</span></template></p>
+      <p>
+        {{ derivatives.length }} derivatives tracked<template v-if="store.isSourceFilterActive">
+          <span class="filtered-note">(filtered)</span></template
+        >
+      </p>
     </div>
 
     <div class="cc-controls">
@@ -18,7 +22,13 @@
         <option value="providers">Sort: Providers</option>
         <option value="country">Sort: Country</option>
       </select>
-      <button class="sort-dir-btn" @click="sortAsc = !sortAsc" :title="sortAsc ? 'Ascending' : 'Descending'">{{ sortAsc ? '↑' : '↓' }}</button>
+      <button
+        class="sort-dir-btn"
+        @click="sortAsc = !sortAsc"
+        :title="sortAsc ? 'Ascending' : 'Descending'"
+      >
+        {{ sortAsc ? '↑' : '↓' }}
+      </button>
     </div>
 
     <div v-if="familyChips.length > 1" class="cc-chip-filters">
@@ -28,7 +38,9 @@
         class="cc-chip-btn"
         :class="{ active: selectedFamily === f }"
         @click="selectedFamily = selectedFamily === f ? 'All' : f"
-      >{{ f === 'All' ? `All (${derivatives.length})` : `${f} (${familyCount(f)})` }}</button>
+      >
+        {{ f === 'All' ? `All (${derivatives.length})` : `${f} (${familyCount(f)})` }}
+      </button>
     </div>
 
     <div v-if="derivMethodChips.length > 1" class="cc-chip-filters">
@@ -38,7 +50,9 @@
         class="cc-chip-btn"
         :class="{ active: selectedMethod === m.key }"
         @click="selectedMethod = selectedMethod === m.key ? 'All' : m.key"
-      >{{ m.key === 'All' ? `All (${derivatives.length})` : `${m.label} (${m.count})` }}</button>
+      >
+        {{ m.key === 'All' ? `All (${derivatives.length})` : `${m.label} (${m.count})` }}
+      </button>
     </div>
 
     <div class="cc-continent-filters">
@@ -48,7 +62,9 @@
         class="cc-continent-btn"
         :class="{ active: selectedContinent === c }"
         @click="selectedContinent = c"
-      >{{ c === 'All' ? `All (${derivatives.length})` : `${c} (${continentCount(c)})` }}</button>
+      >
+        {{ c === 'All' ? `All (${derivatives.length})` : `${c} (${continentCount(c)})` }}
+      </button>
     </div>
 
     <!-- Export buttons -->
@@ -63,7 +79,10 @@
         :key="creator.id"
         :to="`/derivative/${creator.id}`"
         class="creator-card glass-card"
-        :style="{ '--cc-color': getCountryForCreator(creator.id).color, '--cc-color-muted': getCountryNameForStyle(creator.id) }"
+        :style="{
+          '--cc-color': getCountryForCreator(creator.id).color,
+          '--cc-color-muted': getCountryNameForStyle(creator.id),
+        }"
       >
         <div class="cc-header">
           <ProviderIcon :slug="creator.id" :size="32" />
@@ -72,9 +91,15 @@
           </div>
           <span
             class="cc-country"
-            :style="{ color: getCountryForCreator(creator.id).text, background: getCountryForCreator(creator.id).color }"
-          >{{ getCountryForCreator(creator.id).name }}</span>
-          <span class="cc-deriv-badge" :title="derivTooltip(creator)">{{ derivLabel(creator) }}</span>
+            :style="{
+              color: getCountryForCreator(creator.id).text,
+              background: getCountryForCreator(creator.id).color,
+            }"
+            >{{ getCountryForCreator(creator.id).name }}</span
+          >
+          <span class="cc-deriv-badge" :title="derivTooltip(creator)">{{
+            derivLabel(creator)
+          }}</span>
         </div>
 
         <div class="cc-stats">
@@ -95,18 +120,30 @@
         <div class="cc-bar-track">
           <div
             class="cc-bar-fill"
-            :style="{ width: creator.model_count ? ((workingCount(creator) || 0) / creator.model_count * 100) + '%' : '0%' }"
+            :style="{
+              width: creator.model_count
+                ? ((workingCount(creator) || 0) / creator.model_count) * 100 + '%'
+                : '0%',
+            }"
           ></div>
         </div>
 
         <div v-if="getBaseCreators(creator).length" class="cc-base-creators">
-          <span v-for="bc in getBaseCreators(creator).slice(0, 4)" :key="bc" class="cc-base-chip">{{ bc }}</span>
-          <span v-if="getBaseCreators(creator).length > 4" class="cc-base-chip cc-base-more">+{{ getBaseCreators(creator).length - 4 }}</span>
+          <span v-for="bc in getBaseCreators(creator).slice(0, 4)" :key="bc" class="cc-base-chip">{{
+            bc
+          }}</span>
+          <span v-if="getBaseCreators(creator).length > 4" class="cc-base-chip cc-base-more"
+            >+{{ getBaseCreators(creator).length - 4 }}</span
+          >
         </div>
 
         <div v-if="getFamilies(creator).length" class="cc-families">
-          <span v-for="f in getFamilies(creator).slice(0, 4)" :key="f" class="cc-family-tag">{{ f }}</span>
-          <span v-if="getFamilies(creator).length > 4" class="cc-family-tag cc-family-more">+{{ getFamilies(creator).length - 4 }}</span>
+          <span v-for="f in getFamilies(creator).slice(0, 4)" :key="f" class="cc-family-tag">{{
+            f
+          }}</span>
+          <span v-if="getFamilies(creator).length > 4" class="cc-family-tag cc-family-more"
+            >+{{ getFamilies(creator).length - 4 }}</span
+          >
         </div>
       </router-link>
     </div>
@@ -148,9 +185,7 @@ const familyChips = computed(() => {
       if (m.family) counts.set(m.family, (counts.get(m.family) || 0) + 1);
     }
   }
-  return ['All', ...[...counts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .map(([f]) => f)];
+  return ['All', ...[...counts.entries()].sort((a, b) => b[1] - a[1]).map(([f]) => f)];
 });
 
 function familyCount(family: string): number {
@@ -163,8 +198,12 @@ function familyCount(family: string): number {
 
 // ── Derivation method chips ──
 const DERIV_LABELS: Record<string, string> = {
-  finetune: 'FT', merge: 'Merge', distillation: 'Distill', dpo: 'DPO',
-  continued_pretraining: 'CPT', lora_adapter: 'LoRA',
+  finetune: 'FT',
+  merge: 'Merge',
+  distillation: 'Distill',
+  dpo: 'DPO',
+  continued_pretraining: 'CPT',
+  lora_adapter: 'LoRA',
 };
 
 const derivMethodChips = computed(() => {
@@ -215,8 +254,9 @@ const filteredCreators = computed(() => {
 
   // Derivation method
   if (selectedMethod.value !== 'All') {
-    list = list.filter((c) => c.models.some((m) =>
-      (m.derivation_method || 'unknown') === selectedMethod.value));
+    list = list.filter((c) =>
+      c.models.some((m) => (m.derivation_method || 'unknown') === selectedMethod.value),
+    );
   }
 
   return list;
@@ -238,8 +278,9 @@ const sortedCreators = computed(() => {
         cmp = b.provider_count - a.provider_count;
         break;
       case 'country':
-        cmp = getCountryForCreator(a.id).name.localeCompare(getCountryForCreator(b.id).name)
-           || a.name.localeCompare(b.name);
+        cmp =
+          getCountryForCreator(a.id).name.localeCompare(getCountryForCreator(b.id).name) ||
+          a.name.localeCompare(b.name);
         break;
     }
     return cmp * dir;
@@ -278,8 +319,12 @@ function workingCount(creator: CreatorData): number {
 }
 
 const DERIV_CARD_LABELS: Record<string, string> = {
-  finetune: 'FT', merge: 'Merge', distillation: 'Distill', dpo: 'DPO',
-  continued_pretraining: 'CPT', lora_adapter: 'LoRA',
+  finetune: 'FT',
+  merge: 'Merge',
+  distillation: 'Distill',
+  dpo: 'DPO',
+  continued_pretraining: 'CPT',
+  lora_adapter: 'LoRA',
 };
 
 function derivLabel(creator: CreatorData): string {
@@ -289,7 +334,7 @@ function derivLabel(creator: CreatorData): string {
     counts[method] = (counts[method] || 0) + 1;
   }
   const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-  return top ? (DERIV_CARD_LABELS[top[0]] || 'Derived') : 'Derived';
+  return top ? DERIV_CARD_LABELS[top[0]] || 'Derived' : 'Derived';
 }
 
 function derivTooltip(creator: CreatorData): string {
@@ -373,7 +418,9 @@ function handleExportCSV() {
   flex: 1;
   max-width: 320px;
 }
-.search-input::placeholder { color: var(--text-dim); }
+.search-input::placeholder {
+  color: var(--text-dim);
+}
 .search-input:focus {
   outline: none;
   border-color: var(--accent);
@@ -424,7 +471,10 @@ function handleExportCSV() {
   color: var(--text-dim);
   cursor: pointer;
   font-family: inherit;
-  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
 }
 .cc-chip-btn:hover {
   color: var(--text);
@@ -436,9 +486,31 @@ function handleExportCSV() {
   border-color: var(--accent);
 }
 
-.export-bar { display: flex; gap: 6px; margin-top: 12px; justify-content: flex-end; }
-.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
-.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
+.export-bar {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  justify-content: flex-end;
+}
+.export-btn {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.export-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
 
 .cc-continent-filters {
   display: flex;
@@ -456,7 +528,10 @@ function handleExportCSV() {
   color: var(--text-dim);
   cursor: pointer;
   font-family: inherit;
-  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
 }
 .cc-continent-btn:hover {
   color: var(--text);
@@ -559,7 +634,9 @@ function handleExportCSV() {
   font-family: 'JetBrains Mono', monospace;
 }
 
-.cc-stat-val.working { color: var(--green); }
+.cc-stat-val.working {
+  color: var(--green);
+}
 
 .cc-stat-lbl {
   font-size: 0.62rem;
@@ -570,7 +647,7 @@ function handleExportCSV() {
 
 .cc-bar-track {
   height: 3px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 2px;
   margin-bottom: 10px;
   overflow: hidden;

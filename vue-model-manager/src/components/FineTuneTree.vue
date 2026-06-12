@@ -37,11 +37,7 @@
           <span v-else class="ft-toggle-spacer"></span>
 
           <!-- Model link -->
-          <router-link
-            :to="`/model/${child.slug}`"
-            class="ft-link"
-            @click.stop
-          >
+          <router-link :to="`/model/${child.slug}`" class="ft-link" @click.stop>
             <span class="ft-link-name">{{ child.name }}</span>
           </router-link>
 
@@ -50,11 +46,7 @@
         </div>
 
         <!-- Recursive children -->
-        <FineTuneTree
-          v-if="expanded.has(child.slug)"
-          :root-slug="child.slug"
-          :depth="depth + 1"
-        />
+        <FineTuneTree v-if="expanded.has(child.slug)" :root-slug="child.slug" :depth="depth + 1" />
       </div>
     </template>
   </div>
@@ -65,12 +57,15 @@ import { computed, ref } from 'vue';
 import { useModelsStore } from '@/store/models';
 import type { ModelData } from '@/types';
 
-const props = withDefaults(defineProps<{
-  rootSlug: string;
-  depth?: number;
-}>(), {
-  depth: 0,
-});
+const props = withDefaults(
+  defineProps<{
+    rootSlug: string;
+    depth?: number;
+  }>(),
+  {
+    depth: 0,
+  },
+);
 
 const store = useModelsStore();
 const expanded = ref(new Set<string>());
@@ -250,11 +245,28 @@ export default { name: 'FineTuneTree' };
   flex-shrink: 0;
   line-height: 1.4;
 }
-.ft-badge.deriv-ft { background: rgba(99, 102, 241, 0.12); color: var(--deriv-ft); }
-.ft-badge.deriv-merge { background: rgba(168, 85, 247, 0.12); color: var(--deriv-merge); }
-.ft-badge.deriv-distill { background: rgba(236, 72, 153, 0.12); color: var(--deriv-distill); }
-.ft-badge.deriv-dpo { background: rgba(34, 211, 238, 0.12); color: var(--deriv-dpo); }
-.ft-badge.deriv-cpt { background: rgba(250, 204, 21, 0.12); color: var(--deriv-cpt); }
-.ft-badge.deriv-lora { background: rgba(52, 211, 153, 0.12); color: var(--deriv-lora); }
-
+.ft-badge.deriv-ft {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--deriv-ft);
+}
+.ft-badge.deriv-merge {
+  background: rgba(168, 85, 247, 0.12);
+  color: var(--deriv-merge);
+}
+.ft-badge.deriv-distill {
+  background: rgba(236, 72, 153, 0.12);
+  color: var(--deriv-distill);
+}
+.ft-badge.deriv-dpo {
+  background: rgba(34, 211, 238, 0.12);
+  color: var(--deriv-dpo);
+}
+.ft-badge.deriv-cpt {
+  background: rgba(250, 204, 21, 0.12);
+  color: var(--deriv-cpt);
+}
+.ft-badge.deriv-lora {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--deriv-lora);
+}
 </style>

@@ -24,20 +24,26 @@
           :viewBox="`0 0 ${svgWidth} ${svgHeight}`"
         >
           <!-- Grid lines for severity levels -->
-          <line v-for="g in gridLines" :key="'gl'+g.y"
-            :x1="0" :y1="g.y" :x2="svgWidth" :y2="g.y"
+          <line
+            v-for="g in gridLines"
+            :key="'gl' + g.y"
+            :x1="0"
+            :y1="g.y"
+            :x2="svgWidth"
+            :y2="g.y"
             class="tl-gridline"
           />
-          <text v-for="g in gridLines" :key="'glt'+g.y"
-            :x="4" :y="g.y - 4"
-            class="tl-gridlabel"
-          >{{ g.label }}</text>
+          <text v-for="g in gridLines" :key="'glt' + g.y" :x="4" :y="g.y - 4" class="tl-gridlabel">
+            {{ g.label }}
+          </text>
 
           <!-- Baseline -->
           <line :x1="0" :y1="baseY" :x2="svgWidth" :y2="baseY" class="tl-baseline" />
 
           <!-- Issue spikes -->
-          <g v-for="(issue, idx) in visibleIssues" :key="issue.model_id + '|' + issue.issue"
+          <g
+            v-for="(issue, idx) in visibleIssues"
+            :key="issue.model_id + '|' + issue.issue"
             :transform="`translate(${getX(idx)}, ${baseY})`"
             class="tl-spike-group"
             :class="{ 'tl-selected': selectedIssue === issue }"
@@ -51,26 +57,44 @@
             @keydown.space.prevent="selectedIssue = issue"
           >
             <!-- Ripple rings for critical -->
-            <circle v-if="issue.severity === 'critical'" cx="0" cy="0" :r="spikeW * 0.75"
-              class="tl-ripple" />
+            <circle
+              v-if="issue.severity === 'critical'"
+              cx="0"
+              cy="0"
+              :r="spikeW * 0.75"
+              class="tl-ripple"
+            />
             <!-- Spike -->
-            <rect :x="-spikeW / 2" :y="-getSpikeHeight(issue)"
-              :width="spikeW" :height="getSpikeHeight(issue)"
+            <rect
+              :x="-spikeW / 2"
+              :y="-getSpikeHeight(issue)"
+              :width="spikeW"
+              :height="getSpikeHeight(issue)"
               :rx="spikeW / 2"
               :class="`tl-spike-${issue.severity}`"
             />
             <!-- Glow under spike -->
-            <ellipse :cx="0" :cy="0" :rx="spikeW * 3" :ry="spikeW * 0.6"
-              :class="`tl-glow-${issue.severity}`" />
+            <ellipse
+              :cx="0"
+              :cy="0"
+              :rx="spikeW * 3"
+              :ry="spikeW * 0.6"
+              :class="`tl-glow-${issue.severity}`"
+            />
           </g>
         </svg>
       </div>
 
       <!-- Tooltip -->
-      <div v-if="hoveredIssue" class="tl-tooltip"
-        :style="{ left: tooltipX + 'px', top: tooltipY + 'px' }">
+      <div
+        v-if="hoveredIssue"
+        class="tl-tooltip"
+        :style="{ left: tooltipX + 'px', top: tooltipY + 'px' }"
+      >
         <span class="tl-tt-model">{{ hoveredIssue.model_id }}</span>
-        <span class="tl-tt-severity" :class="`tl-tt-${hoveredIssue.severity}`">{{ hoveredIssue.severity }}</span>
+        <span class="tl-tt-severity" :class="`tl-tt-${hoveredIssue.severity}`">{{
+          hoveredIssue.severity
+        }}</span>
         <p class="tl-tt-summary">{{ hoveredIssue.issue }}</p>
         <span class="tl-tt-date">Reported: {{ hoveredIssue.reported }}</span>
         <span class="tl-tt-date">Last verified: {{ hoveredIssue.last_verified || 'N/A' }}</span>
@@ -84,15 +108,20 @@
           <button class="tl-close" @click="selectedIssue = null" aria-label="Close">&times;</button>
           <div class="tl-card-header">
             <h3>{{ selectedIssue.model_id }}</h3>
-            <span class="tl-card-severity" :class="`tl-tt-${selectedIssue.severity}`">{{ selectedIssue.severity }}</span>
+            <span class="tl-card-severity" :class="`tl-tt-${selectedIssue.severity}`">{{
+              selectedIssue.severity
+            }}</span>
           </div>
           <div class="tl-card-body">
             <p><strong>Issue:</strong> {{ selectedIssue.issue }}</p>
             <p><strong>Impact:</strong> {{ selectedIssue.impact }}</p>
-            <p v-if="selectedIssue.workaround"><strong>Workaround:</strong> {{ selectedIssue.workaround }}</p>
+            <p v-if="selectedIssue.workaround">
+              <strong>Workaround:</strong> {{ selectedIssue.workaround }}
+            </p>
           </div>
           <p class="tl-card-footer">
-            Reported: {{ selectedIssue.reported }} | Last verified: {{ selectedIssue.last_verified || 'N/A' }}
+            Reported: {{ selectedIssue.reported }} | Last verified:
+            {{ selectedIssue.last_verified || 'N/A' }}
           </p>
         </div>
       </div>
@@ -268,7 +297,7 @@ onUnmounted(() => {
 }
 
 .tl-gridline {
-  stroke: rgba(255,255,255,0.04);
+  stroke: rgba(255, 255, 255, 0.04);
   stroke-width: 1;
   stroke-dasharray: 4 6;
 }
@@ -281,7 +310,7 @@ onUnmounted(() => {
 }
 
 .tl-baseline {
-  stroke: rgba(255,255,255,0.08);
+  stroke: rgba(255, 255, 255, 0.08);
   stroke-width: 1.5;
 }
 
@@ -303,15 +332,32 @@ onUnmounted(() => {
   filter: brightness(1.3);
 }
 
-.tl-spike-critical { fill: var(--red, #f87171); }
-.tl-spike-high { fill: var(--red-dim, #ef4444); opacity: 0.85; }
-.tl-spike-moderate { fill: var(--orange, #fbbf24); }
-.tl-spike-low { fill: var(--accent, #6380f7); }
+.tl-spike-critical {
+  fill: var(--red, #f87171);
+}
+.tl-spike-high {
+  fill: var(--red-dim, #ef4444);
+  opacity: 0.85;
+}
+.tl-spike-moderate {
+  fill: var(--orange, #fbbf24);
+}
+.tl-spike-low {
+  fill: var(--accent, #6380f7);
+}
 
-.tl-glow-critical { fill: var(--red-glow, rgba(248,113,113,0.3)); }
-.tl-glow-high { fill: var(--red-glow-dim, rgba(239,68,68,0.15)); }
-.tl-glow-moderate { fill: var(--orange-glow, rgba(251,191,36,0.15)); }
-.tl-glow-low { fill: var(--accent-glow, rgba(99,128,247,0.15)); }
+.tl-glow-critical {
+  fill: var(--red-glow, rgba(248, 113, 113, 0.3));
+}
+.tl-glow-high {
+  fill: var(--red-glow-dim, rgba(239, 68, 68, 0.15));
+}
+.tl-glow-moderate {
+  fill: var(--orange-glow, rgba(251, 191, 36, 0.15));
+}
+.tl-glow-low {
+  fill: var(--accent-glow, rgba(99, 128, 247, 0.15));
+}
 
 .tl-selected .tl-spike-critical,
 .tl-selected .tl-spike-high,
@@ -321,8 +367,14 @@ onUnmounted(() => {
 }
 
 @keyframes ripple-expand {
-  0% { transform: scale(1); opacity: 0.35; }
-  100% { transform: scale(5); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(5);
+    opacity: 0;
+  }
 }
 
 .tl-ripple {
@@ -337,12 +389,12 @@ onUnmounted(() => {
 .tl-tooltip {
   position: absolute;
   pointer-events: none;
-  background: var(--glass-bg, rgba(22,27,38,0.8));
+  background: var(--glass-bg, rgba(22, 27, 38, 0.8));
   backdrop-filter: blur(8px);
-  border: 1px solid var(--glass-border-light, rgba(255,255,255,0.06));
+  border: 1px solid var(--glass-border-light, rgba(255, 255, 255, 0.06));
   border-radius: var(--radius-sm, 6px);
   padding: 8px 12px;
-  box-shadow: var(--shadow-elevation-3, 0 8px 24px rgba(0,0,0,0.4));
+  box-shadow: var(--shadow-elevation-3, 0 8px 24px rgba(0, 0, 0, 0.4));
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -365,10 +417,22 @@ onUnmounted(() => {
   width: fit-content;
 }
 
-.tl-tt-critical { background: rgba(248,113,113,0.2); color: var(--red); }
-.tl-tt-high { background: rgba(239,68,68,0.2); color: #ef4444; }
-.tl-tt-moderate { background: rgba(251,191,36,0.2); color: var(--orange); }
-.tl-tt-low { background: rgba(99,128,247,0.2); color: var(--accent); }
+.tl-tt-critical {
+  background: rgba(248, 113, 113, 0.2);
+  color: var(--red);
+}
+.tl-tt-high {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+.tl-tt-moderate {
+  background: rgba(251, 191, 36, 0.2);
+  color: var(--orange);
+}
+.tl-tt-low {
+  background: rgba(99, 128, 247, 0.2);
+  color: var(--accent);
+}
 
 .tl-tt-summary {
   font-size: 0.7rem;
@@ -386,7 +450,7 @@ onUnmounted(() => {
 .tl-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(2px);
   z-index: 1000;
   display: flex;
@@ -405,7 +469,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  box-shadow: var(--shadow-xl, 0 16px 48px rgba(0,0,0,0.5));
+  box-shadow: var(--shadow-xl, 0 16px 48px rgba(0, 0, 0, 0.5));
   max-height: 80vh;
   overflow-y: auto;
 }

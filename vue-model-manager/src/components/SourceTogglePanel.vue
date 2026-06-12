@@ -3,10 +3,15 @@
     <button class="stp-header" @click="open = !open" :aria-expanded="open">
       <div class="stp-header-left">
         <svg
-          aria-hidden="true" width="14" height="14"
-          viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round"
+          aria-hidden="true"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
         >
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
         </svg>
@@ -14,11 +19,17 @@
         <span v-if="activeCount > 0" class="stp-badge">{{ activeCount }}</span>
       </div>
       <svg
-        class="stp-chevron" :class="{ open }"
-        aria-hidden="true" width="12" height="12"
-        viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round"
+        class="stp-chevron"
+        :class="{ open }"
+        aria-hidden="true"
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
       >
         <polyline points="9 18 15 12 9 6" />
       </svg>
@@ -36,11 +47,7 @@
         <label v-for="s in apiSources" :key="s.id" class="stp-toggle-row">
           <span class="stp-toggle-label">{{ s.name.replace(/\s*API$/i, '') }}</span>
           <label class="stp-switch">
-            <input
-              type="checkbox"
-              :checked="isEnabled(s.id)"
-              @change="toggle(s.id)"
-            />
+            <input type="checkbox" :checked="isEnabled(s.id)" @change="toggle(s.id)" />
             <span class="stp-slider"></span>
           </label>
         </label>
@@ -57,11 +64,7 @@
         <label v-for="s in communitySources" :key="s.id" class="stp-toggle-row">
           <span class="stp-toggle-label">{{ s.name }}</span>
           <label class="stp-switch">
-            <input
-              type="checkbox"
-              :checked="isEnabled(s.id)"
-              @change="toggle(s.id)"
-            />
+            <input type="checkbox" :checked="isEnabled(s.id)" @change="toggle(s.id)" />
             <span class="stp-slider"></span>
           </label>
         </label>
@@ -79,17 +82,20 @@ const open = ref(false);
 
 watch(
   () => store.sourcesPanelOpen,
-  (v) => { if (v) { open.value = true; store.sourcesPanelOpen = false; } },
+  (v) => {
+    if (v) {
+      open.value = true;
+      store.sourcesPanelOpen = false;
+    }
+  },
 );
 
-const apiSources = computed(() =>
-  store.sources.filter((s) => s.source_type === 'api_provider'),
-);
+const apiSources = computed(() => store.sources.filter((s) => s.source_type === 'api_provider'));
 const communitySources = computed(() =>
   store.sources.filter((s) => s.source_type === 'community_list'),
 );
-const activeCount = computed(() =>
-  store.sources.filter((s) => store.toggleState[s.id] !== false).length,
+const activeCount = computed(
+  () => store.sources.filter((s) => store.toggleState[s.id] !== false).length,
 );
 
 const superApiEnabled = computed(() => store.superApiEnabled);

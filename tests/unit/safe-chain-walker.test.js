@@ -8,13 +8,9 @@
 const assert = require('assert');
 const path = require('path');
 
-const {
-  MAX_CHAIN_DEPTH,
-  walkChain,
-  wouldCreateCycle,
-  detectCycles,
-  validateNoSelfRefs,
-} = require(path.join(__dirname, '../../scripts/utils/safe-chain-walker'));
+const { MAX_CHAIN_DEPTH, walkChain, wouldCreateCycle, detectCycles, validateNoSelfRefs } = require(
+  path.join(__dirname, '../../scripts/utils/safe-chain-walker'),
+);
 
 let passed = 0;
 let failed = 0;
@@ -146,13 +142,19 @@ test('wouldCreateCycle: would create A→B→C→A cycle', () => {
 
 test('wouldCreateCycle: safe linear extension', () => {
   // Existing: b → a.  Proposal: c → b is safe (extends the chain).
-  const parentMap = new Map([['b', 'a'], ['a', null]]);
+  const parentMap = new Map([
+    ['b', 'a'],
+    ['a', null],
+  ]);
   assert.strictEqual(wouldCreateCycle('c', 'b', parentMap), false);
 });
 
 test('wouldCreateCycle: parent chain does not include child', () => {
   // Existing: a → b, unrelated: x → y.  Proposal: z → a is safe.
-  const parentMap = new Map([['a', 'b'], ['x', 'y']]);
+  const parentMap = new Map([
+    ['a', 'b'],
+    ['x', 'y'],
+  ]);
   assert.strictEqual(wouldCreateCycle('z', 'a', parentMap), false);
 });
 
@@ -220,12 +222,18 @@ test('validateNoSelfRefs: empty', () => {
 });
 
 test('validateNoSelfRefs: no self-refs', () => {
-  const parentMap = new Map([['a', 'b'], ['b', null]]);
+  const parentMap = new Map([
+    ['a', 'b'],
+    ['b', null],
+  ]);
   assert.deepStrictEqual(validateNoSelfRefs(parentMap), []);
 });
 
 test('validateNoSelfRefs: finds self-reference', () => {
-  const parentMap = new Map([['x', 'x'], ['y', 'z']]);
+  const parentMap = new Map([
+    ['x', 'x'],
+    ['y', 'z'],
+  ]);
   const refs = validateNoSelfRefs(parentMap);
   assert.deepStrictEqual(refs, ['x']);
 });

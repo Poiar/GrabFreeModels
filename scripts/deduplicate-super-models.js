@@ -7,10 +7,24 @@ const pool = require('../server/db');
 const APPLY = process.argv.includes('--apply');
 
 const ORG_PREFIXES = [
-  'minimaxai', 'deepseek-ai', 'meta-llama', 'mistralai', 'arcee-ai',
-  'stabilityai', 'nousresearch', 'cognitivecomputations', 'abacusai',
-  'sarvamai', 'internlm', 'upstage', 'databricks', 'bigcode', 'baai',
-  'ibm-granite', 'microsoft', 'google',
+  'minimaxai',
+  'deepseek-ai',
+  'meta-llama',
+  'mistralai',
+  'arcee-ai',
+  'stabilityai',
+  'nousresearch',
+  'cognitivecomputations',
+  'abacusai',
+  'sarvamai',
+  'internlm',
+  'upstage',
+  'databricks',
+  'bigcode',
+  'baai',
+  'ibm-granite',
+  'microsoft',
+  'google',
 ];
 
 function stripOrgPrefix(slug) {
@@ -55,7 +69,7 @@ function stripOrgPrefix(slug) {
       const loser = winner.id === target.id ? r : target;
 
       const key = `${loser.id}->${winner.id}`;
-      if (merges.some(m => m.key === key)) continue;
+      if (merges.some((m) => m.key === key)) continue;
       merges.push({ key, winner, loser });
     }
 
@@ -65,10 +79,13 @@ function stripOrgPrefix(slug) {
     let datapointsMoved = 0;
 
     for (const m of merges) {
-      process.stdout.write(`#${m.loser.id} (${m.loser.slug}) -> #${m.winner.id} (${m.winner.slug}) ... `);
+      process.stdout.write(
+        `#${m.loser.id} (${m.loser.slug}) -> #${m.winner.id} (${m.winner.slug}) ... `,
+      );
 
       // Check for conflicting datapoints (same provider + model_instance_key on both)
-      const { rows: conflicts } = await client.query(`
+      const { rows: conflicts } = await client.query(
+        `
         SELECT dm_loser.id AS loser_dm_id, dm_loser.full_id AS loser_full_id,
                dm_winner.id AS winner_dm_id, dm_winner.full_id AS winner_full_id
         FROM datapoint_models dm_loser
@@ -77,14 +94,19 @@ function stripOrgPrefix(slug) {
          AND dm_winner.datapoint_provider_id = dm_loser.datapoint_provider_id
          AND dm_winner.model_instance_key = dm_loser.model_instance_key
         WHERE dm_loser.super_model_id = $2
-      `, [m.winner.id, m.loser.id]);
+      `,
+        [m.winner.id, m.loser.id],
+      );
 
       if (!APPLY) {
         const { rows: loserDps } = await client.query(
-          'SELECT COUNT(*) as c FROM datapoint_models WHERE super_model_id = $1', [m.loser.id]
+          'SELECT COUNT(*) as c FROM datapoint_models WHERE super_model_id = $1',
+          [m.loser.id],
         );
         const count = parseInt(loserDps[0].c);
-        console.log(`${count} datapoints${conflicts.length > 0 ? ` (${conflicts.length} conflicts)` : ''}`);
+        console.log(
+          `${count} datapoints${conflicts.length > 0 ? ` (${conflicts.length} conflicts)` : ''}`,
+        );
         merged++;
         continue;
       }
@@ -95,7 +117,7 @@ function stripOrgPrefix(slug) {
           // Mark loser's conflicting datapoint as removed
           await client.query(
             'UPDATE datapoint_models SET is_removed = true, updated_at = now() WHERE id = $1',
-            [c.loser_dm_id]
+            [c.loser_dm_id],
           );
         }
       }
@@ -103,18 +125,22 @@ function stripOrgPrefix(slug) {
       // Move remaining datapoints to winner
       const { rowCount } = await client.query(
         'UPDATE datapoint_models SET super_model_id = $1, updated_at = now() WHERE super_model_id = $2',
-        [m.winner.id, m.loser.id]
+        [m.winner.id, m.loser.id],
       );
       datapointsMoved += rowCount;
 
       // Delete the loser super_model (datapoints already moved or marked removed)
       await client.query('DELETE FROM super_models WHERE id = $1', [m.loser.id]);
 
-      console.log(`${rowCount} moved${conflicts.length > 0 ? `, ${conflicts.length} skipped` : ''}`);
+      console.log(
+        `${rowCount} moved${conflicts.length > 0 ? `, ${conflicts.length} skipped` : ''}`,
+      );
       merged++;
     }
 
-    console.log(`\n${merged} merges${APPLY ? ' applied' : ' would be applied'}, ${datapointsMoved} datapoints moved`);
+    console.log(
+      `\n${merged} merges${APPLY ? ' applied' : ' would be applied'}, ${datapointsMoved} datapoints moved`,
+    );
     if (!APPLY) console.log('Run with --apply to execute.');
   } catch (e) {
     console.error('Error:', e.message);

@@ -18,33 +18,46 @@ const APPLY = process.argv.includes('--apply');
 
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location)
-        return resolve(httpsGet(res.headers.location));
-      let data = '';
-      res.on('data', (chunk) => (data += chunk));
-      res.on('end', () => {
-        if (res.statusCode >= 400) reject(new Error(`HTTP ${res.statusCode}`));
-        else resolve(JSON.parse(data));
-      });
-    }).on('error', reject);
+    https
+      .get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location)
+          return resolve(httpsGet(res.headers.location));
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          if (res.statusCode >= 400) reject(new Error(`HTTP ${res.statusCode}`));
+          else resolve(JSON.parse(data));
+        });
+      })
+      .on('error', reject);
   });
 }
 
 function slugify(name) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').replace(/-{2,}/g, '-');
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .replace(/-{2,}/g, '-');
 }
 
 function normalizeName(name) {
   return name
-    .replace(/\s*\(free\)\s*/gi, '').replace(/\s*\(free tier\)\s*/gi, '')
-    .replace(/^coding[-_]/i, '').replace(/^xiaomi[-_]/i, '')
-    .replace(/\s*:free\s*/gi, '').replace(/\s+/g, ' ').trim().toLowerCase();
+    .replace(/\s*\(free\)\s*/gi, '')
+    .replace(/\s*\(free tier\)\s*/gi, '')
+    .replace(/^coding[-_]/i, '')
+    .replace(/^xiaomi[-_]/i, '')
+    .replace(/\s*:free\s*/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
 }
 
 function stripCreatorPrefix(name) {
-  return name.replace(/^[A-Za-z][A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*:\s*/i, '')
-             .replace(/^[a-z][a-z0-9-]*\/(?=[A-Z])/, '').trim();
+  return name
+    .replace(/^[A-Za-z][A-Za-z0-9.-]*[A-Za-z][A-Za-z0-9.-]*:\s*/i, '')
+    .replace(/^[a-z][a-z0-9-]*\/(?=[A-Z])/, '')
+    .trim();
 }
 
 function isSlugLike(name) {
@@ -53,17 +66,20 @@ function isSlugLike(name) {
 
 function looksLikeDisplayName(name) {
   // A proper display name has spaces, mixed case, doesn't look like a slug
-  if (!/\s/.test(name)) return false;           // no spaces = slug
-  if (/^[a-z0-9-]+$/.test(name)) return false;  // all lowercase slug
+  if (!/\s/.test(name)) return false; // no spaces = slug
+  if (/^[a-z0-9-]+$/.test(name)) return false; // all lowercase slug
   // Reject names that are obviously bad
-  if (/^[a-z][a-z0-9-]*\/[a-z]/.test(name)) return false;  // lower/upper mismatch = org prefix
+  if (/^[a-z][a-z0-9-]*\/[a-z]/.test(name)) return false; // lower/upper mismatch = org prefix
   return true;
 }
 
 function cleanMdName(mdName) {
   let name = stripCreatorPrefix(mdName);
   // Strip trailing "(free)", "(latest)" etc. — we track those elsewhere
-  name = name.replace(/\s*\(free\)\s*$/i, '').replace(/\s*\(latest\)\s*$/i, '').trim();
+  name = name
+    .replace(/\s*\(free\)\s*$/i, '')
+    .replace(/\s*\(latest\)\s*$/i, '')
+    .trim();
   // Strip " Free" suffix
   name = name.replace(/\s+Free$/i, '').trim();
   return name;
@@ -102,11 +118,16 @@ function cleanMdName(mdName) {
 
   // 3. Connect DB
   const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) { console.error('DATABASE_URL not set'); process.exit(1); }
+  if (!connectionString) {
+    console.error('DATABASE_URL not set');
+    process.exit(1);
+  }
   const pool = new Pool({
     connectionString: connectionString.includes('uselibpqcompat')
-      ? connectionString : connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require'),
-    ssl: { rejectUnauthorized: false }, max: 3,
+      ? connectionString
+      : connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require'),
+    ssl: { rejectUnauthorized: false },
+    max: 3,
   });
   const client = await pool.connect();
 
@@ -127,8 +148,8 @@ function cleanMdName(mdName) {
 
     for (const sm of superModels) {
       const dps = sm.datapoints || [];
-      const mdDp = dps.find(d => d.provider_slug === 'modelsdev');
-      const nonMdDps = dps.filter(d => d.provider_slug && d.provider_slug !== 'modelsdev');
+      const mdDp = dps.find((d) => d.provider_slug === 'modelsdev');
+      const nonMdDps = dps.filter((d) => d.provider_slug && d.provider_slug !== 'modelsdev');
 
       // Find models.dev entry
       let mdEntry = null;
@@ -138,7 +159,9 @@ function cleanMdName(mdName) {
         const candidates = mdBySlug.get(slugify(mdDp.model_instance_key)) || [];
         if (candidates.length === 1) mdEntry = candidates[0];
         else if (candidates.length > 1) {
-          mdEntry = candidates.find(c => mdDp.model_instance_key.startsWith(c.providerId + '/')) || candidates[0];
+          mdEntry =
+            candidates.find((c) => mdDp.model_instance_key.startsWith(c.providerId + '/')) ||
+            candidates[0];
         }
       }
 
@@ -149,8 +172,11 @@ function cleanMdName(mdName) {
         else if (candidates && candidates.length > 1) {
           for (const dp of nonMdDps) {
             const mdProvs = reverseProviderMap[dp.provider_slug] || [];
-            const m = candidates.find(c => mdProvs.includes(c.providerId));
-            if (m) { mdEntry = m; break; }
+            const m = candidates.find((c) => mdProvs.includes(c.providerId));
+            if (m) {
+              mdEntry = m;
+              break;
+            }
           }
           if (!mdEntry) mdEntry = candidates[0];
         }
@@ -182,9 +208,16 @@ function cleanMdName(mdName) {
         const ourStripped = ourName.replace(/^[A-Z][a-zA-Z0-9.-]+:\s/, '');
         // If stripped gives a proper display name, use it
         if (looksLikeDisplayName(ourStripped)) {
-          fixes.push({ id: sm.id, slug: sm.slug, old_name: ourName, new_name: ourStripped,
-            md_raw: mdRawName, md_provider: mdEntry.providerId, md_model_id: mdEntry.modelId,
-            reason: 'strip_creator_prefix' });
+          fixes.push({
+            id: sm.id,
+            slug: sm.slug,
+            old_name: ourName,
+            new_name: ourStripped,
+            md_raw: mdRawName,
+            md_provider: mdEntry.providerId,
+            md_model_id: mdEntry.modelId,
+            reason: 'strip_creator_prefix',
+          });
           continue;
         }
         // If stripped is still slug-like, fall through to slug→display logic below
@@ -205,11 +238,22 @@ function cleanMdName(mdName) {
         if (/^[A-Z][a-zA-Z0-9-]+\//.test(mdClean)) continue;
         // Don't expand short model codes into vendor-prefixed names
         // (e.g. "o1" stays "o1", not "OpenAI o1" — AA convention)
-        if (/^o\d/.test(effectiveName) && mdClean.toLowerCase().endsWith(effectiveName.toLowerCase())) continue;
+        if (
+          /^o\d/.test(effectiveName) &&
+          mdClean.toLowerCase().endsWith(effectiveName.toLowerCase())
+        )
+          continue;
 
-        fixes.push({ id: sm.id, slug: sm.slug, old_name: ourName, new_name: mdClean,
-          md_raw: mdRawName, md_provider: mdEntry.providerId, md_model_id: mdEntry.modelId,
-          reason: ourHasCreatorPrefix ? 'strip_creator_prefix+slug→display' : 'slug→display' });
+        fixes.push({
+          id: sm.id,
+          slug: sm.slug,
+          old_name: ourName,
+          new_name: mdClean,
+          md_raw: mdRawName,
+          md_provider: mdEntry.providerId,
+          md_model_id: mdEntry.modelId,
+          reason: ourHasCreatorPrefix ? 'strip_creator_prefix+slug→display' : 'slug→display',
+        });
         continue;
       }
 
@@ -224,9 +268,16 @@ function cleanMdName(mdName) {
       // 4. Our name has a version date in parens, models.dev doesn't → consider adopting
       const ourHasDateSuffix = /\s*\(\d{2}-\d{4}\)$/.test(effectiveName);
       if (ourHasDateSuffix && !/:/.test(mdClean)) {
-        fixes.push({ id: sm.id, slug: sm.slug, old_name: ourName, new_name: mdClean,
-          md_raw: mdRawName, md_provider: mdEntry.providerId, md_model_id: mdEntry.modelId,
-          reason: 'drop_date_suffix' });
+        fixes.push({
+          id: sm.id,
+          slug: sm.slug,
+          old_name: ourName,
+          new_name: mdClean,
+          md_raw: mdRawName,
+          md_provider: mdEntry.providerId,
+          md_model_id: mdEntry.modelId,
+          reason: 'drop_date_suffix',
+        });
         continue;
       }
     }
@@ -248,7 +299,9 @@ function cleanMdName(mdName) {
     } else {
       for (const f of fixes) {
         console.log(`-- [${f.reason}] ${f.md_provider}/${f.md_model_id}  (raw: "${f.md_raw}")`);
-        console.log(`UPDATE super_models SET name = '${f.new_name.replace(/'/g, "''")}' WHERE id = ${f.id};  -- was: "${f.old_name}"`);
+        console.log(
+          `UPDATE super_models SET name = '${f.new_name.replace(/'/g, "''")}' WHERE id = ${f.id};  -- was: "${f.old_name}"`,
+        );
         console.log();
       }
       console.log(`\n-- Dry-run. Use --apply to execute ${fixes.length} updates.`);
@@ -257,4 +310,7 @@ function cleanMdName(mdName) {
     client.release();
     await pool.end();
   }
-})().catch((e) => { console.error(e.message); process.exit(1); });
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

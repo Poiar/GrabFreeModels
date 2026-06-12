@@ -25,20 +25,22 @@ const SOURCE_TYPE = 'community_list';
 
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return resolve(httpsGet(res.headers.location));
-      }
-      let data = '';
-      res.on('data', (chunk) => (data += chunk));
-      res.on('end', () => {
-        if (res.statusCode >= 400) {
-          reject(new Error(`HTTP ${res.statusCode} from ${url}`));
-        } else {
-          resolve(JSON.parse(data));
+    https
+      .get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          return resolve(httpsGet(res.headers.location));
         }
-      });
-    }).on('error', reject);
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          if (res.statusCode >= 400) {
+            reject(new Error(`HTTP ${res.statusCode} from ${url}`));
+          } else {
+            resolve(JSON.parse(data));
+          }
+        });
+      })
+      .on('error', reject);
   });
 }
 
@@ -75,7 +77,9 @@ function httpsGet(url) {
   }
 
   const providerIds = Object.keys(byProvider);
-  logger.info(`  ${totalModels} models total (${freeModels} free) across ${providerIds.length} providers`);
+  logger.info(
+    `  ${totalModels} models total (${freeModels} free) across ${providerIds.length} providers`,
+  );
 
   // Map to our datapoint_providers slugs
   const mapped = {};
@@ -97,8 +101,12 @@ function httpsGet(url) {
 
   logger.info('\n=== Summary ===');
   logger.info(`  Total providers in catalog:     ${providerIds.length}`);
-  logger.info(`  Mapped to our providers:        ${mappedSlugs.length} (${mappedModelCount} models)`);
-  logger.info(`  Unmapped (need PROVIDER_MAP):   ${unmappedSlugs.length} (${unmappedModelCount} models)`);
+  logger.info(
+    `  Mapped to our providers:        ${mappedSlugs.length} (${mappedModelCount} models)`,
+  );
+  logger.info(
+    `  Unmapped (need PROVIDER_MAP):   ${unmappedSlugs.length} (${unmappedModelCount} models)`,
+  );
 
   for (const [slug, info] of Object.entries(mapped)) {
     logger.info(`  ✓ ${slug} -> ${info.mappedSlug} (${info.count} models)`);
@@ -169,9 +177,7 @@ function httpsGet(url) {
         const limit = modelData.limit || {};
         const modalities = modelData.modalities || {};
 
-        const modelName = modelData.id.includes('/')
-          ? modelData.id
-          : `${provId}/${modelData.id}`;
+        const modelName = modelData.id.includes('/') ? modelData.id : `${provId}/${modelData.id}`;
 
         // Interleaved can be an object { field: '...' } or a boolean
         let interleavedVal = modelData.interleaved;
@@ -214,7 +220,9 @@ function httpsGet(url) {
     }
 
     await client.query('COMMIT');
-    logger.info(`  Stored ${Object.keys(byProvider).length} providers with ${totalInserted} models`);
+    logger.info(
+      `  Stored ${Object.keys(byProvider).length} providers with ${totalInserted} models`,
+    );
   } catch (err) {
     await client.query('ROLLBACK');
     logger.error(`DB error: ${err.message}`);

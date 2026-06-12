@@ -64,10 +64,13 @@ export function useCopyModelData() {
     md += `\n| Model | Family | Context | Providers | Working |\n`;
     md += `|-------|--------|---------|-----------|--------|\n`;
     for (const m of creator.models.slice(0, 20)) {
-      const working = m.providers.filter((p) => !p._removed && p.status.result === 'working').length;
+      const working = m.providers.filter(
+        (p) => !p._removed && p.status.result === 'working',
+      ).length;
       md += `| ${m.name} | ${m.family || '—'} | ${formatCtx(m.best_context)} | ${m.providers.filter((p) => !p._removed).length} | ${working} |\n`;
     }
-    if (creator.models.length > 20) md += `\n_(${creator.models.length - 20} more models not shown)_\n`;
+    if (creator.models.length > 20)
+      md += `\n_(${creator.models.length - 20} more models not shown)_\n`;
     navigator.clipboard.writeText(md);
     flashCopied();
   }
@@ -96,7 +99,9 @@ export function useCopyModelData() {
   function copyFamilyAsMarkdown(family: FamilyData) {
     let md = `# ${family.name}\n\n`;
     md += `**Models:** ${family.model_count} · **Providers:** ${family.provider_count}  \n`;
-    const working = family.models.filter((m) => m.providers.some((p) => !p._removed && p.status.result === 'working')).length;
+    const working = family.models.filter((m) =>
+      m.providers.some((p) => !p._removed && p.status.result === 'working'),
+    ).length;
     md += `**Working:** ${working}/${family.model_count}  \n\n`;
     md += `| Model | Creator | Context | Family |\n`;
     md += `|-------|---------|---------|--------|\n`;

@@ -1,7 +1,7 @@
 ---
 name: third-party-recommendations
-description: "Actionable improvements for GrabFreeModels drawn from LiteLLM, LMSYS, Langfuse, and HF Leaderboard"
-metadata: 
+description: 'Actionable improvements for GrabFreeModels drawn from LiteLLM, LMSYS, Langfuse, and HF Leaderboard'
+metadata:
   node_type: memory
   type: project
   originSessionId: 44d00769-02b1-4e82-9bad-40385a18dbea

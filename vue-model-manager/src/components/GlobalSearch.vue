@@ -198,7 +198,8 @@ function onKeydown(e: KeyboardEvent) {
     activeIndex.value = (activeIndex.value + 1) % Math.max(flatItems.value.length, 1);
   } else if (e.key === 'ArrowUp') {
     e.preventDefault();
-    activeIndex.value = (activeIndex.value - 1 + flatItems.value.length) % Math.max(flatItems.value.length, 1);
+    activeIndex.value =
+      (activeIndex.value - 1 + flatItems.value.length) % Math.max(flatItems.value.length, 1);
   } else if (e.key === 'Enter') {
     e.preventDefault();
     const item = flatItems.value[activeIndex.value];
@@ -272,7 +273,9 @@ onUnmounted(() => window.removeEventListener('keydown', onGlobalKeydown));
   justify-content: space-between;
   align-items: center;
   border-left: 3px solid transparent;
-  transition: background 0.08s, border-color 0.08s;
+  transition:
+    background 0.08s,
+    border-color 0.08s;
 }
 .gsc-item-active {
   background: var(--bg-elevated);

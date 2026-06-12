@@ -1,32 +1,77 @@
 <template>
-  <div class="ic-card" :class="[`ic-${dp.status.result}`]" :style="{ '--ic-provider-color': providerColorMuted, '--ic-provider-color-main': providerColor }" @click="handleClick">
+  <div
+    class="ic-card"
+    :class="[`ic-${dp.status.result}`]"
+    :style="{
+      '--ic-provider-color': providerColorMuted,
+      '--ic-provider-color-main': providerColor,
+    }"
+    @click="handleClick"
+  >
     <!-- Row 1: Provider name + status -->
     <div class="ic-provider-row">
       <span class="ic-provider-name">
         <ProviderIcon :slug="dp.provider_slug" :size="14" cls="ic-provider-icon" />
-        <router-link :to="`/provider/${dp.provider_slug}`" class="ic-provider-link" @click.stop>{{ dp.provider }}</router-link>
-        <button class="copy-btn-badge" title="Copy provider" @click.stop="copyText(dp.provider)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        <router-link :to="`/provider/${dp.provider_slug}`" class="ic-provider-link" @click.stop>{{
+          dp.provider
+        }}</router-link>
+        <button class="copy-btn-badge" title="Copy provider" @click.stop="copyText(dp.provider)">
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+        </button>
       </span>
       <div class="ic-header-right">
-        <span v-for="r in topRankings" :key="r.role" class="ic-ranking-badge" :title="r.role + ' rank #' + r.rank">#{{ r.rank }} {{ r.label }}</span>
-        <span class="ic-status-badge" :class="`ic-status-${dp.status.result}`">{{ statusLabel }}</span>
+        <span
+          v-for="r in topRankings"
+          :key="r.role"
+          class="ic-ranking-badge"
+          :title="r.role + ' rank #' + r.rank"
+          >#{{ r.rank }} {{ r.label }}</span
+        >
+        <span class="ic-status-badge" :class="`ic-status-${dp.status.result}`">{{
+          statusLabel
+        }}</span>
       </div>
     </div>
 
     <!-- Row 2: Creator / Family / Super Model -->
     <div class="ic-meta-row">
-      <router-link :to="'/creator/' + creator.id" class="ic-badge ic-badge-creator ic-badge-link" @click.stop>
+      <router-link
+        :to="'/creator/' + creator.id"
+        class="ic-badge ic-badge-creator ic-badge-link"
+        @click.stop
+      >
         <ProviderIcon v-if="creator.id" :slug="creator.id" :size="12" cls="ic-icon" />
         <span v-else class="ic-icon-fb">{{ (creator.name || '?')[0] }}</span>
         {{ creator.name }}
       </router-link>
       <span class="ic-badge-sep">/</span>
-      <router-link v-if="model.family" :to="'/family/' + encodeURIComponent(model.family)" class="ic-badge ic-badge-family ic-badge-link" @click.stop>
+      <router-link
+        v-if="model.family"
+        :to="'/family/' + encodeURIComponent(model.family)"
+        class="ic-badge ic-badge-family ic-badge-link"
+        @click.stop
+      >
         <span class="ic-icon-fb">{{ formatFamily(model.family)[0] }}</span>
         {{ formatFamily(model.family) }}
       </router-link>
       <span v-if="model.family" class="ic-badge-sep">/</span>
-      <router-link :to="'/model/' + model.slug" class="ic-badge ic-badge-model ic-badge-link" @click.stop>
+      <router-link
+        :to="'/model/' + model.slug"
+        class="ic-badge ic-badge-model ic-badge-link"
+        @click.stop
+      >
         <span class="ic-icon-fb">{{ model.name[0] }}</span>
         {{ model.name }}
       </router-link>
@@ -34,9 +79,32 @@
 
     <!-- Row 3: Instance key (full_id) -->
     <div class="ic-key-row">
-      <router-link :to="'/model/' + model.slug" class="ic-key-pill ic-key-link" :title="dp.full_id" @click.stop>
+      <router-link
+        :to="'/model/' + model.slug"
+        class="ic-key-pill ic-key-link"
+        :title="dp.full_id"
+        @click.stop
+      >
         {{ dp.full_id }}
-        <button class="copy-btn-badge" title="Copy full ID" @click.stop.prevent="copyText(dp.full_id)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        <button
+          class="copy-btn-badge"
+          title="Copy full ID"
+          @click.stop.prevent="copyText(dp.full_id)"
+        >
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+        </button>
       </router-link>
     </div>
 
@@ -70,24 +138,44 @@
 
     <!-- Row 5: Knowledge + last success -->
     <div class="ic-info-row">
-      <span v-if="dp.knowledge_cutoff" class="ic-info-tag" title="Knowledge cutoff">Cutoff: {{ formatKnowledge(dp.knowledge_cutoff) }}</span>
-      <span v-if="dp.last_success" class="ic-info-tag" title="Last successful test">Last OK: {{ formatTimeAgo(dp.last_success) }}</span>
+      <span v-if="dp.knowledge_cutoff" class="ic-info-tag" title="Knowledge cutoff"
+        >Cutoff: {{ formatKnowledge(dp.knowledge_cutoff) }}</span
+      >
+      <span v-if="dp.last_success" class="ic-info-tag" title="Last successful test"
+        >Last OK: {{ formatTimeAgo(dp.last_success) }}</span
+      >
     </div>
 
     <!-- Row 6: Limits + sources + siblings -->
     <div class="ic-footer">
       <div class="ic-limits">
-        <span v-if="limits.rate" class="ic-limit-tag" :title="limits.rate">Rate: {{ limits.rate }}</span>
+        <span v-if="limits.rate" class="ic-limit-tag" :title="limits.rate"
+          >Rate: {{ limits.rate }}</span
+        >
         <span v-if="limits.daily" class="ic-limit-tag">{{ limits.daily }}/day</span>
         <span v-if="limits.card" class="ic-limit-warn">Card</span>
         <span v-if="limits.sub" class="ic-limit-warn" :title="limits.sub">Sub</span>
-        <span v-if="limits.expires" class="ic-limit-tag" :title="'Expires: ' + limits.expires">Exp. {{ limits.expiresShort }}</span>
+        <span v-if="limits.expires" class="ic-limit-tag" :title="'Expires: ' + limits.expires"
+          >Exp. {{ limits.expiresShort }}</span
+        >
         <span v-if="!hasLimits" class="ic-no-limits">No limits</span>
         <span v-if="sourceBadges.length" class="ic-sources">
-          <span v-for="b in sourceBadges" :key="b.key" class="ic-source-badge" :class="b.cssClass" :title="b.title">{{ b.label }}</span>
+          <span
+            v-for="b in sourceBadges"
+            :key="b.key"
+            class="ic-source-badge"
+            :class="b.cssClass"
+            :title="b.title"
+            >{{ b.label }}</span
+          >
         </span>
       </div>
-      <router-link v-if="siblingCount > 0" :to="'/model/' + model.slug" class="ic-siblings ic-siblings-link" @click.stop>
+      <router-link
+        v-if="siblingCount > 0"
+        :to="'/model/' + model.slug"
+        class="ic-siblings ic-siblings-link"
+        @click.stop
+      >
         +{{ siblingCount }} other{{ siblingCount !== 1 ? 's' : '' }}
       </router-link>
     </div>
@@ -97,7 +185,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import ProviderIcon from '@/components/ProviderIcon.vue';
-import { getProviderColor, getProviderColorMuted } from '@/data/provider-colors';
+import { getProviderColorMuted, getProviderColorForeground } from '@/data/provider-colors';
 import { useToast } from '@/composables/useToast';
 import { useModelsStore } from '@/store/models';
 import type { ProviderDatapoint, ModelData, CreatorData } from '@/types';
@@ -110,19 +198,25 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  'click': [];
+  click: [];
 }>();
 
 const store = useModelsStore();
 
-const providerColor = computed(() => getProviderColor(props.dp.provider_slug));
+const providerColor = computed(() => getProviderColorForeground(props.dp.provider_slug));
 const providerColorMuted = computed(() => getProviderColorMuted(props.dp.provider_slug));
 
 const hasImageInput = computed(() => (props.dp.input_types || []).includes('image'));
 
 const topRankings = computed(() => {
   const rankings = props.model.role_rankings;
-  const labels: Record<string, string> = { model: 'Mod', build: 'Bld', general: 'Gen', small_model: 'Sml', explore: 'Exp' };
+  const labels: Record<string, string> = {
+    model: 'Mod',
+    build: 'Bld',
+    general: 'Gen',
+    small_model: 'Sml',
+    explore: 'Exp',
+  };
   return Object.entries(rankings)
     .sort(([, a], [, b]) => a - b)
     .slice(0, 2)
@@ -149,11 +243,18 @@ const sourceBadges = computed(() => {
     .map((s) => {
       const abbr = ABBR[s.slug];
       if (abbr) return { key: s.slug, label: abbr.label, title: s.name, cssClass: abbr.cssClass };
-      return { key: s.slug, label: s.source_type === 'api_provider' ? 'API' : s.name.slice(0, 12), title: s.name, cssClass: 'src-api' };
+      return {
+        key: s.slug,
+        label: s.source_type === 'api_provider' ? 'API' : s.name.slice(0, 12),
+        title: s.name,
+        cssClass: 'src-api',
+      };
     });
 });
 
 const statusLabel = computed(() => {
+  // Paid models: detail field signals "presumed working" from the backend
+  if (props.dp.status.detail === 'Presumed working (not tested)') return 'presumed';
   const labels: Record<string, string> = {
     working: 'working',
     broken: 'down',
@@ -189,7 +290,10 @@ const hasLimits = computed(() => {
 const FAMILY_OVERRIDES: Record<string, string> = { gpt: 'GPT', glm: 'GLM', llm: 'LLM' };
 
 function formatFamily(raw: string): string {
-  return raw.split('-').map(w => FAMILY_OVERRIDES[w] ?? (w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
+  return raw
+    .split('-')
+    .map((w) => FAMILY_OVERRIDES[w] ?? w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
 }
 
 function handleClick(e: MouseEvent) {
@@ -226,7 +330,9 @@ async function copyText(text: string) {
   try {
     await navigator.clipboard.writeText(text);
     toastSuccess(`"${text}" copied`);
-  } catch { /* noop */ }
+  } catch {
+    /* noop */
+  }
 }
 </script>
 
@@ -244,11 +350,19 @@ async function copyText(text: string) {
     box-shadow 0.15s;
 }
 
-.ic-card.ic-working { border-left-color: var(--green); }
+.ic-card.ic-working {
+  border-left-color: var(--green);
+}
 .ic-card.ic-broken,
-.ic-card.ic-not_found { border-left-color: var(--red); }
-.ic-card.ic-rate_limited { border-left-color: var(--orange); }
-.ic-card.ic-untested { border-left-color: var(--text-muted); }
+.ic-card.ic-not_found {
+  border-left-color: var(--red);
+}
+.ic-card.ic-rate_limited {
+  border-left-color: var(--orange);
+}
+.ic-card.ic-untested {
+  border-left-color: var(--text-muted);
+}
 
 .ic-card:hover {
   border-color: var(--border-focus);
@@ -340,11 +454,27 @@ async function copyText(text: string) {
   flex-shrink: 0;
 }
 
-.ic-status-working { background: rgba(52, 211, 153, 0.15); color: var(--green); }
+.ic-status-working {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--green);
+}
+.ic-status-presumed {
+  background: rgba(96, 165, 250, 0.12);
+  color: var(--blue, #60a5fa);
+}
 .ic-status-broken,
-.ic-status-not_found { background: rgba(239, 68, 68, 0.12); color: var(--red); }
-.ic-status-rate_limited { background: rgba(251, 191, 36, 0.15); color: var(--orange); }
-.ic-status-untested { background: rgba(156, 163, 175, 0.12); color: var(--text-muted); }
+.ic-status-not_found {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--red);
+}
+.ic-status-rate_limited {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--orange);
+}
+.ic-status-untested {
+  background: rgba(156, 163, 175, 0.12);
+  color: var(--text-muted);
+}
 
 /* Row 2: Creator / Model badges */
 .ic-meta-row {
@@ -444,9 +574,17 @@ async function copyText(text: string) {
   font-size: 0.6rem;
 }
 
-.ic-free { color: var(--green); font-weight: 700; }
-.ic-paid { color: var(--orange); font-weight: 600; }
-.ic-cap { color: var(--blue, #60a5fa); }
+.ic-free {
+  color: var(--green);
+  font-weight: 700;
+}
+.ic-paid {
+  color: var(--orange);
+  font-weight: 600;
+}
+.ic-cap {
+  color: var(--blue, #60a5fa);
+}
 
 /* Row 5: Knowledge + last success */
 .ic-info-row {
@@ -478,12 +616,30 @@ async function copyText(text: string) {
   line-height: 1.4;
 }
 
-.ic-source-badge.src-api { background: var(--accent-subtle); color: var(--accent); }
-.ic-source-badge.src-hf { background: var(--badge-hf-bg); color: var(--badge-hf-text); }
-.ic-source-badge.src-md { background: var(--badge-md-bg); color: var(--badge-md-text); }
-.ic-source-badge.src-ms { background: var(--badge-ms-bg); color: var(--badge-ms-text); }
-.ic-source-badge.src-ll { background: var(--badge-ll-bg); color: var(--badge-ll-text); }
-.ic-source-badge.src-fr { background: var(--badge-fr-bg); color: var(--badge-fr-text); }
+.ic-source-badge.src-api {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+.ic-source-badge.src-hf {
+  background: var(--badge-hf-bg);
+  color: var(--badge-hf-text);
+}
+.ic-source-badge.src-md {
+  background: var(--badge-md-bg);
+  color: var(--badge-md-text);
+}
+.ic-source-badge.src-ms {
+  background: var(--badge-ms-bg);
+  color: var(--badge-ms-text);
+}
+.ic-source-badge.src-ll {
+  background: var(--badge-ll-bg);
+  color: var(--badge-ll-text);
+}
+.ic-source-badge.src-fr {
+  background: var(--badge-fr-bg);
+  color: var(--badge-fr-text);
+}
 .ic-footer {
   display: flex;
   align-items: center;

@@ -16,8 +16,15 @@ const { detectDerivationMethod, findImmediateParent } = require('./utils/derivat
 const { wouldCreateCycle } = require('./utils/safe-chain-walker');
 
 let connectionString = process.env.DATABASE_URL;
-if (connectionString && connectionString.includes('sslmode=require') && !connectionString.includes('uselibpqcompat')) {
-  connectionString = connectionString.replace('sslmode=require', 'uselibpqcompat=true&sslmode=require');
+if (
+  connectionString &&
+  connectionString.includes('sslmode=require') &&
+  !connectionString.includes('uselibpqcompat')
+) {
+  connectionString = connectionString.replace(
+    'sslmode=require',
+    'uselibpqcompat=true&sslmode=require',
+  );
 }
 
 const APPLY = process.argv.includes('--apply');
@@ -118,9 +125,7 @@ async function main() {
     }
 
     // Show models that got derivation method but no parent
-    const noParent = derivAssignments.filter(a =>
-      !parentAssignments.some(p => p.id === a.id)
-    );
+    const noParent = derivAssignments.filter((a) => !parentAssignments.some((p) => p.id === a.id));
     if (noParent.length > 0) {
       console.log(`\nModels with derivation but no parent found: ${noParent.length}`);
       for (const a of noParent.slice(0, 15)) {
@@ -160,7 +165,9 @@ async function main() {
     }
 
     if (!APPLY) {
-      console.log(`\nDry run — use --apply to write ${derivChanges + safeParents.length} updates${cycleRejected.length > 0 ? ` (${cycleRejected.length} rejected by cycle guard)` : ''}.`);
+      console.log(
+        `\nDry run — use --apply to write ${derivChanges + safeParents.length} updates${cycleRejected.length > 0 ? ` (${cycleRejected.length} rejected by cycle guard)` : ''}.`,
+      );
       return;
     }
 
@@ -184,11 +191,16 @@ async function main() {
       updated++;
     }
 
-    console.log(`Applied ${updated} updates total (${derivChanges} derivation + ${parentChanges} base_model).`);
+    console.log(
+      `Applied ${updated} updates total (${derivChanges} derivation + ${parentChanges} base_model).`,
+    );
   } finally {
     client.release();
     await pool.end();
   }
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

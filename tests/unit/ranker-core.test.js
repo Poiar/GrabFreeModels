@@ -118,8 +118,18 @@ test('modelFreshnessScore rewards recent releases', () => {
 test('buildScoreTypeStats computes max and mean', () => {
   const scoreMap = new Map();
   scoreMap.set('a/b', [
-    { score_type: 'intelligence', score_value: 30, source: 'aa', fetched_at: new Date().toISOString() },
-    { score_type: 'intelligence', score_value: 10, source: 'aa', fetched_at: new Date().toISOString() },
+    {
+      score_type: 'intelligence',
+      score_value: 30,
+      source: 'aa',
+      fetched_at: new Date().toISOString(),
+    },
+    {
+      score_type: 'intelligence',
+      score_value: 10,
+      source: 'aa',
+      fetched_at: new Date().toISOString(),
+    },
   ]);
   const stats = buildScoreTypeStats(scoreMap);
   const intel = stats.get('intelligence');

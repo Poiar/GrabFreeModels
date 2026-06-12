@@ -8,16 +8,12 @@
 
     <!-- Free / Paid toggle -->
     <div class="rankings-toggle-bar">
-      <button
-        class="toggle-btn"
-        :class="{ active: mode === 'free' }"
-        @click="mode = 'free'"
-      >Free</button>
-      <button
-        class="toggle-btn"
-        :class="{ active: mode === 'paid' }"
-        @click="switchToPaid"
-      >Paid</button>
+      <button class="toggle-btn" :class="{ active: mode === 'free' }" @click="mode = 'free'">
+        Free
+      </button>
+      <button class="toggle-btn" :class="{ active: mode === 'paid' }" @click="switchToPaid">
+        Paid
+      </button>
     </div>
 
     <!-- Free rankings -->
@@ -31,7 +27,9 @@
       :master-variant="store.freeMasterVariant"
       :variant-keys="store.freeVariantKeys"
       :model-scores="store.modelScores"
-      @update:role-variant="(role: string, variant: string) => store.freeRoleVariants[role] = variant"
+      @update:role-variant="
+        (role: string, variant: string) => (store.freeRoleVariants[role] = variant)
+      "
       @update:master-variant="(variant: string) => store.setFreeMaster(variant)"
     />
 
@@ -53,7 +51,9 @@
         :master-variant="store.paidMasterVariant"
         :variant-keys="store.paidVariantKeys"
         :model-scores="store.paidModelScores"
-        @update:role-variant="(role: string, variant: string) => store.paidRoleVariants[role] = variant"
+        @update:role-variant="
+          (role: string, variant: string) => (store.paidRoleVariants[role] = variant)
+        "
         @update:master-variant="(variant: string) => store.setPaidMaster(variant)"
         title="Role Rankings (Paid)"
         subtitle="See how paid models rank for each role and explore their score breakdowns"
@@ -63,10 +63,36 @@
 </template>
 
 <style scoped>
-.rankings-page { max-width: 1200px; margin: 0 auto; padding: 20px; }
-.export-bar { display: flex; gap: 6px; margin-bottom: 8px; justify-content: flex-end; }
-.export-btn { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-family: inherit; transition: all 0.12s; }
-.export-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
+.rankings-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.export-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  justify-content: flex-end;
+}
+.export-btn {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.export-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
 
 /* Free / Paid toggle */
 .rankings-toggle-bar {
@@ -139,11 +165,15 @@ function switchToPaid() {
   store.loadPaidRankings();
 }
 
-function resolveFreeDatapoint(id: string): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
+function resolveFreeDatapoint(
+  id: string,
+): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
   return store.rankingsDatapointById(id);
 }
 
-function resolvePaidDatapoint(id: string): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
+function resolvePaidDatapoint(
+  id: string,
+): { dp: ProviderDatapoint; model: ModelData; creator: CreatorData } | undefined {
   return store.paidRankingsDatapointById(id);
 }
 

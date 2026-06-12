@@ -8,8 +8,19 @@
     <div class="jql-bar">
       <!-- Search row -->
       <div class="jql-input-row">
-        <svg class="jql-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+        <svg
+          class="jql-search-icon"
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
         <input
           ref="searchInputRef"
@@ -22,16 +33,42 @@
           @keydown.escape="showSuggestions = false"
         />
         <button v-if="searchQuery" class="jql-clear" @click="searchQuery = ''" title="Clear search">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
-        <button v-if="activeChips.length > 0" class="qb-action-btn" @click="saveCurrentSearch">Save</button>
-        <button v-if="activeChips.length > 0" class="qb-cond-clear" @click="clearAllFilters">Clear all</button>
+        <button v-if="activeChips.length > 0" class="qb-action-btn" @click="saveCurrentSearch">
+          Save
+        </button>
+        <button v-if="activeChips.length > 0" class="qb-cond-clear" @click="clearAllFilters">
+          Clear all
+        </button>
       </div>
 
       <!-- Search suggestions dropdown -->
       <div v-if="showSuggestions && searchQuery.trim()" class="jql-suggestions">
         <template v-for="group in suggestionGroups" :key="group.label">
-          <div v-if="group.items.length > 0" style="padding:4px 12px 2px;font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.05em;">{{ group.label }}</div>
+          <div
+            v-if="group.items.length > 0"
+            style="
+              padding: 4px 12px 2px;
+              font-size: 0.62rem;
+              font-weight: 700;
+              text-transform: uppercase;
+              color: var(--text-muted);
+              letter-spacing: 0.05em;
+            "
+          >
+            {{ group.label }}
+          </div>
           <div
             v-for="item in group.items"
             :key="`${group.label}-${item.value}`"
@@ -42,8 +79,14 @@
             <span class="jql-sugg-insert">+ add filter</span>
           </div>
         </template>
-        <div v-if="!hasAnySuggestions" class="jql-suggestion" style="color:var(--text-muted);cursor:default;">
-          <span class="jql-sugg-label">Search for "{{ searchQuery.trim() }}" across all fields</span>
+        <div
+          v-if="!hasAnySuggestions"
+          class="jql-suggestion"
+          style="color: var(--text-muted); cursor: default"
+        >
+          <span class="jql-sugg-label"
+            >Search for "{{ searchQuery.trim() }}" across all fields</span
+          >
         </div>
       </div>
 
@@ -74,10 +117,22 @@
             </button>
             <div v-if="openPicker === 'family'" class="picker-dropdown" @click.stop>
               <div class="ss-search-wrap">
-                <input v-model="familySearch" type="text" class="ss-search" placeholder="Search families..." @keydown.esc="openPicker = null" />
+                <input
+                  v-model="familySearch"
+                  type="text"
+                  class="ss-search"
+                  placeholder="Search families..."
+                  @keydown.esc="openPicker = null"
+                />
               </div>
               <div class="ss-list">
-                <label v-for="f in filteredFamilyOptions" :key="f" class="ss-opt" :class="{ selected: selectedFamilies.has(f) }" @click="toggleFamily(f)">
+                <label
+                  v-for="f in filteredFamilyOptions"
+                  :key="f"
+                  class="ss-opt"
+                  :class="{ selected: selectedFamilies.has(f) }"
+                  @click="toggleFamily(f)"
+                >
                   <span v-if="selectedFamilies.has(f)" class="ss-check">&#10003;</span>
                   <span class="ss-opt-label">{{ formatFamily(f) }}</span>
                 </label>
@@ -93,14 +148,28 @@
             </button>
             <div v-if="openPicker === 'provider'" class="picker-dropdown" @click.stop>
               <div class="ss-search-wrap">
-                <input v-model="providerSearch" type="text" class="ss-search" placeholder="Search providers..." @keydown.esc="openPicker = null" />
+                <input
+                  v-model="providerSearch"
+                  type="text"
+                  class="ss-search"
+                  placeholder="Search providers..."
+                  @keydown.esc="openPicker = null"
+                />
               </div>
               <div class="ss-list">
-                <label v-for="p in filteredProviderPickerOptions" :key="p.slug" class="ss-opt" :class="{ selected: selectedProviders.has(p.slug) }" @click="toggleProvider(p.slug)">
+                <label
+                  v-for="p in filteredProviderPickerOptions"
+                  :key="p.slug"
+                  class="ss-opt"
+                  :class="{ selected: selectedProviders.has(p.slug) }"
+                  @click="toggleProvider(p.slug)"
+                >
                   <span v-if="selectedProviders.has(p.slug)" class="ss-check">&#10003;</span>
                   <span class="ss-opt-label">{{ p.name }}</span>
                 </label>
-                <div v-if="filteredProviderPickerOptions.length === 0" class="ss-empty">No matches</div>
+                <div v-if="filteredProviderPickerOptions.length === 0" class="ss-empty">
+                  No matches
+                </div>
               </div>
             </div>
           </div>
@@ -112,7 +181,13 @@
             </button>
             <div v-if="openPicker === 'modality'" class="picker-dropdown" @click.stop>
               <div class="ss-list">
-                <label v-for="m in modalityOptions" :key="m" class="ss-opt" :class="{ selected: selectedModalities.has(m) }" @click="toggleModality(m)">
+                <label
+                  v-for="m in modalityOptions"
+                  :key="m"
+                  class="ss-opt"
+                  :class="{ selected: selectedModalities.has(m) }"
+                  @click="toggleModality(m)"
+                >
                   <span v-if="selectedModalities.has(m)" class="ss-check">&#10003;</span>
                   <span class="ss-opt-label">{{ formatModality(m) }}</span>
                 </label>
@@ -125,35 +200,70 @@
             <button class="qb-select qb-field" @click.stop="togglePicker('context')">
               Context <span class="qb-cond-op">{{ contextLabel }}</span>
             </button>
-            <div v-if="openPicker === 'context'" class="picker-dropdown picker-dropdown-context" @click.stop>
-              <div style="padding:8px 10px;">
+            <div
+              v-if="openPicker === 'context'"
+              class="picker-dropdown picker-dropdown-context"
+              @click.stop
+            >
+              <div style="padding: 8px 10px">
                 <div class="facet-range">
-                  <input v-model.number="minContext" type="number" placeholder="Min" class="facet-range-input" min="0" />
+                  <input
+                    v-model.number="minContext"
+                    type="number"
+                    placeholder="Min"
+                    class="facet-range-input"
+                    min="0"
+                  />
                   <span class="facet-range-sep">to</span>
-                  <input v-model.number="maxContext" type="number" placeholder="Max" class="facet-range-input" min="0" />
+                  <input
+                    v-model.number="maxContext"
+                    type="number"
+                    placeholder="Max"
+                    class="facet-range-input"
+                    min="0"
+                  />
                 </div>
-
               </div>
             </div>
           </div>
         </div>
 
         <!-- Quick toggles -->
-        <div class="qb-builder-row" style="margin-top:8px;">
+        <div class="qb-builder-row" style="margin-top: 8px">
           <span class="qb-builder-label">Quick</span>
           <div class="qb-toggle">
-            <button class="qb-toggle-btn" :class="{ active: toolsOnly }" @click="toolsOnly = !toolsOnly">Tools</button>
-            <button class="qb-toggle-btn" :class="{ active: reasoningOnly }" @click="reasoningOnly = !reasoningOnly">Reasoning</button>
-            <button class="qb-toggle-btn" :class="{ active: openWeightsOnly }" @click="openWeightsOnly = !openWeightsOnly">Open</button>
+            <button
+              class="qb-toggle-btn"
+              :class="{ active: toolsOnly }"
+              @click="toolsOnly = !toolsOnly"
+            >
+              Tools
+            </button>
+            <button
+              class="qb-toggle-btn"
+              :class="{ active: reasoningOnly }"
+              @click="reasoningOnly = !reasoningOnly"
+            >
+              Reasoning
+            </button>
+            <button
+              class="qb-toggle-btn"
+              :class="{ active: openWeightsOnly }"
+              @click="openWeightsOnly = !openWeightsOnly"
+            >
+              Open
+            </button>
           </div>
-          <span style="width:8px;"></span>
+          <span style="width: 8px"></span>
           <button
             v-for="preset in contextPresets"
             :key="preset.label"
             class="qb-action-btn"
             :class="{ active: minContext === preset.min && maxContext === preset.max }"
             @click="setContextPreset(preset)"
-          >{{ preset.label }}</button>
+          >
+            {{ preset.label }}
+          </button>
         </div>
       </div>
 
@@ -179,10 +289,26 @@
     </div>
 
     <!-- Result count -->
-    <div class="active-filters-bar" style="margin-bottom:12px;">
-      <span class="result-count">{{ filteredModels.length }} model{{ filteredModels.length !== 1 ? 's' : '' }}</span>
-      <button v-if="showSavedPanel" class="qb-action-btn" @click="showSavedPanel = false" style="margin-left:auto;">Hide saved</button>
-      <button v-else-if="savedSearches.length > 0" class="qb-action-btn" @click="showSavedPanel = true" style="margin-left:auto;">Saved ({{ savedSearches.length }})</button>
+    <div class="active-filters-bar" style="margin-bottom: 12px">
+      <span class="result-count"
+        >{{ filteredModels.length }} model{{ filteredModels.length !== 1 ? 's' : '' }}</span
+      >
+      <button
+        v-if="showSavedPanel"
+        class="qb-action-btn"
+        @click="showSavedPanel = false"
+        style="margin-left: auto"
+      >
+        Hide saved
+      </button>
+      <button
+        v-else-if="savedSearches.length > 0"
+        class="qb-action-btn"
+        @click="showSavedPanel = true"
+        style="margin-left: auto"
+      >
+        Saved ({{ savedSearches.length }})
+      </button>
     </div>
 
     <!-- Results -->
@@ -226,7 +352,12 @@ import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
 const route = useRoute();
 const router = useRouter();
 const store = useModelsStore();
-const { saved: savedSearches, save, remove: removeSavedSearch, clearHistory: clearSavedSearches } = useSavedSearches();
+const {
+  saved: savedSearches,
+  save,
+  remove: removeSavedSearch,
+  clearHistory: clearSavedSearches,
+} = useSavedSearches();
 
 // ── Search input ──
 const searchQuery = ref('');
@@ -234,7 +365,9 @@ const searchInputRef = ref<HTMLInputElement | null>(null);
 const showSuggestions = ref(false);
 
 function hideSuggestionsDelayed() {
-  setTimeout(() => { showSuggestions.value = false; }, 150);
+  setTimeout(() => {
+    showSuggestions.value = false;
+  }, 150);
 }
 
 // ═══ Filter state ═══
@@ -262,7 +395,11 @@ function togglePicker(name: 'family' | 'provider' | 'modality' | 'context') {
 }
 
 // ── Context presets ──
-interface ContextPreset { label: string; min: number | null; max: number | null; }
+interface ContextPreset {
+  label: string;
+  min: number | null;
+  max: number | null;
+}
 const contextPresets: ContextPreset[] = [
   { label: '8K+', min: 8192, max: null },
   { label: '32K+', min: 32768, max: null },
@@ -271,7 +408,8 @@ const contextPresets: ContextPreset[] = [
 ];
 
 const contextLabel = computed(() => {
-  if (minContext.value !== null && maxContext.value !== null) return `${minContext.value}–${maxContext.value}`;
+  if (minContext.value !== null && maxContext.value !== null)
+    return `${minContext.value}–${maxContext.value}`;
   if (minContext.value !== null) return `≥${minContext.value}`;
   if (maxContext.value !== null) return `≤${maxContext.value}`;
   return '';
@@ -291,14 +429,20 @@ onUnmounted(() => document.removeEventListener('mousedown', onOutsideClick));
 function syncFiltersFromRoute() {
   const q = route.query;
   searchQuery.value = typeof q.q === 'string' ? q.q : '';
-  selectedFamilies.value = new Set(typeof q.families === 'string' ? q.families.split(',').filter(Boolean) : []);
-  selectedProviders.value = new Set(typeof q.providers === 'string' ? q.providers.split(',').filter(Boolean) : []);
-  selectedModalities.value = new Set(typeof q.modalities === 'string' ? q.modalities.split(',').filter(Boolean) : []);
+  selectedFamilies.value = new Set(
+    typeof q.families === 'string' ? q.families.split(',').filter(Boolean) : [],
+  );
+  selectedProviders.value = new Set(
+    typeof q.providers === 'string' ? q.providers.split(',').filter(Boolean) : [],
+  );
+  selectedModalities.value = new Set(
+    typeof q.modalities === 'string' ? q.modalities.split(',').filter(Boolean) : [],
+  );
   toolsOnly.value = q.tools === '1';
   reasoningOnly.value = q.reasoning === '1';
   openWeightsOnly.value = q.openWeights === '1';
-  minContext.value = typeof q.minCtx === 'string' ? (parseInt(q.minCtx) || null) : null;
-  maxContext.value = typeof q.maxCtx === 'string' ? (parseInt(q.maxCtx) || null) : null;
+  minContext.value = typeof q.minCtx === 'string' ? parseInt(q.minCtx) || null : null;
+  maxContext.value = typeof q.maxCtx === 'string' ? parseInt(q.maxCtx) || null : null;
 }
 
 syncFiltersFromRoute();
@@ -324,7 +468,21 @@ function scheduleSync() {
   syncTimer = setTimeout(syncFiltersToRoute, 300);
 }
 
-watch([searchQuery, selectedFamilies, selectedProviders, selectedModalities, toolsOnly, reasoningOnly, openWeightsOnly, minContext, maxContext], scheduleSync, { deep: true });
+watch(
+  [
+    searchQuery,
+    selectedFamilies,
+    selectedProviders,
+    selectedModalities,
+    toolsOnly,
+    reasoningOnly,
+    openWeightsOnly,
+    minContext,
+    maxContext,
+  ],
+  scheduleSync,
+  { deep: true },
+);
 
 // ═══ Active filter chips ═══
 interface FilterChip {
@@ -337,30 +495,81 @@ interface FilterChip {
 const activeChips = computed<FilterChip[]>(() => {
   const chips: FilterChip[] = [];
   for (const f of selectedFamilies.value) {
-    chips.push({ id: `family:${f}`, category: 'family', label: formatFamily(f), remove: () => { const n = new Set(selectedFamilies.value); n.delete(f); selectedFamilies.value = n; } });
+    chips.push({
+      id: `family:${f}`,
+      category: 'family',
+      label: formatFamily(f),
+      remove: () => {
+        const n = new Set(selectedFamilies.value);
+        n.delete(f);
+        selectedFamilies.value = n;
+      },
+    });
   }
   for (const p of selectedProviders.value) {
-    const name = store.visibleProviderRefs.find(r => r.slug === p)?.name ?? p;
-    chips.push({ id: `provider:${p}`, category: 'provider', label: name, remove: () => { const n = new Set(selectedProviders.value); n.delete(p); selectedProviders.value = n; } });
+    const name = store.visibleProviderRefs.find((r) => r.slug === p)?.name ?? p;
+    chips.push({
+      id: `provider:${p}`,
+      category: 'provider',
+      label: name,
+      remove: () => {
+        const n = new Set(selectedProviders.value);
+        n.delete(p);
+        selectedProviders.value = n;
+      },
+    });
   }
   for (const m of selectedModalities.value) {
-    chips.push({ id: `modality:${m}`, category: 'modality', label: formatModality(m), remove: () => { const n = new Set(selectedModalities.value); n.delete(m); selectedModalities.value = n; } });
+    chips.push({
+      id: `modality:${m}`,
+      category: 'modality',
+      label: formatModality(m),
+      remove: () => {
+        const n = new Set(selectedModalities.value);
+        n.delete(m);
+        selectedModalities.value = n;
+      },
+    });
   }
   if (toolsOnly.value) {
-    chips.push({ id: 'cap:tools', category: 'capability', label: 'Tools', remove: () => { toolsOnly.value = false; } });
+    chips.push({
+      id: 'cap:tools',
+      category: 'capability',
+      label: 'Tools',
+      remove: () => {
+        toolsOnly.value = false;
+      },
+    });
   }
   if (reasoningOnly.value) {
-    chips.push({ id: 'cap:reasoning', category: 'capability', label: 'Reasoning', remove: () => { reasoningOnly.value = false; } });
+    chips.push({
+      id: 'cap:reasoning',
+      category: 'capability',
+      label: 'Reasoning',
+      remove: () => {
+        reasoningOnly.value = false;
+      },
+    });
   }
   if (openWeightsOnly.value) {
-    chips.push({ id: 'cap:open', category: 'capability', label: 'Open Weights', remove: () => { openWeightsOnly.value = false; } });
+    chips.push({
+      id: 'cap:open',
+      category: 'capability',
+      label: 'Open Weights',
+      remove: () => {
+        openWeightsOnly.value = false;
+      },
+    });
   }
   if (minContext.value !== null || maxContext.value !== null) {
     chips.push({
       id: 'context-range',
       category: 'context',
       label: contextLabel.value,
-      remove: () => { minContext.value = null; maxContext.value = null; },
+      remove: () => {
+        minContext.value = null;
+        maxContext.value = null;
+      },
     });
   }
   return chips;
@@ -385,12 +594,12 @@ const familyOptions = computed(() => {
 
 const filteredFamilyOptions = computed(() => {
   const q = familySearch.value.toLowerCase();
-  return familyOptions.value.filter(f => !q || f.toLowerCase().includes(q));
+  return familyOptions.value.filter((f) => !q || f.toLowerCase().includes(q));
 });
 
 const filteredProviderPickerOptions = computed(() => {
   const q = providerSearch.value.toLowerCase();
-  return store.visibleProviderRefs.filter(p => !q || p.name.toLowerCase().includes(q));
+  return store.visibleProviderRefs.filter((p) => !q || p.name.toLowerCase().includes(q));
 });
 
 const modalityOptions = ['text', 'image', 'audio'];
@@ -407,18 +616,18 @@ const suggestionGroups = computed<SuggestionGroup[]>(() => {
   if (!q) return [];
 
   const familyItems = familyOptions.value
-    .filter(f => f.toLowerCase().includes(q) && !selectedFamilies.value.has(f))
+    .filter((f) => f.toLowerCase().includes(q) && !selectedFamilies.value.has(f))
     .slice(0, 3)
-    .map(f => ({ label: formatFamily(f), value: f }));
+    .map((f) => ({ label: formatFamily(f), value: f }));
 
   const providerItems = store.visibleProviderRefs
-    .filter(p => p.name.toLowerCase().includes(q) && !selectedProviders.value.has(p.slug))
+    .filter((p) => p.name.toLowerCase().includes(q) && !selectedProviders.value.has(p.slug))
     .slice(0, 3)
-    .map(p => ({ label: p.name, value: p.slug }));
+    .map((p) => ({ label: p.name, value: p.slug }));
 
   const modalityItems = modalityOptions
-    .filter(m => m.toLowerCase().includes(q) && !selectedModalities.value.has(m))
-    .map(m => ({ label: formatModality(m), value: m }));
+    .filter((m) => m.toLowerCase().includes(q) && !selectedModalities.value.has(m))
+    .map((m) => ({ label: formatModality(m), value: m }));
 
   return [
     { category: 'family', label: 'Families', items: familyItems },
@@ -427,7 +636,7 @@ const suggestionGroups = computed<SuggestionGroup[]>(() => {
   ];
 });
 
-const hasAnySuggestions = computed(() => suggestionGroups.value.some(g => g.items.length > 0));
+const hasAnySuggestions = computed(() => suggestionGroups.value.some((g) => g.items.length > 0));
 
 function applySuggestion(category: string, item: { label: string; value: string }) {
   switch (category) {
@@ -462,17 +671,18 @@ const filteredModels = computed(() => {
   // Text search
   const q = searchQuery.value.toLowerCase().trim();
   if (q) {
-    models = models.filter(m =>
-      m.name.toLowerCase().includes(q) ||
-      (m.creator && m.creator.toLowerCase().includes(q)) ||
-      (m.family && m.family.toLowerCase().includes(q)) ||
-      m.providers.some(p => p.provider.toLowerCase().includes(q))
+    models = models.filter(
+      (m) =>
+        m.name.toLowerCase().includes(q) ||
+        (m.creator && m.creator.toLowerCase().includes(q)) ||
+        (m.family && m.family.toLowerCase().includes(q)) ||
+        m.providers.some((p) => p.provider.toLowerCase().includes(q)),
     );
   }
 
   // Family filter
   if (selectedFamilies.value.size > 0) {
-    models = models.filter(m => {
+    models = models.filter((m) => {
       const family = m.family || 'Uncategorized';
       return selectedFamilies.value.has(family);
     });
@@ -480,40 +690,40 @@ const filteredModels = computed(() => {
 
   // Provider filter
   if (selectedProviders.value.size > 0) {
-    models = models.filter(m =>
-      m.providers.some(p => !p._removed && selectedProviders.value.has(p.provider_slug))
+    models = models.filter((m) =>
+      m.providers.some((p) => !p._removed && selectedProviders.value.has(p.provider_slug)),
     );
   }
 
   // Modality filter
   if (selectedModalities.value.size > 0) {
-    models = models.filter(m => {
+    models = models.filter((m) => {
       const allTypes = new Set<string>();
       for (const dp of m.providers) {
         for (const t of dp.input_types) allTypes.add(t);
         for (const t of dp.output_types) allTypes.add(t);
       }
-      return [...selectedModalities.value].every(mod => allTypes.has(mod));
+      return [...selectedModalities.value].every((mod) => allTypes.has(mod));
     });
   }
 
   // Capability filters
   if (toolsOnly.value) {
-    models = models.filter(m => m.providers.some(p => !p._removed && p.supports_tools));
+    models = models.filter((m) => m.providers.some((p) => !p._removed && p.supports_tools));
   }
   if (reasoningOnly.value) {
-    models = models.filter(m => m.providers.some(p => !p._removed && p.supports_reasoning));
+    models = models.filter((m) => m.providers.some((p) => !p._removed && p.supports_reasoning));
   }
   if (openWeightsOnly.value) {
-    models = models.filter(m => m.providers.some(p => !p._removed && p.open_weights));
+    models = models.filter((m) => m.providers.some((p) => !p._removed && p.open_weights));
   }
 
   // Context range
   if (minContext.value !== null) {
-    models = models.filter(m => m.best_context !== null && m.best_context >= minContext.value!);
+    models = models.filter((m) => m.best_context !== null && m.best_context >= minContext.value!);
   }
   if (maxContext.value !== null) {
-    models = models.filter(m => m.best_context !== null && m.best_context <= maxContext.value!);
+    models = models.filter((m) => m.best_context !== null && m.best_context <= maxContext.value!);
   }
 
   return models;
@@ -522,19 +732,22 @@ const filteredModels = computed(() => {
 // ═══ Toggle helpers ═══
 function toggleFamily(f: string) {
   const next = new Set(selectedFamilies.value);
-  if (next.has(f)) next.delete(f); else next.add(f);
+  if (next.has(f)) next.delete(f);
+  else next.add(f);
   selectedFamilies.value = next;
 }
 
 function toggleProvider(slug: string) {
   const next = new Set(selectedProviders.value);
-  if (next.has(slug)) next.delete(slug); else next.add(slug);
+  if (next.has(slug)) next.delete(slug);
+  else next.add(slug);
   selectedProviders.value = next;
 }
 
 function toggleModality(m: string) {
   const next = new Set(selectedModalities.value);
-  if (next.has(m)) next.delete(m); else next.add(m);
+  if (next.has(m)) next.delete(m);
+  else next.add(m);
   selectedModalities.value = next;
 }
 
@@ -566,9 +779,10 @@ function clearAllFilters() {
 function saveCurrentSearch() {
   const q = new URLSearchParams(window.location.hash.split('?')[1] || '').toString();
   if (!q) return;
-  const name = searchQuery.value
-    || [...selectedFamilies.value, ...selectedProviders.value].slice(0, 3).join(', ')
-    || 'Untitled';
+  const name =
+    searchQuery.value ||
+    [...selectedFamilies.value, ...selectedProviders.value].slice(0, 3).join(', ') ||
+    'Untitled';
   save(name, q);
 }
 
@@ -593,11 +807,16 @@ function formatTime(ts: number): string {
 // ═══ Formatting ═══
 function formatFamily(name: string): string {
   if (name === 'Uncategorized') return 'Uncategorized';
-  return name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  return name.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function formatModality(m: string): string {
-  const map: Record<string, string> = { text: 'Text', image: 'Image', audio: 'Audio', video: 'Video' };
+  const map: Record<string, string> = {
+    text: 'Text',
+    image: 'Image',
+    audio: 'Audio',
+    video: 'Video',
+  };
   return map[m] || m;
 }
 
