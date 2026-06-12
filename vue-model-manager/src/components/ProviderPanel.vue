@@ -68,10 +68,10 @@
               <span class="prp-stat-lbl">Working</span>
             </div>
             <div v-if="provider.model_count - provider.working_count > 0" class="prp-stat">
-              <span class="prp-stat-val down">{{
+              <span class="prp-stat-val broken">{{
                 provider.model_count - provider.working_count
               }}</span>
-              <span class="prp-stat-lbl">Down</span>
+              <span class="prp-stat-lbl">Broken</span>
             </div>
           </div>
 
@@ -315,7 +315,7 @@ watch(
   background: rgba(251, 191, 36, 0.12);
   color: var(--orange);
 }
-.prp-status.down {
+.prp-status.broken {
   background: rgba(248, 113, 113, 0.12);
   color: var(--red);
 }
@@ -357,7 +357,7 @@ watch(
 .prp-stat-val.working {
   color: var(--green);
 }
-.prp-stat-val.down {
+.prp-stat-val.broken {
   color: var(--red);
 }
 
@@ -388,7 +388,7 @@ watch(
 .prp-bar-fill.degraded {
   background: var(--orange);
 }
-.prp-bar-fill.down {
+.prp-bar-fill.broken {
   background: var(--red);
 }
 

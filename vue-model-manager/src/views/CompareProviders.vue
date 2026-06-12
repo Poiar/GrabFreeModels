@@ -759,7 +759,7 @@ const tierDistB = computed(() => {
   background: rgba(251, 191, 36, 0.12);
   color: var(--orange);
 }
-.cp-status.down {
+.cp-status.broken {
   background: rgba(248, 113, 113, 0.12);
   color: var(--red);
 }
@@ -799,7 +799,7 @@ const tierDistB = computed(() => {
 .cp-bar-fill.degraded {
   background: var(--orange);
 }
-.cp-bar-fill.down {
+.cp-bar-fill.broken {
   background: var(--red);
 }
 

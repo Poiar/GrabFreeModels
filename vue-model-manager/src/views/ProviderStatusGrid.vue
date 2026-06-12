@@ -100,7 +100,7 @@ const gridData = computed((): GridRow[] => {
       totalWorking += e.working;
       totalChecks += e.total;
       const rate = e.working / e.total;
-      days[d] = rate >= 0.8 ? 'up' : rate >= 0.5 ? 'degraded' : 'down';
+      days[d] = rate >= 0.8 ? 'up' : rate >= 0.5 ? 'degraded' : 'broken';
     }
     result.push({
       slug,
@@ -192,7 +192,7 @@ const gridData = computed((): GridRow[] => {
 .psg-dot-degraded {
   background: var(--orange);
 }
-.psg-dot-down {
+.psg-dot-broken {
   background: var(--red);
 }
 .psg-dot-no {

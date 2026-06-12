@@ -680,7 +680,7 @@ function getLatencySparkPath(slug: string): string {
   background: rgba(251, 191, 36, 0.12);
   color: var(--orange);
 }
-.pc-status.down {
+.pc-status.broken {
   background: rgba(248, 113, 113, 0.12);
   color: var(--red);
 }
@@ -710,7 +710,7 @@ function getLatencySparkPath(slug: string): string {
 .pc-stat-val.free {
   color: var(--accent);
 }
-.pc-stat-val.down {
+.pc-stat-val.broken {
   color: var(--red);
 }
 
@@ -741,7 +741,7 @@ function getLatencySparkPath(slug: string): string {
 .pc-bar-fill.degraded {
   background: var(--orange);
 }
-.pc-bar-fill.down {
+.pc-bar-fill.broken {
   background: var(--red);
 }
 

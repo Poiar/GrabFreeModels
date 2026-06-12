@@ -143,7 +143,7 @@
       </template>
       <template v-if="brokenCount > 0">
         <span class="sm-stat-divider">|</span>
-        <span class="sm-stat sm-stat-broken">{{ brokenCount }} down</span>
+        <span class="sm-stat sm-stat-broken">{{ brokenCount }} broken</span>
       </template>
       <template v-if="releaseDate">
         <span class="sm-stat-divider">|</span>
@@ -363,7 +363,7 @@ const healthSpark = computed(() => {
 // No is_free guard needed — broken/working/limited derive from status directly.
 const status = computed(() => {
   const total = activeDps.value.length;
-  if (!total) return 'down';
+  if (!total) return 'broken';
   if (isDeprecated.value) return 'deprecated';
   if (working.value.length === total) return 'working';
   if (working.value.length > 0) return 'mixed';
@@ -540,7 +540,7 @@ async function copyText(text: string) {
   text-decoration: line-through;
   text-decoration-color: var(--text-muted);
 }
-.sm-card.card-down {
+.sm-card.card-broken {
   border-left-color: var(--border);
 }
 .sm-card.card-untested {

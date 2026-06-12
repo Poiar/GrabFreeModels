@@ -773,7 +773,7 @@ function copyOrgAsMarkdown(o: NonNullable<typeof org.value>) {
   background: var(--orange-subtle);
   color: var(--orange);
 }
-.org-health-badge.down {
+.org-health-badge.broken {
   background: var(--red-subtle);
   color: var(--red);
 }

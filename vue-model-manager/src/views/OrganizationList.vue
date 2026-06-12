@@ -387,7 +387,7 @@ const filteredOrgs = computed(() => {
   background: var(--orange-subtle);
   color: var(--orange);
 }
-.och-badge.down {
+.och-badge.broken {
   background: var(--red-subtle);
   color: var(--red);
 }

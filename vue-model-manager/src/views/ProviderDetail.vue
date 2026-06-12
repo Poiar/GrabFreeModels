@@ -808,7 +808,7 @@ const inputModalityEntries = computed(() => {
   color: var(--orange);
   background: color-mix(in srgb, var(--orange) 12%, transparent);
 }
-.pd-health.down {
+.pd-health.broken {
   color: var(--red);
   background: color-mix(in srgb, var(--red) 12%, transparent);
 }

@@ -58,7 +58,7 @@
         <option value="working">Working</option>
         <option value="mixed">Mixed</option>
         <option value="untested">Untested</option>
-        <option value="down">Down</option>
+        <option value="broken">Broken</option>
       </select>
       <select v-model="familyFilter" class="ml-select" aria-label="Filter by family">
         <option value="">All Families</option>

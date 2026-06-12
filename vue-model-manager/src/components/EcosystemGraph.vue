@@ -52,7 +52,7 @@ interface ModelMoon {
   x: number;
   y: number;
   radius: number;
-  status: 'working' | 'broken' | 'rate_limited' | 'untested' | 'down';
+  status: 'working' | 'broken' | 'rate_limited' | 'untested';
   parentSlug: string;
   parentName: string;
 }
@@ -100,7 +100,7 @@ const statusGlow: Record<string, string> = {
 
 function getModelStatus(model: ModelData): ModelMoon['status'] {
   const active = model.providers.filter((p) => !p._removed);
-  if (!active.length) return 'down';
+  if (!active.length) return 'broken';
   const working = active.filter((p) => p.status.result === 'working').length;
   if (working === active.length) return 'working';
   if (working > 0) return 'rate_limited';

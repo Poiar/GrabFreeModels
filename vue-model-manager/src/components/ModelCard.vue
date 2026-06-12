@@ -221,7 +221,7 @@ const sourceSummaryText = computed(() => {
 
 const status = computed(() => {
   const active = props.model.providers.filter((p) => !p._removed);
-  if (!active.length) return 'down';
+  if (!active.length) return 'broken';
 
   let working = 0,
     broken = 0,

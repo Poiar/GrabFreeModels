@@ -67,7 +67,7 @@ export function useProviderFilters(
   const selectedType = ref('All');
 
   const healthChips = computed((): FilterChip[] => {
-    const counts: Record<string, number> = { healthy: 0, degraded: 0, down: 0 };
+    const counts: Record<string, number> = { healthy: 0, degraded: 0, broken: 0 };
     for (const p of providers.value) {
       counts[p.health_status] = (counts[p.health_status] || 0) + 1;
     }
@@ -75,7 +75,7 @@ export function useProviderFilters(
       { key: 'All', label: 'All', count: providers.value.length },
       { key: 'healthy', label: 'Healthy', count: counts.healthy || 0 },
       { key: 'degraded', label: 'Degraded', count: counts.degraded || 0 },
-      { key: 'down', label: 'Down', count: counts.down || 0 },
+      { key: 'broken', label: 'Broken', count: counts.broken || 0 },
     ];
   });
 

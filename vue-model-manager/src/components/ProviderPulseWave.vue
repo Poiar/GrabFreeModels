@@ -60,7 +60,7 @@ const waveformData = computed((): WaveformBand[] => {
         working,
         broken,
         rateLimited,
-        healthClass: workingRatio >= 0.7 ? 'healthy' : workingRatio >= 0.3 ? 'degraded' : 'down',
+        healthClass: workingRatio >= 0.7 ? 'healthy' : workingRatio >= 0.3 ? 'degraded' : 'broken',
         amplitude: Math.min(28, 6 + total * 1.2),
       };
     })
@@ -252,7 +252,7 @@ onUnmounted(() => {
   background: var(--orange);
   box-shadow: 0 0 4px var(--orange-glow);
 }
-.pulse-label-dot.down {
+.pulse-label-dot.broken {
   background: var(--red);
   box-shadow: 0 0 4px var(--red-glow);
 }

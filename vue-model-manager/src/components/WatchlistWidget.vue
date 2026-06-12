@@ -69,7 +69,7 @@ function statusLabel(superId: number): string {
   if (working > 0) return `${working}/${total} working`;
   if (model.providers.some((p) => !p._removed && p.status.result === 'rate_limited'))
     return 'rate limited';
-  return 'down';
+  return 'broken';
 }
 </script>
 

@@ -257,7 +257,7 @@ const statusLabel = computed(() => {
   if (props.dp.status.detail === 'Presumed working (not tested)') return 'presumed';
   const labels: Record<string, string> = {
     working: 'working',
-    broken: 'down',
+    broken: 'broken',
     rate_limited: 'limited',
     untested: 'untested',
     not_found: 'missing',

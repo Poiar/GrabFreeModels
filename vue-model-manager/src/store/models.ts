@@ -334,9 +334,9 @@ export const useModelsStore = defineStore('models', () => {
   );
 
   // ── Model status classification ──
-  function getModelStatus(model: ModelData): 'working' | 'mixed' | 'untested' | 'down' {
+  function getModelStatus(model: ModelData): 'working' | 'mixed' | 'untested' | 'broken' {
     const activeProviders = model.providers.filter((p) => !p._removed);
-    if (activeProviders.length === 0) return 'down';
+    if (activeProviders.length === 0) return 'broken';
     const working = activeProviders.filter((p) => p.status.result === 'working').length;
     const untested = activeProviders.filter((p) => p.status.result === 'untested').length;
     const broken = activeProviders.filter(
@@ -345,7 +345,7 @@ export const useModelsStore = defineStore('models', () => {
     if (working === activeProviders.length) return 'working';
     if (untested === activeProviders.length) return 'untested';
     if (working > 0) return 'mixed';
-    if (broken === activeProviders.length) return 'down';
+    if (broken === activeProviders.length) return 'broken';
     return 'mixed';
   }
 
@@ -1018,7 +1018,7 @@ export const useModelsStore = defineStore('models', () => {
       description: e.description,
       model_count: e.total,
       working_count: e.working,
-      health_status: e.total === 0 ? 'down' : e.working === e.total ? 'healthy' : 'degraded',
+      health_status: e.total === 0 ? 'broken' : e.working === e.total ? 'healthy' : 'degraded',
     }));
   });
 

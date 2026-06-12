@@ -253,11 +253,11 @@ const superItems = computed<SuperItem[]>(() => {
     const untested = dps.filter((d) => d.status.result === 'untested');
     const allTags = [...new Set(dps.flatMap((d) => [...d.tags, ...d.best_for]))];
 
-    let status = 'down';
-    if (!dps.length) status = 'down';
+    let status = 'broken';
+    if (!dps.length) status = 'broken';
     else if (working.length === dps.length) status = 'working';
     else if (working.length > 0) status = 'mixed';
-    else status = 'down';
+    else status = 'broken';
 
     return {
       id: m.super_id,

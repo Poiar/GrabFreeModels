@@ -475,7 +475,7 @@ const filteredProviders = computed(() => {
 .po-card-stat.health.degraded {
   color: var(--orange);
 }
-.po-card-stat.health.down {
+.po-card-stat.health.broken {
   color: var(--red);
 }
 
