@@ -759,6 +759,7 @@ function normalizeModelSlug(name) {
               provider: 'openrouter',
               context_length: m.context_length,
               pricing: m.pricing,
+              description: m.description || null,
             });
           }
         }
@@ -1442,15 +1443,17 @@ function normalizeModelSlug(name) {
 
           // Upsert datapoint model
           const limitations = m.limitations || PROVIDER_LIMITATIONS[providerSlug] || null;
+          const desc = m.description || null;
           // These three providers require credits even for "free" models — mark as paid
           const NO_CREDITS_PROVIDERS = new Set(['deepinfra', 'novitaai', 'siliconflow']);
           const modelIsFree = !NO_CREDITS_PROVIDERS.has(providerSlug);
           const { rows: dmRows } = await client.query(
-            `INSERT INTO datapoint_models (super_model_id, datapoint_provider_id, model_instance_key, full_id, context_length, is_free, status_result, status_detail, limitations)
-             VALUES ($1, $2, $3, $4, $5, $6, CASE WHEN $6 THEN 'untested' ELSE 'working' END, CASE WHEN $6 THEN 'Auto-discovered by sync script' ELSE 'Presumed working (not tested)' END, $7)
+            `INSERT INTO datapoint_models (super_model_id, datapoint_provider_id, model_instance_key, full_id, context_length, is_free, status_result, status_detail, limitations, description)
+             VALUES ($1, $2, $3, $4, $5, $6, CASE WHEN $6 THEN 'untested' ELSE 'working' END, CASE WHEN $6 THEN 'Auto-discovered by sync script' ELSE 'Presumed working (not tested)' END, $7, $8)
              ON CONFLICT (datapoint_provider_id, model_instance_key) DO UPDATE SET
                context_length = EXCLUDED.context_length,
                limitations = EXCLUDED.limitations,
+               description = COALESCE(EXCLUDED.description, datapoint_models.description),
                is_removed = false,
                updated_at = now()
              RETURNING id`,
@@ -1462,14 +1465,7 @@ function normalizeModelSlug(name) {
               m.context_length,
               modelIsFree,
               limitations ? JSON.stringify(limitations) : null,
-            ],
-            [
-              superId,
-              providerId,
-              modelInstanceKey,
-              m.id,
-              m.context_length,
-              limitations ? JSON.stringify(limitations) : null,
+              desc,
             ],
           );
           const dmId = dmRows[0].id;
@@ -1483,6 +1479,130 @@ function normalizeModelSlug(name) {
               [dmId, srcId],
             );
           }
+        }
+
+        // ── OpenRouter description lineage parsing ──
+        // Parse model descriptions for lineage hints ("fine-tuned from X",
+        // "variant of Y", "built on Z") and set base_model where a parent
+        // model exists in our super_models.
+        const orModelsWithDesc = allNew.filter(
+          (m) => m.id.startsWith('openrouter/') && m.description,
+        );
+        if (orModelsWithDesc.length > 0) {
+          logger.info(
+            `\n[OR Lineage] Checking ${orModelsWithDesc.length} OpenRouter descriptions for lineage hints...`,
+          );
+
+          const { nameToSlug } = require('./utils/derivation-detector');
+
+          // Build super_model lookup for parent matching
+          const { rows: superLookup } = await client.query(
+            'SELECT id, name, slug FROM super_models',
+          );
+          const superBySlug = new Map(superLookup.map((r) => [r.slug, r]));
+          const superByName = new Map(
+            superLookup.map((r) => [r.name.toLowerCase(), { id: r.id, slug: r.slug }]),
+          );
+
+          const LINEAGE_PATTERNS = [
+            /fine-?tuned from\s+(.+?)(?:[,.]|$)/i,
+            /finetuned from\s+(.+?)(?:[,.]|$)/i,
+            /variant of\s+(?:\[?[^\]]+\]?\()?\s*(.+?)(?:\)|[,.]|$)/i,
+            /built on\s+(?:the\s+)?(.+?)(?:\s+architecture|[,.]|$)/i,
+            /distilled from\s+(.+?)(?:[,.]|$)/i,
+            /derived from\s+(.+?)(?:[,.]|$)/i,
+            /based on\s+(?:the\s+)?(.+?)(?:[,.]|$)/i,
+          ];
+
+          let orLineageFound = 0;
+          let orLineageApplied = 0;
+
+          for (const m of orModelsWithDesc) {
+            let parentHint = null;
+            for (const pat of LINEAGE_PATTERNS) {
+              const lm = m.description.match(pat);
+              if (lm) {
+                parentHint = lm[1]
+                  .trim()
+                  .replace(/[)\]"']+$/g, '')
+                  .replace(/^the\s+/i, '')
+                  .trim();
+                break;
+              }
+            }
+            if (!parentHint) continue;
+
+            // Skip hints that are too generic or not model names
+            if (parentHint.length < 5 || parentHint.length > 100) continue;
+            if (
+              /^(a |an |the |this |its |our |xAI's |OpenAI's |Anthropic's |Google's |Meta's |NVIDIA's )/i.test(
+                parentHint,
+              )
+            ) {
+              // Re-extract after possessive/article
+              const clean = parentHint.replace(
+                /^(a |an |the |this |its |our |xAI's |OpenAI's |Anthropic's |Google's |Meta's |NVIDIA's )/i,
+                '',
+              );
+              if (clean.length >= 5) parentHint = clean;
+              else continue;
+            }
+
+            // Match parent to our super_models
+            const hintSlug = nameToSlug(parentHint);
+            let parent = superBySlug.get(hintSlug);
+
+            if (!parent) {
+              // Try case-insensitive name match
+              parent = superByName.get(parentHint.toLowerCase());
+            }
+
+            if (!parent) {
+              // Try suffix match
+              for (const [slug, s] of superBySlug) {
+                if (slug.endsWith(hintSlug) || hintSlug.endsWith(slug)) {
+                  parent = s;
+                  break;
+                }
+              }
+            }
+
+            if (!parent) continue;
+
+            // Find the child super_model for this datapoint model
+            const modelSlug = nameToSlug(
+              m.name.includes('/') ? m.name.slice(m.name.indexOf('/') + 1) : m.name,
+            );
+            const child = superBySlug.get(modelSlug);
+            if (!child || child.id === parent.id) continue;
+
+            orLineageFound++;
+
+            // Check cycle before writing
+            const { rows: cycleCheck } = await client.query(
+              `WITH RECURSIVE chain AS (
+                 SELECT slug, base_model, 1 AS depth FROM super_models WHERE slug = $1
+                 UNION ALL
+                 SELECT sm.slug, sm.base_model, c.depth + 1
+                 FROM super_models sm JOIN chain c ON sm.slug = c.base_model
+                 WHERE c.depth < 20 AND sm.base_model IS NOT NULL
+               ) SELECT 1 FROM chain WHERE slug = $2 LIMIT 1`,
+              [parent.slug, modelSlug],
+            );
+
+            if (cycleCheck.length > 0) continue;
+
+            await client.query(
+              `UPDATE super_models
+               SET base_model = COALESCE(super_models.base_model, $1),
+                   derivation_method = COALESCE(super_models.derivation_method, 'finetune')
+               WHERE id = $2 AND base_model IS NULL`,
+              [parent.slug, child.id],
+            );
+            orLineageApplied++;
+          }
+
+          logger.info(`  Hints found: ${orLineageFound}, Applied: ${orLineageApplied}`);
         }
 
         // Refresh limitations for all existing models from synced providers
