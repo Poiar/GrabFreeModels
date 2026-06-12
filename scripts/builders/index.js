@@ -139,7 +139,7 @@ async function buildModelsData(client, pool, options = {}) {
       _removedDate: null,
       notes: null,
       created_at: dm.created_at || null,
-      priority_score: null,
+      priority_score: dm.priority_score || null,
     };
 
     outputModels.push(entry);

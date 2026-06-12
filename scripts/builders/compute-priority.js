@@ -11,6 +11,11 @@
  * @param {boolean} preferPersisted — if true, use datapoint_models.priority_score when available
  */
 function computePriorityScores(entries = []) {
+  // Use persisted score when available (migration 040), compute only for NULLs
+  const needCompute = entries.filter((e) => e.priority_score === null || e.priority_score === undefined);
+  if (needCompute.length === 0) return;
+
+  // CTX_NORM from ALL entries (persisted scores still need correct relative context)
   const CTX_NORM = Math.max(
     ...entries.map((r) => r.context_length || 0).filter(Boolean),
     1,
@@ -18,7 +23,7 @@ function computePriorityScores(entries = []) {
 
   const hwSpeedBonus = { lpu: 2.0, wafer: 1.0, tpu: 0.5, gpu: 0, edge: -0.5, local: -1.0, unknown: 0 };
 
-  for (const entry of entries) {
+  for (const entry of needCompute) {
     const ctxVal = entry.context_length ? entry.context_length / CTX_NORM : -0.5;
     const toolsBonus = entry.supports_tools === true ? 2 : 0;
 
