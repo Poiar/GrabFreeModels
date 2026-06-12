@@ -837,6 +837,92 @@ test('sync-paid-models.js sets paid models to status working', () => {
   );
 });
 
+// ═══════════════════════════════════════════════════════════════
+// ORGANIZATIONS: verify the organizations array is populated
+// ═══════════════════════════════════════════════════════════════
+
+console.log('\n=== organizations data ===');
+
+test('available-models.json contains organizations array', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const jsonPath = path.join(__dirname, '..', 'available-models.json');
+  if (!fs.existsSync(jsonPath)) {
+    assert.fail('available-models.json not found — run npm run db:export');
+  }
+  const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  assert.ok(
+    Array.isArray(data.organizations),
+    'available-models.json should have an organizations array',
+  );
+  assert.ok(
+    data.organizations.length > 0,
+    `organizations array should not be empty (got ${data.organizations?.length || 0})`,
+  );
+});
+
+test('available-models.json organizations have required fields', () => {
+  const fs = require('fs');
+  const { organizations } = JSON.parse(
+    fs.readFileSync(require('path').join(__dirname, '..', 'available-models.json'), 'utf8'),
+  );
+  // Every org must have id, name, kind
+  for (const org of organizations) {
+    assert.ok(
+      typeof org.id === 'string' && org.id.length > 0,
+      `org missing id: ${JSON.stringify(org)}`,
+    );
+    assert.ok(typeof org.name === 'string' && org.name.length > 0, `org missing name: ${org.id}`);
+    assert.ok(
+      ['creator', 'provider', 'both'].includes(org.kind),
+      `org ${org.id} has invalid kind: ${org.kind}`,
+    );
+  }
+});
+
+test('available-models.json has both creator and provider orgs', () => {
+  const fs = require('fs');
+  const { organizations } = JSON.parse(
+    fs.readFileSync(require('path').join(__dirname, '..', 'available-models.json'), 'utf8'),
+  );
+  const kinds = new Set(organizations.map((o) => o.kind));
+  // Should have at least some 'both' or at minimum both creator and provider kinds
+  const hasCreator = kinds.has('creator') || kinds.has('both');
+  const hasProvider = kinds.has('provider') || kinds.has('both');
+  assert.ok(hasCreator, 'should have creator-type organizations');
+  assert.ok(hasProvider, 'should have provider-type organizations');
+});
+
+test('organizations with both kind have models and provider_slugs', () => {
+  const fs = require('fs');
+  const { organizations } = JSON.parse(
+    fs.readFileSync(require('path').join(__dirname, '..', 'available-models.json'), 'utf8'),
+  );
+  const both = organizations.filter((o) => o.kind === 'both');
+  if (both.length === 0) {
+    console.log('        (skipped — no "both" organizations yet)');
+    return;
+  }
+  for (const org of both) {
+    assert.ok(org.provider_slugs.length > 0, `"both" org ${org.id} should have provider_slugs`);
+    assert.ok(org.model_count >= 0, `"both" org ${org.id} should have model_count`);
+  }
+});
+
+test('providers JSON export includes organizations', () => {
+  const fs = require('fs');
+  const data = JSON.parse(
+    fs.readFileSync(require('path').join(__dirname, '..', 'available-models.json'), 'utf8'),
+  );
+  // The providers array should still exist (backward compat)
+  assert.ok(Array.isArray(data.providers), 'providers array should exist for backward compat');
+  // But organizations should be the canonical list
+  assert.ok(
+    data.organizations.length >= data.providers.length,
+    `organizations (${data.organizations.length}) should cover at least providers (${data.providers.length})`,
+  );
+});
+
 // ── Summary ──
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
 if (failed > 0) {

@@ -3,13 +3,36 @@
     <div class="page-header">
       <h1>Organizations</h1>
       <p class="page-subtitle">
-        Unified view of model creators and API providers — {{ filteredOrgs.length }} organizations
+        Unified view of model creators and API providers — {{ sortedOrgs.length }} organizations
       </p>
     </div>
 
     <!-- ── Controls ── -->
     <div class="org-controls">
       <input v-model="search" type="text" class="org-search" placeholder="Search organizations…" />
+      <select v-model="sortBy" class="org-sort">
+        <option v-for="s in sortOptions" :key="s.value" :value="s.value">{{ s.label }}</option>
+      </select>
+      <div class="org-view-toggle">
+        <button
+          class="ovt-btn"
+          :class="{ active: viewMode === 'grid' }"
+          @click="viewMode = 'grid'"
+          title="Grid view"
+        >
+          ▦
+        </button>
+        <button
+          class="ovt-btn"
+          :class="{ active: viewMode === 'compact' }"
+          @click="viewMode = 'compact'"
+          title="Compact list"
+        >
+          ☰
+        </button>
+      </div>
+    </div>
+    <div class="org-controls org-controls-secondary">
       <div class="org-kind-filters">
         <button
           v-for="k in kindFilters"
@@ -24,14 +47,9 @@
       </div>
     </div>
 
-    <!-- ── Grid ── -->
-    <div v-if="filteredOrgs.length > 0" class="org-grid">
-      <router-link
-        v-for="org in filteredOrgs"
-        :key="org.id"
-        :to="`/org/${org.id}`"
-        class="org-card"
-      >
+    <!-- ── Grid View ── -->
+    <div v-if="viewMode === 'grid' && sortedOrgs.length > 0" class="org-grid">
+      <router-link v-for="org in sortedOrgs" :key="org.id" :to="`/org/${org.id}`" class="org-card">
         <div class="org-card-top">
           <ProviderIcon :slug="org.id" :size="36" cls="org-card-logo" />
           <div class="org-card-header">
@@ -63,7 +81,6 @@
           </div>
         </div>
 
-        <!-- Provider slugs -->
         <div v-if="org.provider_slugs.length > 0" class="org-card-slugs">
           <span v-for="slug in org.provider_slugs.slice(0, 5)" :key="slug" class="org-card-slug">{{
             slug
@@ -73,7 +90,6 @@
           >
         </div>
 
-        <!-- Health -->
         <div v-if="org.health_status" class="org-card-health">
           <span class="och-badge" :class="org.health_status">{{ org.health_status }}</span>
           <span class="och-count">{{ org.working_count }} working</span>
@@ -81,7 +97,43 @@
       </router-link>
     </div>
 
-    <div v-else class="org-empty">
+    <!-- ── Compact View ── -->
+    <div v-if="viewMode === 'compact' && sortedOrgs.length > 0" class="org-compact">
+      <router-link v-for="org in sortedOrgs" :key="org.id" :to="`/org/${org.id}`" class="org-row">
+        <ProviderIcon :slug="org.id" :size="28" cls="org-row-logo" />
+        <div class="org-row-body">
+          <div class="org-row-top">
+            <span class="org-row-name">{{ org.name }}</span>
+            <span class="org-row-kind" :class="org.kind">{{ kindLabels[org.kind] }}</span>
+          </div>
+          <div class="org-row-meta">
+            <span v-if="org.model_count > 0" class="org-row-stat"
+              >{{ org.model_count }} models</span
+            >
+            <span
+              class="org-row-stat-sep"
+              v-if="org.model_count > 0 && org.provider_slugs.length > 0"
+              >·</span
+            >
+            <span v-if="org.provider_slugs.length > 0" class="org-row-stat"
+              >{{ org.provider_slugs.length }} endpoints</span
+            >
+            <span class="org-row-stat-sep" v-if="org.health_status">·</span>
+            <span v-if="org.health_status" class="org-row-health" :class="org.health_status">{{
+              org.health_status
+            }}</span>
+          </div>
+        </div>
+        <div class="org-row-slugs" v-if="org.provider_slugs.length > 0">
+          <span v-for="slug in org.provider_slugs.slice(0, 3)" :key="slug" class="org-row-slug">{{
+            slug
+          }}</span>
+        </div>
+        <span class="org-row-arrow">→</span>
+      </router-link>
+    </div>
+
+    <div v-if="sortedOrgs.length === 0" class="org-empty">
       <p v-if="organizations.length === 0">No organizations loaded yet.</p>
       <p v-else>No organizations matching your search.</p>
     </div>
@@ -92,11 +144,14 @@
 import { computed, ref } from 'vue';
 import ProviderIcon from '@/components/ProviderIcon.vue';
 import { useModelsStore } from '@/store/models';
+import type { Organization } from '@/types';
 
 const store = useModelsStore();
 
 const search = ref('');
 const kindFilter = ref<string>('all');
+const sortBy = ref<string>('name');
+const viewMode = ref<'grid' | 'compact'>('grid');
 
 const kindLabels: Record<string, string> = {
   creator: 'Creator',
@@ -116,6 +171,13 @@ const kindFilters = [
   { value: 'both', label: 'Creator + Provider' },
   { value: 'creator', label: 'Creator' },
   { value: 'provider', label: 'Provider' },
+];
+
+const sortOptions = [
+  { value: 'name', label: 'Sort: Name' },
+  { value: 'models', label: 'Sort: Models' },
+  { value: 'health', label: 'Sort: Health' },
+  { value: 'kind', label: 'Sort: Type' },
 ];
 
 const organizations = computed(() => store.organizations);
@@ -147,6 +209,37 @@ const filteredOrgs = computed(() => {
 
   return list;
 });
+
+const HEALTH_ORDER: Record<string, number> = { healthy: 0, degraded: 1, broken: 2 };
+const KIND_ORDER: Record<string, number> = { both: 0, creator: 1, provider: 2 };
+
+const sortedOrgs = computed((): Organization[] => {
+  const list = [...filteredOrgs.value];
+  switch (sortBy.value) {
+    case 'models':
+      list.sort((a, b) => b.model_count - a.model_count || a.name.localeCompare(b.name));
+      break;
+    case 'health':
+      list.sort((a, b) => {
+        const ha = HEALTH_ORDER[a.health_status || ''] ?? 99;
+        const hb = HEALTH_ORDER[b.health_status || ''] ?? 99;
+        if (ha !== hb) return ha - hb;
+        return b.working_count - a.working_count || a.name.localeCompare(b.name);
+      });
+      break;
+    case 'kind':
+      list.sort((a, b) => {
+        const ka = KIND_ORDER[a.kind] ?? 9;
+        const kb = KIND_ORDER[b.kind] ?? 9;
+        if (ka !== kb) return ka - kb;
+        return a.name.localeCompare(b.name);
+      });
+      break;
+    default:
+      list.sort((a, b) => a.name.localeCompare(b.name));
+  }
+  return list;
+});
 </script>
 
 <style scoped>
@@ -176,9 +269,13 @@ const filteredOrgs = computed(() => {
 /* ── Controls ── */
 .org-controls {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.org-controls-secondary {
   margin-bottom: 24px;
 }
 
@@ -196,6 +293,49 @@ const filteredOrgs = computed(() => {
 }
 .org-search:focus {
   border-color: var(--accent);
+}
+
+.org-sort {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  background: var(--bg-input);
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.org-sort:focus {
+  border-color: var(--accent);
+}
+
+/* ── View toggle ── */
+.org-view-toggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.ovt-btn {
+  padding: 8px 12px;
+  border: none;
+  background: var(--bg-card);
+  color: var(--text-dim);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1;
+}
+.ovt-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+.ovt-btn.active {
+  background: var(--accent);
+  color: #0b0e14;
 }
 
 .org-kind-filters {
@@ -395,6 +535,131 @@ const filteredOrgs = computed(() => {
 .och-count {
   font-size: 12px;
   color: var(--text-dim);
+}
+
+/* ── Compact View ── */
+.org-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--border);
+}
+
+.org-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--bg-card);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+.org-row:hover {
+  background: var(--bg-card-hover);
+}
+
+.org-row-logo {
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+
+.org-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.org-row-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.org-row-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.org-row-kind {
+  padding: 1px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.org-row-kind.both {
+  background: var(--green-subtle);
+  color: var(--green);
+}
+.org-row-kind.creator {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+.org-row-kind.provider {
+  background: var(--orange-subtle);
+  color: var(--orange);
+}
+
+.org-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.org-row-stat-sep {
+  color: var(--border-focus);
+}
+
+.org-row-health {
+  font-weight: 600;
+}
+.org-row-health.healthy {
+  color: var(--green);
+}
+.org-row-health.degraded {
+  color: var(--orange);
+}
+.org-row-health.broken {
+  color: var(--red);
+}
+
+.org-row-slugs {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.org-row-slug {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+}
+
+.org-row-arrow {
+  font-size: 14px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .org-row-slugs {
+    display: none;
+  }
+  .org-row-arrow {
+    display: none;
+  }
 }
 
 /* ── Empty ── */

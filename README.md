@@ -19,7 +19,7 @@ Only free models are tested. Paid models are presumed working.
 
 <!-- AUTO:pipeline-summary -->
 
-Every model gets a `super_model` (canonical identity) with per-provider `datapoint_model` rows. The nightly pipeline (29 steps, 3 critical) syncs free and paid models, validates free endpoints, re-ranks by role, imports company financials, snapshots the DB, and commits to git.
+Every model gets a `super_model` (canonical identity) with per-provider `datapoint_model` rows. The nightly pipeline (32 steps, 3 critical) syncs free and paid models, validates free endpoints, re-ranks by role, imports company financials, snapshots the DB, and commits to git.
 
 <!-- /AUTO -->
 
@@ -107,6 +107,7 @@ npm run build         # Type-check + production build → dist/
 | `#/creator/:id`          | CreatorDetail      | Single creator with all their models                            |
 | `#/derivatives`          | Derivatives        | Fine-tuned/derived models grouped by method                     |
 | `#/derivative/:id`       | DerivativeDetail   | Single derivative with base model chain                         |
+| `#/organizations`        | Organizations      | Organizations                                                   |
 | `#/org/:id`              | OrganizationDetail | Unified organization page (creator + provider facets)           |
 | `#/provider/:slug`       | ProviderDetail     | Single provider with all instances, latencies, failures         |
 | `#/base-models`          | BaseModels         | Foundation models ranked by derivative count                    |
@@ -156,7 +157,7 @@ scripts/                         # Node.js pipeline scripts (CommonJS)
   fetch-external-sources.js      #   Fetch community source lists
   fetch-huggingface-hub.js       #   Scrape HF Hub for free inference models
   fetch-openllm-leaderboard.js   #   Fetch Open LLM Leaderboard data
-  nightly-maintenance.js         #   Full 29-step nightly pipeline orchestrator
+  nightly-maintenance.js         #   Full 32-step nightly pipeline orchestrator
   nightly-summary.js             #   Text summary for Slack/Discord delivery
   backfill-base-models.js        #   Detect fine-tune lineage via substring matching
   backfill-base-creators.js      #   Detect base creators for derived models
