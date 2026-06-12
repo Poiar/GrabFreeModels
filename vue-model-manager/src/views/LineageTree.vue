@@ -15,9 +15,20 @@
           <button v-if="search" class="lt-search-clear" @click="clearSearch">&#x00D7;</button>
         </div>
         <span class="lt-stats"
-          >{{ forestRoots.length }} trees · {{ allTreeNodes.length }} nodes</span
+          >{{ forestRoots.length }} trees · {{ allTreeNodes.length }} nodes ·
+          {{ edgeCount }} edges</span
         >
+        <select v-model="sourceFilter" class="lt-source-filter" @change="onSourceFilter">
+          <option value="all">All edges</option>
+          <option value="high">High confidence only</option>
+          <option value="medium+">Medium+ confidence</option>
+        </select>
         <div class="lt-zoom-group">
+          <div class="lt-legend">
+            <span class="lt-legend-item high">━ High</span>
+            <span class="lt-legend-item medium">━ Med</span>
+            <span class="lt-legend-item low">┅ Low</span>
+          </div>
           <button @click="zoomOut" class="lt-btn" title="Zoom out">-</button>
           <span class="lt-zoom-pct">{{ Math.round(zoom * 100) }}%</span>
           <button @click="zoomIn" class="lt-btn" title="Zoom in">+</button>
@@ -51,9 +62,11 @@
               class="lt-edge"
               :class="{
                 'lt-edge-highlight': e.highlighted,
-                'lt-edge-dim': highlightActive && !e.highlighted,
-                'lt-edge-confident': !e.highlighted && confidence(e.derivationSource) === 'high',
-                'lt-edge-weak': !e.highlighted && confidence(e.derivationSource) === 'low',
+                'lt-edge-dim': (highlightActive && !e.highlighted) || e.filteredOut,
+                'lt-edge-confident':
+                  !e.highlighted && !e.filteredOut && confidence(e.derivationSource) === 'high',
+                'lt-edge-weak':
+                  !e.highlighted && !e.filteredOut && confidence(e.derivationSource) === 'low',
               }"
             />
           </g>
@@ -185,6 +198,13 @@ const highlightActive = computed(() => search.value.trim().length > 0);
 const matchSlugs = ref(new Set<string>());
 const matchPathSlugs = ref(new Set<string>());
 
+// ── Source filter ──
+const sourceFilter = ref('all');
+function onSourceFilter() {
+  matchSlugs.value = new Set();
+  matchPathSlugs.value = new Set();
+}
+
 // ── Zoom / pan state ──
 const zoom = ref(1);
 const panX = ref(40);
@@ -233,6 +253,7 @@ interface LayoutEdge {
   y2: number;
   highlighted: boolean;
   derivationSource: string | null;
+  filteredOut: boolean;
 }
 
 interface ForestEdge {
@@ -391,6 +412,8 @@ const forestRoots = computed(() => forestData.value.roots);
 const forestNodeMap = computed(() => forestData.value.nodeMap);
 const forestEdgesRef = computed(() => forestData.value.edges);
 
+const edgeCount = computed(() => forestEdgesRef.value.length);
+
 const allTreeNodes = computed((): LayoutNode[] => {
   const nodes = [...forestNodeMap.value.values()];
   for (const n of nodes) {
@@ -427,13 +450,23 @@ function sourceLabel(src: string | null): string {
 }
 
 const allEdges = computed((): LayoutEdge[] => {
-  // Force re-compute when search state changes (mutates node.match fields)
-  const _trigger = matchSlugs.value.size + matchPathSlugs.value.size;
+  // Force re-compute when search or filter changes
+  const _trigger = matchSlugs.value.size + matchPathSlugs.value.size + sourceFilter.value.length;
   void _trigger;
   return forestEdgesRef.value.map((e) => {
     const from = forestNodeMap.value.get(e.from);
     const to = forestNodeMap.value.get(e.to);
     const highlighted = !!(from?.matches || to?.matches);
+    const src = to?.derivationSource || null;
+    const conf = confidence(src);
+
+    // Apply source filter: dim or hide low-confidence edges
+    let filteredOut = false;
+    if (!highlighted) {
+      if (sourceFilter.value === 'high' && conf !== 'high') filteredOut = true;
+      if (sourceFilter.value === 'medium+' && conf === 'low') filteredOut = true;
+    }
+
     return {
       key: e.from + '->' + e.to,
       x1: from?.x ?? 0,
@@ -441,7 +474,8 @@ const allEdges = computed((): LayoutEdge[] => {
       x2: to?.x ?? 0,
       y2: to?.y ?? 0,
       highlighted,
-      derivationSource: to?.derivationSource || null,
+      derivationSource: src,
+      filteredOut,
     };
   });
 });
@@ -699,6 +733,43 @@ function goModel(slug: string) {
   color: var(--text-muted);
   white-space: nowrap;
 }
+/* legend */
+.lt-legend {
+  display: flex;
+  gap: 10px;
+  margin-right: 8px;
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.lt-legend-item.high {
+  color: #059669;
+}
+.lt-legend-item.medium {
+  color: var(--text-dim);
+}
+.lt-legend-item.low {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* source filter */
+.lt-source-filter {
+  font-size: 0.68rem;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+  margin-left: 8px;
+}
+.lt-source-filter:focus {
+  border-color: var(--accent, #6366f1);
+}
+
 .lt-zoom-group {
   display: flex;
   align-items: center;
