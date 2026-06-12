@@ -923,6 +923,284 @@ test('providers JSON export includes organizations', () => {
   );
 });
 
+// ═══════════════════════════════════════════════════════════════
+// DERIVATION DETECTOR: sibling guard + token matching
+// ═══════════════════════════════════════════════════════════════
+
+console.log('\n=== derivation-detector.js: sibling guard & token matching ===');
+
+// Replicate core logic inline (unit tests — no require)
+
+const DERIVATION_WORDS = new Set([
+  'instruct',
+  'chat',
+  'base',
+  'sft',
+  'ft',
+  'dpo',
+  'orpo',
+  'rdpo',
+  'simpo',
+  'cpo',
+  'kto',
+  'ipo',
+  'spo',
+  'merge',
+  'slerp',
+  'distill',
+  'distil',
+  'lora',
+  'cpt',
+  'fine',
+  'tune',
+  'tuned',
+  'finetune',
+  'finetuned',
+  'continued',
+  'pretraining',
+  'pretrain',
+  'adapter',
+  'model',
+  'weights',
+  'gguf',
+  'gptq',
+  'awq',
+  'bnb',
+  'fp16',
+  'fp32',
+  'bf16',
+  'fp8',
+  'int4',
+  'int8',
+  'quantized',
+  'quant',
+  'v0',
+  'v1',
+  'v2',
+  'v3',
+  'v4',
+  'v5',
+  'coder',
+  'code',
+  'math',
+  'vision',
+  'vl',
+  'guard',
+  'safe',
+  'safety',
+  'thinking',
+  'reasoning',
+  'agent',
+  'search',
+  'research',
+  'deep',
+  'mini',
+  'small',
+  'medium',
+  'large',
+  'xl',
+  'xxl',
+  'nano',
+  'tiny',
+  'lite',
+  'turbo',
+  'fast',
+  'pro',
+  'max',
+  'plus',
+  'flash',
+  'think',
+]);
+
+const SPECIALIZATION_WORDS = new Set([
+  'coder',
+  'code',
+  'math',
+  'vision',
+  'vl',
+  'guard',
+  'safe',
+  'safety',
+  'reasoning',
+  'thinking',
+  'agent',
+  'search',
+  'research',
+  'deep',
+  'mini',
+  'small',
+  'medium',
+  'large',
+  'xl',
+  'xxl',
+  'nano',
+  'tiny',
+  'lite',
+  'turbo',
+  'fast',
+  'pro',
+  'max',
+  'plus',
+]);
+
+function tokenizeForMatching(name) {
+  return name
+    .toLowerCase()
+    .replace(/[()]/g, ' ')
+    .split(/[\s\-_/,]+/)
+    .filter(Boolean)
+    .filter((t) => !DERIVATION_WORDS.has(t) && t.length >= 2);
+}
+
+function wouldBeSibling(childName, candidateName) {
+  const childWords = new Set(
+    childName
+      .toLowerCase()
+      .split(/[\s\-_/,]+/)
+      .filter(Boolean),
+  );
+  const candWords = new Set(
+    candidateName
+      .toLowerCase()
+      .split(/[\s\-_/,]+/)
+      .filter(Boolean),
+  );
+  const childSpecWords = [...childWords].filter((w) => SPECIALIZATION_WORDS.has(w));
+  const uniqueSpec = childSpecWords.filter((w) => !candWords.has(w));
+  if (uniqueSpec.length === 0) return false;
+
+  const childTokens = tokenizeForMatching(childName);
+  const candTokens = tokenizeForMatching(candidateName);
+  const childNums = new Set(childTokens.filter((t) => /\d/.test(t)));
+  const candNums = new Set(candTokens.filter((t) => /\d/.test(t)));
+  return childNums.size > 0 && candNums.size > 0 && [...childNums].every((n) => candNums.has(n));
+}
+
+test('Qwen2.5-Coder-0.5B is sibling of Qwen2.5-0.5B (same size)', () => {
+  const child = 'Qwen2.5-Coder-0.5B';
+  const candidate = 'Qwen2.5-0.5B';
+  assert.strictEqual(wouldBeSibling(child, candidate), true);
+});
+
+test('Qwen2.5-Math-7B is sibling of Qwen2.5-7B (same size)', () => {
+  assert.strictEqual(wouldBeSibling('Qwen2.5-Math-7B', 'Qwen2.5-7B'), true);
+});
+
+test('Qwen2.5-VL-32B is sibling of Qwen2.5-32B (same size)', () => {
+  assert.strictEqual(wouldBeSibling('Qwen2.5-VL-32B', 'Qwen2.5-32B'), true);
+});
+
+test('Qwen2.5-0.5B-Instruct is NOT sibling of Qwen2.5-0.5B (instruct is derivation, not specialization)', () => {
+  // "instruct" is a derivation word, not a specialization word — removed by tokenizer
+  assert.strictEqual(wouldBeSibling('Qwen2.5-0.5B-Instruct', 'Qwen2.5-0.5B'), false);
+});
+
+test('different size models are NOT siblings', () => {
+  // Qwen2.5-Coder-7B vs Qwen2.5-0.5B — different numeric tokens means different size
+  assert.strictEqual(wouldBeSibling('Qwen2.5-Coder-7B', 'Qwen2.5-0.5B'), false);
+});
+
+test('Nemotron-3-Nano-8B is NOT sibling of Nemotron-3-Super-49B (different size)', () => {
+  assert.strictEqual(wouldBeSibling('Nemotron-3-Nano-8B', 'Nemotron-3-Super-49B'), false);
+});
+
+test('Llama-3.1-8B-Instruct is NOT sibling of Llama-3.1-8B (no specialization word)', () => {
+  // Instruct is derivation, stripped by tokenizer. No specialization word remains.
+  const childWords = new Set('Llama-3.1-8B-Instruct'.toLowerCase().split(/[\s\-_/,]+/));
+  const specWords = [...childWords].filter((w) => SPECIALIZATION_WORDS.has(w));
+  assert.strictEqual(specWords.length, 0);
+});
+
+// ── Tokenizer tests ──
+
+test('tokenizer strips derivation words', () => {
+  const tokens = tokenizeForMatching('Qwen2.5-0.5B-Instruct-DPO');
+  // instruct, dpo stripped (derivation words), short tokens filtered
+  assert.ok(!tokens.includes('instruct'), 'should strip instruct');
+  assert.ok(!tokens.includes('dpo'), 'should strip dpo');
+  assert.ok(
+    tokens.some((t) => t.includes('qwen')),
+    'should keep qwen family token',
+  );
+  assert.ok(
+    tokens.some((t) => t.includes('0.5')),
+    'should keep size token',
+  );
+});
+
+test('tokenizer strips specialization words', () => {
+  const tokens = tokenizeForMatching('Qwen2.5-Coder-0.5B');
+  assert.ok(!tokens.includes('coder'), 'should strip coder');
+  const numericTokens = tokens.filter((t) => /\d/.test(t));
+  assert.ok(numericTokens.length >= 1, 'should keep numeric tokens');
+});
+
+test('tokenizer keeps model family names', () => {
+  const tokens = tokenizeForMatching('Llama-3.1-8B');
+  assert.ok(tokens.includes('llama'), 'should keep llama');
+  assert.ok(
+    tokens.some((t) => t.includes('3') && t.includes('1')),
+    'should keep 3.1',
+  );
+});
+
+// ── Derivation method detection ──
+
+function detectDerivationMethod(name) {
+  if (!name) return null;
+  const n = name.toLowerCase();
+  if (/\bmerge\b/.test(n) || /\bslerp\b/.test(n)) return 'merge';
+  if (/\bdistill\b/.test(n) || /\bdistil\b/.test(n)) return 'distillation';
+  if (/\bdpo\b/.test(n) || /\borpo\b/.test(n)) return 'dpo';
+  if (/\bcpt\b/.test(n) || /\bcontinued.pretrain/i.test(n)) return 'continued_pretraining';
+  if (/\blora\b/.test(n) && !/\bflora\b/i.test(n)) return 'lora_adapter';
+  if (
+    /instruct/i.test(n) ||
+    /\bchat\b/.test(n) ||
+    /\bsft\b/.test(n) ||
+    /\bft\b/.test(n) ||
+    /fine.tun/i.test(n)
+  )
+    return 'finetune';
+  return null;
+}
+
+test('DPO variant detected', () => {
+  assert.strictEqual(detectDerivationMethod('Mistral-7B-DPO'), 'dpo');
+});
+
+test('ORPO variant detected', () => {
+  assert.strictEqual(detectDerivationMethod('Zephyr-ORPO-141B'), 'dpo');
+});
+
+test('distillation detected', () => {
+  assert.strictEqual(detectDerivationMethod('DeepSeek-R1-Distill-Qwen-1.5B'), 'distillation');
+});
+
+test('merge detected', () => {
+  assert.strictEqual(detectDerivationMethod('Laserxtral-7B-SLERP'), 'merge');
+});
+
+test('continued pretraining detected', () => {
+  assert.strictEqual(detectDerivationMethod('Llama-3.1-8B-CPT'), 'continued_pretraining');
+});
+
+test('instruct variant detected', () => {
+  assert.strictEqual(detectDerivationMethod('Llama-3.1-8B-Instruct'), 'finetune');
+});
+
+test('chat variant detected', () => {
+  assert.strictEqual(detectDerivationMethod('Qwen2.5-Chat-0.5B'), 'finetune');
+});
+
+test('foundation model returns null', () => {
+  assert.strictEqual(detectDerivationMethod('Llama-3.1-8B'), null);
+});
+
+test('DPO takes priority over instruct (more specific first)', () => {
+  assert.strictEqual(detectDerivationMethod('Mistral-7B-Instruct-DPO'), 'dpo');
+});
+
 // ── Summary ──
 console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
 if (failed > 0) {

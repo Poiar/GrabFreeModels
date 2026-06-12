@@ -25,6 +25,9 @@
           <span v-if="model.derivation_method" class="smd-deriv-method"
             >({{ formatDerivMethod(model.derivation_method) }})</span
           >
+          <span v-if="model.derivation_source" class="smd-deriv-source" :class="sourceClass">{{
+            sourceLabel(model.derivation_source)
+          }}</span>
         </template>
         <template v-if="model.family">
           ·
@@ -674,6 +677,32 @@ function formatDerivMethod(method: string): string {
   return labels[method] || method;
 }
 
+function sourceLabel(source: string): string {
+  const labels: Record<string, string> = {
+    hf_card: 'HF card',
+    hf_tag: 'HF tag',
+    crfm: 'Stanford CRFM',
+    fastchat: 'LMSYS FastChat',
+    openrouter_desc: 'OpenRouter',
+    version_chain: 'version chain',
+    creator_match: 'creator match',
+    sync_ingest: 'sync ingest',
+    name_heuristic: 'name heuristic',
+  };
+  return labels[source] || source;
+}
+
+const HIGH_CONFIDENCE = new Set(['hf_card', 'hf_tag', 'crfm', 'version_chain']);
+const LOW_CONFIDENCE = new Set(['name_heuristic']);
+
+const sourceClass = computed(() => {
+  const src = model.value?.derivation_source;
+  if (!src) return 'smd-source-medium';
+  if (HIGH_CONFIDENCE.has(src)) return 'smd-source-high';
+  if (LOW_CONFIDENCE.has(src)) return 'smd-source-low';
+  return 'smd-source-medium';
+});
+
 const FAMILY_NAME_OVERRIDES: Record<string, string> = {
   gpt: 'GPT',
   glm: 'GLM',
@@ -765,6 +794,28 @@ function formatRole(role: string): string {
   background: var(--bg-elevated);
   padding: 1px 6px;
   border-radius: 4px;
+}
+.smd-deriv-source {
+  font-size: 0.6rem;
+  font-weight: 500;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.smd-source-high {
+  color: #059669;
+  background: rgba(5, 150, 105, 0.12);
+}
+.smd-source-medium {
+  color: var(--text-dim);
+  background: var(--bg-elevated);
+}
+.smd-source-low {
+  color: var(--text-muted);
+  background: transparent;
+  opacity: 0.7;
 }
 
 /* ── Unique-facts chips ── */
