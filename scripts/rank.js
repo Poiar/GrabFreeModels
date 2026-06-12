@@ -227,6 +227,49 @@ async function rankModels() {
     // ── Apply ──
     if (APPLY) {
       await client.query('BEGIN');
+
+      // 1. Write to rankings table (new — migration 037)
+      const variantName = 'combined';
+      for (const [role, ids] of Object.entries(newRankings)) {
+        if (role === 'description' || !Array.isArray(ids)) continue;
+        const scoresForRole = allScores[role] || [];
+        const scoreById = {};
+        for (const s of scoresForRole) scoreById[s.id] = s;
+
+        for (let i = 0; i < ids.length; i++) {
+          const fullId = ids[i];
+          const scoreDetail = scoreById[fullId] || null;
+          await client.query(
+            `INSERT INTO rankings (role, full_id, rank, score, variant, is_paid, score_components, computed_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, now())
+             ON CONFLICT (role, full_id, variant, is_paid)
+             DO UPDATE SET rank = EXCLUDED.rank, score = EXCLUDED.score,
+                           score_components = EXCLUDED.score_components, computed_at = now()`,
+            [role, fullId, i + 1,
+             scoreDetail?.score ?? null,
+             variantName, PAID,
+             scoreDetail ? JSON.stringify(scoreDetail) : null],
+          );
+        }
+      }
+
+      // 2. Write variant rankings
+      for (const [vName, vData] of Object.entries(allVariants)) {
+        for (const [role, ids] of Object.entries(vData)) {
+          if (role === 'description' || !Array.isArray(ids)) continue;
+          for (let i = 0; i < ids.length; i++) {
+            await client.query(
+              `INSERT INTO rankings (role, full_id, rank, variant, is_paid, computed_at)
+               VALUES ($1, $2, $3, $4, $5, now())
+               ON CONFLICT (role, full_id, variant, is_paid)
+               DO UPDATE SET rank = EXCLUDED.rank, computed_at = now()`,
+              [role, ids[i], i + 1, vName, PAID],
+            );
+          }
+        }
+      }
+
+      // 3. Dual-write to metadata JSONB (backwards compat)
       const rankingsWithMeta = { ...newRankings, _variants: allVariants, _scores: allScores, _meta: allMeta };
       await client.query(
         `INSERT INTO metadata (key, value) VALUES ($1, $2)
@@ -234,7 +277,7 @@ async function rankModels() {
         [METADATA_KEY, JSON.stringify(rankingsWithMeta)],
       );
       await client.query('COMMIT');
-      console.log(`\n${PAID ? 'Paid' : 'Free'} rankings updated in PostgreSQL metadata`);
+      console.log(`\n${PAID ? 'Paid' : 'Free'} rankings written to rankings table + metadata backup`);
 
       // Export JSON for free rankings
       if (!PAID) {

@@ -125,6 +125,7 @@ const STEP_NAMES = [
   'generate-summary-log',
   'export-final-json',
   'commit-push',
+  'invalidate-api-cache',
   'webhook-alerts',
   'nightly-summary',
 ];
@@ -673,9 +674,14 @@ let pipelineStart = Date.now();
 
     // 14. Generate summary log
     await runStep('generate-summary-log', async () => {
-      const summaryOutput = await run('node scripts/model-summary.js');
-      fs.writeFileSync(SUMMARY_LOG, summaryOutput, 'utf8');
-      console.log(`Summary written to ${SUMMARY_LOG}`);
+      try {
+        const summaryOutput = await run('node scripts/model-summary.js');
+        fs.writeFileSync(SUMMARY_LOG, summaryOutput, 'utf8');
+        console.log(`Summary written to ${SUMMARY_LOG}`);
+      } catch (e) {
+        console.error('Failed to generate summary log:', e.message);
+        // Non-critical — don't fail the pipeline
+      }
     });
 
     // 15. Export final JSON for git
@@ -737,7 +743,8 @@ let pipelineStart = Date.now();
             await run('git push origin master');
             console.log('Rollback committed and pushed');
           }
-          return;
+          await pool.end();
+          process.exit(0);
         }
 
         await run('git add available-models.json');
@@ -791,7 +798,25 @@ let pipelineStart = Date.now();
       fs.unlinkSync(tmpFile);
     });
 
-    // 18. Nightly summary delivery to Slack/Discord
+    // 18. Invalidate API cache so the server serves fresh data immediately
+    await runStep('invalidate-api-cache', async () => {
+      const apiPort = process.env.API_PORT || 3001;
+      const adminToken = process.env.ADMIN_TOKEN;
+      if (!adminToken) {
+        console.log('ADMIN_TOKEN not set — cache invalidation skipped');
+        return;
+      }
+      try {
+        await run(
+          `curl -s -X POST http://localhost:${apiPort}/api/cache/invalidate -H 'X-Admin-Token: ${adminToken}'`,
+        );
+        console.log('API cache invalidated');
+      } catch (e) {
+        console.error('Cache invalidation failed (non-critical):', e.message);
+      }
+    });
+
+    // 19. Nightly summary delivery to Slack/Discord
     await runStep('nightly-summary', async () => {
       await run('node scripts/nightly-summary.js');
     });

@@ -173,31 +173,9 @@ async function saveToDbAndExport(observations = [], healthSnapshots = []) {
     }
     await client.query('COMMIT');
 
-    // Insert health snapshots after commit (non-critical, best-effort)
-    if (healthSnapshots.length > 0) {
-      try {
-        const BATCH_SIZE = 100;
-        for (let i = 0; i < healthSnapshots.length; i += BATCH_SIZE) {
-          const batch = healthSnapshots.slice(i, i + BATCH_SIZE);
-          const placeholders = [];
-          const params = [];
-          let idx = 1;
-          for (const hs of batch) {
-            placeholders.push(`($${idx}, $${idx + 1}, $${idx + 2}, $${idx + 3})`);
-            params.push(hs.full_id, hs.status, hs.detail, hs.latency_ms);
-            idx += 4;
-          }
-          await client.query(
-            `INSERT INTO model_health_snapshots (full_id, tested_at, status, detail, latency_ms) VALUES ${placeholders.join(', ')}`,
-            params,
-          );
-        }
-        logger.info(`Recorded ${healthSnapshots.length} health snapshots`);
-      } catch (e) {
-        // model_health_snapshots table may not exist yet (migration not run)
-        logger.info(`Health snapshots recording skipped: ${e.message}`);
-      }
-    }
+    // Health snapshots now derived from test_observations (migration 041).
+    // model_health_snapshots writes are deprecated — observations below provide
+    // the per-request data that build-models-data.js aggregates into snapshots.
 
     // Insert observations after commit (non-critical, best-effort)
     if (observations.length > 0) {

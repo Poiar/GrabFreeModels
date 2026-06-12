@@ -50,7 +50,7 @@ router.get('/data', async (req, res) => {
     const now = Date.now();
     if (dataCache && (now - dataCache.ts) < CACHE_TTL) {
       res.set('Cache-Control', 'no-cache');
-      return res.json(dataCache.data);
+      return res.json(paginateResult(dataCache.data, req.query));
     }
 
     if (!inflightLoad) {
@@ -60,12 +60,37 @@ router.get('/data', async (req, res) => {
     dataCache = { data: result, ts: Date.now() };
 
     res.set('Cache-Control', 'no-cache');
-    res.json(result);
+    res.json(paginateResult(result, req.query));
   } catch (err) {
     console.error('Failed to build ModelsData:', err.message);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// ── Pagination helper ──
+// Slices the models and creators arrays from a ModelsData result.
+// Appends a _pagination metadata block with offset, limit, total.
+function paginateResult(data, query) {
+  const offset = Math.max(0, parseInt(query.offset, 10) || 0);
+  const limit = query.limit !== undefined
+    ? Math.min(500, Math.max(1, parseInt(query.limit, 10) || 50))
+    : null;
+
+  if (limit === null) return data;
+
+  const total = data.models.length;
+  const paginated = { ...data };
+  paginated.models = data.models.slice(offset, offset + limit);
+  paginated.creators = data.creators.map((creator) => ({
+    ...creator,
+    models: creator.models.filter((model) => {
+      // Keep creators whose models are in the paginated slice
+      return paginated.models.some((m) => m.super_id === model.super_id);
+    }),
+  })).filter((creator) => creator.models.length > 0);
+  paginated._pagination = { offset, limit, total };
+  return paginated;
+}
 
 // ── Paid data endpoint ──
 let paidDataCache = null; // { data, ts }
@@ -273,4 +298,20 @@ router.get('/rankings/paid', async (req, res) => {
   }
 });
 
+// ── Cache invalidation ──
+// Called by the nightly pipeline after DB writes to ensure the API
+// serves fresh data without waiting for the 60s TTL to expire.
+function invalidateCache() {
+  dataCache = null;
+  paidDataCache = null;
+  rankingsCache = null;
+  paidRankingsCache = null;
+}
+
+router.post('/cache/invalidate', (req, res) => {
+  invalidateCache();
+  res.json({ message: 'Cache invalidated', at: new Date().toISOString() });
+});
+
 module.exports = router;
+module.exports.invalidateCache = invalidateCache;

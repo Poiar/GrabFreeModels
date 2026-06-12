@@ -44,27 +44,29 @@ async function checkDegradation() {
       for (const r of fr) prov7d[r.slug] = { total: parseInt(r.total), failures: parseInt(r.failures), rate: parseFloat(r.rate) };
     } catch { console.log('test_observations table not available for degradation check'); }
 
-    // Get per-provider p95 latency from model_health_snapshots (past 7d vs prior 7d)
+    // Get per-provider p95 latency from test_observations (past 7d vs prior 7d)
+    // Replaced model_health_snapshots with test_observations (migration 041).
     let latencyAlerts = [];
     try {
       const { rows: lm } = await client.query(`
         WITH recent AS (
           SELECT dp.slug,
-                 percentile_cont(0.95) WITHIN GROUP (ORDER BY hs.latency_ms) as p95
-          FROM model_health_snapshots hs
-          JOIN datapoint_models dm ON dm.full_id = hs.full_id
+                 percentile_cont(0.95) WITHIN GROUP (ORDER BY tob.latency_ms) as p95
+          FROM test_observations tob
+          JOIN datapoint_models dm ON dm.full_id = tob.full_id
           JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
-          WHERE hs.tested_at >= now() - interval '7 days' AND hs.latency_ms IS NOT NULL AND hs.status = 'working'
+          WHERE tob.tested_at >= now() - interval '7 days'
+            AND tob.latency_ms IS NOT NULL AND tob.status = 'pass'
           GROUP BY dp.slug
         ),
         prior AS (
           SELECT dp.slug,
-                 percentile_cont(0.95) WITHIN GROUP (ORDER BY hs.latency_ms) as p95
-          FROM model_health_snapshots hs
-          JOIN datapoint_models dm ON dm.full_id = hs.full_id
+                 percentile_cont(0.95) WITHIN GROUP (ORDER BY tob.latency_ms) as p95
+          FROM test_observations tob
+          JOIN datapoint_models dm ON dm.full_id = tob.full_id
           JOIN datapoint_providers dp ON dp.id = dm.datapoint_provider_id
-          WHERE hs.tested_at BETWEEN now() - interval '14 days' AND now() - interval '7 days'
-            AND hs.latency_ms IS NOT NULL AND hs.status = 'working'
+          WHERE tob.tested_at BETWEEN now() - interval '14 days' AND now() - interval '7 days'
+            AND tob.latency_ms IS NOT NULL AND tob.status = 'pass'
           GROUP BY dp.slug
         )
         SELECT COALESCE(r.slug, p.slug) as slug, r.p95 as recent_p95, p.p95 as prior_p95
@@ -76,7 +78,7 @@ async function checkDegradation() {
           latencyAlerts.push({ provider: r.slug, recent_p95: Math.round(r.recent_p95), prior_p95: Math.round(r.prior_p95) });
         }
       }
-    } catch { /* snapshots table may not be available */ }
+    } catch { /* test_observations table may not be available */ }
 
     // Build alert report
     const alerts = [];

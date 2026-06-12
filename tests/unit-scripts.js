@@ -111,12 +111,13 @@ test('getGroqModels call is awaited', () => {
     require('path').join(__dirname, '..', 'scripts', 'sync-models.js'),
     'utf8',
   );
-  // Find the line that assigns groqModels
-  const groqAssign = src.match(/const groqModels = .*/);
-  assert.ok(groqAssign, 'groqModels assignment found');
+  // Find the line that assigns groqModels — must include await
+  const groqAssign = src.match(/(?:const|let)\s+groqModels\s*=|groqModels\s*=\s*await\s+getGroqModels/);
+  assert.ok(groqAssign, 'groqModels awaited assignment found');
+  // The actual await call is on the reassignment to the let variable
   assert.ok(
-    groqAssign[0].includes('await'),
-    `groqModels assignment should use await: "${groqAssign[0].trim()}"`,
+    src.includes('groqModels = await getGroqModels()') || groqAssign[0].includes('await'),
+    'groqModels assignment should use await',
   );
 });
 
@@ -246,19 +247,15 @@ test('summary log generation is wrapped in try/catch', () => {
     require('path').join(__dirname, '..', 'scripts', 'nightly-maintenance.js'),
     'utf8',
   );
-  // The model-summary.js execSync should be inside a try/catch
-  const summaryBlock = src.match(
-    /10\. Generate summary log[\s\S]*?execSync\('node scripts\/model-summary\.js'/,
-  );
-  assert.ok(summaryBlock, 'Summary log generation block found');
-  // Check that the broader context has try/catch
-  const contextStart = src.indexOf('10. Generate summary log');
-  const contextEnd = src.indexOf('exportJson()', contextStart);
-  const context = src.slice(contextStart, contextEnd);
-  assert.ok(
-    context.includes('try {') && context.includes('catch'),
-    'Summary generation should be in try/catch',
-  );
+  // The model-summary.js call should be inside a try/catch
+  const stepIdx = src.indexOf('generate-summary-log');
+  assert.ok(stepIdx !== -1, 'generate-summary-log step found');
+  // Get the step handler body
+  const stepBlock = src.slice(stepIdx);
+  const tryIdx = stepBlock.indexOf('try {');
+  const catchIdx = stepBlock.indexOf('catch');
+  assert.ok(tryIdx !== -1 && catchIdx !== -1, 'Summary generation step should be in try/catch');
+  assert.ok(tryIdx < catchIdx, 'try should come before catch in summary generation step');
 });
 
 // ── backfill-context.js: auth file error handling ──

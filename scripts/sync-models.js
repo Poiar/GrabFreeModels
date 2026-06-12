@@ -10,29 +10,12 @@
 require('dotenv').config();
 const https = require('https');
 const http = require('http');
-const { Pool } = require('pg');
 const fs = require('fs');
 const logger = require('./utils/logger');
 const path = require('path');
+const pool = require('../server/db');  // Shared pool — handles Neon SSL automatically
 
 const APPLY = process.argv.includes('--apply');
-
-let connectionString = process.env.DATABASE_URL;
-if (
-  connectionString &&
-  connectionString.includes('sslmode=require') &&
-  !connectionString.includes('uselibpqcompat')
-) {
-  connectionString = connectionString.replace(
-    'sslmode=require',
-    'uselibpqcompat=true&sslmode=require',
-  );
-}
-
-const pool = new Pool({
-  connectionString,
-  ssl: { rejectUnauthorized: false },
-});
 
 const AUTH_FILE =
   process.env.GFM_AUTH_FILE ||
@@ -707,7 +690,8 @@ function normalizeModelSlug(name) {
     `);
     const existingIds = new Set(existingRows.map((r) => r.full_id));
 
-    let newOr, orModels, newCb, cbModels, newNv, nvModels, newGoogle, googleModels, newDs, dsModels, newGroq, groqModels, newOc, ocModels, newGh, ghModels, newDi, diModels, newCf, cfModels, newNvt, nvtModels, newSf, sfModels, newXai, xaiModels, newZhipu, zhipuModels;
+    let newOr, orModels, newCb, cbModels, newNv, nvModels, newGoogle, googleModels, newDs, dsModels, newGroq, newOc, ocModels, newGh, ghModels, newDi, diModels, newCf, cfModels, newNvt, nvtModels, newSf, sfModels, newXai, xaiModels, newZhipu, zhipuModels;
+    let groqModels;
 
     // --- Batch 1: OpenRouter, Cerebras, NVIDIA ---
     async function fetchOpenRouter() {
