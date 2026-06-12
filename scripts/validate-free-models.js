@@ -1133,7 +1133,7 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
     if (totalHttpErrors > 0 && authErrors === totalHttpErrors) return 'expired';
     if (totalHttpErrors > 0 && rateLimitErrors === totalHttpErrors) return 'rate_limited';
     if (s.passed > 0) return 'degraded';
-    return 'down';
+    return 'broken';
   }
 
   const keyHealth = {};
@@ -1175,8 +1175,8 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
             ? ' (RATE LIMITED)'
             : kh.status === 'degraded'
               ? ' (DEGRADED)'
-              : kh.status === 'down'
-                ? ' (DOWN)'
+              : kh.status === 'broken'
+                ? ' (BROKEN)'
                 : '';
     logger.info(`  ${ep.padEnd(16)} ${kh.status}${icon}`);
     // Distinguish "model is dead" from "key expired" — print HTTP error breakdown for degraded endpoints

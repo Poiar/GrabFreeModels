@@ -186,7 +186,7 @@ router.get('/health/status', async (req, res) => {
       if (total !== 0) {
         if (passRate >= 80) status = 'up';
         else if (passRate >= 50) status = 'degraded';
-        else status = 'down';
+        else status = 'broken';
       }
 
       return {

@@ -102,7 +102,7 @@ function buildOrganizations(creators, providers) {
       }
       workingCount = working;
       healthStatus =
-        total === 0 ? null : working === total ? 'healthy' : working > 0 ? 'degraded' : 'down';
+        total === 0 ? null : working === total ? 'healthy' : working > 0 ? 'degraded' : 'broken';
     }
 
     const org = {

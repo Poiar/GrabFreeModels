@@ -83,6 +83,8 @@ async function buildModelsData(client, pool, options = {}) {
       id: dm.full_id,
       super_id: dm.super_model_id,
       super_name: dm.super_name,
+      // Canonical DB slug — used by build-creators for base_model lookups
+      super_slug: dm.super_slug,
       name: dm.super_name,
       provider: dm.provider_name,
       provider_description: dm.provider_description || null,
