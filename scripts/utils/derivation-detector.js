@@ -7,6 +7,21 @@
  */
 
 /**
+ * Normalize a model name for fuzzy comparison: lowercase, collapse all
+ * non-alphanumeric characters to a single space, trim, strip known
+ * marketing suffixes. This makes "GPT-5" and "GPT 5" equivalent for
+ * substring/token matching without changing slug generation.
+ */
+function normalizeName(name) {
+  return (name || '')
+    .toLowerCase()
+    .replace(/\(free\)/g, '')
+    .replace(/\(free tier\)/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+/**
  * Detect derivation method from a model name.
  * Returns null for foundation/original models.
  */
@@ -80,21 +95,21 @@ function findImmediateParent(childName, candidates) {
   if (!childName || candidates.size === 0) return null;
 
   const childLower = childName.toLowerCase();
+  const childNormalized = normalizeName(childName);
   const childSlug = nameToSlug(childName);
 
   // For distillation models (e.g. "DeepSeek-R1-Distill-Qwen-1.5B"),
   // the base/student model is named after "Distill", not the teacher.
-  // Run the matcher on both the full name and the post-distill suffix;
-  // a match in the suffix takes priority over a full-name match that
-  // includes a derivation keyword (the teacher model name).
-  const distillMatch = /\bdistil[il]\b/i.exec(childName);
+  // Use normalized name so separator variations (DeepSeek R1 Distill vs
+  // DeepSeek-R1-Distill) are both detected correctly.
+  const distillMatch = /\bdistil[il]\b/i.exec(childNormalized);
   const suffixName = distillMatch
-    ? childName.slice(distillMatch.index + distillMatch[0].length).trim()
+    ? childNormalized.slice(distillMatch.index + distillMatch[0].length).trim()
     : null;
 
   const result = findBestSubstringMatch(childLower, childSlug, candidates);
   const suffixResult = suffixName
-    ? findBestSubstringMatch(suffixName.toLowerCase(), nameToSlug(suffixName), candidates)
+    ? findBestSubstringMatch(suffixName, nameToSlug(suffixName), candidates)
     : null;
 
   // For distillation models, the substring match on the full name usually
@@ -118,31 +133,32 @@ function findImmediateParent(childName, candidates) {
 }
 
 function findBestSubstringMatch(childLower, childSlug, candidates) {
+  const childNormalized = normalizeName(childLower);
   let bestParent = null;
   let bestLen = 0;
 
   for (const [slug, { name }] of candidates) {
-    const candLower = name.toLowerCase();
+    const candNormalized = normalizeName(name);
 
     // Skip self
-    if (candLower === childLower) continue;
+    if (candNormalized === childNormalized) continue;
 
-    // Skip if both normalize to same slug (case variant)
+    // Skip if both normalize to same slug (case/separator variant)
     if (nameToSlug(name) === childSlug) continue;
 
-    // Parent name must be a substring of the child name
-    if (!childLower.includes(candLower)) continue;
+    // Parent normalized name must be a substring of the child normalized name
+    if (!childNormalized.includes(candNormalized)) continue;
 
     // Filter trivial matches: must contain a digit OR be >= 6 chars
-    const hasDigit = /\d/.test(candLower);
-    if (!hasDigit && candLower.length < 6) continue;
+    const hasDigit = /\d/.test(candNormalized);
+    if (!hasDigit && candNormalized.length < 6) continue;
 
     // Must be at least 4 chars to avoid false matches on common words
-    if (candLower.length < 4) continue;
+    if (candNormalized.length < 4) continue;
 
     // Prefer longest match (closest ancestor shares most name tokens)
-    if (candLower.length > bestLen) {
-      bestLen = candLower.length;
+    if (candNormalized.length > bestLen) {
+      bestLen = candNormalized.length;
       bestParent = { parentSlug: slug, parentName: name };
     }
   }
@@ -203,6 +219,39 @@ const DERIVATION_TOKENS = new Set([
   'v3',
   'v4',
   'v5',
+  // Variant markers — indicate a specialized variant of a base model,
+  // NOT a new model identity. Without these, sibling variants like
+  // qwen2.5-coder and qwen2.5 are token-matched as parent/child.
+  'coder',
+  'code',
+  'math',
+  'vision',
+  'vl', // vision-language
+  'guard',
+  'safe',
+  'safety',
+  'thinking',
+  'reasoning',
+  'agent',
+  'search',
+  'research',
+  'deep',
+  'mini',
+  'small',
+  'medium',
+  'large',
+  'xl',
+  'xxl',
+  'nano',
+  'tiny',
+  'lite',
+  'turbo',
+  'fast',
+  'pro',
+  'max',
+  'plus',
+  'flash',
+  'think',
 ]);
 
 function tokenizeForMatching(name) {
@@ -221,7 +270,8 @@ function tokenizeForMatching(name) {
  * "Qwen2-1.5B" does not appear as a substring.
  */
 function findImmediateParentByTokens(childName, candidates) {
-  const childTokens = tokenizeForMatching(childName);
+  const childNormalized = normalizeName(childName);
+  const childTokens = tokenizeForMatching(childNormalized);
   if (childTokens.length === 0) return null;
 
   const childSlug = nameToSlug(childName);
@@ -229,11 +279,11 @@ function findImmediateParentByTokens(childName, candidates) {
   let bestScore = 0;
 
   for (const [slug, { name }] of candidates) {
-    const candLower = name.toLowerCase();
-    if (candLower === childName.toLowerCase()) continue;
+    const candNormalized = normalizeName(name);
+    if (candNormalized === childNormalized) continue;
     if (nameToSlug(name) === childSlug) continue;
 
-    const candTokens = tokenizeForMatching(name);
+    const candTokens = tokenizeForMatching(candNormalized);
     if (candTokens.length === 0) continue;
 
     // Count candidate tokens matched in child tokens.
@@ -268,6 +318,67 @@ function findImmediateParentByTokens(childName, candidates) {
         .some((ct) => childTokens.some((childT) => ct === childT));
 
     if (score >= 0.6 && numericMatched && matched >= 2) {
+      // ── Sibling guard ──
+      // Variant specialization words that define co-equal fine-tunes, NOT
+      // lineage. E.g. "Qwen2.5-Coder-0.5B" and "Qwen2.5-0.5B" are siblings
+      // (both fine-tunes of Qwen2.5), not parent/child. If the child name
+      // has a specialization word the candidate lacks, and they share the
+      // same numeric tokens, they're siblings — reject.
+      const SPECIALIZATION_WORDS = new Set([
+        'coder',
+        'code',
+        'math',
+        'vision',
+        'vl',
+        'guard',
+        'safe',
+        'safety',
+        'reasoning',
+        'thinking',
+        'agent',
+        'search',
+        'research',
+        'deep',
+        'mini',
+        'small',
+        'medium',
+        'large',
+        'xl',
+        'xxl',
+        'nano',
+        'tiny',
+        'lite',
+        'turbo',
+        'fast',
+        'pro',
+        'max',
+        'plus',
+      ]);
+      const childWords = new Set(
+        childName
+          .toLowerCase()
+          .split(/[\s\-_/,]+/)
+          .filter(Boolean),
+      );
+      const candWords = new Set(
+        name
+          .toLowerCase()
+          .split(/[\s\-_/,]+/)
+          .filter(Boolean),
+      );
+      const childSpecWords = [...childWords].filter((w) => SPECIALIZATION_WORDS.has(w));
+      const uniqueSpec = childSpecWords.filter((w) => !candWords.has(w));
+
+      // If child has a specialization word the candidate doesn't, and both
+      // share all numeric tokens (same model size), they're siblings.
+      if (uniqueSpec.length > 0) {
+        const childNums = new Set(childTokens.filter((t) => /\d/.test(t)));
+        const candNums = new Set(candTokens.filter((t) => /\d/.test(t)));
+        const sameSize =
+          childNums.size > 0 && candNums.size > 0 && [...childNums].every((n) => candNums.has(n));
+        if (sameSize) continue; // sibling variant, not parent
+      }
+
       // Prefer candidates with more tokens (more specific match)
       const specificity = candTokens.length + matched;
       if (specificity > bestScore) {
@@ -287,4 +398,4 @@ function nameToSlug(name) {
     .replace(/^-|-$/g, '');
 }
 
-module.exports = { detectDerivationMethod, findImmediateParent, nameToSlug };
+module.exports = { detectDerivationMethod, findImmediateParent, normalizeName, nameToSlug };

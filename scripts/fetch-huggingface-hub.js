@@ -25,9 +25,13 @@ const MAX_MODELS = 600;
 const REQUEST_DELAY_MS = 300;
 
 const SOURCE_SLUG = 'huggingface-hub';
-const SOURCE_NAME = 'HuggingFace Model Hub (Free Inference)';
-const SOURCE_URL = 'https://huggingface.co/models?inference=warm&pipeline_tag=text-generation';
+const SOURCE_NAME = 'HuggingFace Model Hub (Warm + Top Downloads)';
+const SOURCE_URL = 'https://huggingface.co/models?pipeline_tag=text-generation';
 const SOURCE_TYPE = 'community_list';
+
+// Second pass: top models without inference filter (captures lineage tags from
+// models that don't host free inference — far richer base_model tag coverage).
+const TOP_MODELS_LIMIT = 2000;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -101,6 +105,47 @@ async function fetchModels(limit) {
   return models.slice(0, limit);
 }
 
+/**
+ * Fetch top text-generation models by downloads — WITHOUT the inference=warm
+ * filter. This captures metadata (especially base_model: tags) from models
+ * that don't host free inference but are widely downloaded and derive from
+ * known base models.
+ */
+async function fetchTopModels(limit) {
+  const models = [];
+  let cursor = null;
+
+  while (models.length < limit) {
+    const params = new URLSearchParams({
+      filter: 'text-generation',
+      sort: 'downloads',
+      direction: '-1',
+      limit: String(PAGE_SIZE),
+      full: 'true',
+      config: 'true',
+    });
+    if (cursor) params.set('cursor', cursor);
+    const url = `${API_BASE}?${params.toString()}`;
+
+    await sleep(REQUEST_DELAY_MS);
+    try {
+      const { data, link } = await httpsGetWithHeaders(url);
+      if (!data || data.length === 0) break;
+      models.push(...data);
+      if (models.length % 500 === 0) {
+        logger.info(`  Top-models pass: fetched ${models.length}...`);
+      }
+      if (data.length < PAGE_SIZE) break;
+      cursor = extractNextCursor(link);
+      if (!cursor) break;
+    } catch (e) {
+      logger.error(`  Top-models error: ${e.message}`);
+      break;
+    }
+  }
+  return models.slice(0, limit);
+}
+
 // Map HF Hub author to our datapoint_providers slug
 function mapAuthorToProvider(author) {
   const MAP = {
@@ -158,6 +203,31 @@ function mapAuthorToProvider(author) {
   }
   logger.info(`  Total fetched: ${models.length}`);
 
+  // Second pass: fetch top text-generation models WITHOUT inference=warm filter.
+  // These may not host free inference, but their metadata (especially base_model:
+  // tags) enriches our lineage data. The existing backfill-derivatives.js will
+  // parse these automatically since they're stored under the same source.
+  let topModels = [];
+  try {
+    logger.info(`\nFetching top ${TOP_MODELS_LIMIT} text-generation models (no warm filter)...`);
+    topModels = await fetchTopModels(TOP_MODELS_LIMIT);
+    logger.info(`  Top-models pass fetched: ${topModels.length}`);
+  } catch (e) {
+    logger.error(`  Top-models pass failed: ${e.message}`);
+  }
+
+  // Merge: warm inference models first, then top models (deduplicate by model ID)
+  const seenIds = new Set(models.map((m) => m.id));
+  let topAdded = 0;
+  for (const tm of topModels) {
+    if (!seenIds.has(tm.id)) {
+      models.push(tm);
+      seenIds.add(tm.id);
+      topAdded++;
+    }
+  }
+  logger.info(`  Merged: ${topAdded} new models from top-models pass (total: ${models.length})`);
+
   // Group by author → our provider
   const byProvider = {};
   let unmapped = 0;
@@ -174,6 +244,20 @@ function mapAuthorToProvider(author) {
   const mappedTotal = Object.values(byProvider).reduce((s, a) => s + a.length, 0);
   logger.info(`  Mapped: ${mappedTotal} across ${Object.keys(byProvider).length} providers`);
   logger.info(`  Unmapped authors: ${unmapped}`);
+
+  // Count models with base_model tags for reporting
+  let baseModelTagCount = 0;
+  let baseModelFinetuneTagCount = 0;
+  for (const m of models) {
+    const tags = m.tags || [];
+    if (tags.some((t) => t.startsWith('base_model:finetune:'))) baseModelFinetuneTagCount++;
+    else if (tags.some((t) => t.startsWith('base_model:'))) baseModelTagCount++;
+  }
+  const totalWithBM = baseModelTagCount + baseModelFinetuneTagCount;
+  logger.info(
+    `  Models with base_model tags: ${totalWithBM} ` +
+      `(finetune: ${baseModelFinetuneTagCount}, plain: ${baseModelTagCount})`,
+  );
 
   if (!APPLY) {
     logger.info('\nDry-run mode. Use --apply to persist.');

@@ -105,7 +105,10 @@ const STEP_NAMES = [
   'validate',
   'check-creator-consistency',
   'check-health-degradation',
+  'merge-name-variant-dupes',
+  'merge-name-subset-dupes',
   'inherit-families',
+  'fix-base-model-chains',
   'backfill-family-by-name',
   'backfill-derivatives',
   'check-base-model-cycles',
@@ -362,10 +365,52 @@ let pipelineStart = Date.now();
     }
   });
 
+  // 1e. Merge name-variant duplicate super_models (GPT-5 vs GPT 5, etc.)
+  console.log('Merging name-variant duplicate super_models...');
+  await runStep('merge-name-variant-dupes', async () => {
+    await run('node scripts/merge-name-variant-dupes.js --apply');
+  });
+
+  // 1f. Merge subset-name duplicates (R1 Distill vs DeepSeek R1 Distill)
+  console.log('Merging subset-name duplicate super_models...');
+  await runStep('merge-name-subset-dupes', async () => {
+    await run('node scripts/merge-name-subset-dupes.js --apply');
+  });
+
   // 2. Inherit family assignments from base model parents
   console.log('Inheriting family assignments from base model parents...');
   await runStep('inherit-families', async () => {
     await run('node scripts/inherit-families.js --apply');
+  });
+
+  // 2a. Fix known base_model chains (sequential versions, variant tiers)
+  console.log('Fixing known base_model chains...');
+  await runStep('fix-base-model-chains', async () => {
+    await run('node scripts/fix-base-model-chains.js --apply');
+  });
+
+  // 2b. Fetch HF Hub metadata (warm inference + top downloads) for lineage tags
+  console.log('Fetching HF Hub metadata (warm + top models)...');
+  await runStep('fetch-huggingface-hub', async () => {
+    await run('node scripts/fetch-huggingface-hub.js --apply');
+  });
+
+  // 2c. Fetch FastChat/LMSYS model registry for description-based lineage hints
+  console.log('Fetching FastChat model registry lineage...');
+  await runStep('fetch-fastchat-registry', async () => {
+    await run('node scripts/fetch-fastchat-registry.js --apply');
+  });
+
+  // 2d. Fetch HF model cards directly for targeted lineage backfill
+  console.log('Fetching HF model cards for targeted backfill...');
+  await runStep('fetch-hf-model-cards', async () => {
+    await run('node scripts/fetch-hf-model-cards.js --apply');
+  });
+
+  // 2e. Fetch Stanford CRFM Ecosystem Graphs for authoritative lineage data
+  console.log('Fetching Stanford CRFM ecosystem lineage data...');
+  await runStep('fetch-crfm-ecosystem', async () => {
+    await run('node scripts/fetch-crfm-ecosystem.js --apply');
   });
 
   // 3. Backfill family assignments from model names
