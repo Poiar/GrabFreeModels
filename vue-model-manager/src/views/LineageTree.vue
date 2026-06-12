@@ -167,12 +167,12 @@ const router = useRouter();
 const store = useModelsStore();
 
 // ── Constants ──
-const H_GAP = 210;
-const V_GAP = 38;
-const TREE_PAD = 60;
-const NODE_H = 30;
-const NODE_PAD_X = 16;
-const CHAR_W = 7.2;
+const H_GAP = 220;
+const V_GAP = 48;
+const TREE_PAD = 80;
+const NODE_H = 36;
+const NODE_PAD_X = 18;
+const CHAR_W = 7.8;
 
 // ── Search state ──
 const search = ref('');
@@ -195,6 +195,8 @@ const hoveredNodeId = ref<string | null>(null);
 const tooltipX = ref(0);
 const tooltipY = ref(0);
 const wrapRef = ref<HTMLElement | null>(null);
+const wrapW = ref(1100);
+const wrapH = ref(700);
 
 // ── Types ──
 interface LayoutNode {
@@ -416,9 +418,9 @@ const svgW = computed(() => {
 });
 
 const svgH = computed(() => {
-  let maxY = 500;
-  for (const n of forestNodeMap.value.values()) maxY = Math.max(maxY, n.y + 60);
-  return maxY + 40;
+  // Match container aspect ratio exactly — 1 SVG unit = 1 CSS px at zoom 1.0
+  // Trees below the fold are reached by panning
+  return wrapH.value > 0 ? svgW.value * (wrapH.value / wrapW.value) : 800;
 });
 
 function edgePath(e: LayoutEdge): string {
@@ -458,11 +460,25 @@ function onMouseMoveForTooltip(e: MouseEvent) {
   tooltipY.value = e.clientY - 8;
 }
 
+let resizeObs: ResizeObserver | null = null;
 onMounted(() => {
   window.addEventListener('mousemove', onMouseMoveForTooltip);
+  if (wrapRef.value) {
+    wrapW.value = wrapRef.value.clientWidth;
+    wrapH.value = wrapRef.value.clientHeight;
+    resizeObs = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (width > 0) {
+        wrapW.value = width;
+        wrapH.value = height;
+      }
+    });
+    resizeObs.observe(wrapRef.value);
+  }
 });
 onUnmounted(() => {
   window.removeEventListener('mousemove', onMouseMoveForTooltip);
+  resizeObs?.disconnect();
 });
 
 // ── Search ──
@@ -517,7 +533,7 @@ function panToNode(node: LayoutNode) {
 
 // ── Zoom ──
 const MIN_ZOOM = 0.15;
-const MAX_ZOOM = 3;
+const MAX_ZOOM = 10;
 const ZOOM_STEP = 0.15;
 
 function zoomIn() {
@@ -729,14 +745,14 @@ function goModel(slug: string) {
 .lt-edge {
   fill: none;
   stroke: var(--text-muted);
-  stroke-width: 1.2;
+  stroke-width: 1.5;
   opacity: 0.18;
   stroke-linecap: round;
 }
 .lt-edge-highlight {
   stroke: var(--accent, #6366f1);
   opacity: 0.6;
-  stroke-width: 1.6;
+  stroke-width: 2;
 }
 .lt-edge-dim {
   opacity: 0.05;
@@ -810,7 +826,7 @@ function goModel(slug: string) {
 /* text */
 .lt-node-text {
   fill: var(--text);
-  font-size: 10.5px;
+  font-size: 12px;
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   font-weight: 500;
   pointer-events: none;
@@ -830,7 +846,7 @@ function goModel(slug: string) {
 }
 .lt-badge-text {
   fill: var(--text-muted);
-  font-size: 8.5px;
+  font-size: 10px;
   font-weight: 600;
   dominant-baseline: central;
   pointer-events: none;
