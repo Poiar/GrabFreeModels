@@ -17,13 +17,34 @@
 
 require('dotenv').config();
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
 const pool = require('../server/db');
 const logger = require('./utils/logger');
 const { nameToSlug } = require('./utils/derivation-detector');
 
 const APPLY = process.argv.includes('--apply');
-const REQUEST_DELAY_MS = 250; // HF rate limiting — be gentle
-const BATCH_SIZE = 200; // Limit total fetches per run
+const REQUEST_DELAY_MS = 250;
+const BATCH_SIZE = 200;
+
+// Load HF API token for authenticated model-card reads
+const AUTH_FILE =
+  process.env.GFM_AUTH_FILE ||
+  path.join(
+    process.env.XDG_DATA_HOME ||
+      path.join(process.env.HOME || process.env.USERPROFILE, '.local', 'share'),
+    'opencode',
+    'auth.json',
+  );
+
+let hfToken = null;
+try {
+  const auth = JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
+  hfToken = auth.huggingface?.key || null;
+  if (!hfToken) logger.warn('No HuggingFace API key in auth file — card fetches will return 400');
+} catch (e) {
+  logger.warn(`Could not load auth file (${AUTH_FILE}): ${e.message}`);
+}
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -31,15 +52,18 @@ function sleep(ms) {
 
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
+    const headers = { 'User-Agent': 'GrabFreeModels/1.0' };
+    if (hfToken) headers.Authorization = `Bearer ${hfToken}`;
+
     https
-      .get(url, { headers: { 'User-Agent': 'GrabFreeModels/1.0' } }, (res) => {
+      .get(url, { headers }, (res) => {
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
           return resolve(httpsGet(res.headers.location));
         }
         let data = '';
         res.on('data', (c) => (data += c));
         res.on('end', () => {
-          if (res.statusCode === 404) return resolve(null); // model not on HF
+          if (res.statusCode === 404) return resolve(null);
           if (res.statusCode >= 400) {
             reject(new Error(`HTTP ${res.statusCode} from ${url}`));
           } else {
@@ -139,7 +163,8 @@ async function findHfIdsForModels(client) {
       await sleep(REQUEST_DELAY_MS);
 
       try {
-        const url = `https://huggingface.co/api/models/${encodeURIComponent(target.hfId)}?full=true`;
+        // HF API needs literal slashes in the model ID — encodeURIComponent would break them
+        const url = `https://huggingface.co/api/models/${target.hfId}?full=true`;
         const data = await httpsGet(url);
         fetched++;
 

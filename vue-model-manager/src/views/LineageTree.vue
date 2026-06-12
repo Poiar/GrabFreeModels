@@ -52,6 +52,8 @@
               :class="{
                 'lt-edge-highlight': e.highlighted,
                 'lt-edge-dim': highlightActive && !e.highlighted,
+                'lt-edge-confident': !e.highlighted && confidence(e.derivationSource) === 'high',
+                'lt-edge-weak': !e.highlighted && confidence(e.derivationSource) === 'low',
               }"
             />
           </g>
@@ -147,6 +149,9 @@
           <div v-if="tooltipNode.family" class="lt-tt-row">
             <span>Family</span><span>{{ tooltipNode.family }}</span>
           </div>
+          <div v-if="tooltipNode.derivationSource" class="lt-tt-row">
+            <span>Edge</span><span>{{ sourceLabel(tooltipNode.derivationSource) }}</span>
+          </div>
           <div v-if="tooltipNode.hasExternalParent" class="lt-tt-row">
             <span>Parent</span><span>external</span>
           </div>
@@ -211,6 +216,7 @@ interface LayoutNode {
   childCount: number;
   creator: string | null;
   family: string | null;
+  derivationSource: string | null;
   hasExternalParent: boolean;
   isRoot: boolean;
   isLeaf: boolean;
@@ -226,6 +232,7 @@ interface LayoutEdge {
   x2: number;
   y2: number;
   highlighted: boolean;
+  derivationSource: string | null;
 }
 
 interface ForestEdge {
@@ -318,6 +325,7 @@ const forestData = computed(() => {
       childCount,
       creator: model.creator,
       family: model.family,
+      derivationSource: model.derivation_source || null,
       hasExternalParent,
       isRoot,
       isLeaf,
@@ -392,6 +400,32 @@ const allTreeNodes = computed((): LayoutNode[] => {
   return nodes;
 });
 
+// ── Edge confidence ──
+const HIGH_CONFIDENCE = new Set(['hf_card', 'hf_tag', 'crfm', 'version_chain']);
+const LOW_CONFIDENCE = new Set(['name_heuristic']);
+function confidence(src: string | null): 'high' | 'medium' | 'low' {
+  if (!src) return 'medium';
+  if (HIGH_CONFIDENCE.has(src)) return 'high';
+  if (LOW_CONFIDENCE.has(src)) return 'low';
+  return 'medium';
+}
+
+function sourceLabel(src: string | null): string {
+  if (!src) return 'unknown';
+  const labels: Record<string, string> = {
+    hf_card: 'HF card',
+    hf_tag: 'HF tag',
+    crfm: 'Stanford CRFM',
+    fastchat: 'LMSYS FastChat',
+    openrouter_desc: 'OpenRouter desc',
+    version_chain: 'version chain',
+    creator_match: 'creator match',
+    sync_ingest: 'sync ingest',
+    name_heuristic: 'name heuristic',
+  };
+  return labels[src] || src;
+}
+
 const allEdges = computed((): LayoutEdge[] => {
   // Force re-compute when search state changes (mutates node.match fields)
   const _trigger = matchSlugs.value.size + matchPathSlugs.value.size;
@@ -407,6 +441,7 @@ const allEdges = computed((): LayoutEdge[] => {
       x2: to?.x ?? 0,
       y2: to?.y ?? 0,
       highlighted,
+      derivationSource: to?.derivationSource || null,
     };
   });
 });
@@ -748,6 +783,9 @@ function goModel(slug: string) {
   stroke-width: 1.5;
   opacity: 0.18;
   stroke-linecap: round;
+  transition:
+    opacity 0.2s,
+    stroke 0.2s;
 }
 .lt-edge-highlight {
   stroke: var(--accent, #6366f1);
@@ -756,6 +794,15 @@ function goModel(slug: string) {
 }
 .lt-edge-dim {
   opacity: 0.05;
+}
+/* Confidence-based edge styling */
+.lt-edge-confident {
+  opacity: 0.28;
+  stroke-width: 1.8;
+}
+.lt-edge-weak {
+  opacity: 0.08;
+  stroke-dasharray: 4 3;
 }
 
 /* nodes */
