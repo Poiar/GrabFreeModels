@@ -117,6 +117,7 @@ async function buildModelsData(client, pool, options = {}) {
         dm.super_derivation_method ||
         (DERIVATION_BY_SLUG.get(dm.super_slug) || {}).derivation_method ||
         null,
+      derivation_source: dm.super_derivation_source || null,
       knowledge_cutoff: feat?.knowledge_cutoff?.[0] || dm.super_knowledge_cutoff || null,
       releaseDate: feat?.release_date?.[0] || dm.super_release_date || null,
       lastUpdated: feat?.last_updated?.[0] || null,

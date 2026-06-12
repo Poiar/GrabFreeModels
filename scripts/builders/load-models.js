@@ -14,6 +14,7 @@ async function loadModels(client, options = {}) {
            mm.family_id AS super_family_id, mm.base_model AS super_base_model,
            mm.base_model_id AS super_base_model_id,
            mm.derivation_method AS super_derivation_method,
+           mm.derivation_source AS super_derivation_source,
            mm.knowledge_cutoff AS super_knowledge_cutoff,
            mm.release_date AS super_release_date,
            mm.description AS super_description,
