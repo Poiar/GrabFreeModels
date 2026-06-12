@@ -81,7 +81,16 @@ const KNOWN_CONTEXT = JSON.parse(
     const sinceParams = SINCE ? [SINCE] : [];
     const { rows: targets } = await client.query(
       `
-      SELECT dm.id, dm.full_id
+      SELECT dm.id, dm.full_id,
+             mm.base_model AS parent_slug,
+             (SELECT dmp.context_length
+              FROM datapoint_models dmp
+              JOIN super_models smp ON smp.id = dmp.super_model_id
+              WHERE smp.slug = mm.base_model
+                AND dmp.datapoint_provider_id = dm.datapoint_provider_id
+                AND dmp.context_length IS NOT NULL
+                AND NOT dmp.is_removed
+              LIMIT 1) AS parent_context
       FROM datapoint_models dm
       JOIN super_models mm ON mm.id = dm.super_model_id
       WHERE dm.context_length IS NULL
@@ -134,6 +143,12 @@ const KNOWN_CONTEXT = JSON.parse(
       if (!ctx && KNOWN_CONTEXT[m.full_id]) {
         ctx = KNOWN_CONTEXT[m.full_id];
         logger.info(`  ${m.full_id}: ${ctx} (from known catalog)`);
+      }
+
+      // Fallback: inherit context_length from parent model (same provider)
+      if (!ctx && m.parent_context) {
+        ctx = m.parent_context;
+        logger.info(`  ${m.full_id}: ${ctx} (inherited from parent ${m.parent_slug})`);
       }
 
       if (ctx) {
