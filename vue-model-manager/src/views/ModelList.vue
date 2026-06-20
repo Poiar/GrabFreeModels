@@ -405,9 +405,7 @@ function passesFilters(
     if (bucket) {
       const modelHasParam = activeDps.some(
         (p) =>
-          p.param_count_b != null &&
-          p.param_count_b >= bucket.min &&
-          p.param_count_b <= bucket.max,
+          p.param_count_b != null && p.param_count_b >= bucket.min && p.param_count_b <= bucket.max,
       );
       if (!modelHasParam) return false;
     }

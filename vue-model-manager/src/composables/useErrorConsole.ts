@@ -67,10 +67,7 @@ export function useErrorConsole() {
 
   async function copyToClipboard(): Promise<string> {
     const text = errors.value
-      .map(
-        (e, i) =>
-          `#${i + 1} ${e.time}\n${e.message}\n${formatLocation(e)}\n${e.stack}`,
-      )
+      .map((e, i) => `#${i + 1} ${e.time}\n${e.message}\n${formatLocation(e)}\n${e.stack}`)
       .join('\n\n');
     const content = text || 'No captured errors.';
     try {

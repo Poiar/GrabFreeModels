@@ -1396,6 +1396,8 @@ function normalizeModelSlug(name) {
         const parentCandidates = new Map(
           allSuperRows.map((r) => [r.slug, { name: r.name, slug: r.slug }]),
         );
+        // Build name → slug lookup to handle name conflicts across different slug normalizations
+        const nameToSlug = new Map(allSuperRows.map((r) => [r.name, r.slug]));
 
         for (const m of allNew) {
           const providerSlug = m.id.split('/')[0];
@@ -1406,7 +1408,12 @@ function normalizeModelSlug(name) {
           }
 
           const modelInstanceKey = m.id.includes('/') ? m.id.slice(m.id.indexOf('/') + 1) : m.id;
-          const superSlug = normalizeModelSlug(m.name);
+          let superSlug = normalizeModelSlug(m.name);
+          // If a model with this name already exists under a different slug, use the existing slug
+          // so ON CONFLICT (slug) triggers an update rather than violating the unique name constraint.
+          if (nameToSlug.has(m.name)) {
+            superSlug = nameToSlug.get(m.name);
+          }
 
           // Extract creator from model ID org prefix, fallback to name inference
           let creator = modelInstanceKey.includes('/')
@@ -1424,9 +1431,19 @@ function normalizeModelSlug(name) {
           const derivMethod = detectDerivationMethod(m.name);
           const parentInfo = derivMethod ? findImmediateParent(m.name, parentCandidates) : null;
 
+          // Guard against self-referencing base_model (violates ck_base_model_no_self_ref)
+          let baseModelSlug = parentInfo?.parentSlug || null;
+          if (baseModelSlug === superSlug) {
+            logger.warn(
+              `  ⚠ ${m.id}: base_model "${baseModelSlug}" equals own slug — skipping parent assignment`,
+            );
+            baseModelSlug = null;
+          }
+
           // Upsert super model
-          const { rows: mmRows } = await client.query(
-            `INSERT INTO super_models (name, slug, creator, derivation_method, base_model)
+          const { rows: mmRows } = await client
+            .query(
+              `INSERT INTO super_models (name, slug, creator, derivation_method, base_model)
              VALUES ($1, $2, $3, $4, $5)
              ON CONFLICT (slug) DO UPDATE SET
                name = EXCLUDED.name,
@@ -1434,9 +1451,23 @@ function normalizeModelSlug(name) {
                derivation_method = COALESCE(super_models.derivation_method, EXCLUDED.derivation_method),
                base_model = COALESCE(super_models.base_model, EXCLUDED.base_model)
              RETURNING id`,
-            [m.name, superSlug, creator, derivMethod, parentInfo?.parentSlug || null],
-          );
+              [m.name, superSlug, creator, derivMethod, baseModelSlug],
+            )
+            .catch((err) => {
+              logger.error(
+                `  ✗ ${m.id}: super_model insert failed — "${err.message.replace(/\n/g, ' ')}"`,
+              );
+              logger.error(
+                `    name="${m.name}", slug="${superSlug}", creator="${creator}", deriv="${derivMethod}", base="${baseModelSlug}"`,
+              );
+              throw err;
+            });
           const superId = mmRows[0].id;
+
+          // Track the name so subsequent new models with the same name find the right slug
+          if (!nameToSlug.has(m.name)) {
+            nameToSlug.set(m.name, superSlug);
+          }
 
           // Add to candidate map so subsequent models can find this as a parent
           parentCandidates.set(superSlug, { name: m.name, slug: superSlug });
@@ -1449,7 +1480,7 @@ function normalizeModelSlug(name) {
           const modelIsFree = !NO_CREDITS_PROVIDERS.has(providerSlug);
           const { rows: dmRows } = await client.query(
             `INSERT INTO datapoint_models (super_model_id, datapoint_provider_id, model_instance_key, full_id, context_length, is_free, status_result, status_detail, limitations, description)
-             VALUES ($1, $2, $3, $4, $5, $6, CASE WHEN $6 THEN 'untested' ELSE 'working' END, CASE WHEN $6 THEN 'Auto-discovered by sync script' ELSE 'Presumed working (not tested)' END, $7, $8)
+             VALUES ($1, $2, $3, $4, $5, $6, (CASE WHEN $6 THEN 'untested' ELSE 'working' END)::model_status, CASE WHEN $6 THEN 'Auto-discovered by sync script' ELSE 'Presumed working (not tested)' END, $7, $8)
              ON CONFLICT (datapoint_provider_id, model_instance_key) DO UPDATE SET
                context_length = EXCLUDED.context_length,
                limitations = EXCLUDED.limitations,
@@ -1627,7 +1658,7 @@ function normalizeModelSlug(name) {
         for (const m of potentiallyRemoved) {
           await client.query(
             `UPDATE datapoint_models
-             SET is_removed = true, status_result = 'untested', status_detail = $1, status_tested = NULL, updated_at = now()
+             SET is_removed = true, status_result = 'untested'::model_status, status_detail = $1, status_tested = NULL, updated_at = now()
              WHERE full_id = $2`,
             [
               `Provider no longer lists this model as free (detected ${new Date().toISOString().slice(0, 10)})`,

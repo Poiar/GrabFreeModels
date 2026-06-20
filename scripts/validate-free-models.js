@@ -629,14 +629,6 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
         const res = await Promise.race([httpsPost(apiUrl, body, headers), timeout]);
         const latencyMs = Date.now() - startMs;
 
-        if (res.status === 429 && retries === 0) {
-          // Retry once on rate-limit with backoff
-          const delay = phase === 'burst' ? 2000 : 5000;
-          logger.info(`    Request ${i + 1}: 429, retrying in ${delay / 1000}s...`);
-          await sleep(delay);
-          retries++;
-          continue;
-        }
         if (res.status >= 500 && retries === 0) {
           // Retry once on server error
           await sleep(2000);
@@ -814,7 +806,7 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
   }
 
   // --- Determine which models to test ---
-  const TEST_AGAIN_AFTER_DAYS = 6;
+  const TEST_AGAIN_AFTER_DAYS = 14;
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - TEST_AGAIN_AFTER_DAYS);
   const cutoffStr = cutoff.toISOString().slice(0, 10);
@@ -933,6 +925,17 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
 
   const allResults = [];
 
+  /** Determine how many models to test concurrently for an endpoint */
+  function getConcurrency(endpoint, rl) {
+    // No-credits providers: sequential to avoid hammering dead endpoints
+    if (['deepinfra', 'novitaai', 'siliconflow'].includes(endpoint)) return 1;
+    if (!rl.rpm) return 2; // unlisted RPM → modest concurrency
+    if (rl.rpm >= 60) return 5;
+    if (rl.rpm >= 30) return 3;
+    if (rl.rpm >= 15) return 2;
+    return 1;
+  }
+
   async function testOne(m, dmIdMap, burstDelay, normalDelay) {
     const ep = getEndpoint(m.id);
     const cfg = ENDPOINT_CONFIG[ep];
@@ -944,7 +947,20 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
     let burst, delayed;
     try {
       burst = await testModel(apiId, 'burst', cfg.key(), cfg.url, burstDelay, normalDelay);
-      delayed = await testModel(apiId, 'delayed', cfg.key(), cfg.url, burstDelay, normalDelay);
+      // Early exit: if burst results are clearly conclusive, skip the delayed phase
+      const burstOk = burst.filter((r) => r.status === 'OK').length;
+      const burstAll429 = burst.every((r) => r.status === '429');
+      const burstAllDead = burst.every(
+        (r) =>
+          r.status === 'TIMEOUT' ||
+          r.status === 'ERR' ||
+          (parseInt(r.status) >= 400 && parseInt(r.status) < 500),
+      );
+      if (burstOk >= 3 || burstAll429 || burstAllDead) {
+        delayed = [];
+      } else {
+        delayed = await testModel(apiId, 'delayed', cfg.key(), cfg.url, burstDelay, normalDelay);
+      }
     } catch (e) {
       // Catch any unhandled errors from testModel
       logger.info(`  => \x1b[31mbroken\x1b[0m (unhandled error: ${e.message})\n`);
@@ -959,7 +975,8 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
       };
     }
     logger.info(`  Burst:   ${burst.map((r) => r.status).join(', ')}`);
-    logger.info(`  Delayed: ${delayed.map((r) => r.status).join(', ')}`);
+    const delayedLabel = delayed.length === 0 ? ' (skipped — early exit)' : '';
+    logger.info(`  Delayed: ${delayed.map((r) => r.status).join(', ')}${delayedLabel}`);
 
     // Track HTTP-level errors for key health monitoring
     for (const r of [...burst, ...delayed]) {
@@ -1048,15 +1065,42 @@ async function testModel(apiModelId, phase, apiKey, apiUrl, burstDelay = 1500, n
     const rl = getRateLimit(ep);
     const burstDelayMs = Math.ceil(rl.delayMs * 0.5);
     const normalDelayMs = rl.delayMs;
+    const concurrency = getConcurrency(ep, rl);
+    // Stagger concurrent model starts to avoid instant rate-limit spikes
+    const staggerMs = Math.ceil(burstDelayMs / Math.max(concurrency, 1));
     logger.info(
-      `  [${ep}] rate limit: ${rl.rpm ? rl.rpm + ' RPM' : 'default'} → burst ${burstDelayMs}ms, normal ${normalDelayMs}ms`,
+      `  [${ep}] rate limit: ${rl.rpm ? rl.rpm + ' RPM' : 'default'} → burst ${burstDelayMs}ms, normal ${normalDelayMs}ms, concurrency ${concurrency}`,
     );
 
     const models = byEp[ep] || [];
-    for (let i = 0; i < models.length; i++) {
-      allResults.push(await testOne(models[i], dmIdByFullId, burstDelayMs, normalDelayMs));
-      if (i < models.length - 1) {
-        await sleep(normalDelayMs);
+    let rateLimitHitRecently = false;
+
+    for (let i = 0; i < models.length; i += concurrency) {
+      const chunk = models.slice(i, i + concurrency);
+      // Staggered start within each chunk to spread request timing
+      const chunkResults = await Promise.all(
+        chunk.map((m, idx) =>
+          sleep(idx * staggerMs).then(() => testOne(m, dmIdByFullId, burstDelayMs, normalDelayMs)),
+        ),
+      );
+      for (const r of chunkResults) allResults.push(r);
+
+      // Check if any model in this chunk hit rate limits
+      for (const r of chunkResults) {
+        if (r.status === 'rate_limited') {
+          rateLimitHitRecently = true;
+          break;
+        }
+      }
+
+      // Only apply full inter-chunk delay if rate limits were recently seen
+      if (i + concurrency < models.length) {
+        if (rateLimitHitRecently) {
+          await sleep(normalDelayMs);
+        } else {
+          // Brief stagger to avoid thundering herd even without rate limits
+          await sleep(Math.min(burstDelayMs, 500));
+        }
       }
     }
   }

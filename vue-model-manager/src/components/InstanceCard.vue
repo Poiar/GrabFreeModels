@@ -39,7 +39,9 @@
           :title="r.role + ' rank #' + r.rank"
           >#{{ r.rank }} {{ r.label }}</span
         >
-        <span class="ic-status-badge" :class="`ic-status-${dp.status.result}`">{{ statusLabel }}</span>
+        <span class="ic-status-badge" :class="`ic-status-${dp.status.result}`">{{
+          statusLabel
+        }}</span>
       </div>
     </div>
 

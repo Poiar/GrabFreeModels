@@ -10,11 +10,7 @@
         </div>
       </div>
       <div id="vibe-error-list" class="vibe-error-list">
-        <div
-          v-for="err in errors"
-          :key="err.id"
-          class="vibe-error-item"
-        >
+        <div v-for="err in errors" :key="err.id" class="vibe-error-item">
           <b>{{ err.message }}</b>
           <div class="vibe-error-meta">
             {{ err.source || 'inline/runtime' }}
@@ -24,12 +20,11 @@
           </div>
           <pre>{{ err.stack || err.message }}</pre>
         </div>
-        <div v-if="errors.length === 0" class="vibe-error-empty">
-          No errors captured yet.
-        </div>
+        <div v-if="errors.length === 0" class="vibe-error-empty">No errors captured yet.</div>
       </div>
       <div class="vibe-error-note">
-        This panel opens automatically when JavaScript throws an error. Copy the error and paste it back to your AI.
+        This panel opens automatically when JavaScript throws an error. Copy the error and paste it
+        back to your AI.
       </div>
     </div>
   </Transition>
@@ -156,11 +151,15 @@ async function handleCopy() {
 
 /* ── Transition ── */
 .error-console-enter-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .error-console-leave-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 
 .error-console-enter-from {
