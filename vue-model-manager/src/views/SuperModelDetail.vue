@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div v-if="model" class="smd-page">
     <div class="page-header">
       <router-link to="/supermodels" class="back-link">← Super Models</router-link>
@@ -382,12 +382,25 @@ const activeProviders = computed(() => {
   for (const dp of model.value.providers) {
     if (!dp._removed) provs.set(dp.provider_slug, dp.provider);
   }
+  for (const dp of paidWorkingDps.value) {
+    if (!dp._removed) provs.set(dp.provider_slug, dp.provider);
+  }
   return Array.from(provs.entries()).map(([slug, name]) => ({ slug, name }));
 });
 
 const activeDatapoints = computed(() => model.value?.providers.filter((dp) => !dp._removed) ?? []);
 
-const isFreeContext = computed(() => activeDatapoints.value.every((dp) => dp.is_free));
+// Paid instances (always presumed working) for this super model
+const paidWorkingDps = computed(() => {
+  if (!store.paidIndex || !model.value) return [];
+  const entry = store.paidIndex.modelBySuperId.get(model.value.super_id);
+  return entry ? entry.model.providers.filter((p) => !p._removed) : [];
+});
+
+const isFreeContext = computed(() => {
+  if (paidWorkingDps.value.length > 0) return false;
+  return activeDatapoints.value.every((dp) => dp.is_free);
+});
 
 const pricedProviders = computed(() => {
   if (!model.value) return [];
@@ -508,7 +521,7 @@ const modelIssues = computed(() => {
   );
 });
 
-// ── Validation counts ──
+// ── Validation counts (includes paid instances as presumed working) ──
 const valCounts = computed(() => {
   const counts = { working: 0, broken: 0, rate_limited: 0, untested: 0, not_found: 0 };
   if (!model.value) return counts;
@@ -518,6 +531,8 @@ const valCounts = computed(() => {
     if (r in counts) counts[r as keyof typeof counts]++;
     else counts.untested++;
   }
+  // Paid instances are always presumed working
+  counts.working += paidWorkingDps.value.length;
   return counts;
 });
 

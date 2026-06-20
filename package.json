@@ -40,6 +40,8 @@
     "test:unit": "node tests/unit-scripts.js",
     "test:unit:new": "node tests/unit/ranker-core.test.js",
     "test:unit:chain": "node tests/unit/safe-chain-walker.test.js",
+    "test:smoke": "cd vue-model-manager && node tests/smoke.cjs",
+    "test:smoke:errors": "cd vue-model-manager && node tests/error-console.smoke.cjs",
     "test:integration": "echo 'Integration tests require a test database — see tests/integration/'",
     "nightly": "node scripts/nightly-maintenance.js",
     "nightly:dry": "node scripts/nightly-maintenance.js --dry-run",

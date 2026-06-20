@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="sm-page">
     <div class="page-header">
       <h2>Super Models</h2>
@@ -200,7 +200,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useModelsStore } from '@/store/models';
 import { useExport } from '@/composables/useExport';
 import SuperModelPanel from '@/components/SuperModelPanel.vue';
@@ -209,6 +209,11 @@ import SuperModelCard from '@/components/SuperModelCard.vue';
 import type { ModelData, CreatorData } from '@/types';
 
 const store = useModelsStore();
+
+// Paid data needed so SuperModelCard can count paid instances as working
+onMounted(() => {
+  store.loadPaidData();
+});
 
 const modelBySlug = computed(() => store.modelBySlug);
 
@@ -253,10 +258,19 @@ const superItems = computed<SuperItem[]>(() => {
     const untested = dps.filter((d) => d.status.result === 'untested');
     const allTags = [...new Set(dps.flatMap((d) => [...d.tags, ...d.best_for]))];
 
+    // Paid instances are always presumed working
+    let paidWorking = 0;
+    if (store.paidIndex) {
+      const paidEntry = store.paidIndex.modelBySuperId.get(m.super_id);
+      if (paidEntry) paidWorking = paidEntry.model.providers.filter((p) => !p._removed).length;
+    }
+    const totalWithPaid = dps.length + paidWorking;
+    const workingWithPaid = working.length + paidWorking;
+
     let status = 'broken';
-    if (!dps.length) status = 'broken';
-    else if (working.length === dps.length) status = 'working';
-    else if (working.length > 0) status = 'mixed';
+    if (!totalWithPaid) status = 'broken';
+    else if (workingWithPaid === totalWithPaid) status = 'working';
+    else if (workingWithPaid > 0) status = 'mixed';
     else status = 'broken';
 
     return {

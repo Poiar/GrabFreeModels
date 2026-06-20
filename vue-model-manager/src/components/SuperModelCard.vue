@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="sm-card" :class="`card-${status}`" @click="handleClick" role="button" tabindex="0">
     <!-- Row 1: Model name (primary identity) + ranking badges -->
     <div class="sm-name-row">
@@ -72,26 +72,6 @@
         <ProviderIcon v-if="creatorSlug" :slug="creatorSlug" :size="18" cls="sm-icon" />
         <span v-else class="sm-icon-fb">{{ (model.creator || '?')[0] }}</span>
         {{ model.creator || '—' }}
-        <button
-          v-if="model.creator"
-          class="copy-btn-badge"
-          title="Copy creator"
-          @click.stop="copyText(model.creator!)"
-        >
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-          </svg>
-        </button>
       </span>
       <span class="sm-badge-sep">/</span>
       <span v-if="model.family" class="sm-badge sm-badge-family">
@@ -281,6 +261,13 @@ const derivationTitle = computed(() => {
 const activeDps = computed(() =>
   props.model.providers.filter((p: ProviderDatapoint) => !p._removed),
 );
+// Paid instances — always presumed working, merged into display counts
+const paidWorkingCount = computed(() => {
+  if (!store.paidIndex) return 0;
+  const entry = store.paidIndex.modelBySuperId.get(props.model.super_id);
+  if (!entry) return 0;
+  return entry.model.providers.filter((p) => !p._removed).length;
+});
 const working = computed(() => activeDps.value.filter((d) => d.status.result === 'working'));
 const broken = computed(() =>
   activeDps.value.filter((d) => d.status.result === 'broken' || d.status.result === 'not_found'),
@@ -288,8 +275,8 @@ const broken = computed(() =>
 const rateLimited = computed(() =>
   activeDps.value.filter((d) => d.status.result === 'rate_limited'),
 );
-const datapointsCount = computed(() => activeDps.value.length);
-const workingCount = computed(() => working.value.length);
+const datapointsCount = computed(() => activeDps.value.length + paidWorkingCount.value);
+const workingCount = computed(() => working.value.length + paidWorkingCount.value);
 const brokenCount = computed(() => broken.value.length);
 const rateLimitedCount = computed(() => rateLimited.value.length);
 const anyTools = computed(() => activeDps.value.some((d) => d.supports_tools));
@@ -359,19 +346,19 @@ const healthSpark = computed(() => {
   return { points, stability: mh.stability, streak: mh.streak, count: recent.length };
 });
 
-// Paid models normalized to status.result='working' by builders/index.js.
-// No is_free guard needed — broken/working/limited derive from status directly.
+// Paid instances from the paid index — always presumed working.
+// Merge them in so a super model with working paid instances never shows as broken.
+
 const status = computed(() => {
-  const total = activeDps.value.length;
+  const total = activeDps.value.length + paidWorkingCount.value;
   if (!total) return 'broken';
   if (isDeprecated.value) return 'deprecated';
-  if (working.value.length === total) return 'working';
-  if (working.value.length > 0) return 'mixed';
+  if (working.value.length + paidWorkingCount.value === total) return 'working';
+  if (working.value.length + paidWorkingCount.value > 0) return 'mixed';
   if (broken.value.length > 0) return 'broken';
   if (rateLimited.value.length > 0) return 'limited';
   return 'untested';
 });
-
 const contextLabel = computed(() => {
   const maxCtx = props.model.best_context;
   const minCtx = props.model.min_context;

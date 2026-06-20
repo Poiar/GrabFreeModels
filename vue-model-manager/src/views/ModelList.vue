@@ -81,6 +81,17 @@
           Fine
         </button>
       </div>
+      <div class="ml-segmented" role="group" aria-label="Free/paid filter">
+        <button :class="{ active: freePaidFilter === 'both' }" @click="freePaidFilter = 'both'">
+          Both
+        </button>
+        <button :class="{ active: freePaidFilter === 'free' }" @click="freePaidFilter = 'free'">
+          Free
+        </button>
+        <button :class="{ active: freePaidFilter === 'paid' }" @click="freePaidFilter = 'paid'">
+          Paid
+        </button>
+      </div>
       <div class="ml-sort">
         <select v-model="sortKey" class="ml-select" aria-label="Sort by">
           <option value="name">Sort: Name</option>
@@ -174,7 +185,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import InstanceCard from '@/components/InstanceCard.vue';
 import ModelDetailPanel from '@/components/ModelDetailPanel.vue';
@@ -185,6 +196,10 @@ import type { ModelData, CreatorData, ProviderDatapoint } from '@/types';
 const store = useModelsStore();
 const route = useRoute();
 const router = useRouter();
+
+onMounted(() => {
+  store.loadPaidData();
+});
 
 function getQueryParam(key: string, fallback: string): string {
   const v = route.query[key];
@@ -201,6 +216,7 @@ const familyFilter = ref(getQueryParam('family', ''));
 const sortKey = ref(getQueryParam('sort', 'name'));
 const sortAsc = ref(getQueryParam('asc', 'true') !== 'false');
 const modelFilter = ref<'all' | 'root' | 'finetune'>('all');
+const freePaidFilter = ref<'both' | 'free' | 'paid'>('both');
 const derivFilter = ref(getQueryParam('deriv', 'all'));
 const paramFilter = ref(getQueryParam('param', 'all'));
 
@@ -313,64 +329,42 @@ const providerCount = computed(() => {
       if (!p._removed) slugs.add(p.provider_slug);
     }
   }
+  if (freePaidFilter.value !== 'free' && store.paidIndex) {
+    for (const [_superId, entry] of store.paidIndex.modelBySuperId) {
+      for (const p of entry.model.providers) {
+        if (!p._removed) slugs.add(p.provider_slug);
+      }
+    }
+  }
   return slugs.size;
 });
 
 const filteredDatapoints = computed(() => {
   const items: DatapointItem[] = [];
 
-  for (const creator of store.visibleCreators) {
-    for (const model of creator.models) {
+  // ── Free datapoints (skip if paid-only filter) ──
+  if (freePaidFilter.value !== 'paid') {
+    for (const creator of store.visibleCreators) {
+      for (const model of creator.models) {
+        const active = model.providers.filter((p) => !p._removed);
+        const siblingCount = active.length - 1;
+        for (const dp of active) {
+          if (!passesFilters(dp, model, creator, active)) continue;
+          items.push({ dp, model, creator, siblingCount });
+        }
+      }
+    }
+  }
+
+  // ── Paid datapoints (skip if free-only filter) ──
+  if (freePaidFilter.value !== 'free' && store.paidIndex) {
+    for (const [_superId, entry] of store.paidIndex.modelBySuperId) {
+      const model = entry.model;
+      const creator = entry.creator;
       const active = model.providers.filter((p) => !p._removed);
       const siblingCount = active.length - 1;
       for (const dp of active) {
-        // Search filter
-        if (searchQuery.value) {
-          const q = searchQuery.value.toLowerCase();
-          if (
-            !dp.provider.toLowerCase().includes(q) &&
-            !model.name.toLowerCase().includes(q) &&
-            !creator.name.toLowerCase().includes(q)
-          )
-            continue;
-        }
-
-        // Provider filter
-        if (providerFilter.value && dp.provider_slug !== providerFilter.value) continue;
-
-        // Creator filter
-        if (creatorFilter.value && creator.id !== creatorFilter.value) continue;
-
-        // Status filter
-        if (statusFilter.value && dp.status.result !== statusFilter.value) continue;
-
-        // Card required filter
-        if (cardRequiredFilter.value && !dp.limitations?.requires_card) continue;
-
-        // Quantization filter
-        if (quantFilter.value && dp.quantization !== quantFilter.value) continue;
-
-        // Family filter
-        if (familyFilter.value && dp.family !== familyFilter.value) continue;
-
-        // Root/fine-tune filter
-        if (modelFilter.value === 'root' && model.base_model) continue;
-        if (modelFilter.value === 'finetune' && !model.base_model) continue;
-
-        // Param-count filter
-        if (paramFilter.value !== 'all') {
-          const bucket = PARAM_BUCKETS.find((b) => b.value === paramFilter.value);
-          if (bucket) {
-            const modelHasParam = active.some(
-              (p) =>
-                p.param_count_b != null &&
-                p.param_count_b >= bucket.min &&
-                p.param_count_b <= bucket.max,
-            );
-            if (!modelHasParam) continue;
-          }
-        }
-
+        if (!passesFilters(dp, model, creator, active)) continue;
         items.push({ dp, model, creator, siblingCount });
       }
     }
@@ -378,6 +372,49 @@ const filteredDatapoints = computed(() => {
 
   return items;
 });
+
+// Extracted filter logic shared between free and paid
+function passesFilters(
+  dp: ProviderDatapoint,
+  model: ModelData,
+  creator: CreatorData,
+  activeDps: ProviderDatapoint[],
+): boolean {
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase();
+    if (
+      !dp.provider.toLowerCase().includes(q) &&
+      !model.name.toLowerCase().includes(q) &&
+      !creator.name.toLowerCase().includes(q)
+    )
+      return false;
+  }
+
+  if (providerFilter.value && dp.provider_slug !== providerFilter.value) return false;
+  if (creatorFilter.value && creator.id !== creatorFilter.value) return false;
+  if (statusFilter.value && dp.status.result !== statusFilter.value) return false;
+  if (cardRequiredFilter.value && !dp.limitations?.requires_card) return false;
+  if (quantFilter.value && dp.quantization !== quantFilter.value) return false;
+  if (familyFilter.value && dp.family !== familyFilter.value) return false;
+
+  if (modelFilter.value === 'root' && model.base_model) return false;
+  if (modelFilter.value === 'finetune' && !model.base_model) return false;
+
+  if (paramFilter.value !== 'all') {
+    const bucket = PARAM_BUCKETS.find((b) => b.value === paramFilter.value);
+    if (bucket) {
+      const modelHasParam = activeDps.some(
+        (p) =>
+          p.param_count_b != null &&
+          p.param_count_b >= bucket.min &&
+          p.param_count_b <= bucket.max,
+      );
+      if (!modelHasParam) return false;
+    }
+  }
+
+  return true;
+}
 
 const modelDerivationCounts = computed(() => {
   const seenModels = new Set<string>();
@@ -498,6 +535,7 @@ function clearFilters() {
   cardRequiredFilter.value = false;
   modelFilter.value = 'all';
   derivFilter.value = 'all';
+  freePaidFilter.value = 'both';
 }
 
 const { exportJSON, exportCSV } = useExport();

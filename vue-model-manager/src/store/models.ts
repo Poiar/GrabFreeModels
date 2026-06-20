@@ -1111,6 +1111,7 @@ export const useModelsStore = defineStore('models', () => {
       isStale.value = false;
       loading.value = false;
       startStaleTimer();
+      loadPaidData(); // prime paid index so SuperModelCard status includes ignored paid instances
     } else {
       loading.value = true;
     }
@@ -1139,6 +1140,7 @@ export const useModelsStore = defineStore('models', () => {
       isStale.value = false;
       startStaleTimer();
       loadSources();
+      loadPaidData(); // prime paid index so SuperModelCard status includes ignored paid instances
     } catch (e: unknown) {
       if (e instanceof DOMException && e.name === 'AbortError') return;
       if (cached) return; // Already showing cached data, no fallback needed

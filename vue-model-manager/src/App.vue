@@ -718,6 +718,9 @@
 
   <!-- Toast container -->
   <ToastContainer />
+
+  <!-- Error console -->
+  <ErrorConsole />
 </template>
 
 <script setup lang="ts">
@@ -732,6 +735,7 @@ import SkeletonLoader from '@/components/SkeletonLoader.vue';
 import MobileHeader from '@/components/MobileHeader.vue';
 import SourceTogglePanel from '@/components/SourceTogglePanel.vue';
 import GlobalSearch from '@/components/GlobalSearch.vue';
+import ErrorConsole from '@/components/ErrorConsole.vue';
 
 const route = useRoute();
 const store = useModelsStore();

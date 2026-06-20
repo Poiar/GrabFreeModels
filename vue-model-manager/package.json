@@ -10,7 +10,9 @@
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.{ts,vue}\""
+    "format": "prettier --write \"src/**/*.{ts,vue}\"",
+    "test:smoke": "node tests/smoke.cjs",
+    "test:smoke:errors": "node tests/error-console.smoke.cjs"
   },
   "dependencies": {
     "pinia": "^2.3.0",

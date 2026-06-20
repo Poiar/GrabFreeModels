@@ -39,9 +39,7 @@
           :title="r.role + ' rank #' + r.rank"
           >#{{ r.rank }} {{ r.label }}</span
         >
-        <span class="ic-status-badge" :class="`ic-status-${dp.status.result}`">{{
-          statusLabel
-        }}</span>
+        <span class="ic-status-badge" :class="`ic-status-${dp.status.result}`">{{ statusLabel }}</span>
       </div>
     </div>
 
@@ -253,7 +251,6 @@ const sourceBadges = computed(() => {
 });
 
 const statusLabel = computed(() => {
-  // Paid models: detail field signals "presumed working" from the backend
   if (props.dp.status.detail === 'Presumed working (not tested)') return 'presumed';
   const labels: Record<string, string> = {
     working: 'working',
